@@ -34,11 +34,12 @@ class Jetpack_CRM_Integration_Test extends BaseTestCase {
 				public function getActiveCustomFields() {
 					return array(
 						'organization' => array( 'text', 'Organization', '', 'organization' ),
-						'job-title'    => array( 'text', 'Job title', '', 'job-title' ),
+						'job-title'    => array( 'text', 'Role', '', 'job-title' ),
 					);
 				}
 			},
-		);  }
+		);
+	}
 
 	/**
 	 * Removes the hooks and globals the tests add.
@@ -63,9 +64,9 @@ class Jetpack_CRM_Integration_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Reduces mapped fields to their ids and values.
+	 * Reduces fields to their ids and values.
 	 *
-	 * @param Contact_Form_Field[] $fields Mapped fields.
+	 * @param Contact_Form_Field[] $fields Fields.
 	 * @return array
 	 */
 	private static function ids_and_values( array $fields ) {
@@ -77,7 +78,7 @@ class Jetpack_CRM_Integration_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Each form field reaches Jetpack CRM under the contact key it fills.
+	 * Each form field reaches Jetpack CRM under the contact key it fills, without renaming the original.
 	 *
 	 * @dataProvider mapping_provider
 	 *
@@ -87,9 +88,11 @@ class Jetpack_CRM_Integration_Test extends BaseTestCase {
 	 */
 	#[DataProvider( 'mapping_provider' )]
 	public function test_map_fields( array $attributes, $value, array $expected ) {
-		$mapped = Jetpack_CRM_Integration::map_fields( array( $this->field( $attributes, $value ) ) );
+		$field  = $this->field( $attributes, $value );
+		$mapped = Jetpack_CRM_Integration::map_fields( array( $field ) );
 
 		$this->assertSame( $expected, self::ids_and_values( $mapped ) );
+		$this->assertSame( $attributes['id'], $field->get_attribute( 'id' ) );
 	}
 
 	/**
@@ -99,7 +102,7 @@ class Jetpack_CRM_Integration_Test extends BaseTestCase {
 	 */
 	public static function mapping_provider() {
 		return array(
-			'first name variation'      => array(
+			'first name variation'          => array(
 				array(
 					'id'    => 'first-name',
 					'type'  => 'name',
@@ -108,46 +111,34 @@ class Jetpack_CRM_Integration_Test extends BaseTestCase {
 				'Ada',
 				array( 'jetpackcrm-fname' => 'Ada' ),
 			),
-			'last name variation'       => array(
+			'suffixed last name variation'  => array(
 				array(
 					'id'    => 'last-name-2',
 					'type'  => 'name',
 					'label' => 'Last name',
 				),
-				'Lovelace',
+				' Lovelace ',
 				array( 'jetpackcrm-lname' => 'Lovelace' ),
 			),
-			'full name is split'        => array(
+			'single name is left to CRM'    => array(
 				array(
 					'id'    => 'name',
 					'type'  => 'name',
 					'label' => 'Name',
 				),
-				'Ada King Lovelace',
-				array(
-					'jetpackcrm-fname' => 'Ada',
-					'jetpackcrm-lname' => 'King Lovelace',
-				),
+				'Ada Lovelace',
+				array( 'name' => 'Ada Lovelace' ),
 			),
-			'email'                     => array(
+			'email is left to CRM'          => array(
 				array(
 					'id'    => 'g1-email',
 					'type'  => 'email',
 					'label' => 'Email',
 				),
 				'ada@example.com',
-				array( 'jetpackcrm-email' => 'ada@example.com' ),
+				array( 'g1-email' => 'ada@example.com' ),
 			),
-			'phone'                     => array(
-				array(
-					'id'    => 'g1-phone',
-					'type'  => 'phone',
-					'label' => 'Phone',
-				),
-				'555 0100',
-				array( 'jetpackcrm-hometel' => '555 0100' ),
-			),
-			'custom field by label'     => array(
+			'custom field by label'         => array(
 				array(
 					'id'    => 'g1-organization',
 					'type'  => 'text',
@@ -156,7 +147,7 @@ class Jetpack_CRM_Integration_Test extends BaseTestCase {
 				'Engines Ltd',
 				array( 'jetpackcrm-organization' => 'Engines Ltd' ),
 			),
-			'custom field by key'       => array(
+			'custom field by key'           => array(
 				array(
 					'id'    => 'g1-job',
 					'type'  => 'text',
@@ -165,7 +156,16 @@ class Jetpack_CRM_Integration_Test extends BaseTestCase {
 				'Mathematician',
 				array( 'jetpackcrm-job-title' => 'Mathematician' ),
 			),
-			'no matching contact field' => array(
+			'whitespace answer is not sent' => array(
+				array(
+					'id'    => 'g1-organization',
+					'type'  => 'text',
+					'label' => 'Organization',
+				),
+				'   ',
+				array( 'g1-organization' => '   ' ),
+			),
+			'no matching contact field'     => array(
 				array(
 					'id'    => 'g1-message',
 					'type'  => 'textarea',
@@ -178,43 +178,18 @@ class Jetpack_CRM_Integration_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A field the form author already pointed at a contact key keeps it, and the inferred
-	 * field doesn't overwrite it.
+	 * A field the form author already pointed at a contact key keeps it.
 	 */
 	public function test_explicit_crm_id_wins_over_inferred_mapping() {
 		$explicit = $this->field(
 			array(
-				'id'    => 'jetpackcrm-email',
+				'id'    => 'jetpackcrm-lname',
 				'type'  => 'text',
-				'label' => 'Work email',
+				'label' => 'Surname',
 			),
-			'work@example.com'
+			'Byron'
 		);
 		$inferred = $this->field(
-			array(
-				'id'    => 'g1-email',
-				'type'  => 'email',
-				'label' => 'Email',
-			),
-			'home@example.com'
-		);
-
-		$mapped = Jetpack_CRM_Integration::map_fields( array( $inferred, $explicit ) );
-
-		$this->assertSame(
-			array(
-				'g1-email'         => 'home@example.com',
-				'jetpackcrm-email' => 'work@example.com',
-			),
-			self::ids_and_values( $mapped )
-		);
-	}
-
-	/**
-	 * Other integrations read the same field objects, so mapping must not rename them.
-	 */
-	public function test_map_fields_leaves_original_fields_untouched() {
-		$field = $this->field(
 			array(
 				'id'    => 'last-name',
 				'type'  => 'name',
@@ -223,59 +198,57 @@ class Jetpack_CRM_Integration_Test extends BaseTestCase {
 			'Lovelace'
 		);
 
-		Jetpack_CRM_Integration::map_fields( array( $field ) );
+		$mapped = Jetpack_CRM_Integration::map_fields( array( $inferred, $explicit ) );
 
-		$this->assertSame( 'last-name', $field->get_attribute( 'id' ) );
-	}
-
-	/**
-	 * Jetpack CRM's handler gets the mapped fields once, in place of its own run.
-	 */
-	public function test_hands_mapped_fields_to_crm_handler_once() {
-		add_action( 'grunion_after_feedback_post_inserted', array( Jetpack_CRM_Integration::class, 'handle_jetpack_crm_integration' ), 5, 4 );
-		add_action( 'grunion_after_feedback_post_inserted', 'zero_bs_crm_capture_jetpack_form', 10, 4 );
-
-		$fields = array(
-			$this->field(
-				array(
-					'id'    => 'last-name',
-					'type'  => 'name',
-					'label' => 'Last name',
-				),
-				'Lovelace'
-			),
-		);
-		do_action( 'grunion_after_feedback_post_inserted', 1, $fields, false, array() );
-
-		$this->assertCount( 1, $GLOBALS['jetpack_crm_stub_calls'] );
-		$this->assertSame( array( 'jetpackcrm-lname' => 'Lovelace' ), self::ids_and_values( $GLOBALS['jetpack_crm_stub_calls'][0] ) );
-	}
-
-	/**
-	 * When Jetpack CRM's handler runs first, it has already saved the contact.
-	 */
-	public function test_does_nothing_when_crm_handler_runs_first() {
-		add_action( 'grunion_after_feedback_post_inserted', 'zero_bs_crm_capture_jetpack_form', 1, 4 );
-		add_action( 'grunion_after_feedback_post_inserted', array( Jetpack_CRM_Integration::class, 'handle_jetpack_crm_integration' ), 5, 4 );
-
-		do_action(
-			'grunion_after_feedback_post_inserted',
-			1,
+		$this->assertSame(
 			array(
-				$this->field(
-					array(
-						'id'    => 'g1-email',
-						'type'  => 'email',
-						'label' => 'Email',
-					),
-					'a@example.com'
-				),
+				'last-name'        => 'Lovelace',
+				'jetpackcrm-lname' => 'Byron',
 			),
-			false,
-			array()
+			self::ids_and_values( $mapped )
 		);
+	}
 
-		$this->assertCount( 1, $GLOBALS['jetpack_crm_stub_calls'] );
-		$this->assertSame( array( 'g1-email' => 'a@example.com' ), self::ids_and_values( $GLOBALS['jetpack_crm_stub_calls'][0] ) );
+	/**
+	 * Registering takes over Jetpack CRM's slot, so its handler runs once, with mapped fields.
+	 *
+	 * @dataProvider submission_provider
+	 *
+	 * @param bool  $crm_hooked Whether Jetpack CRM's handler is hooked.
+	 * @param bool  $is_spam    Whether the submission is spam.
+	 * @param array $expected   Ids and values of each call Jetpack CRM's handler receives.
+	 */
+	#[DataProvider( 'submission_provider' )]
+	public function test_register_for_submission( $crm_hooked, $is_spam, array $expected ) {
+		if ( $crm_hooked ) {
+			add_action( 'grunion_after_feedback_post_inserted', 'zero_bs_crm_capture_jetpack_form', 10, 4 );
+		}
+
+		Jetpack_CRM_Integration::register_for_submission();
+
+		$field = $this->field(
+			array(
+				'id'    => 'last-name',
+				'type'  => 'name',
+				'label' => 'Last name',
+			),
+			'Lovelace'
+		);
+		do_action( 'grunion_after_feedback_post_inserted', 1, array( $field ), $is_spam, array() );
+
+		$this->assertSame( $expected, array_map( array( self::class, 'ids_and_values' ), $GLOBALS['jetpack_crm_stub_calls'] ) );
+	}
+
+	/**
+	 * Submission states and the calls Jetpack CRM's handler should receive.
+	 *
+	 * @return array
+	 */
+	public static function submission_provider() {
+		return array(
+			'CRM hooked'     => array( true, false, array( array( 'jetpackcrm-lname' => 'Lovelace' ) ) ),
+			'spam'           => array( true, true, array() ),
+			'CRM not hooked' => array( false, false, array() ),
+		);
 	}
 }
