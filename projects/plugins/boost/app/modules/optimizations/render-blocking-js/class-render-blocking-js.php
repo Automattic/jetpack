@@ -74,7 +74,7 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 	/**
 	 * Flag indicating an opened <script> tag in output.
 	 *
-	 * @var string
+	 * @var bool
 	 */
 	private $is_opened_script = false;
 

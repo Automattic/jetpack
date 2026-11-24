@@ -140,14 +140,14 @@ abstract class Product {
 	/**
 	 * Whether this product requires a site connection
 	 *
-	 * @var string
+	 * @var bool
 	 */
 	public static $requires_site_connection = true;
 
 	/**
 	 * Whether this product requires a user connection
 	 *
-	 * @var string
+	 * @var bool
 	 */
 	public static $requires_user_connection = true;
 

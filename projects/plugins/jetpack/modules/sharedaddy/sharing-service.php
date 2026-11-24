@@ -677,7 +677,7 @@ class Sharing_Service_Total {
 	/**
 	 * Sharing service ID.
 	 *
-	 * @var int
+	 * @var string
 	 */
 	public $id = '';
 
@@ -698,7 +698,7 @@ class Sharing_Service_Total {
 	/**
 	 * Total number of shares for this service.
 	 *
-	 * @var string
+	 * @var int
 	 */
 	public $total = 0;
 

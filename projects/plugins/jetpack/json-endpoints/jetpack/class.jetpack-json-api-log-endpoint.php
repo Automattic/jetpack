@@ -15,7 +15,7 @@ class Jetpack_JSON_API_Jetpack_Log_Endpoint extends Jetpack_JSON_API_Endpoint {
 	/**
 	 * Needed capabilities.
 	 *
-	 * @var array
+	 * @var string
 	 */
 	protected $needed_capabilities = 'manage_options';
 

@@ -98,7 +98,7 @@ class Table_Checksum {
 	/**
 	 * Tables which are allowed to be checksummed.
 	 *
-	 * @var string
+	 * @var array
 	 */
 	public $allowed_tables = array();
 
@@ -126,7 +126,7 @@ class Table_Checksum {
 	/**
 	 * Some tables might not exist on the remote, and we want to verify they exist, before trying to query them.
 	 *
-	 * @var callable
+	 * @var callable|false
 	 */
 	protected $is_table_enabled_callback = false;
 

@@ -37,7 +37,7 @@ class Licensing {
 	/**
 	 * Holds the singleton instance of this class.
 	 *
-	 * @var self
+	 * @var self|false
 	 */
 	protected static $instance = false;
 

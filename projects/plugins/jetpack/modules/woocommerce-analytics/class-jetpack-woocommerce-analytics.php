@@ -23,28 +23,28 @@ class Jetpack_WooCommerce_Analytics {
 	/**
 	 * Instance of this class
 	 *
-	 * @var Jetpack_WooCommerce_Analytics - Static property to hold our singleton instance
+	 * @var Jetpack_WooCommerce_Analytics|false - Static property to hold our singleton instance
 	 */
 	private static $instance = false;
 
 	/**
 	 * Instance of the Universal functions
 	 *
-	 * @var Static property to hold concrete analytics implementation that does the work (universal or legacy)
+	 * @var Jetpack_WooCommerce_Analytics_Universal|false Static property to hold concrete analytics implementation that does the work (universal or legacy)
 	 */
 	private static $analytics = false;
 
 	/**
 	 * Instance of the My account functions
 	 *
-	 * @var Static property to hold concrete analytics implementation that does the work.
+	 * @var Jetpack_WooCommerce_Analytics_My_Account|false Static property to hold concrete analytics implementation that does the work.
 	 */
 	private static $myaccount = false;
 
 	/**
 	 * Instance of the Checkout Flow functions
 	 *
-	 * @var Static property to hold concrete analytics implementation that does the work.
+	 * @var Jetpack_WooCommerce_Analytics_Checkout_Flow|false Static property to hold concrete analytics implementation that does the work.
 	 */
 	private static $views = false;
 

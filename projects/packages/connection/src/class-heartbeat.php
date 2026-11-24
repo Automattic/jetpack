@@ -26,7 +26,7 @@ class Heartbeat {
 	 *
 	 * @since 1.0.0
 	 * @since-jetpack 2.3.3
-	 * @var Heartbeat
+	 * @var Heartbeat|false
 	 */
 	private static $instance = false;
 

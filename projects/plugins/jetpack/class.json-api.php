@@ -154,7 +154,7 @@ class WPCOM_JSON_API {
 	/**
 	 * Extra HTTP headers.
 	 *
-	 * @var string
+	 * @var array
 	 */
 	public $extra_headers = array();
 

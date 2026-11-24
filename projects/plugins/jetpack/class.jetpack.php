@@ -438,7 +438,7 @@ class Jetpack {
 	 * Holds the singleton instance of this class
 	 *
 	 * @since 2.3.3
-	 * @var Jetpack
+	 * @var Jetpack|false
 	 */
 	public static $instance = false;
 

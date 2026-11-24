@@ -44,7 +44,7 @@ class Rest_Authentication {
 	 * Holds the singleton instance of this class
 	 *
 	 * @since 1.17.0
-	 * @var Object
+	 * @var Object|false
 	 */
 	private static $instance = false;
 

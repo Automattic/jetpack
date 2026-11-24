@@ -32,7 +32,7 @@ class Product_Multiple_Filenames_Test extends TestCase {
 	/**
 	 * The possible folders for the Backup plugin
 	 *
-	 * @var int
+	 * @var string[]
 	 */
 	private static $possible_folders = array(
 		'backup',

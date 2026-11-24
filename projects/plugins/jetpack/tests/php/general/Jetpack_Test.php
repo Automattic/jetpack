@@ -22,7 +22,7 @@ class MockJetpack extends Jetpack {
 	/**
 	 * Holds the singleton instance of this class
 	 *
-	 * @var MockJetpack
+	 * @var MockJetpack|false
 	 */
 	public static $instance = false;
 

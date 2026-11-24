@@ -67,9 +67,9 @@ class Jetpack_AI_Helper {
 	public static $ai_assistant_feature_error_cache_timeout = 10;
 
 	/**
-	 * Stores the number of JetpackAI calls in case we want to mark AI-assisted posts some way.
+	 * Post meta key storing the number of Jetpack AI calls, in case we want to mark AI-assisted posts.
 	 *
-	 * @var int
+	 * @var string
 	 */
 	public static $post_meta_with_ai_generation_number = '_jetpack_ai_calls';
 

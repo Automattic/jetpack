@@ -30,7 +30,7 @@ class Crm extends Product {
 	/**
 	 * The filename (id) of the plugin associated with this product. If not defined, it will default to the Jetpack plugin
 	 *
-	 * @var string
+	 * @var string[]
 	 */
 	public static $plugin_filename = array(
 		'zero-bs-crm/ZeroBSCRM.php',
@@ -54,7 +54,7 @@ class Crm extends Product {
 	/**
 	 * Whether this product requires a user connection
 	 *
-	 * @var string
+	 * @var bool
 	 */
 	public static $requires_user_connection = false;
 

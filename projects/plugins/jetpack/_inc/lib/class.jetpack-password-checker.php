@@ -28,7 +28,7 @@ class Jetpack_Password_Checker {
 	/**
 	 * Test results array.
 	 *
-	 * @var Array
+	 * @var array|string
 	 */
 	public $test_results = '';
 

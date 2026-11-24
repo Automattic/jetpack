@@ -57,7 +57,7 @@ class Anti_Spam extends Product {
 	/**
 	 * Whether this product requires a user connection
 	 *
-	 * @var string
+	 * @var bool
 	 */
 	public static $requires_user_connection = false;
 
