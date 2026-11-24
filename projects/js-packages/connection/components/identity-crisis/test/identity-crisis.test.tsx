@@ -215,6 +215,9 @@ describe( 'IdentityCrisis', () => {
 		);
 		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( /now disconnected/ );
 		expect( screen.getByRole( 'button', { name: 'Try again' } ) ).toHaveFocus();
+		expect(
+			screen.getByRole( 'heading', { name: 'Jetpack Connection is disconnected' } )
+		).toBeInTheDocument();
 
 		await user.click( screen.getByRole( 'button', { name: 'Try again' } ) );
 
@@ -229,10 +232,21 @@ describe( 'IdentityCrisis', () => {
 		storeState = { state: { ...resolvable, isDisconnected: true }, plugins: jetpack };
 		startIDCFresh.mockResolvedValue( 'https://wordpress.com/connect' );
 		const onActionSuccess = jest.fn();
-		render( <IdentityCrisis context="connectors" onActionSuccess={ onActionSuccess } /> );
+		render(
+			<IdentityCrisis
+				context="connectors"
+				showHeader={ false }
+				hostActions={ <button>Disconnect site</button> }
+				onActionSuccess={ onActionSuccess }
+			/>
+		);
 
 		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( /now disconnected/ );
 		expect( screen.queryByRole( 'radio' ) ).not.toBeInTheDocument();
+		expect(
+			screen.getByRole( 'region', { name: 'Jetpack Connection is disconnected' } )
+		).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Disconnect site' } ) ).not.toBeInTheDocument();
 
 		await user.click( screen.getByRole( 'button', { name: 'Try again' } ) );
 

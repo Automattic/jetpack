@@ -34,6 +34,8 @@ export interface IdentityCrisisLayoutProps {
 	logoUrl?: string;
 	/** Show the logo and heading; hide them where the host already shows both. Defaults to true. */
 	showHeader?: boolean;
+	/** Replaces the Safe Mode heading, and labels the region when `showHeader` is false. */
+	heading?: string;
 	children: ReactNode;
 	/** Actions the host adds below the content, such as Disconnect on the Connectors card. */
 	hostActions?: ReactNode;

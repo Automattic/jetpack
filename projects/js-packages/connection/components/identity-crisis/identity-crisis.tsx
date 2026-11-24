@@ -1,3 +1,4 @@
+import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { formatSiteAddress } from '../../helpers/format-site-address';
@@ -179,10 +180,11 @@ function IdentityCrisisResolver( {
 
 	if ( isDisconnected ) {
 		return (
+			// No host actions: Disconnect and the like no longer apply.
 			<IdentityCrisisLayout
 				logoUrl={ state.logoUrl }
 				showHeader={ showHeader }
-				hostActions={ hostActions }
+				heading={ __( 'Jetpack Connection is disconnected', 'jetpack-connection-js' ) }
 			>
 				<Stack direction="column" gap="md" ref={ disconnectedRef }>
 					{ /* Hidden while retrying, so a repeated failure is announced again. */ }
