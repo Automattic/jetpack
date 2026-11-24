@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Tiled Gallery: Keep each image's proportions in newsletter emails instead of cropping every tile to the same height.
+Tiled Gallery: Fit every gallery style to the width of newsletter emails, including in Outlook, and stop cropping Mosaic images to one height.

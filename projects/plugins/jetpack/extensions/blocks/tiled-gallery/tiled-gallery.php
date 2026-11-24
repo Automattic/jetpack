@@ -383,6 +383,8 @@ class Tiled_Gallery {
 							),
 							$image_url
 						);
+						$width     = 1300;
+						$height    = 1300;
 					}
 				} else {
 					$image_src = wp_get_attachment_image_src( $id, 'large' );
@@ -500,11 +502,11 @@ class Tiled_Gallery {
 
 		switch ( $layout_style ) {
 			case 'square':
-				return self::build_square_layout_content( $images, $cell_padding, $columns, 'square', $border_radius, $attr );
+				return self::build_square_layout_content( $images, $cell_padding, $columns, 'square', $border_radius, $attr, $target_width );
 			case 'circle':
-				return self::build_square_layout_content( $images, $cell_padding, $columns, 'circle', $border_radius, $attr );
+				return self::build_square_layout_content( $images, $cell_padding, $columns, 'circle', $border_radius, $attr, $target_width );
 			case 'columns':
-				return self::build_columns_layout_content( $images, $cell_padding, $columns, $border_radius, $attr );
+				return self::build_columns_layout_content( $images, $cell_padding, $columns, $border_radius, $attr, $target_width );
 			case 'rectangular':
 			default:
 				return self::build_mosaic_layout_content( $images, $cell_padding, $border_radius, $attr, $target_width );
@@ -520,9 +522,10 @@ class Tiled_Gallery {
 	 * @param string $style Layout style (square or circle).
 	 * @param int    $border_radius Border radius value (0-20).
 	 * @param array  $attr Block attributes.
+	 * @param int    $target_width Email content width in pixels.
 	 * @return string HTML content.
 	 */
-	private static function build_square_layout_content( $images, $cell_padding, $columns, $style = 'square', $border_radius = 0, $attr = array() ) {
+	private static function build_square_layout_content( $images, $cell_padding, $columns, $style, $border_radius, $attr, $target_width ) {
 		$content_parts = array();
 
 		// Create rows of images with hierarchical chunks for square/circle layouts
@@ -531,24 +534,24 @@ class Tiled_Gallery {
 		$border_radius_style = self::generate_border_radius_style( $style, $border_radius );
 
 		foreach ( $image_chunks as $row_images ) {
-			$images_in_row      = count( $row_images );
-			$cell_width_percent = ( 100 / $images_in_row );
+			$image_widths = self::split_width( $target_width - 2 * $cell_padding * count( $row_images ), count( $row_images ) );
 
 			// Build table cells for this row
 			$row_cells = '';
-			foreach ( $row_images as $image ) {
+			foreach ( $row_images as $index => $image ) {
 				// Calculate cell attributes with consistent padding
 				$cell_attrs = array(
 					'style' => sprintf(
 						'width: %s%%; padding: %dpx; vertical-align: top; text-align: center;',
-						$cell_width_percent,
+						self::get_cell_width_percent( $image_widths[ $index ], $cell_padding, $target_width ),
 						$cell_padding
 					),
 				);
 
-				$image_styles = self::generate_image_styles();
+				// Clients that support it crop an uncropped source to the square; Outlook relies on the cropped source.
+				$image_styles = self::generate_image_styles( $image_widths[ $index ] . 'px' ) . ' aspect-ratio: 1 / 1; object-fit: cover;';
 
-				$cell_content = self::generate_image_html( $image, $image_styles, $border_radius_style, $attr );
+				$cell_content = self::generate_image_html( $image, $image_styles, $border_radius_style, $attr, self::get_image_size( $image, $image_widths[ $index ] ) );
 
 				$row_cells .= \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_cell(
 					$cell_content,
@@ -586,11 +589,13 @@ class Tiled_Gallery {
 	 * @param int   $columns Number of columns for the layout.
 	 * @param int   $border_radius Border radius value (0-20).
 	 * @param array $attr Block attributes.
+	 * @param int   $target_width Email content width in pixels.
 	 * @return string HTML content.
 	 */
-	private static function build_columns_layout_content( $images, $cell_padding, $columns, $border_radius = 0, $attr = array() ) {
+	private static function build_columns_layout_content( $images, $cell_padding, $columns, $border_radius, $attr, $target_width ) {
 		$content_parts       = array();
 		$border_radius_style = self::generate_border_radius_style( '', $border_radius );
+		$column_widths       = self::split_width( $target_width - 2 * $cell_padding * $columns, $columns );
 
 		// Distribute images across columns using round-robin approach for better balance
 		$column_arrays = array_fill( 0, $columns, array() );
@@ -601,13 +606,15 @@ class Tiled_Gallery {
 
 		// Build table cells for columns layout
 		$row_cells = '';
-		foreach ( $column_arrays as $column_images ) {
+		foreach ( $column_arrays as $column_index => $column_images ) {
+			$cell_width_percent = self::get_cell_width_percent( $column_widths[ $column_index ], $cell_padding, $target_width );
+
 			if ( empty( $column_images ) ) {
 				// Add empty cell for balance
 				$cell_attrs = array(
 					'style' => sprintf(
 						'width: %s%%; padding: %dpx; vertical-align: top;',
-						( 100 / $columns ),
+						$cell_width_percent,
 						$cell_padding
 					),
 				);
@@ -619,8 +626,7 @@ class Tiled_Gallery {
 			}
 
 			// Calculate cell attributes
-			$cell_width_percent = ( 100 / $columns );
-			$cell_attrs         = array(
+			$cell_attrs = array(
 				'style' => sprintf(
 					'width: %s%%; padding: %dpx; vertical-align: top;',
 					$cell_width_percent,
@@ -634,14 +640,14 @@ class Tiled_Gallery {
 			$cell_content = '';
 			foreach ( $column_rows as $row_index => $row_images ) {
 				foreach ( $row_images as $image ) {
-					$image_styles = self::generate_image_styles();
+					$image_styles = self::generate_image_styles( $column_widths[ $column_index ] . 'px' );
 
 					// Add top margin to all images except the first one in the column
 					if ( $row_index > 0 || $cell_content !== '' ) {
 						$image_styles .= ' margin-top: ' . ( $cell_padding * 2 ) . 'px;';
 					}
 
-					$cell_content .= self::generate_image_html( $image, $image_styles, $border_radius_style, $attr );
+					$cell_content .= self::generate_image_html( $image, $image_styles, $border_radius_style, $attr, self::get_image_size( $image, $column_widths[ $column_index ] ) );
 				}
 			}
 
@@ -700,7 +706,7 @@ class Tiled_Gallery {
 
 				$cell_style = sprintf(
 					'width: %s%%; padding: %dpx; vertical-align: top; text-align: center;',
-					round( ( $image_width + 2 * $cell_padding ) * 100 / $target_width, 4 ),
+					self::get_cell_width_percent( $image_width, $cell_padding, $target_width ),
 					$cell_padding
 				);
 
@@ -754,8 +760,7 @@ class Tiled_Gallery {
 			$image_width = $index === count( $ratios ) - 1 ? $remaining : (int) floor( $ratio * $row_height );
 			$remaining  -= $image_width;
 			// Don't hand Outlook a guessed height, which would stretch the image to it.
-			$known_height = $row[ $index ]['width'] > 0 && $row[ $index ]['height'] > 0;
-			$sizes[]      = array( max( 1, $image_width ), $known_height ? max( 1, (int) round( $row_height ) ) : null );
+			$sizes[] = array( max( 1, $image_width ), self::has_known_dimensions( $row[ $index ] ) ? max( 1, (int) round( $row_height ) ) : null );
 		}
 
 		return $sizes;
@@ -768,7 +773,54 @@ class Tiled_Gallery {
 	 * @return float Width divided by height.
 	 */
 	private static function get_image_ratio( $image ) {
-		return $image['width'] > 0 && $image['height'] > 0 ? $image['width'] / $image['height'] : 1;
+		return self::has_known_dimensions( $image ) ? $image['width'] / $image['height'] : 1;
+	}
+
+	/**
+	 * Whether an image's width and height are known.
+	 *
+	 * @param array $image Image data.
+	 * @return bool
+	 */
+	private static function has_known_dimensions( $image ) {
+		return $image['width'] > 0 && $image['height'] > 0;
+	}
+
+	/**
+	 * Size an image to a width, with the height its aspect ratio gives, or null when unknown.
+	 *
+	 * @param array $image Image data.
+	 * @param int   $width Width in pixels.
+	 * @return array Width and height in pixels.
+	 */
+	private static function get_image_size( $image, $width ) {
+		return array( $width, self::has_known_dimensions( $image ) ? max( 1, (int) round( $width / self::get_image_ratio( $image ) ) ) : null );
+	}
+
+	/**
+	 * Split a width into equal whole-pixel parts, the last taking the rounding remainder.
+	 *
+	 * @param int $width Width in pixels.
+	 * @param int $count Number of parts.
+	 * @return array Width of each part in pixels.
+	 */
+	private static function split_width( $width, $count ) {
+		$part                = (int) floor( $width / $count );
+		$parts               = array_fill( 0, $count, $part );
+		$parts[ $count - 1 ] = $width - $part * ( $count - 1 );
+		return $parts;
+	}
+
+	/**
+	 * Get a cell's width as a percentage of the email width, for an image plus its padding on both sides.
+	 *
+	 * @param int $image_width Image width in pixels.
+	 * @param int $cell_padding Cell padding in pixels.
+	 * @param int $target_width Email content width in pixels.
+	 * @return float
+	 */
+	private static function get_cell_width_percent( $image_width, $cell_padding, $target_width ) {
+		return round( ( $image_width + 2 * $cell_padding ) * 100 / $target_width, 4 );
 	}
 
 	/**

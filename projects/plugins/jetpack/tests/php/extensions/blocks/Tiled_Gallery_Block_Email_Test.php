@@ -99,17 +99,19 @@ class Tiled_Gallery_Block_Email_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Mosaic rows share one height from the images' aspect ratios and fill the email width, at pixel sizes Outlook honors.
+	 * Each layout's rows fill the email width, at pixel sizes Outlook honors; mosaic rows share a height from the aspect ratios.
 	 *
+	 * @param array  $layout_attrs   Block attributes choosing the layout.
 	 * @param string $source         Block attribute the images come from: 'ids' or 'images'.
 	 * @param array  $dimensions     Width and height of each image, or null when unknown.
 	 * @param array  $expected_sizes Expected width and height attributes of each image.
 	 * @param array  $expected_cells Expected width percentage of each image's cell.
-	 * @dataProvider provide_mosaic_galleries
+	 * @param bool   $expected_crop  Whether the images are cropped with object-fit.
+	 * @dataProvider provide_galleries
 	 */
-	#[DataProvider( 'provide_mosaic_galleries' )]
-	public function test_render_email_mosaic_sizes_rows_from_aspect_ratios( $source, $dimensions, $expected_sizes, $expected_cells ) {
-		$attrs = array();
+	#[DataProvider( 'provide_galleries' )]
+	public function test_render_email_sizes_images_to_fit_email_width( $layout_attrs, $source, $dimensions, $expected_sizes, $expected_cells, $expected_crop ) {
+		$attrs = $layout_attrs;
 		foreach ( $dimensions as $index => $size ) {
 			if ( 'images' === $source ) {
 				$attrs['images'][] = array(
@@ -145,7 +147,7 @@ class Tiled_Gallery_Block_Email_Test extends WP_UnitTestCase {
 		// Clients other than Outlook lay the row out from the cell widths: each image plus 4px of padding, out of 740px.
 		preg_match_all( '/<td style="width: ([\d.]+)%/', $result, $cells );
 		$this->assertSame( $expected_cells, $cells[1] );
-		$this->assertStringNotContainsString( 'object-fit', $result );
+		$this->assertSame( $expected_crop, str_contains( $result, 'object-fit' ) );
 	}
 
 	/**
@@ -153,28 +155,70 @@ class Tiled_Gallery_Block_Email_Test extends WP_UnitTestCase {
 	 *
 	 * @return array
 	 */
-	public static function provide_mosaic_galleries() {
+	public static function provide_galleries() {
 		return array(
 			// 728px / ( 1.5 + 0.5 + 1.5 ) = 208px tall.
 			'landscape and portrait share a row' => array(
+				array(),
 				'ids',
 				array( array( 600, 400 ), array( 400, 800 ), array( 600, 400 ) ),
 				array( array( '312', '208' ), array( '104', '208' ), array( '312', '208' ) ),
 				array( '42.7027', '14.5946', '42.7027' ),
+				false,
 			),
 			// Each image is alone in its 736px row: the 6:1 panorama is 123px tall, the 3:2 landscapes 491px.
 			'a panorama gets a row of its own'   => array(
+				array(),
 				'ids',
 				array( array( 600, 400 ), array( 900, 150 ), array( 600, 400 ) ),
 				array( array( '736', '491' ), array( '736', '123' ), array( '736', '491' ) ),
 				array( '100', '100', '100' ),
+				false,
 			),
 			// The image without dimensions counts as square, 728px / ( 1.5 + 1 + 1 ) = 208px tall, but gets no height.
 			'images attribute, one size unknown' => array(
+				array(),
 				'images',
 				array( array( 600, 400 ), null, array( 500, 500 ) ),
 				array( array( '312', '208' ), array( '208', '' ), array( '208', '208' ) ),
 				array( '42.7027', '28.6486', '28.6486' ),
+				false,
+			),
+			// The first row takes the odd image; the 1300px square crops fill 736px and 732px / 2.
+			'square, 2 columns'                  => array(
+				array(
+					'className' => 'is-style-square',
+					'columns'   => 2,
+				),
+				'ids',
+				array( array( 600, 400 ), array( 600, 400 ), array( 600, 400 ) ),
+				array( array( '736', '736' ), array( '366', '366' ), array( '366', '366' ) ),
+				array( '100', '50', '50' ),
+				true,
+			),
+			// 728px / 3 leaves 2px over, which the last image takes.
+			'circle, 3 columns'                  => array(
+				array(
+					'className' => 'is-style-circle',
+					'columns'   => 3,
+				),
+				'ids',
+				array( array( 600, 400 ), array( 600, 400 ), array( 600, 400 ) ),
+				array( array( '242', '242' ), array( '242', '242' ), array( '244', '244' ) ),
+				array( '33.2432', '33.2432', '33.5135' ),
+				true,
+			),
+			// Images go round the 242px, 242px and 244px columns, at heights from their aspect ratios.
+			'columns, 3 columns'                 => array(
+				array(
+					'className' => 'is-style-columns',
+					'columns'   => 3,
+				),
+				'ids',
+				array( array( 600, 400 ), array( 400, 800 ), array( 600, 400 ), array( 500, 500 ) ),
+				array( array( '242', '161' ), array( '242', '242' ), array( '242', '484' ), array( '244', '163' ) ),
+				array( '33.2432', '33.2432', '33.5135' ),
+				false,
 			),
 		);
 	}
