@@ -21,7 +21,7 @@ class WooCommerce_Analytics_Tracker {
 	 *
 	 * @var string
 	 */
-	const ENABLED_FILTER = 'jetpack_premium_analytics_store_tracking_enabled';
+	const ENABLED_FILTER = 'jetpack_woocommerce_stats_store_tracking_enabled';
 
 	/**
 	 * Register the tracker bootstrap.
