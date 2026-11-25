@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Tiled Gallery block: Only render image action overlays for selected images so clicking small tiles selects them reliably.
