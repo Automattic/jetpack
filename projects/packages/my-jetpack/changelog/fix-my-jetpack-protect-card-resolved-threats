@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Protect card: Leave threats the site has fixed since the last scan out of the threat count, the critical count and the tooltip.

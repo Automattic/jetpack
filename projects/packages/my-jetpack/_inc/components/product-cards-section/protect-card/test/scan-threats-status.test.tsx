@@ -82,4 +82,18 @@ describe( 'Protect card threat count', () => {
 		expect( screen.getByText( '1' ) ).toBeInTheDocument();
 		expect( screen.queryByText( '5' ) ).not.toBeInTheDocument();
 	} );
+
+	it.each( [
+		[ 2, 1, [ '2', '1' ] ],
+		[ 0, 0, [ 'Secure' ] ],
+	] )(
+		'leaves out threats the site fixed: %d open, %d critical',
+		( threatCount, criticalThreatCount, texts ) => {
+			const data = scanData( false, 3 );
+			render( <ScanAndThreatStatus data={ { ...data, threatCount, criticalThreatCount } } /> );
+
+			texts.forEach( text => expect( screen.getByText( text ) ).toBeInTheDocument() );
+			expect( screen.queryByText( '3' ) ).not.toBeInTheDocument();
+		}
+	);
 } );

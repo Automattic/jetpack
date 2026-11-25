@@ -11,6 +11,7 @@ use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Products;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Automattic\Jetpack\Protect\Dashboard_Threats;
 use Automattic\Jetpack\Protect\Threat_Count;
 use Automattic\Jetpack\Protect_Status\Plan;
 use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
@@ -644,11 +645,14 @@ class Protect extends Hybrid_Product {
 			$is_provided_by_host = method_exists( Waf_Runner::class, 'is_provided_by_host' ) && Waf_Runner::is_provided_by_host();
 		}
 
+		$threat_count = self::get_threat_count();
+
 		return rest_ensure_response(
 			array(
-				'scanData'    => self::filter_scan_data_by_capability( $scan_data ),
-				'threatCount' => self::get_threat_count(),
-				'wafConfig'   => array_merge(
+				'scanData'            => self::filter_scan_data_by_capability( $scan_data ),
+				'threatCount'         => $threat_count,
+				'criticalThreatCount' => null === $threat_count ? null : self::get_critical_threat_count(),
+				'wafConfig'           => array_merge(
 					self::filter_waf_config_by_capability( $waf_config ),
 					array(
 						'waf_supported'        => $waf_supported,
@@ -671,6 +675,32 @@ class Protect extends Hybrid_Product {
 			return null;
 		}
 		return Threat_Count::get_cached();
+	}
+
+	/**
+	 * How many of the threats get_threat_count() counts are critical.
+	 *
+	 * Worked out here because users without `manage_options` get no threat IDs to leave fixed threats out with.
+	 *
+	 * @return int|null Null when Protect is too old to tell, or has no stored status yet.
+	 */
+	private static function get_critical_threat_count() {
+		if ( ! method_exists( Dashboard_Threats::class, 'get_scanned_at' ) ) {
+			return null;
+		}
+		$status = Protect_Status::get_cached_status();
+		if ( null === $status ) {
+			return null;
+		}
+		$open = Dashboard_Threats::without_resolved( $status->threats, Dashboard_Threats::get_scanned_at( $status ) );
+		return count(
+			array_filter(
+				$open,
+				function ( $threat ) {
+					return ( $threat->severity ?? 0 ) >= 5;
+				}
+			)
+		);
 	}
 
 	/**

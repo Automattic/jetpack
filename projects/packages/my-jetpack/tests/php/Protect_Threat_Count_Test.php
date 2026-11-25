@@ -88,6 +88,7 @@ class Protect_Threat_Count_Test extends TestCase {
 		foreach ( array( 1, 2 ) as $id ) {
 			$threats[] = (object) array(
 				'id'        => $id,
+				'severity'  => 5,
 				'signature' => 'PHP.Generic',
 				'filename'  => ABSPATH . "threat-$id.php",
 			);
@@ -109,12 +110,16 @@ class Protect_Threat_Count_Test extends TestCase {
 
 		$this->assertCount( 2, $data['scanData']->threats );
 		$this->assertSame( 1, $data['threatCount'] );
+		$this->assertSame( 1, $data['criticalThreatCount'] );
 	}
 
 	public function test_is_null_without_a_stored_status() {
 		Status::$status = new Status_Model( array( 'error' => true ) );
 
-		$this->assertNull( $this->get_data()['threatCount'] );
+		$data = $this->get_data();
+
+		$this->assertNull( $data['threatCount'] );
+		$this->assertNull( $data['criticalThreatCount'] );
 	}
 
 	/**
@@ -126,6 +131,9 @@ class Protect_Threat_Count_Test extends TestCase {
 	public function test_is_null_with_a_protect_package_that_cannot_count() {
 		require_once __DIR__ . '/stubs/older-protect/class-threat-count.php';
 
-		$this->assertNull( $this->get_data()['threatCount'] );
+		$data = $this->get_data();
+
+		$this->assertNull( $data['threatCount'] );
+		$this->assertNull( $data['criticalThreatCount'] );
 	}
 }
