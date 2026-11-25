@@ -65,8 +65,9 @@ export function useBarSlots(
 					isVisible || isComparisonSeries( series ) ? [] : [ series.group ]
 				)
 			);
-			// A comparison leaves the total with the primary it is paired with, so both bars sum the same series.
-			const comparisons = visible.filter(
+			// A comparison leaves the total with the primary it is paired with, so both bars sum the same series;
+			// its own hidden state is ignored, since a stack offers no control to show it again.
+			const comparisons = seriesWithVisibility.filter(
 				( { series } ) =>
 					isComparisonSeries( series ) &&
 					( visibleGroups.has( series.group ) || ! hiddenGroups.has( series.group ) )
