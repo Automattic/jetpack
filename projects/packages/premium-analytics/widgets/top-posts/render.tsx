@@ -4,6 +4,7 @@
 import {
 	useStatsArchives,
 	useStatsTopPosts,
+	type ReportParams,
 	type StatsArchivesComparisonItem,
 	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
@@ -20,11 +21,12 @@ import {
 	getArchiveTypeLabel,
 	postsPagesCsvExporter,
 	safeHttpUrl,
+	toDay,
 	useWidgetDrillDown,
 	useWidgetNavigationSearch,
 	useWidgetRootContext,
 	type LeaderboardChartData,
-	type LeaderboardRowAction,
+	type LeaderboardRowActionWithTrailing,
 	type ReportParamsFieldAttributes,
 	useReportActions,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -70,6 +72,11 @@ export type TopPostRow = {
 	 */
 	type: string;
 	/**
+	 * Whether the post went live inside the selected period. Such rows carry a
+	 * mark, as classic Stats drew them.
+	 */
+	publishedInPeriod?: boolean;
+	/**
 	 * Child rows to drill into (the Archives view's grouped items). Rows with
 	 * children render as drill-down rows instead of links.
 	 */
@@ -88,9 +95,15 @@ function resolveRowAction(
 	row: TopPostRow,
 	detailSearch: Record< string, unknown >,
 	onDrillDown?: ( row: TopPostRow ) => void
-): LeaderboardRowAction {
+): LeaderboardRowActionWithTrailing {
 	if ( ! row.children?.length ) {
-		return { kind: 'postLink', id: row.postId, href: row.href, search: detailSearch };
+		return {
+			kind: 'postLink',
+			id: row.postId,
+			href: row.href,
+			postType: row.type,
+			search: detailSearch,
+		};
 	}
 
 	if ( ! onDrillDown ) {
@@ -116,16 +129,26 @@ function buildLeaderboardData(
 	detailSearch: Record< string, unknown >,
 	onDrillDown?: ( row: TopPostRow ) => void
 ): LeaderboardChartData {
-	return rows.map( ( row, index ) => ( {
-		id: `${ index }-${ row.href ?? row.label }`,
-		...buildLeaderboardRow( {
-			label: row.label,
-			media: { kind: 'none' },
-			action: resolveRowAction( row, detailSearch, onDrillDown ),
-		} ),
-		currentValue: row.value,
-		previousValue: row.previousValue,
-	} ) );
+	return rows.map( ( row, index ) => {
+		const base = { label: row.label, media: { kind: 'none' as const } };
+		const action = resolveRowAction( row, detailSearch, onDrillDown );
+
+		return {
+			id: `${ index }-${ row.href ?? row.label }`,
+			// The mark needs a title link beside it, which only a post's own row has.
+			...buildLeaderboardRow(
+				action.kind === 'postLink' && row.publishedInPeriod
+					? {
+							...base,
+							action,
+							indicator: __( 'Published in this period', 'jetpack-premium-analytics-pkg' ),
+						}
+					: { ...base, action }
+			),
+			currentValue: row.value,
+			previousValue: row.previousValue,
+		};
+	} );
 }
 
 type TopPostsLeaderboardProps = {
@@ -180,10 +203,26 @@ export const TopPostsLeaderboard = ( {
 };
 
 /**
+ * Whether a post date, as the API sends it (`YYYY-MM-DD HH:MM:SS`, site time), falls on
+ * a day of the window, both ends included. The window's ends arrive as ISO timestamps,
+ * so all three are cut to their day first. The homepage and archive rows have no date.
+ */
+function isPublishedWithin( date: unknown, { from, to }: Pick< ReportParams, 'from' | 'to' > ) {
+	const day = typeof date === 'string' ? toDay( date ) : undefined;
+	const firstDay = toDay( from );
+	const lastDay = toDay( to );
+
+	return !! day && !! firstDay && !! lastDay && day >= firstDay && day <= lastDay;
+}
+
+/**
  * Maps merged top-posts rows to leaderboard shape. With `skip_archives=1` the
  * API still returns a link-less "Homepage (Latest posts)" entry, kept unlinked.
  */
-function toTopPostRows( items: StatsTopPostsComparisonItem[] ): TopPostRow[] {
+function toTopPostRows(
+	items: StatsTopPostsComparisonItem[],
+	window: Pick< ReportParams, 'from' | 'to' >
+): TopPostRow[] {
 	return items.map( item => {
 		const postId = Number( item.id );
 		const href = safeHttpUrl( item.link );
@@ -197,6 +236,7 @@ function toTopPostRows( items: StatsTopPostsComparisonItem[] ): TopPostRow[] {
 			// The homepage entry (id 0) has no post-detail page.
 			...( Number.isFinite( postId ) && postId > 0 ? { postId } : {} ),
 			type: String( item.type ?? '' ),
+			...( isPublishedWithin( item.date, window ) ? { publishedInPeriod: true } : {} ),
 		};
 	} );
 }
@@ -218,7 +258,10 @@ function TopPostsReport() {
 	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
 		useStatsTopPosts( statsParams, { maxRows: WIDGET_ROW_LIMIT } );
 
-	const rows = useMemo( () => toTopPostRows( comparisonRows?.rows ?? [] ), [ comparisonRows ] );
+	const rows = useMemo(
+		() => toTopPostRows( comparisonRows?.rows ?? [], reportParams ),
+		[ comparisonRows, reportParams ]
+	);
 	const detailSearch = useWidgetNavigationSearch( {
 		origin: { report: 'posts', section: 'posts-pages' },
 	} );

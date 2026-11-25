@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Podcast: Load the media library only when choosing a cover image, so the dashboard loads less on each visit.

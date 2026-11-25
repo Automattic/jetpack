@@ -9,6 +9,10 @@ import type { LibraryItem } from '../../../src/dashboard/types/library';
 import type { View } from '@wordpress/dataviews';
 import type { ReactNode } from 'react';
 
+jest.mock( '../../../src/dashboard/hooks/use-available-license-count', () => ( {
+	useAvailableLicenseCount: () => 0,
+} ) );
+
 jest.mock( '@automattic/jetpack-analytics', () => ( {
 	__esModule: true,
 	default: { tracks: { recordEvent: jest.fn() } },

@@ -114,9 +114,7 @@ class Jetpack_Privacy_Settings_Home_Test extends WP_UnitTestCase {
 
 		// Pin it: an earlier test can leave a local site URL, which Status reads as offline.
 		add_filter( 'jetpack_offline_mode', '__return_false' );
-		if ( $flag ) {
-			add_filter( 'jetpack_feature_flag_enabled_' . Initializer::SETTINGS_CONSOLIDATION_FLAG, '__return_true' );
-		}
+		add_filter( 'jetpack_feature_flag_enabled_' . Initializer::SETTINGS_CONSOLIDATION_FLAG, $flag ? '__return_true' : '__return_false' );
 		// An earlier test can leave My Jetpack's page registered.
 		unset( $_registered_pages[ get_plugin_page_hookname( 'my-jetpack', 'jetpack' ) ] );
 		if ( $has_page ) {

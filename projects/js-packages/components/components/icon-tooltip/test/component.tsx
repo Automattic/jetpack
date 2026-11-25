@@ -1,6 +1,7 @@
 import { jest } from '@jest/globals';
-import { act, configure, render, screen, waitFor } from '@testing-library/react';
+import { act, configure, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
+import { createRef } from 'react';
 import IconTooltip from '../index.tsx';
 import { IconTooltipProps } from '../types.ts';
 
@@ -227,7 +228,7 @@ describe( 'IconTooltip', () => {
 			}
 		);
 
-		it( 'stays open on a press outside when closeOnClickOutside is off', async () => {
+		it( 'stays open on a press outside when closeOnClickOutside is off, and on Escape there', async () => {
 			const restoreLayout = withLayout();
 			const user = userEvent.setup();
 			render(
@@ -242,6 +243,78 @@ describe( 'IconTooltip', () => {
 			await user.click( screen.getByRole( 'textbox', { name: 'Exceptions' } ) );
 			expect( screen.getByRole( 'link', { name: 'Learn more' } ) ).toBeInTheDocument();
 			expect( screen.getByRole( 'textbox', { name: 'Exceptions' } ) ).toHaveFocus();
+			await user.keyboard( '{Escape}' );
+			expect( screen.getByRole( 'link', { name: 'Learn more' } ) ).toBeInTheDocument();
+			restoreLayout();
+		} );
+
+		it( 'treats a press on closeOnClickOutsideExceptRef as not outside', async () => {
+			const restoreLayout = withLayout();
+			const exceptRef = createRef< HTMLInputElement >();
+			const user = userEvent.setup();
+			render(
+				<>
+					<IconTooltip { ...triggerProps } closeOnClickOutsideExceptRef={ exceptRef }>
+						<a href="#learn">Learn more</a>
+					</IconTooltip>
+					<input ref={ exceptRef } aria-label="Exceptions" />
+				</>
+			);
+			await user.click( screen.getByRole( 'button', { name: 'See an example' } ) );
+			await user.click( screen.getByRole( 'textbox', { name: 'Exceptions' } ) );
+			expect( screen.getByRole( 'link', { name: 'Learn more' } ) ).toBeInTheDocument();
+			await user.keyboard( '{Escape}' );
+			expect( screen.queryByRole( 'link', { name: 'Learn more' } ) ).not.toBeInTheDocument();
+			restoreLayout();
+		} );
+
+		it.each( [
+			[ 'already handled', { cancelable: true }, true ],
+			[ 'part of IME composition', { isComposing: true }, false ],
+			[ 'part of IME composition in Safari', { isComposing: false, keyCode: 229 }, false ],
+		] )(
+			'ignores an Escape in closeOnClickOutsideExceptRef that is %s',
+			async ( _label, init, handled ) => {
+				const restoreLayout = withLayout();
+				const exceptRef = createRef< HTMLInputElement >();
+				const user = userEvent.setup();
+				render(
+					<>
+						<IconTooltip { ...triggerProps } closeOnClickOutsideExceptRef={ exceptRef }>
+							<a href="#learn">Learn more</a>
+						</IconTooltip>
+						<input ref={ exceptRef } aria-label="Exceptions" />
+					</>
+				);
+				await user.click( screen.getByRole( 'button', { name: 'See an example' } ) );
+				const field = screen.getByRole( 'textbox', { name: 'Exceptions' } );
+				await user.click( field );
+				if ( handled ) {
+					field.addEventListener( 'keydown', event => event.preventDefault() );
+				}
+				// eslint-disable-next-line testing-library/prefer-user-event -- user-event can't set isComposing.
+				fireEvent.keyDown( field, { key: 'Escape', ...init } );
+				expect( screen.getByRole( 'link', { name: 'Learn more' } ) ).toBeInTheDocument();
+				restoreLayout();
+			}
+		);
+
+		it( 'still closes on a press outside closeOnClickOutsideExceptRef', async () => {
+			const restoreLayout = withLayout();
+			const exceptRef = createRef< HTMLInputElement >();
+			const user = userEvent.setup();
+			render(
+				<>
+					<IconTooltip { ...triggerProps } closeOnClickOutsideExceptRef={ exceptRef }>
+						<a href="#learn">Learn more</a>
+					</IconTooltip>
+					<input ref={ exceptRef } aria-label="Exceptions" />
+					<p>Elsewhere</p>
+				</>
+			);
+			await user.click( screen.getByRole( 'button', { name: 'See an example' } ) );
+			await user.click( screen.getByText( 'Elsewhere' ) );
+			expect( screen.queryByRole( 'link', { name: 'Learn more' } ) ).not.toBeInTheDocument();
 			restoreLayout();
 		} );
 

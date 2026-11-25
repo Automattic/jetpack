@@ -1,9 +1,7 @@
 import DashboardLoadError from '../../_inc/components/dashboard-load-error';
 import DashboardSkeleton from '../../_inc/components/dashboard-skeleton';
-import SeoDisabledStage from '../../_inc/components/seo-disabled-stage';
 import DashboardPage from '../../_inc/dashboard/dashboard-page';
-import { CONTENT_PATH, OVERVIEW_PATH } from '../../_inc/data/get-preloaded';
-import isSeoToolsActive from '../../_inc/data/is-seo-tools-active';
+import { CONTENT_PATH } from '../../_inc/data/get-preloaded';
 import useEnsureTabData from '../../_inc/data/use-ensure-tab-data';
 import ContentScreen from '../../_inc/screens/content';
 
@@ -17,10 +15,8 @@ const ContentRoute = () => (
 	</DashboardPage>
 );
 
-// When the `seo-tools` module is off, show the enable affordance instead of the
-// content list — its per-post SEO meta has no effect while the module is off.
 const Stage = () => {
-	const { status, retry } = useEnsureTabData( [ { path: OVERVIEW_PATH }, { path: CONTENT_PATH } ] );
+	const { status, retry } = useEnsureTabData( [ { path: CONTENT_PATH } ] );
 
 	if ( status === 'loading' ) {
 		return (
@@ -38,7 +34,7 @@ const Stage = () => {
 		);
 	}
 
-	return isSeoToolsActive() ? <ContentRoute /> : <SeoDisabledStage active="content" />;
+	return <ContentRoute />;
 };
 
 export { Stage as stage };

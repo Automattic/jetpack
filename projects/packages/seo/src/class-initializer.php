@@ -22,7 +22,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.12.0';
+	const PACKAGE_VERSION = '0.13.0';
 
 	/**
 	 * Key under `window.JetpackScriptData` the React app reads its state from
@@ -48,6 +48,20 @@ class Initializer {
 	const SUPPRESS_WP_SITEMAP_OPTION = 'jetpack_seo_suppress_wp_sitemap';
 
 	/**
+	 * Jetpack module that switches the SEO page, and the SEO modules with it, on and off.
+	 *
+	 * @since $$next-version$$
+	 */
+	const DASHBOARD_MODULE = 'seo-dashboard';
+
+	/**
+	 * Jetpack modules held off while the {@see self::DASHBOARD_MODULE} switch is off.
+	 *
+	 * @since $$next-version$$
+	 */
+	const SEO_MODULES = array( 'seo-tools', 'sitemaps', 'canonical-urls', 'verification-tools' );
+
+	/**
 	 * Whether the package has been initialized.
 	 *
 	 * @var bool
@@ -68,6 +82,8 @@ class Initializer {
 		self::$initialized = true;
 
 		if ( ! self::is_available() ) {
+			// Without the SEO page here, its switch would turn nothing on.
+			add_filter( 'jetpack_get_available_modules', array( __CLASS__, 'remove_dashboard_module' ) );
 			return;
 		}
 
@@ -76,7 +92,7 @@ class Initializer {
 		// Before anything can read the AI crawler choices.
 		Ai_Crawlers::register_legacy_migration();
 
-		// Legacy admin surfaces use these signals to retire their replaced controls.
+		// Legacy admin surfaces use this signal to hide their replaced controls.
 		add_filter( 'jetpack_admin_js_script_data', array( Surface_Visibility::class, 'inject_surface_visibility' ) );
 
 		// Honor a deliberate sitemap-off choice independently of dashboard visibility.
@@ -98,12 +114,21 @@ class Initializer {
 
 		// Each SEO module's configure URL defaults to Jetpack › Settings filtered to the
 		// module. Once the surface is visible that view only points here, so link here.
+		// While the SEO switch is off, My Jetpack shows a turn-on card at this URL instead.
 		foreach ( array( 'seo-tools', 'verification-tools', 'sitemaps' ) as $module ) {
 			add_filter( 'jetpack_module_configuration_url_' . $module, array( Admin_Page::class, 'get_url' ) );
 		}
 
-		// The page registers whenever the surface is visible, even with `seo-tools` off, so
-		// a saved link still offers "Enable SEO tools"; the menu item hides with the module.
+		// Cache invalidation keeps running, so nothing is stale when SEO is switched back on.
+		self::register_write_hooks();
+
+		// Like other switched-off Jetpack features, the page and everything below stay unregistered.
+		if ( ! self::is_dashboard_on() ) {
+			return;
+		}
+
+		// The page registers even with `seo-tools` off, since Settings still manages the
+		// modules that work without it; the menu item follows the SEO switch.
 		//
 		// Priority 1: load the wp-build bundle (and define its render function)
 		// before `add_menu_item()` runs at the default priority and needs it.
@@ -122,25 +147,24 @@ class Initializer {
 		// Overview).
 		add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_reads' ) );
 
-		self::register_write_hooks();
-
 		Indexnow::init();
 
 		Indexnow_Client::init();
 		add_action( 'rest_api_init', array( Data_Sharing::class, 'register_routes' ) );
 
-		// Editing routes and output follow the saved SEO Tools activation choice.
-		if ( self::is_seo_tools_module_active() ) {
+		// Sitemap, verification and canonical URL settings work without SEO Tools. Register
+		// after init-time conflict filters and before core builds its settings route.
+		add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ), 5 );
+		add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) );
+
+		// SEO-dependent output and schema editing follow the saved SEO Tools choice.
+		if ( self::is_seo_tools_active() ) {
 			Share_Image::init();
 			Schema_Builder::init();
 			Author_Schema_Node::init();
 			Canonical_Urls::init();
 			Llms_Txt::init();
 			Ai_Crawlers::init();
-
-			// Wait for init-time conflict filters before core builds its settings route.
-			add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ), 5 );
-			add_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) );
 
 			// Package-owned route for the site-level Schema settings (see the controller).
 			add_action( 'rest_api_init', array( Schema_Settings_Controller::class, 'register_routes' ) );
@@ -189,15 +213,60 @@ class Initializer {
 	}
 
 	/**
-	 * Whether the `seo-tools` Jetpack module is currently active.
+	 * Whether the SEO page and the SEO modules may run.
+	 *
+	 * True where SEO isn't offered, so VIP keeps its SEO modules running. WordPress.com Simple
+	 * reports every module on.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return bool
 	 */
-	private static function is_seo_tools_module_active() {
-		if ( ! class_exists( 'Automattic\\Jetpack\\Modules' ) ) {
-			return false;
+	public static function is_dashboard_on() {
+		if ( ! self::is_available() ) {
+			return true;
 		}
-		return ( new Modules() )->is_active( 'seo-tools' );
+
+		return ( new Modules() )->is_active( self::DASHBOARD_MODULE );
+	}
+
+	/**
+	 * The saved-on SEO modules the switch holds off, which Jetpack then leaves unloaded.
+	 *
+	 * Their saved states stay as they are, so switching SEO back on restores them.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string[] Module slugs, empty while the switch is on.
+	 */
+	public static function get_paused_modules() {
+		return self::is_dashboard_on() ? array() : self::SEO_MODULES;
+	}
+
+	/**
+	 * Whether SEO Tools runs: its module is on, and the SEO switch isn't holding it off.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_seo_tools_active() {
+		return ( new Modules() )->is_active( 'seo-tools' ) && self::is_dashboard_on();
+	}
+
+	/**
+	 * Drop the SEO switch from Jetpack's modules where the SEO page isn't offered.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $modules Module slug => version introduced.
+	 * @return array
+	 */
+	public static function remove_dashboard_module( $modules ) {
+		if ( is_array( $modules ) ) {
+			unset( $modules[ self::DASHBOARD_MODULE ] );
+		}
+		return $modules;
 	}
 
 	/**

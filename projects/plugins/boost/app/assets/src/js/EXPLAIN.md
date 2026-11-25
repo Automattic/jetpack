@@ -33,8 +33,8 @@ It's fine to have multiple components in a single file, but if the file is getti
 					- ...
 		- ...
 	- pages/ # Pages (a.k.a. routes)
-		- critical-css-advanced
-			- critical-css-advanced.tsx # a component that represents a page in the UI.
+		- getting-started
+			- getting-started.tsx # a component that represents a page in the UI.
 		- purchase-success
 			- purchase-success.tsx
 		- p2
@@ -46,7 +46,7 @@ It's fine to have multiple components in a single file, but if the file is getti
 		- ...
 ```
 
-* `index.tsx` and `main.tsx` - The entry files for the app. `main.tsx` has the router.
+* `index.tsx` - The entry file for the app. It waits for the wp-build chassis slots and mounts the app into them.
 * `features/` - Most of the app's code goes here. Every feature should be placed in its own directory.
 * `lib/` - Any generic code that is not directly tied to specific components.
 	* `lib/stores/` - Some shared hooks.

@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\SEO;
 
-use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
 use WP_Error;
 
@@ -82,7 +81,7 @@ class Indexnow {
 		if ( ! Indexnow_Client::site_is_public() ) {
 			return 'not_public';
 		}
-		if ( ! ( new Modules() )->is_active( 'seo-tools' ) ) {
+		if ( ! Initializer::is_seo_tools_active() ) {
 			return 'module_inactive';
 		}
 		if ( ! apply_filters( 'jetpack_seo_indexnow_can_notify', true ) || Seo_Tools::is_disabled() ) {

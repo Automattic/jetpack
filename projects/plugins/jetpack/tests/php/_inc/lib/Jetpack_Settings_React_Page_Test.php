@@ -184,7 +184,9 @@ class Jetpack_Settings_React_Page_Test extends WP_UnitTestCase {
 			$GLOBALS['wp_actions']['jetpack_protect_dashboard_initialized'] = 1;
 		}
 
-		Constants::set_constant( 'WPCOM_IS_VIP_ENV', ! $site['seo_page'] );
+		if ( ! empty( $site['vip'] ) ) {
+			Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
+		}
 		Stats_Options::set_option( 'enable_odyssey_stats', $site['odyssey'] );
 		self::set_stats_v2_booted( ! empty( $site['analytics'] ) );
 
@@ -353,15 +355,14 @@ class Jetpack_Settings_React_Page_Test extends WP_UnitTestCase {
 		$settled = array(
 			'modules'      => array( 'protect', 'sso', 'stats', 'seo-tools', 'wordads' ),
 			'protect_page' => true,
-			'seo_page'     => true,
 			'odyssey'      => true,
 			'ads_home'     => true,
 		);
 
 		return array(
-			'nothing left'                             => array( $settled, array() ),
-			'Security without the Protect page'        => array( array( 'protect_page' => false ) + $settled, array( 'security' ) ),
-			'Security for Akismet alone'               => array(
+			'nothing left'                               => array( $settled, array() ),
+			'Security without the Protect page'          => array( array( 'protect_page' => false ) + $settled, array( 'security' ) ),
+			'Security for Akismet alone'                 => array(
 				array(
 					'modules'      => array(),
 					'protect_page' => false,
@@ -369,32 +370,32 @@ class Jetpack_Settings_React_Page_Test extends WP_UnitTestCase {
 				) + $settled,
 				array( 'security' ),
 			),
-			'Traffic for the legacy SEO settings'      => array( array( 'seo_page' => false ) + $settled, array( 'traffic' ) ),
-			'Traffic for canonical URLs alone'         => array(
+			'Traffic for the legacy SEO settings on VIP' => array( array( 'vip' => true ) + $settled, array( 'traffic' ) ),
+			'Traffic for canonical URLs alone'           => array(
 				array(
-					'modules'  => array( 'canonical-urls' ),
-					'seo_page' => false,
+					'modules' => array( 'canonical-urls' ),
+					'vip'     => true,
 				) + $settled,
 				array( 'traffic' ),
 			),
-			'Traffic for classic Stats'                => array( array( 'odyssey' => false ) + $settled, array( 'traffic' ) ),
-			'nothing left on Stats v2'                 => array(
+			'Traffic for classic Stats'                  => array( array( 'odyssey' => false ) + $settled, array( 'traffic' ) ),
+			'nothing left on Stats v2'                   => array(
 				array(
 					'odyssey'   => false,
 					'analytics' => true,
 				) + $settled,
 				array(),
 			),
-			'Traffic for Google Analytics on Atomic'   => array(
+			'Traffic for Google Analytics on Atomic'     => array(
 				array(
 					'atomic'  => true,
 					'modules' => array( 'protect', 'sso', 'stats' ),
 				) + $settled,
 				array( 'traffic' ),
 			),
-			'Monetize while the Ads settings stay'     => array( array( 'ads_home' => false ) + $settled, array( 'earn' ) ),
-			'null with the flag off'                   => array( array( 'flag_off' => true ) + $settled, null ),
-			'null for users who cannot manage modules' => array( array( 'editor' => true ) + $settled, null ),
+			'Monetize while the Ads settings stay'       => array( array( 'ads_home' => false ) + $settled, array( 'earn' ) ),
+			'null with the flag off'                     => array( array( 'flag_off' => true ) + $settled, null ),
+			'null for users who cannot manage modules'   => array( array( 'editor' => true ) + $settled, null ),
 		);
 	}
 

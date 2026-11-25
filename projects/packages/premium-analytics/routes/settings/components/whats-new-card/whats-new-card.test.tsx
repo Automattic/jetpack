@@ -3,8 +3,10 @@ import userEvent from '@testing-library/user-event';
 import { WhatsNewCard } from './whats-new-card';
 
 const mockSetIsOn = jest.fn();
+const mockTrackWhatsNew = jest.fn();
 jest.mock( '@automattic/jetpack-announcements', () => ( {
 	useTeaserSwitch: () => ( { isOn: true, setIsOn: mockSetIsOn } ),
+	trackWhatsNew: () => mockTrackWhatsNew(),
 } ) );
 
 const mockCreateSuccessNotice = jest.fn();
@@ -44,7 +46,7 @@ describe( 'WhatsNewCard', () => {
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
-	it( 'turns the teaser off for the user, and says it was saved', async () => {
+	it( 'has the switch tracked, turns the teaser off for the user, and says it was saved', async () => {
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		setFlag( true );
 
@@ -52,6 +54,8 @@ describe( 'WhatsNewCard', () => {
 		const toggle = await screen.findByRole( 'checkbox', {
 			name: 'Show a teaser when there is something new',
 		} );
+		// Asked once, when the card loads the module: no other test may load it first.
+		expect( mockTrackWhatsNew ).toHaveBeenCalledTimes( 1 );
 		expect( toggle ).toBeChecked();
 		await user.click( toggle );
 

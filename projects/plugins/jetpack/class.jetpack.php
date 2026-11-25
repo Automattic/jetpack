@@ -956,6 +956,23 @@ class Jetpack {
 	}
 
 	/**
+	 * Keep Stats v2 from starting WooCommerce Analytics store tracking while that module is off.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $enabled Whether store tracking is on.
+	 * @return bool
+	 */
+	public static function premium_analytics_store_tracking_enabled( $enabled ) {
+		// The WooCommerce Analytics plugin defines this when it loads the package in place of the module.
+		if ( defined( 'WC_ANALYTICS' ) ) {
+			return $enabled;
+		}
+
+		return $enabled && self::is_module_active( 'woocommerce-analytics' );
+	}
+
+	/**
 	 * Expose the setting that turns the Premium Analytics dashboard on and off.
 	 *
 	 * Deliberately not behind is_premium_analytics_enabled(): this is the setting that flips that
@@ -1086,6 +1103,7 @@ class Jetpack {
 		// Analytics::init() for why.
 		if ( self::is_premium_analytics_enabled() ) {
 			\Automattic\Jetpack\PremiumAnalytics\Analytics::init();
+			add_filter( 'jetpack_woocommerce_stats_store_tracking_enabled', array( __CLASS__, 'premium_analytics_store_tracking_enabled' ) );
 			if ( class_exists( 'Automattic\Jetpack\WooCommerceStats\Analytics_Dashboard' ) ) {
 				\Automattic\Jetpack\WooCommerceStats\Analytics_Dashboard::init();
 			}
@@ -2034,7 +2052,15 @@ class Jetpack {
 			$is_site_connection = self::connection()->is_site_connection();
 		}
 
+		// The SEO switch holds these off. Skip them rather than drop them from $modules,
+		// which a failed include below saves as the active list.
+		$paused_modules = method_exists( Jetpack_SEO_Initializer::class, 'get_paused_modules' ) ? Jetpack_SEO_Initializer::get_paused_modules() : array();
+
 		foreach ( $modules as $index => $module ) {
+			if ( in_array( $module, $paused_modules, true ) ) {
+				continue;
+			}
+
 			// If we're in offline/site-connection mode, disable modules requiring a connection/user connection.
 			if ( $status->is_offline_mode() || $is_site_connection ) {
 				// Prime the pump if we need to.

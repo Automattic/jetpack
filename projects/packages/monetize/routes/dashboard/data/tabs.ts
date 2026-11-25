@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
+import type { MouseEvent } from 'react';
 
 export type TabValue = 'overview' | 'payments' | 'subscribers' | 'ads' | 'settings';
 
@@ -67,4 +68,20 @@ export function getTabHref( tab: TabValue ): string {
 		page: 'jetpack-monetize',
 		...( tab === 'overview' ? {} : { p: `/?tab=${ tab }` } ),
 	} );
+}
+
+/**
+ * Whether a click on a tab link should open the tab in place, rather than its URL in a new browser tab.
+ *
+ * @param event - The click.
+ * @return True for a plain primary click.
+ */
+export function isPlainClick( event: MouseEvent ): boolean {
+	return ! (
+		event.button !== 0 ||
+		event.metaKey ||
+		event.ctrlKey ||
+		event.shiftKey ||
+		event.altKey
+	);
 }

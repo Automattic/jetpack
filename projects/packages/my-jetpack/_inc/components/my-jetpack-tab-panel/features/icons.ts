@@ -3,6 +3,7 @@ import {
 	backup,
 	chartBar,
 	comment,
+	currencyDollar,
 	envelope,
 	formatListBullets,
 	listView,
@@ -15,6 +16,7 @@ import {
 	trendingUp,
 	video,
 } from '@wordpress/icons';
+import { seo } from './seo-icon';
 import type { ReactElement } from 'react';
 
 /**
@@ -28,12 +30,14 @@ const featureIcons: Record< string, ReactElement > = {
 	backup,
 	'chart-bar': chartBar,
 	comment,
+	'currency-dollar': currencyDollar,
 	envelope,
 	'list-bullets': formatListBullets,
 	list: listView,
 	megaphone,
 	people,
 	search,
+	seo,
 	share,
 	shield,
 	star: starFilled,

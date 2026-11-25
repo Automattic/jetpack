@@ -112,13 +112,14 @@ describe( 'SubscriberList fitRows', () => {
 		layout = undefined;
 	} );
 
-	it( 'hides the rows that do not fit the tile', () => {
+	it( 'hides the rows that do not fit the tile, with no footer unless asked for one', () => {
 		// Room for four rows; the roster holds ten.
 		layout = mockLayout( tileFor( 4 ) );
 
 		render( <SubscriberList items={ makeItems( 10 ) } /> );
 
 		expect( visibleNames() ).toEqual( [ 'Person 0', 'Person 1', 'Person 2', 'Person 3' ] );
+		expect( footerText() ).toBeNull();
 	} );
 
 	it( 'counts the rows it hid in the "N more" footer', () => {
@@ -149,7 +150,7 @@ describe( 'SubscriberList fitRows', () => {
 	it( 'refits when the tile is resized', () => {
 		layout = mockLayout( tileFor( 4 ) );
 
-		render( <SubscriberList items={ makeItems( 10 ) } /> );
+		render( <SubscriberList items={ makeItems( 10 ) } moreCount={ 0 } /> );
 		expect( visibleNames() ).toHaveLength( 4 );
 
 		layout.resizeTo( tileFor( 7 ) );
@@ -165,7 +166,7 @@ describe( 'SubscriberList fitRows', () => {
 		// The roster fills the tile exactly, so no footer is needed at this size.
 		layout = mockLayout( tileFor( 4, false ) );
 
-		render( <SubscriberList items={ makeItems( 4 ) } /> );
+		render( <SubscriberList items={ makeItems( 4 ) } moreCount={ 0 } /> );
 		expect( visibleNames() ).toHaveLength( 4 );
 		expect( footerText() ).toBeNull();
 
@@ -188,7 +189,7 @@ describe( 'SubscriberList fitRows', () => {
 	it( 'renders every row when fitting is off', () => {
 		layout = mockLayout( tileFor( 4 ) );
 
-		render( <SubscriberList items={ makeItems( 10 ) } fitRows={ false } /> );
+		render( <SubscriberList items={ makeItems( 10 ) } fitRows={ false } moreCount={ 0 } /> );
 
 		expect( visibleNames() ).toHaveLength( 10 );
 		expect( footerText() ).toBeNull();
@@ -198,7 +199,7 @@ describe( 'SubscriberList fitRows', () => {
 		// A collapsed ancestor would otherwise report that not one row fits.
 		layout = mockLayout( 0 );
 
-		render( <SubscriberList items={ makeItems( 10 ) } /> );
+		render( <SubscriberList items={ makeItems( 10 ) } moreCount={ 0 } /> );
 
 		expect( visibleNames() ).toHaveLength( 10 );
 		expect( footerText() ).toBeNull();

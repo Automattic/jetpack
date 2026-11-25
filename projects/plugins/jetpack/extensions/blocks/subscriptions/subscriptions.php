@@ -905,7 +905,7 @@ function render_for_website( $data, $classes, $styles ) {
 							<?php
 							printf(
 								'<input
-									required="required"
+									aria-required="true"
 									type="email"
 									name="email"
 									autocomplete="email"
@@ -929,7 +929,7 @@ function render_for_website( $data, $classes, $styles ) {
 								esc_attr( $subscribe_field_id ),
 								( ! empty( $data['subscribe_email'] )
 									? 'disabled title="' . esc_attr__( "You're logged in with this email", 'jetpack' ) . '"'
-									: 'title="' . esc_attr__( 'Please fill in this field.', 'jetpack' ) . '"'
+									: ''
 								)
 							);
 							?>
@@ -1374,7 +1374,7 @@ function is_user_auth(): bool {
  *
  * A custom domain can't see the WordPress.com login, so the script sends the visitor there and back (NL-267).
  *
- * @since $$next-version$$
+ * @since 16.5
  */
 function print_silent_subscriber_check() {
 	// The visitor is on the way back from a check, so never send them round again.
@@ -1386,7 +1386,7 @@ function print_silent_subscriber_check() {
 	/**
 	 * Filters whether the paywall checks for a WordPress.com subscriber without a click.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 *
 	 * @param bool $enabled Whether to run the check. Default true.
 	 */
@@ -1468,7 +1468,7 @@ JS;
 /**
  * Removes the silent check's marker and token from the address bar after the visitor comes back.
  *
- * @since $$next-version$$
+ * @since 16.5
  */
 function print_silent_subscriber_check_cleanup() {
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only checks that the marker is present.

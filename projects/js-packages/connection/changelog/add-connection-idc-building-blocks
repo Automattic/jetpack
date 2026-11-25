@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add the building blocks for the new Safe Mode screen: an actions hook, a layout, an address diagram, migrated and non-admin views, and error messages that name the cause.

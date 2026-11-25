@@ -1,6 +1,6 @@
 import { useCallback, useReducer } from 'react';
 import { flowReducer, getInitialFlowState, getOption } from './steps';
-import type { FlowAction, FlowContext, FlowState, Option, OptionId } from './steps';
+import type { FlowAction, FlowContext, FlowState, GuideAnswerId, Option, OptionId } from './steps';
 
 export interface IdentityCrisisFlow {
 	state: FlowState;
@@ -11,11 +11,18 @@ export interface IdentityCrisisFlow {
 	pick: ( option: OptionId ) => void;
 	next: () => void;
 	back: () => void;
+	/** Returns to an earlier step, by its place in `state.history`. */
+	backTo: ( index: number ) => void;
 	restart: () => void;
+	openGuide: () => void;
+	/** Answers a guide question, which moves on straight away. */
+	answer: ( answer: GuideAnswerId ) => void;
+	/** "Stay in Safe Mode for now" from the guide. */
+	later: () => void;
 }
 
 /**
- * Where the user is in the Safe Mode questions.
+ * Where the user is in the Safe Mode questions and the step-by-step guide.
  *
  * @param ctx        - The flow context.
  * @param clearError - Forgets the last failed action, which no longer matches once the flow changes.
@@ -42,6 +49,10 @@ export default function useIdentityCrisisFlow(
 		pick: useCallback( option => change( { type: 'pick', option } ), [ change ] ),
 		next: useCallback( () => change( { type: 'next' } ), [ change ] ),
 		back: useCallback( () => change( { type: 'back' } ), [ change ] ),
+		backTo: useCallback( index => change( { type: 'back-to', index } ), [ change ] ),
 		restart: useCallback( () => change( { type: 'restart', ctx } ), [ change, ctx ] ),
+		openGuide: useCallback( () => change( { type: 'open-guide' } ), [ change ] ),
+		answer: useCallback( answer => change( { type: 'answer', answer } ), [ change ] ),
+		later: useCallback( () => change( { type: 'later' } ), [ change ] ),
 	};
 }

@@ -1,12 +1,10 @@
 import { useDispatch, useSelect } from '@wordpress/data';
 import DashboardLoadError from '../../_inc/components/dashboard-load-error';
 import DashboardSkeleton from '../../_inc/components/dashboard-skeleton';
-import SeoDisabledStage from '../../_inc/components/seo-disabled-stage';
 import DashboardPage from '../../_inc/dashboard/dashboard-page';
 import { geoStore } from '../../_inc/data/geo-store';
 import getOverview from '../../_inc/data/get-overview';
 import { GEO_PATH, OVERVIEW_PATH } from '../../_inc/data/get-preloaded';
-import isSeoToolsActive from '../../_inc/data/is-seo-tools-active';
 import { settingsStore } from '../../_inc/data/settings-store';
 import useEnsureTabData from '../../_inc/data/use-ensure-tab-data';
 import { useGeoForm } from '../../_inc/data/use-geo';
@@ -34,9 +32,9 @@ const GeoReady = () => {
 const Stage = () => {
 	const { setEnhancer, setLlmsTxt, setCrawlers } = useDispatch( geoStore );
 
-	// GEO gates on the seo-tools state, which lives in the Overview slice, so ensure
-	// both are available. Every slice of a recovered GEO payload is pushed into
-	// the store so the form (seeded from it) reflects it.
+	// GEO falls back to the Overview slice for search visibility, so ensure both are
+	// available. Every slice of a recovered GEO payload is pushed into the store so
+	// the form (seeded from it) reflects it.
 	const { status, retry } = useEnsureTabData( [
 		{ path: OVERVIEW_PATH },
 		{
@@ -66,9 +64,7 @@ const Stage = () => {
 		);
 	}
 
-	// When the `seo-tools` module is off, show the enable affordance instead of the
-	// GEO controls — they can't save (the REST endpoints aren't registered).
-	return isSeoToolsActive() ? <GeoReady /> : <SeoDisabledStage active="geo" />;
+	return <GeoReady />;
 };
 
 export { Stage as stage };

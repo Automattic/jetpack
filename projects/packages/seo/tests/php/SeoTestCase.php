@@ -125,6 +125,7 @@ abstract class SeoTestCase extends TestCase {
 	 */
 	protected static function set_seo_tools_active( $active ) {
 		remove_all_filters( 'jetpack_active_modules' );
+		add_filter( 'jetpack_active_modules', 'jetpack_seo_test_switch_on', 1000 );
 		add_filter(
 			'jetpack_active_modules',
 			static function ( $modules ) use ( $active ) {

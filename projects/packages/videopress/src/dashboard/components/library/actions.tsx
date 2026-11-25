@@ -132,7 +132,7 @@ export function buildLibraryActions( api: Api ): Action< LibraryItem >[] {
 		{
 			id: 'upload-to-vp',
 			label: __( 'Upload to VideoPress', 'jetpack-videopress-pkg' ),
-			isPrimary: true,
+			// Not primary: both layouts show an always-visible button for it instead.
 			supportsBulk: true,
 			// On WordPress.com Simple the promote mutation routes through
 			// wpcom/v2/videopress/promote (in-process — the file is already on

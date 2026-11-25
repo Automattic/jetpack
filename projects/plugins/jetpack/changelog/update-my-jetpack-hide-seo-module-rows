@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+SEO: Remove the separate SEO Tools, Sitemaps, Canonical URLs, and Site Verification switches from My Jetpack, now that the SEO card turns SEO on or off. Each one stays in Jetpack › SEO › Settings.

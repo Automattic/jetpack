@@ -83,7 +83,11 @@ function buildMetrics( state: SubscribersChartState ): MetricTab[] {
 				label,
 				countLabel,
 				value: latest( state.current, accessor ),
-				current: state.current.map( point => ( { date: point.date, value: accessor( point ) } ) ),
+				current: state.current.map( point => ( {
+					date: point.date,
+					endDate: point.endDate,
+					value: accessor( point ),
+				} ) ),
 			};
 		}
 	);

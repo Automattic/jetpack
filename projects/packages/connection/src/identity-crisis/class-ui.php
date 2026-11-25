@@ -11,6 +11,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Jetpack_Options;
 use Jetpack_Tracks_Client;
@@ -50,7 +51,20 @@ class UI {
 
 		add_action( 'admin_enqueue_scripts', array( static::class, 'enqueue_scripts' ) );
 
-		Tracking::register_tracks_functions_scripts( true );
+		// The new screen loads Tracks from enqueue_scripts(), so only in wp-admin.
+		if ( ! static::use_new_screen() ) {
+			Tracking::register_tracks_functions_scripts( true );
+		}
+	}
+
+	/**
+	 * Whether the `connection-idc-screen` flag is on.
+	 *
+	 * @return bool
+	 */
+	private static function use_new_screen() {
+		// Guarded for the same reason as in Initial_State::get_identity_crisis_data().
+		return method_exists( Identity_Crisis::class, 'is_new_screen_enabled' ) && Identity_Crisis::is_new_screen_enabled();
 	}
 
 	/**
@@ -58,16 +72,42 @@ class UI {
 	 */
 	public static function enqueue_scripts() {
 		if ( is_admin() ) {
+			/**
+			 * Whether to show the Safe Mode notice when the `connection-idc-screen` flag is on.
+			 *
+			 * A page that shows the Safe Mode screen itself returns false, so the screen doesn't show twice.
+			 *
+			 * @since $$next-version$$
+			 *
+			 * @param bool $show Whether to show the notice. Default true.
+			 */
+			if ( static::use_new_screen() && ! apply_filters( 'jetpack_identity_crisis_show_notice', true ) ) {
+				return;
+			}
+
+			if ( static::use_new_screen() && ( new Tracking() )->should_enable_tracking( new Terms_Of_Service(), new Status() ) ) {
+				Tracking::register_tracks_functions_scripts( true );
+			}
+
+			// Only the notice's own container shows the new screen, and a confirmed Safe Mode shows no screen.
+			$shows_new_screen = static::use_new_screen() && ! Identity_Crisis::$is_safe_mode_confirmed && ! static::get_container_id();
+
 			Assets::register_script(
 				'jp_identity_crisis_banner',
 				'../../dist/identity-crisis.js',
 				__FILE__,
 				array(
-					'in_footer'  => true,
-					'textdomain' => 'jetpack-connection',
+					'in_footer'    => true,
+					'textdomain'   => 'jetpack-connection',
+					// The new screen comes from the shared connection script, which the old screen doesn't need.
+					'dependencies' => $shows_new_screen ? array( 'jetpack-connection' ) : array(),
 				)
 			);
 			Assets::enqueue_script( 'jp_identity_crisis_banner' );
+			if ( $shows_new_screen ) {
+				// Also loads the screen's stylesheet, which a script dependency doesn't.
+				Assets::enqueue_script( 'jetpack-connection' );
+			}
 			wp_add_inline_script( 'jp_identity_crisis_banner', static::get_initial_state(), 'before' );
 
 			add_action( 'admin_notices', array( static::class, 'render_container' ) );
@@ -122,19 +162,27 @@ class UI {
 			'isAdmin'                        => $is_admin,
 			'possibleDynamicSiteUrlDetected' => $possible_dynamic_site_url_detected,
 			'isDevelopmentSite'              => $is_development_site,
-
-			/**
-			 * Use the filter to provide custom HTML container element ID.
-			 *
-			 * The element may be added after the page loads, within 60 seconds of it;
-			 * the screen is rendered into it once.
-			 *
-			 * @since 0.10.0
-			 *
-			 * @param string|null $containerID The container ID.
-			 */
-			'containerID'                    => apply_filters( 'identity_crisis_container_id', null ),
+			'containerID'                    => static::get_container_id(),
 		);
+	}
+
+	/**
+	 * Get the ID of a custom container that the screen renders into instead of the notice.
+	 *
+	 * @return string|null Null for the notice's own container.
+	 */
+	private static function get_container_id() {
+		/**
+		 * Use the filter to provide custom HTML container element ID.
+		 *
+		 * The element may be added after the page loads, within 60 seconds of it;
+		 * the screen is rendered into it once.
+		 *
+		 * @since 0.10.0
+		 *
+		 * @param string|null $containerID The container ID.
+		 */
+		return apply_filters( 'identity_crisis_container_id', null );
 	}
 
 	/**

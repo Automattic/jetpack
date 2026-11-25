@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\SEO;
 
-use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -49,14 +48,14 @@ class Indexnow_Client {
 		/**
 		 * Filters whether Jetpack may deliver IndexNow notifications on this host.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.13.0
 		 * @param bool $allowed Whether another host/provider permits Jetpack delivery.
 		 */
 		$allowed = (bool) apply_filters( 'jetpack_seo_indexnow_can_notify', true );
 		return (bool) get_option( self::ENABLED_OPTION, false )
 			&& $allowed
 			&& self::matches_scope( get_option( self::SCOPE_OPTION, '' ) )
-			&& Initializer::is_available() && ( new Modules() )->is_active( 'seo-tools' )
+			&& Initializer::is_available() && Initializer::is_seo_tools_active()
 			&& ! ( new Host() )->is_vip_site() && self::site_is_public()
 			&& ! Seo_Tools::is_disabled();
 	}
@@ -84,7 +83,7 @@ class Indexnow_Client {
 	/**
 	 * Current site's URL scope.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.13.0
 	 * @return string
 	 */
 	public static function scope() {
@@ -94,7 +93,7 @@ class Indexnow_Client {
 	/**
 	 * Match the same address when HTTP and HTTPS resolve differently across requests.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.13.0
 	 * @param mixed $scope Saved consent or notification scope.
 	 * @return bool
 	 */
@@ -156,7 +155,7 @@ class Indexnow_Client {
 		/**
 		 * Filters the maximum URLs in one IndexNow request.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.13.0
 		 * @param int $size Maximum URLs, between 1 and 10,000.
 		 */
 		$size = apply_filters( 'jetpack_seo_indexnow_batch_size', self::BATCH_SIZE );
