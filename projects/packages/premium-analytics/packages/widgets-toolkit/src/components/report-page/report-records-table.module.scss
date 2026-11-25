@@ -49,8 +49,8 @@
 	min-inline-size: 0;
 }
 
-/* The title column takes the spare width anyway, so a lower floor only
- * matters on a phone. */
+/* DataViews holds the title column at 15ch too, which a phone cannot
+ * afford once the numbers give way. Remove with WordPress/gutenberg#87408. */
 .root :global(.dataviews-view-table tbody .dataviews-view-table__primary-column-content:not(.dataviews-column-primary__media)),
 .root :global(.dataviews-view-table tbody .dataviews-view-table__primary-column-content .dataviews-view-table__cell-content-wrapper:not(.dataviews-column-primary__media)) {
 	min-inline-size: 8ch;
