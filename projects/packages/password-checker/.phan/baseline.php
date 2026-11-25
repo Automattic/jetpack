@@ -8,13 +8,9 @@
  * (can be combined with --load-baseline)
  */
 return [
-    // # Issue statistics:
-    // PhanTypeMismatchArgument : 6 occurrences
-
+    // This baseline has no suppressions
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-password-checker.php' => ['PhanTypeMismatchArgument'],
-        'tests/php/Password_Checker_Test.php' => ['PhanTypeMismatchArgument'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)
