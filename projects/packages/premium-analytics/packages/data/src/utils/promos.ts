@@ -26,7 +26,7 @@ export type Promo = {
 /**
  * How often a user closed a promo, and when they last did.
  */
-export type PromoDismissal = { count: number; at: string };
+export type PromoDismissal = { count: number; at: string; final?: boolean };
 
 /**
  * Whether the close that brings a promo to this count is final: a second close, or any close when snoozing is off.
@@ -58,7 +58,13 @@ export function isPromoDismissed(
 
 	const closedAt = Date.parse( dismissal.at );
 
-	if ( isFinalClose( dismissal.count, snoozeDays ) || Number.isNaN( closedAt ) ) {
+	// `final` is what the close itself decided. Reading it back from `snooze_days` alone would bring
+	// a promo closed for good under `snooze_days: 0` back if the registrant later raised the value.
+	if (
+		dismissal.final ||
+		isFinalClose( dismissal.count, snoozeDays ) ||
+		Number.isNaN( closedAt )
+	) {
 		return true;
 	}
 

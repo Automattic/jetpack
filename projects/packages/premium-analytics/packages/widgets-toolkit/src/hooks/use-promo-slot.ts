@@ -91,11 +91,18 @@ export function usePromoDismissal( promo: Promo ): {
 	const dismiss = useCallback( () => {
 		closedPlacements.add( placement );
 		listeners.forEach( listener => listener() );
+
+		const count = ( dismissed[ slug ]?.count ?? 0 ) + 1;
+
 		void set( DASHBOARD_PREFERENCES_SCOPE, PREFERENCES_KEY, {
 			...dismissed,
-			[ slug ]: { count: ( dismissed[ slug ]?.count ?? 0 ) + 1, at: new Date().toISOString() },
+			[ slug ]: {
+				count,
+				at: new Date().toISOString(),
+				final: isFinalClose( count, snoozeDays ),
+			},
 		} );
-	}, [ placement, slug, dismissed, set ] );
+	}, [ placement, slug, snoozeDays, dismissed, set ] );
 
 	return {
 		isDismissed: isClosed || isPromoDismissed( dismissed[ slug ], snoozeDays, Date.now() ),

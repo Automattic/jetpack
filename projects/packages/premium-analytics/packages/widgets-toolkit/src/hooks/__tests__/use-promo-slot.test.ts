@@ -59,7 +59,7 @@ describe( 'usePromoDismissal', () => {
 
 		expect( stored() ).toEqual( {
 			'acme/other': other,
-			'acme/first': { count: 1, at: expect.any( String ) },
+			'acme/first': { count: 1, at: expect.any( String ), final: false },
 		} );
 	} );
 
@@ -69,7 +69,19 @@ describe( 'usePromoDismissal', () => {
 
 		act( () => result.current.dismiss() );
 
-		expect( stored() ).toEqual( { 'acme/first': { count: 2, at: expect.any( String ) } } );
+		expect( stored() ).toEqual( {
+			'acme/first': { count: 2, at: expect.any( String ), final: true },
+		} );
+	} );
+
+	it( 'records a close as final when the promo does not snooze', () => {
+		const { result } = renderHook( () => usePromoDismissal( { ...first, snooze_days: 0 } ) );
+
+		act( () => result.current.dismiss() );
+
+		expect( stored() ).toEqual( {
+			'acme/first': { count: 1, at: expect.any( String ), final: true },
+		} );
 	} );
 
 	it( 'stays dismissed for the rest of the page load after the first close', () => {

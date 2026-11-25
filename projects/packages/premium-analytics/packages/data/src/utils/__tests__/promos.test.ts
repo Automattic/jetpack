@@ -63,6 +63,11 @@ describe( 'isPromoDismissed', () => {
 		[ 'closed twice, within the snooze', { count: 2, at: iso( daysAgo( 1 ) ) }, true ],
 		[ 'closed twice, long ago', { count: 2, at: iso( daysAgo( 400 ) ) }, true ],
 		[ 'an unparseable timestamp', { count: 1, at: 'not a date' }, true ],
+		[
+			'closed once for good, after a snooze the registrant has since raised',
+			{ count: 1, at: iso( daysAgo( 400 ) ), final: true },
+			true,
+		],
 	] )( '%s', ( _case, dismissal, expected ) => {
 		expect( isPromoDismissed( dismissal, 90, now ) ).toBe( expected );
 	} );
