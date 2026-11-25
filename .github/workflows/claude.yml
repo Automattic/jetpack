@@ -48,7 +48,7 @@ jobs:
 
       - name: Run Claude Code
         id: claude
-        uses: anthropics/claude-code-action@61a9c274fa7110a66dfafc1bbbced03833eb25fe # v1.0.269
+        uses: anthropics/claude-code-action@f3b070c88125d33dbae5653df5f143101d4ea9dc # v1.0.276
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           additional_permissions: |
@@ -58,9 +58,30 @@ jobs:
           # this job, so a prefix glob like "Bash(gh pr *)" would let injected
           # text reach state-changing verbs (gh pr merge, gh pr review, gh issue
           # close). Claude posts comments and commits through the action's own
-          # MCP servers, not through gh, so this does not remove capability.
+          # tools, not through gh, so this does not remove capability.
+          # acceptEdits keeps this list strict; the action's default auto mode
+          # would run uncovered calls its safety review passes:
+          # https://github.com/anthropics/claude-code-action/blob/f3b070c88125d33dbae5653df5f143101d4ea9dc/docs/usage.md#opting-out
+          # The deny rules are a backstop, as they apply in every mode:
+          # https://code.claude.com/docs/en/permission-modes
           claude_args: >-
             --max-turns 30
+            --permission-mode acceptEdits
+            --disallowedTools
+            "Bash(gh api *)"
+            "Bash(gh pr merge *)"
+            "Bash(gh pr close *)"
+            "Bash(gh pr review *)"
+            "Bash(gh pr edit *)"
+            "Bash(gh pr comment *)"
+            "Bash(gh pr create *)"
+            "Bash(gh pr ready *)"
+            "Bash(gh issue close *)"
+            "Bash(gh issue edit *)"
+            "Bash(gh issue comment *)"
+            "Bash(gh issue create *)"
+            "Bash(gh issue delete *)"
+            "Bash(gh release *)"
             --allowedTools
             "Bash(gh issue view *)"
             "Bash(gh issue list *)"
