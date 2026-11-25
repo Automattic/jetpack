@@ -16,6 +16,11 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Jetpack_Subscriber_Data {
 	/**
+	 * Transient key for counts, separate from the old cache's hour-long failures.
+	 */
+	const COUNTS_CACHE_KEY = 'jetpack_subscriber_counts';
+
+	/**
 	 * Preserve the public count envelope and the native WordPress.com cache.
 	 *
 	 * @return array
@@ -25,20 +30,19 @@ class Jetpack_Subscriber_Data {
 			return array( 'value' => wpcom_fetch_subs_counts( true ) );
 		}
 
-		$cache_key  = 'wpcom_subscribers_totals';
-		$subs_count = get_transient( $cache_key );
-		if ( false === $subs_count || 'failed' === $subs_count['status'] ) {
+		$subs_count = get_transient( self::COUNTS_CACHE_KEY );
+		if ( false === $subs_count ) {
 			$xml = new Jetpack_IXR_Client();
 			$xml->query( 'jetpack.fetchSubscriberCounts' );
 			$is_error = $xml->isError();
 			$value    = $is_error ? null : $xml->getResponse();
 
-			if ( ! is_array( $value ) || ! isset( $value['total_subscribers'] ) || ! isset( $value['social_followers'] ) ) { // If we get an error from .com, set the status to failed so that we will try again next time the data is requested.
+			if ( ! is_array( $value ) || ! isset( $value['total_subscribers'] ) || ! isset( $value['social_followers'] ) ) {
 				$subs_count = array(
 					'status'  => 'failed',
 					'code'    => $is_error ? $xml->getErrorCode() : 'invalid_response',
 					'message' => $is_error ? $xml->getErrorMessage() : '',
-					'value'   => $subs_count['value'] ?? array(
+					'value'   => array(
 						'total_subscribers' => 0,
 						'email_subscribers' => 0,
 						'social_followers'  => 0,
@@ -51,7 +55,8 @@ class Jetpack_Subscriber_Data {
 					'value'  => $value,
 				);
 			}
-			set_transient( $cache_key, $subs_count, HOUR_IN_SECONDS );
+			$ttl = 'failed' === $subs_count['status'] ? 5 * MINUTE_IN_SECONDS : HOUR_IN_SECONDS;
+			set_transient( self::COUNTS_CACHE_KEY, $subs_count, $ttl );
 		}
 		return $subs_count;
 	}

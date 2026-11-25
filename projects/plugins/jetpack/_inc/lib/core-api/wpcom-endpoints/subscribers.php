@@ -10,6 +10,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+require_once dirname( __DIR__, 4 ) . '/modules/subscriptions/class-jetpack-subscriber-data.php';
+
 /**
  * Subscribers: Get subscriber count
  *
@@ -78,7 +80,7 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers extends WP_REST_Controller {
 	public function get_subscriber_count( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// Get the most up to date subscriber count when request is not a test.
 		if ( ! Constants::is_defined( 'TESTING_IN_JETPACK' ) ) {
-			delete_transient( 'wpcom_subscribers_totals' );
+			delete_transient( Jetpack_Subscriber_Data::COUNTS_CACHE_KEY );
 		}
 		$subscriber_count = Jetpack_Subscriptions_Widget::fetch_subscriber_count();
 
@@ -94,7 +96,7 @@ class WPCOM_REST_API_V2_Endpoint_Subscribers extends WP_REST_Controller {
 	 */
 	public function get_subscriber_counts() {
 		if ( ! Constants::is_defined( 'TESTING_IN_JETPACK' ) ) {
-			delete_transient( 'wpcom_subscribers_totals' );
+			delete_transient( Jetpack_Subscriber_Data::COUNTS_CACHE_KEY );
 		}
 
 		$subscriber_info   = Automattic\Jetpack\Extensions\Subscriptions\fetch_subscriber_counts();

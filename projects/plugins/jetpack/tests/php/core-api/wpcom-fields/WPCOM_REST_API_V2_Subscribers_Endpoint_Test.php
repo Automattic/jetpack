@@ -42,7 +42,7 @@ class WPCOM_REST_API_V2_Subscribers_Endpoint_Test extends Jetpack_REST_TestCase 
 
 		} else {
 			set_transient(
-				'wpcom_subscribers_totals',
+				Jetpack_Subscriber_Data::COUNTS_CACHE_KEY,
 				array(
 					'value'  => array(
 						'total_subscribers' => $total_subscribers,
@@ -155,42 +155,71 @@ class WPCOM_REST_API_V2_Subscribers_Endpoint_Test extends Jetpack_REST_TestCase 
 			$response = $this->server->dispatch( new WP_REST_Request( WP_REST_Server::READABLE, '/wpcom/v2/subscribers/' . $route ) );
 			$this->assertSame( 200, $response->get_status() );
 			$this->assertSame( $expected, $response->get_data() );
-			$this->assertSame( 75, get_transient( 'wpcom_subscribers_totals' )['value']['total_subscribers'] );
+			$this->assertSame( 75, get_transient( Jetpack_Subscriber_Data::COUNTS_CACHE_KEY )['value']['total_subscribers'] );
 		} finally {
 			foreach ( array( $request_mock, $constants_mock ) as $mock ) {
 				if ( null !== $mock ) {
 					\Patchwork\restore( $mock );
 				}
 			}
-			delete_transient( 'wpcom_subscribers_totals' );
+			delete_transient( Jetpack_Subscriber_Data::COUNTS_CACHE_KEY );
 		}
 	}
 
-	public function test_malformed_counts_response_is_not_cached_as_success() {
+	/**
+	 * @dataProvider count_request_failures_provider
+	 * @param array|WP_Error $failed_response HTTP response for the failed request.
+	 */
+	#[DataProvider( 'count_request_failures_provider' )]
+	public function test_failed_subscriber_count_request_is_not_repeated_on_every_load( $failed_response ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$this->markTestSkipped( 'Native WordPress.com uses its own subscriber cache.' );
 		}
 
-		delete_transient( 'wpcom_subscribers_totals' );
-		$mock = \Patchwork\redefine(
+		$cache_key = Jetpack_Subscriber_Data::COUNTS_CACHE_KEY;
+		delete_transient( $cache_key );
+
+		$requests = 0;
+		$mock     = \Patchwork\redefine(
 			Client::class . '::remote_request',
-			static function () {
-				return array(
-					'response' => array( 'code' => 200 ),
-					'body'     => '<methodResponse><params><param><value><string></string></value></param></params></methodResponse>',
-				);
+			static function () use ( &$requests, $failed_response ) {
+				++$requests;
+				return $failed_response;
 			}
 		);
 
+		$expiry        = 0;
+		$record_expiry = static function ( $expiration ) use ( &$expiry ) {
+			$expiry = $expiration;
+			return $expiration;
+		};
+		add_filter( 'expiration_of_transient_' . $cache_key, $record_expiry );
+
 		try {
 			$this->assertSame( 0, Jetpack_Subscriptions_Widget::fetch_subscriber_count() );
-			$this->assertSame( 'failed', get_transient( 'wpcom_subscribers_totals' )['status'] );
+			$this->assertSame( 0, Jetpack_Subscriptions_Widget::fetch_subscriber_count() );
+			$this->assertSame( 1, $requests );
+			$this->assertSame( 5 * MINUTE_IN_SECONDS, $expiry );
+			$this->assertSame( 'failed', get_transient( $cache_key )['status'] );
 		} finally {
 			if ( null !== $mock ) {
 				\Patchwork\restore( $mock );
 			}
-			delete_transient( 'wpcom_subscribers_totals' );
+			remove_filter( 'expiration_of_transient_' . $cache_key, $record_expiry );
+			delete_transient( $cache_key );
 		}
+	}
+
+	public static function count_request_failures_provider() {
+		return array(
+			'transport error'    => array( new WP_Error( 'http_request_failed' ) ),
+			'malformed response' => array(
+				array(
+					'response' => array( 'code' => 200 ),
+					'body'     => '<methodResponse><params><param><value><string></string></value></param></params></methodResponse>',
+				),
+			),
+		);
 	}
 
 	public static function count_routes_provider() {

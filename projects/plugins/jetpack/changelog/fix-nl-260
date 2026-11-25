@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Subscriptions: Reuse cached subscriber statistics to reduce repeated dashboard requests.
+Subscriptions: Cache subscriber counts for the Dashboard, the Subscribe block, the legacy widget, and the `/subscribers/count` endpoint.
