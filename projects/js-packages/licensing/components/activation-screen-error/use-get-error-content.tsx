@@ -149,7 +149,7 @@ export const useGetErrorContent = ( licenseError: string, errorType: LicenseErro
 		case LICENSE_ERRORS.JETPACK_PRO_LOWER_LIMITS:
 			return {
 				errorMessage: __(
-					'This site has a Jetpack product that includes more than Jetpack Pro, so Pro can’t replace it. You can use this license on another site, or contact us for a refund.',
+					'This site has a Jetpack product that includes more than Jetpack Pro, so Pro can’t replace it. You can use this license on another site, or contact us.',
 					'jetpack-licensing'
 				),
 				errorInfo: <p>{ needHelpGetInTouchLink }</p>,
