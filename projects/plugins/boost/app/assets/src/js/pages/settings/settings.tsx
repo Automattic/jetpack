@@ -135,10 +135,7 @@ const Settings = ( { active = true }: { active?: boolean } ) => {
 				group="images"
 				visit={ visit }
 				title={ __( 'Images', 'jetpack-boost' ) }
-				description={ __(
-					'Tools to load and deliver images more efficiently.',
-					'jetpack-boost'
-				) }
+				description={ __( 'Tools to load and deliver images more efficiently.', 'jetpack-boost' ) }
 				icon={ image }
 			>
 				<LcpModule />
