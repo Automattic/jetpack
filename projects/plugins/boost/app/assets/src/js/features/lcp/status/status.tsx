@@ -11,7 +11,7 @@ const Status: FC = () => {
 
 	if ( lcpState?.status === 'error' ) {
 		return (
-			<div className={ styles?.failures }>
+			<div>
 				{ __(
 					"An error occurred while optimizing your Cornerstone Page's LCP. Please try again.",
 					'jetpack-boost'

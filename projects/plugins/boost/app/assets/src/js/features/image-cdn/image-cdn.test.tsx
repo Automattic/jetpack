@@ -27,7 +27,7 @@ jest.mock(
 jest.mock( '$lib/stores/premium-features', () => ( { usePremiumFeatures: () => [] } ) );
 jest.mock( 'jetpackConfig', () => ( { consumer_slug: 'jetpack-boost' } ), { virtual: true } );
 
-test( 'routes the modern Image CDN notice to the upgrade page without inline license redemption', () => {
+test( 'routes the Image CDN notice to the upgrade page without inline license redemption', () => {
 	Object.assign( globalThis, {
 		Jetpack_Boost: { site: { online: true, myJetpack: true, host: 'unknown' } },
 	} );
