@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Safe Mode: Keep offering only Try again once a failed fresh connection has disconnected the site, also after a later failure or reopening the screen.
+Safe Mode: On the new screen, behind the `connection-idc-screen` flag, keep offering only Try again once a failed fresh connection has disconnected the site, also after a later failure or reopening the screen, and only Reload once the site has left Safe Mode in another tab.
