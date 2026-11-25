@@ -287,6 +287,7 @@ export {
 	getPostTypeCopy,
 	summaryCount,
 	toDay,
+	toDayRange,
 	defaultPeriodForInterval,
 	buildMetricTab,
 	metricTabsToCsv,
