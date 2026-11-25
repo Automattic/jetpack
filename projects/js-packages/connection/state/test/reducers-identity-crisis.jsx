@@ -3,10 +3,14 @@ import actions from '../actions';
 import reducers from '../reducers';
 import selectors from '../selectors';
 
-describe( 'setIdentityCrisisDisconnected', () => {
-	it( 'marks the Safe Mode state, so a remounted screen still knows', () => {
+describe( 'Safe Mode state marks', () => {
+	it.each( [
+		[ 'setIdentityCrisisDisconnected', 'isDisconnected' ],
+		[ 'setIdentityCrisisResolved', 'isResolved' ],
+	] )( '%s marks the Safe Mode state, so a remounted screen still knows', ( action, key ) => {
+		const store = `test/identity-crisis-${ key }`;
 		register(
-			createReduxStore( 'test/identity-crisis', {
+			createReduxStore( store, {
 				reducer: reducers,
 				actions,
 				selectors,
@@ -14,12 +18,12 @@ describe( 'setIdentityCrisisDisconnected', () => {
 			} )
 		);
 
-		dispatch( 'test/identity-crisis' ).setIdentityCrisisDisconnected();
+		dispatch( store )[ action ]();
 
-		expect( select( 'test/identity-crisis' ).getIdentityCrisis() ).toEqual( {
+		expect( select( store ).getIdentityCrisis() ).toEqual( {
 			useNewScreen: true,
 			canResolve: false,
-			isDisconnected: true,
+			[ key ]: true,
 		} );
 	} );
 } );

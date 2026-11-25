@@ -70,6 +70,8 @@ interface IdentityCrisisBase {
 	isSafeModeConfirmed: boolean;
 	/** Set in the browser, not by the server, once a failed fresh connection has left the site disconnected. */
 	isDisconnected?: boolean;
+	/** Set in the browser, not by the server, once a fresh connection was refused because the site is no longer in Safe Mode. */
+	isResolved?: boolean;
 }
 
 /** Safe Mode state for the shared Safe Mode screen. Only a viewer who can resolve Safe Mode gets its details. */

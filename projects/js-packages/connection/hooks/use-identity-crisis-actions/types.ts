@@ -52,4 +52,6 @@ export interface IdentityCrisisActions {
 	isMigrated: boolean;
 	/** Whether a failed fresh connection has left the site disconnected. A later error doesn't clear it. */
 	isDisconnected: boolean;
+	/** Whether a fresh connection was refused because the site is no longer in Safe Mode, e.g. after another tab. A later error doesn't clear it. */
+	isResolved: boolean;
 }

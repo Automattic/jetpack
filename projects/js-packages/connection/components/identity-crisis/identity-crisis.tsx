@@ -40,6 +40,7 @@ interface ResolverProps extends IdentityCrisisProps {
 }
 
 const DISCONNECTED_ERROR: IdentityCrisisError = { action: 'start-fresh', cause: 'disconnected' };
+const RESOLVED_ERROR: IdentityCrisisError = { action: 'start-fresh', cause: 'resolved' };
 
 /**
  * The questions that lead to a Safe Mode action, then the migrate-done view.
@@ -75,17 +76,22 @@ function IdentityCrisisResolver( {
 		z: formatSiteAddress( state.wpcomHomeUrl ),
 	};
 	const flow = useIdentityCrisisFlow( ctx, actions.clearError );
-	// The site is no longer in Safe Mode, so only Try again still applies.
-	const isDisconnected = actions.isDisconnected || state.isDisconnected === true;
-	// The view below replaces the focused button, so move focus to its Try again.
-	const disconnectedRef = useRef< HTMLDivElement >( null );
-	const wasDisconnected = useRef( isDisconnected );
+	// The site is no longer in Safe Mode, so the questions no longer apply. Resolved wins: the site is connected again.
+	let finalView: 'resolved' | 'disconnected' | null = null;
+	if ( actions.isResolved || state.isResolved === true ) {
+		finalView = 'resolved';
+	} else if ( actions.isDisconnected || state.isDisconnected === true ) {
+		finalView = 'disconnected';
+	}
+	// The view replaces the focused button, so move focus to its own.
+	const finalViewRef = useRef< HTMLDivElement >( null );
+	const previousFinalView = useRef( finalView );
 	useEffect( () => {
-		if ( isDisconnected && ! wasDisconnected.current ) {
-			disconnectedRef.current?.querySelector( 'button' )?.focus();
+		if ( finalView && finalView !== previousFinalView.current ) {
+			finalViewRef.current?.querySelector( 'button' )?.focus();
 		}
-		wasDisconnected.current = isDisconnected;
-	}, [ isDisconnected ] );
+		previousFinalView.current = finalView;
+	}, [ finalView ] );
 
 	// Focus the new question or result when the step changes, but not on the first render.
 	const legendRef = useRef< HTMLDivElement >( null );
@@ -178,7 +184,29 @@ function IdentityCrisisResolver( {
 
 	const isBusy = actions.busyAction !== null;
 
-	if ( isDisconnected ) {
+	if ( finalView === 'resolved' ) {
+		return (
+			<IdentityCrisisLayout
+				logoUrl={ state.logoUrl }
+				showHeader={ showHeader }
+				heading={ __( 'Jetpack Connection is no longer in Safe Mode', 'jetpack-connection-js' ) }
+			>
+				<Stack direction="column" gap="md" ref={ finalViewRef }>
+					<IdentityCrisisErrorNotice error={ RESOLVED_ERROR } />
+					<StepActions
+						action={ { button: __( 'Reload', 'jetpack-connection-js' ) } }
+						isBusy={ false }
+						hasError={ false }
+						canGoBack={ false }
+						onContinue={ reloadPage }
+						onBack={ flow.back }
+					/>
+				</Stack>
+			</IdentityCrisisLayout>
+		);
+	}
+
+	if ( finalView === 'disconnected' ) {
 		return (
 			// No host actions: Disconnect and the like no longer apply.
 			<IdentityCrisisLayout
@@ -186,7 +214,7 @@ function IdentityCrisisResolver( {
 				showHeader={ showHeader }
 				heading={ __( 'Jetpack Connection is disconnected', 'jetpack-connection-js' ) }
 			>
-				<Stack direction="column" gap="md" ref={ disconnectedRef }>
+				<Stack direction="column" gap="md" ref={ finalViewRef }>
 					{ /* Hidden while retrying, so a repeated failure is announced again. */ }
 					{ ! isBusy && (
 						<IdentityCrisisErrorNotice error={ actions.error ?? DISCONNECTED_ERROR } />

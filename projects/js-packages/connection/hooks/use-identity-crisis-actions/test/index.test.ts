@@ -170,27 +170,36 @@ describe( 'useIdentityCrisisActions', () => {
 		}
 	);
 
-	it( 'keeps isDisconnected, and marks the connection store, after a later different failure', async () => {
-		register(
-			createReduxStore( STORE_ID, {
-				reducer: reducers,
-				actions,
-				selectors,
-				initialState: { identityCrisis: { useNewScreen: true, canResolve: false } },
-			} )
-		);
-		startIDCFresh
-			.mockRejectedValueOnce( apiError( 'cannot_save_secrets', 500, { disconnected: true } ) )
-			.mockRejectedValueOnce( new clientErrors.FetchNetworkError() );
-		const { result } = renderHook( () => useIdentityCrisisActions() );
+	it.each( [
+		[ 'isDisconnected', apiError( 'cannot_save_secrets', 500, { disconnected: true } ) ],
+		[ 'isResolved', apiError( 'start_fresh_not_in_safe_mode', 409 ) ],
+	] as const )(
+		'keeps %s, and marks the connection store, after a later different failure',
+		async ( flag, firstError ) => {
+			// Registered once: the rows check different keys.
+			if ( ! select( STORE_ID ) ) {
+				register(
+					createReduxStore( STORE_ID, {
+						reducer: reducers,
+						actions,
+						selectors,
+						initialState: { identityCrisis: { useNewScreen: true, canResolve: false } },
+					} )
+				);
+			}
+			startIDCFresh
+				.mockRejectedValueOnce( firstError )
+				.mockRejectedValueOnce( new clientErrors.FetchNetworkError() );
+			const { result } = renderHook( () => useIdentityCrisisActions() );
 
-		await act( () => result.current.startFresh() );
-		await act( () => result.current.startFresh() );
+			await act( () => result.current.startFresh() );
+			await act( () => result.current.startFresh() );
 
-		expect( result.current.error?.cause ).toBe( 'offline' );
-		expect( result.current.isDisconnected ).toBe( true );
-		expect( select( STORE_ID ).getIdentityCrisis() ).toMatchObject( { isDisconnected: true } );
-	} );
+			expect( result.current.error?.cause ).toBe( 'offline' );
+			expect( result.current[ flag ] ).toBe( true );
+			expect( select( STORE_ID ).getIdentityCrisis() ).toMatchObject( { [ flag ]: true } );
+		}
+	);
 
 	it( 'clears the previous error when an action is retried', async () => {
 		confirmIDCSafeMode

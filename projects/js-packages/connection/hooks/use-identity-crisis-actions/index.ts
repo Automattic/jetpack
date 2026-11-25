@@ -29,6 +29,7 @@ export default function useIdentityCrisisActions( {
 	const [ error, setError ] = useState< IdentityCrisisError | null >( null );
 	const [ isMigrated, setIsMigrated ] = useState( false );
 	const [ isDisconnected, setIsDisconnected ] = useState( false );
+	const [ isResolved, setIsResolved ] = useState( false );
 	// State updates on the next render, so a second call in the same tick would still see it unset.
 	const busyRef = useRef< IdentityCrisisAction | null >( null );
 
@@ -51,12 +52,16 @@ export default function useIdentityCrisisActions( {
 				return { response: await request() };
 			} catch ( caught ) {
 				const cause = getIdentityCrisisErrorCause( caught );
+				// Optional: an older copy of the store, or none, may be registered.
+				const store = dispatch( STORE_ID ) as
+					| { setIdentityCrisisDisconnected?: () => void; setIdentityCrisisResolved?: () => void }
+					| undefined;
 				if ( cause === 'disconnected' ) {
 					setIsDisconnected( true );
-					// Optional: an older copy of the store, or none, may be registered.
-					(
-						dispatch( STORE_ID ) as { setIdentityCrisisDisconnected?: () => void } | undefined
-					 )?.setIdentityCrisisDisconnected?.();
+					store?.setIdentityCrisisDisconnected?.();
+				} else if ( cause === 'resolved' ) {
+					setIsResolved( true );
+					store?.setIdentityCrisisResolved?.();
 				}
 				setError( { action, cause, code: getIdentityCrisisErrorCode( caught ) } );
 				setBusy( null );
@@ -107,5 +112,6 @@ export default function useIdentityCrisisActions( {
 		error,
 		isMigrated,
 		isDisconnected,
+		isResolved,
 	};
 }

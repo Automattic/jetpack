@@ -25,6 +25,21 @@ jest.unstable_mockModule( '../navigate', () => ( { __esModule: true, goTo, reloa
 const IdentityCrisis = ( await import( '../identity-crisis' ) ).default;
 
 /**
+ * An error shaped like the client's `ApiError`.
+ *
+ * @param code   - The REST error code.
+ * @param status - The HTTP status.
+ * @param data   - More of the error's `data`.
+ * @return The error.
+ */
+function apiError( code: string, status: number, data: Record< string, unknown > = {} ): Error {
+	return Object.assign( new Error(), {
+		name: 'ApiError',
+		response: { code, data: { status, ...data } },
+	} );
+}
+
+/**
  * Pick each answer in turn, then the action button.
  *
  * @param {ReturnType<typeof userEvent.setup>} user    - The user-event instance.
@@ -199,12 +214,7 @@ describe( 'IdentityCrisis', () => {
 	it( 'after a failure that left the site disconnected, offers only Try again, even once it fails otherwise', async () => {
 		const user = userEvent.setup();
 		startIDCFresh
-			.mockRejectedValueOnce(
-				Object.assign( new Error(), {
-					name: 'ApiError',
-					response: { code: 'cannot_save_secrets', data: { status: 500, disconnected: true } },
-				} )
-			)
+			.mockRejectedValueOnce( apiError( 'cannot_save_secrets', 500, { disconnected: true } ) )
 			.mockRejectedValueOnce( Object.assign( new Error(), { name: 'FetchNetworkError' } ) );
 		render( <IdentityCrisis context="notice" onActionSuccess={ jest.fn() } /> );
 
@@ -254,6 +264,66 @@ describe( 'IdentityCrisis', () => {
 			action: 'start-fresh',
 			connectUrl: 'https://wordpress.com/connect',
 		} );
+	} );
+
+	it.each( [
+		[ 'the questions', [] ],
+		[ 'the disconnected view', [ apiError( 'cannot_save_secrets', 500, { disconnected: true } ) ] ],
+	] )(
+		'when a fresh connection from %s is refused because the site left Safe Mode, offers only Reload',
+		async ( _from, earlierErrors ) => {
+			const user = userEvent.setup();
+			for ( const earlier of earlierErrors ) {
+				startIDCFresh.mockRejectedValueOnce( earlier );
+			}
+			startIDCFresh.mockRejectedValueOnce( apiError( 'start_fresh_not_in_safe_mode', 409 ) );
+			render(
+				<IdentityCrisis
+					context="notice"
+					hostActions={ <button>Disconnect site</button> }
+					onActionSuccess={ jest.fn() }
+				/>
+			);
+
+			await answer(
+				user,
+				[ 'The original site', 'Give it its own connection' ],
+				'Connect separately'
+			);
+			if ( earlierErrors.length ) {
+				await user.click( screen.getByRole( 'button', { name: 'Try again' } ) );
+			}
+
+			expect( screen.getByRole( 'alert' ) ).toHaveTextContent( /no longer in Safe Mode/ );
+			expect(
+				screen.getByRole( 'heading', { name: 'Jetpack Connection is no longer in Safe Mode' } )
+			).toBeInTheDocument();
+			expect( screen.queryByRole( 'radio' ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: 'Back' } ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: 'Disconnect site' } ) ).not.toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'Reload' } ) ).toHaveFocus();
+
+			await user.click( screen.getByRole( 'button', { name: 'Reload' } ) );
+
+			expect( reloadPage ).toHaveBeenCalled();
+			expect( startIDCFresh ).toHaveBeenCalledTimes( earlierErrors.length + 1 );
+		}
+	);
+
+	it( 'opens on Reload when the store says the site left Safe Mode, even if it also says disconnected', () => {
+		storeState = {
+			state: { ...resolvable, isDisconnected: true, isResolved: true },
+			plugins: jetpack,
+		};
+		render(
+			<IdentityCrisis context="connectors" showHeader={ false } onActionSuccess={ jest.fn() } />
+		);
+
+		expect(
+			screen.getByRole( 'region', { name: 'Jetpack Connection is no longer in Safe Mode' } )
+		).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Reload' } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Try again' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'never offers "same" without a detected dynamic address', () => {
