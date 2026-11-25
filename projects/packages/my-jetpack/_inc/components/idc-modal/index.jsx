@@ -2,10 +2,12 @@ import {
 	CONNECTION_FROM,
 	CONNECTION_STORE_ID,
 	IdentityCrisis,
+	onIdentityCrisisActionSuccess,
 } from '@automattic/jetpack-connection';
 import { Modal } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
+import { reloadPage } from '../../utils/reload-page';
 import styles from './styles.module.scss';
 
 /**
@@ -21,7 +23,24 @@ function IDCModal() {
 		[]
 	);
 
-	const closeModal = useCallback( () => setOpen( false ), [] );
+	const isMigrated = useRef( false );
+
+	// After a migrate the page is out of date, so closing reloads it, as "Got it, thanks" does.
+	const closeModal = useCallback( () => {
+		if ( isMigrated.current ) {
+			reloadPage();
+			return;
+		}
+		setOpen( false );
+	}, [] );
+
+	const onActionSuccess = useCallback( result => {
+		if ( result.action === 'migrate' ) {
+			isMigrated.current = true;
+			return;
+		}
+		onIdentityCrisisActionSuccess( result );
+	}, [] );
 
 	if ( ! isOpen ) {
 		return null;
@@ -39,6 +58,7 @@ function IDCModal() {
 						context="my-jetpack"
 						redirectUri="admin.php?page=my-jetpack"
 						from={ CONNECTION_FROM.myJetpackSafeMode }
+						onActionSuccess={ onActionSuccess }
 						onDismiss={ closeModal }
 					/>
 				</div>
