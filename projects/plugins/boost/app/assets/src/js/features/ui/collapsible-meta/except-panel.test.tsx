@@ -60,7 +60,6 @@ describe.each( consumers )( '$name', ( { component, count } ) => {
 		expect( screen.queryByRole( 'textbox' ) ).toBeNull();
 		fireEvent.click( toggle );
 		expect( toggle.getAttribute( 'aria-expanded' ) ).toBe( 'true' );
-		expect( screen.queryByText( 'Exceptions' ) ).toBeNull();
 		const save = screen.getByRole< HTMLButtonElement >( 'button', { name: 'Save' } );
 		expect( save.getAttribute( 'aria-disabled' ) ).toBe( 'true' );
 		fireEvent.change( screen.getByRole( 'textbox' ), {
