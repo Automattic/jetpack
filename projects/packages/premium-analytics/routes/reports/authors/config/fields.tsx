@@ -68,7 +68,7 @@ export function getAuthorsFields( withComparison = false ): Field< AuthorRow >[]
 				const name = getAuthorName( item.label );
 
 				return (
-					<Stack direction="row" gap="sm" align="center">
+					<Stack direction="row" gap="sm" align="start">
 						<img
 							src={ item.avatarUrl || DEFAULT_AVATAR_URL }
 							onError={ handleAvatarError }
@@ -79,7 +79,7 @@ export function getAuthorsFields( withComparison = false ): Field< AuthorRow >[]
 							) }
 							className={ styles.avatar }
 						/>
-						<span className={ styles.name }>
+						<span>
 							{ item.authorId ? (
 								<AuthorDetailLink authorId={ item.authorId }>{ name }</AuthorDetailLink>
 							) : (

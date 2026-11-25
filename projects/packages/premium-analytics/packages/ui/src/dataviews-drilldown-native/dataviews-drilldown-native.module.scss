@@ -24,11 +24,11 @@
 	visibility: hidden;
 }
 
-/* Keep the fold control on the title's baseline. */
+/* Keep the fold control on the title's first line. */
 .titleCell {
 	display: inline-flex;
 	gap: var(--wpds-dimension-gap-xs);
-	align-items: center;
+	align-items: flex-start;
 
 	/* A flex item's `min-width: auto` would otherwise pin this to its content. */
 	min-inline-size: 0;
@@ -43,8 +43,11 @@
 	overflow-wrap: anywhere;
 }
 
+/* The padding puts a wrapped title's first line where DataViews centers a
+   one-line title, level with the other columns' values. */
 .titleContent {
 	min-inline-size: 0;
+	padding-block: calc((var(--wpds-dimension-size-md) - 1lh) / 2);
 }
 
 /* Beside a wrapped title the marker would shrink and pull the row off its
