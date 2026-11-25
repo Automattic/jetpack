@@ -1,3 +1,4 @@
+import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { formatSiteAddress } from '../../helpers/format-site-address';
@@ -26,6 +27,7 @@ import type { ConnectedPlugin } from '../../helpers/site-words';
 import type {
 	IdentityCrisisAction,
 	IdentityCrisisActionPath,
+	IdentityCrisisError,
 } from '../../hooks/use-identity-crisis-actions/types';
 import type { IdentityCrisisState } from '../../types';
 import type { ReactNode } from 'react';
@@ -36,6 +38,9 @@ interface ResolverProps extends IdentityCrisisProps {
 	state: ResolvableState;
 	plugins: ConnectedPlugin[];
 }
+
+const DISCONNECTED_ERROR: IdentityCrisisError = { action: 'start-fresh', cause: 'disconnected' };
+const RESOLVED_ERROR: IdentityCrisisError = { action: 'start-fresh', cause: 'resolved' };
 
 /**
  * The questions that lead to a Safe Mode action, then the migrate-done view.
@@ -71,6 +76,22 @@ function IdentityCrisisResolver( {
 		z: formatSiteAddress( state.wpcomHomeUrl ),
 	};
 	const flow = useIdentityCrisisFlow( ctx, actions.clearError );
+	// The site is no longer in Safe Mode, so the questions no longer apply. Resolved wins: the site is connected again.
+	let finalView: 'resolved' | 'disconnected' | null = null;
+	if ( actions.isResolved || state.isResolved === true ) {
+		finalView = 'resolved';
+	} else if ( actions.isDisconnected || state.isDisconnected === true ) {
+		finalView = 'disconnected';
+	}
+	// The view replaces the focused button, so move focus to its own.
+	const finalViewRef = useRef< HTMLDivElement >( null );
+	const previousFinalView = useRef( finalView );
+	useEffect( () => {
+		if ( finalView && finalView !== previousFinalView.current ) {
+			finalViewRef.current?.querySelector( 'button' )?.focus();
+		}
+		previousFinalView.current = finalView;
+	}, [ finalView ] );
 
 	// Focus the new question or result when the step changes, but not on the first render.
 	const legendRef = useRef< HTMLDivElement >( null );
@@ -117,6 +138,8 @@ function IdentityCrisisResolver( {
 		[ flow.state, ctx, actions, onActionSuccess ]
 	);
 
+	const retryStartFresh = useCallback( () => runAction( 'start-fresh' ), [ runAction ] );
+
 	const step = flow.state.step;
 	const onContinue = useCallback( async () => {
 		if ( ! isChoiceStep( step ) ) {
@@ -160,8 +183,55 @@ function IdentityCrisisResolver( {
 	}
 
 	const isBusy = actions.busyAction !== null;
-	// The site is no longer in Safe Mode, so only Try again still applies.
-	const isDisconnected = actions.error?.cause === 'disconnected';
+
+	if ( finalView === 'resolved' ) {
+		return (
+			<IdentityCrisisLayout
+				logoUrl={ state.logoUrl }
+				showHeader={ showHeader }
+				heading={ __( 'Jetpack Connection is no longer in Safe Mode', 'jetpack-connection-js' ) }
+			>
+				<Stack direction="column" gap="md" ref={ finalViewRef }>
+					<IdentityCrisisErrorNotice error={ RESOLVED_ERROR } />
+					<StepActions
+						action={ { button: __( 'Reload', 'jetpack-connection-js' ) } }
+						isBusy={ false }
+						hasError={ false }
+						canGoBack={ false }
+						onContinue={ reloadPage }
+						onBack={ flow.back }
+					/>
+				</Stack>
+			</IdentityCrisisLayout>
+		);
+	}
+
+	if ( finalView === 'disconnected' ) {
+		return (
+			// No host actions: Disconnect and the like no longer apply.
+			<IdentityCrisisLayout
+				logoUrl={ state.logoUrl }
+				showHeader={ showHeader }
+				heading={ __( 'Jetpack Connection is disconnected', 'jetpack-connection-js' ) }
+			>
+				<Stack direction="column" gap="md" ref={ finalViewRef }>
+					{ /* Hidden while retrying, so a repeated failure is announced again. */ }
+					{ ! isBusy && (
+						<IdentityCrisisErrorNotice error={ actions.error ?? DISCONNECTED_ERROR } />
+					) }
+					<StepActions
+						action={ getOptionCopy( 'fresh', copy ) }
+						isBusy={ isBusy }
+						hasError
+						canGoBack={ false }
+						onContinue={ retryStartFresh }
+						onBack={ flow.back }
+					/>
+				</Stack>
+			</IdentityCrisisLayout>
+		);
+	}
+
 	let stepView: ReactNode;
 	let actionCopy: ActionCopy | null;
 	if ( isChoiceStep( step ) ) {
@@ -171,7 +241,7 @@ function IdentityCrisisResolver( {
 				options={ getOptions( step, ctx ) }
 				pick={ flow.state.pick }
 				copy={ copy }
-				disabled={ isBusy || isDisconnected }
+				disabled={ isBusy }
 				onPick={ flow.pick }
 				legendRef={ legendRef }
 			/>
@@ -208,7 +278,7 @@ function IdentityCrisisResolver( {
 					action={ actionCopy }
 					isBusy={ isBusy }
 					hasError={ actions.error !== null }
-					canGoBack={ flow.state.history.length > 0 && ! isDisconnected }
+					canGoBack={ flow.state.history.length > 0 }
 					onContinue={ onContinue }
 					onBack={ flow.back }
 				/>
