@@ -146,11 +146,7 @@ export const getRegistrationErrorDisplay = (
 	if ( ! description ) {
 		return { message, isMapped: true };
 	}
-	// A message from the status alone is generic, so keep the site's text, which may name the plugin or setting.
-	if (
-		code === 'register_http_request_failed' ||
-		! getConnectScreenErrorMessage( code, isOfflineMode )
-	) {
+	if ( code === 'register_http_request_failed' ) {
 		return { message, detail: description, isMapped: true };
 	}
 	if ( code && /^site_inaccessible_\d{3}$/.test( code ) ) {
@@ -279,15 +275,15 @@ const siteHttpErrorMessage = ( status: number, siteUrl?: string ): string => {
 };
 
 /**
- * Maps a connection error code, offline mode and the HTTP status to a user-facing message.
+ * Maps a connection error code (and offline mode) to a user-facing message.
  *
- * The Jetpack plugin's `state-notices.jsx` (`getErrorFromKey`) keeps an overlapping map;
+ * My Jetpack's `jetpack-state-notice/index.tsx` (`getErrorMessage`) keeps an overlapping map;
  * when changing copy for a code in both, check the other file too.
  *
  * @param {string}  errorCode     - The connection error code, see `getRegistrationErrorCode()`.
  * @param {boolean} isOfflineMode - Whether the site is in offline mode.
  * @param {string}  siteUrl       - For `site_inaccessible_{status}`: the URL WordPress.com tried, when known.
- * @param {number}  status        - The HTTP status the site's REST API sent with the error, when known.
+ * @param {number}  status        - The HTTP status the site's REST API sent, read only for the connect endpoint's own permission code.
  * @return {import('react').ReactNode} The error message, or undefined if there isn't one.
  */
 export const getConnectScreenErrorMessage = (
@@ -432,8 +428,8 @@ export const getConnectScreenErrorMessage = (
 			);
 	}
 
-	// After the codes above, so the 401/403 rules can't override them; offline mode outranks those rules too.
-	const siteFailure = getSiteRequestFailureCause( errorCode, isOfflineMode ? undefined : status );
+	// No status: here a 401/403 with another code comes from another plugin, whose own text says more.
+	const siteFailure = getSiteRequestFailureCause( errorCode );
 	if ( siteFailure ) {
 		return getSiteRequestFailureMessage( siteFailure );
 	}

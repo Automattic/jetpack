@@ -244,64 +244,29 @@ describe( 'getRegistrationErrorDisplay', () => {
 		getRegistrationErrorDisplay( { response: { code, message } } );
 
 	it.each( [
-		[ 'rest_forbidden', 401, getSiteRequestFailureMessage( 'session' ) ],
-		[ 'rest_forbidden', 403, getSiteRequestFailureMessage( 'permission' ) ],
-		[ 'invalid_user_permission_jetpack_connect', 401, getSiteRequestFailureMessage( 'session' ) ],
-		[
-			'invalid_user_permission_jetpack_connect',
-			403,
-			getConnectScreenErrorMessage( 'invalid_user_permission_jetpack_connect' ),
-		],
-		// The screen's own codes come before the shared 401/403 rules.
-		[ 'fail_domain_forbidden', 403, getConnectScreenErrorMessage( 'fail_domain_forbidden' ) ],
-	] as const )( 'reads %s with HTTP %d by its status too', ( code, status, message ) => {
-		expect(
-			getRegistrationErrorDisplay( { response: { code, message: '', data: { status } } } ).message
-		).toBe( message );
-	} );
+		[ 401, getSiteRequestFailureMessage( 'session' ) ],
+		[ 403, getConnectScreenErrorMessage( 'invalid_user_permission_jetpack_connect' ) ],
+	] as const )(
+		'reads the connect permission error with HTTP %d by its status',
+		( status, message ) => {
+			expect(
+				getRegistrationErrorDisplay( {
+					response: {
+						code: 'invalid_user_permission_jetpack_connect',
+						message: '',
+						data: { status },
+					},
+				} ).message
+			).toBe( message );
+		}
+	);
 
-	it( 'keeps the site’s text when only the status gave the message', () => {
-		expect(
-			getRegistrationErrorDisplay( {
-				response: {
-					code: 'some_plugin_error',
-					message: 'Blocked by Plugin X.',
-					data: { status: 403 },
-				},
-			} )
-		).toEqual( {
-			message: getSiteRequestFailureMessage( 'permission' ),
-			detail: 'Blocked by Plugin X.',
-			isMapped: true,
-		} );
-	} );
-
-	it( 'reads no status from WordPress.com’s bare-number error data', () => {
+	it( 'reads no status from bare-number error data, the shape WordPress.com errors use', () => {
 		expect(
 			getRegistrationErrorDisplay( {
-				response: { code: 'some_wpcom_error', message: 'WordPress.com text.', data: 403 },
-			} )
-		).toEqual( { message: 'WordPress.com text.', isMapped: false } );
-	} );
-
-	it( 'says offline mode, not permission, for a 403 on an offline site', () => {
-		render(
-			<>
-				{
-					getRegistrationErrorDisplay(
-						{
-							response: {
-								code: 'invalid_user_permission_user_connection_data',
-								message: '',
-								data: { status: 403 },
-							},
-						},
-						true
-					).message
-				}
-			</>
-		);
-		expect( screen.getByRole( 'link', { name: 'Offline Mode' } ) ).toBeInTheDocument();
+				response: { code: 'invalid_user_permission_jetpack_connect', message: '', data: 401 },
+			} ).message
+		).toBe( getConnectScreenErrorMessage( 'invalid_user_permission_jetpack_connect' ) );
 	} );
 
 	it( 'shows only our copy for a mapped code', () => {
