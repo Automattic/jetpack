@@ -1,6 +1,6 @@
 <?php
 /**
- * Who sees the Upgrade to Parsely prompts.
+ * Who sees the Upgrade to Parse.ly prompts.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -57,7 +57,7 @@ const PARSELY_PROMPTS_VIEWS_TTL = 12 * HOUR_IN_SECONDS;
 const PARSELY_PROMPTS_VIEWS_RETRY_TTL = HOUR_IN_SECONDS;
 
 /**
- * Configures the Upgrade to Parsely prompts. The flag registers earlier, at package boot.
+ * Configures the Upgrade to Parse.ly prompts. The flag registers earlier, at package boot.
  *
  * @since $$next-version$$
  *
@@ -90,7 +90,7 @@ function inject_parsely_prompts_script_data( array $data ): array {
 }
 
 /**
- * Whether this site and user see the Upgrade to Parsely prompts.
+ * Whether this site and user see the Upgrade to Parse.ly prompts.
  *
  * @since $$next-version$$
  *
@@ -99,7 +99,7 @@ function inject_parsely_prompts_script_data( array $data ): array {
 function offers_parsely_prompts() {
 	$offers = Parsely_Prompts::is_enabled()
 		&& current_user_can( 'manage_options' )
-		// WordPress.com Simple cannot complete the one-step Parsely setup yet.
+		// WordPress.com Simple cannot complete the one-step Parse.ly setup yet.
 		&& ! ( new Host() )->is_wpcom_simple()
 		&& in_array( get_stats_plan_tier(), PARSELY_PROMPTS_TIERS, true )
 		&& ! has_parsely_integration()
@@ -107,7 +107,7 @@ function offers_parsely_prompts() {
 		&& get_monthly_stats_views() >= PARSELY_PROMPTS_VIEWS_THRESHOLD;
 
 	/**
-	 * Filters whether the site and user see the Upgrade to Parsely prompts. It runs after every
+	 * Filters whether the site and user see the Upgrade to Parse.ly prompts. It runs after every
 	 * condition, the feature flag included, so returning true shows the prompts with the flag off.
 	 *
 	 * @since $$next-version$$
@@ -118,7 +118,7 @@ function offers_parsely_prompts() {
 }
 
 /**
- * Whether the site already runs Parsely, which it does once a Site ID is set. The plugin answers
+ * Whether the site already runs Parse.ly, which it does once a Site ID is set. The plugin answers
  * for itself wherever it can; the option is where it keeps that Site ID, and what it leaves
  * behind once deactivated.
  *

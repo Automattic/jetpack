@@ -1,6 +1,6 @@
 <?php
 /**
- * The flag that opens the Upgrade to Parsely prompts.
+ * The flag that opens the Upgrade to Parse.ly prompts.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -29,7 +29,7 @@ final class Parsely_Prompts {
 			self::FLAG,
 			array(
 				'default'     => false,
-				'description' => 'Show the Upgrade to Parsely prompts to the sites and users that qualify, as offers_parsely_prompts() decides.',
+				'description' => 'Show the Upgrade to Parse.ly prompts to the sites and users that qualify, as offers_parsely_prompts() decides.',
 				'owner'       => 'jetpack-stats',
 			)
 		);
