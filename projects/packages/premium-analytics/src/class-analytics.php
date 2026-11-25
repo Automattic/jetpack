@@ -393,7 +393,7 @@ class Analytics {
 		require_once __DIR__ . '/stats-plan-gates.php';
 		configure_stats_plan_gates();
 
-		// Whether this site and user see the Upgrade to Parsely prompts.
+		// Whether this site and user see the Upgrade to Parse.ly prompts.
 		require_once __DIR__ . '/parsely-prompts.php';
 		configure_parsely_prompts();
 
