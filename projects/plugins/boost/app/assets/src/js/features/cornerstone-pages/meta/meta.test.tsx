@@ -66,7 +66,6 @@ describe( 'Cornerstone Pages meta', () => {
 				url: 'https://example.com/',
 				online: true,
 				myJetpack: true,
-				addLicense: true,
 				host: 'other',
 			},
 		};
