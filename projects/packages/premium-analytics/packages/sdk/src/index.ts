@@ -15,8 +15,6 @@ export {
 	MetricTabsChartSkeleton,
 	MetricTileGrid,
 	MetricTileGridSkeleton,
-	PromoCta,
-	type PromoRenderProps,
 	WidgetRoot,
 	WidgetState,
 	buildMetricTab,

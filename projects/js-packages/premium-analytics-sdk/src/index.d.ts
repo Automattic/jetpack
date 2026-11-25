@@ -210,34 +210,6 @@ export type LocationsProps = {
 	chartTitle?: string;
 };
 
-// Promo: what the dashboard hands a registered promo's render module, and the call to action it
-// draws for its own links. A module owns the whole content region; the dashboard keeps the frame.
-export type PromoRecord = {
-	slug: string;
-	placement: 'options-menu' | 'settings';
-	order: number;
-	title: string;
-	description: string;
-	cta_label: string;
-	cta_url: string;
-	dismissible: boolean;
-	snooze_days: number;
-	render_module: string | null;
-};
-export type PromoRenderProps = {
-	promo: PromoRecord;
-	// Present when the promo is dismissible. The frame already draws the close control.
-	onDismiss?: () => void;
-	// Records a click on one of the module's own links; the label tells them apart.
-	trackClick: ( label: string ) => void;
-};
-export declare const PromoCta: ComponentType< {
-	href: string;
-	label: string;
-	variant?: 'primary' | 'secondary';
-	trackClick: ( label: string ) => void;
-} >;
-
 // Widget attributes. The chart type is not one: a widget declares it as a `jpa/toggle-group` field.
 export declare function reportParamsAttributeField< Attributes = any >( options?: any ): any;
 export declare function defaultReportParamsForGrain( ...args: any[] ): any;

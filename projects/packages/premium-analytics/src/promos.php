@@ -1,6 +1,9 @@
 <?php
 /**
- * Promo Slot API: the registry helpers and the gates a registered promo passes before it shows.
+ * Promos: the registry helpers and the gates a registered promo passes before it shows.
+ *
+ * Internal to this package. The dashboard renders what is registered here; nothing outside the
+ * package registers through it, so there is no versioned contract to hold.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -12,14 +15,14 @@ use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 require_once __DIR__ . '/class-promo.php';
 require_once __DIR__ . '/class-promo-registry.php';
 
-const PROMO_API_VERSION = '1.0.0';
-
 const PROMO_PLACEMENTS = Promo_Registry::PLACEMENTS;
 
 const PROMO_FLAG = 'jetpack-stats-promos';
 
 /**
  * Registers a promo.
+ *
+ * @internal
  *
  * @since $$next-version$$
  *
@@ -112,11 +115,6 @@ function configure_promos() {
 			'owner'       => 'jetpack-stats',
 		)
 	);
-
-	if ( file_exists( __DIR__ . '/promo-fixture.php' ) ) {
-		require_once __DIR__ . '/promo-fixture.php';
-		configure_promo_fixtures();
-	}
 
 	add_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_promos_script_data', 20 );
 	add_filter( 'jetpack-premium-analytics-wp-admin_boot_dependencies', __NAMESPACE__ . '\\add_promo_modules_to_boot_deps' );

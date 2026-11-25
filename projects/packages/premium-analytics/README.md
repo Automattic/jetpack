@@ -31,14 +31,12 @@ capability-gated admin page serves the dashboard.
   to the client and rendered, and how another plugin registers one.
 - [Dashboard widget types](docs/dashboard-widgets.md): how a widget type is registered, filtered,
   served to the client and imported, and how another plugin registers one.
-- [Dashboard promos](docs/dashboard-promos.md): how another package registers a promotional card
-  for the dashboard, the options menu or Settings, and how it is gated, dismissed and tracked.
 
 ## Extending the dashboard from another plugin
 
 The package owns the dashboard, not the features. A section and its widgets belong to the code that knows the feature is there, and `jetpack-mu-wpcom` registers on WordPress.com Simple and Atomic where that fact is a plan feature.
 
-A plugin extends the dashboard from three actions. Each fires once, when its registry hydrates on the first read after `init`.
+A plugin extends the dashboard from two actions. Each fires once, when its registry hydrates on the first read after `init`.
 
 ### Sections
 
@@ -49,10 +47,6 @@ Hook `jetpack_premium_analytics_register_dashboard_sections` and call `register_
 Hook `jetpack_premium_analytics_register_widget_types`, compare `WIDGET_API_VERSION`, require the `build/build.php` wp-build generated for your `widgets/` folder, and call `register_widget_types_from_manifest()` with its manifest, your text domain and the URL of your `i18n-manifest.json`. See [Dashboard widget types](docs/dashboard-widgets.md).
 
 Your widgets import the dashboard through `@automattic/jetpack-premium-analytics-sdk` (`projects/js-packages/premium-analytics-sdk`). Your build keeps that import external, and the dashboard page's import map resolves it to the module this package registers.
-
-### Promos
-
-Hook `jetpack_premium_analytics_register_promos`, compare `PROMO_API_VERSION`, and call `register_promo()` with a placement (`options-menu` or `settings`), the copy, a call to action and an `is_available` rule. Nothing shows until the `jetpack-stats-promos` feature flag is on. See [Dashboard promos](docs/dashboard-promos.md).
 
 ### The reference consumers
 

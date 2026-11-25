@@ -57,8 +57,7 @@ src/default-dashboard-sections.php      # the package's own sections, registered
 docs/dashboard-sections.md              # how a section is registered, served and rendered (diagrams)
 src/widget-types.php                    # widget type API: registry helpers, metadata, availability filters
 docs/dashboard-widgets.md               # how a widget type is registered, served and imported (diagram)
-src/promos.php                          # promo API: registry helpers, availability gates, promo script data
-docs/dashboard-promos.md                # how a promo is registered, gated, rendered, dismissed and tracked
+src/promos.php                          # promos: internal registry, availability gates, promo script data
 docs/whats-new-channels.md              # which page shows a What's new announcement: channels by route
 src/REST/class-api-proxy-controller.php # the WPCOM data proxy (PREFIX_CONFIG)
 src/REST/class-notices-controller.php   # /notices route
@@ -104,9 +103,9 @@ compare `WIDGET_API_VERSION`, and call `register_widget_types_from_manifest()` t
 manifest that plugin's wp-build generates. A renamed type declares `former_names`, and one that
 shows a paid Stats feature declares `plan_feature`; `docs/dashboard-widgets.md` covers both.
 
-Add a promo card from another plugin: `docs/dashboard-promos.md`. Compare `PROMO_API_VERSION` in
-the registration callback. Nothing in this repo reads it, so what a bump means lives only in that
-doc.
+Promos are internal to this package for now: `register_promo()` takes a placement, the copy, a CTA
+and an `is_available` rule, and `src/promos.php` gates and publishes them. It is not an extension
+point other plugins register through, so it carries no version to compare.
 
 ### Timing-dependent JS tests use fake timers
 
