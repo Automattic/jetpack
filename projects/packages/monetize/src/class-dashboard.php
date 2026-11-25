@@ -32,7 +32,7 @@ class Dashboard {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.2.0';
+	const PACKAGE_VERSION = '0.3.0';
 
 	/**
 	 * Feature flag that makes the dashboard available while it is built.
@@ -139,14 +139,10 @@ class Dashboard {
 
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 
-		// A wpcom host adds the item itself: see README.
-		if ( ! ( new Host() )->is_wpcom_platform() ) {
+		// Simple adds the item itself and reaches WordPress.com directly, so it needs neither: see README.
+		if ( ! ( new Host() )->is_wpcom_simple() ) {
 			// Before Admin_Menu registers its items at 1000.
 			add_action( 'admin_menu', array( __CLASS__, 'add_menu' ), 999 );
-		}
-
-		// Simple reaches WordPress.com directly, so it needs none of the forwarding routes.
-		if ( ! ( new Host() )->is_wpcom_simple() ) {
 			add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 		}
 
@@ -242,6 +238,8 @@ class Dashboard {
 	/**
 	 * Where the page's upgrade links go: Jetpack Creator, unless a host sends them to its own plans.
 	 *
+	 * A host that sets `url` to an empty string offers no upgrade, and the page hides its links.
+	 *
 	 * @since 0.2.0
 	 *
 	 * @return string
@@ -259,6 +257,10 @@ class Dashboard {
 			false
 		);
 
+		if ( is_array( $upgrade ) && array_key_exists( 'url', $upgrade ) && '' === $upgrade['url'] ) {
+			return '';
+		}
+
 		$url = is_array( $upgrade ) ? esc_url_raw( (string) ( $upgrade['url'] ?? '' ) ) : '';
 
 		return $url ? $url : self::get_jetpack_creator_url();
@@ -274,11 +276,16 @@ class Dashboard {
 		$blog_id    = Jetpack_Options::get_option( 'id' );
 		$partner    = Partner::init();
 
-		$query = $connection->is_user_connected() ? '' : 'unlinked=1&';
+		$query = array();
+		if ( ! $connection->is_user_connected() ) {
+			$query['unlinked'] = 1;
+		}
 		// Lets an admin of a site with no connected user buy without a WordPress.com account.
 		if ( $connection->is_site_connection() && current_user_can( 'manage_options' ) ) {
-			$query .= 'purchasetoken=' . self::get_purchase_token();
+			$query['purchasetoken'] = self::get_purchase_token();
 		}
+		// Checkout sends the buyer back here instead of to Calypso.
+		$query['redirect_to'] = admin_url( 'admin.php?page=' . self::MENU_SLUG );
 
 		return Redirect::get_url(
 			'jetpack-creator-cta',
@@ -287,7 +294,7 @@ class Dashboard {
 				'aff'          => $partner->get_partner_code( Partner::AFFILIATE_CODE ),
 				'u'            => (string) get_current_user_id(),
 				'subsidiaryId' => $partner->get_partner_code( Partner::SUBSIDIARY_CODE ),
-				'query'        => $query,
+				'query'        => http_build_query( $query ),
 				'calypso_env'  => ( new Host() )->get_calypso_env(),
 			)
 		);
@@ -390,7 +397,14 @@ class Dashboard {
 
 		WP_Build_Polyfills::register(
 			'jetpack-monetize',
-			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )
+			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS ),
+			null,
+			array(
+				array(
+					'prefix' => 'jetpack_monetize',
+					'slug'   => self::WP_BUILD_PAGE_ID,
+				),
+			)
 		);
 
 		return true;
@@ -455,11 +469,18 @@ class Dashboard {
 	}
 
 	/**
-	 * Add the "Monetize" item under the Jetpack menu on Simple, once wpcom-admin-menu.php has built that menu.
+	 * Add the "Monetize" item under the Jetpack menu on the WordPress.com platform, once wpcom-admin-menu.php has built that menu.
 	 *
 	 * @return void
 	 */
 	public static function add_wp_admin_submenu() {
+		global $submenu;
+
+		// Admin_Menu already added it at 1000 where init() queued it, as on WoA.
+		if ( ! empty( $submenu['jetpack'] ) && in_array( self::MENU_SLUG, array_column( $submenu['jetpack'], 2 ), true ) ) {
+			return;
+		}
+
 		add_submenu_page(
 			'jetpack',
 			__( 'Monetize', 'jetpack-monetize' ),

@@ -25,6 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 abstract class Abstract_Token_Subscription_Service implements Subscription_Service {
 
 	const JWT_AUTH_TOKEN_COOKIE_NAME                   = 'wp-jp-premium-content-session'; // wp prefix helps with skipping batcache
+	const SILENT_SUBSCRIBER_CHECK_COOKIE               = 'jp-sub-check';
 	const DECODE_EXCEPTION_FEATURE                     = 'memberships';
 	const DECODE_EXCEPTION_MESSAGE                     = 'Problem decoding provided token';
 	const REST_URL_ORIGIN                              = 'https://subscribe.wordpress.com/';
@@ -811,6 +812,26 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 		if ( ! headers_sent() ) {
 			// phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse
 			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, '', 1, '/', '', is_ssl(), false );
+		}
+	}
+
+	/**
+	 * Pause the paywall's silent subscriber check for a month, so a subscriber who logs out
+	 * isn't signed straight back in from their WordPress.com session. The check's script
+	 * reads this cookie, so it can't be httponly.
+	 *
+	 * @since 16.5
+	 */
+	public static function pause_silent_subscriber_check() {
+		$_COOKIE[ self::SILENT_SUBSCRIBER_CHECK_COOKIE ] = '1';
+
+		if ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) {
+			return;
+		}
+
+		if ( ! headers_sent() ) {
+			// phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse
+			setcookie( self::SILENT_SUBSCRIBER_CHECK_COOKIE, '1', strtotime( '+1 month' ), '/', '', is_ssl(), false );
 		}
 	}
 

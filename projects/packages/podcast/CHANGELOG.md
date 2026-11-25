@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.8] - 2026-11-23
+### Changed
+- Admin shell: Let Podcast join the shell on WordPress.com Simple sites too. [#55084]
+- Admin shell: Record the dashboard view again when the shell shows the Podcast page again. [#55078]
+- Dashboard: Load the media library when the cover image picker opens it, instead of on every page load. [#55122]
+- Update dependencies. [#55058]
+
+### Fixed
+- Admin page: Reuse My Jetpack's lookup of the site's purchases instead of requesting the same list from WordPress.com a second time. [#55193]
+- Dashboard: Stop logging a missing jetpackConfig error to the console on a full page load. [#55262]
+
 ## [2.2.7] - 2026-11-16
 ### Added
 - Join the admin shell, so switching to and from other Jetpack dashboards skips the page load when the admin shell flag is on. [#54768]
@@ -336,6 +347,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dashboard: Replace the wp-build placeholder with page chrome and tab navigation. [#48559]
 - Dashboard: Slim down wp-build wiring to the Backup pattern. [#48600]
 
+[2.2.8]: https://github.com/Automattic/jetpack-podcast/compare/v2.2.7...v2.2.8
 [2.2.7]: https://github.com/Automattic/jetpack-podcast/compare/v2.2.6...v2.2.7
 [2.2.6]: https://github.com/Automattic/jetpack-podcast/compare/v2.2.5...v2.2.6
 [2.2.5]: https://github.com/Automattic/jetpack-podcast/compare/v2.2.4...v2.2.5

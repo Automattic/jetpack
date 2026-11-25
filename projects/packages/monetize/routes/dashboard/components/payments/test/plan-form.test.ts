@@ -1,4 +1,4 @@
-import { initialForm, minimumPrice, toPayload, validate } from '../plan-form';
+import { annualPriceFor, initialForm, minimumPrice, toPayload, validate } from '../plan-form';
 import type { PlanForm } from '../plan-form';
 
 const CURRENCIES = { defaultCurrency: 'EUR', minimumAmounts: { EUR: 0.5, USD: 0.5 } };
@@ -15,6 +15,16 @@ describe( 'minimumPrice', () => {
 		[ 'a currency Stripe doesn’t list', 'JPY', 0 ],
 	] )( 'takes %s', ( _name, currency, minimum ) => {
 		expect( minimumPrice( CURRENCIES, currency ) ).toBe( minimum );
+	} );
+} );
+
+describe( 'annualPriceFor', () => {
+	it.each( [
+		[ 1.1, 'USD', 13.2 ],
+		[ 0.6, 'EUR', 7.2 ],
+		[ 150, 'JPY', 1800 ],
+	] )( 'charges twelve months of %p %s as %p', ( price, currency, annual ) => {
+		expect( annualPriceFor( price, currency ) ).toBe( annual );
 	} );
 } );
 

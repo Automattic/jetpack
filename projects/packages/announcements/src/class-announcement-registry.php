@@ -154,7 +154,7 @@ final class Announcement_Registry {
 		// Latching before init ends would drop every registrant hooked later, so the read skips the action.
 		if ( ! did_action( 'init' ) || doing_action( 'init' ) ) {
 			$message = __( 'Announcements are read after init. An earlier read answers only what was registered directly.', 'jetpack-announcements' );
-			_doing_it_wrong( __CLASS__, esc_html( $message ), 'jetpack-announcements-$$next-version$$' );
+			_doing_it_wrong( __CLASS__, esc_html( $message ), 'jetpack-announcements-0.1.0' );
 			return;
 		}
 
@@ -167,7 +167,7 @@ final class Announcement_Registry {
 		 * Register announcements here with `register_announcement()`. Do no I/O: the read
 		 * that triggers it may be a REST request.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.1.0
 		 *
 		 * @param Announcement_Registry $registry The registry being hydrated.
 		 */
@@ -184,7 +184,7 @@ final class Announcement_Registry {
 	private static function sanitize( $id, array $args ) {
 		$date     = self::sanitize_date( $args['date'] ?? null );
 		$title    = self::sanitize_text( $args['title'] ?? '' );
-		$channels = array_values( array_unique( array_filter( array_map( 'sanitize_key', (array) ( $args['channels'] ?? array() ) ) ) ) );
+		$channels = array_values( array_unique( array_filter( array_map( array( __CLASS__, 'sanitize_channel' ), (array) ( $args['channels'] ?? array() ) ) ) ) );
 
 		if ( '' === $date || '' === $title || ! $channels ) {
 			return null;
@@ -201,6 +201,20 @@ final class Announcement_Registry {
 			'channels'   => $channels,
 			'capability' => is_string( $args['capability'] ?? null ) ? $args['capability'] : '',
 		);
+	}
+
+	/**
+	 * Sanitizes the name of a channel: keys, separated by a slash when there are several.
+	 *
+	 * @param mixed $value The name a registrant passed.
+	 * @return string The name, or an empty string when nothing of it is left.
+	 */
+	private static function sanitize_channel( $value ) {
+		if ( ! is_scalar( $value ) ) {
+			return '';
+		}
+
+		return implode( '/', array_filter( array_map( 'sanitize_key', explode( '/', (string) $value ) ), 'strlen' ) );
 	}
 
 	/**
@@ -287,7 +301,7 @@ final class Announcement_Registry {
 	 * @return false
 	 */
 	private static function refuse( $message ) {
-		_doing_it_wrong( __NAMESPACE__ . '\register_announcement', esc_html( $message ), 'jetpack-announcements-$$next-version$$' );
+		_doing_it_wrong( __NAMESPACE__ . '\register_announcement', esc_html( $message ), 'jetpack-announcements-0.1.0' );
 
 		return false;
 	}

@@ -164,6 +164,17 @@
 	z-index: 1;
 }
 
+/* A mark at the row's start, as classic Stats drew a post published in the
+ * period. */
+.indicated::before {
+	content: "";
+	position: absolute;
+	inset-block: 0;
+	inset-inline-start: 0;
+	inline-size: var(--wpds-border-width-md);
+	background-color: var(--wpds-color-foreground-interactive-brand);
+}
+
 /* DataViews picker cells stretch media images to 100%. Widget previews render
  * inert, so keep each semantic media kind at its shared size. */
 :global([inert]) .container .media {

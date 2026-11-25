@@ -61,8 +61,6 @@ class Performance_History implements Feature, Is_Always_On, Has_Data_Sync {
 			)
 		);
 
-		$instance->register( 'performance_history_toggle', Schema::as_boolean()->fallback( false ) );
-
 		$instance->register( 'performance_history', $performance_history_schema, new Performance_History_Entry() );
 	}
 

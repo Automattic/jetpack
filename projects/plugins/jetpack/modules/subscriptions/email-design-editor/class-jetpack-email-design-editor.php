@@ -45,6 +45,11 @@ class Jetpack_Email_Design_Editor {
 	const STICKER = 'email-design-editor';
 
 	/**
+	 * The site option that keeps a WoA site in once it has run a block theme. wpcom reads it through sync.
+	 */
+	const BLOCK_THEME_OPTION = 'jetpack_email_design_enabled';
+
+	/**
 	 * The script handle, and the id of the element the editor mounts into.
 	 */
 	const HANDLE = 'jetpack-email-design-editor';
@@ -78,6 +83,10 @@ class Jetpack_Email_Design_Editor {
 		// Last, so that on Atomic the sticker cannot be overridden by a filter added later --
 		// a flag that outlives the sticker is not a kill switch.
 		add_filter( 'jetpack_feature_flag_enabled_' . self::FEATURE_FLAG, array( __CLASS__, 'filter_flag_for_atomic' ), PHP_INT_MAX );
+
+		// Before `add_admin_page()`, so a site already on a block theme gets the screen on this request.
+		add_action( 'switch_theme', array( __CLASS__, 'maybe_mark_block_theme' ) );
+		add_action( 'admin_menu', array( __CLASS__, 'maybe_mark_block_theme' ), 9 );
 
 		add_action( 'admin_menu', array( __CLASS__, 'add_admin_page' ) );
 
@@ -145,11 +154,23 @@ class Jetpack_Email_Design_Editor {
 	}
 
 	/**
-	 * Answer the flag from the Atomic sticker, or the a8c proxy, where there is one to read.
+	 * Keep a WoA site in once it runs a block theme: nothing clears the option, so a later classic theme does not.
 	 *
-	 * The incoming value is dropped rather than widened: on Atomic the sticker is the whole
-	 * switch, so removing it has to close the screen -- for everyone who is not on the proxy --
-	 * even where the flag was forced on.
+	 * WoA only, which leaves Flex out: its WP Cloud client does not load wpcomsh.
+	 */
+	public static function maybe_mark_block_theme() {
+		if ( get_option( self::BLOCK_THEME_OPTION ) || ! ( new Host() )->is_woa_site() || ! wp_is_block_theme() ) {
+			return;
+		}
+
+		update_option( self::BLOCK_THEME_OPTION, 1 );
+	}
+
+	/**
+	 * Answer the flag from the Atomic sticker, the a8c proxy, or a block theme the site has run.
+	 *
+	 * The incoming value is dropped rather than widened, so removing the sticker closes the
+	 * screen even where the flag was forced on -- unless the proxy or the option keeps it open.
 	 *
 	 * The proxy clause is the a12 rollout (NL-41), and gates dogfooding rather than access:
 	 * wpcom's `/wpcom/v2/email-editor-bootstrap` still decides whether the blog is in, so on a
@@ -172,14 +193,15 @@ class Jetpack_Email_Design_Editor {
 		// Read through `Constants` rather than `defined()`, as the rest of the monorepo's
 		// `AT_PROXIED_REQUEST` call sites do, so this branch is reachable from tests at all.
 		return (bool) wpcomsh_is_site_sticker_active( self::STICKER )
-			|| Constants::is_true( 'AT_PROXIED_REQUEST' );
+			|| Constants::is_true( 'AT_PROXIED_REQUEST' )
+			|| (bool) get_option( self::BLOCK_THEME_OPTION );
 	}
 
 	/**
 	 * Whether the screen should exist on this site.
 	 *
-	 * On WoA the `email-design-editor` sticker and the a8c proxy decide, through the filter
-	 * above; on Simple wpcom's mu-plugin turns the flag on alongside the sticker. Any other
+	 * On WoA the `email-design-editor` sticker, the a8c proxy and the block-theme option decide,
+	 * through the filter above; on Simple wpcom's mu-plugin turns the flag on alongside the sticker. Any other
 	 * site cannot read its own blog's stickers, so the registered default is the gate there --
 	 * wpcom's rollout rule still gates the bootstrap, and so the emails.
 	 *

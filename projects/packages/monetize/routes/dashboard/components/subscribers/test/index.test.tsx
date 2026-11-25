@@ -7,9 +7,9 @@ import { wpcomFetch } from '../../../data/wpcom-fetch';
 jest.mock( '../../../data/wpcom-fetch', () => ( { wpcomFetch: jest.fn() } ) );
 jest.mock( '../../../data/tracking', () => ( { trackSubscribersEvent: jest.fn() } ) );
 
-const ownership = ( id: number, email: string ) => ( {
+const ownership = ( id: number, email: string, name = '' ) => ( {
 	id,
-	user: { ID: id * 10, name: '', user_email: email },
+	user: { ID: id * 10, name, user_email: email },
 	plan: { title: 'Gold', renewal_price: 5, currency: 'USD', renew_interval: '1 month' },
 	start_date: '2026-03-03 12:00:00',
 	all_time_total: 15,
@@ -40,6 +40,16 @@ const cancelRow = async ( email: string ) => {
 
 describe( 'Subscribers', () => {
 	beforeEach( () => ( wpcomFetch as jest.Mock ).mockReset() );
+
+	it( 'shows names as text, not as the HTML entities WordPress.com sends', async () => {
+		( wpcomFetch as jest.Mock ).mockResolvedValue( {
+			total: 1,
+			ownerships: [ ownership( 1, 'a@example.com', 'Tom &amp; Jerry' ) ],
+		} );
+		renderTab();
+
+		await expect( screen.findByText( 'Tom & Jerry' ) ).resolves.toBeVisible();
+	} );
 
 	it( 'cancels a subscription, then refetches the page to fill the gap', async () => {
 		let cancelled = false;
@@ -109,6 +119,29 @@ describe( 'Subscribers', () => {
 		);
 	} );
 
+	it( 'clears the last page’s rows when the next page fails, then loads it on trying again', async () => {
+		let failNext = true;
+		( wpcomFetch as jest.Mock ).mockImplementation( ( { query } ) => {
+			if ( query.offset === 0 ) {
+				return Promise.resolve( { total: 51, ownerships: [ ownership( 2, 'b@example.com' ) ] } );
+			}
+			if ( failNext ) {
+				failNext = false;
+				return Promise.reject( new Error( 'Page failed' ) );
+			}
+			return Promise.resolve( { total: 51, ownerships: [ ownership( 1, 'a@example.com' ) ] } );
+		} );
+		renderTab();
+
+		await expect( screen.findByText( 'b@example.com' ) ).resolves.toBeVisible();
+		await userEvent.click( screen.getByRole( 'button', { name: 'Next page' } ) );
+		await expect( screen.findByText( 'Page failed' ) ).resolves.toBeVisible();
+		expect( screen.queryByText( 'b@example.com' ) ).not.toBeInTheDocument();
+		await userEvent.click( screen.getByRole( 'button', { name: 'Try again' } ) );
+
+		await expect( screen.findByText( 'a@example.com' ) ).resolves.toBeVisible();
+	} );
+
 	it( 'closes the details once their subscription is cancelled from them', async () => {
 		( wpcomFetch as jest.Mock ).mockImplementation( ( { path } ) =>
 			Promise.resolve(
@@ -140,5 +173,15 @@ describe( 'Subscribers', () => {
 		await userEvent.click( await screen.findByRole( 'button', { name: 'Try again' } ) );
 
 		await expect( screen.findByText( 'b@example.com' ) ).resolves.toBeVisible();
+	} );
+
+	it( 'shows only the empty message, without the table’s controls, when nobody has paid yet', async () => {
+		( wpcomFetch as jest.Mock ).mockResolvedValue( { total: 0, ownerships: [] } );
+		renderTab();
+
+		await expect(
+			screen.findByText( /You don’t have any paid subscribers yet/ )
+		).resolves.toBeVisible();
+		expect( screen.queryByRole( 'button', { name: 'View options' } ) ).not.toBeInTheDocument();
 	} );
 } );

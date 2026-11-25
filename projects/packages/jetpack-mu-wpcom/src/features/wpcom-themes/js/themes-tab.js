@@ -15,11 +15,55 @@
 		const item = document.createElement( 'li' );
 		item.appendChild( link );
 		list.prepend( item );
+
+		// Says which side has tabs scrolled out of view, for the stylesheet to fade.
+		if ( window.ResizeObserver ) {
+			const markClipped = () => {
+				const scrolled = Math.abs( list.scrollLeft );
+				list.classList.toggle( 'is-clipped-start', scrolled > 1 );
+				list.classList.toggle(
+					'is-clipped-end',
+					scrolled + list.clientWidth < list.scrollWidth - 1
+				);
+			};
+			list.addEventListener( 'scroll', markClipped, { passive: true } );
+			new window.ResizeObserver( markClipped ).observe( list );
+		}
+
+		// A mouse wheel only turns one way, so it scrolls the tabs while they have further to go.
+		list.addEventListener(
+			'wheel',
+			event => {
+				if ( event.ctrlKey || Math.abs( event.deltaX ) >= Math.abs( event.deltaY ) ) {
+					return;
+				}
+
+				// Firefox counts a wheel in lines, and a page is the whole of what shows.
+				const unit = [ 1, 16, list.clientWidth ][ event.deltaMode ] || 1;
+				const forward = document.dir === 'rtl' ? -1 : 1;
+				const before = list.scrollLeft;
+				list.scrollLeft += event.deltaY * unit * forward;
+
+				// At either end, and where the tabs do not scroll at all, the page scrolls as usual.
+				if ( list.scrollLeft !== before ) {
+					event.preventDefault();
+				}
+			},
+			{ passive: false }
+		);
 	}
 
 	const views = window.wp && window.wp.themes && window.wp.themes.view;
 	if ( ! views ) {
 		return;
+	}
+
+	// The stylesheet hides core's label to save room, so the search box says what it is for.
+	if ( views.InstallerSearch && config.searchLabel ) {
+		views.InstallerSearch.prototype.attributes = {
+			...views.InstallerSearch.prototype.attributes,
+			placeholder: config.searchLabel,
+		};
 	}
 
 	/**

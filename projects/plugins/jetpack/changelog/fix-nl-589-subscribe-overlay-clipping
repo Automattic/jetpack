@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Subscribe overlay: Keep the form reachable on wide and short screens by capping the top margin and letting the overlay scroll.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Admin shell: Let a page opt out of the stand-in header, or keep a line for a subtitle it picks as it renders, and title a borrowed header with the page's declared title.

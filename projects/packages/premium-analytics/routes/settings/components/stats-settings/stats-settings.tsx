@@ -16,6 +16,7 @@ import { __ } from '@wordpress/i18n';
 import { ConsentCard } from '../consent-card';
 import { PlanUsageCard } from '../plan-usage-card';
 import { SettingsForm } from '../settings-form';
+import { WhatsNewCard } from '../whats-new-card';
 import styles from './stats-settings.module.scss';
 import type { JSX } from 'react';
 
@@ -77,6 +78,7 @@ function StatsSettingsContent(): JSX.Element {
 		<Stack direction="column" gap="xl" className={ styles.root }>
 			<PlanUsageCard />
 			<SettingsForm />
+			<WhatsNewCard />
 			<ConsentCard />
 			{ featuresUrl && (
 				<Card.Root>

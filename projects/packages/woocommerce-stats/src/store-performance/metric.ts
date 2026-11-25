@@ -13,7 +13,7 @@ export type StorePerformanceReport = ReportResult< unknown >;
 export type StorePerformanceMetric = {
 	/** Keys the tab and names the metric in the widget's `hiddenMetrics` attribute. */
 	id: string;
-	/** Where the tab goes, lowest first; the widget's own run 10 to 50. Absent, after them. */
+	/** Where the tab goes, lowest first; the widget's own run 10 to 60. Absent, after them. */
 	order?: number;
 	label: string;
 	description: string;

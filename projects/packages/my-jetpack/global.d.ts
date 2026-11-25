@@ -667,6 +667,8 @@ interface Window {
 					has_paid_plan_for_product: boolean;
 					has_protect_page?: boolean;
 					scan_results_url?: string;
+					host_may_sell?: boolean;
+					host_purchase_url?: string | null;
 					is_bundle: boolean;
 					is_feature: boolean;
 					is_plugin_active: boolean;
@@ -809,6 +811,12 @@ interface Window {
 		};
 		// Security modules whose settings live on the Protect page, keyed by module slug; empty without that page.
 		protectPageModuleUrls?: Record< string, string >;
+		// Null while the notices Jetpack › Settings shows stay there.
+		settingsNotices?: {
+			jetpackState: import( './_inc/components/jetpack-state-notice' ).JetpackState;
+			jetpackVersion: string | null;
+			searchEnginesVisible: boolean;
+		} | null;
 		// Null unless the partner coupon screen replaces the dashboard.
 		partnerCoupon?: {
 			coupon: {

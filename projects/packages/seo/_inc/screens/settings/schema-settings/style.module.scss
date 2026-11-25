@@ -14,8 +14,9 @@
 	min-inline-size: 0;
 }
 
-.profileError :global(.components-base-control__help),
-.fieldError :global(.components-base-control__help) {
+// The control's description is its only `p`.
+.profileError p,
+.fieldError p {
 	color: var(--wpds-color-foreground-content-error-weak);
 }
 

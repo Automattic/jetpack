@@ -8,10 +8,12 @@
 namespace Automattic\Jetpack\Monetize\Sections;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Monetize\Ads_Wpcom_Settings;
 use Automattic\Jetpack\Monetize\Dashboard;
 use Automattic\Jetpack\Monetize\Dashboard_Section;
 use Automattic\Jetpack\Monetize\WPCOM_Proxy;
+use Automattic\Jetpack\Status\Host;
 use WP_Error;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -19,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Payout details on WordPress.com, and keeping its copy of the site's Ads settings caught up.
+ * Ad earnings and payouts on WordPress.com, and keeping its copy of the site's Ads settings caught up.
  *
  * @since 0.2.0
  */
@@ -35,16 +37,31 @@ class Ads implements Dashboard_Section {
 	}
 
 	/**
-	 * Whether WordPress.com is behind the site's Ads settings.
+	 * Whether the plan includes WordAds, who can join it, and whether WordPress.com is behind the site's Ads settings.
 	 *
 	 * @return array
 	 */
 	public function get_state() {
-		return array( 'wpcomOutOfDate' => Ads_Wpcom_Settings::is_out_of_date() );
+		return array(
+			'hasWordAds'     => Current_Plan::supports( 'wordads' ),
+			'canJoinWordAds' => self::can_join_wordads(),
+			// Simple keeps its Ads settings on WordPress.com, so there is nothing to sync.
+			'wpcomOutOfDate' => ! ( new Host() )->is_wpcom_simple() && Ads_Wpcom_Settings::is_out_of_date(),
+		);
 	}
 
 	/**
-	 * Register the payout and sync routes.
+	 * Whether the current user may join WordAds on Simple, which WordPress.com allows only the site owner.
+	 *
+	 * @return bool
+	 */
+	private static function can_join_wordads() {
+		return function_exists( 'wpcom_get_blog_owner' )
+			&& get_current_user_id() === (int) wpcom_get_blog_owner();
+	}
+
+	/**
+	 * Register the payout, earnings and sync routes.
 	 *
 	 * @return void
 	 */
@@ -65,6 +82,12 @@ class Ads implements Dashboard_Section {
 				),
 			)
 		);
+
+		WPCOM_Proxy::register_route( 'wpcom/v2', 'wordads/earnings', 'GET' );
+		WPCOM_Proxy::register_route( 'wpcom/v2', 'wordads/payments', 'GET' );
+
+		// Approval and whether WordPress.com considers the site safe for ads.
+		WPCOM_Proxy::register_route( 'rest/v1.1', 'wordads/account', 'GET' );
 
 		register_rest_route(
 			WPCOM_Proxy::REST_NAMESPACE,
@@ -88,7 +111,7 @@ class Ads implements Dashboard_Section {
 		}
 
 		if ( ! ( new Connection_Manager() )->is_user_connected() ) {
-			return new WP_Error( 'rest_unauthorized', __( 'Connect your WordPress.com account first.', 'jetpack-monetize' ), array( 'status' => 403 ) );
+			return new WP_Error( 'rest_unauthorized', __( 'Connect your WordPress.com account first.', 'jetpack-monetize' ), array( 'status' => rest_authorization_required_code() ) );
 		}
 
 		return true;

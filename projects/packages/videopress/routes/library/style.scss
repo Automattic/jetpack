@@ -278,13 +278,13 @@
 	}
 
 	// Title + status pill row: cap the row at the cell width so the title
-	// (min-width: 0 above) shrinks and ellipsizes, and keep the pill from
-	// being crushed by a long title.
+	// (min-width: 0 above) shrinks and ellipsizes, and keep the pill and the
+	// local row's upload button from being crushed by a long title.
 	&__title-cell {
 		min-width: 0;
 		max-width: 100%;
 
-		> :last-child {
+		> :not(:first-child) {
 			flex-shrink: 0;
 		}
 	}
@@ -315,10 +315,9 @@
 		}
 	}
 
-	// Status info (Local / Uploading 47% / Upload failed) renders as a Badge
-	// alongside the title. Hide it in grid view — the per-card overlays already
-	// convey the same information more visibly. Targets the second child of the
-	// title-cell Stack so the title stays visible.
+	// Status info (Local / Uploading 47% / Upload failed) and the local row's
+	// upload button render alongside the title. Hide them in grid view, where
+	// the per-card overlays carry the same things; the title stays visible.
 	&__viewport--grid &__title-cell > :not(:first-child) {
 		display: none;
 	}

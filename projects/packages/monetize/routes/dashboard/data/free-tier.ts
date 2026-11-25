@@ -18,11 +18,18 @@ export interface FreeTier {
  * Where the site's `subscription_options` are read and saved: WordPress.com's settings on Simple, Jetpack's elsewhere.
  *
  * @return The apiFetch path.
+ * @throws {Error} On Simple, when the page didn't print the site's blog ID.
  */
-export function getSettingsPath(): string {
-	return isSimpleSite()
-		? `/rest/v1.4/sites/${ getSiteData()?.wpcom?.blog_id ?? 0 }/settings`
-		: '/jetpack/v4/settings';
+function getSettingsPath(): string {
+	if ( ! isSimpleSite() ) {
+		return '/jetpack/v4/settings';
+	}
+	const blogId = getSiteData()?.wpcom?.blog_id;
+	if ( ! blogId ) {
+		// No message, so the UI shows its own.
+		throw new Error();
+	}
+	return `/rest/v1.4/sites/${ blogId }/settings`;
 }
 
 /**
@@ -62,7 +69,7 @@ export function useFreeTier( enabled = true ) {
 export function useSaveFreeTier() {
 	const queryClient = useQueryClient();
 	return useMutation( {
-		mutationFn: ( { description, hidden }: FreeTier ) =>
+		mutationFn: async ( { description, hidden }: FreeTier ) =>
 			apiFetch( {
 				path: getSettingsPath(),
 				method: 'POST',

@@ -167,17 +167,15 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * SEO stays on unless the owner turned its switch off, and off pauses the SEO modules without changing them.
+	 * Turning the SEO switch off pauses the SEO modules without changing their saved states, except on VIP.
 	 *
 	 * @dataProvider provide_dashboard_states
-	 * @param bool $offered    Whether the Jetpack plugin offers the switch.
-	 * @param bool $saved_on   Whether the switch is in the saved module list.
-	 * @param bool $turned_off Whether the owner turned the switch off.
-	 * @param bool $vip        Whether the site is on VIP, which has no SEO page.
-	 * @param bool $paused     Whether the SEO modules should be held off.
+	 * @param bool $switch_on Whether the SEO switch is on.
+	 * @param bool $vip       Whether the site is on VIP, which has no SEO page.
+	 * @param bool $paused    Whether the SEO modules should be held off.
 	 */
 	#[DataProvider( 'provide_dashboard_states' )]
-	public function test_seo_stays_on_unless_the_owner_turned_it_off( $offered, $saved_on, $turned_off, $vip, $paused ) {
+	public function test_seo_switch_pauses_the_seo_modules( $switch_on, $vip, $paused ) {
 		$hooks       = array_map(
 			static function ( $hook ) {
 				return clone $hook;
@@ -185,6 +183,7 @@ class InitializerTest extends TestCase {
 			$GLOBALS['wp_filter']
 		);
 		$previous    = get_option( 'jetpack_active_modules', null );
+		$saved       = $switch_on ? array( 'seo-tools', 'sitemaps', Initializer::DASHBOARD_MODULE ) : array( 'seo-tools', 'sitemaps' );
 		$initialized = new \ReflectionProperty( Initializer::class, 'initialized' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$initialized->setAccessible( true );
@@ -193,14 +192,12 @@ class InitializerTest extends TestCase {
 		$initialized->setValue( null, false );
 		add_filter(
 			'jetpack_get_available_standalone_modules',
-			static function ( $modules ) use ( $offered ) {
-				return array_merge( (array) $modules, array( 'seo-tools', 'sitemaps' ), $offered ? array( Initializer::DASHBOARD_MODULE ) : array() );
+			static function ( $modules ) {
+				return array_merge( (array) $modules, array( 'seo-tools', 'sitemaps', Initializer::DASHBOARD_MODULE ) );
 			}
 		);
-		update_option( 'jetpack_active_modules', $saved_on ? array( 'seo-tools', 'sitemaps', Initializer::DASHBOARD_MODULE ) : array( 'seo-tools', 'sitemaps' ) );
-		if ( $turned_off ) {
-			update_option( Initializer::DASHBOARD_OFF_OPTION, true );
-		}
+		update_option( 'jetpack_active_modules', $saved );
+		remove_filter( 'jetpack_active_modules', 'jetpack_seo_test_switch_on', 1000 );
 		if ( $vip ) {
 			Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
 		}
@@ -214,14 +211,10 @@ class InitializerTest extends TestCase {
 			$this->assertSame( ! $paused, Initializer::is_seo_tools_active() );
 			$this->assertSame( ! $paused && ! $vip, false !== has_action( 'admin_menu', array( Admin_Page::class, 'add_menu_item' ) ) );
 			$this->assertSame( ! $paused && ! $vip, false !== has_action( 'wp_head', array( Schema_Builder::class, 'emit' ) ) );
-			// The switch is saved, so My Jetpack and the sidebar read it the same way.
-			$saved = get_option( 'jetpack_active_modules' );
-			$this->assertSame( $offered && ! $turned_off, in_array( Initializer::DASHBOARD_MODULE, $saved, true ) );
-			$this->assertSame( array( 'seo-tools', 'sitemaps' ), array_values( array_diff( $saved, array( Initializer::DASHBOARD_MODULE ) ) ) );
+			$this->assertSame( $saved, get_option( 'jetpack_active_modules' ) );
 		} finally {
 			Constants::clear_single_constant( 'WPCOM_IS_VIP_ENV' );
 			$GLOBALS['wp_filter'] = $hooks; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-			delete_option( Initializer::DASHBOARD_OFF_OPTION );
 			if ( null === $previous ) {
 				delete_option( 'jetpack_active_modules' );
 			} else {
@@ -231,14 +224,12 @@ class InitializerTest extends TestCase {
 		}
 	}
 
-	/** @return array Whether the switch is offered, saved on, turned off and on VIP; then whether the modules pause. */
+	/** @return array Whether the SEO switch is on and the site is on VIP; then whether the modules pause. */
 	public static function provide_dashboard_states() {
 		return array(
-			'switch on'                        => array( true, true, false, false, false ),
-			'never switched, as after upgrade' => array( true, false, false, false, false ),
-			'turned off by the owner'          => array( true, false, true, false, true ),
-			'no switch'                        => array( false, false, false, false, false ),
-			'turned off, but on VIP'           => array( true, false, true, true, false ),
+			'switch on'              => array( true, false, false ),
+			'switch off'             => array( false, false, true ),
+			'switch off, but on VIP' => array( false, true, false ),
 		);
 	}
 

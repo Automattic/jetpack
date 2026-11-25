@@ -1112,7 +1112,7 @@ class Jetpack_Backup {
 	/**
 	 * Forget the cached storage figures, after anything that changes them.
 	 *
-	 * @since $$next-version$$
+	 * @since 5.3.0
 	 *
 	 * @return void
 	 */
@@ -1353,6 +1353,7 @@ class Jetpack_Backup {
 				array(
 					'activityLogUrl'        => self::get_activity_log_url(),
 					'knownThreatsAvailable' => \Automattic\Jetpack\Backup\V0005\REST\Restore_Bridge::known_threats_available(),
+					'addLicense'            => Backup_Initial_State::is_add_license_screen_enabled(),
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_json_encode() with JSON_HEX_* flags is safe in a script tag.
@@ -1417,6 +1418,13 @@ class Jetpack_Backup {
 			array_merge(
 				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::SCRIPT_HANDLES,
 				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::MODULE_IDS
+			),
+			null,
+			array(
+				array(
+					'prefix' => 'jetpack_backup',
+					'slug'   => 'jetpack-backup-dashboard',
+				),
 			)
 		);
 	}

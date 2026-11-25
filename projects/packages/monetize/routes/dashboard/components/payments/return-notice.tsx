@@ -1,34 +1,36 @@
 import { __ } from '@wordpress/i18n';
-import { useNavigate, useSearch } from '@wordpress/route';
 import { Notice } from '@wordpress/ui';
 import { useEffect, useState } from 'react';
 
-type Search = Record< string, unknown >;
+const SUCCESS = 'stripe_connect_success';
+const CANCELLED = 'stripe_connect_cancelled';
 
 /**
- * How the trip to Stripe ended, from the params WordPress.com adds to the URL.
+ * How the trip to Stripe ended, from the params WordPress.com adds to the admin URL.
  *
- * @param search - The search params.
+ * They sit beside `p`, not inside it, so the router never sees them.
+ *
+ * @param href - The page URL.
  * @return `connected`, `cancelled`, or null.
  */
-export function readStripeReturn( search: Search ): 'connected' | 'cancelled' | null {
-	if ( 'stripe_connect_success' in search ) {
+export function readStripeReturn( href: string ): 'connected' | 'cancelled' | null {
+	const search = new URL( href ).searchParams;
+	if ( search.has( SUCCESS ) ) {
 		return 'connected';
 	}
-	return 'stripe_connect_cancelled' in search ? 'cancelled' : null;
+	return search.has( CANCELLED ) ? 'cancelled' : null;
 }
 
 /**
- * The search params without the Stripe return, so a reload doesn't repeat the notice.
+ * The page URL without the Stripe return, so a reload or tab switch doesn't repeat the notice.
  *
- * @param search - The search params.
+ * @param href - The page URL.
  * @return The rest.
  */
-export function withoutStripeReturn( search: Search ): Search {
-	const rest = { ...search };
-	delete rest.stripe_connect_success;
-	delete rest.stripe_connect_cancelled;
-	return rest;
+export function withoutStripeReturn( href: string ): string {
+	const url = new URL( href );
+	[ SUCCESS, CANCELLED ].forEach( param => url.searchParams.delete( param ) );
+	return url.toString();
 }
 
 /**
@@ -37,17 +39,17 @@ export function withoutStripeReturn( search: Search ): Search {
  * @return The notice, or nothing.
  */
 export default function ReturnNotice() {
-	const search: Search = useSearch( { from: '/' as never, strict: false } );
-	const [ result ] = useState( () => readStripeReturn( search ) );
-	const navigate = useNavigate();
+	const [ result ] = useState( () => readStripeReturn( window.location.href ) );
 
 	useEffect( () => {
 		if ( result ) {
-			navigate( { search: withoutStripeReturn, replace: true } as Parameters<
-				typeof navigate
-			>[ 0 ] );
+			window.history.replaceState(
+				window.history.state,
+				'',
+				withoutStripeReturn( window.location.href )
+			);
 		}
-	}, [ navigate, result ] );
+	}, [ result ] );
 
 	if ( result === 'connected' ) {
 		return (

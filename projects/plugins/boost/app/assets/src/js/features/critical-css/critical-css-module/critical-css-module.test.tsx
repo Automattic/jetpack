@@ -2,6 +2,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { ModuleSurfaceProvider } from '$features/module/surface';
 import { MODERN_ROOT_ID } from '$lib/modern/mode';
+import { recordBoostEvent } from '$lib/utils/analytics';
 import CriticalCssModule from './critical-css-module';
 import type { ReactNode } from 'react';
 
@@ -41,7 +42,7 @@ jest.mock( 'jetpackConfig', () => ( { consumer_slug: 'jetpack-boost' } ), { virt
 
 test( 'routes the modern Critical CSS notice to the upgrade page without inline license redemption', () => {
 	Object.assign( globalThis, {
-		Jetpack_Boost: { site: { online: true, myJetpack: true, addLicense: true, host: 'other' } },
+		Jetpack_Boost: { site: { online: true, myJetpack: true, host: 'other' } },
 	} );
 	render( <div id={ MODERN_ROOT_ID } data-testid="dashboard-root" /> );
 	render(
@@ -83,6 +84,22 @@ test.each( [ 'row', 'block' ] as const )(
 		expect( mockRegenerate ).toHaveBeenCalledTimes( surface === 'row' ? 0 : 1 );
 	}
 );
+
+test( 'records the Critical CSS documentation link click', () => {
+	Object.assign( globalThis, {
+		Jetpack_Boost: { site: { online: true, myJetpack: true, host: 'unknown' } },
+		myJetpackInitialState: { products: { items: { boost: { slug: 'boost', title: 'Boost' } } } },
+		JP_CONNECTION_INITIAL_STATE: {},
+	} );
+	render(
+		<ModuleSurfaceProvider value="row">
+			<CriticalCssModule />
+		</ModuleSurfaceProvider>
+	);
+	// eslint-disable-next-line testing-library/prefer-user-event -- This project does not provide user-event.
+	fireEvent.click( screen.getByRole( 'link', { name: /Critical CSS/ } ) );
+	expect( recordBoostEvent ).toHaveBeenCalledWith( 'critical_css_link_clicked', {} );
+} );
 
 test( 'preserves the legacy Critical CSS upsell description and monthly price', () => {
 	Object.assign( globalThis, {

@@ -220,7 +220,7 @@ function parseDateParam( value: string | null, fallback: Date ) {
 /**
  * Builds a mock Stats "followers" (subscribers) response for the Latest
  * Subscribers widget. Rows arrive grouped by subscriber type rather than in
- * date order, and `total` exceeds them so the "N more" footer appears.
+ * date order.
  *
  * @param max - Rows per type; `0` or a missing param returns every row.
  * @return Raw followers response.

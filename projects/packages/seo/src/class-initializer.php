@@ -22,7 +22,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.12.0';
+	const PACKAGE_VERSION = '0.13.0';
 
 	/**
 	 * Key under `window.JetpackScriptData` the React app reads its state from
@@ -70,15 +70,6 @@ class Initializer {
 	 * @since $$next-version$$
 	 */
 	const SEO_MODULES = array( 'seo-tools', 'sitemaps', 'canonical-urls', 'verification-tools' );
-
-	/**
-	 * Option set while the owner has turned the {@see self::DASHBOARD_MODULE} switch off.
-	 *
-	 * Without it the switch is saved on, see {@see self::ensure_dashboard_module()}.
-	 *
-	 * @since $$next-version$$
-	 */
-	const DASHBOARD_OFF_OPTION = 'jetpack_seo_dashboard_turned_off';
 
 	/**
 	 * Whether the package has been initialized.
@@ -144,11 +135,6 @@ class Initializer {
 		// Cache invalidation keeps running, so nothing is stale when SEO is switched back on.
 		self::register_write_hooks();
 
-		// Only a single-module deactivation fires the pre hook: bulk rewrites of the list are not a choice.
-		add_action( 'jetpack_pre_deactivate_module', array( __CLASS__, 'flag_dashboard_turned_off' ) );
-		add_action( 'jetpack_activate_module_' . self::DASHBOARD_MODULE, array( __CLASS__, 'clear_dashboard_turned_off' ) );
-		self::ensure_dashboard_module();
-
 		// Like other switched-off Jetpack features, the page and everything below stay unregistered.
 		if ( ! self::is_dashboard_on() ) {
 			return;
@@ -177,6 +163,7 @@ class Initializer {
 		Indexnow::init();
 
 		Indexnow_Client::init();
+		add_action( 'rest_api_init', array( Data_Sharing::class, 'register_routes' ) );
 
 		// Sitemap, verification and canonical URL settings work without SEO Tools. Register
 		// after init-time conflict filters and before core builds its settings route.
@@ -248,28 +235,17 @@ class Initializer {
 	}
 
 	/**
-	 * Whether this site offers the {@see self::DASHBOARD_MODULE} switch: the Jetpack plugin ships it.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return bool
-	 */
-	public static function has_dashboard_module() {
-		return in_array( self::DASHBOARD_MODULE, ( new Modules() )->get_available(), true );
-	}
-
-	/**
 	 * Whether the SEO page and the SEO modules may run.
 	 *
-	 * True where there is no switch, so hosts without the SEO page and sites without the
-	 * Jetpack plugin keep their old behaviour. WordPress.com Simple reports every module on.
+	 * True where SEO isn't offered, so VIP keeps its SEO modules running. WordPress.com Simple
+	 * reports every module on.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @return bool
 	 */
 	public static function is_dashboard_on() {
-		if ( ! self::is_available() || ! self::has_dashboard_module() ) {
+		if ( ! self::is_available() ) {
 			return true;
 		}
 
@@ -298,60 +274,6 @@ class Initializer {
 	 */
 	public static function is_seo_tools_active() {
 		return ( new Modules() )->is_active( 'seo-tools' ) && self::is_dashboard_on();
-	}
-
-	/**
-	 * Save the SEO switch on unless the owner turned it off.
-	 *
-	 * Upgrades miss sites offline or disconnected at the time, same-version builds, and lists a
-	 * host writes whole, such as an Atomic transfer. Runs before Jetpack loads its modules.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return void
-	 */
-	public static function ensure_dashboard_module() {
-		if ( ( new Host() )->is_wpcom_simple() ) {
-			return;
-		}
-
-		// An empty list is a site Jetpack hasn't set up: connecting turns the switch on with its other defaults.
-		$saved = \Jetpack_Options::get_option( 'active_modules', array() );
-		if ( empty( $saved ) || ! is_array( $saved ) || in_array( self::DASHBOARD_MODULE, $saved, true ) ) {
-			return;
-		}
-
-		// Checked only once the switch is missing, so a normal request reads no extra option.
-		if ( get_option( self::DASHBOARD_OFF_OPTION ) || ! self::has_dashboard_module() ) {
-			return;
-		}
-
-		( new Modules() )->update_active( array_merge( array_values( $saved ), array( self::DASHBOARD_MODULE ) ) );
-	}
-
-	/**
-	 * Remember that the owner turned the SEO switch off, so it stays off.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param string $module The module being deactivated.
-	 * @return void
-	 */
-	public static function flag_dashboard_turned_off( $module ) {
-		if ( self::DASHBOARD_MODULE === $module ) {
-			update_option( self::DASHBOARD_OFF_OPTION, true );
-		}
-	}
-
-	/**
-	 * Forget a turned-off SEO switch once it is on again.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return void
-	 */
-	public static function clear_dashboard_turned_off() {
-		delete_option( self::DASHBOARD_OFF_OPTION );
 	}
 
 	/**

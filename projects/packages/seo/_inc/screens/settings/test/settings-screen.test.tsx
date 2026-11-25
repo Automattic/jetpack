@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { useCallback } from 'react';
 import type { SettingsResponse } from '../../../data/settings-types';
 import type { SettingsForm } from '../../../data/use-settings';
 import type { ReactElement, ReactNode } from 'react';
@@ -49,13 +50,30 @@ const IndexnowSettings = jest.fn< ( props: Record< string, unknown > ) => ReactE
 	<div>notification settings</div>
 ) );
 jest.unstable_mockModule( '../indexnow-settings', () => ( { default: IndexnowSettings } ) );
-jest.unstable_mockModule( '../seo-tools-card', () => ( {
-	default: ( { active }: { active: boolean } ) => (
-		<div data-testid="seo-tools-switch" data-active={ String( active ) } />
-	),
-} ) );
+const SeoToolsCard = ( {
+	active,
+	onChange,
+	disabled,
+}: {
+	active: boolean;
+	onChange: ( next: boolean ) => void;
+	disabled: boolean;
+} ) => {
+	const flip = useCallback( () => onChange( ! active ), [ active, onChange ] );
+	return (
+		<button
+			data-testid="seo-tools-switch"
+			data-active={ String( active ) }
+			disabled={ disabled }
+			onClick={ flip }
+		/>
+	);
+};
+jest.unstable_mockModule( '../seo-tools-card', () => ( { default: SeoToolsCard } ) );
 jest.unstable_mockModule( '../seo-tools-off-notice', () => ( {
-	default: () => <div data-testid="seo-tools-off" />,
+	default: ( { onTurnOn, disabled }: { onTurnOn: () => void; disabled: boolean } ) => (
+		<button data-testid="seo-tools-off" disabled={ disabled } onClick={ onTurnOn } />
+	),
 } ) );
 
 let routeForm: SettingsForm;
@@ -69,6 +87,7 @@ jest.unstable_mockModule( '../../../dashboard/dashboard-page', () => ( {
 } ) );
 jest.unstable_mockModule( '../../../data/is-seo-tools-active', () => ( {
 	default: () => routeSeoToolsActive,
+	useSeoToolsActive: () => routeSeoToolsActive,
 } ) );
 jest.unstable_mockModule( '../../../data/use-ensure-tab-data', () => ( {
 	default: () => ( { status: 'ready' } ),
@@ -76,6 +95,9 @@ jest.unstable_mockModule( '../../../data/use-ensure-tab-data', () => ( {
 jest.unstable_mockModule( '../../../data/use-settings', () => ( {
 	useSettingsForm: () => routeForm,
 } ) );
+
+const sharingFetch = jest.fn< ( options: unknown ) => Promise< unknown > >();
+jest.unstable_mockModule( '@wordpress/api-fetch', () => ( { default: sharingFetch } ) );
 
 const { default: SettingsScreen } = await import( '../index' );
 const { stage: SettingsStage } = await import( '../../../../routes/settings/stage' );
@@ -103,6 +125,7 @@ const buildForm = ( overrides: Partial< SettingsResponse > = {} ): SettingsForm 
 		title_separator: '-',
 		title_formats_editable: true,
 		verification_tools_active: true,
+		seo_tools_active: false,
 		verification: { ...EMPTY_VERIFICATION },
 		search_engines_visible: false,
 		site_is_private: false,
@@ -222,7 +245,7 @@ describe( 'Indexing toggle on an unpublished site', () => {
 	} );
 
 	const indexingToggle = () =>
-		screen.getByRole( 'checkbox', { name: /Allow search engines to index this site/i } );
+		screen.getByRole( 'switch', { name: /Allow search engines to index this site/i } );
 
 	const visibilityLink = () => screen.queryByRole( 'link', { name: 'Manage site visibility' } );
 	const visibilityUrl = 'http://example.com/wp-admin/options-reading.php';
@@ -239,7 +262,7 @@ describe( 'Indexing toggle on an unpublished site', () => {
 			<SettingsScreen form={ buildForm( { ...overrides, site_visibility_url: visibilityUrl } ) } />
 		);
 
-		expect( indexingToggle() ).toBeDisabled();
+		expect( indexingToggle() ).toHaveAttribute( 'aria-disabled', 'true' );
 		expect( screen.getByText( help ) ).toBeInTheDocument();
 		expect( visibilityLink() ).toHaveAttribute( 'href', visibilityUrl );
 		expect( statusFor( 'Site visibility' ) ).toBeUndefined();
@@ -272,7 +295,7 @@ describe( 'Indexing toggle on an unpublished site', () => {
 	it( 'is enabled with the usual help text on a public site', () => {
 		render( <SettingsScreen form={ buildForm( { site_visibility_url: visibilityUrl } ) } /> );
 
-		expect( indexingToggle() ).toBeEnabled();
+		expect( indexingToggle() ).not.toHaveAttribute( 'aria-disabled' );
 		expect(
 			screen.queryByText( /Your site is (private|in Coming Soon)/i )
 		).not.toBeInTheDocument();
@@ -297,12 +320,15 @@ describe( 'Settings module completion status', () => {
 				} ) }
 			/>
 		);
-		expect( screen.getByRole( 'checkbox', { name: /Generate an XML sitemap/i } ) ).toBeDisabled();
+		expect( screen.getByRole( 'switch', { name: /Generate an XML sitemap/i } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
 		// eslint-disable-next-line testing-library/prefer-user-event -- Match the package's existing disclosure tests without adding a dependency.
 		fireEvent.click( screen.getByRole( 'button', { name: 'Canonical URLs' } ) );
 		await expect(
-			screen.findByRole( 'checkbox', { name: /Add canonical URLs/i } )
-		).resolves.toBeDisabled();
+			screen.findByRole( 'switch', { name: /Add canonical URLs/i } )
+		).resolves.toHaveAttribute( 'aria-disabled', 'true' );
 		expect( screen.getAllByText( /managed by your hosting platform/i ) ).toHaveLength( 2 );
 	} );
 
@@ -316,8 +342,8 @@ describe( 'Settings module completion status', () => {
 		// eslint-disable-next-line testing-library/prefer-user-event -- Match the package's existing disclosure tests without adding a dependency.
 		fireEvent.click( screen.getByRole( 'button', { name: 'Canonical URLs' } ) );
 		await expect(
-			screen.findByRole( 'checkbox', { name: /Add canonical URLs/i, checked: true } )
-		).resolves.toBeDisabled();
+			screen.findByRole( 'switch', { name: /Add canonical URLs/i, checked: true } )
+		).resolves.toHaveAttribute( 'aria-disabled', 'true' );
 		// Its saved "on" no longer prints a tag, so the header doesn't call it complete.
 		expect( statusFor( 'Canonical URLs' ) ).toBe( 'Paused' );
 		expect( screen.getAllByText( 'Paused while Yoast SEO is active.' ) ).not.toHaveLength( 0 );
@@ -331,8 +357,8 @@ describe( 'Settings module completion status', () => {
 		// eslint-disable-next-line testing-library/prefer-user-event -- Match the package's existing disclosure tests without adding a dependency.
 		fireEvent.click( screen.getByRole( 'button', { name: 'Canonical URLs' } ) );
 		await expect(
-			screen.findByRole( 'checkbox', { name: /Add canonical URLs/i, checked: true } )
-		).resolves.toBeEnabled();
+			screen.findByRole( 'switch', { name: /Add canonical URLs/i, checked: true } )
+		).resolves.not.toHaveAttribute( 'aria-disabled' );
 		expect( statusFor( 'Canonical URLs' ) ).toBe( 'Complete' );
 	} );
 
@@ -499,8 +525,8 @@ describe( 'WordPress.com Simple settings', () => {
 		// eslint-disable-next-line testing-library/prefer-user-event -- Match this file's existing disclosure tests.
 		fireEvent.click( screen.getByRole( 'button', { name: 'Canonical URLs' } ) );
 
-		const toggle = screen.getByRole( 'checkbox', { name: /Add canonical URLs/i, checked: active } );
-		expect( toggle ).toBeEnabled();
+		const toggle = screen.getByRole( 'switch', { name: /Add canonical URLs/i, checked: active } );
+		expect( toggle ).not.toHaveAttribute( 'aria-disabled' );
 		// eslint-disable-next-line testing-library/prefer-user-event -- Exercise the module-switch callback directly.
 		fireEvent.click( toggle );
 
@@ -536,7 +562,7 @@ describe( 'WordPress.com Simple settings', () => {
 			expect( form.setVerification ).toHaveBeenCalledWith( 'bing', 'bing-code' );
 			expect( form.commitFields ).toHaveBeenCalledWith( [ 'verification' ] );
 
-			const toggle = screen.queryByRole( 'checkbox', { name: /Enable site verification/ } );
+			const toggle = screen.queryByRole( 'switch', { name: /Enable site verification/ } );
 			expect( toggle !== null ).toBe( switchable );
 			if ( toggle ) {
 				// eslint-disable-next-line testing-library/prefer-user-event -- Exercise only the module-switch callback.
@@ -561,11 +587,11 @@ describe( 'WordPress.com Simple settings', () => {
 
 			render( <SettingsScreen form={ form } /> );
 
-			const toggle = screen.getByRole( 'checkbox', {
+			const toggle = screen.getByRole( 'switch', {
 				name: /Generate an XML sitemap/i,
 				checked: searchEnginesVisible,
 			} );
-			expect( toggle ).toBeDisabled();
+			expect( toggle ).toHaveAttribute( 'aria-disabled', 'true' );
 			expect( statusFor( 'Site visibility' ) ).toBe(
 				searchEnginesVisible ? 'Complete' : 'Not started'
 			);
@@ -588,7 +614,9 @@ describe( 'WordPress.com Simple settings', () => {
 
 		render( <SettingsScreen form={ buildForm( { search_engines_visible: true } ) } /> );
 
-		expect( screen.getByRole( 'checkbox', { name: /Generate an XML sitemap/i } ) ).toBeEnabled();
+		expect(
+			screen.getByRole( 'switch', { name: /Generate an XML sitemap/i } )
+		).not.toHaveAttribute( 'aria-disabled' );
 		expect(
 			screen.queryByText(
 				'WordPress.com manages sitemap generation for this site. Additional hosting features let you turn sitemap generation on or off.'
@@ -703,7 +731,7 @@ describe( 'Notification settings inside Site visibility', () => {
 		expect( IndexnowSettings.mock.lastCall?.[ 0 ] ).toEqual(
 			expect.objectContaining( { isSaving: true, onSavingChange: expect.any( Function ) } )
 		);
-		const sitemap = screen.getByRole( 'checkbox', { name: /Generate an XML sitemap/i } );
+		const sitemap = screen.getByRole( 'switch', { name: /Generate an XML sitemap/i } );
 		const notifications = screen.getByText( 'notification settings' );
 		expect( sitemap.compareDocumentPosition( notifications ) ).toBe(
 			Node.DOCUMENT_POSITION_FOLLOWING
@@ -714,17 +742,17 @@ describe( 'Notification settings inside Site visibility', () => {
 
 	it( 'locks visibility toggles only while a notification save is in flight', () => {
 		render( <SettingsScreen form={ buildForm( { search_engines_visible: true } ) } /> );
-		const indexing = screen.getByRole( 'checkbox', { name: /Allow search engines/i } );
-		const sitemap = screen.getByRole( 'checkbox', { name: /Generate an XML sitemap/i } );
+		const indexing = screen.getByRole( 'switch', { name: /Allow search engines/i } );
+		const sitemap = screen.getByRole( 'switch', { name: /Generate an XML sitemap/i } );
 		const onSavingChange = IndexnowSettings.mock.lastCall?.[ 0 ].onSavingChange as (
 			saving: boolean
 		) => void;
 		act( () => onSavingChange( true ) );
-		expect( indexing ).toBeDisabled();
-		expect( sitemap ).toBeDisabled();
+		expect( indexing ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( sitemap ).toHaveAttribute( 'aria-disabled', 'true' );
 		act( () => onSavingChange( false ) );
-		expect( indexing ).toBeEnabled();
-		expect( sitemap ).toBeEnabled();
+		expect( indexing ).not.toHaveAttribute( 'aria-disabled' );
+		expect( sitemap ).not.toHaveAttribute( 'aria-disabled' );
 	} );
 } );
 
@@ -742,13 +770,13 @@ describe( 'Settings and the SEO tools switch', () => {
 			render( <SettingsStage /> );
 
 			expect(
-				screen.getByRole( 'checkbox', { name: 'Generate an XML sitemap' } )
+				screen.getByRole( 'switch', { name: 'Generate an XML sitemap' } )
 			).toBeInTheDocument();
 			expect( screen.getByText( 'google field' ) ).toBeInTheDocument();
 			// eslint-disable-next-line testing-library/prefer-user-event -- Existing disclosure-test convention.
 			fireEvent.click( screen.getByRole( 'button', { name: 'Canonical URLs' } ) );
 			await expect(
-				screen.findByRole( 'checkbox', { name: 'Add canonical URLs to archive pages' } )
+				screen.findByRole( 'switch', { name: 'Add canonical URLs to archive pages' } )
 			).resolves.toBeInTheDocument();
 			expect( screen.queryByTestId( 'schema' ) !== null ).toBe( active );
 			expect( screen.queryByText( 'title structure' ) !== null ).toBe( active );
@@ -773,9 +801,38 @@ describe( 'Settings and the SEO tools switch', () => {
 		expect( toggle ).toHaveAttribute( 'data-active', 'false' );
 	} );
 
+	it( 'hides the tabs as soon as SEO tools are being turned off', () => {
+		routeSeoToolsActive = true;
+		routeForm = buildForm( { seo_tools_active: false } );
+		render( <SettingsStage /> );
+
+		expect( screen.getByTestId( 'page' ) ).toHaveAttribute( 'data-show-tabs', 'false' );
+	} );
+
+	it.each( [
+		[ 'Settings switch', 'seo-tools-switch', true ],
+		[ '"Turn on SEO tools" notice button', 'seo-tools-off', false ],
+	] )(
+		'the %s waits for another setting to save, then saves through the form',
+		( _control, testId, active ) => {
+			routeSeoToolsActive = active;
+			routeForm = { ...buildForm( { seo_tools_active: active } ), isSaving: true };
+			const { rerender } = render( <SettingsStage /> );
+
+			expect( screen.getByTestId( testId ) ).toBeDisabled();
+
+			routeForm = { ...routeForm, isSaving: false };
+			rerender( <SettingsStage /> );
+			// eslint-disable-next-line testing-library/prefer-user-event -- fireEvent keeps this off the @testing-library/user-event devDep.
+			fireEvent.click( screen.getByTestId( testId ) );
+
+			expect( routeForm.commit ).toHaveBeenCalledWith( { seo_tools_active: ! active } );
+		}
+	);
+
 	it( 'keeps the tabs and ends Settings with the switch while SEO tools are on', () => {
 		routeSeoToolsActive = true;
-		routeForm = buildForm();
+		routeForm = buildForm( { seo_tools_active: true } );
 		render( <SettingsStage /> );
 
 		expect( screen.getByTestId( 'page' ) ).toHaveAttribute( 'data-show-tabs', 'true' );
@@ -796,4 +853,61 @@ describe( 'Settings and the SEO tools switch', () => {
 
 		expect( screen.queryByTestId( 'seo-tools-switch' ) ).not.toBeInTheDocument();
 	} );
+} );
+
+describe( 'sharing save coordination', () => {
+	it.each( [ 'saved', 'rejected' ] )(
+		'locks other settings until consent is %s and confirmed',
+		async outcome => {
+			sharingFetch.mockReset();
+			const initial = {
+				prevent_sharing: false,
+				locked: false,
+				privacy_url: '/wp-admin/options-reading.php',
+			};
+			sharingFetch.mockResolvedValueOnce( initial );
+			const form = buildForm( { data_sharing_available: true, search_engines_visible: true } );
+			render( <SettingsScreen form={ form } /> );
+			const sharing = await screen.findByRole( 'switch', { name: 'Prevent third-party sharing' } );
+			await waitFor( () => expect( sharing ).toBeEnabled() );
+			let resolveSave!: ( value: unknown ) => void;
+			let rejectSave!: ( reason: Error ) => void;
+			sharingFetch.mockReturnValueOnce(
+				new Promise( ( resolve, reject ) => {
+					resolveSave = resolve;
+					rejectSave = reject;
+				} )
+			);
+			// eslint-disable-next-line testing-library/prefer-user-event -- Match the package settings tests.
+			fireEvent.click( sharing );
+			const indexing = screen.getByRole( 'switch', {
+				name: 'Allow search engines to index this site',
+			} );
+			expect( indexing ).toHaveAttribute( 'aria-disabled', 'true' );
+			expect( SocialPreviewsCard.mock.lastCall?.[ 0 ] ).toEqual(
+				expect.objectContaining( { disabled: true } )
+			);
+			indexing.click();
+			expect( form.commit ).not.toHaveBeenCalled();
+			let confirm!: ( value: unknown ) => void;
+			sharingFetch.mockReturnValueOnce(
+				new Promise( resolve => {
+					confirm = resolve;
+				} )
+			);
+			await act( async () => {
+				if ( outcome === 'saved' ) {
+					resolveSave( { ...initial, prevent_sharing: true } );
+				} else {
+					rejectSave( new Error( 'Rejected' ) );
+				}
+			} );
+			expect( indexing ).toHaveAttribute( 'aria-disabled', 'true' );
+			await act( async () => confirm( outcome === 'saved' ? { crawlers: {} } : initial ) );
+			await waitFor( () => expect( indexing ).not.toHaveAttribute( 'aria-disabled' ) );
+			// eslint-disable-next-line jest-dom/prefer-checked -- Compare the table's expected state without conditional assertions.
+			expect( sharing ).toHaveAttribute( 'aria-checked', String( outcome === 'saved' ) );
+			expect( sharingFetch ).toHaveBeenCalledTimes( 3 );
+		}
+	);
 } );

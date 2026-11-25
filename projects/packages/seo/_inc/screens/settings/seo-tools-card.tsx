@@ -2,7 +2,6 @@ import { __ } from '@wordpress/i18n';
 import { tool } from '@wordpress/icons';
 import { Card, CollapsibleCard, SwitchControl } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
-import useSeoToolsSwitch from '../../data/use-seo-tools-switch';
 import type { FC } from 'react';
 
 const seoToolsHelp = __(
@@ -11,20 +10,24 @@ const seoToolsHelp = __(
 );
 
 interface Props {
-	/** Whether the `seo-tools` module is on. */
+	/** Whether the `seo-tools` module is on, or about to be. */
 	active: boolean;
+	/** Save the new state. */
+	onChange: ( active: boolean ) => void;
+	/** Whether a save is in flight. */
+	disabled: boolean;
 }
 
 /**
  * The `seo-tools` module's switch, last on Settings.
  *
- * @param props        - Component props.
- * @param props.active - Whether the `seo-tools` module is on.
+ * @param props          - Component props.
+ * @param props.active   - Whether the `seo-tools` module is on, or about to be.
+ * @param props.onChange - Save the new state.
+ * @param props.disabled - Whether a save is in flight.
  * @return The SEO tools card.
  */
-const SeoToolsCard: FC< Props > = ( { active } ) => {
-	const { isSwitching, setActive } = useSeoToolsSwitch( 'settings' );
-
+const SeoToolsCard: FC< Props > = ( { active, onChange, disabled } ) => {
 	return (
 		<CollapsibleCard.Root defaultOpen={ false }>
 			<CollapsibleCard.Header render={ <h2 /> }>
@@ -37,8 +40,8 @@ const SeoToolsCard: FC< Props > = ( { active } ) => {
 					label={ __( 'Use SEO tools', 'jetpack-seo' ) }
 					description={ seoToolsHelp }
 					checked={ active }
-					onCheckedChange={ setActive }
-					disabled={ isSwitching }
+					onCheckedChange={ onChange }
+					disabled={ disabled }
 				/>
 			</CollapsibleCard.Content>
 		</CollapsibleCard.Root>

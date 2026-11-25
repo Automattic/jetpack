@@ -9,11 +9,14 @@ import { WhatsNew } from './components';
 import { ensureAnnouncementEntity } from './hooks';
 import type * as Contract from '@automattic/jetpack-announcements';
 
+export { useTeaserSwitch } from './hooks';
+export { trackWhatsNew } from './utils';
+
 type Mount = {
 	/*
 	 * What the host that mounted asked for.
 	 */
-	options: Contract.WhatsNewOptions;
+	options: Parameters< typeof Contract.mountWhatsNew >[ 0 ];
 };
 
 const DOM_ELEMENT_ID = 'jetpack-whats-new';

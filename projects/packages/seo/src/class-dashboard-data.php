@@ -784,6 +784,7 @@ class Dashboard_Data {
 			'sitemap_active'            => 'sitemaps',
 			'canonical_active'          => 'canonical-urls',
 			'verification_tools_active' => 'verification-tools',
+			'seo_tools_active'          => 'seo-tools',
 		);
 	}
 
@@ -969,8 +970,8 @@ class Dashboard_Data {
 	 *
 	 * Read-only bootstrap only. Writes go to core's `/wp/v2/settings` for every field
 	 * backed by an option alone ({@see self::register_rest_settings()}), and to the
-	 * package's own routes for the three settings whose write switches a Jetpack module
-	 * — sitemap, canonical URLs and site verification ({@see self::module_settings()})
+	 * package's own routes for the settings whose write switches a Jetpack module
+	 * — sitemap, canonical URLs, site verification and SEO tools ({@see self::module_settings()})
 	 * — and for the nested Schema container; bootstrapping them all here keeps the
 	 * Settings UI hydrated without a second request.
 	 *
@@ -1015,6 +1016,7 @@ class Dashboard_Data {
 			'site_is_private'            => self::is_site_private(),
 			'site_is_coming_soon'        => self::is_site_coming_soon(),
 			'site_visibility_url'        => Ai_Crawlers::privacy_settings_url(),
+			'data_sharing_available'     => ( new Host() )->is_wpcom_platform(),
 			'sitemap_active'             => $sitemap_active,
 			'sitemap_switchable'         => self::has_module( 'sitemaps' ),
 			// The reachable sitemap URL (Jetpack serves a valid sitemap here as soon as
@@ -1038,6 +1040,7 @@ class Dashboard_Data {
 			'front_page_description'     => (string) $front_page_desc,
 			'has_legacy_front_page_meta' => $has_legacy_front_page_meta,
 			'verification_tools_active'  => $modules->is_active( 'verification-tools' ),
+			'seo_tools_active'           => $modules->is_active( 'seo-tools' ),
 			'verification'               => array(
 				'google'    => isset( $codes['google'] ) ? (string) $codes['google'] : '',
 				'bing'      => isset( $codes['bing'] ) ? (string) $codes['bing'] : '',

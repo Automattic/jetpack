@@ -207,7 +207,7 @@ function wpcomsh_cli_reschedule_deactivated_list_cleanup() {
  * @param string $file Plugin file.
  */
 function wpcomsh_cli_remember_plugin_deactivation( $file ) {
-	$deactivated_plugins                 = get_option( WPCOMSH_CLI_OPTION_DEACTIVATED_USER_PLUGINS );
+	$deactivated_plugins                 = get_option( WPCOMSH_CLI_OPTION_DEACTIVATED_USER_PLUGINS, array() );
 	$plugin_name                         = WP_CLI\Utils\get_plugin_name( $file );
 	$deactivated_plugins[ $plugin_name ] = time();
 	wpcomsh_cli_save_deactivated_plugins_record( $deactivated_plugins );
@@ -223,7 +223,7 @@ function wpcomsh_cli_remember_plugin_deactivation( $file ) {
  * @param string $file Plugin file.
  */
 function wpcomsh_cli_forget_plugin_deactivation( $file ) {
-	$deactivated_plugins = get_option( WPCOMSH_CLI_OPTION_DEACTIVATED_USER_PLUGINS );
+	$deactivated_plugins = get_option( WPCOMSH_CLI_OPTION_DEACTIVATED_USER_PLUGINS, array() );
 	$plugin_name         = WP_CLI\Utils\get_plugin_name( $file );
 	unset( $deactivated_plugins[ $plugin_name ] );
 	wpcomsh_cli_save_deactivated_plugins_record( $deactivated_plugins );

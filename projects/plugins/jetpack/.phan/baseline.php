@@ -10,10 +10,10 @@
 return [
     // # Issue statistics:
     // PhanTypeMismatchArgument : 420+ occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 210+ occurrences
-    // PhanTypeMismatchReturn : 140+ occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 190+ occurrences
+    // PhanTypeMismatchReturn : 130+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 110+ occurrences
-    // PhanTypePossiblyInvalidDimOffset : 85+ occurrences
+    // PhanTypePossiblyInvalidDimOffset : 90+ occurrences
     // PhanTypeArraySuspiciousNullable : 70+ occurrences
     // PhanDeprecatedFunction : 60+ occurrences
     // PhanDeprecatedProperty : 60+ occurrences
@@ -63,7 +63,6 @@ return [
     // PhanUndeclaredClassMethod : 2 occurrences
     // PhanUndeclaredFunctionInCallable : 2 occurrences
     // PhanCoalescingAlwaysNull : 1 occurrence
-    // PhanDeprecatedPartiallySupportedCallable : 1 occurrence
     // PhanPluginInvalidPregRegex : 1 occurrence
     // PhanPluginUseReturnValueInternalKnown : 1 occurrence
     // PhanStaticCallToNonStatic : 1 occurrence
@@ -195,7 +194,7 @@ return [
         'json-endpoints/class.wpcom-json-api-list-posts-endpoint.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn', 'PhanTypePossiblyInvalidDimOffset'],
         'json-endpoints/class.wpcom-json-api-list-posts-v1-1-endpoint.php' => ['PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgument', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn', 'PhanTypePossiblyInvalidDimOffset'],
         'json-endpoints/class.wpcom-json-api-list-posts-v1-2-endpoint.php' => ['PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgument', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn', 'PhanTypePossiblyInvalidDimOffset'],
-        'json-endpoints/class.wpcom-json-api-list-roles-endpoint.php' => ['PhanDeprecatedPartiallySupportedCallable', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn'],
+        'json-endpoints/class.wpcom-json-api-list-roles-endpoint.php' => ['PhanTypeMismatchDefault', 'PhanTypeMismatchReturn'],
         'json-endpoints/class.wpcom-json-api-list-shortcodes-endpoint.php' => ['PhanTypeMismatchDefault', 'PhanTypeMismatchReturn'],
         'json-endpoints/class.wpcom-json-api-list-terms-endpoint.php' => ['PhanTypeMismatchDefault', 'PhanTypeMismatchReturn', 'PhanTypeSuspiciousNonTraversableForeach'],
         'json-endpoints/class.wpcom-json-api-list-users-endpoint.php' => ['PhanTypeMismatchDefault', 'PhanTypeMismatchReturn'],

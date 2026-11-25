@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add the What's new script module, which a host mounts with `mountWhatsNew()`.

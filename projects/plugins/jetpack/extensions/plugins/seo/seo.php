@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 add_action(
 	'jetpack_register_gutenberg_extensions',
 	function () {
-		if ( is_seo_disabled() ) {
+		if ( is_seo_tools_disabled() ) {
 			return;
 		}
 
@@ -36,7 +36,7 @@ add_action(
 	'after_setup_theme',
 	function () {
 		if (
-			! is_seo_disabled()
+			! is_seo_tools_disabled()
 			/** This filter is documented in projects/packages/seo/src/class-seo-tools.php */
 			&& ! apply_filters( 'jetpack_disable_seo_tools', false )
 		) {
@@ -62,7 +62,7 @@ add_filter(
  *
  * @return bool
  */
-function is_seo_disabled(): bool {
+function is_seo_tools_disabled(): bool {
 	// Hidden from everyone while the SEO switch holds SEO Tools off.
 	if ( method_exists( Initializer::class, 'get_paused_modules' ) && in_array( 'seo-tools', Initializer::get_paused_modules(), true ) ) {
 		return true;
