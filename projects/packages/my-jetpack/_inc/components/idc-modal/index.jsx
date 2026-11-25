@@ -6,6 +6,7 @@ import {
 } from '@automattic/jetpack-connection';
 import { Modal } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 import { useState, useCallback, useRef } from 'react';
 import { reloadPage } from '../../utils/reload-page';
 import styles from './styles.module.scss';
@@ -52,7 +53,11 @@ function IDCModal() {
 		}
 
 		return (
-			<Modal onRequestClose={ closeModal } overlayClassName={ styles.modal }>
+			<Modal
+				onRequestClose={ closeModal }
+				overlayClassName={ styles.modal }
+				contentLabel={ __( 'Safe Mode', 'jetpack-my-jetpack' ) }
+			>
 				<div className={ styles[ 'new-screen' ] }>
 					<IdentityCrisis
 						context="my-jetpack"

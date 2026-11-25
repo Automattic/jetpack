@@ -63,6 +63,9 @@ describe( 'IDCModal', () => {
 		render( <IDCModal /> );
 
 		expect( Boolean( screen.queryByRole( 'dialog' ) ) ).toBe( expected !== 'nothing' );
+		expect( Boolean( screen.queryByRole( 'dialog', { name: 'Safe Mode' } ) ) ).toBe(
+			expected === 'screen'
+		);
 		expect( Boolean( screen.queryByText( 'New Safe Mode screen' ) ) ).toBe( expected === 'screen' );
 	} );
 
