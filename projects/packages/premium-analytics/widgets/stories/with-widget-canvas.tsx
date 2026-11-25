@@ -4,6 +4,15 @@ import { within } from 'storybook/test';
 import type { Decorator, StoryContext } from '@storybook/react';
 import type { ReactNode } from 'react';
 
+// `@automattic/number-formatters` takes the WP user locale from `wp.date`, which Storybook does not
+// define, so without this each reader's own browser locale formats the numbers and the currency.
+if ( typeof window !== 'undefined' && ! window.wp?.date?.getSettings ) {
+	window.wp = {
+		...window.wp,
+		date: { ...window.wp?.date, getSettings: () => ( { l10n: { locale: 'en_US' } } ) },
+	};
+}
+
 const WIDGET_CANVAS_TEST_ID = 'widget-canvas';
 
 // The card's own inset in pixels: a widget gets the card minus this on each side.
