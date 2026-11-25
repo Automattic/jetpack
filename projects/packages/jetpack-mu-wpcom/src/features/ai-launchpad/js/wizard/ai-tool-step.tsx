@@ -348,7 +348,8 @@ export default function AiToolStep( {
 		otherStatus = readOnly ? copy.readOnly : copy.connected;
 	}
 
-	// Counts afresh at the copy, so only a tool connected after it counts; an unknown count starts no wait.
+	// Counts at the copy; a later copy keeps the lower count, so a tool connected after the first copy still counts.
+	// An unknown count starts no wait.
 	const startOtherWait = () => {
 		apiFetch< McpConnections >( { path: MCP_CONNECTIONS_WITH_OTHERS_PATH } )
 			.then( data => {
