@@ -5,7 +5,6 @@
 	line-height: 22px;
 }
 
-// Also rendered outside `.wrapper`, inside the settings card.
 .body {
 	font-size: var(--wpds-typography-font-size-md);
 	line-height: var(--wpds-typography-line-height-sm);
@@ -64,7 +63,7 @@
 			}
 		}
 
-		.load-defaults {
+		button.load-defaults {
 			font-size: inherit;
 			line-height: inherit;
 		}
