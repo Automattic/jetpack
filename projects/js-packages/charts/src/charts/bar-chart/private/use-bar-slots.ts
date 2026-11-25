@@ -1,6 +1,11 @@
 import { useMemo } from 'react';
 import { categoryKey, isSameCategory } from './category';
-import { COMPARISON_SLOT, PRIMARY_SLOT, getOverlapPlacements } from './overlap-bars';
+import {
+	COMPARISON_SLOT,
+	PRIMARY_SLOT,
+	getOverlapPlacements,
+	isComparisonSeries,
+} from './overlap-bars';
 import { getComparisonTotalSeries, getStackLayout } from './stack-layout';
 import { isBarRendered } from './value-domain';
 import type { SelectedBar } from './selected-bar-ring';
@@ -32,8 +37,6 @@ export type StopPosition = {
 
 export type SelectedSlot = SelectedBar & { members: SlotMember[] };
 
-const isComparison = ( series: SeriesData ) => series.options?.type === 'comparison';
-
 /**
  * Lays out the visible series in slots: overlap layers primaries and comparisons in two, stacked puts every primary in one and sums the comparisons into a bar in a second.
  *
@@ -56,17 +59,17 @@ export function useBarSlots(
 
 		if ( layout === 'stacked' ) {
 			// Bottom to top, so the top segment names each keyboard stop.
-			const primaries = visible.filter( ( { series } ) => ! isComparison( series ) );
+			const primaries = visible.filter( ( { series } ) => ! isComparisonSeries( series ) );
 			const visibleGroups = new Set( primaries.map( ( { series } ) => series.group ) );
 			const hiddenGroups = new Set(
 				seriesWithVisibility.flatMap( ( { series, isVisible } ) =>
-					isVisible || isComparison( series ) ? [] : [ series.group ]
+					isVisible || isComparisonSeries( series ) ? [] : [ series.group ]
 				)
 			);
 			// A comparison leaves the total with the primary it is paired with, so both bars sum the same series.
 			const comparisons = visible.filter(
 				( { series } ) =>
-					isComparison( series ) &&
+					isComparisonSeries( series ) &&
 					( visibleGroups.has( series.group ) || ! hiddenGroups.has( series.group ) )
 			);
 			// Without a primary there is no stack to compare with, so the chart shows its empty state.

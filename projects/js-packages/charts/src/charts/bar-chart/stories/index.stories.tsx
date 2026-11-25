@@ -992,7 +992,7 @@ export const StackedComparison: Story = {
 		docs: {
 			description: {
 				story:
-					"A stacked chart with a `type: 'comparison'` series per device. The comparisons are summed into one bar beside each stack, the previous period's total, in a gray that keeps 3:1 against the background; `legend.comparisonItem` names it in the legend and the tooltip. Hide a device from the legend and its previous period leaves the total too, so both bars sum the same devices.",
+					'The previous period of each device is summed into one bar beside each stack, named by `legend.comparisonItem`; hiding a device drops its previous period from that bar too.',
 			},
 		},
 	},

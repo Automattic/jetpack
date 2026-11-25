@@ -804,7 +804,8 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 	/**
 	 * Callback for Enter or Space on the point keyboard navigation has selected:
 	 * the keyboard counterpart of a click. `index` is the point's position in its
-	 * series and `key` the series label.
+	 * series and `key` the series label. A stacked bar chart's comparison total reports its own
+	 * label and summed point, which name no series in `data`.
 	 */
 	onDatumActivate?: ( params: {
 		datum: DataPoint | DataPointDate;

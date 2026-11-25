@@ -115,7 +115,7 @@ Comparison styling applies to the `grouped` layout only. An `overlap` layout dra
 
 `useBarColors()` returns a function, `( series, { layout } ) => string[]`, that gives the color `BarChart` fills each series with in that layout, by index. Use it to color a custom tooltip's swatches. In `stacked`, comparison series take no palette slot, so they do not shift the colors of the series after them, and all take the color of the one bar they are summed into.
 
-`useBarLegendItems( data, { layout, ...legendOptions }, legendShape? )` builds the legend items `BarChart` registers for its own and composition legends, for a custom legend. It takes the `useChartLegendItems` options plus `layout`. With a layout, every swatch takes its bar's color; in `overlap` the swatches are opaque and, without `collapseGroups`, the items are in slot order: every primary, then every comparison; in `grouped`, a collapsed group's swatch takes its comparison's tint. In `stacked`, comparison series get no item; `comparisonItem` adds one static item for the bar they are summed into, and `comparisonSeriesItems` is ignored. Without a layout, it returns `useChartLegendItems`' items unchanged.
+`useBarLegendItems( data, { layout, ...legendOptions }, legendShape? )` builds the legend items `BarChart` registers for its own and composition legends, for a custom legend. It takes the `useChartLegendItems` options plus `layout`. With a layout, every swatch takes its bar's color; in `overlap` the swatches are opaque and, without `collapseGroups`, the items are in slot order: every primary, then every comparison; in `grouped`, a collapsed group's swatch takes its comparison's tint. In `stacked`, comparison series get no item; `comparisonItem` adds one static item for the bar they are summed into, which `BarChart` leaves out while that bar is not drawn, and `comparisonSeriesItems` is ignored. Without a layout, it returns `useChartLegendItems`' items unchanged.
 
 ## DataPointDate Type
 
@@ -183,7 +183,7 @@ type SeriesChartLegendConfig = {
 	// A stacked bar chart names the bar it sums the comparisons into with it, in the legend and tooltip.
 	comparisonItem?: boolean | string;
 	// Append one static item per comparison series instead, named from the label of the item it
-	// was folded into and left out while that series is hidden. Not added by a stacked bar chart either.
+	// was folded into and left out while that series is hidden. A stacked bar chart ignores it.
 	comparisonSeriesItems?: ( seriesLabel: string ) => string;
 	itemClassName?: string;
 	itemStyles?: LegendItemStyles;
