@@ -11,6 +11,7 @@
 namespace Automattic\Jetpack\Extensions;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack;
@@ -376,8 +377,8 @@ class Tiled_Gallery {
 
 					// If we have Photon/Jetpack image processing, request high-quality square crop.
 					// A site's own uploads URL ignores resize, so the crop has to go through Photon.
-					if ( function_exists( 'jetpack_photon_url' ) && $image_url ) {
-						$image_url = jetpack_photon_url(
+					if ( class_exists( Image_CDN_Core::class ) && $image_url ) {
+						$image_url = Image_CDN_Core::cdn_url(
 							remove_query_arg( array( 'w', 'h', 'fit', 'resize', 'crop' ), $image_url ),
 							array( 'resize' => '1300,1300' ),
 							'https'
