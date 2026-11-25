@@ -2,6 +2,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { AlertDialog } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { useDeleteCoupon } from '../../data/coupons';
+import { showSuccessSnackbar } from '../../data/notices';
 import { trackPaymentsEvent } from '../../data/tracking';
 import type { Coupon } from '../../data/coupons';
 
@@ -35,6 +36,10 @@ export default function DeleteCouponDialog( {
 		try {
 			await deleteCoupon.mutateAsync( coupon.id );
 			trackPaymentsEvent( 'coupon_delete' );
+			showSuccessSnackbar(
+				/* translators: %s: a coupon code. */
+				sprintf( __( 'Coupon “%s” deleted.', 'jetpack-monetize' ), coupon.code )
+			);
 		} catch ( error ) {
 			return {
 				close: false,
@@ -43,7 +48,7 @@ export default function DeleteCouponDialog( {
 					__( 'The coupon could not be deleted. Please try again.', 'jetpack-monetize' ),
 			};
 		}
-	}, [ coupon.id, deleteCoupon ] );
+	}, [ coupon.id, coupon.code, deleteCoupon ] );
 
 	return (
 		<AlertDialog.Root open onOpenChange={ onOpenChange } onConfirm={ onConfirm }>

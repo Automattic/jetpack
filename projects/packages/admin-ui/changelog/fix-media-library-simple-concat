@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stop the media library and dashboard switching from running scripts the page already loaded, which unstyled the media library and broke saving on WordPress.com Simple sites.

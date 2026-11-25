@@ -830,6 +830,23 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 	}
 
 	/**
+	 * A caller that gave up after 5 seconds has not learned that a slower one would fail too, so
+	 * its cached failure must not answer the patient caller. `/jetpack-stats/usage` has both: the
+	 * Parse.ly prompt gate asks for 5 seconds, the `jetpack/stats-insights` ability takes the 20.
+	 */
+	public function test_a_failure_under_a_short_timeout_is_not_served_to_a_default_caller() {
+		$expected_error = new WP_Error( 'http_request_failed', 'Operation timed out' );
+
+		$this->wpcom_stats
+			->expects( $this->exactly( 2 ) )
+			->method( 'fetch_remote_stats' )
+			->willReturn( $expected_error );
+
+		$this->assertSame( $expected_error, $this->wpcom_stats->get_stats_usage( array( 'timeout' => 5 ) ) );
+		$this->assertSame( $expected_error, $this->wpcom_stats->get_stats_usage() );
+	}
+
+	/**
 	 * Test get_stats with error.
 	 */
 	public function test_get_stats_with_error() {
@@ -991,10 +1008,11 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 	 *
 	 * @param  string $endpoint The WPCOM REST API endpoint.
 	 * @param  array  $args     Optional query args.
+	 * @param  int    $timeout  Optional request timeout the entry was stored under.
 	 * @return string|false The transient value if set, otherwise false
 	 */
-	private static function get_stats_transient( $endpoint, $args = array() ) {
-		$cache_key      = md5( implode( '|', array( $endpoint, WPCOM_Stats::STATS_REST_API_VERSION, wp_json_encode( $args, JSON_UNESCAPED_SLASHES ) ) ) );
+	private static function get_stats_transient( $endpoint, $args = array(), $timeout = WPCOM_Stats::REQUEST_TIMEOUT ) {
+		$cache_key      = md5( implode( '|', array( $endpoint, WPCOM_Stats::STATS_REST_API_VERSION, wp_json_encode( $args, JSON_UNESCAPED_SLASHES ), $timeout ) ) );
 		$transient_name = WPCOM_Stats::STATS_CACHE_TRANSIENT_PREFIX . $cache_key;
 		$stats_cache    = get_transient( $transient_name );
 

@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
 import http from 'node:http';
 import path from 'node:path';
-import { test } from 'node:test';
+import { mock, test } from 'node:test';
 import { main } from './codevitals-digest.js';
 
 const SCRIPT = path.join( import.meta.dirname, 'codevitals-digest.js' );
@@ -12,7 +12,7 @@ const SCRIPT = path.join( import.meta.dirname, 'codevitals-digest.js' );
 // ---- mock CodeVitals read API ----
 
 const D = 864e5;
-const NOW = Date.now();
+const NOW = Date.parse( '2026-08-24T15:00:00Z' );
 // Injective for the short labels fixtures use: hex chars pass through (a rendered hash prefix
 // like "feedbeef" stays assertable), other chars become their two-digit char code, and an "f"
 // terminator lands before the zero padding so "c1" and "c10" stay distinct. A colliding label
@@ -199,6 +199,302 @@ const SCENARIOS = {
 	levelstep: () => ( {
 		series: { 301: levelSeries( Array( 10 ).fill( 100 ), 300, Array( 10 ).fill( 120 ) ) },
 	} ),
+	scannedStep: () => ( {
+		series: {
+			301: [ ...steady( 20, 5, 100 ), ...seq( 20, 4.9, 107 ) ],
+			302: [ ...steady( 30, 5, 100 ), ...seq( 10, 4.9, 107 ) ],
+		},
+	} ),
+	scanWithStrayReadings: () => {
+		const placements = [
+			[ 'Inside later window', 25, 120 ],
+			[ 'First later reading', 21, 120 ],
+			[ 'Last later reading', 30, 120 ],
+			[ 'Inside earlier window', 16, 90 ],
+		];
+		return {
+			metrics: placements.map( ( [ name ], i ) => metricRow( 301 + i, name, `stray-${ i }` ) ),
+			series: Object.fromEntries(
+				placements.map( ( [ , index, value ], i ) => {
+					const values = [ ...Array( 20 ).fill( 100 ), ...Array( 20 ).fill( 108 ) ];
+					values[ index ] = value;
+					return [ 301 + i, flaggedSeries( values, [], 'stray' ) ];
+				} )
+			),
+		};
+	},
+	scanOnPaintGrid: () => {
+		const values = [ ...Array( 20 ).fill( 240 ), ...Array( 20 ).fill( 260 ) ];
+		values[ 12 ] = 244;
+		values[ 16 ] = 232;
+		values[ 24 ] = 268;
+		values[ 28 ] = 248;
+		return {
+			metrics: [
+				metricRow(
+					201,
+					'Dashboard LCP',
+					'wp-admin-dashboard-connection-sim-largestContentfulPaint'
+				),
+			],
+			series: { 201: flaggedSeries( values, [], 'grid' ) },
+		};
+	},
+	weeklyBatch: ( n = 19 ) => {
+		const first = pt( 7.5, 100, 'first', false );
+		const rows = [
+			first,
+			...steady( n, 1, 100 ),
+			{ ...first, measuredAt: iso( NOW - 0.5 * D ) },
+			pt( -0.1, 100, 'future', false ),
+		];
+		return { series: { 301: rows, 302: rows.slice( 1 ) } };
+	},
+	fullWeeklyBatch: () => SCENARIOS.weeklyBatch( 20 ),
+	measurementBreak: () => ( {
+		metrics: [ ...baseMetrics(), metricRow( 303, 'Step near the break', 'near-break' ) ],
+		series: {
+			301: [
+				...steady( 30, 15, 100 ),
+				pt( 14.625, 120, 'boundary', true, 20 ),
+				...steady( 29, 0.5, 120, 'later' ),
+			],
+			302: [ ...steady( 30, 15, 100 ), ...steady( 30, 0.5, 80, 'later' ) ],
+			303: [
+				...steady( 24, 15.6, 100 ),
+				...steady( 6, 15, 120, 'step' ),
+				...steady( 30, 0.5, 120, 'later' ),
+			],
+		},
+	} ),
+	scannedReverts: () => ( {
+		series: Object.fromEntries(
+			[ 6, 9 ].map( ( length, i ) => [
+				301 + i,
+				flaggedSeries(
+					[
+						...Array( 30 ).fill( 100 ),
+						...Array( length ).fill( 110 ),
+						...Array( 30 ).fill( 100 ),
+					],
+					[],
+					'revert'
+				),
+			] )
+		),
+	} ),
+	scanSeptemberWeights: () => ( {
+		metrics: [
+			{
+				...metricRow( 207, 'Forms weight', 'forms-responses-connection-sim-decodedBytesKB' ),
+				unit: 'KB',
+			},
+			{
+				...metricRow( 214, 'My Jetpack weight', 'my-jetpack-connection-sim-decodedBytesKB' ),
+				unit: 'KB',
+			},
+		],
+		series: {
+			207: flaggedSeries(
+				[ ...Array( 8 ).fill( 6687 ), ...Array( 16 ).fill( 7149 ) ],
+				[],
+				'formsweight'
+			),
+			214: flaggedSeries(
+				[ ...Array( 8 ).fill( 6138 ), ...Array( 16 ).fill( 6487 ) ],
+				[],
+				'myweight'
+			),
+		},
+		no302: true,
+	} ),
+	scanExcursion: () => ( {
+		series: {
+			301: flaggedSeries(
+				[
+					...Array( 30 ).fill( 100 ),
+					...Array( 4 ).fill( 106 ),
+					...Array( 8 ).fill( 112.4 ),
+					...Array( 25 ).fill( 106 ),
+				],
+				[],
+				'excursion'
+			),
+		},
+	} ),
+	scanSevenBaseline: () => ( {
+		series: {
+			301: flaggedSeries( [ ...Array( 7 ).fill( 100 ), ...Array( 17 ).fill( 107 ) ], [], 'seven' ),
+		},
+	} ),
+	scanMixedBaseline: () => ( {
+		series: {
+			301: flaggedSeries(
+				[ ...Array( 30 ).fill( 100 ), ...Array( 4 ).fill( 107 ), ...Array( 30 ).fill( 114.5 ) ],
+				[],
+				'mixedbaseline'
+			),
+		},
+	} ),
+	scanSteps: () => {
+		const noisy = [
+			102, 103, 97, 100, 99, 97, 103, 100, 99, 101, 100, 98, 100, 99, 98, 103, 113, 102, 108, 106,
+			109, 103, 109, 103, 107, 114, 107, 111, 113, 102, 107, 114, 102, 113, 112, 111, 110, 114, 110,
+			104,
+		];
+		const steps = gap => [
+			...Array( 30 ).fill( 100 ),
+			...Array( gap ).fill( 107 ),
+			...Array( 25 ).fill( 114 ),
+		];
+		return {
+			metrics: [
+				metricRow( 301, 'Noisy step', 'noisy-step' ),
+				metricRow( 302, 'Nearby steps', 'nearby-steps' ),
+				metricRow( 303, 'Separate steps', 'separate-steps' ),
+			],
+			series: {
+				301: flaggedSeries( noisy, [], 'noisy' ),
+				302: flaggedSeries( steps( 15 ), [], 'near' ),
+				303: flaggedSeries( steps( 20 ), [], 'far' ),
+			},
+		};
+	},
+	scanHoldWindows: () => {
+		const before = Array( 30 ).fill( 100 );
+		return {
+			metrics: [
+				metricRow( 301, 'Reverted after ten', 'reverted' ),
+				metricRow( 302, 'Short tail', 'short-tail' ),
+				metricRow( 303, 'Low later median', 'low-median' ),
+			],
+			series: {
+				301: flaggedSeries( [ ...before, ...Array( 10 ).fill( 110 ), ...before ], [], 'boundary' ),
+				302: flaggedSeries( [ ...before, ...Array( 10 ).fill( 107 ) ], [], 'short' ),
+				303: flaggedSeries(
+					[
+						...Array( 15 ).fill( 100 ),
+						107,
+						108,
+						107,
+						107,
+						104,
+						108,
+						...Array( 12 ).fill( 101 ),
+						...Array( 8 ).fill( 100 ),
+					],
+					[],
+					'midpoint'
+				),
+			},
+		};
+	},
+	scanFlagOverlap: () => {
+		const before = Array( 30 ).fill( 100 );
+		const ramp = Array.from( { length: 31 }, ( _, i ) => 100 + i * 0.5 );
+		ramp[ 6 ] = 116;
+		return {
+			series: {
+				301: flaggedSeries(
+					[ ...before, ...Array( 8 ).fill( 107 ), ...Array( 30 ).fill( 123 ) ],
+					[ 38 ],
+					'mixed'
+				),
+				302: flaggedSeries( [ ...before, ...ramp, ...Array( 14 ).fill( 115 ) ], [ 36 ], 'ramp' ),
+			},
+		};
+	},
+	scanPendingOverlap: () => ( {
+		series: {
+			301: flaggedSeries(
+				[
+					...Array( 30 ).fill( 100 ),
+					...Array( 6 ).fill( 107 ),
+					128,
+					125,
+					...Array( 8 ).fill( 107 ),
+				],
+				[ 36 ],
+				'pending'
+			),
+		},
+	} ),
+	scanPendingCoverage: () => {
+		const values = [ ...Array( 30 ).fill( 100 ), ...Array( 15 ).fill( 107 ) ];
+		return {
+			series: {
+				301: flaggedSeries( values, [ 40 ], 'matching' ),
+				302: flaggedSeries( values, [], 'unflagged' ),
+			},
+		};
+	},
+	scanSecondRise: ( { pending = false, gap = 15 } = {} ) => ( {
+		series: {
+			301: flaggedSeries(
+				[
+					...Array( 30 ).fill( 100 ),
+					...Array( gap ).fill( 107 ),
+					...Array( 6 ).fill( 123 ),
+					...Array( pending ? 0 : 20 ).fill( 107 ),
+				],
+				pending ? [ 30 + gap ] : [],
+				'secondrise'
+			),
+		},
+	} ),
+	scanThenPending: () => SCENARIOS.scanSecondRise( { pending: true } ),
+	scanNearPending: () => SCENARIOS.scanSecondRise( { pending: true, gap: 10 } ),
+	scanRerunMargin: () => {
+		const rows = flaggedSeries(
+			[ ...Array( 10 ).fill( 100 ), ...Array( 11 ).fill( 110 ) ],
+			[],
+			'scanrerun'
+		);
+		rows.splice( 11, 0, pt( 8 - 10.5 * 0.1, 150, 'scanrerun0', true, ( 150 / 110 - 1 ) * 100 ) );
+		return { series: { 301: rows } };
+	},
+	agedScan: () => ( {
+		series: {
+			301: flaggedSeries(
+				[ ...Array( 30 ).fill( 100 ), ...Array( 30 ).fill( 107 ) ],
+				[],
+				'agedscan',
+				40
+			),
+		},
+	} ),
+	jetpackMetricPolicy: ( { excludedId = 203, ttfbId = 212, fcpId = 213 } = {} ) => {
+		const pre = [ ...Array( 5 ).fill( 90 ), ...Array( 5 ).fill( 110 ) ];
+		const rise = levelSeries( pre, 125, Array( 10 ).fill( 125 ) );
+		const scanValues = Array.from(
+			{ length: 60 },
+			( _, i ) => ( i < 30 ? 96 : 108 ) + ( i % 2 ) * 8
+		);
+		const scanRise = flaggedSeries( scanValues, [], 'scanbar' );
+		return {
+			metrics: [
+				metricRow( 201, 'Dashboard LCP', 'dashboard-lcp' ),
+				metricRow( 202, 'Dashboard TTFB', 'dashboard-ttfb' ),
+				metricRow(
+					excludedId,
+					'Dashboard FCP',
+					'wp-admin-dashboard-connection-sim-firstContentfulPaint'
+				),
+				metricRow( ttfbId, 'My Jetpack TTFB', 'my-jetpack-connection-sim-timeToFirstByte' ),
+				metricRow( fcpId, 'My Jetpack FCP', 'my-jetpack-connection-sim-firstContentfulPaint' ),
+			],
+			series: {
+				201: rise,
+				202: scanRise,
+				[ excludedId ]: rise,
+				[ ttfbId ]: rise,
+				[ fcpId ]: scanRise,
+			},
+			no302: true,
+		};
+	},
+	recreatedMetricPolicy: () =>
+		SCENARIOS.jetpackMetricPolicy( { excludedId: 903, ttfbId: 912, fcpId: 913 } ),
 	diprecovery: () => ( {
 		series: { 301: levelSeries( [ ...Array( 9 ).fill( 100 ), 80 ], 110, Array( 10 ).fill( 100 ) ) },
 	} ),
@@ -402,6 +698,7 @@ const SCENARIOS = {
 		fixture.metrics = fixture.metrics.slice( 0, 3 );
 		fixture.metrics[ 0 ].key = 'k'.repeat( 4000 );
 		fixture.series = Object.fromEntries( Object.entries( fixture.series ).slice( 0, 3 ) );
+		fixture.series[ 403 ].push( ...steady( 5, 0, 150, 'longtail' ) );
 		return fixture;
 	},
 	mixedOlderRows: () => {
@@ -606,13 +903,14 @@ const SCENARIOS = {
 		series[ 506 ] = levelSeries( Array( 10 ).fill( 0 ), 100, Array( 10 ).fill( 100 ) );
 		return { metrics, series };
 	},
-	// A short revert does not establish a new median level.
+	// Two readings in the dip interrupt the scan's later comparison window.
 	relanded: () => ( {
 		series: {
 			301: [
 				...steady( 10, 6.0, 100 ),
 				...seq( 5, 5.9, 200, 'r' ),
 				pt( 5.4, 100, 'rrev', false ),
+				pt( 5.35, 100, 'rrev2', false ),
 				pt( 5.3, 200, 'feedbeefb', true, 100.0 ),
 				...seq( 10, 5.2, 200, 'rp' ),
 			],
@@ -658,11 +956,9 @@ const SCENARIOS = {
 		series: {
 			301: [
 				...steady( 10, 6.0, 100 ),
-				...seq( 5, 5.9, 200, 'b' ),
-				pt( 5.4, 100, 'beef99', false ),
-				pt( 5.35, 200, 'b2', false ), // duplicate of landing commit b2
 				pt( 5.3, 200, 'feedbf03', true, 100.0 ),
-				...seq( 10, 5.2, 200, 'dd' ),
+				...seq( 6, 5.2, 200, 'c' ), // Re-runs of the first six baseline commits.
+				...seq( 10, 4.6, 100, 'dd' ),
 			],
 		},
 	} ),
@@ -1190,7 +1486,7 @@ const SCENARIOS = {
 	} ),
 	// A /metrics row with a non-numeric id must warn in the digest + exit 1.
 	nullids: () => ( {
-		metrics: [ ...baseMetrics(), { ...metricRow( 0, 'Ghost: LCP', 'ghost-lcp' ), id: 'abc' } ],
+		metrics: [ ...baseMetrics(), metricRow( '0xcb', 'Ghost: LCP', 'ghost-lcp' ) ],
 		series: { 301: steady( 30, 0.5, 100 ) },
 	} ),
 	// createdAt in the FUTURE + zero points: stale, never permanently "warming up".
@@ -1264,10 +1560,19 @@ const PROBE_PATH = '/__probe';
  * @param {string}  scenario         - Scenario name for buildScenario.
  * @param {object}  [opts]           - Options.
  * @param {boolean} [opts.discoFail] - Serve HTML from /metrics regardless of scenario.
+ * @param {number}  [opts.now]       - Shift fixture dates to this clock.
  * @return {Promise<object>} { url, requests, close }
  */
-function startMockApi( scenario, { discoFail = false } = {} ) {
+function startMockApi( scenario, { discoFail = false, now = NOW } = {} ) {
 	const { metrics, series, discoHtml, discoEmpty, downsampled } = buildScenario( scenario );
+	if ( now !== NOW ) {
+		for ( const [ id, rows ] of Object.entries( series ) ) {
+			series[ id ] = rows.map( row => ( {
+				...row,
+				measuredAt: iso( Date.parse( row.measuredAt ) + now - NOW ),
+			} ) );
+		}
+	}
 	const requests = [];
 	const server = http.createServer( ( req, res ) => {
 		const u = new URL( req.url, 'http://localhost' );
@@ -1355,16 +1660,21 @@ function startMockApi( scenario, { discoFail = false } = {} ) {
 
 // ---- in-process harness ----
 
-/** Run fn with console.log/error captured; returns { result, out, err }. */
-async function captureConsole( fn ) {
+/** Run fn with a fixed clock and console.log/error captured; returns { result, out, err }. */
+async function captureConsole( fn, now = NOW ) {
 	const out = [];
 	const err = [];
 	const orig = { log: console.log, error: console.error };
 	console.log = ( ...args ) => out.push( args.join( ' ' ) );
 	console.error = ( ...args ) => err.push( args.join( ' ' ) );
 	try {
-		const result = await fn();
-		return { result, out: out.join( '\n' ), err: err.join( '\n' ) };
+		const clock = mock.method( Date, 'now', () => now );
+		try {
+			const result = await fn();
+			return { result, out: out.join( '\n' ), err: err.join( '\n' ) };
+		} finally {
+			clock.mock.restore();
+		}
 	} finally {
 		console.log = orig.log;
 		console.error = orig.error;
@@ -1400,24 +1710,84 @@ function makeSlackMock( { slackFail = false } = {} ) {
  *
  * @param {string} scenario       - Scenario name.
  * @param {object} [envOverrides] - Env on top of { DRY_RUN: '1', CODEVITALS_EVOLUTION_URL }.
- * @param {object} [opts]         - { discoFail, slackFail }.
+ * @param {object} [opts]         - { discoFail, slackFail, now }.
  * @return {Promise<object>} { code, out, err, calls, requests }
  */
 async function runDigest( scenario, envOverrides = {}, opts = {} ) {
 	const api = await startMockApi( scenario, opts );
 	const { calls, MockWebClient } = makeSlackMock( opts );
 	try {
-		const { result, out, err } = await captureConsole( () =>
-			main( {
-				env: { DRY_RUN: '1', CODEVITALS_EVOLUTION_URL: api.url, ...envOverrides },
-				WebClientClass: MockWebClient,
-			} )
+		const { result, out, err } = await captureConsole(
+			() =>
+				main( {
+					env: { DRY_RUN: '1', CODEVITALS_EVOLUTION_URL: api.url, ...envOverrides },
+					WebClientClass: MockWebClient,
+				} ),
+			opts.now
 		);
 		return { code: result, out, err, calls, requests: api.requests };
 	} finally {
 		await api.close();
 	}
 }
+
+test( 'the scan tolerates one stray reading only inside the later window', async () => {
+	const result = await runDigest( 'scanWithStrayReadings' );
+	assert.match( result.out, /Inside later window\* median \+8\.0% \(100→108ms\)/ );
+	for ( const name of [ 'First later reading', 'Last later reading', 'Inside earlier window' ] ) {
+		assert.ok( ! result.out.includes( `${ name }* median` ), result.out );
+	}
+} );
+
+test( 'the scan uses the paint series measurement step as the held-level scale floor', async () => {
+	const result = await runDigest( 'scanOnPaintGrid' );
+	assert.match( result.out, /Dashboard LCP\* median \+8\.3% \(240→260ms\)/ );
+} );
+
+test( 'the digest warns below twenty distinct recently dated commits', async () => {
+	const thin = await runDigest( 'weeklyBatch' );
+	assert.equal( thin.code, 1, thin.out );
+	assert.match( thin.out, /THIN MEASUREMENT BATCH \(19 commits\)/ );
+	assert.doesNotMatch( thin.out, /white_check_mark/ );
+
+	const full = await runDigest( 'fullWeeklyBatch' );
+	assert.equal( full.code, 0, full.out );
+	assert.match( full.out, /Commits dated in the last 7 days: 20/ );
+	assert.doesNotMatch( full.out, /THIN MEASUREMENT BATCH/ );
+	for ( const env of [ { CODEVITALS_REPO: 'example/project' }, { CODEVITALS_BRANCH: 'stable' } ] ) {
+		const otherTarget = await runDigest( 'weeklyBatch', env );
+		assert.equal( otherTarget.code, 0, otherTarget.out );
+		assert.doesNotMatch( otherTarget.out, /Thin measurement batch|Commits dated/i );
+	}
+} );
+
+test( 'a measurement break skips cross-break windows and reports both levels without commits', async () => {
+	const result = await runDigest(
+		'measurementBreak',
+		{},
+		{ now: Date.parse( '2026-11-30T15:00:00Z' ) }
+	);
+	assert.equal( result.code, 0, result.err );
+	assert.match(
+		result.err,
+		/metric 301: windows skipped across a measurement break — 1 flag, 20 seed, 0 confirmation/
+	);
+	assert.match(
+		result.err,
+		/metric 303: windows skipped across a measurement break — 0 flag, 20 seed, 1 confirmation/
+	);
+	const { text, blocks } = JSON.parse( result.out );
+	assert.match( text, /0 sustained regression\(s\)/ );
+	assert.doesNotMatch( result.out, /\/commit\// );
+	const breakBlocks = blocks.filter( block => block.text?.text.startsWith( '*Measurement break' ) );
+	assert.equal( breakBlocks.length, 1, result.out );
+	assert.match( breakBlocks[ 0 ].text.text, /Alpha: TTFB\* 100→120ms \(\+20\.0%\)/ );
+	assert.match( breakBlocks[ 0 ].text.text, /Beta: LCP\* 100→80ms \(-20\.0%\)/ );
+	assert.match(
+		breakBlocks[ 0 ].text.text,
+		/Step near the break\* .* · 1 possible change across the break was not checked/
+	);
+} );
 
 test( 'incomplete page-weight data has a qualified headline', async () => {
 	for ( const scenario of [ 'pageWeightUnreadable', 'pageWeightStale' ] ) {
@@ -1648,6 +2018,199 @@ test( 'level gate confirms a step with median magnitude and rejects a dip recove
 	assert.equal( dip.code, 0, dip.err );
 	assert.ok( dip.out.includes( '1 transient spike' ), dip.out );
 	assert.ok( ! dip.out.includes( 'sustained regression*' ), dip.out );
+} );
+
+test( 'an unflagged step needs ten later commits and produces one digest line', async () => {
+	const result = await runDigest( 'scannedStep' );
+	assert.equal( result.code, 0, result.err );
+	const payload = JSON.parse( result.out );
+	const lines = payload.blocks.filter( block => block.text?.text.startsWith( '•' ) );
+	assert.equal( lines.length, 1, result.out );
+	assert.match(
+		lines[ 0 ].text.text,
+		/Alpha: TTFB\* median \+7\.0% \(100→107ms\).*observed between/
+	);
+	assert.doesNotMatch( result.out, /single-pair|flag|pending/ );
+	assert.match(
+		result.err,
+		/metric 302: scan windows skipped — 0 outside the look-back, 0 covered by flags, 1 waiting for later readings, 0 rejected, 0 repeated/
+	);
+} );
+
+test( 'the scan rejects rises that revert before ten later commits', async () => {
+	const result = await runDigest( 'scannedReverts' );
+	assert.equal( result.code, 0, result.err );
+	assert.match( result.out, /No sustained metric regressions/ );
+} );
+
+test( 'September weight rises use eight earlier and ten later readings', async () => {
+	const result = await runDigest( 'scanSeptemberWeights' );
+	assert.equal( result.code, 0, result.err );
+	const lines = JSON.parse( result.out ).blocks.map( block => block.text?.text );
+	for ( const [ name, prefix, rise ] of [
+		[ 'Forms weight', 'formsweight', '+6.9% (6687→7149KB)' ],
+		[ 'My Jetpack weight', 'myweight', '+5.7% (6138→6487KB)' ],
+	] ) {
+		const line = lines.find( text => text?.startsWith( `• *${ name }*` ) );
+		assert.ok( line, result.out );
+		assert.ok( line.includes( `median ${ rise }` ), line );
+		assert.deepEqual(
+			[ ...line.matchAll( /\/commit\/([a-f0-9]{40})\|/g ) ].map( match => match[ 1 ] ),
+			[ hx( prefix + '0' ), hx( prefix + '18' ) ]
+		);
+	}
+} );
+
+test( 'a short excursion after a held rise cannot supply the reported level', async () => {
+	const result = await runDigest( 'scanExcursion' );
+	assert.equal( result.code, 0, result.err );
+	assert.match( result.out, /0 sustained regression\(s\)/ );
+} );
+
+test( 'the scan rejects a change point with only seven earlier readings', async () => {
+	const result = await runDigest( 'scanSevenBaseline' );
+	assert.equal( result.code, 0, result.err );
+	assert.match( result.out, /0 sustained regression\(s\)/ );
+	assert.match(
+		result.err,
+		/metric 301: scan windows skipped — 0 outside the look-back, 0 covered by flags, 0 waiting for later readings, 1 rejected, 0 repeated/
+	);
+} );
+
+test( 'a scan does not use a baseline that mixes two held levels', async () => {
+	const result = await runDigest( 'scanMixedBaseline' );
+	assert.equal( result.code, 0, result.err );
+	assert.match( result.out, /No sustained metric regressions/ );
+} );
+
+test( 'scan lines report nearby held steps separately', async () => {
+	const result = await runDigest( 'scanSteps' );
+	assert.equal( result.code, 0, result.err );
+	const lines = JSON.parse( result.out ).blocks.map( block => block.text?.text );
+	const reportedRises = name =>
+		lines
+			.filter( text => text?.startsWith( `• *${ name }*` ) )
+			.map( text => text.split( ' — ' )[ 0 ] );
+	assert.deepEqual( reportedRises( 'Noisy step' ), [
+		'• *Noisy step* median +8.0% (99.5→107.5ms)',
+	] );
+	assert.match(
+		result.err,
+		/metric 301: scan windows skipped — 0 outside the look-back, 0 covered by flags, 0 waiting for later readings, 1 rejected, 1 repeated/
+	);
+	for ( const name of [ 'Nearby steps', 'Separate steps' ] ) {
+		assert.deepEqual( reportedRises( name ), [
+			`• *${ name }* median +6.5% (107→114ms)`,
+			`• *${ name }* median +7.0% (100→107ms)`,
+		] );
+	}
+} );
+
+test( 'scan persistence checks the later window from the estimated change', async () => {
+	const result = await runDigest( 'scanHoldWindows' );
+	assert.equal( result.code, 0, result.err );
+	assert.match( result.out, /No sustained metric regressions/ );
+} );
+
+test( 'a service flag reports its own comparison when the scan cannot confirm a level', async () => {
+	const result = await runDigest( 'scanFlagOverlap' );
+	assert.equal( result.code, 0, result.err );
+	const lines = JSON.parse( result.out ).blocks.filter( block =>
+		block.text?.text.startsWith( '•' )
+	);
+	assert.equal( lines.length, 2, result.out );
+	assert.match( result.out, /Alpha: TTFB\* median \+15\.0% \(107→123ms\).*flags observed at/ );
+	assert.match( result.out, /Beta: LCP\* median \+5\.5% \(100\.3→105\.8ms\).*flags observed at/ );
+} );
+
+test( 'a flag stays pending when the scan cannot confirm a held level', async () => {
+	const result = await runDigest( 'scanPendingOverlap' );
+	assert.equal( result.code, 0, result.err );
+	assert.match( result.out, /0 sustained regression\(s\), 1 pending/ );
+	assert.match(
+		result.err,
+		/metric 301: scan windows skipped — 0 outside the look-back, 0 covered by flags, 0 waiting for later readings, 1 rejected, 0 repeated/
+	);
+} );
+
+test( 'only the scan with a matching pending flag is covered', async () => {
+	const result = await runDigest( 'scanPendingCoverage' );
+	assert.equal( result.code, 0, result.err );
+	const payload = JSON.parse( result.out );
+	assert.match( payload.text, /1 sustained regression\(s\), 1 pending/ );
+	assert.match( payload.text, /Beta: LCP median \+7\.0%/ );
+	assert.match(
+		result.err,
+		/metric 301: scan windows skipped — 0 outside the look-back, 1 covered by flags, 0 waiting for later readings, 0 rejected, 0 repeated/
+	);
+} );
+
+test( 'a reverted second rise does not increase the sustained total', async () => {
+	const result = await runDigest( 'scanSecondRise' );
+	assert.equal( result.code, 0, result.err );
+	assert.match( result.out, /1 sustained regression\(s\)/ );
+	assert.match( result.out, /median \+7\.0% \(100→107ms\)/ );
+} );
+
+test( 'a pending second rise stays out of the sustained total', async () => {
+	const result = await runDigest( 'scanThenPending' );
+	assert.equal( result.code, 0, result.err );
+	assert.match( result.out, /1 sustained regression\(s\), 1 pending/ );
+	assert.match( result.out, /median \+7\.0% \(100→107ms\)/ );
+} );
+
+test( 'the scan rejects a window that spans a held level and a pending rise', async () => {
+	const result = await runDigest( 'scanNearPending' );
+	assert.equal( result.code, 0, result.err );
+	assert.match( result.out, /0 sustained regression\(s\), 1 pending/ );
+	assert.match( result.out, /\+15\.0% \(single pair\)/ );
+} );
+
+test( 'an off-time re-run one position from the estimated change covers the same rise', async () => {
+	const result = await runDigest( 'scanRerunMargin' );
+	assert.equal( result.code, 0, result.err );
+	assert.match( result.out, /1 sustained regression\(s\)/ );
+	assert.match( result.out, /median \+10\.0% \(100→110ms\).*flag from a re-run/ );
+} );
+
+test( 'a scan outside the look-back is counted in the log', async () => {
+	const result = await runDigest( 'agedScan', { STALENESS_DAYS: '60' } );
+	assert.equal( result.code, 0, result.err );
+	assert.match( result.out, /0 sustained regression\(s\)/ );
+	assert.match(
+		result.err,
+		/metric 301: scan windows skipped — 1 outside the look-back, 0 covered by flags, 0 waiting for later readings, 0 rejected, 0 repeated/
+	);
+} );
+
+test( 'Dashboard FCP is excluded from discovery and overrides', async () => {
+	for ( const [ scenario, env, opts ] of [
+		[ 'recreatedMetricPolicy', {}, {} ],
+		[ 'jetpackMetricPolicy', { METRIC_IDS: '201,0203' }, { discoFail: true } ],
+	] ) {
+		const result = await runDigest( scenario, env, opts );
+		assert.equal( result.code, 0, result.err );
+		assert.doesNotMatch( result.requests.join( '\n' ), /\/evolution\/(?:0?203|903)\?/ );
+		assert.doesNotMatch( result.out, /Dashboard FCP/ );
+		if ( ! opts.discoFail )
+			assert.doesNotMatch( result.out, /Timing diagnostics could not be fully read/ );
+		assert.match( result.err, /metric (?:0203|903): Dashboard FCP excluded/ );
+	}
+	const excludedOnly = await runDigest( 'jetpackMetricPolicy', { METRIC_IDS: '203' } );
+	assert.equal( excludedOnly.code, 1 );
+	assert.match( excludedOnly.out, /no metrics in the watch list/ );
+} );
+
+test( 'My Jetpack TTFB and FCP require twice the noise bar for the same rise', async () => {
+	const result = await runDigest( 'recreatedMetricPolicy' );
+	assert.equal( result.code, 0, result.err );
+	const payload = JSON.parse( result.out );
+	const lines = payload.blocks.filter( block => block.text?.text.startsWith( '•' ) );
+	assert.equal( lines.length, 2, result.out );
+	assert.match( result.out, /Dashboard LCP\* median \+25\.0%/ );
+	assert.match( result.out, /Dashboard TTFB\* median \+12\.0% \(100→112ms\)/ );
+	assert.match( result.out, /1 transient spike suppressed.*My Jetpack TTFB/ );
+	assert.doesNotMatch( result.out, /My Jetpack FCP/ );
 } );
 
 test( 'MAD bar rejects a noisy rise, accepts a constant 5% step, and degrades zero baselines', async () => {
@@ -1945,8 +2508,15 @@ const CASES = [
 		sc: 'disco-html',
 		exit: 1,
 		out: [ 'Could not enumerate the tracked metrics', 'METRIC DISCOVERY FAILURE' ],
+		not: [ 'THIN MEASUREMENT BATCH', 'Commits dated in the last 7 days' ],
 	},
-	{ n: 'disco-empty-fails-loud', sc: 'disco-empty', exit: 1, out: [ 'METRIC DISCOVERY FAILURE' ] },
+	{
+		n: 'disco-empty-fails-loud',
+		sc: 'disco-empty',
+		exit: 1,
+		out: [ 'METRIC DISCOVERY FAILURE' ],
+		not: [ 'THIN MEASUREMENT BATCH', 'Commits dated in the last 7 days' ],
+	},
 	{
 		n: 'disco-html-override-keeps-reading-ids',
 		sc: 'disco-html',
@@ -1954,6 +2524,14 @@ const CASES = [
 		exit: 0,
 		out: [ 'across 2 tracked metrics' ],
 		err: [ 'metrics lookup failed' ],
+	},
+	{
+		n: 'disco-html-override-warns-on-thin-batch',
+		sc: 'weeklyBatch',
+		env: { METRIC_IDS: '301,302' },
+		discoFail: true,
+		exit: 1,
+		out: [ 'THIN MEASUREMENT BATCH (19 commits)', 'METRIC NAME LOOKUP FAILURE' ],
 	},
 	{
 		n: 'disco-html-override-label-fallback',
@@ -2042,11 +2620,11 @@ const CASES = [
 		out: [ 'No sustained metric regressions', '1 transient spike', 'feedbeef8', '(late)' ],
 	},
 	{
-		n: 'short-reland-has-no-confirmed-level',
+		n: 'scan-rejects-a-rise-whose-later-window-includes-a-dip',
 		sc: 'relanded',
 		exit: 0,
-		out: [ '1 transient spike', 'no confirmed level change in the kept data' ],
-		not: [ 'sustained regression*' ],
+		out: [ 'No sustained metric regressions', '1 transient spike', 'feedbeef' ],
+		err: [ '1 rejected' ],
 	},
 	{
 		n: 'overshoot-flag-value-is-never-a-suppression-reference',
@@ -2060,7 +2638,7 @@ const CASES = [
 		n: 'duplicate-values-do-not-confirm-a-level',
 		sc: 'duplicateLevel',
 		exit: 0,
-		out: [ '1 transient spike', 'no confirmed level change in the kept data' ],
+		out: [ '1 transient spike', 'no confirmed level change at those flags' ],
 		not: [ 'sustained regression*' ],
 	},
 	{
@@ -2411,7 +2989,7 @@ const CASES = [
 		n: 'zero-pair-base-does-not-confirm-flat-medians',
 		sc: 'zeroPairBase',
 		exit: 0,
-		out: [ '1 transient spike', 'no confirmed level change in the kept data' ],
+		out: [ '1 transient spike', 'no confirmed level change at those flags' ],
 		not: [ 'sustained regression*' ],
 	},
 	{
@@ -2607,6 +3185,7 @@ const CASES = [
 		sc: 'allfail',
 		exit: 1,
 		out: [ 'Could not read any metric data', 'DATA READ FAILURE' ],
+		not: [ 'THIN MEASUREMENT BATCH', 'Commits dated in the last 7 days' ],
 	},
 ];
 
@@ -2951,7 +3530,7 @@ test(
 		// Clean run against the mock: exit 0 with the green heartbeat. The child must run via
 		// async spawn — spawnSync would block this process's event loop, and with it the
 		// in-process mock server the child needs to reach.
-		const api = await startMockApi( 'clean' );
+		const api = await startMockApi( 'clean', { now: Date.now() } );
 		try {
 			const ok = await new Promise( resolve => {
 				const child = spawn( process.execPath, [ SCRIPT ], {

@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Admin color schemes: Remove the Fresh admin bar overrides, so Fresh uses core's icon colors on WordPress 7.2.

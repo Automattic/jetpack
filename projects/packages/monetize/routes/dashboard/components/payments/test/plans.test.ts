@@ -1,4 +1,4 @@
-import { groupPlans, planPriceLabel } from '../plans';
+import { groupPlans, hasMonthlyTier, planPriceLabel } from '../plans';
 import type { MembershipProduct } from '../../../data/memberships';
 
 const product = ( overrides: Partial< MembershipProduct > ): MembershipProduct => ( {
@@ -39,5 +39,15 @@ describe( 'planPriceLabel', () => {
 		[ '1 month', product( { id: 2, interval: '1 year', price: 50 } ), '$5.00/month ($50.00/year)' ],
 	] )( 'labels a %s plan', ( interval, annual, label ) => {
 		expect( planPriceLabel( { product: product( { interval } ), annual } ) ).toBe( label );
+	} );
+} );
+
+describe( 'hasMonthlyTier', () => {
+	it.each( [
+		[ 'a monthly tier', product( {} ), true ],
+		[ 'only an annual tier whose monthly one is gone', product( { tier: 99 } ), false ],
+		[ 'only a donation', product( { type: 'donation' } ), false ],
+	] )( 'counts %s: %p', ( _name, only, expected ) => {
+		expect( hasMonthlyTier( [ { product: only } ] ) ).toBe( expected );
 	} );
 } );

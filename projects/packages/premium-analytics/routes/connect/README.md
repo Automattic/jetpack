@@ -21,7 +21,7 @@ connect/
 
 ## How it works
 
-1. If the site is not connected, the dashboard guard redirects to `/connect`.
+1. If the site is not connected, the dashboard guard redirects to `/connect`. A section that runs without a connection (`requires_connection: false`) opens the dashboard instead, and the other tabs show a prompt that opens this route.
 2. Every plan registers the site first, which gives WordPress.com a blog to attach a plan to.
    - **Start for free** and **I already have a plan** then send the user to authorize, and come back to the dashboard.
    - **Get Paid Stats** opens the `/upgrade` route to pick a tier. Its checkout links the account afterwards and returns to the dashboard.
@@ -30,10 +30,10 @@ connect/
 
 ## Route guards (`beforeLoad`)
 
-| Route           | Redirect rule               |
-| --------------- | --------------------------- |
-| `/connect`      | already registered → `/`    |
-| `/` (dashboard) | not registered → `/connect` |
+| Route           | Redirect rule                                                         |
+| --------------- | --------------------------------------------------------------------- |
+| `/connect`      | already registered → `/`                                              |
+| `/` (dashboard) | not registered, and no section runs without a connection → `/connect` |
 
 Route guards read connection state synchronously through
 `isPremiumAnalyticsSiteConnected()`, which also treats WordPress.com Simple as

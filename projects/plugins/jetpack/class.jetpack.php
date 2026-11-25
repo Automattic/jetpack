@@ -956,6 +956,23 @@ class Jetpack {
 	}
 
 	/**
+	 * Keep Stats v2 from starting WooCommerce Analytics store tracking while that module is off.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $enabled Whether store tracking is on.
+	 * @return bool
+	 */
+	public static function premium_analytics_store_tracking_enabled( $enabled ) {
+		// The WooCommerce Analytics plugin defines this when it loads the package in place of the module.
+		if ( defined( 'WC_ANALYTICS' ) ) {
+			return $enabled;
+		}
+
+		return $enabled && self::is_module_active( 'woocommerce-analytics' );
+	}
+
+	/**
 	 * Expose the setting that turns the Premium Analytics dashboard on and off.
 	 *
 	 * Deliberately not behind is_premium_analytics_enabled(): this is the setting that flips that
@@ -1086,6 +1103,7 @@ class Jetpack {
 		// Analytics::init() for why.
 		if ( self::is_premium_analytics_enabled() ) {
 			\Automattic\Jetpack\PremiumAnalytics\Analytics::init();
+			add_filter( 'jetpack_woocommerce_stats_store_tracking_enabled', array( __CLASS__, 'premium_analytics_store_tracking_enabled' ) );
 			if ( class_exists( 'Automattic\Jetpack\WooCommerceStats\Analytics_Dashboard' ) ) {
 				\Automattic\Jetpack\WooCommerceStats\Analytics_Dashboard::init();
 			}
@@ -2034,7 +2052,15 @@ class Jetpack {
 			$is_site_connection = self::connection()->is_site_connection();
 		}
 
+		// The SEO switch holds these off. Skip them rather than drop them from $modules,
+		// which a failed include below saves as the active list.
+		$paused_modules = method_exists( Jetpack_SEO_Initializer::class, 'get_paused_modules' ) ? Jetpack_SEO_Initializer::get_paused_modules() : array();
+
 		foreach ( $modules as $index => $module ) {
+			if ( in_array( $module, $paused_modules, true ) ) {
+				continue;
+			}
+
 			// If we're in offline/site-connection mode, disable modules requiring a connection/user connection.
 			if ( $status->is_offline_mode() || $is_site_connection ) {
 				// Prime the pump if we need to.
@@ -3188,7 +3214,7 @@ p {
 	}
 
 	/**
-	 * Deletes obsolete SEO module-state options without changing module activation.
+	 * Deletes obsolete SEO state options without changing module activation.
 	 *
 	 * @since 16.3
 	 */
@@ -3196,29 +3222,8 @@ p {
 		delete_option( 'jetpack_seo_sitemap_enabled' );
 		delete_option( 'jetpack_seo_canonical_urls_enabled' );
 		delete_option( 'jetpack_seo_module_state_reconciled' );
-	}
-
-	/**
-	 * Seeds the Jetpack SEO discoverability cohort once, so the new SEO surface is
-	 * auto-discoverable on fresh installs but opt-in on existing ones (JETPACK-1700).
-	 *
-	 * Hooked on `updating_jetpack_version`, which fires on every install including the
-	 * first — with `$old_version === false` on a brand-new site (the same signal
-	 * {@see self::activate_subscriptions_module_for_existing_sites()} keys off). Fresh
-	 * installs are seeded visible; existing installs are seeded hidden and opt in later
-	 * via the legacy Traffic page or My Jetpack. Deactivation deletes the stored version,
-	 * so a reactivation before this option exists counts as fresh. `add_option()` makes
-	 * this seed-once: it never overrides a value a later opt-in (or opt-out) has set.
-	 * WordPress.com sites ignore this option entirely (always visible) — see
-	 * {@see \Automattic\Jetpack\SEO\Initializer::is_seo_surface_visible()}.
-	 *
-	 * @param string       $version     The new Jetpack version (unused).
-	 * @param string|false $old_version The previous version, or false on a fresh install.
-	 */
-	public static function seed_seo_visibility_cohort( $version, $old_version ) {
-		// Drop the superseded key (see VISIBILITY_OPTION); it plays no part in the seed.
 		delete_option( 'jetpack_seo_surface_visible' );
-		add_option( Jetpack_SEO_Initializer::VISIBILITY_OPTION, ! $old_version );
+		delete_option( 'jetpack_seo_surface_visible_v2' );
 	}
 
 	/**

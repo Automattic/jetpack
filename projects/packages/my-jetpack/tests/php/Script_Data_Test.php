@@ -99,7 +99,9 @@ class Script_Data_Test extends BaseTestCase {
 			$_registered_pages[ $page_hook ] = true;
 			$_GET['page']                    = 'edit.php';
 
+			add_filter( $flag_filter, '__return_false' );
 			$this->assertFalse( Initializer::add_admin_script_data( array() )['myJetpack'][ $key ] );
+			remove_filter( $flag_filter, '__return_false' );
 
 			add_filter( $flag_filter, '__return_true' );
 			$this->assertTrue( Initializer::add_admin_script_data( array() )['myJetpack'][ $key ] );
@@ -111,6 +113,7 @@ class Script_Data_Test extends BaseTestCase {
 			unset( $_registered_pages[ $page_hook ] );
 			$this->assertFalse( Initializer::add_admin_script_data( array() )['myJetpack'][ $key ] );
 		} finally {
+			remove_filter( $flag_filter, '__return_false' );
 			remove_filter( $flag_filter, '__return_true' );
 			remove_filter( $host_filter, '__return_false' );
 			\Automattic\Jetpack\Feature_Flags\Feature_Flags::reset();

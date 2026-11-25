@@ -152,7 +152,8 @@ rejects it on a row that links out as a whole:
 
 A `postLink` or `videoLink` row in the `list` variant can also take an `indicator`, the name of a
 mark drawn at the row's start, as Top pages does for a post published in the selected period. The
-mark is its own image beside the title link, so the link keeps its name:
+row draws the mark and its name describes the title link, so focusing the title announces it while
+the link keeps its own name:
 
 ```tsx
 ...buildLeaderboardRow( {

@@ -14,18 +14,25 @@ jest.mock( '../related-posts', () => ( { RelatedPosts: () => 'related-posts card
 jest.mock( '../related-posts-moved', () => ( {
 	RelatedPostsMoved: () => 'related-posts pointer',
 } ) );
-jest.mock( '../seo', () => () => null );
-jest.mock( '../seo-optin-banner', () => () => 'SEO opt-in banner' );
+jest.mock( '../seo', () => () => 'legacy SEO settings' );
 jest.mock( '../shortlinks', () => () => 'shortlinks card' );
 jest.mock( '../site-stats', () => ( {
 	SiteStats: ( { settingsOnStatsPage } ) =>
 		settingsOnStatsPage ? 'stats pointer' : 'stats card',
 } ) );
-jest.mock( '../sitemaps', () => () => null );
-jest.mock( '../verification-services', () => ( { VerificationServices: () => null } ) );
+jest.mock( '../sitemaps', () => () => 'legacy sitemap settings' );
+jest.mock( '../verification-services', () => ( {
+	VerificationServices: () => 'legacy verification settings',
+} ) );
 
 // Module scope keeps the prop reference stable (react/jsx-no-bind).
 const findsOnlySitemaps = module => module === 'sitemaps';
+const findsLegacy = Object.fromEntries(
+	[ 'seo-tools', 'sitemaps', 'verification-tools' ].map( module => [
+		module,
+		candidate => candidate === module,
+	] )
+);
 const findsOnly = {
 	'related-posts': module => module === 'related-posts',
 	blaze: module => module === 'blaze',
@@ -37,10 +44,18 @@ const findsOnly = {
 const PANEL_URL = 'admin.php?page=my-jetpack&p=%2Ffeatures%3Fconfigure%3Dgoogle-analytics';
 
 describe( 'Traffic settings', () => {
-	it( 'renders the SEO opt-in banner when a search finds only the sitemaps section', () => {
-		render( <Traffic searchTerm="sitemap" isModuleFound={ findsOnlySitemaps } /> );
-
-		expect( screen.getByText( 'SEO opt-in banner' ) ).toBeInTheDocument();
+	it.each( [
+		[ 'seo-tools', 'legacy SEO settings' ],
+		[ 'sitemaps', 'legacy sitemap settings' ],
+		[ 'verification-tools', 'legacy verification settings' ],
+	] )( 'preserves %s on hosts using the legacy Traffic page', ( module, text ) => {
+		window.JetpackScriptData = { seo: { surface_visible: false } };
+		try {
+			render( <Traffic active isModuleFound={ findsLegacy[ module ] } /> );
+			expect( screen.getByText( text ) ).toBeInTheDocument();
+		} finally {
+			delete window.JetpackScriptData;
+		}
 	} );
 
 	it( 'renders nothing when a search finds only sections that moved to the SEO dashboard', () => {

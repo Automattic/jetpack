@@ -44,6 +44,13 @@ class WPCOM_Stats {
 	const STATS_REST_API_VERSION = '1.1';
 
 	/**
+	 * Seconds a request waits on WordPress.com unless the caller asks for less.
+	 *
+	 * @var int
+	 */
+	const REQUEST_TIMEOUT = 20;
+
+	/**
 	 * The stats resource to fetch results for.
 	 *
 	 * @var string
@@ -516,6 +523,20 @@ class WPCOM_Stats {
 	}
 
 	/**
+	 * Get the opens or clicks of a post the site sent as an email, bucketed over time.
+	 *
+	 * @param int    $post_id The post the site emailed.
+	 * @param string $stat    `opens` or `clicks`.
+	 * @param array  $args    `period` (`hour`, `day` or `month`), `quantity` buckets, and the first bucket's `date`.
+	 * @return array|WP_Error
+	 */
+	public function get_email_timeline( $post_id, $stat, $args = array() ) {
+		$this->resource = sprintf( '%s/emails/%d', $stat, $post_id );
+
+		return $this->fetch_stats( array_merge( $args, array( 'stats_fields' => 'timeline' ) ) );
+	}
+
+	/**
 	 * Get the site's subscriber count over time.
 	 *
 	 * @param array $args Optional query parameters: `unit`, `quantity`, `date`.
@@ -553,12 +574,13 @@ class WPCOM_Stats {
 	/**
 	 * Get the site's Stats plan usage: views counted this billing month and the plan's limit.
 	 *
+	 * @param array $request_args Request arguments, such as a `timeout` for a lookup in front of a page render.
 	 * @return array|WP_Error
 	 */
-	public function get_stats_usage() {
+	public function get_stats_usage( $request_args = array() ) {
 		$this->resource = '/jetpack-stats/usage';
 
-		return $this->fetch_stats( array(), '2', 'wpcom' );
+		return $this->fetch_stats( array(), '2', 'wpcom', $request_args );
 	}
 
 	/**
@@ -607,12 +629,20 @@ class WPCOM_Stats {
 	 * @param array  $args          Optional query parameters.
 	 * @param string $api_version   WordPress.com API version.
 	 * @param string $base_api_path WordPress.com API base path: `rest` for v1.x, `wpcom` for v2.
+	 * @param array  $request_args  Request arguments, which override the defaults in `fetch_remote_stats()`.
 	 *
 	 * @return array|WP_Error
 	 */
-	protected function fetch_stats( $args = array(), $api_version = self::STATS_REST_API_VERSION, $base_api_path = 'rest' ) {
-		$endpoint       = $this->build_endpoint();
-		$cache_key      = md5( implode( '|', array( $endpoint, $api_version, wp_json_encode( $args, JSON_UNESCAPED_SLASHES ) ) ) );
+	protected function fetch_stats( $args = array(), $api_version = self::STATS_REST_API_VERSION, $base_api_path = 'rest', $request_args = array() ) {
+		$endpoint = $this->build_endpoint();
+
+		/*
+		 * The timeout is part of the key because failures are cached. A request that gave up after
+		 * 5 seconds says nothing about one willing to wait 20, and sharing the entry would hand the
+		 * patient caller a deadline it never asked for.
+		 */
+		$timeout        = (int) ( $request_args['timeout'] ?? self::REQUEST_TIMEOUT );
+		$cache_key      = md5( implode( '|', array( $endpoint, $api_version, wp_json_encode( $args, JSON_UNESCAPED_SLASHES ), $timeout ) ) );
 		$transient_name = self::STATS_CACHE_TRANSIENT_PREFIX . $cache_key;
 		$stats_cache    = $this->should_bypass_cache() ? false : get_transient( $transient_name );
 
@@ -627,7 +657,7 @@ class WPCOM_Stats {
 			return array_merge( array( 'cached_at' => $time ), (array) json_decode( $data, true ) );
 		}
 
-		$wpcom_stats = $this->fetch_remote_stats( $endpoint, $args, $api_version, $base_api_path );
+		$wpcom_stats = $this->fetch_remote_stats( $endpoint, $args, $api_version, $base_api_path, $request_args );
 
 		/*
 		 * Connection failures stop being true as soon as the site reconnects. Do not cache
@@ -787,13 +817,20 @@ class WPCOM_Stats {
 	 * @param array  $args          The query arguments.
 	 * @param string $api_version   WordPress.com API version.
 	 * @param string $base_api_path WordPress.com API base path: `rest` for v1.x, `wpcom` for v2.
+	 * @param array  $request_args  Request arguments, which override the defaults here.
 	 * @return array|WP_Error
 	 */
-	protected function fetch_remote_stats( $endpoint, $args, $api_version = self::STATS_REST_API_VERSION, $base_api_path = 'rest' ) {
+	protected function fetch_remote_stats( $endpoint, $args, $api_version = self::STATS_REST_API_VERSION, $base_api_path = 'rest', $request_args = array() ) {
 		if ( is_array( $args ) && ! empty( $args ) ) {
 			$endpoint .= '?' . http_build_query( $args );
 		}
-		$response      = Client::wpcom_json_api_request_as_blog( $endpoint, $api_version, array( 'timeout' => 20 ), null, $base_api_path );
+
+		/*
+		 * A caller rendering a page can cap `timeout` here; the `http_request_timeout` filter
+		 * cannot, because the client always sends one.
+		 */
+		$request_args  = array_merge( array( 'timeout' => self::REQUEST_TIMEOUT ), (array) $request_args );
+		$response      = Client::wpcom_json_api_request_as_blog( $endpoint, $api_version, $request_args, null, $base_api_path );
 		$response_code = wp_remote_retrieve_response_code( $response );
 		$response_body = wp_remote_retrieve_body( $response );
 		$data          = json_decode( $response_body, true );

@@ -736,6 +736,10 @@ if (
 		 * @param string $content Post content.
 		 */
 		function crowdsignal_link( $content ) {
+			if ( ! is_string( $content ) ) {
+				return $content;
+			}
+
 			if (
 				class_exists( 'Jetpack_AMP_Support' )
 				&& Jetpack_AMP_Support::is_amp_request()

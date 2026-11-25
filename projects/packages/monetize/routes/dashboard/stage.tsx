@@ -9,7 +9,6 @@ import { AdsSettings } from './components/ads-settings';
 import ConnectionGate from './components/connection-gate';
 import Overview from './components/overview';
 import Payments from './components/payments';
-import Placeholder from './components/placeholder';
 import Subscribers from './components/subscribers';
 import { queryClient } from './data/query-client';
 import { TABS, getTab, getTabSearch } from './data/tabs';
@@ -17,7 +16,7 @@ import type { TabValue } from './data/tabs';
 import './route.scss';
 
 /**
- * One tab's screen. Settings saves through Jetpack's own endpoints; Overview gates only what needs WordPress.com.
+ * One tab's screen. Overview and Settings gate only what needs WordPress.com.
  *
  * @param props         - Component props.
  * @param props.tab     - The tab.
@@ -48,12 +47,6 @@ function TabContent( { tab, openTab }: { tab: TabValue; openTab: ( next: string 
 			);
 		case 'settings':
 			return <AdsSettings openTab={ openTab } />;
-		default:
-			return (
-				<ConnectionGate>
-					<Placeholder />
-				</ConnectionGate>
-			);
 	}
 }
 

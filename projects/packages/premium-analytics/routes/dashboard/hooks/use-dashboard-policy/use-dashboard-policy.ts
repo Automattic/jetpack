@@ -6,6 +6,8 @@ type UseDashboardPolicyParams = {
 	insertableWidgetTypes: Set< string >;
 	/** The widgets a plan-locked section still shows; undefined when the section is open. */
 	lockedLayout?: DashboardWidget[];
+	/** Whether the section shows the connect prompt instead of its widgets. */
+	needsConnection?: boolean;
 };
 
 /**
@@ -13,7 +15,7 @@ type UseDashboardPolicyParams = {
  *
  * Readers may move, resize, add and remove widgets, but only the insertable
  * types can be added, and the dashboard's own Reset to default is withheld.
- * A locked section only lets its open widgets be arranged.
+ * A locked section only lets its open widgets be arranged, and one that needs the connection none.
  *
  * @param {UseDashboardPolicyParams} props - The policy inputs.
  * @return The policy callback for `WidgetDashboard.Policy`.
@@ -21,9 +23,14 @@ type UseDashboardPolicyParams = {
 export function useDashboardPolicy( {
 	insertableWidgetTypes,
 	lockedLayout,
+	needsConnection = false,
 }: UseDashboardPolicyParams ): CanPerformDashboardOperation {
 	return useMemo< CanPerformDashboardOperation >(
 		() => request => {
+			// Nothing renders over the connect prompt, so a widget added there would be saved unseen.
+			if ( needsConnection && [ 'customize', 'insert', 'remove' ].includes( request.operation ) ) {
+				return false;
+			}
 			switch ( request.operation ) {
 				case 'reset':
 					return false;
@@ -45,6 +52,6 @@ export function useDashboardPolicy( {
 					return true;
 			}
 		},
-		[ insertableWidgetTypes, lockedLayout ]
+		[ insertableWidgetTypes, lockedLayout, needsConnection ]
 	);
 }

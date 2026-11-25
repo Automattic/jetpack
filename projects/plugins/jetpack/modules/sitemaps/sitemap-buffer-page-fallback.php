@@ -47,11 +47,11 @@ class Jetpack_Sitemap_Buffer_Page extends Jetpack_Sitemap_Buffer_Fallback {
 			);
 
 			$jetpack_version = JETPACK__VERSION;
-			$sitemap_xsl_url = $this->finder->construct_sitemap_url( 'sitemap.xsl' );
+			$stylesheets     = Jetpack_Sitemap_Stylist::sitemap_stylesheet_xml();
 
 			$this->root = array(
 				"<!-- generator='jetpack-{$jetpack_version}' -->" . PHP_EOL
-				. "<?xml-stylesheet type='text/xsl' href='{$sitemap_xsl_url}'?>" . PHP_EOL
+				. $stylesheets
 				. '<urlset ' . $this->array_to_xml_attr_string( $namespaces ) . '>',
 				'</urlset>',
 			);

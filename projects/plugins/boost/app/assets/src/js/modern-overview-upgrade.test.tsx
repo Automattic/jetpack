@@ -142,7 +142,7 @@ test( 'relays module updates from the Data Sync client', () => {
 
 test( 'leaves license redemption on the upgrade page for eligible free sites', async () => {
 	Object.assign( globalThis, {
-		Jetpack_Boost: { site: { online: true, myJetpack: true, addLicense: true, host: 'other' } },
+		Jetpack_Boost: { site: { online: true, myJetpack: true, host: 'other' } },
 	} );
 	render( <div id="jetpack-boost-dashboard-wp-admin-app" data-testid="upgrade-slot" /> );
 	const request: UpgradeSlotRequest = { container: screen.getByTestId( 'upgrade-slot' ) };

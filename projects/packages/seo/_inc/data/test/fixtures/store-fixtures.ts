@@ -30,6 +30,7 @@ export const SEEDED_SETTINGS: SettingsResponse = {
 	title_separator: '-',
 	title_formats_editable: true,
 	verification_tools_active: true,
+	seo_tools_active: true,
 	verification: { google: '', bing: '', pinterest: '', yandex: '', facebook: '' },
 	search_engines_visible: true,
 	site_is_private: false,

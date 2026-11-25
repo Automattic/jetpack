@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Show the free-plan upgrade nudge on the Video block only when uploading a video, not over a video that already plays.

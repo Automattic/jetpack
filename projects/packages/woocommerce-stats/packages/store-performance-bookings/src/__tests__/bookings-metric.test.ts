@@ -50,6 +50,7 @@ describe( 'registerBookingsMetric', () => {
 			'visitors',
 			'conversion-rate',
 			'customers',
+			'items-sold',
 		] );
 	} );
 } );

@@ -152,15 +152,17 @@ describe( 'reportParamsToStatsQueryParams', () => {
 		expect( apiParams ).not.toHaveProperty( 'end_date' );
 	} );
 
-	it( 'strips the sanitizer-only window bounds from API params', () => {
+	it( 'strips the sanitizer-only params from API params', () => {
 		const apiParams = statsQueryParamsToApiParams( {
 			period: 'hour',
 			window_start: '2026-06-14T09:00:00.000-04:00',
 			window_end: '2026-06-15T08:59:59.999-04:00',
+			bucket: 'week',
 		} );
 
 		expect( apiParams ).not.toHaveProperty( 'window_start' );
 		expect( apiParams ).not.toHaveProperty( 'window_end' );
+		expect( apiParams ).not.toHaveProperty( 'bucket' );
 	} );
 
 	it( 'falls back to one day for invalid date ranges', () => {

@@ -57,6 +57,16 @@ class Main_Features {
 	const MINIMUM_OFFLINE_FEATURES_VERSION = '6.15.0';
 
 	/**
+	 * The Jetpack module behind the SEO card. Must match `Initializer::DASHBOARD_MODULE` in the SEO package.
+	 */
+	const SEO_MODULE = 'seo-dashboard';
+
+	/**
+	 * The modules the SEO card switches together. Must match `Initializer::SEO_MODULES` in the SEO package.
+	 */
+	const SEO_CARD_MODULES = array( 'seo-tools', 'sitemaps', 'canonical-urls', 'verification-tools' );
+
+	/**
 	 * The bundles the Features tab offers as filter pills. Must match `GROUPS` in use-feature-filter.ts.
 	 */
 	private const FILTER_GROUPS = array( 'security', 'growth' );
@@ -320,6 +330,38 @@ class Main_Features {
 					'free'    => true,
 				),
 				'plans'                    => array( 'pro', 'complete' ),
+				// The WordPress.com site feature that gates the file upload field.
+				'paid_feature'             => 'field-file',
+			),
+			'monetize'          => array(
+				'info_url'         => 'https://jetpack.com/growth/',
+				'docs_url'         => 'https://jetpack.com/support/features-earn/',
+				'name'             => __( 'Monetize', 'jetpack-my-jetpack' ),
+				'description'      => __( 'Earn from your site with paid subscriptions, donations, and ads.', 'jetpack-my-jetpack' ),
+				'long_description' => __( 'Sell paid subscriptions, take donations and one-time payments through Stripe, and manage your plans and paying subscribers in one place. Turn on ads to earn from your traffic too.', 'jetpack-my-jetpack' ),
+				'icon'             => 'currency-dollar',
+				'admin_page'       => 'jetpack-monetize',
+				'module'           => 'monetize',
+				'free_highlights'  => array(
+					__( 'Payment plans for paid content and newsletters', 'jetpack-my-jetpack' ),
+					__( 'Donations and one-time payments', 'jetpack-my-jetpack' ),
+					__( 'A list of your paying subscribers', 'jetpack-my-jetpack' ),
+				),
+				// No fee lines: the fee depends on the plan, and only the Monetize page can ask WordPress.com for the site's.
+				'paid_highlights'  => array(
+					__( 'Lower fees on payments', 'jetpack-my-jetpack' ),
+					__( 'Earn from ads shown on your site', 'jetpack-my-jetpack' ),
+				),
+				'delivery'         => array(
+					// The module is on offer only while the Monetize dashboard's flag is on, and never on Simple, where jetpack-mu-wpcom loads the page.
+					'jetpack' => ! ( new Host() )->is_wpcom_simple() && in_array( 'monetize', (array) ( new \Automattic\Jetpack\Modules() )->get_available(), true ),
+					'plugin'  => '',
+					'free'    => true,
+				),
+				// WordPress.com's half of the Monetize page's ads check; the bundles in `plans` cover self-hosted.
+				'paid_feature'     => ( new Host() )->is_wpcom_platform() ? 'wordads' : '',
+				'plans'            => array( 'pro', 'complete' ),
+				'also_included_in' => array( 'creator', 'growth' ),
 			),
 			'newsletter'        => array(
 				'info_url'         => 'https://jetpack.com/newsletter/',
@@ -379,6 +421,8 @@ class Main_Features {
 					'free'    => true,
 				),
 				'plans'            => array( 'growth', 'pro', 'complete' ),
+				// WordPress.com's half of Podcast_Gate::has_product_access(); the bundles in `plans` cover self-hosted.
+				'paid_feature'     => ( new Host() )->is_wpcom_platform() ? 'podcasting' : '',
 			),
 			'protect-dashboard' => array(
 				'info_url'         => 'https://jetpack.com/protect/',
@@ -444,6 +488,30 @@ class Main_Features {
 				),
 				'plans'            => array( 'pro', 'complete' ),
 				'paid_product'     => __( 'Jetpack Search', 'jetpack-my-jetpack' ),
+			),
+			'seo'               => array(
+				'info_url'         => 'https://jetpack.com/support/seo-tools/',
+				'docs_url'         => 'https://jetpack.com/support/seo-tools/',
+				'name'             => __( 'SEO', 'jetpack-my-jetpack' ),
+				'description'      => __( 'Control how your site appears in search results, social shares, and AI tools.', 'jetpack-my-jetpack' ),
+				'long_description' => __( 'Manage your sitemap, search engine verification, titles and descriptions, social previews, structured data, and AI crawler access from one page.', 'jetpack-my-jetpack' ),
+				// What the Search engines rows this card replaces were found by.
+				'search_terms'     => _x( 'Sitemaps, SEO Tools, Site Verification, Canonical URLs, search engine optimization, meta description, title tag, open graph, social preview, webmaster, Google, Bing, Pinterest, search console, duplicate content', 'Comma-separated search keywords for the SEO feature', 'jetpack-my-jetpack' ),
+				'icon'             => 'seo',
+				'admin_page'       => 'jetpack-seo',
+				// Switches the SEO page and the Search engines modules together; each module keeps its own state.
+				'module'           => self::SEO_MODULE,
+				'free_highlights'  => array(
+					__( 'Sitemap, site verification, and canonical URLs', 'jetpack-my-jetpack' ),
+					__( 'Custom titles, meta descriptions, and social previews', 'jetpack-my-jetpack' ),
+					__( 'Structured data, llms.txt, and AI crawler controls', 'jetpack-my-jetpack' ),
+				),
+				'delivery'         => array(
+					'jetpack' => true,
+					'plugin'  => '',
+					'free'    => true,
+				),
+				'plans'            => array(),
 			),
 			'social'            => array(
 				'info_url'         => 'https://jetpack.com/social/',
@@ -726,7 +794,8 @@ class Main_Features {
 			return true;
 		}
 
-		foreach ( $definition['plans'] ?? array() as $plan ) {
+		// `also_included_in` names plans that include the feature but that the card doesn't sell.
+		foreach ( array_merge( $definition['plans'] ?? array(), $definition['also_included_in'] ?? array() ) as $plan ) {
 			$bundle_class = Products::get_product_class( $plan );
 
 			if ( $bundle_class && $bundle_class::has_paid_plan_for_product() && ! ( $expiry_counts && $bundle_class::is_paid_plan_expired() ) ) {
@@ -734,7 +803,7 @@ class Main_Features {
 			}
 		}
 
-		// Covers plans no bundle class lists, such as the legacy Jetpack Personal, Premium and Professional.
+		// Covers plans no bundle class lists: WordPress.com plans and the legacy Jetpack Personal, Premium and Professional.
 		return ! empty( $definition['paid_feature'] ) && Product::does_site_have_feature( $definition['paid_feature'] );
 	}
 
@@ -1011,7 +1080,7 @@ class Main_Features {
 			),
 			array(
 				'label'   => __( 'Search engines', 'jetpack-my-jetpack' ),
-				'modules' => array( 'sitemaps', 'seo-tools', 'canonical-urls', 'verification-tools' ),
+				'modules' => self::SEO_CARD_MODULES,
 			),
 			array(
 				'label'   => __( 'Engagement', 'jetpack-my-jetpack' ),
@@ -1046,7 +1115,7 @@ class Main_Features {
 			),
 			array(
 				'label'   => __( 'Earn', 'jetpack-my-jetpack' ),
-				'modules' => array( 'monetize', 'wordads' ),
+				'modules' => array( 'wordads' ),
 			),
 			array(
 				'label'    => __( 'Analytics', 'jetpack-my-jetpack' ),
@@ -1058,7 +1127,8 @@ class Main_Features {
 	}
 
 	/**
-	 * Slugs the host has hidden, plus the module behind each hidden feature or product.
+	 * Slugs the host has hidden, plus the module behind each hidden feature or product, and the
+	 * SEO card's modules wherever that card shows.
 	 *
 	 * @since 6.11.0
 	 * @return string[] Hidden module and feature slugs.
@@ -1071,6 +1141,10 @@ class Main_Features {
 				$product_class = isset( $definition['product'] ) ? Products::get_product_class( $definition['product'] ) : null;
 				$hidden[]      = $definition['module'] ?? ( $product_class ? $product_class::get_module_name() : '' );
 			}
+		}
+		// Where the SEO card shows it is their switch, and each keeps its own in SEO › Settings.
+		if ( self::is_seo_offered() && ! in_array( self::SEO_MODULE, $hidden, true ) ) {
+			$hidden = array_merge( $hidden, self::SEO_CARD_MODULES );
 		}
 		return array_values( array_unique( array_filter( $hidden ) ) );
 	}
@@ -1144,8 +1218,18 @@ class Main_Features {
 				continue;
 			}
 
-			$delivery      = $definition['delivery'] ?? array();
-			$plugin        = $delivery['plugin'] ?? '';
+			// Drop the SEO card where SEO isn't offered (no seo-dashboard module, or VIP); every other card carries on.
+			if ( 'seo' === $slug && ! self::is_seo_offered() ) {
+				continue;
+			}
+
+			$delivery = $definition['delivery'] ?? array();
+			$plugin   = $delivery['plugin'] ?? '';
+			// Any feature neither Jetpack nor a plugin delivers on this site has no card, such as one whose module is behind a flag.
+			if ( empty( $delivery['jetpack'] ) && '' === $plugin ) {
+				continue;
+			}
+
 			$product_class = isset( $definition['product'] ) ? Products::get_product_class( $definition['product'] ) : null;
 			$included      = ! $local && self::is_included_in_plan( $definition, $product_class );
 			$upgrade       = $local ? null : self::filter_upgrade( self::get_upgrade( $definition, $product_class, $included ), $slug, $included );
@@ -1155,6 +1239,7 @@ class Main_Features {
 				'name'             => $definition['name'],
 				'description'      => $definition['description'],
 				'long_description' => $local && isset( $definition['offline_long_description'] ) ? $definition['offline_long_description'] : ( $definition['long_description'] ?? '' ),
+				'search_terms'     => $definition['search_terms'] ?? '',
 				'icon'             => $definition['icon'],
 				'manage_url'       => self::get_feature_manage_url( $definition, $product_class, $local ),
 				'essential'        => ! empty( $definition['essential'] ),
@@ -1176,7 +1261,7 @@ class Main_Features {
 				'screenshot'       => self::get_screenshot_url( $slug ),
 				'plans'            => self::get_plan_badges( $definition, $local ),
 				// The filter pills' categories, kept when those bundles go off sale and drop out of `plans`.
-				'groups'           => array_values( array_intersect( $definition['plans'] ?? array(), self::FILTER_GROUPS ) ),
+				'groups'           => array_values( array_intersect( array_merge( $definition['plans'] ?? array(), $definition['also_included_in'] ?? array() ), self::FILTER_GROUPS ) ),
 				'info_url'         => $definition['info_url'],
 				'docs_url'         => $definition['docs_url'],
 				// Join keys: the UI reads live state from the module and plugin it names,
@@ -1205,6 +1290,21 @@ class Main_Features {
 		);
 
 		return $features;
+	}
+
+	/**
+	 * Whether the Jetpack plugin offers the SEO card's module, and this host the SEO page it switches.
+	 *
+	 * @return bool
+	 */
+	private static function is_seo_offered() {
+		if ( ! in_array( self::SEO_MODULE, (array) ( new \Automattic\Jetpack\Modules() )->get_available(), true ) ) {
+			return false;
+		}
+
+		$seo_initializer = 'Automattic\Jetpack\SEO\Initializer';
+		// @phan-suppress-next-line PhanUndeclaredClassReference -- optional SEO package, guarded by method_exists.
+		return ! method_exists( $seo_initializer, 'is_available' ) || $seo_initializer::is_available();
 	}
 
 	/**

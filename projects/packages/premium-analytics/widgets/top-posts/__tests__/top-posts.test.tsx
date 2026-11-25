@@ -137,16 +137,16 @@ describe( 'TopPostsWidget', () => {
 
 		// Hello World went live on the first day and Last Day Post on the last; Older Post
 		// and Next Day Post fall just outside, and the About page carries no date.
-		const marks = await screen.findAllByRole( 'img', { name: 'Published in this period' } );
+		const marks = await screen.findAllByText( 'Published in this period' );
 		expect( marks ).toHaveLength( 2 );
-		// eslint-disable-next-line testing-library/no-node-access -- The row wrapper has no accessible query target.
-		const markedRows = marks.map( mark => mark.parentElement );
-		expect( markedRows[ 0 ] ).toContainElement(
+		const marked = screen
+			.getAllByRole( 'link' )
+			.filter( link => link.getAttribute( 'aria-describedby' ) )
+			.map( link => link.textContent );
+		expect( marked ).toEqual( [ 'Hello World Post', 'Last Day Post' ] );
+		expect(
 			screen.getByRole( 'link', { name: /^Hello World Post$/ } )
-		);
-		expect( markedRows[ 1 ] ).toContainElement(
-			screen.getByRole( 'link', { name: /^Last Day Post$/ } )
-		);
+		).toHaveAccessibleDescription( 'Published in this period' );
 	} );
 
 	it( 'requests the dashboard date range from report params', async () => {

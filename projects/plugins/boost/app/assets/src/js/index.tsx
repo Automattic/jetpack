@@ -1,23 +1,8 @@
+import '../css/admin-style.scss';
 import { StrictMode } from 'react';
 import * as WPElement from '@wordpress/element';
-import Main from './main';
 import ModernApp from '$layout/modern/modern-app';
-import { detectMode, LEGACY_ROOT_ID, waitForSlots } from '$lib/modern/mode';
-
-/**
- * Render the legacy dashboard into the root PHP gives it.
- */
-function renderLegacy() {
-	const container = document.getElementById( LEGACY_ROOT_ID );
-
-	if ( null === container ) {
-		return;
-	}
-
-	const component = <Main />;
-
-	WPElement.createRoot( container ).render( component );
-}
+import { waitForSlots } from '$lib/modern/mode';
 
 /**
  * Render the modern app once the chassis has created its slots.
@@ -37,12 +22,4 @@ async function renderModern() {
 	);
 }
 
-function render() {
-	if ( detectMode() === 'legacy' ) {
-		renderLegacy();
-	} else {
-		renderModern();
-	}
-}
-
-render();
+renderModern();

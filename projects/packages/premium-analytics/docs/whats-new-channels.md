@@ -37,6 +37,8 @@ The announcements of the dashboard are registered in `src/class-dashboard-announ
 
 `packages/init/src/whats-new/whats-new.ts` mounts the surface when the app boots and computes the channels from the path of the route on screen. It subscribes again when the page changes.
 
+The surface is not mounted while an onboarding journey is pending: the welcome one, or the one of the WooCommerce tab where the dashboard shows that tab. This is checked once, when the app boots, so the teaser shows from the first page load with no journey pending.
+
 It learns both from `packages/routing/src/current-route/current-route.ts`, which reads the URL for now and returns `null` while the URL on screen belongs to another page.
 
 A browser without the Navigation API reports no change of route made from a link, so there the helper wraps the two methods that write to the history.

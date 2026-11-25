@@ -267,10 +267,15 @@ class Identity_Crisis {
 
 		$href = wp_nonce_url( add_query_arg( 'jetpack_idc_clear_confirmation', '1', self::get_admin_bar_button_target() ), 'jetpack_idc_clear_confirmation' );
 
-		$consumer_data = UI::get_consumer_data();
-		$label         = isset( $consumer_data['customContent']['adminBarSafeModeLabel'] )
-			? esc_html( $consumer_data['customContent']['adminBarSafeModeLabel'] )
-			: esc_html__( 'Jetpack Safe Mode', 'jetpack-connection' );
+		if ( self::is_new_screen_enabled() ) {
+			// The new screen names the connection the plugins share, so a plugin's own label no longer applies.
+			$label = esc_html__( 'Jetpack Connection Safe Mode', 'jetpack-connection' );
+		} else {
+			$consumer_data = UI::get_consumer_data();
+			$label         = isset( $consumer_data['customContent']['adminBarSafeModeLabel'] )
+				? esc_html( $consumer_data['customContent']['adminBarSafeModeLabel'] )
+				: esc_html__( 'Jetpack Safe Mode', 'jetpack-connection' );
+		}
 
 		$title = sprintf(
 			'<span class="jp-idc-admin-bar">%s %s</span>',
