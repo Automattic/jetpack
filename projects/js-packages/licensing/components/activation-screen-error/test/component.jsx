@@ -40,7 +40,7 @@ describe( 'ActivationScreenError', () => {
 	} );
 
 	it.each( [
-		[ '[jetpack_pro_lower_limits]', /higher limits than Jetpack Pro/ ],
+		[ '[jetpack_pro_lower_limits]', /includes more than Jetpack Pro/ ],
 		[ '[jetpack_pro_other_owner]', /belongs to another WordPress\.com account/ ],
 		[ '[product_incompatibility]', /active Jetpack plan of equal or higher value/ ],
 	] )( 'shows translated copy, not the server text, for %s', ( errorType, expected ) => {
