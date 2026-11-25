@@ -8,7 +8,7 @@ type CantInstallPluginNoticeProps = {
 };
 
 /**
- * Whether a product's plugin is missing and the server won't let My Jetpack install it, so pages show this notice and disable their install buttons.
+ * Whether a product's plugin is missing and the server won't let My Jetpack install it.
  *
  * @param status                - The product's status.
  * @param fileSystemWriteAccess - The site's `fileSystemWriteAccess` value, `yes` or `no`.
