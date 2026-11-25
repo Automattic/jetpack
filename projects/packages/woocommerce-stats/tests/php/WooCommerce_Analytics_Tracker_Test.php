@@ -7,9 +7,12 @@
 
 namespace Automattic\Jetpack\WooCommerceStats;
 
+use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Cache;
 use Automattic\Woocommerce_Analytics;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -27,6 +30,8 @@ class WooCommerce_Analytics_Tracker_Test extends TestCase {
 		remove_all_filters( 'woocommerce_analytics_clickhouse_enabled' );
 		remove_all_filters( 'woocommerce_analytics_experimental_proxy_tracking_enabled' );
 		remove_all_filters( WooCommerce_Analytics_Tracker::ENABLED_FILTER );
+		Constants::clear_constants();
+		Cache::clear();
 	}
 
 	public function test_configure_registers_bootstrap_on_after_setup_theme() {
@@ -37,11 +42,40 @@ class WooCommerce_Analytics_Tracker_Test extends TestCase {
 		);
 	}
 
-	public function test_bootstrap_enables_clickhouse_and_proxy_filters() {
+	/**
+	 * @dataProvider provide_hosts
+	 *
+	 * @param array $constants Host constants to define.
+	 * @param bool  $proxy     Whether proxy tracking is expected on.
+	 */
+	#[DataProvider( 'provide_hosts' )]
+	public function test_bootstrap_enables_clickhouse_and_proxy_only_on_atomic( $constants, $proxy ) {
+		foreach ( $constants as $name => $value ) {
+			Constants::set_constant( $name, $value );
+		}
+
 		WooCommerce_Analytics_Tracker::bootstrap();
 
 		$this->assertTrue( apply_filters( 'woocommerce_analytics_clickhouse_enabled', false ) );
-		$this->assertTrue( apply_filters( 'woocommerce_analytics_experimental_proxy_tracking_enabled', false ) );
+		$this->assertSame( $proxy, apply_filters( 'woocommerce_analytics_experimental_proxy_tracking_enabled', false ) );
+	}
+
+	/**
+	 * Pressable runs on the Atomic platform without wpcomsh.
+	 *
+	 * @return array
+	 */
+	public static function provide_hosts() {
+		$atomic_platform = array(
+			'ATOMIC_SITE_ID'   => 1,
+			'ATOMIC_CLIENT_ID' => 2,
+		);
+
+		return array(
+			'self-hosted' => array( array(), false ),
+			'Pressable'   => array( $atomic_platform, false ),
+			'Atomic'      => array( $atomic_platform + array( 'WPCOMSH__PLUGIN_FILE' => '/wpcomsh.php' ), true ),
+		);
 	}
 
 	/**
@@ -68,9 +102,7 @@ class WooCommerce_Analytics_Tracker_Test extends TestCase {
 			WooCommerce_Analytics_Tracker::bootstrap();
 		}
 
-		// Filters still resolve to true; the modern pipeline stays enabled and no
-		// error is raised by the second run.
+		// The filter still resolves to true and the second run raises no error.
 		$this->assertTrue( apply_filters( 'woocommerce_analytics_clickhouse_enabled', false ) );
-		$this->assertTrue( apply_filters( 'woocommerce_analytics_experimental_proxy_tracking_enabled', false ) );
 	}
 }

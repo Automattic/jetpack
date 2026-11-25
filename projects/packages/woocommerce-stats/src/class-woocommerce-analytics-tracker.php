@@ -7,10 +7,11 @@
 
 namespace Automattic\Jetpack\WooCommerceStats;
 
+use Automattic\Jetpack\Status\Host;
 use Automattic\Woocommerce_Analytics;
 
 /**
- * Turns on the modern (ClickHouse + proxy) pipeline and triggers the vendored
+ * Turns on ClickHouse, and proxy tracking on WordPress.com Atomic, then triggers the vendored
  * WooCommerce Analytics tracker, unless the host turns store tracking off. The
  * tracker self-gates on WooCommerce + connection and is idempotent.
  */
@@ -49,7 +50,11 @@ class WooCommerce_Analytics_Tracker {
 		}
 
 		add_filter( 'woocommerce_analytics_clickhouse_enabled', '__return_true' );
-		add_filter( 'woocommerce_analytics_experimental_proxy_tracking_enabled', '__return_true' );
+
+		// Each proxied event boots WordPress uncached, so only Atomic, where the platform can ship the speed module, proxies.
+		if ( ( new Host() )->is_woa_site() ) {
+			add_filter( 'woocommerce_analytics_experimental_proxy_tracking_enabled', '__return_true' );
+		}
 
 		// Guarded because the package ships with the Jetpack plugin or as a
 		// composer dependency, not with this package's own source.
