@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Map block: Prevent resizing in Write mode.

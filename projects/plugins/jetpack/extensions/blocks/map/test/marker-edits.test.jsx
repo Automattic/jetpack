@@ -11,6 +11,7 @@ jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 jest.mock( '@wordpress/block-editor', () => ( {
 	BlockControls: ( { children } ) => children,
 	InspectorControls: ( { children } ) => children,
+	useBlockEditingMode: () => 'default',
 	useBlockProps: () => ( {} ),
 } ) );
 jest.mock( '@wordpress/components', () => ( {
