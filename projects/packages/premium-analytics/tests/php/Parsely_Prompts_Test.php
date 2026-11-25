@@ -247,6 +247,16 @@ class Parsely_Prompts_Test extends BaseTestCase {
 		$this->assertLessThanOrEqual( time() + PARSELY_PROMPTS_VIEWS_RETRY_TTL, $timeout );
 	}
 
+	public function test_an_answer_stands_longer_than_a_failure() {
+		$this->answer_stats_usage_with( self::usage_with_views( 150000 ) );
+
+		offers_parsely_prompts();
+		$timeout = (int) get_option( '_transient_timeout_' . PARSELY_PROMPTS_VIEWS_TRANSIENT );
+
+		$this->assertGreaterThan( time() + PARSELY_PROMPTS_VIEWS_RETRY_TTL, $timeout );
+		$this->assertLessThanOrEqual( time() + PARSELY_PROMPTS_VIEWS_TTL, $timeout );
+	}
+
 	public function test_a_cache_of_another_shape_is_refetched() {
 		set_transient( PARSELY_PROMPTS_VIEWS_TRANSIENT, array( 'an earlier shape' => 150000 ), PARSELY_PROMPTS_VIEWS_TTL );
 		$this->answer_stats_usage_with( self::usage_with_views( 150000 ) );
@@ -265,6 +275,16 @@ class Parsely_Prompts_Test extends BaseTestCase {
 		$this->answer_stats_usage_with( self::usage_with_views( 99999 ) );
 
 		$this->assertFalse( offers_parsely_prompts() );
+	}
+
+	/**
+	 * WordPress.com sends the counts as JSON numbers today, but a payload quoting them must still
+	 * be read as traffic rather than skipped as unreadable.
+	 */
+	public function test_views_sent_as_a_numeric_string_still_qualify() {
+		$this->answer_stats_usage_with( self::usage_with_views( '150000' ) );
+
+		$this->assertTrue( offers_parsely_prompts() );
 	}
 
 	public function test_the_quietest_whole_month_decides() {
@@ -364,6 +384,13 @@ class Parsely_Prompts_Test extends BaseTestCase {
 		$this->assertTrue( offers_parsely_prompts() );
 	}
 
+	public function test_a_parsely_api_key_that_is_not_a_string_is_not_a_customer() {
+		update_option( 'parsely', array( 'apikey' => array( 'example.com' ) ) );
+		$this->answer_stats_usage_with( self::usage_with_views( 150000 ) );
+
+		$this->assertTrue( offers_parsely_prompts() );
+	}
+
 	public function test_a_configured_parsely_plugin_is_a_customer() {
 		$GLOBALS['parsely'] = self::parsely_plugin_reporting_site_id( true );
 		$this->answer_stats_usage_with( self::usage_with_views( 150000 ) );
@@ -414,6 +441,16 @@ class Parsely_Prompts_Test extends BaseTestCase {
 				return $this->site_id_is_set;
 			}
 		};
+	}
+
+	/**
+	 * A 200 carrying something that is not an object at all, which reaches the reader as a string
+	 * rather than the array its signature takes.
+	 */
+	public function test_a_usage_response_that_is_not_a_payload_does_not_offer_the_prompts() {
+		$this->answer_stats_usage_with( 'not a payload' );
+
+		$this->assertFalse( offers_parsely_prompts() );
 	}
 
 	public function test_a_usage_error_does_not_offer_the_prompts() {
@@ -473,6 +510,13 @@ class Parsely_Prompts_Test extends BaseTestCase {
 		$this->assertTrue( offers_parsely_prompts() );
 	}
 
+	public function test_the_filter_can_withhold_the_prompts_from_a_qualifying_site() {
+		$this->answer_stats_usage_with( self::usage_with_views( 150000 ) );
+		add_filter( OFFERS_PARSELY_PROMPTS_FILTER, '__return_false' );
+
+		$this->assertFalse( offers_parsely_prompts() );
+	}
+
 	public function test_the_flag_is_registered_off_by_default() {
 		Parsely_Prompts::register_feature_flag();
 
@@ -520,6 +564,18 @@ class Parsely_Prompts_Test extends BaseTestCase {
 		$data = inject_parsely_prompts_script_data( array( 'premium_analytics' => array( 'csv_exports_enabled' => true ) ) );
 
 		$this->assertTrue( $data['premium_analytics']['csv_exports_enabled'] );
+		$this->assertTrue( $data['premium_analytics']['offers_parsely_prompts'] );
+	}
+
+	/**
+	 * A filter running before this one can leave anything under the key.
+	 */
+	public function test_a_premium_analytics_value_that_is_not_an_array_is_replaced() {
+		$this->enter_dashboard();
+		$this->answer_stats_usage_with( self::usage_with_views( 150000 ) );
+
+		$data = inject_parsely_prompts_script_data( array( 'premium_analytics' => 'not an array' ) );
+
 		$this->assertTrue( $data['premium_analytics']['offers_parsely_prompts'] );
 	}
 
