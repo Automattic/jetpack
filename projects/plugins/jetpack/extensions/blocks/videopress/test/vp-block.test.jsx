@@ -1,5 +1,6 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import { isBlobURL } from '@wordpress/blob';
 import withVideoPressEdit, { VpBlock } from '../edit';
 
 const mockSandBoxProps = jest.fn();
@@ -63,7 +64,7 @@ jest.mock( '@wordpress/i18n', () => ( {
 jest.mock( '@wordpress/icons', () => ( { Icon: () => null } ) );
 jest.mock( '@wordpress/ui', () => ( { Link: () => null } ) );
 jest.mock( '../components', () => ( { VideoPressBlockProvider: ( { children } ) => children } ) );
-jest.mock( '../loading', () => () => null );
+jest.mock( '../loading', () => () => <div data-testid="videopress-loading" /> );
 jest.mock( '../resumable-upload', () => () => null );
 jest.mock( '../seekbar-color-settings', () => () => null );
 jest.mock( '../tracks-editor', () => () => null );
@@ -132,6 +133,53 @@ describe( 'VideoPressEdit setTracks', () => {
 
 		expect( setAttributes.mock.calls ).toEqual(
 			shouldWrite ? [ [ { videoPressTracks: storedTracks } ] ] : []
+		);
+	} );
+} );
+
+describe( 'VideoPressEdit core video alignment wrapper', () => {
+	const CoreVideoEdit = ( { attributes } ) => (
+		<figure
+			data-testid="core-video"
+			className={ attributes?.align ? `align${ attributes.align }` : '' }
+		/>
+	);
+	const VideoPressEdit = withVideoPressEdit( CoreVideoEdit );
+
+	it( 'renders CoreVideoEdit without a wrapper div for non-blob local videos', async () => {
+		isBlobURL.mockReturnValue( false );
+		render(
+			<div data-testid="block-root">
+				<VideoPressEdit
+					attributes={ { src: 'https://example.com/video.mp4', align: 'wide' } }
+					setAttributes={ jest.fn() }
+					resumableUploadEnabled={ false }
+				/>
+			</div>
+		);
+		await act( () => Promise.resolve() );
+
+		expect( screen.getByTestId( 'block-root' ).innerHTML ).toBe(
+			'<figure data-testid="core-video" class="alignwide"></figure>'
+		);
+		expect( screen.queryByTestId( 'videopress-loading' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'keeps the upload/loading wrapper mounted for blob or empty sources', async () => {
+		isBlobURL.mockReturnValue( true );
+		render(
+			<div data-testid="block-root">
+				<VideoPressEdit
+					attributes={ { src: 'blob:https://example.com/123', align: 'wide' } }
+					setAttributes={ jest.fn() }
+					resumableUploadEnabled={ false }
+				/>
+			</div>
+		);
+		await act( () => Promise.resolve() );
+
+		expect( screen.getByTestId( 'block-root' ).innerHTML ).toBe(
+			'<div class="videopress-block-hide"><div data-testid="videopress-loading"></div></div><div class=""><figure data-testid="core-video" class="alignwide"></figure></div>'
 		);
 	} );
 } );

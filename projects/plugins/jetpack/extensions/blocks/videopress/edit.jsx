@@ -916,9 +916,13 @@ const VideoPressEdit = CoreVideoEdit =>
 			const displayCoreVideoBlock =
 				renderCoreVideoAndLoadingBlocks && ! isUploading && ! isFetchingVideo;
 
-			// In order for the media placeholder to keep its state for error messages, we need to keep the CoreVideoEdit component in the tree during file uploads.
-			// Keep this section separate so the CoreVideoEdit stays in the tree, once we have a video, we don't need it anymore.
-			const coreVideoFragment = (
+			// Render local videos bare so a wrapper <div> does not break wide/full alignment.
+			const displayLocalVideo = displayCoreVideoBlock && !! src && ! isBlobURL( src );
+
+			// Otherwise toggle both with `videopress-block-hide` so CoreVideoEdit stays mounted across upload.
+			const coreVideoFragment = displayLocalVideo ? (
+				<CoreVideoEdit { ...this.props } />
+			) : (
 				<Fragment>
 					<div className={ ! isUploading && ! isFetchingVideo ? 'videopress-block-hide' : '' }>
 						<Loading

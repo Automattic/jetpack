@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+VideoPress: Render local core Video blocks without an extra wrapper div so wide and full alignments apply in the editor.
