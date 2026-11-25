@@ -48,6 +48,7 @@ class Dashboard_Test extends BaseTestCase {
 		Constants::clear_constants();
 		Cache::clear();
 		self::reset_sections();
+		self::set_build_index( null );
 		parent::tear_down();
 	}
 
@@ -212,6 +213,51 @@ class Dashboard_Test extends BaseTestCase {
 
 		$this->assertSame( Dashboard::WP_BUILD_PAGE_ID, $GLOBALS['jetpack_monetize_test_enqueue_screen_id'] );
 		$this->assertSame( 'jetpack_page_jetpack-monetize', get_current_screen()->id );
+	}
+
+	public function test_admin_shell_skips_monetize_without_a_build() {
+		self::set_build_index( __DIR__ . '/fixtures/missing-build.php' );
+
+		$this->assertSame( array(), Dashboard::add_admin_shell_member( array() ) );
+	}
+
+	/**
+	 * Runs alone because the fixture defines the render function for the rest of the process.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_shell_member_loads_the_build_on_another_dashboards_screen() {
+		require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'jetpack_page_my-jetpack' );
+		self::set_build_index( __DIR__ . '/fixtures/usable-build.php' );
+		add_filter( 'jetpack_admin_shell_members', array( Dashboard::class, 'add_admin_shell_member' ) );
+
+		$members = Admin_Shell::get_members();
+		$this->assertArrayHasKey( Dashboard::MENU_SLUG, $members );
+
+		$members[ Dashboard::MENU_SLUG ]['load']();
+		$this->assertContains( 'jetpack-monetize', array_merge( array(), ...array_values( WP_Build_Polyfills::get_consumers() ) ) );
+
+		do_action( 'admin_enqueue_scripts' );
+		$this->assertSame( 'jetpack_page_my-jetpack', $GLOBALS['jetpack_monetize_test_enqueue_screen_id'] );
+	}
+
+	/**
+	 * Point the dashboard at a build index, or back at the package build with null.
+	 *
+	 * @param string|null $path Build index path.
+	 */
+	private static function set_build_index( $path ) {
+		$property = new \ReflectionProperty( Dashboard::class, 'wp_build_index' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, $path );
 	}
 
 	/**

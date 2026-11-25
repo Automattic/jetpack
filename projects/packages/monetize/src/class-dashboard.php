@@ -105,6 +105,13 @@ class Dashboard {
 	private static $sections = array();
 
 	/**
+	 * Path to the wp-build index, or null for the package build. Tests point it at a fixture.
+	 *
+	 * @var string|null
+	 */
+	private static $wp_build_index = null;
+
+	/**
 	 * Register the flag. Hosts call this before they decide whether to load the dashboard.
 	 *
 	 * @return void
@@ -337,7 +344,7 @@ class Dashboard {
 	 * @return string
 	 */
 	private static function build_index() {
-		return dirname( __DIR__ ) . '/build/build.php';
+		return self::$wp_build_index ?? dirname( __DIR__ ) . '/build/build.php';
 	}
 
 	/**
