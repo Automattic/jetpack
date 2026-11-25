@@ -6,6 +6,7 @@ import {
 	useBlockProps,
 	store as blockEditorStore,
 } from '@wordpress/block-editor';
+import { createBlock, getDefaultBlockName } from '@wordpress/blocks';
 import { Button, Placeholder, Spinner, withNotices, ResizableBox } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -46,6 +47,7 @@ const RESIZABLE_BOX_ENABLE_OPTION = {
 };
 
 const MapEdit = ( {
+	clientId,
 	setAttributes,
 	attributes,
 	noticeUI,
@@ -66,14 +68,20 @@ const MapEdit = ( {
 	} = attributes;
 
 	const { toggleSelection } = useDispatch( 'core/block-editor' );
+	const { insertBlock, insertAfterBlock } = useDispatch( blockEditorStore );
 
-	const { isPreviewMode } = useSelect( select => {
-		const { getSettings } = select( blockEditorStore );
-		const settings = getSettings();
-		return {
-			isPreviewMode: settings.isPreviewMode,
-		};
-	}, [] );
+	const { isPreviewMode, blockIndex, rootClientId } = useSelect(
+		select => {
+			const { getSettings, getBlockIndex, getBlockRootClientId } = select( blockEditorStore );
+			const settings = getSettings();
+			return {
+				isPreviewMode: settings.isPreviewMode,
+				blockIndex: getBlockIndex( clientId ),
+				rootClientId: getBlockRootClientId( clientId ),
+			};
+		},
+		[ clientId ]
+	);
 
 	const [ addPointVisibility, setAddPointVisibility ] = useState( false );
 	const [ apiState, setApiState ] = useState( API_STATE_LOADING );
@@ -82,7 +90,47 @@ const MapEdit = ( {
 	const [ apiKeySource, setApiKeySource ] = useState( null );
 	const [ apiRequestOutstanding, setApiRequestOutstanding ] = useState( null );
 	const mapRef = useRef( null );
-	const blockProps = useBlockProps();
+
+	const onKeyDown = event => {
+		if ( event.defaultPrevented || event.isComposing || isPreviewMode ) {
+			return;
+		}
+
+		const target = event.target;
+		if (
+			target?.closest?.(
+				'input, textarea, select, button, a, [contenteditable="true"], [role="option"]'
+			) ||
+			[ 'INPUT', 'TEXTAREA', 'SELECT', 'BUTTON', 'A' ].includes( target?.tagName ) ||
+			target?.isContentEditable
+		) {
+			return;
+		}
+
+		if (
+			event.key === 'Enter' &&
+			! event.shiftKey &&
+			! event.ctrlKey &&
+			! event.altKey &&
+			! event.metaKey
+		) {
+			event.preventDefault();
+			if ( insertAfterBlock ) {
+				insertAfterBlock( clientId );
+			} else {
+				const defaultBlockName = getDefaultBlockName();
+				if ( defaultBlockName ) {
+					insertBlock(
+						createBlock( defaultBlockName ),
+						blockIndex >= 0 ? blockIndex + 1 : undefined,
+						rootClientId
+					);
+				}
+			}
+		}
+	};
+
+	const blockProps = useBlockProps( { onKeyDown } );
 	const { className } = blockProps;
 
 	const mapStyle = getActiveStyleName( styles, className );
