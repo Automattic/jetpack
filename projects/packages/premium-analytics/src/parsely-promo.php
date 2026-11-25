@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 require_once __DIR__ . '/promos.php';
+require_once __DIR__ . '/parsely-prompts.php';
 require_once __DIR__ . '/parsely-signup-url.php';
 
 /**
