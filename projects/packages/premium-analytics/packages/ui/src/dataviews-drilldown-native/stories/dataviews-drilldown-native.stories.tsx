@@ -178,18 +178,16 @@ function ReferrerField( { item }: DataViewRenderFieldProps< ReferrerRow > ): JSX
 
 /**
  * A title render shaped like the report consumers' — a thumbnail beside the
- * label — with the label held to one line, as some report consumers hold theirs.
+ * label.
  */
 function ThumbnailReferrerField( { item }: DataViewRenderFieldProps< ReferrerRow > ): JSX.Element {
 	return (
-		<span style={ { display: 'flex', alignItems: 'center', gap: 8 } }>
+		<span style={ { display: 'flex', alignItems: 'flex-start', gap: 8 } }>
 			<span
 				aria-hidden="true"
 				style={ { flexShrink: 0, inlineSize: 16, blockSize: 16, background: '#c3c4c7' } }
 			/>
-			<span style={ { overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' } }>
-				{ item.referrer }
-			</span>
+			<span>{ item.referrer }</span>
 		</span>
 	);
 }
@@ -529,7 +527,7 @@ export const LongGroupTitleWithThumbnail: Story = {
 		docs: {
 			description: {
 				story:
-					'The same over-long label, rendered the way some report pages render theirs: a thumbnail beside text the consumer holds to one line. The table wraps a title by default; a label that sets its own `nowrap` stays on one line.',
+					'The same over-long label, rendered the way the report pages render theirs: a thumbnail beside the text. The label wraps beside the thumbnail, as it does in the Authors and Referrers reports.',
 			},
 		},
 	},
