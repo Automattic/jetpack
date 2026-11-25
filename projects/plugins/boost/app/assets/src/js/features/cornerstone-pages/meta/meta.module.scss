@@ -3,40 +3,6 @@
 .wrapper {
 	font-size: 14px;
 	line-height: 22px;
-
-	> p:first-child {
-		margin-top: 0;
-	}
-
-	.head {
-		display: flex;
-		flex-direction: row;
-		align-items: flex-start;
-
-		:global(svg) {
-			fill: var(--wp-admin-theme-color);
-		}
-
-		.summary {
-			flex-grow: 1;
-			margin-right: 5px;
-			color: var(--gray-40);
-		}
-	}
-
-	.see-logs-link {
-		font-size: 16px;
-		line-height: 1.5;
-	}
-
-	.logging-toggle {
-		margin-right: 1em;
-		float: left;
-	}
-
-	.clearfix {
-		clear: both;
-	}
 }
 
 // Also rendered outside `.wrapper`, inside the settings card.
@@ -69,12 +35,6 @@
 			}
 		}
 
-		.title {
-			margin-bottom: 16px;
-			font-size: 16px;
-			line-height: 1;
-			font-weight: 600;
-		}
 
 		textarea {
 			display: block;
