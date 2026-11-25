@@ -43,6 +43,8 @@ export interface GlobalChartsContextValue {
 	getElementStyles: ( params: GetElementStylesParams ) => ElementStyles;
 	/** The chart background as an opaque hex, for colors that must keep contrast against it. Optional so a hand-built context value still type-checks. */
 	backgroundColor?: string;
+	/** The `--a8c-charts-color-comparison` role as an opaque hex, which a stacked bar chart tones to 3:1 for its comparison total. */
+	comparisonColor?: string;
 	// Series visibility management shared by charts, legends, and programmatic controls.
 	toggleSeriesVisibility: ( chartId: string, seriesLabel: string ) => void;
 	setSeriesVisibility: ( chartId: string, seriesLabel: string, visible: boolean ) => void;

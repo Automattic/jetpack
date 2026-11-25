@@ -992,7 +992,7 @@ export const StackedComparison: Story = {
 		docs: {
 			description: {
 				story:
-					"Each device is paired by `group` with its previous four weeks, and those are summed into one bar beside each stack, in a gray that keeps 3:1 against the background. Hover a bar, or tab in and use the arrow keys, to read each device, the total, then the previous period's total; each day has a second stop on the gray bar. Hide a device from the legend and its previous period leaves the gray bar too, so both bars sum the same devices; `legend.comparisonItem` names that bar in the legend and the tooltip.",
+					"Each device is paired by `group` with its previous four weeks, and those are summed into one bar beside each stack, in the `--a8c-charts-color-comparison` role toned to keep 3:1 against the background. Hover a bar, or tab in and use the arrow keys, to read each device, the total, then the previous period's total; each day has a second stop on the gray bar. Hide a device from the legend and its previous period leaves the gray bar too, so both bars sum the same devices; `legend.comparisonItem` names that bar in the legend and the tooltip.",
 			},
 		},
 	},
