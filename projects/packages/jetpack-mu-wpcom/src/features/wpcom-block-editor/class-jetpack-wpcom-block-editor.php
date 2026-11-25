@@ -73,6 +73,7 @@ class Jetpack_WPCOM_Block_Editor {
 		add_action( 'login_init', array( $this, 'allow_block_editor_login' ), 1 );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ), 9 );
 		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_assets' ) );
+		add_filter( 'render_block_core/paragraph', array( $this, 'add_justify_class' ), 10, 2 );
 		add_filter( 'mce_external_plugins', array( $this, 'add_tinymce_plugins' ) );
 		add_filter( 'block_editor_settings_all', 'Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Block_Editor\EditorType\remember_block_editor', 10, 2 );
 
@@ -435,6 +436,29 @@ class Jetpack_WPCOM_Block_Editor {
 		// These styles are manually copied from //widgets.wp.com/wpcom-block-editor/default.view.css in order to
 		// improve the performance by avoiding an extra network request to download the CSS file on every page.
 		wp_add_inline_style( 'wp-block-library', '.has-text-align-justify{text-align:justify;}' );
+	}
+
+	/**
+	 * Adds the has-text-align-justify class to paragraphs saved with a justify text alignment.
+	 *
+	 * Core's text-align support serializes no class for justify, so the saved markup loses it.
+	 * Becomes a no-op once https://github.com/WordPress/gutenberg/pull/80264 ships; remove it then.
+	 *
+	 * @param string $block_content The block content.
+	 * @param array  $block         The parsed block.
+	 * @return string The block content.
+	 */
+	public function add_justify_class( $block_content, $block ) {
+		if ( ! is_string( $block_content ) || 'justify' !== ( $block['attrs']['style']['typography']['textAlign'] ?? null ) ) {
+			return $block_content;
+		}
+
+		$tags = new \WP_HTML_Tag_Processor( $block_content );
+		if ( $tags->next_tag( 'p' ) ) {
+			$tags->add_class( 'has-text-align-justify' );
+		}
+
+		return $tags->get_updated_html();
 	}
 
 	/**
