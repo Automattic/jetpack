@@ -46,5 +46,17 @@ function wpcomsh_retire_classic_stats( $enabled, $name ) {
 }
 add_filter( 'jetpack_feature_flag_enabled', 'wpcomsh_retire_classic_stats', 5, 2 );
 
-// Stats v2 leaves WooCommerce Analytics proxy tracking to the host; Atomic opts in.
-add_filter( 'woocommerce_analytics_experimental_proxy_tracking_enabled', '__return_true' );
+/**
+ * Turns on WooCommerce Analytics proxy tracking while Stats v2 runs, which leaves it to the host.
+ *
+ * Asked when the filter is read rather than at file scope, because Jetpack loads after wpcomsh.
+ *
+ * @param bool $enabled Whether proxy tracking is enabled.
+ * @return bool
+ */
+function wpcomsh_enable_woocommerce_analytics_proxy_tracking( $enabled ) {
+	$enablement = 'Automattic\Jetpack\PremiumAnalytics\Enablement';
+
+	return $enabled || ( is_callable( array( $enablement, 'is_enabled' ) ) && $enablement::is_enabled() );
+}
+add_filter( 'woocommerce_analytics_experimental_proxy_tracking_enabled', 'wpcomsh_enable_woocommerce_analytics_proxy_tracking' );
