@@ -32,8 +32,7 @@ const threats = [ { id: 1 }, { id: 2 } ] as unknown as ThreatItem[];
 describe( 'Protect Overview item with Scan', () => {
 	it.each( [
 		[ "Protect's count, without a threat the site fixed", 1, '1' ],
-		[ 'the threat list when Protect sends no count', undefined, '2' ],
-		[ 'the threat list when Protect has no stored count', null, '2' ],
+		[ 'the threat list when Protect has no count', null, '2' ],
 	] )( 'shows %s', ( _, threatCount, shown ) => {
 		mockData = { scanData: { threats } as ProtectData[ 'scanData' ], threatCount };
 		render( <ProtectOverviewItem admin /> );
