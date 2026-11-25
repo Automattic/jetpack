@@ -68,7 +68,6 @@ class WooCommerce_Analytics_Tracker_Test extends TestCase {
 			WooCommerce_Analytics_Tracker::bootstrap();
 		}
 
-		// The filter still resolves to true and the second run raises no error.
 		$this->assertTrue( apply_filters( 'woocommerce_analytics_clickhouse_enabled', false ) );
 	}
 }
