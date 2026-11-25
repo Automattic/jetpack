@@ -1,7 +1,6 @@
-import { render } from '@testing-library/react';
-import { createElement } from '@wordpress/element';
-
-jest.mock( '../use-save-cookie-consent-settings' );
+jest.mock( '../use-save-cookie-consent-settings', () => ( {
+	useSaveCookieConsentSettings: jest.fn(),
+} ) );
 
 function loadEditor( screenBase ) {
 	window.Jetpack_Editor_Initial_State = {
@@ -9,19 +8,15 @@ function loadEditor( screenBase ) {
 		available_blocks: { 'cookie-consent': { available: true } },
 	};
 
-	let editor;
+	let registration;
 	jest.isolateModules( () => {
 		const { getBlockType } = require( '@wordpress/blocks' );
-		const { getPlugin } = require( '@wordpress/plugins' );
-		const { useSyncCookieConsentSettings } = require( '../use-save-cookie-consent-settings' );
+		const { default: edit } = require( '../edit' );
+		const { default: CookieConsentPreview } = require( '../preview' );
 		require( '../editor' );
-		editor = {
-			block: getBlockType( 'jetpack/cookie-consent' ),
-			settingsPlugin: getPlugin( 'jetpack-cookie-consent-settings' ),
-			useSyncCookieConsentSettings,
-		};
+		registration = { block: getBlockType( 'jetpack/cookie-consent' ), edit, CookieConsentPreview };
 	} );
-	return editor;
+	return registration;
 }
 
 describe( 'Cookie Consent editor registration', () => {
@@ -31,18 +26,17 @@ describe( 'Cookie Consent editor registration', () => {
 		window.Jetpack_Editor_Initial_State = initialState;
 	} );
 
-	it( 'registers existing banners in the Page Editor without allowing insertion', () => {
-		const { block, settingsPlugin, useSyncCookieConsentSettings } = loadEditor( 'post' );
+	it( 'registers a read-only banner in the Page Editor without allowing insertion', () => {
+		const { block, CookieConsentPreview } = loadEditor( 'post' );
 
 		expect( block ).toMatchObject( { supports: { inserter: false } } );
-		render( createElement( settingsPlugin.render ) );
-		expect( useSyncCookieConsentSettings ).toHaveBeenCalled();
+		expect( block.edit ).toBe( CookieConsentPreview );
 	} );
 
-	it( 'allows insertion in the Site Editor without mounting the Page Editor settings plugin', () => {
-		const { block, settingsPlugin } = loadEditor( 'site-editor' );
+	it( 'allows editing and insertion of a single banner in the Site Editor', () => {
+		const { block, edit } = loadEditor( 'site-editor' );
 
 		expect( block ).toMatchObject( { supports: { inserter: true, multiple: false } } );
-		expect( settingsPlugin ).toBeUndefined();
+		expect( block.edit ).toBe( edit );
 	} );
 } );
