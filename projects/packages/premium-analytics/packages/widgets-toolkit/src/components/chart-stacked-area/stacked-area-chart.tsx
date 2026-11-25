@@ -10,7 +10,7 @@ import { useCallback, useMemo } from 'react';
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
 import {
 	formatBucketTooltipDate,
-	getYTickDecimals,
+	getEmptyChartDomain,
 	getYTickFormat,
 	isEmptyChartData,
 	toTickResolution,
@@ -33,9 +33,18 @@ const AREA_FILL_OPACITY = 0.25;
 type AreaChartProps = ComponentProps< typeof AreaChart >;
 type RenderTooltipParams = Parameters< NonNullable< AreaChartProps[ 'renderTooltip' ] > >[ 0 ];
 
+/** A part's point: a bucket with no requests is 0, never null, which `AreaChart` rejects. */
+export type StackedAreaPoint = Omit< ComparativeDatePointDate, 'value' > & { value: number };
+
+/** One part of the stack; `options.stroke` fixes its color, the rest come from the theme. */
+export type StackedAreaSeries = Pick< ComparativeLineChartSeries, 'label' > & {
+	data: StackedAreaPoint[];
+	options?: { stroke?: string };
+};
+
 export type StackedAreaChartProps = {
-	/** The parts of one total, bottom of the stack first; `options.stroke` colors a part. */
-	series: ComparativeLineChartSeries[];
+	/** The parts of one total, bottom of the stack first. */
+	series: StackedAreaSeries[];
 
 	className?: string;
 
@@ -94,30 +103,15 @@ export function StackedAreaChart( {
 
 	const isEmptyData = useMemo( () => isEmptyChartData( series ), [ series ] );
 	const currencyCode = dataFormat.options?.currencyCode;
-	// The chart sizes its axis gutter from single values unless the domain is
-	// pinned, which clips the label of a stack's total.
-	const stackedMax = useMemo( () => {
-		const totals = new Map< number, number >();
-		for ( const { data } of series ) {
-			for ( const point of data ) {
-				const time = point.date.getTime();
-				totals.set( time, ( totals.get( time ) ?? 0 ) + ( point.value ?? 0 ) );
-			}
-		}
-		return Math.max( 0, ...totals.values() );
-	}, [ series ] );
 	const chartOptions = useMemo(
 		() => ( {
-			...( stackedMax > 0 ? { yScale: { domain: [ 0, stackedMax ] as [ number, number ] } } : {} ),
+			...( isEmptyData ? { yScale: { domain: getEmptyChartDomain( dataFormat.type ) } } : {} ),
 			axis: {
 				x: { tickResolution: libraryTickResolution },
-				y: {
-					tickFormat: getYTickFormat( dataFormat.type, undefined, currencyCode ),
-					tickDecimals: getYTickDecimals( dataFormat.type, currencyCode ),
-				},
+				y: { tickFormat: getYTickFormat( dataFormat.type, undefined, currencyCode ) },
 			},
 		} ),
-		[ libraryTickResolution, dataFormat.type, currencyCode, stackedMax ]
+		[ libraryTickResolution, dataFormat.type, currencyCode, isEmptyData ]
 	);
 
 	return (
@@ -131,6 +125,7 @@ export function StackedAreaChart( {
 				compactWhenShort={ compactWhenShort }
 				resizeDebounceTime={ RESIZE_DEBOUNCE_MS }
 				stacked
+				rescaleYOnVisibilityChange={ false }
 				fillOpacity={ AREA_FILL_OPACITY }
 				withStroke
 				curveType="monotone"
