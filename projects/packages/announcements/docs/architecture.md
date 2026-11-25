@@ -26,6 +26,7 @@ A product can be a registrant, a host, or both, and the package knows none of th
 | Where it is published                           | Registrant | The `channels` of the record                           |
 | Which channels a page shows                     | Host       | The `channels` it passes to `mountWhatsNew()`          |
 | When the surface appears, and when it leaves    | Host       | The call, and the function the call returns            |
+| Whether what users do is recorded               | Host       | A call to `trackWhatsNew()`                            |
 | Whether the teaser shows at all                 | User       | A switch, which a host offers with `useTeaserSwitch()` |
 | What a record is, and that it is safe to render | Package    | Sanitized once, at registration                        |
 | How the teaser and the reader look and behave   | Package    | The surface, the same in every host                    |
@@ -70,11 +71,11 @@ The package adds no table and no option of its own.
 
 ## The public API
 
-| Side       | API                                                                                             | Who uses it |
-| ---------- | ----------------------------------------------------------------------------------------------- | ----------- |
-| PHP        | The `jetpack_register_announcements` action and `register_announcement()`                       | Registrants |
-| JavaScript | `mountWhatsNew()` and `useTeaserSwitch()`, from `@automattic/jetpack-announcements`             | Hosts       |
-| REST       | `GET /wpcom/v2/jetpack-announcements` and `GET /wpcom/v2/jetpack-announcements/<vendor>/<slug>` | The surface |
+| Side       | API                                                                                                    | Who uses it |
+| ---------- | ------------------------------------------------------------------------------------------------------ | ----------- |
+| PHP        | The `jetpack_register_announcements` action and `register_announcement()`                              | Registrants |
+| JavaScript | `mountWhatsNew()`, `useTeaserSwitch()` and `trackWhatsNew()`, from `@automattic/jetpack-announcements` | Hosts       |
+| REST       | `GET /wpcom/v2/jetpack-announcements` and `GET /wpcom/v2/jetpack-announcements/<vendor>/<slug>`        | The surface |
 
 Everything else is internal: the classes under `src/`, the preferences the surface writes, the entity it registers, and its components.
 
@@ -86,4 +87,5 @@ Everything else is internal: the classes under `src/`, the preferences the surfa
 | Protect a channel: any registrant can publish to any channel                   | A `capability` limits who reads an announcement                          |
 | Fetch content                                                                  | A registrant that reads a feed does it outside the registration action   |
 | Push, email, or count in a badge                                               | An announcement waits until the user opens a page that hosts the surface |
+| Record what users do by itself                                                 | A host that wants the events in Tracks calls `trackWhatsNew()`           |
 | Run outside wp-admin                                                           | The module of the surface is registered on `admin_init`                  |

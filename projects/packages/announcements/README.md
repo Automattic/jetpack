@@ -94,14 +94,27 @@ function TeaserSetting() {
 }
 ```
 
+### 5. Record what users do
+
+Optional. The surface records nothing by itself, and a host asks for its events in Tracks with `trackWhatsNew()`, once, before it mounts.
+
+```ts
+const { mountWhatsNew, trackWhatsNew } = await import( '@automattic/jetpack-announcements' );
+
+trackWhatsNew();
+mountWhatsNew( { channels: [ 'my-plugin' ] } );
+```
+
+[Hosting What's new](docs/hosts.md) has the events and what recording needs from the page.
+
 ## Documentation
 
-| Page                                                    | What it covers                                                |
-| ------------------------------------------------------- | ------------------------------------------------------------- |
-| [How Jetpack Announcements works](docs/architecture.md) | The roles, the life of an announcement, and the public API    |
-| [Publishing announcements](docs/registrants.md)         | The registrant's side: the record, the action, its rules      |
-| [Hosting What's new](docs/hosts.md)                     | The host's side: the page, mounting, leaving, the switch      |
-| [Channels](docs/channels.md)                            | Publishing to channels, subscribing to them, channels by page |
+| Page                                                    | What it covers                                                       |
+| ------------------------------------------------------- | -------------------------------------------------------------------- |
+| [How Jetpack Announcements works](docs/architecture.md) | The roles, the life of an announcement, and the public API           |
+| [Publishing announcements](docs/registrants.md)         | The registrant's side: the record, the action, its rules             |
+| [Hosting What's new](docs/hosts.md)                     | The host's side: the page, mounting, leaving, the switch, the events |
+| [Channels](docs/channels.md)                            | Publishing to channels, subscribing to them, channels by page        |
 
 ## REST routes
 

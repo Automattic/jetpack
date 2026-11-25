@@ -106,6 +106,39 @@ The switch is kept in the user's WordPress preferences, for that user on that si
 
 The hook works with or without the surface mounted.
 
+## Recording what users do
+
+The surface records nothing by itself. A host that wants its events in Tracks calls `trackWhatsNew()` once, before it mounts.
+
+```ts
+const { mountWhatsNew, trackWhatsNew } = await import( '@automattic/jetpack-announcements' );
+
+trackWhatsNew();
+mountWhatsNew( { channels: [ 'my-plugin' ] } );
+```
+
+| Event                                     | Recorded when                                   | Property          |
+| ----------------------------------------- | ----------------------------------------------- | ----------------- |
+| `jetpack_announcements_teaser_view`       | The teaser is shown                             | `announcement_id` |
+| `jetpack_announcements_teaser_open`       | The user opens the announcement from the teaser | `announcement_id` |
+| `jetpack_announcements_teaser_dismiss`    | The user dismisses the teaser                   | `announcement_id` |
+| `jetpack_announcements_reader_link_click` | The user follows the link of the announcement   | `announcement_id` |
+| `jetpack_announcements_teaser_switch`     | The user turns the teaser on or off             | `enabled`         |
+
+The names are the same for every host, and the id of the announcement tells the product.
+
+### One call for the page
+
+A page has one surface, so the call serves whoever mounts it, and a second call does nothing. Under the admin shell, where several Jetpack pages share one document, it also records the surface a later page mounts.
+
+A page that offers the switch without mounting the surface makes the call too. Without it, a change of the switch there is not recorded.
+
+### What recording needs from the page
+
+The Tracks script, `//stats.wp.com/w.js`. The module queues the events and does not load it, so the page of the host has to.
+
+The Jetpack script data, `window.JetpackScriptData`. The user and the `blog_id` of each event are read from it.
+
 ## What the surface does
 
 ### The teaser
@@ -146,14 +179,16 @@ A host that lasts the whole page load never needs to. A host inside an applicati
 
 Premium Analytics is a registrant and a host.
 
-| What it does                                 | Where                                                                     |
-| -------------------------------------------- | ------------------------------------------------------------------------- |
-| Registers its announcements, behind its flag | [`src/class-dashboard-announcements.php`][pa-registrant]                  |
-| Mounts the surface and follows its pages     | [`packages/init/src/whats-new/whats-new.ts`][pa-mount]                    |
-| Offers the switch in its settings            | [`routes/settings/components/whats-new-card/whats-new-card.tsx`][pa-card] |
-| Names its channels by page                   | [`docs/whats-new-channels.md`][pa-channels]                               |
+| What it does                                                  | Where                                                                     |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| Registers its announcements, behind its flag                  | [`src/class-dashboard-announcements.php`][pa-registrant]                  |
+| Mounts the surface, follows its pages and asks for its events | [`packages/init/src/whats-new/whats-new.ts`][pa-mount]                    |
+| Offers the switch in its settings                             | [`routes/settings/components/whats-new-card/whats-new-card.tsx`][pa-card] |
+| Loads the Tracks script                                       | [`src/class-analytics.php`][pa-tracks]                                    |
+| Names its channels by page                                    | [`docs/whats-new-channels.md`][pa-channels]                               |
 
 [pa-registrant]: https://github.com/Automattic/jetpack/blob/trunk/projects/packages/premium-analytics/src/class-dashboard-announcements.php
 [pa-mount]: https://github.com/Automattic/jetpack/blob/trunk/projects/packages/premium-analytics/packages/init/src/whats-new/whats-new.ts
 [pa-card]: https://github.com/Automattic/jetpack/blob/trunk/projects/packages/premium-analytics/routes/settings/components/whats-new-card/whats-new-card.tsx
+[pa-tracks]: https://github.com/Automattic/jetpack/blob/trunk/projects/packages/premium-analytics/src/class-analytics.php
 [pa-channels]: https://github.com/Automattic/jetpack/blob/trunk/projects/packages/premium-analytics/docs/whats-new-channels.md
