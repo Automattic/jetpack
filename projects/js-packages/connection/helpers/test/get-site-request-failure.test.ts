@@ -10,7 +10,7 @@ describe( 'getSiteRequestFailureCause', () => {
 		[ 'rest_disabled', 403, 'blocked' ],
 		[ 'rest_cookie_invalid_nonce', 403, 'session' ],
 		[ 'rest_not_logged_in', undefined, 'session' ],
-		[ 'invalid_user_permission_jetpack_connect', 401, 'session' ],
+		[ 'rest_forbidden', 401, 'session' ],
 		[ 'rest_forbidden', undefined, 'permission' ],
 		[ 'some_plugin_error', 403, 'permission' ],
 		[ 'internal_server_error', 500, 'server' ],

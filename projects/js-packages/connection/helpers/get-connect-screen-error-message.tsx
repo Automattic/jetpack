@@ -275,6 +275,7 @@ export const getConnectScreenErrorMessage = (
 	}
 
 	// The site's own REST request failed before WordPress.com was contacted.
+	// No status: its 401/403 rules would override `invalid_user_permission_jetpack_connect` below.
 	const siteFailure = getSiteRequestFailureCause( errorCode );
 	if ( siteFailure ) {
 		return getSiteRequestFailureMessage( siteFailure );

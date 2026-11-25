@@ -228,7 +228,15 @@ describe( 'getIdentityCrisisErrorCause and getIdentityCrisisErrorCode', () => {
 		// One shared row: the rest is covered by `getSiteRequestFailureCause()`'s own test.
 		[ new clientErrors.FetchNetworkError(), 'offline', 'FetchNetworkError' ],
 		[
-			apiError( 'invalid_user_permission_identity_crisis', 403 ),
+			apiError( 'invalid_user_permission_identity_crisis', 401 ),
+			'session',
+			'invalid_user_permission_identity_crisis',
+		],
+		[
+			Object.assign( new Error(), {
+				name: 'ApiError',
+				response: { code: 'invalid_user_permission_identity_crisis', data: {} },
+			} ),
 			'permission',
 			'invalid_user_permission_identity_crisis',
 		],
