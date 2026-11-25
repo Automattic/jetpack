@@ -103,9 +103,8 @@ class Schema_Builder {
 					 * Filters the Person nodes credited as the Article's authors, e.g. to add
 					 * co-authors or guest authors that aren't the post's WordPress user.
 					 *
-					 * Nodes are output as given: pass plain-text names and absolute URLs. For a
-					 * WordPress user, use `Schema_Node_Ids::person()` as the `@id` so it matches
-					 * their author archive.
+					 * Nodes are output as given: pass plain-text names and absolute URLs. For
+					 * WordPress users, reuse {@see self::build_person_node()} for publisher links.
 					 *
 					 * @since $$next-version$$
 					 *
@@ -246,11 +245,13 @@ class Schema_Builder {
 	 * Build the author Person node, wiring `worksFor` to the site Organization's
 	 * stable `@id` when the Organization node resolves.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @param \WP_User|int|null $user             User object or ID.
-	 * @param bool              $has_organization Whether the Organization node resolves.
+	 * @param bool              $has_organization Whether an Organization publisher resolves; false for Person publishers.
 	 * @return array|null
 	 */
-	private static function build_person_node( $user, $has_organization ) {
+	public static function build_person_node( $user, $has_organization ) {
 		$person = Author_Schema_Node::build_person( $user );
 		if ( null !== $person && $has_organization ) {
 			$person['worksFor'] = array( '@id' => Schema_Node_Ids::organization() );

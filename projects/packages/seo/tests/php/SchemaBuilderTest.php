@@ -12,6 +12,7 @@
 namespace Automattic\Jetpack\SEO;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WP_Post;
 
@@ -595,6 +596,56 @@ class SchemaBuilderTest extends TestCase {
 			$article['author']
 		);
 		$this->assertContains( $guest, $doc['@graph'], 'The filtered Person node must be in the graph.' );
+	}
+
+	/**
+	 * @dataProvider provide_coauthor_publisher_states
+	 *
+	 * @param string $site_name        The publisher's fallback name.
+	 * @param string $site_represents  Publisher type.
+	 * @param bool   $has_organization Whether an Organization resolves.
+	 */
+	#[DataProvider( 'provide_coauthor_publisher_states' )]
+	public function test_wordpress_coauthor_matches_the_same_users_primary_author_node( $site_name, $site_represents, $has_organization ) {
+		$this->set_site_name( $site_name );
+		Schema_Settings::update( array( 'siteRepresents' => $site_represents ) );
+		$user  = $this->make_user();
+		$other = $this->make_user();
+		update_user_meta( $user->ID, Author_Schema_Node::META_JOB_TITLE, 'Editor' );
+		update_user_meta( $user->ID, Author_Schema_Node::META_SAME_AS, array( 'https://example.test/editor' ) );
+
+		$id            = Schema_Node_Ids::person( $user->ID, $user->user_nicename );
+		$primary_doc   = $this->emit_document( $this->make_post( array( 'post_author' => $user->ID ) ) );
+		$primary_nodes = array_column( $primary_doc['@graph'], null, '@id' );
+		if ( $has_organization ) {
+			$this->assertSame( array( '@id' => home_url( '/#organization' ) ), $primary_nodes[ $id ]['worksFor'] );
+		} else {
+			$this->assertArrayNotHasKey( 'worksFor', $primary_nodes[ $id ] );
+		}
+
+		add_filter(
+			'jetpack_seo_schema_article_authors',
+			static function ( $authors ) use ( $user, $has_organization ) {
+				$authors[] = Schema_Builder::build_person_node( $user, $has_organization );
+				return $authors;
+			}
+		);
+		$coauthor_doc   = $this->emit_document( $this->make_post( array( 'post_author' => $other->ID ) ) );
+		$coauthor_nodes = array_column( $coauthor_doc['@graph'], null, '@id' );
+
+		$this->assertSame( $primary_nodes[ $id ], $coauthor_nodes[ $id ] );
+		$this->assertContains( array( '@id' => $id ), $this->node_of_type( $coauthor_doc, 'Article' )['author'] );
+	}
+
+	/**
+	 * @return array[]
+	 */
+	public static function provide_coauthor_publisher_states() {
+		return array(
+			'Organization publisher' => array( 'Assessment publisher', 'organization', true ),
+			'Person publisher'       => array( 'Personal publication', 'person', false ),
+			'No Organization'        => array( '', 'organization', false ),
+		);
 	}
 
 	/**
