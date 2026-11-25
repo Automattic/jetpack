@@ -8,7 +8,7 @@ import {
 import { __, sprintf } from '@wordpress/i18n';
 import { Badge, Link, Popover, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { connectionStatusEmptyAvatar as emptyAvatar } from '../../assets/inline-svgs';
 import useSitePurchases from '../../data/use-site-purchases';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
@@ -116,7 +116,6 @@ const ConnectionControl: FC< ConnectionControlProps > = ( { trackingContext } ) 
 	const triggerRef = useRef< HTMLButtonElement >( null );
 	const popupRef = useRef< HTMLDivElement >( null );
 	const returnFocusRef = useRef( false );
-	const badgeId = useId();
 	// Focus the panel itself on every open: its first link shows a focus ring even after a click (JETPACK-3422),
 	// and a screen reader would skip the title and status above it (JETPACK-3907).
 	const initialFocus = useCallback( () => popupRef.current, [] );
@@ -182,7 +181,6 @@ const ConnectionControl: FC< ConnectionControlProps > = ( { trackingContext } ) 
 				<Popover.Popup
 					ref={ popupRef }
 					initialFocus={ initialFocus }
-					aria-describedby={ badgeId }
 					positioner={ <Popover.Positioner align="end" collisionPadding={ 16 } /> }
 				>
 					<Stack direction="column" gap="lg" className={ styles.content }>
@@ -195,7 +193,7 @@ const ConnectionControl: FC< ConnectionControlProps > = ( { trackingContext } ) 
 								showAvatar={ showAvatar }
 								className={ styles.illustration }
 							/>
-							<Badge id={ badgeId } intent={ STATUS_INTENTS[ state.status ] }>
+							<Badge intent={ STATUS_INTENTS[ state.status ] } render={ <Popover.Description /> }>
 								{ badgeLabel }
 							</Badge>
 							<ConnectionOwnerInfo />

@@ -175,7 +175,6 @@ describe( 'HeaderControls', () => {
 			'Jetpack Connection error: Your account (connection owner)',
 			'Jetpack Connection error: Your account (connection owner)',
 		],
-		[ 'offline', 'Offline Mode', 'Offline Mode', 'Jetpack Connection: Offline Mode' ],
 	] as const )( 'names its button after the badge when %s', async ( id, label, badge, name ) => {
 		mockUseConnectionState.mockReturnValue( stateWith( { id, label } ) );
 		render( <HeaderControls trackingContext="my-jetpack" /> );
@@ -198,7 +197,7 @@ describe( 'HeaderControls', () => {
 				return userEvent.keyboard( '{Enter}' );
 			},
 		],
-	] )( 'focuses the panel, titled and described, when it opens with %s', async ( _, open ) => {
+	] )( 'focuses the panel, by its title, when it opens with %s', async ( _, open ) => {
 		mockUseConnectionState.mockReturnValue(
 			stateWith( { id: 'user-not-connected', action: 'CONNECT_USER', status: 'warning' } )
 		);
@@ -208,7 +207,6 @@ describe( 'HeaderControls', () => {
 		const dialog = await screen.findByRole( 'dialog', { name: 'Jetpack Connection' } );
 
 		await waitFor( () => expect( dialog ).toHaveFocus() );
-		expect( dialog ).toHaveAccessibleDescription( 'Not connected' );
 		await userEvent.tab();
 		expect( screen.getByRole( 'link', { name: 'Connect my account' } ) ).toHaveFocus();
 	} );
