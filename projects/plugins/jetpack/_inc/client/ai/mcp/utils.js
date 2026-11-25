@@ -5,7 +5,29 @@
  * Provides helpers for reading and merging MCP ability data from user settings.
  */
 
-import { getOrdinaryTools, requiresOptIn } from './group-intents';
+import { _n, sprintf } from '@wordpress/i18n';
+import { getOrdinaryTools } from './group-intents';
+
+/**
+ * Describe which tools the bulk switch leaves untouched.
+ *
+ * @param {number} count - Number of tools that require individual approval.
+ * @return {string|undefined} Switch description, if any tools are skipped.
+ */
+export function getBulkToggleDescription( count ) {
+	if ( count > 0 ) {
+		return sprintf(
+			/* translators: %d: number of MCP tools that require individual approval. */
+			_n(
+				'Skips %d locked tool. Turn it on or off individually.',
+				'Skips %d locked tools. Turn them on or off individually.',
+				count,
+				'jetpack'
+			),
+			count
+		);
+	}
+}
 
 /**
  * Get account-level MCP abilities from user settings.
@@ -148,25 +170,22 @@ export function getRemoteAbilitiesDefaultEnabled( scopedTools ) {
 /**
  * Merge account-level abilities with site-level overrides.
  *
- * @param {Record<string, Object>}  accountAbilities - Account-level tool definitions.
+ * @param {Record<string, Object>}  accountAbilities - Tool definitions from the API.
  * @param {Record<string, boolean>} siteAbilities    - Explicit per-site overrides by tool ID (only tools the user has explicitly set).
- * @param {boolean|null}            defaultEnabled   - Fallback enabled state for tools not in siteAbilities (typically site_level_enabled). When null, falls back to the account-level tool.enabled value.
+ * @param {boolean|null}            defaultEnabled   - Site fallback for tools with no override, or null to use the API value.
  * @return {Record<string, Object>} Merged abilities with site overrides applied.
  */
 export function mergeSiteMcpAbilities( accountAbilities, siteAbilities, defaultEnabled = null ) {
+	// Keep the site fallback until the API reports effective state, including account choices.
 	return Object.fromEntries(
-		Object.entries( accountAbilities ).map( ( [ toolId, tool ] ) => {
-			const fallbackEnabled = requiresOptIn( tool )
-				? tool.enabled
-				: ( defaultEnabled ?? tool.enabled );
-			return [
-				toolId,
-				{
-					...tool,
-					enabled: toolId in siteAbilities ? siteAbilities[ toolId ] : fallbackEnabled,
-				},
-			];
-		} )
+		Object.entries( accountAbilities ).map( ( [ toolId, tool ] ) => [
+			toolId,
+			{
+				...tool,
+				enabled:
+					toolId in siteAbilities ? siteAbilities[ toolId ] : ( defaultEnabled ?? tool.enabled ),
+			},
+		] )
 	);
 }
 

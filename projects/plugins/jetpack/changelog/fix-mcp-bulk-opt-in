@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-MCP: List tools that require individual approval in their own section and leave them out of "Enable all".
+MCP: Mark tools that require individual approval and keep their settings when using "Enable all".

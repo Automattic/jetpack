@@ -100,11 +100,10 @@ export function collectRemoteKeys( abilities, savedGroups, view ) {
  * @return {boolean} True when everything in the card is enabled.
  */
 export function isNamespaceAllEnabled( group, savedGroups, defaultEnabled ) {
+	const keys = [ ...group.keys, ...group.abilityKeys ];
 	return (
-		group.keys.length > 0 &&
-		[ ...group.keys, ...group.abilityKeys ].every(
-			key => ( savedGroups[ key ] ?? defaultEnabled ) === true
-		) &&
+		keys.length > 0 &&
+		keys.every( key => ( savedGroups[ key ] ?? defaultEnabled ) === true ) &&
 		group.abilities.every( ability =>
 			isRemoteAbilityEnabled( savedGroups, ability.name, ability.meta?.annotations, defaultEnabled )
 		)

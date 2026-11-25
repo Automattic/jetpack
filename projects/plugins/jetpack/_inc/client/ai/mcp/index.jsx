@@ -15,7 +15,7 @@ import { Badge, Button, Card, Stack } from '@wordpress/ui';
 import { getActivityLogDescription, onActivityLogClick } from '../activity-log';
 import { isWriteTool } from './categories';
 import McpConnectCard from './connect-card';
-import { getOrdinaryTools, getOverridesToMatch, requiresOptIn } from './group-intents';
+import { getOrdinaryTools, getOverridesToMatch } from './group-intents';
 import { recordMcpTracksEvent } from './tracks';
 import {
 	getAccountMcpAbilities,
@@ -162,16 +162,12 @@ export default function McpHub( {
 	const isMcpEnabled = getSiteLevelEnabled( mcpAbilities ?? {}, blogId );
 	const merged = mergeSiteMcpAbilities( siteAccountAbilities, siteAbilities, isMcpEnabled );
 
-	const hasSiteAbilityOverrides = Object.keys( siteAbilities ).length > 0;
 	const defaultToolEnabled = mcpAbilities?.site_level_enabled_default ?? false;
 
 	const availableTools = Object.entries( merged ).filter( ( [ , t ] ) => t.visible !== false );
 	const readTools = availableTools.filter( ( [ id, t ] ) => ! isWriteTool( id, t ) );
 	const writeTools = availableTools.filter( ( [ id, t ] ) => isWriteTool( id, t ) );
 
-	const defaultBadge = defaultToolEnabled
-		? { text: __( 'All enabled', 'jetpack' ), intent: 'success' }
-		: { text: __( 'Disabled', 'jetpack' ) };
 	// Published abilities count toward the badges, so they do not say
 	// "All enabled" while a site group is off.
 	const savedRemoteGroups = getSiteRemoteGroups( mcpAbilities ?? {}, blogId );
@@ -195,24 +191,14 @@ export default function McpHub( {
 			},
 		] );
 	}
-	const readBadge =
-		hasSiteAbilityOverrides ||
-		remoteTools.read.length ||
-		readTools.some( ( [ , tool ] ) => requiresOptIn( tool ) )
-			? computeBadge( [ ...readTools, ...remoteTools.read ], defaultToolEnabled )
-			: defaultBadge;
-	const writeBadge =
-		hasSiteAbilityOverrides ||
-		remoteTools.write.length ||
-		writeTools.some( ( [ , tool ] ) => requiresOptIn( tool ) )
-			? computeBadge( [ ...writeTools, ...remoteTools.write ], defaultToolEnabled )
-			: defaultBadge;
+	const readBadge = computeBadge( [ ...readTools, ...remoteTools.read ], defaultToolEnabled );
+	const writeBadge = computeBadge( [ ...writeTools, ...remoteTools.write ], defaultToolEnabled );
 
 	const handleMcpToggle = useCallback(
 		( enabled, source = 'toggle' ) => {
 			recordMcpTracksEvent( 'jetpack_mcp_enabled_toggled', { enabled, source } );
 			const abilities = enabled
-				? ( getOverridesToMatch( getOrdinaryTools( availableTools ), true ) ?? {} )
+				? ( getOverridesToMatch( getOrdinaryTools( readTools ), true ) ?? {} )
 				: {};
 			onUpdate( {
 				sites: [
@@ -224,7 +210,7 @@ export default function McpHub( {
 				],
 			} );
 		},
-		[ blogId, onUpdate, availableTools ]
+		[ blogId, onUpdate, readTools ]
 	);
 
 	const handleTurnOn = useCallback(

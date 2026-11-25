@@ -175,7 +175,11 @@ describe.each( [
 						{
 							blog_id: 1,
 							site_level_enabled: true,
-							abilities: { ordinary_a: ordinary[ 0 ], ordinary_b: ordinary[ 1 ] },
+							abilities: {
+								ordinary_a: ordinary[ 0 ],
+								ordinary_b: ordinary[ 1 ],
+								opt_in: optInEnabled,
+							},
 						},
 					],
 				},
@@ -265,5 +269,33 @@ describe( 'page-level Enable all', () => {
 			/>
 		);
 		expect( screen.getAllByRole( 'switch', { name: 'Enable all' } )[ 0 ] ).not.toBeChecked();
+	} );
+
+	test( 'can turn off saved site-published tools when all WordPress.com tools are locked', async () => {
+		render(
+			<McpRead
+				mcpAbilities={ {
+					account: { opt_in: { readonly: true, requires_opt_in: true } },
+					sites: [
+						{
+							blog_id: 1,
+							site_level_enabled: true,
+							remote_groups: { 'read:akismet/get-stats': true },
+						},
+					],
+				} }
+				blogId={ 1 }
+				savingToolIds={ new Set() }
+				onUpdate={ onUpdate }
+				remoteAbilities={ { abilities: [], isLoading: false, isError: true } }
+			/>
+		);
+
+		const pageToggle = screen.getAllByRole( 'switch', { name: 'Enable all' } )[ 0 ];
+		expect( pageToggle ).toBeChecked();
+		await userEvent.click( pageToggle );
+		expect( onUpdate ).toHaveBeenCalledWith( {
+			sites: [ { blog_id: 1, remote_groups: { 'read:akismet/get-stats': false } } ],
+		} );
 	} );
 } );

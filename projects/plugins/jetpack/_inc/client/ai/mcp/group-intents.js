@@ -46,8 +46,7 @@ export function requiresOptIn( tool ) {
 }
 
 /**
- * The tools a bulk switch acts on. Opt-in tools sit in their own section, see
- * groupToolsByGroup(), and only change through their own switches.
+ * The tools a bulk switch acts on. Opt-in tools only change through their own switches.
  *
  * @param {Array<[string, object]>} tools - Tools, each as [toolId, ability].
  * @return {Array<[string, object]>} The tools that don't require opt-in.

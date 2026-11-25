@@ -8,6 +8,7 @@ jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { 
 const mcpAbilities = siteLevelEnabled => ( {
 	account: {
 		some_tool: { title: 'Some tool', enabled: true, readonly: true },
+		write_tool: { title: 'Write tool', enabled: false, readonly: false },
 		opt_in_tool: { enabled: false, requires_opt_in: true },
 		hidden_tool: { enabled: false, visible: false },
 	},
@@ -28,15 +29,13 @@ const renderHub = ( { siteLevelEnabled = true, activityLogFiltered = false } = {
 	);
 
 describe( 'McpHub connect card', () => {
-	test( 'summary badges count opt-in tools using their saved enabled state', () => {
+	test( 'summary badge uses the site fallback for an opt-in tool with no override', () => {
 		render(
 			<McpHub
 				mcpAbilities={ {
 					account: {
 						read: { readonly: true, enabled: true },
 						read_opt_in: { readonly: true, enabled: false, requires_opt_in: true },
-						write: { readonly: false, enabled: true },
-						write_opt_in: { readonly: false, enabled: false, requires_opt_in: true },
 					},
 					site_level_enabled_default: true,
 				} }
@@ -47,8 +46,7 @@ describe( 'McpHub connect card', () => {
 			/>
 		);
 
-		expect( screen.getByRole( 'button', { name: /Read/ } ) ).toHaveTextContent( '1 of 2 enabled' );
-		expect( screen.getByRole( 'button', { name: /Write/ } ) ).toHaveTextContent( '1 of 2 enabled' );
+		expect( screen.getByRole( 'button', { name: /Read/ } ) ).toHaveTextContent( 'All enabled' );
 	} );
 
 	test( 'sits above the access card, and replaces the setup row', () => {

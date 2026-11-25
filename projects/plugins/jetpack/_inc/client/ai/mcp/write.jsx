@@ -18,7 +18,7 @@ import { Stack } from '@wordpress/ui';
 import { getGroupDomId } from './anchors';
 import { isWriteTool } from './categories';
 import { getOrdinaryTools, getOverridesToMatch } from './group-intents';
-import { OPT_IN_GROUP_NAME, groupToolsByGroup } from './groups';
+import { groupToolsByGroup } from './groups';
 import McpGroupCard, { McpToolSections } from './mcp-group-card';
 import McpToolbar from './mcp-toolbar';
 import RemoteAbilitiesSection, {
@@ -29,6 +29,7 @@ import { recordMcpTracksEvent } from './tracks';
 import useToolSearch from './use-tool-search';
 import {
 	getAccountMcpAbilities,
+	getBulkToggleDescription,
 	getGroupDescriptors,
 	getRemoteAbilitiesDefaultEnabled,
 	getSiteContextToolIds,
@@ -82,7 +83,11 @@ export default function McpWrite( {
 	const groups = groupToolsByGroup( writeTools, groupDescriptors );
 
 	const visibleGroups = groups
-		.map( g => ( { ...g, visibleTools: g.tools.filter( isVisible ) } ) )
+		.map( g => ( {
+			...g,
+			visibleTools: g.tools.filter( isVisible ),
+			bulkTools: getOrdinaryTools( g.tools ),
+		} ) )
 		.filter( g => g.visibleTools.length > 0 );
 
 	const handleToolChange = useCallback(
@@ -105,24 +110,21 @@ export default function McpWrite( {
 	);
 
 	const remoteDefaultEnabled = getRemoteAbilitiesDefaultEnabled( writeTools );
+	const publishedAbilities = remoteAbilities?.abilities ?? [];
+	const savedRemoteGroups = getSiteRemoteGroups( mcpAbilities, blogId );
+	const remoteKeys = collectRemoteKeys( publishedAbilities, savedRemoteGroups, 'write' );
+	const hasBulkTools = ordinaryTools.length > 0 || ( remoteAbilities && remoteKeys.length > 0 );
 	const pageAllEnabled =
-		remoteDefaultEnabled &&
-		areRemoteGroupsEnabled(
-			remoteAbilities?.abilities ?? [],
-			getSiteRemoteGroups( mcpAbilities, blogId ),
-			'write',
-			remoteDefaultEnabled
-		);
-	const isSavingAny = writeTools.some( ( [ id ] ) => savingToolIds.has( id ) );
+		hasBulkTools &&
+		( ordinaryTools.length === 0 || remoteDefaultEnabled ) &&
+		areRemoteGroupsEnabled( publishedAbilities, savedRemoteGroups, 'write', remoteDefaultEnabled );
+	const isSavingAny =
+		writeTools.some( ( [ id ] ) => savingToolIds.has( id ) ) ||
+		remoteKeys.some( key => savingToolIds.has( key ) );
 
 	const handlePageToggle = useCallback(
 		enabled => {
 			const overrides = getOverridesToMatch( ordinaryTools, enabled );
-			const remoteKeys = collectRemoteKeys(
-				remoteAbilities?.abilities ?? [],
-				getSiteRemoteGroups( mcpAbilities, blogId ),
-				'write'
-			);
 			if ( ! overrides && remoteKeys.length === 0 ) {
 				return;
 			}
@@ -143,7 +145,7 @@ export default function McpWrite( {
 				],
 			} );
 		},
-		[ blogId, ordinaryTools, mcpAbilities, remoteAbilities, onUpdate ]
+		[ blogId, ordinaryTools, remoteKeys, onUpdate ]
 	);
 
 	const handleGroupEnableAll = useCallback(
@@ -174,7 +176,8 @@ export default function McpWrite( {
 		<Stack direction="column" gap="md">
 			<McpToolbar
 				allEnabled={ pageAllEnabled }
-				isDisabled={ isSavingAny || ordinaryTools.length === 0 }
+				isDisabled={ isSavingAny || ! hasBulkTools }
+				bulkDescription={ getBulkToggleDescription( writeTools.length - ordinaryTools.length ) }
 				onEnableAll={ handlePageToggle }
 			>
 				<SearchControl
@@ -188,7 +191,7 @@ export default function McpWrite( {
 			{ visibleGroups.length > 0 ? (
 				<Stack direction="column" gap="md">
 					{ visibleGroups.map(
-						( { group: descriptor, label, tools: groupTools, visibleTools } ) => (
+						( { group: descriptor, label, tools: groupTools, visibleTools, bulkTools } ) => (
 							<McpGroupCard
 								key={ descriptor?.name ?? '__other__' }
 								id={ getGroupDomId( descriptor?.name ) }
@@ -196,12 +199,11 @@ export default function McpWrite( {
 								anchorToolId={ groupTools.some( ( [ id ] ) => id === anchor ) ? anchor : null }
 								label={ label }
 								description={ descriptor?.description }
-								allEnabled={ groupTools.every( ( [ , t ] ) => t.enabled ) }
+								allEnabled={ bulkTools.every( ( [ , t ] ) => t.enabled ) }
 								isSaving={ groupTools.some( ( [ id ] ) => savingToolIds.has( id ) ) }
-								group={ { name: descriptor?.name ?? null, tools: groupTools } }
-								onEnableAll={
-									descriptor?.name === OPT_IN_GROUP_NAME ? undefined : handleGroupEnableAll
-								}
+								group={ { name: descriptor?.name ?? null, tools: bulkTools } }
+								bulkDescription={ getBulkToggleDescription( groupTools.length - bulkTools.length ) }
+								onEnableAll={ bulkTools.length ? handleGroupEnableAll : undefined }
 							>
 								<McpToolSections
 									tools={ visibleTools }

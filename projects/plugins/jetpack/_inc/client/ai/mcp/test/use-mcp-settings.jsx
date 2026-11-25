@@ -96,12 +96,12 @@ describe( 'useMcpSettings with the native WordPress.com API', () => {
 	} );
 
 	test.each( [
-		{ siteEnabled: true, backendEnabled: false, overrides: {}, expected: false },
-		{ siteEnabled: false, backendEnabled: true, overrides: {}, expected: true },
+		{ siteEnabled: true, backendEnabled: false, overrides: {}, expected: true },
+		{ siteEnabled: false, backendEnabled: true, overrides: {}, expected: false },
 		{ siteEnabled: true, backendEnabled: false, overrides: { opt_in: true }, expected: true },
 		{ siteEnabled: true, backendEnabled: true, overrides: { opt_in: false }, expected: false },
 	] )(
-		'preserves opt-in state from the native response unless explicitly overridden: %j',
+		'uses the site fallback for opt-in tools unless explicitly overridden: %j',
 		( { siteEnabled, backendEnabled, overrides, expected } ) => {
 			const { mcp_abilities: settings } = normalizeWpcomMcpSettings(
 				{

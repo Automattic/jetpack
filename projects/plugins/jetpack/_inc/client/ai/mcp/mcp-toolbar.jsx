@@ -8,14 +8,21 @@ import { Card, Stack, SwitchControl, Text } from '@wordpress/ui';
 /**
  * Intro text and a page-wide "Enable all" toggle.
  *
- * @param {object}   props             - Component props.
- * @param {boolean}  props.allEnabled  - Whether every tool on the page is on.
- * @param {boolean}  props.isDisabled  - Disables the toggle.
- * @param {Function} props.onEnableAll - Called with the new enabled state.
- * @param {object}   [props.children]  - Extra controls below the toggle, e.g. search.
+ * @param {object}   props                   - Component props.
+ * @param {boolean}  props.allEnabled        - Whether every tool on the page is on.
+ * @param {boolean}  props.isDisabled        - Disables the toggle.
+ * @param {string}   [props.bulkDescription] - Explanation of which tools the toggle skips.
+ * @param {Function} props.onEnableAll       - Called with the new enabled state.
+ * @param {object}   [props.children]        - Extra controls below the toggle, e.g. search.
  * @return {object} Component markup.
  */
-export default function McpToolbar( { allEnabled, isDisabled, onEnableAll, children } ) {
+export default function McpToolbar( {
+	allEnabled,
+	isDisabled,
+	bulkDescription,
+	onEnableAll,
+	children,
+} ) {
 	return (
 		<div className="jetpack-ai-mcp__toolbar">
 			<Card.Root>
@@ -28,6 +35,7 @@ export default function McpToolbar( { allEnabled, isDisabled, onEnableAll, child
 							checked={ allEnabled }
 							disabled={ isDisabled }
 							label={ __( 'Enable all', 'jetpack' ) }
+							description={ bulkDescription }
 							onCheckedChange={ onEnableAll }
 						/>
 						{ children }

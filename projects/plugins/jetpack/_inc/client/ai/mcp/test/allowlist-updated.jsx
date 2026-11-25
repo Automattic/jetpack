@@ -96,39 +96,43 @@ describe.each( [
 		const onUpdate = jest.fn();
 		const settings = ( enabled, optInEnabled = enabled ) => ( {
 			account: {
-				ordinary: { title: 'Ordinary tool', readonly, enabled },
+				ordinary: { title: 'Ordinary tool', readonly, enabled, group: 'site' },
 				opt_in: {
 					title: 'Opt-in tool',
 					readonly,
 					enabled: optInEnabled,
 					requires_opt_in: true,
+					group: 'site',
 				},
 			},
-			sites: [ { blog_id: BLOG_ID, site_level_enabled: enabled } ],
+			groups: [ { name: 'site', label: 'Site' } ],
+			sites: [
+				{ blog_id: BLOG_ID, site_level_enabled: enabled, abilities: { opt_in: optInEnabled } },
+			],
 		} );
 		const props = { blogId: BLOG_ID, savingToolIds: new Set(), onUpdate };
 		const { rerender } = render( <Component { ...props } mcpAbilities={ settings( false ) } /> );
 
-		await userEvent.click( screen.getAllByRole( 'switch', { name: 'Enable all' } )[ toggleIndex ] );
+		const bulkSwitch = () => screen.getAllByRole( 'switch', { name: 'Enable all' } )[ toggleIndex ];
+		expect( bulkSwitch() ).toHaveAccessibleDescription(
+			'Skips 1 locked tool. Turn it on or off individually.'
+		);
+		await userEvent.click( bulkSwitch() );
 		expect( onUpdate ).toHaveBeenLastCalledWith( {
 			sites: [ { blog_id: BLOG_ID, abilities: { ordinary: true } } ],
 		} );
 
 		rerender( <Component { ...props } mcpAbilities={ settings( true, false ) } /> );
-		expect( screen.getAllByRole( 'switch', { name: 'Enable all' } )[ toggleIndex ] ).toBeChecked();
-		await userEvent.click( screen.getAllByRole( 'switch', { name: 'Enable all' } )[ toggleIndex ] );
-		expect( onUpdate ).toHaveBeenLastCalledWith( {
-			sites: [ { blog_id: BLOG_ID, abilities: { ordinary: false } } ],
-		} );
+		expect( bulkSwitch() ).toBeChecked();
 
 		rerender( <Component { ...props } mcpAbilities={ settings( true ) } /> );
-		await userEvent.click( screen.getAllByRole( 'switch', { name: 'Enable all' } )[ toggleIndex ] );
+		await userEvent.click( bulkSwitch() );
 		expect( onUpdate ).toHaveBeenLastCalledWith( {
 			sites: [ { blog_id: BLOG_ID, abilities: { ordinary: false } } ],
 		} );
 	} );
 
-	test( 'opt-in tools get their own section without "Enable all"', async () => {
+	test( 'an opt-in-only group keeps its label and individual switch', async () => {
 		const onUpdate = jest.fn();
 		render(
 			<Component
@@ -137,9 +141,16 @@ describe.each( [
 				onUpdate={ onUpdate }
 				mcpAbilities={ {
 					account: {
-						opt_in: { title: 'Opt-in tool', readonly, enabled: false, requires_opt_in: true },
+						opt_in: {
+							title: 'Opt-in tool',
+							readonly,
+							enabled: false,
+							requires_opt_in: true,
+							group: 'site',
+						},
 					},
-					sites: [ { blog_id: BLOG_ID, site_level_enabled: true } ],
+					groups: [ { name: 'site', label: 'Site' } ],
+					sites: [ { blog_id: BLOG_ID, site_level_enabled: true, abilities: { opt_in: false } } ],
 				} }
 			/>
 		);
@@ -149,9 +160,14 @@ describe.each( [
 			'aria-disabled',
 			'true'
 		);
-		expect( screen.getByText( 'Requires individual approval' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Site' ) ).toBeInTheDocument();
 		await userEvent.click( screen.getByRole( 'button', { name: 'Show operations' } ) );
-		await userEvent.click( screen.getByRole( 'switch', { name: 'Opt-in tool' } ) );
+		expect( screen.getByText( 'Turn on individually' ) ).toBeVisible();
+		const toolSwitch = screen.getByRole( 'switch', { name: 'Opt-in tool' } );
+		expect( toolSwitch ).toHaveAccessibleDescription(
+			'Enable all skips this tool. Turn it on or off individually.'
+		);
+		await userEvent.click( toolSwitch );
 		expect( onUpdate ).toHaveBeenCalledWith( {
 			sites: [ { blog_id: BLOG_ID, abilities: { opt_in: true } } ],
 		} );
