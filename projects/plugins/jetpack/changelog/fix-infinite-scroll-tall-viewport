@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Infinite Scroll: Keep loading posts until a tall window is filled.
