@@ -142,16 +142,17 @@ function numberedRows( count: number ): NumberedRow[] {
 }
 
 describe( 'ReportRecordsTable paging', () => {
-	it( 'lists every row on one page with no page size menu', async () => {
+	it( 'mounts one scroll batch of a long report, with no pager or page size menu', async () => {
 		render(
 			<ReportRecordsTable< NumberedRow >
-				data={ numberedRows( 25 ) }
+				data={ numberedRows( 120 ) }
 				fields={ NUMBERED_FIELDS }
 				getItemId={ item => item.id }
 			/>
 		);
 
-		expect( screen.getByText( 'Row 25' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Row 50' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Row 51' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: /next page/i } ) ).not.toBeInTheDocument();
 
 		await userEvent.setup().click( screen.getByRole( 'button', { name: 'View options' } ) );
@@ -163,35 +164,39 @@ describe( 'ReportRecordsTable paging', () => {
 type TableProps = { isLoading?: boolean; isFetching?: boolean };
 
 // Each table wires its own empty-state and revalidation guards, so both run the same cases.
-const TABLES: [ string, ( data: Row[], props?: TableProps ) => ReactElement ][] = [
+// The records table is a `feed` under DataViews' infinite scroll; the drilldown stays a `table`.
+const TABLES: [ string, 'feed' | 'table', ( data: Row[], props?: TableProps ) => ReactElement ][] =
 	[
-		'ReportRecordsTable',
-		( data, props ) => (
-			<ReportRecordsTable< Row >
-				data={ data }
-				fields={ fields }
-				getItemId={ item => item.id }
-				initialView={ INITIAL_VIEW }
-				{ ...props }
-			/>
-		),
-	],
-	[
-		'ReportDrilldownTable',
-		( data, props ) => (
-			<ReportDrilldownTable< Row >
-				data={ data }
-				fields={ fields }
-				getItemId={ item => item.id }
-				getItemParentId={ () => null }
-				initialView={ INITIAL_VIEW }
-				{ ...props }
-			/>
-		),
-	],
-];
+		[
+			'ReportRecordsTable',
+			'feed',
+			( data, props ) => (
+				<ReportRecordsTable< Row >
+					data={ data }
+					fields={ fields }
+					getItemId={ item => item.id }
+					initialView={ INITIAL_VIEW }
+					{ ...props }
+				/>
+			),
+		],
+		[
+			'ReportDrilldownTable',
+			'table',
+			( data, props ) => (
+				<ReportDrilldownTable< Row >
+					data={ data }
+					fields={ fields }
+					getItemId={ item => item.id }
+					getItemParentId={ () => null }
+					initialView={ INITIAL_VIEW }
+					{ ...props }
+				/>
+			),
+		],
+	];
 
-describe.each( TABLES )( '%s with no rows', ( _name, table ) => {
+describe.each( TABLES )( '%s with no rows', ( _name, role, table ) => {
 	it( 'replaces the table with the empty state when the report has no rows', () => {
 		render( table( [] ) );
 
@@ -225,7 +230,7 @@ describe.each( TABLES )( '%s with no rows', ( _name, table ) => {
 		rerender( table( rows, { isFetching: true } ) );
 
 		expect( screen.getByText( 'Maharashtra' ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'table' ) ).toHaveAttribute( 'aria-busy', 'true' );
+		expect( screen.getByRole( role ) ).toHaveAttribute( 'aria-busy', 'true' );
 	} );
 } );
 

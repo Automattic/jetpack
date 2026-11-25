@@ -155,7 +155,7 @@ describe( 'usePostThumbnails', () => {
 			_fields: 'id,featured_media',
 		} );
 		expect( getEntityRecords ).toHaveBeenCalledWith( 'postType', 'attachment', {
-			include: [ 11, 12 ],
+			include: [ 12, 11 ],
 			per_page: 2,
 			context: 'view',
 			_fields: 'id,source_url,media_details',
@@ -209,6 +209,42 @@ describe( 'usePostThumbnails', () => {
 			expect( batchCounts ).toEqual( expectedBatches );
 		}
 	);
+
+	it( 'keeps the queries it already made when more rows are appended', () => {
+		const records: Record< string, unknown[] > = { post: [], attachment: [] };
+		for ( let id = 1; id <= 300; id++ ) {
+			records.post.push( { id, featured_media: 1000 + id } );
+			records.attachment.push( { id: 1000 + id, source_url: `https://example.com/${ id }.jpg` } );
+		}
+		mockEntityRecords( records );
+		// Ids interleave, so sorting them would move every batch boundary once rows are appended.
+		const firstRows = Array.from( { length: 150 }, ( _, index ) => ( {
+			id: 2 * ( index + 1 ),
+			type: 'post',
+		} ) );
+		const appendedRows = Array.from( { length: 100 }, ( _, index ) => ( {
+			id: 2 * index + 1,
+			type: 'post',
+		} ) );
+		const postQueries = () =>
+			new Set(
+				getEntityRecords.mock.calls
+					.filter( ( [ , name ] ) => name === 'post' )
+					.map( ( [ , , query ] ) => String( query.include ) )
+			);
+
+		const { rerender } = renderHook(
+			( rows: { id: number; type: string }[] ) => usePostThumbnails( rows ),
+			{
+				initialProps: firstRows,
+			}
+		);
+		const [ firstBatch ] = postQueries();
+		getEntityRecords.mockClear();
+		rerender( [ ...firstRows, ...appendedRows ] );
+
+		expect( postQueries() ).toContain( firstBatch );
+	} );
 
 	it( 'makes no entity requests without eligible rows', () => {
 		mockEntityRecords( {} );

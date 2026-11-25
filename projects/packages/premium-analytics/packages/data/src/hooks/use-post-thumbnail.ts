@@ -125,8 +125,10 @@ export function usePostThumbnails( rows: PostThumbnailSource[] ): PostThumbnailU
 			grouped.set( row.type, ids );
 		}
 
+		// Batched in row order, not sorted: a list that grows by appending keeps its earlier
+		// queries, which core-data has already resolved.
 		return Array.from( grouped ).flatMap( ( [ type, ids ] ) =>
-			toBatches( Array.from( ids ).sort( ( a, b ) => a - b ) ).map( include => ( {
+			toBatches( Array.from( ids ) ).map( include => ( {
 				type,
 				query: {
 					include,
@@ -175,7 +177,7 @@ export function usePostThumbnails( rows: PostThumbnailSource[] ): PostThumbnailU
 									.map( post => post.featured_media )
 									.filter( ( id ): id is number => typeof id === 'number' && id > 0 )
 							)
-						).sort( ( a, b ) => a - b )
+						)
 					)
 				: [],
 		[ havePostQueriesResolved, postRecords ]

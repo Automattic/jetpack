@@ -4,7 +4,16 @@
 import { DataViews, filterSortAndPaginate } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import {
+	createContext,
+	useCallback,
+	useContext,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 /**
  * Internal dependencies
  */
@@ -28,6 +37,11 @@ type GetItemIdBaseProps< Item > = ViewBaseProps< Item >[ 'getItemId' ];
 type GetItemLevelBaseProps< Item > = ViewBaseProps< Item >[ 'getItemLevel' ];
 
 const NO_PER_PAGE_SIZES: number[] = [];
+
+// Folding shifts every later row's position, which DataViews' infinite scroll cannot follow,
+// so this table mounts a growing prefix of its rows instead of a scroll window.
+const ROW_BATCH_SIZE = 50;
+const GROW_THRESHOLD_PX = 600;
 const NO_IDS: ReadonlySet< string > = new Set();
 
 type CollapseContextValue = {
@@ -179,6 +193,16 @@ export function DataViewsDrilldownNative< Item >( {
 		} as View;
 	} );
 
+	const [ rowLimit, setRowLimit ] = useState( ROW_BATCH_SIZE );
+	const [ rowLimitScope, setRowLimitScope ] = useState( { data, view } );
+	const shouldResetRowLimit = rowLimitScope.data !== data || rowLimitScope.view !== view;
+	if ( shouldResetRowLimit ) {
+		setRowLimitScope( { data, view } );
+		setRowLimit( ROW_BATCH_SIZE );
+	}
+	const rootRef = useRef< HTMLDivElement >( null );
+	const rowCountRef = useRef( 0 );
+
 	// Rows toggled away from `defaultExpanded`, not the expanded ids: rows
 	// arriving later (async load, filter change) follow the default instead.
 	const [ toggledIds, setToggledIds ] = useState< ReadonlySet< string > >( () => new Set() );
@@ -250,6 +274,36 @@ export function DataViewsDrilldownNative< Item >( {
 		toggledIds,
 	] );
 
+	rowCountRef.current = rows.length;
+	const mountedRows = useMemo( () => rows.slice( 0, rowLimit ), [ rows, rowLimit ] );
+
+	useEffect( () => {
+		const root = rootRef.current;
+		if ( ! root ) {
+			return;
+		}
+		// Scroll does not bubble, so listen in the capture phase for the DataViews container's own.
+		const handleScroll = ( event: Event ) => {
+			const container = event.target as HTMLElement;
+			if (
+				container.classList?.contains( 'dataviews-layout__container' ) &&
+				container.scrollTop + container.clientHeight >= container.scrollHeight - GROW_THRESHOLD_PX
+			) {
+				setRowLimit( limit => Math.min( limit + ROW_BATCH_SIZE, rowCountRef.current ) );
+			}
+		};
+		root.addEventListener( 'scroll', handleScroll, true );
+		return () => root.removeEventListener( 'scroll', handleScroll, true );
+	}, [] );
+
+	// A new data set or view starts over from the first row, scrolled back to the top.
+	useLayoutEffect( () => {
+		const container = rootRef.current?.querySelector( '.dataviews-layout__container' );
+		if ( container ) {
+			container.scrollTop = 0;
+		}
+	}, [ rowLimitScope ] );
+
 	const handleToggle = useCallback( ( id: string ) => {
 		setToggledIds( current => {
 			const next = new Set( current );
@@ -307,12 +361,15 @@ export function DataViewsDrilldownNative< Item >( {
 
 	return (
 		<CollapseContext.Provider value={ collapseContextValue }>
-			<div className={ clsx( styles.root, hideLevelMarkers && styles.hideLevelMarkers ) }>
+			<div
+				ref={ rootRef }
+				className={ clsx( styles.root, hideLevelMarkers && styles.hideLevelMarkers ) }
+			>
 				<GenericDataViews< Item >
 					view={ view }
 					onChangeView={ handleChangeView }
 					fields={ displayFields }
-					data={ rows }
+					data={ mountedRows }
 					getItemId={ getItemId }
 					getItemLevel={ getItemLevel }
 					actions={ actions }

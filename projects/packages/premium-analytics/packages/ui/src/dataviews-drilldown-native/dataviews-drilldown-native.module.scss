@@ -17,6 +17,12 @@
 	height: auto;
 }
 
+/* Rows grow as this container scrolls, so it must scroll on its own
+ * rather than with the page. */
+.root :global(.dataviews-layout__container) {
+	max-block-size: max(20rem, calc(100dvh - 16rem));
+}
+
 /* The one optional override: DataViews renders levels as an unstyled em-dash
  * marker span ("— — "). Hiding it keeps its layout box, so the title content
  * stays indented by depth with plain whitespace. */

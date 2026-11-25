@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DataViewsDrilldownNative } from '../dataviews-drilldown-native';
 import type { DataViewsDrilldownNativeProps } from '../dataviews-drilldown-native';
@@ -234,10 +234,10 @@ function flatRows( count: number ): Row[] {
 }
 
 describe( 'DataViewsDrilldownNative paging', () => {
-	it( 'lists every row on one page with no page size menu', async () => {
+	it( 'mounts more rows as the table scrolls, with no pager or page size menu', async () => {
 		render(
 			<DataViewsDrilldownNative< Row >
-				data={ flatRows( 25 ) }
+				data={ flatRows( 120 ) }
 				fields={ fields }
 				getItemId={ item => item.id }
 				getItemParentId={ item => item.parentId }
@@ -245,8 +245,15 @@ describe( 'DataViewsDrilldownNative paging', () => {
 			/>
 		);
 
-		expect( screen.getByText( 'Row 25' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Row 50' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Row 51' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Next page' } ) ).not.toBeInTheDocument();
+
+		// jsdom lays nothing out, so any scroll of the container reads as reaching its end.
+		// eslint-disable-next-line testing-library/no-node-access -- the scroll container has no role.
+		fireEvent.scroll( screen.getByText( 'Row 50' ).closest( '.dataviews-layout__container' )! );
+		await expect( screen.findByText( 'Row 100' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Row 101' ) ).not.toBeInTheDocument();
 
 		await userEvent.setup().click( screen.getByRole( 'button', { name: 'View options' } ) );
 		await expect( screen.findByText( 'Sort by' ) ).resolves.toBeInTheDocument();

@@ -12,7 +12,7 @@ import { page as pageIcon, post as postIcon } from '@wordpress/icons';
  * Internal dependencies
  */
 import { setMockRouteSearch } from '../../../../tests/js/route-test-utils';
-import { getArchivesFields, getPostsFields } from './fields';
+import { getArchivesFields, getPostsFields, usePostTitleLinks } from './fields';
 import type { ArchiveRow } from '@jetpack-premium-analytics/widgets-toolkit';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
@@ -43,6 +43,8 @@ function glyphPath( root: Element ) {
 
 const mockUseSiteHomeUrl = useSiteHomeUrl as jest.MockedFunction< typeof useSiteHomeUrl >;
 
+const NO_TITLE_LINKS = { detailSearch: {} };
+
 const homepage: StatsTopPostsComparisonItem = {
 	id: 0,
 	label: 'Homepage (Latest posts)',
@@ -64,17 +66,26 @@ function renderPostsField(
 	item: StatsTopPostsComparisonItem,
 	thumbnailUrls: PostThumbnailUrls = {}
 ) {
-	const field = getPostsFields( false, 'posts-pages', thumbnailUrls ).find(
-		candidate => candidate.id === fieldId
-	);
-	// eslint-disable-next-line testing-library/render-result-naming-convention -- `render` here is the DataViews field render component, not RTL's render result.
-	const FieldRender = field?.render;
+	/**
+	 * Resolve the title links the way the report page does, then render the cell.
+	 *
+	 * @return The field cell.
+	 */
+	function PostsFieldCell() {
+		const field = getPostsFields( false, usePostTitleLinks( 'posts-pages' ), thumbnailUrls ).find(
+			candidate => candidate.id === fieldId
+		);
+		// eslint-disable-next-line testing-library/render-result-naming-convention -- `render` here is the DataViews field render component, not RTL's render result.
+		const FieldRender = field?.render;
 
-	if ( ! field || ! FieldRender ) {
-		throw new Error( `Posts ${ fieldId } field render callback is unavailable` );
+		if ( ! field || ! FieldRender ) {
+			throw new Error( `Posts ${ fieldId } field render callback is unavailable` );
+		}
+
+		return <FieldRender item={ item } field={ field as never } />;
 	}
 
-	return render( <FieldRender item={ item } field={ field as never } /> );
+	return render( <PostsFieldCell /> );
 }
 
 /**
@@ -103,7 +114,7 @@ function renderArchiveTitleField( item: ArchiveRow ) {
  * @return The Testing Library render result.
  */
 function renderPostViewsField( item: StatsTopPostsComparisonItem, withComparison = false ) {
-	const field = getPostsFields( withComparison, 'posts-pages' ).find(
+	const field = getPostsFields( withComparison, NO_TITLE_LINKS ).find(
 		candidate => candidate.id === 'views'
 	);
 	// eslint-disable-next-line testing-library/render-result-naming-convention -- `render` here is the DataViews field render component, not RTL's render result.

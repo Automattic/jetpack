@@ -9,7 +9,7 @@ import {
 	type SupportedLayouts,
 	type View,
 } from '@jetpack-premium-analytics/externals';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -21,6 +21,9 @@ import { useTableRevalidating } from './use-table-revalidating';
 import type { ComponentProps, ReactElement } from 'react';
 
 const NO_PER_PAGE_SIZES: number[] = [];
+
+// Rows per infinite-scroll batch; DataViews keeps only the rows near the viewport mounted.
+const REPORT_TABLE_BATCH_SIZE = 50;
 
 /**
  * `DataViews`' own `getItemId` prop is conditionally optional on `Item` having
@@ -75,7 +78,7 @@ export interface ReportRecordsTableProps< Item > {
 	 * request stays scoped by a filter the table no longer shows.
 	 */
 	onChangeView?: ( view: View ) => void;
-	/** Called with the rows the table shows after client-side view processing. */
+	/** Called with the rows the table has mounted, in display order. */
 	onChangePageItems?: ( items: Item[] ) => void;
 	/** Whether a record's primary field should render as an interactive link. */
 	isItemClickable?: ( item: Item ) => boolean;
@@ -137,25 +140,85 @@ export function ReportRecordsTable< Item >( {
 							].includes( id )
 					),
 				...initialView,
+				perPage: REPORT_TABLE_BATCH_SIZE,
+				infiniteScrollEnabled: true,
 			} ) as View
 	);
+	// Kept out of `view` so scrolling does not re-sort the rows.
+	const [ startPosition, setStartPosition ] = useState( 1 );
+	// The table layout never unloads rows, so everything up to the furthest batch stays mounted.
+	const [ furthestStart, setFurthestStart ] = useState( 1 );
+	// DataViews places accumulated rows by position and resets them only on a new search, filter or
+	// page size, so a new sort or data set remounts it instead.
+	const [ generation, setGeneration ] = useState( 0 );
+	const [ generationData, setGenerationData ] = useState( data );
+	if ( data !== generationData ) {
+		setGenerationData( data );
+		setGeneration( current => current + 1 );
+		setStartPosition( 1 );
+		setFurthestStart( 1 );
+	}
+	const rootRef = useRef< HTMLDivElement >( null );
+	const restoreFocusRef = useRef( false );
 
 	const handleChangeView = useCallback(
 		( nextView: View ) => {
-			setView( nextView );
+			const { startPosition: nextStartPosition = 1, ...nextRest } = nextView;
+			const isScrollOnly =
+				Object.keys( nextRest ).length === Object.keys( view ).length &&
+				Object.entries( nextRest ).every(
+					( [ key, value ] ) => view[ key as keyof View ] === value
+				);
+
+			if ( isScrollOnly ) {
+				setStartPosition( nextStartPosition );
+				setFurthestStart( current => Math.max( current, nextStartPosition ) );
+				return;
+			}
+
+			if ( nextRest.sort !== view.sort ) {
+				setGeneration( current => current + 1 );
+				restoreFocusRef.current = true;
+			}
+			setView( nextRest as View );
+			setStartPosition( 1 );
+			setFurthestStart( 1 );
 			onChangeView?.( nextView );
 		},
-		[ onChangeView ]
+		[ onChangeView, view ]
 	);
 
-	const { data: pageItems, paginationInfo } = useMemo(
-		() => filterSortAndPaginate( data, view, fields ),
+	// The remount drops the sort menu's trigger, so park focus on the table rather than `<body>`.
+	useLayoutEffect( () => {
+		if ( restoreFocusRef.current ) {
+			restoreFocusRef.current = false;
+			rootRef.current?.focus();
+		}
+	}, [ generation ] );
+
+	const { data: orderedItems, paginationInfo } = useMemo(
+		() =>
+			filterSortAndPaginate(
+				data,
+				{ ...view, page: undefined, perPage: undefined, infiniteScrollEnabled: false },
+				fields
+			),
 		[ data, view, fields ]
 	);
+	const batchStart = startPosition - 1;
+	const batchItems = useMemo(
+		() => orderedItems.slice( batchStart, batchStart + REPORT_TABLE_BATCH_SIZE ),
+		[ orderedItems, batchStart ]
+	);
+	const mountedItems = useMemo(
+		() => orderedItems.slice( 0, furthestStart - 1 + REPORT_TABLE_BATCH_SIZE ),
+		[ orderedItems, furthestStart ]
+	);
+	const dataViewsView = useMemo( () => ( { ...view, startPosition } ), [ view, startPosition ] );
 
 	useEffect( () => {
-		onChangePageItems?.( pageItems );
-	}, [ onChangePageItems, pageItems ] );
+		onChangePageItems?.( mountedItems );
+	}, [ onChangePageItems, mountedItems ] );
 
 	const isRevalidating = useTableRevalidating( isFetching );
 
@@ -166,21 +229,24 @@ export function ReportRecordsTable< Item >( {
 
 	return (
 		<ReportPageSection className={ styles.root }>
-			<GenericDataViews< Item >
-				view={ view }
-				onChangeView={ handleChangeView }
-				fields={ fields }
-				data={ pageItems }
-				getItemId={ getItemId }
-				isLoading={ isLoading || isRevalidating }
-				paginationInfo={ paginationInfo }
-				defaultLayouts={ { table: {} } }
-				actions={ actions }
-				searchLabel={ searchLabel }
-				config={ { perPageSizes: NO_PER_PAGE_SIZES } }
-				isItemClickable={ isItemClickable }
-				renderItemLink={ renderItemLink }
-			/>
+			<div ref={ rootRef } tabIndex={ -1 } className={ styles.focusTarget }>
+				<GenericDataViews< Item >
+					key={ generation }
+					view={ dataViewsView }
+					onChangeView={ handleChangeView }
+					fields={ fields }
+					data={ batchItems }
+					getItemId={ getItemId }
+					isLoading={ isLoading || isRevalidating }
+					paginationInfo={ paginationInfo }
+					defaultLayouts={ { table: {} } }
+					actions={ actions }
+					searchLabel={ searchLabel }
+					config={ { perPageSizes: NO_PER_PAGE_SIZES } }
+					isItemClickable={ isItemClickable }
+					renderItemLink={ renderItemLink }
+				/>
+			</div>
 		</ReportPageSection>
 	);
 }

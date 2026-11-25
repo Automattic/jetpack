@@ -51,6 +51,10 @@ module.exports = {
 			baseConfig.transform[ JS_TRANSFORM ][ 1 ],
 		],
 	},
+	setupFiles: [
+		...baseConfig.setupFiles,
+		path.join( __dirname, 'intersection-observer-stub.cjs' ),
+	],
 	testPathIgnorePatterns: [ ...baseConfig.testPathIgnorePatterns, ...groupingIgnorePatterns ],
 	moduleNameMapper: {
 		...baseConfig.moduleNameMapper,

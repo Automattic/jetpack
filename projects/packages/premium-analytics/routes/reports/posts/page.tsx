@@ -40,6 +40,7 @@ import {
 	getTabLabel,
 	resolveTabId,
 	usePostsReportRecords,
+	usePostTitleLinks,
 } from './config';
 import type { JSX } from 'react';
 
@@ -123,9 +124,10 @@ function PostsReport(): JSX.Element {
 		activeTab === 'posts-pages' ? visiblePostRows : EMPTY_POST_ROWS
 	);
 
+	const titleLinks = usePostTitleLinks( activeTab );
 	const postsFields = useMemo(
-		() => getPostsFields( records.posts.hasComparison, activeTab, thumbnailUrls ),
-		[ activeTab, records.posts.hasComparison, thumbnailUrls ]
+		() => getPostsFields( records.posts.hasComparison, titleLinks, thumbnailUrls ),
+		[ titleLinks, records.posts.hasComparison, thumbnailUrls ]
 	);
 	const archivesFields = useMemo(
 		() => getArchivesFields( records.archives.hasComparison ),

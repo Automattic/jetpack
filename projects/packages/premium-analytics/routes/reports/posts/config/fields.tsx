@@ -34,10 +34,39 @@ const VIEWS_DATA_FORMAT = {
 	options: { decimals: 0, useMultipliers: false },
 } as const;
 
+/** Link context every post title shares, resolved once per table rather than once per row. */
+export type PostTitleLinks = {
+	detailSearch: Record< string, unknown >;
+	homeUrl?: string;
+};
+
 type PostTitleProps = {
 	item: StatsTopPostsComparisonItem;
-	originSection: ReportPostsTabId;
+	links: PostTitleLinks;
 };
+
+/**
+ * Resolve the post titles' link context: the report's date window for the detail page, and the
+ * site home for the homepage row.
+ *
+ * @param originSection - The active Posts & Pages report tab.
+ * @return The shared title link context.
+ */
+export function usePostTitleLinks( originSection: ReportPostsTabId ): PostTitleLinks {
+	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
+	const homeUrl = useSiteHomeUrl();
+
+	return useMemo(
+		() => ( {
+			detailSearch: {
+				...pickReportNavigationParams( search ),
+				...createReportOriginSearch( 'posts', originSection ),
+			},
+			homeUrl,
+		} ),
+		[ search, originSection, homeUrl ]
+	);
+}
 
 /**
  * Render a post row's title. Rows with an ID drill into the internal post/page
@@ -51,17 +80,8 @@ type PostTitleProps = {
  * @param {PostTitleProps} props - Component props.
  * @return The linked or plain post title.
  */
-function PostTitle( { item, originSection }: PostTitleProps ): JSX.Element {
-	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
-	const detailSearch = useMemo(
-		() => ( {
-			...pickReportNavigationParams( search ),
-			...createReportOriginSearch( 'posts', originSection ),
-		} ),
-		[ search, originSection ]
-	);
-	const homeUrl = useSiteHomeUrl();
-
+function PostTitle( { item, links }: PostTitleProps ): JSX.Element {
+	const { detailSearch, homeUrl } = links;
 	const isHomepage = item.type === 'homepage';
 	const title = String( item.label ?? '' );
 
@@ -86,13 +106,13 @@ function PostTitle( { item, originSection }: PostTitleProps ): JSX.Element {
  * other routes.
  *
  * @param withComparison - Whether to render available period-over-period deltas.
- * @param originSection  - The active Posts & Pages report tab.
+ * @param titleLinks     - Link context from `usePostTitleLinks`.
  * @param thumbnailUrls  - Thumbnail URLs keyed by post ID.
  * @return The field config.
  */
 export function getPostsFields(
 	withComparison: boolean,
-	originSection: ReportPostsTabId,
+	titleLinks: PostTitleLinks,
 	thumbnailUrls: PostThumbnailUrls = {}
 ): Field< StatsTopPostsComparisonItem >[] {
 	return [
@@ -102,7 +122,7 @@ export function getPostsFields(
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => String( item.label ?? '' ),
-			render: ( { item } ) => <PostTitle item={ item } originSection={ originSection } />,
+			render: ( { item } ) => <PostTitle item={ item } links={ titleLinks } />,
 		},
 		{
 			id: 'thumbnail',
