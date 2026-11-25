@@ -116,8 +116,11 @@ const DashboardNav = ( {
 			value={ active }
 			onValueChange={ onTabChange }
 		>
-			{ /* Hidden, not removed: the panels still need their tabs. */ }
-			<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal" hidden={ ! showTabs }>
+			{ /* Keep the tabs mounted to label their panels. */ }
+			<div
+				className={ showTabs ? 'jp-admin-page-tabs jp-admin-page-tabs--minimal' : undefined }
+				hidden={ ! showTabs }
+			>
 				<Tabs.List variant="minimal" aria-label={ __( 'SEO sections', 'jetpack-seo' ) }>
 					<Tabs.Tab id="jetpack-seo-tab-overview" value="overview">
 						{ __( 'Overview', 'jetpack-seo' ) }
