@@ -31,10 +31,12 @@ import {
  */
 
 /**
- * One chart point: a bucket-start date and the metric's value for the bucket.
+ * One chart point: the first and last day of the bucket that fall in the range,
+ * and the metric's value for it.
  */
 export type VideoMetricPoint = {
 	date: Date;
+	endDate?: Date;
 	value: number;
 };
 
@@ -71,8 +73,8 @@ type DayWindow = {
 };
 
 /**
- * One calendar bucket, including its visible label and the portion that falls
- * inside the selected date window.
+ * One calendar bucket: its calendar start, which keys the totals, and the portion
+ * that falls inside the selected date window, which the chart draws.
  */
 type BucketWindow = {
 	date: string;
@@ -97,9 +99,9 @@ function toDayWindow( from?: string, to?: string ): DayWindow | undefined {
 }
 
 /**
- * Build a range's calendar buckets. Each bucket keeps the calendar label used
- * by the chart while clipping its data bounds to the selected range. Same
- * approach as the Post views widget's bucketing.
+ * Build a range's calendar buckets, oldest first. Each bucket keeps its calendar
+ * start as the totals key while clipping its days to the selected range, as the
+ * Post views widget does.
  */
 function calendarBucketWindows(
 	dayWindow: DayWindow,
@@ -163,9 +165,12 @@ function toBucketPoints(
 	zone: string
 ): VideoMetricPoint[] {
 	return buckets.flatMap( bucket => {
-		const date = resolveBucketStamp( bucket.date, zone );
+		// The clipped bounds, so the tooltip names a month the range cuts by its days.
+		const date = resolveBucketStamp( bucket.from, zone );
+		const endDate = resolveBucketStamp( bucket.to, zone );
+		const value = totals.get( bucket.date ) ?? 0;
 
-		return date ? [ { date, value: totals.get( bucket.date ) ?? 0 } ] : [];
+		return date ? [ endDate ? { date, endDate, value } : { date, value } ] : [];
 	} );
 }
 
