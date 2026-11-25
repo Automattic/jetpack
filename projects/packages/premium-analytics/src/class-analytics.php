@@ -399,6 +399,10 @@ class Analytics {
 		require_once __DIR__ . '/promos.php';
 		configure_promos();
 
+		// The Upgrade to Parse.ly card, registered into that slot for Settings.
+		require_once __DIR__ . '/parsely-promo.php';
+		configure_parsely_promo();
+
 		// The purchase a Stats checkout returned with, for the thank-you notice.
 		require_once __DIR__ . '/purchase-success.php';
 		configure_purchase_success();
