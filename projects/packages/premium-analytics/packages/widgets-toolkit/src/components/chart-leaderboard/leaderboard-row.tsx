@@ -34,6 +34,8 @@ export type LeaderboardRowAction =
 			id?: number | string;
 			/** Public URL. The "View" action beside a title that opens the detail page; the link itself otherwise. */
 			href?: string | null;
+			/** Post type of the row, so a type with a report page of its own opens that page. */
+			postType?: string;
 			/**
 			 * Required, so a row cannot silently open the detail page on its own
 			 * default range. Pass `{}` to navigate without a window on purpose.
@@ -215,6 +217,7 @@ export function LeaderboardRow( {
 			) : undefined;
 		const titleLinkProps = {
 			id: action.id,
+			postType: action.kind === 'postLink' ? action.postType : undefined,
 			label,
 			link: action.href,
 			search: action.search,
