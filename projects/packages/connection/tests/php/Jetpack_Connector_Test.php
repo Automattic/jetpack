@@ -944,7 +944,7 @@ class Jetpack_Connector_Test extends TestCase {
 		$this->assertTrue( $families['has_a4a'] );
 	}
 
-	/* ── get_plugin_logos() ─────────────────────────────────────── */
+	/* ── get_connected_plugin_logos() ───────────────────────────── */
 
 	/**
 	 * Connected plugins get their logo by slug, and plugins without one are left out.

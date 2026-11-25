@@ -68,10 +68,11 @@
 	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
 	border-radius: var(--wpds-border-radius-md);
 	cursor: pointer;
+}
 
-	&:hover {
-		border-color: var(--wpds-color-stroke-interactive-brand);
-	}
+.answer:hover,
+.fieldset:enabled .choice:hover {
+	border-color: var(--wpds-color-stroke-interactive-brand);
 }
 
 .choice {
@@ -91,10 +92,6 @@
 
 .fieldset:disabled .choice {
 	cursor: default;
-
-	&:not(.choice--selected) {
-		border-color: var(--wpds-color-stroke-surface-neutral);
-	}
 }
 
 .answer {

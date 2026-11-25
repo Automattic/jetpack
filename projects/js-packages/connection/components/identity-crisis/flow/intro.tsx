@@ -4,10 +4,8 @@ import styles from '../styles.module.scss';
 import { getPausedText } from './copy';
 import type { CopyContext } from './copy';
 import type { ConnectedPlugin } from '../../../helpers/site-words';
-import type { IdentityCrisisState } from '../../../types';
+import type { PluginLogos } from '../../../types';
 import type { ReactNode } from 'react';
-
-type PluginLogos = Extract< IdentityCrisisState, { canResolve: true } >[ 'pluginLogos' ];
 
 /**
  * The connected plugins as chips, with their logos.
@@ -22,7 +20,7 @@ function ConnectedPlugins( {
 	logos,
 }: {
 	plugins: ConnectedPlugin[];
-	logos: PluginLogos;
+	logos?: PluginLogos;
 } ): ReactNode {
 	if ( ! plugins.length ) {
 		return null;
@@ -68,7 +66,7 @@ export default function Intro( {
 }: {
 	copy: CopyContext;
 	plugins: ConnectedPlugin[];
-	logos: PluginLogos;
+	logos?: PluginLogos;
 } ): ReactNode {
 	return (
 		<Stack direction="column" gap="sm">

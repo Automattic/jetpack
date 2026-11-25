@@ -216,7 +216,7 @@ class Jetpack_Connector {
 
 		// In Safe Mode the card lists no plugins, and the Safe Mode screen gets the logos from Initial_State.
 		if ( ! ( new Status() )->in_safe_mode() ) {
-			$data['pluginLogos'] = static::get_plugin_logos( array_keys( $connected_plugins ) );
+			$data['pluginLogos'] = static::get_connected_plugin_logos();
 		}
 
 		if ( $is_registered ) {
@@ -493,7 +493,7 @@ class Jetpack_Connector {
 	}
 
 	/**
-	 * Get the connected plugins' logo URLs, for the shared Safe Mode screen.
+	 * Get the connected plugins' logo URLs.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -501,22 +501,10 @@ class Jetpack_Connector {
 	 */
 	public static function get_connected_plugin_logos() {
 		$plugins = ( new Manager() )->get_connected_plugins();
+		$plugins = is_array( $plugins ) ? $plugins : array();
+		$logos   = array();
 
-		return static::get_plugin_logos( is_array( $plugins ) ? array_keys( $plugins ) : array() );
-	}
-
-	/**
-	 * Map connected plugin slugs to their logo URLs.
-	 *
-	 * @since 9.13.0
-	 *
-	 * @param string[] $slugs Connected plugin slugs.
-	 * @return array<string,string> Logo URL by slug, for slugs that have one.
-	 */
-	private static function get_plugin_logos( $slugs ) {
-		$logos = array();
-
-		foreach ( $slugs as $slug ) {
+		foreach ( array_keys( $plugins ) as $slug ) {
 			$logo_url = static::get_plugin_logo_url( (string) $slug );
 			if ( $logo_url ) {
 				$logos[ $slug ] = $logo_url;
