@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Share one range bucket helper between the Post views, Video and Author performance widgets.
+

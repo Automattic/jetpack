@@ -30,7 +30,7 @@ export { getVideoPosterUrl } from './video-poster-url';
 export { describeError } from './describe-error';
 export { getPostTypeCopy } from './post-type-copy';
 export { summaryCount } from './summary-count';
-export { toDay } from './to-day';
+export { toDay, toDayRange } from './to-day';
 export { defaultPeriodForInterval } from '@jetpack-premium-analytics/data';
 export { buildMetricTab, type MetricReport, type BuildMetricTabOptions } from './build-metric-tab';
 export { metricTabsToCsv } from './metric-tabs-csv';
