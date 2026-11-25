@@ -52,7 +52,7 @@ class Tracks {
 			return;
 		}
 
-		if ( Dashboard::is_dashboard_request() && self::is_allowed() ) {
+		if ( Dashboard::is_page_request() && self::is_allowed() ) {
 			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
 	}
