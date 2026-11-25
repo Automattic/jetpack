@@ -72,6 +72,7 @@ export default function ConnectionGate( { children }: { children: ReactNode } ) 
 	return (
 		<ConnectScreen
 			onConnect={ () => handleRegisterSite() }
+			needsUserConnection={ isRegistered && hasConnectedOwner && ! isUserConnected }
 			isConnecting={ siteIsRegistering || userIsConnecting }
 			errorMessage={
 				registrationError
