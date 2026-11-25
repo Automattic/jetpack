@@ -382,9 +382,18 @@ describe( 'BarChart stacked layout', () => {
 		}
 	);
 
-	it( 'shows the empty state once every stacked series is hidden, comparisons and all', () => {
+	const UNPAIRED: SeriesData = {
+		label: 'All (prev)',
+		options: { type: 'comparison' },
+		data: [ day( 'Mon', 300 ) ],
+	};
+
+	it.each( [
+		[ 'paired comparisons', WITH_PREVIOUS ],
+		[ 'a comparison no primary shares a group with', [ ...WITH_PREVIOUS.slice( 0, 3 ), UNPAIRED ] ],
+	] )( 'shows the empty state once every primary is hidden, with %s', ( _case, data ) => {
 		renderStacked( {
-			data: WITH_PREVIOUS,
+			data,
 			showLegend: true,
 			legend: { interactive: true },
 			defaultHiddenSeries: DATA.map( series => series.label ),
@@ -394,16 +403,48 @@ describe( 'BarChart stacked layout', () => {
 		expect( screen.getByText( /All series are hidden/ ) ).toBeInTheDocument();
 	} );
 
-	it( 'leaves the comparison item out of the legend while the comparisons are hidden', () => {
+	it( 'keeps a comparison no primary shares a group with in the total', () => {
+		const data = [ ...WITH_PREVIOUS.slice( 0, 3 ), UNPAIRED ];
+		renderStacked( { data } );
+
+		expect( previousBar( 0 ).height / barIn( data, 'Desktop' ).height ).toBeCloseTo( 300 / 100 );
+	} );
+
+	it.each( [
+		[ 'every comparison', WITH_PREVIOUS, WITH_PREVIOUS.slice( 3 ), false ],
+		[ 'every primary', WITH_PREVIOUS, DATA, false ],
+		[
+			'the primary of the only comparison',
+			[ ...WITH_PREVIOUS.slice( 0, 2 ), WITH_PREVIOUS[ 3 ] ],
+			DATA.slice( 0, 1 ),
+			false,
+		],
+		[ 'only the first comparison', WITH_PREVIOUS, WITH_PREVIOUS.slice( 3, 4 ), true ],
+	] )(
+		'lists the comparison item only while the total is drawn, hiding %s',
+		( _case, data, hidden, listed ) => {
+			renderStacked( {
+				data,
+				showLegend: true,
+				legend: { comparisonItem: 'Prev. 7 days' },
+				defaultHiddenSeries: hidden.map( series => series.label ),
+			} );
+
+			expect( screen.queryByText( 'Prev. 7 days' ) !== null ).toBe( listed );
+		}
+	);
+
+	it( 'ignores legend.comparisonSeriesItems, and says so', () => {
+		const warn = jest.spyOn( console, 'warn' ).mockImplementation( () => {} );
 		renderStacked( {
 			data: WITH_PREVIOUS,
 			showLegend: true,
-			legend: { comparisonItem: 'Prev. 7 days' },
-			defaultHiddenSeries: WITH_PREVIOUS.slice( 3 ).map( series => series.label ),
+			legend: { comparisonSeriesItems: label => `${ label } before` },
 		} );
 
-		expect( barRects() ).toHaveLength( 5 );
-		expect( screen.queryByText( 'Prev. 7 days' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /before/ ) ).not.toBeInTheDocument();
+		expect( warn ).toHaveBeenCalledWith( expect.stringContaining( 'comparisonSeriesItems' ) );
+		warn.mockRestore();
 	} );
 
 	it( 'keeps a comparison in the total while a primary of its group is shown', async () => {

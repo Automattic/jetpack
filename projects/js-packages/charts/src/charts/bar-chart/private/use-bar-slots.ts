@@ -69,15 +69,17 @@ export function useBarSlots(
 					isComparison( series ) &&
 					( visibleGroups.has( series.group ) || ! hiddenGroups.has( series.group ) )
 			);
-			const total = comparisons.length
-				? {
-						series: getComparisonTotalSeries(
-							comparisons.map( ( { series } ) => series ),
-							comparisonLabel
-						),
-						index: comparisons[ 0 ].index,
-					}
-				: undefined;
+			// Without a primary there is no stack to compare with, so the chart shows its empty state.
+			const total =
+				primaries.length && comparisons.length
+					? {
+							series: getComparisonTotalSeries(
+								comparisons.map( ( { series } ) => series ),
+								comparisonLabel
+							),
+							index: comparisons[ 0 ].index,
+						}
+					: undefined;
 			const entries = [ ...primaries, ...( total ? [ total ] : [] ) ].map(
 				( { series, index } ) => ( { series, index } )
 			);
