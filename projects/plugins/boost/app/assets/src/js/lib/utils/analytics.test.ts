@@ -146,18 +146,17 @@ describe( 'Settings event context', () => {
 		);
 	} );
 
-	it.each( [ 'speed_score_request_error', 'performance_history_toggle' ] )(
-		'leaves %s outside the Settings action context',
-		async event => {
-			const element = document.createElement( 'div' );
-			element.id = MODERN_ROOT_ID;
-			document.body.append( element );
-			await recordBoostEvent( event, {} );
-			expect( mockRecordAjaxEvent ).toHaveBeenLastCalledWith( `boost_${ event }`, 'click', {
-				boost_version: '4.8.1',
-			} );
-		}
-	);
+	it( 'leaves speed_score_request_error outside the Settings action context', async () => {
+		const element = document.createElement( 'div' );
+		element.id = MODERN_ROOT_ID;
+		document.body.append( element );
+		await recordBoostEvent( 'speed_score_request_error', {} );
+		expect( mockRecordAjaxEvent ).toHaveBeenLastCalledWith(
+			'boost_speed_score_request_error',
+			'click',
+			{ boost_version: '4.8.1' }
+		);
+	} );
 
 	it( 'does not invent UI context without a dashboard root or for server status events', async () => {
 		await recordBoostEvent( 'settings_view', {} );

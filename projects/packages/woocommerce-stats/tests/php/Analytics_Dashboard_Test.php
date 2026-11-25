@@ -3,15 +3,18 @@
  * Tests for the WooCommerce registrants of the Premium Analytics dashboard.
  *
  * @package automattic/jetpack-woocommerce-stats
+ * @phan-file-suppress PhanAccessClassConstantInternal -- Internal to this package, not to its sub-namespace.
  */
 
 namespace Automattic\Jetpack\WooCommerceStats;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\PremiumAnalytics\Dashboard_Section_Registry;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
 use Automattic\Jetpack\PremiumAnalytics\Widget_Type_Registry;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Provider_Setting;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -52,6 +55,9 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		Constants::clear_constants();
 		Status_Cache::clear();
 		delete_option( 'active_plugins' );
+		delete_option( Provider_Setting::OPTION );
+		\Jetpack_Options::delete_option( array( 'blog_token', 'id' ) );
+		( new Connection_Manager() )->reset_connection_status();
 		wp_dequeue_script_module( Analytics_Dashboard::STORE_PERFORMANCE_BOOKINGS_MODULE );
 		wp_deregister_script_module( Analytics_Dashboard::STORE_PERFORMANCE_BOOKINGS_MODULE );
 
@@ -239,6 +245,168 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		Analytics_Dashboard::enqueue_store_performance_bookings();
 
 		$this->assertNotContains( Analytics_Dashboard::STORE_PERFORMANCE_BOOKINGS_MODULE, wp_script_modules()->get_queue() );
+	}
+
+	/**
+	 * Only a disconnected store set to local drops the connection, and explains why.
+	 *
+	 * @dataProvider provide_connection_and_setting
+	 *
+	 * @param bool   $connected  Whether the site is connected.
+	 * @param string $providers  The provider setting.
+	 * @param bool   $woocommerce Whether WooCommerce is active.
+	 * @param bool   $runs_without_connection Whether the tab runs without the connection.
+	 */
+	#[DataProvider( 'provide_connection_and_setting' )]
+	public function test_runs_without_the_connection_only_when_disconnected_and_set_to_local( $connected, $providers, $woocommerce, $runs_without_connection ) {
+		wp_set_current_user( $this->create_admin() );
+		add_filter( Analytics_Dashboard::WOOCOMMERCE_AVAILABLE_FILTER, $woocommerce ? '__return_true' : '__return_false' );
+		update_option( Provider_Setting::OPTION, $providers );
+		if ( $connected ) {
+			\Jetpack_Options::update_option( 'id', 4242 );
+			\Jetpack_Options::update_option( 'blog_token', 'blog_token.secret' );
+		}
+		( new Connection_Manager() )->reset_connection_status();
+		Analytics_Dashboard::init();
+
+		$section = get_registered_dashboard_section( DASHBOARD_NAME, Analytics_Dashboard::SECTION_ID );
+
+		$this->assertSame( ! $runs_without_connection, $section->requires_connection );
+		$this->assertSame( $runs_without_connection, null !== $section->get_notice() );
+	}
+
+	/**
+	 * An empty store still hears that Analytics is off and that WordPress.com reports need the connection.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_local_mode_notice_keeps_the_prerequisites_of_an_empty_store() {
+		require_once __DIR__ . '/mocks/woocommerce-mock.php';
+		require_once __DIR__ . '/mocks/woocommerce-analytics-mock.php';
+		$GLOBALS['woocommerce_stats_mock_orders']        = array();
+		$GLOBALS['woocommerce_stats_mock_analytics_off'] = true;
+		$this->enable_store();
+		update_option( Provider_Setting::OPTION, 'local' );
+		Analytics_Dashboard::init();
+
+		$notice = get_registered_dashboard_section( DASHBOARD_NAME, Analytics_Dashboard::SECTION_ID )->get_notice();
+
+		$this->assertMatchesRegularExpression( '/Analytics is off.*no orders yet.*need a Jetpack connection/s', (string) $notice );
+	}
+
+	/**
+	 * The notice reports what WooCommerce's own import status reports, and nothing in immediate mode.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 * @dataProvider provide_import_statuses
+	 *
+	 * @param array    $import     What core's import status route answers.
+	 * @param string[] $present    Phrases the notice must carry.
+	 * @param string[] $absent     Phrases it must not.
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	#[DataProvider( 'provide_import_statuses' )]
+	public function test_local_mode_notice_follows_core_import_status( $import, $present, $absent ) {
+		require_once __DIR__ . '/mocks/woocommerce-mock.php';
+		require_once __DIR__ . '/mocks/woocommerce-analytics-mock.php';
+		$GLOBALS['woocommerce_stats_mock_orders'] = array( 42 => 'completed' );
+		update_option( 'date_format', 'Y-m-d' );
+		update_option( 'time_format', 'H:i' );
+		global $wp_rest_server;
+		$wp_rest_server = new \WP_REST_Server();
+		add_action(
+			'rest_api_init',
+			static function () use ( $import ) {
+				register_rest_route(
+					'wc-analytics',
+					'/imports/status',
+					array(
+						'methods'             => 'GET',
+						'callback'            => static function () use ( $import ) {
+							return $import;
+						},
+						'permission_callback' => '__return_true',
+					)
+				);
+			}
+		);
+		do_action( 'rest_api_init', $wp_rest_server );
+		$this->enable_store();
+		update_option( Provider_Setting::OPTION, 'local' );
+		Analytics_Dashboard::init();
+
+		$notice = (string) get_registered_dashboard_section( DASHBOARD_NAME, Analytics_Dashboard::SECTION_ID )->get_notice();
+
+		foreach ( $present as $phrase ) {
+			$this->assertStringContainsString( $phrase, $notice );
+		}
+		foreach ( $absent as $phrase ) {
+			$this->assertStringNotContainsString( $phrase, $notice );
+		}
+	}
+
+	/**
+	 * @return array[]
+	 */
+	public static function provide_import_statuses() {
+		$immediate = array(
+			'mode'                  => 'immediate',
+			'last_processed_date'   => null,
+			'next_scheduled'        => null,
+			'failed_count'          => 0,
+			'failed_overflow_count' => 0,
+		);
+
+		return array(
+			'immediate'                   => array( $immediate, array( 'need a Jetpack connection' ), array( 'updated', 'couldn’t import' ) ),
+			'scheduled'                   => array(
+				array(
+					'mode'                => 'scheduled',
+					'last_processed_date' => '2026-11-24 09:00:00',
+					'next_scheduled'      => '2026-11-24 21:00:00',
+				) + $immediate,
+				array( 'last updated on 2026-11-24 09:00', 'next update runs on 2026-11-24 21:00', 'WooCommerce › Analytics › Settings', 'need a Jetpack connection' ),
+				array( 'couldn’t import' ),
+			),
+			'scheduled, never run'        => array(
+				array( 'mode' => 'scheduled' ) + $immediate,
+				array( 'hasn’t been updated yet' ),
+				array( 'next update' ),
+			),
+			'failed imports, immediate'   => array(
+				array( 'failed_count' => 2 ) + $immediate,
+				array( 'couldn’t import 2 orders. Retry them', 'Import historical data' ),
+				array( 'updated', 'more than' ),
+			),
+			'failed imports past the cap' => array(
+				array(
+					'failed_count'          => 1000,
+					'failed_overflow_count' => 5,
+				) + $immediate,
+				array( 'couldn’t import more than 1000 orders', 'Skip previously imported customers and orders' ),
+				array( 'Retry' ),
+			),
+		);
+	}
+
+	/**
+	 * @return array[]
+	 */
+	public static function provide_connection_and_setting() {
+		return array(
+			'disconnected, no setting'            => array( false, '', true, false ),
+			'disconnected, wpcom'                 => array( false, 'wpcom', true, false ),
+			'disconnected, local'                 => array( false, 'local', true, true ),
+			'disconnected, local,wpcom'           => array( false, 'local,wpcom', true, true ),
+			'disconnected, wpcom,local'           => array( false, 'wpcom,local', true, false ),
+			'disconnected, local, no WooCommerce' => array( false, 'local', false, false ),
+			'connected, local'                    => array( true, 'local', true, false ),
+		);
 	}
 
 	/**

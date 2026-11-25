@@ -57,7 +57,6 @@ function renderFreeSite(
 				domain: 'example.com',
 				online: true,
 				myJetpack: true,
-				addLicense: true,
 				host: 'other',
 				...siteOverrides,
 			},

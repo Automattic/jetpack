@@ -757,6 +757,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 			'traffic'     => array( 'analytics/traffic', get_traffic_section_default_layout() ),
 			'insights'    => array( 'analytics/insights', get_insights_section_default_layout() ),
 			'subscribers' => array( 'analytics/subscribers', get_subscribers_section_default_layout() ),
+			'ai'          => array( 'analytics/ai', get_ai_section_default_layout() ),
 		);
 	}
 

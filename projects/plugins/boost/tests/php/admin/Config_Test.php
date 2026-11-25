@@ -103,10 +103,10 @@ class Config_Test extends TestCase {
 	}
 
 	/**
-	 * @dataProvider licensing_states
+	 * @dataProvider my_jetpack_states
 	 */
-	#[DataProvider( 'licensing_states' )]
-	public function test_constants( $my_jetpack_available, $licensing_enabled ) {
+	#[DataProvider( 'my_jetpack_states' )]
+	public function test_constants( $my_jetpack_available ) {
 		$this->setupCommonMocks();
 
 		// Set up filter expectations in correct order
@@ -114,11 +114,6 @@ class Config_Test extends TestCase {
 			->once()
 			->with( 'jetpack_boost_asset_internal_path', 'app/assets/dist/' )
 			->andReturn( 'app/assets/dist/' );
-
-		Functions\expect( 'apply_filters' )
-			->times( $my_jetpack_available ? 1 : 0 )
-			->with( 'jetpack_my_jetpack_should_enable_add_license_screen', true )
-			->andReturn( $licensing_enabled );
 
 		// This filter needs to return the constants array
 		Functions\expect( 'apply_filters' )
@@ -148,14 +143,12 @@ class Config_Test extends TestCase {
 		$this->assertEquals( 'atomic', $result['site']['host'] );
 		$this->assertTrue( $result['site']['online'] );
 		$this->assertSame( $my_jetpack_available, $result['site']['myJetpack'] );
-		$this->assertSame( $licensing_enabled, $result['site']['addLicense'] );
 	}
 
-	public static function licensing_states() {
+	public static function my_jetpack_states() {
 		return array(
-			'enabled'     => array( true, true ),
-			'disabled'    => array( true, false ),
-			'unavailable' => array( false, false ),
+			'available'   => array( true ),
+			'unavailable' => array( false ),
 		);
 	}
 

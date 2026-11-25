@@ -118,6 +118,7 @@ function VideoDetailViewsPerformanceInner( { chartType }: VideoDetailViewsPerfor
 					metrics={ metrics }
 					dataFormat={ HEADLINE_COUNT_FORMAT }
 					chartType={ chartType }
+					tickResolution={ period }
 					groupLabel={ groupLabel }
 					empty={ <ChartEmptyState /> }
 				/>

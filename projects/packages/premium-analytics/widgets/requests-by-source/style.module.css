@@ -1,0 +1,60 @@
+.root {
+	container-type: inline-size;
+	display: flex;
+	flex-direction: column;
+	block-size: 100%;
+	overflow: hidden;
+}
+
+.body {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-lg);
+	block-size: 100%;
+	min-block-size: 0;
+}
+
+.totals {
+	flex: 0 0 auto;
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: var(--wpds-dimension-gap-md);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.total {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xs);
+	min-inline-size: 0;
+
+	/* The nearest clip box: a figure that no longer fits shortens
+	   instead of running into its neighbour. */
+	overflow: hidden;
+}
+
+.label {
+	display: flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-sm);
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+.share {
+	margin-block-start: var(--wpds-dimension-gap-xs);
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+.chart {
+	flex: 1 1 auto;
+	min-block-size: 0;
+}
+
+@container (max-inline-size: 480px) {
+
+	.totals {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}

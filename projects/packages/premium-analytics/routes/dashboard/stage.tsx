@@ -162,9 +162,10 @@ function Dashboard(): JSX.Element {
 	const connectionlessSections = getConnectionlessSectionSlugs();
 	const needsConnection = ( slug: string ) =>
 		! isSiteConnected && ! connectionlessSections.includes( slug );
-	const sectionsAwaitSync = sections.some( section =>
-		isSectionAwaitingSync( section, isSyncFinished )
-	);
+	// Sync needs the connection, so a disconnected site neither watches it nor waits on it.
+	const isAwaitingSync = ( section: ( typeof sections )[ number ] ) =>
+		isSiteConnected && isSectionAwaitingSync( section, isSyncFinished );
+	const sectionsAwaitSync = sections.some( isAwaitingSync );
 	// The sync routes take manage_options; anyone else would only collect 403s.
 	const canRunSync = currentUserCan( 'manage_options' );
 	const {
@@ -632,8 +633,7 @@ function Dashboard(): JSX.Element {
 															}
 														/>
 
-														{ isSectionAwaitingSync( section, isSyncFinished ) &&
-														! isSyncComplete ? (
+														{ isAwaitingSync( section ) && ! isSyncComplete ? (
 															<SectionSyncNotice
 																canRunSync={ canRunSync }
 																percentage={ syncStatus?.percentage ?? 0 }
