@@ -75,10 +75,5 @@
 				"packages/premium-analytics"
 			]
 		}
-	},
-	"config": {
-		"allow-plugins": {
-			"roots/wordpress-core-installer": true
-		}
 	}
 }

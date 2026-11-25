@@ -123,15 +123,15 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {
-		"sort-packages": true,
-		"platform": {
-			"ext-intl": "0.0.0"
-		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ16_5_a_5",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
-		}
+		},
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ16_5_a_5",
+		"platform": {
+			"ext-intl": "0.0.0"
+		},
+		"sort-packages": true
 	},
 	"extra": {
 		"autotagger": {

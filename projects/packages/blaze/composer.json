@@ -67,10 +67,5 @@
 		"version-constants": {
 			"::PACKAGE_VERSION": "src/class-dashboard.php"
 		}
-	},
-	"config": {
-		"allow-plugins": {
-			"roots/wordpress-core-installer": true
-		}
 	}
 }

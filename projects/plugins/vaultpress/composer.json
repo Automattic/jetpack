@@ -34,10 +34,10 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {
-		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_vaultpressⓥ5_0_0",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true
-		}
+		},
+		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_vaultpressⓥ5_0_0"
 	},
 	"extra": {
 		"autorelease": true,

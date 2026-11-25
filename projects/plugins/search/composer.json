@@ -61,12 +61,11 @@
 		}
 	},
 	"config": {
-		"sort-packages": true,
-		"autoloader-suffix": "b462338fb66be23595d68a93345c9e3d_jetpack_searchⓥ8_0_0",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
-			"automattic/jetpack-composer-plugin": true,
-			"roots/wordpress-core-installer": true
-		}
+			"automattic/jetpack-composer-plugin": true
+		},
+		"autoloader-suffix": "b462338fb66be23595d68a93345c9e3d_jetpack_searchⓥ8_0_0",
+		"sort-packages": true
 	}
 }
