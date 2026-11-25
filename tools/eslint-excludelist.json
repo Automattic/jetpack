@@ -231,7 +231,6 @@
 	"projects/plugins/jetpack/_inc/client/ai/components/nav-row/index.jsx",
 	"projects/plugins/jetpack/_inc/client/ai/features/index.jsx",
 	"projects/plugins/jetpack/_inc/client/ai/mcp/index.jsx",
-	"projects/plugins/jetpack/_inc/client/ai/mcp/read.jsx",
 	"projects/plugins/jetpack/_inc/client/ai/mcp/setup.jsx",
 	"projects/plugins/jetpack/_inc/client/ai/mcp/write.jsx",
 	"projects/plugins/jetpack/_inc/client/ai/overview/index.jsx",
