@@ -253,7 +253,7 @@ describe( 'Regenerate reply', () => {
 	} );
 } );
 
-// The dashboard as the modern Settings surface renders it, with the real store and data-sync client.
+// The dashboard as Settings renders it, with the real store and data-sync client.
 function mountDashboard() {
 	return render(
 		<DataSyncProvider>
