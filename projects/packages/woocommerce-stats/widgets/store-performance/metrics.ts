@@ -21,8 +21,8 @@ import type { DataFormat } from '@automattic/jetpack-premium-analytics-sdk';
 const COUNT_FORMAT: DataFormat = { type: 'number', options: { useMultipliers: true, decimals: 0 } };
 
 /**
- * The metrics the widget owns, in tab order. Net sales and Orders read the same report, which the
- * query client runs once.
+ * The metrics the widget owns, in tab order. Net sales, Orders and Items sold read the same report,
+ * which the query client runs once.
  */
 export const STORE_PERFORMANCE_METRICS: StorePerformanceMetric[] = [
 	{
@@ -94,6 +94,21 @@ export const STORE_PERFORMANCE_METRICS: StorePerformanceMetric[] = [
 			/* translators: %s: number of customers. */
 			_n( '%s Customer', '%s Customers', count, 'jetpack-woocommerce-stats-pkg' ),
 		useReport: useReportCustomersByDate,
+	},
+	{
+		id: 'items-sold',
+		order: 60,
+		label: __( 'Items sold', 'jetpack-woocommerce-stats-pkg' ),
+		description: __(
+			'Track how many items your store sells over time, to see which periods move the most stock.',
+			'jetpack-woocommerce-stats-pkg'
+		),
+		field: 'total_items',
+		dataFormat: COUNT_FORMAT,
+		countLabel: count =>
+			/* translators: %s: number of items sold. */
+			_n( '%s Item', '%s Items', count, 'jetpack-woocommerce-stats-pkg' ),
+		useReport: useReportOrders,
 	},
 ];
 

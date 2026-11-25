@@ -1138,7 +1138,7 @@ class The_Neverending_Home_Page {
 	 *
 	 * Block CSS points at these filters with `url(#id)`, so the page needs them alongside the posts.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 *
 	 * @return string SVG markup, or an empty string.
 	 */

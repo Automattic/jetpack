@@ -3,7 +3,7 @@
 import SidebarFooter from '@automattic/jetpack-components/sidebar-footer';
 import { Page } from '@wordpress/admin-ui';
 import apiFetch from '@wordpress/api-fetch';
-import { SelectControl, TextControl, TextareaControl, ToggleControl } from '@wordpress/components';
+import { SelectControl } from '@wordpress/components';
 import { store as coreStore, useEntityRecord } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
@@ -11,7 +11,14 @@ import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
-import { Button, IconButton, Stack } from '@wordpress/ui';
+import {
+	Button,
+	IconButton,
+	InputControl,
+	Stack,
+	SwitchControl,
+	TextareaControl,
+} from '@wordpress/ui';
 import { coverageStore } from '../../data/coverage-store';
 import SerpPreview from './serp-preview';
 import styles from './style.module.scss';
@@ -256,26 +263,26 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 			}
 		>
 			<Stack direction="column" gap="lg" className={ styles.inspectorBody }>
-				<TextControl
+				<InputControl
 					label={ __( 'SEO title', 'jetpack-seo' ) }
-					help={ __(
+					description={ __(
 						'Overrides the title search engines show. Leave blank to use the post title.',
 						'jetpack-seo'
 					) }
 					value={ local.jetpack_seo_html_title }
-					onChange={ next => setField( { jetpack_seo_html_title: next } ) }
+					onValueChange={ next => setField( { jetpack_seo_html_title: next } ) }
 					disabled={ isRecordUnavailable }
-					__next40pxDefaultSize
-					__nextHasNoMarginBottom
 				/>
 				<TextareaControl
 					label={ __( 'Meta description', 'jetpack-seo' ) }
-					help={ __( 'The summary search engines may show under the title.', 'jetpack-seo' ) }
+					description={ __(
+						'The summary search engines may show under the title.',
+						'jetpack-seo'
+					) }
 					value={ local.advanced_seo_description }
-					onChange={ next => setField( { advanced_seo_description: next } ) }
+					onValueChange={ next => setField( { advanced_seo_description: next } ) }
 					rows={ 3 }
 					disabled={ isRecordUnavailable }
-					__nextHasNoMarginBottom
 				/>
 				<SelectControl
 					label={ __( 'Schema type', 'jetpack-seo' ) }
@@ -286,34 +293,32 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 					__next40pxDefaultSize
 					__nextHasNoMarginBottom
 				/>
-				<ToggleControl
+				<SwitchControl
 					label={ __( 'Hide from search engines', 'jetpack-seo' ) }
-					help={ __(
+					description={ __(
 						'Adds a noindex directive and excludes this content from the sitemap.',
 						'jetpack-seo'
 					) }
 					checked={ local.jetpack_seo_noindex }
 					// Hiding content also clears its explicit inclusion in llms.txt.
-					onChange={ next =>
+					onCheckedChange={ next =>
 						setField( {
 							jetpack_seo_noindex: next,
 							...( next && { jetpack_seo_llms_txt_always_include: false } ),
 						} )
 					}
 					disabled={ isRecordUnavailable }
-					__nextHasNoMarginBottom
 				/>
-				<ToggleControl
+				<SwitchControl
 					label={ __( 'Always include in llms.txt', 'jetpack-seo' ) }
-					help={
+					description={
 						local.jetpack_seo_noindex
 							? LLMS_TXT_ALWAYS_INCLUDE_HELP.hidden
 							: LLMS_TXT_ALWAYS_INCLUDE_HELP.shown
 					}
 					checked={ !! local.jetpack_seo_llms_txt_always_include && ! local.jetpack_seo_noindex }
-					onChange={ next => setField( { jetpack_seo_llms_txt_always_include: next } ) }
+					onCheckedChange={ next => setField( { jetpack_seo_llms_txt_always_include: next } ) }
 					disabled={ isRecordUnavailable || local.jetpack_seo_noindex }
-					__nextHasNoMarginBottom
 				/>
 				<SerpPreview
 					link={ permalink }

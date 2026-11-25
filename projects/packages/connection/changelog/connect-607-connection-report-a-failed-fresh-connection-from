@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Safe Mode: Show an error when starting a fresh connection fails to get a connection address, instead of sending the browser to a broken one.

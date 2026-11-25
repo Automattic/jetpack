@@ -1,6 +1,6 @@
 import { withChartTheme } from '../../../stories/with-chart-theme';
 import { StackedAreaChart } from '../stacked-area-chart';
-import type { ComparativeLineChartSeries } from '../../chart-comparative-line/types';
+import type { StackedAreaSeries } from '../stacked-area-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof StackedAreaChart > = {
@@ -31,7 +31,7 @@ const part = (
 	dates: Date[],
 	valueAt: ( index: number ) => number,
 	stroke?: string
-): ComparativeLineChartSeries => ( {
+): StackedAreaSeries => ( {
 	label,
 	...( stroke && { options: { stroke } } ),
 	data: dates.map( ( date, index ) => ( { date, value: valueAt( index ) } ) ),

@@ -181,19 +181,3 @@ export function withSkipPricing( url ) {
 		return url;
 	}
 }
-
-/**
- * The page URL to reload after confirming Safe Mode.
- *
- * The admin bar's Safe Mode link adds `jetpack_idc_clear_confirmation` and its nonce, so reloading with them would
- * clear the confirmation again.
- *
- * @param {string} href - The current page URL.
- * @return {string} The URL without those arguments.
- */
-export function withoutClearConfirmation( href ) {
-	const url = new URL( href );
-	url.searchParams.delete( 'jetpack_idc_clear_confirmation' );
-	url.searchParams.delete( '_wpnonce' );
-	return url.toString();
-}

@@ -252,12 +252,32 @@ class REST_Endpoints_Test extends TestCase {
 	}
 
 	/**
-	 * A failed registration must come back as an error, or the screens would follow a URL that isn't one.
+	 * A failed registration comes back as an error that says the site is now disconnected, keeping its own code.
+	 *
+	 * @dataProvider provide_registration_failures
+	 *
+	 * @param string $register      Name of this class's `pre_http_request` callback that answers the registration request.
+	 * @param string $expected_code Error code the endpoint returns.
 	 */
-	public function test_start_fresh_registration_failure() {
-		$response = $this->dispatch_start_fresh( array( $this, 'fail_register_request' ) );
+	#[DataProvider( 'provide_registration_failures' )]
+	public function test_start_fresh_registration_failure( $register, $expected_code ) {
+		$response = $this->dispatch_start_fresh( array( $this, $register ) );
 
 		$this->assertTrue( $response->is_error() );
+		$this->assertSame( $expected_code, $response->get_data()['code'] );
+		$this->assertTrue( $response->get_data()['data']['disconnected'] );
+	}
+
+	/**
+	 * Registration failures whose error data is empty, or the HTTP code rather than an array.
+	 *
+	 * @return array
+	 */
+	public static function provide_registration_failures() {
+		return array(
+			'request failed'      => array( 'fail_register_request', 'register_http_request_failed' ),
+			'WordPress.com error' => array( 'reject_register_request', 'site_inaccessible' ),
+		);
 	}
 
 	/**
@@ -409,6 +429,30 @@ class REST_Endpoints_Test extends TestCase {
 		}
 
 		return new WP_Error( 'http_request_failed', 'Connection timed out.' );
+	}
+
+	/**
+	 * Answer the `jetpack.register` request to WordPress.com with an error.
+	 *
+	 * @param bool|array $response The existing response.
+	 * @param array      $args     The request arguments.
+	 * @param string     $url      The request URL.
+	 *
+	 * @return bool|array
+	 */
+	public function reject_register_request( $response, $args, $url ) {
+		if ( ! str_contains( $url, 'jetpack.register' ) ) {
+			return $response;
+		}
+
+		return array(
+			'headers'  => new CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
+			'body'     => wp_json_encode( array( 'error' => 'site_inaccessible' ), JSON_UNESCAPED_SLASHES ),
+			'response' => array(
+				'code'    => 400,
+				'message' => 'Bad Request',
+			),
+		);
 	}
 
 	/**

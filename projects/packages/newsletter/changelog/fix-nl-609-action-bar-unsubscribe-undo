@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Action Bar: Show an Undo notice after unsubscribing, ignore repeat clicks while a request is in flight, and switch the button to Subscribed once a subscribe goes through.

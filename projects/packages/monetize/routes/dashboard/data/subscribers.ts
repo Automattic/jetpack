@@ -1,4 +1,5 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { decodeEntities } from '@wordpress/html-entities';
 import { EARNINGS_KEY } from './memberships';
 import { wpcomFetch } from './wpcom-fetch';
 
@@ -58,13 +59,13 @@ interface SubscribersPage {
  * @param ownership - The API's ownership.
  * @return The subscription.
  */
-export function toPaidSubscription( ownership: OwnershipResponse ): PaidSubscription {
+function toPaidSubscription( ownership: OwnershipResponse ): PaidSubscription {
 	const { user = {}, plan = {} } = ownership;
 
 	return {
 		id: Number( ownership.id ),
 		userId: Number( user.ID ),
-		name: user.name ?? '',
+		name: decodeEntities( user.name ?? '' ),
 		email: user.user_email ?? '',
 		avatarUrl: user.avatar_URL ?? '',
 		planTitle: plan.title ?? '',
@@ -77,7 +78,7 @@ export function toPaidSubscription( ownership: OwnershipResponse ): PaidSubscrip
 }
 
 /**
- * One page of the site's active paid subscriptions, newest first.
+ * One page of the site's active paid subscriptions, in the order WordPress.com sends them.
  *
  * @param page - The page, from 1.
  * @return The query.

@@ -13,7 +13,7 @@ use Automattic\Jetpack\Status\Host;
 /**
  * Owns the AI tab's flag and the one check every AI and bot traffic surface reads.
  *
- * @since $$next-version$$
+ * @since 0.19.0
  */
 final class AI_Traffic {
 
@@ -65,7 +65,7 @@ final class AI_Traffic {
 		/**
 		 * Filters whether the AI and bot traffic surfaces of Stats are available.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.19.0
 		 *
 		 * @param bool $is_available Whether the site has edge request data.
 		 */

@@ -93,6 +93,7 @@ export function trackBannerClick( type: 'upgrade' | 'connect' ) {
 
 /**
  * Record a saved PayPal address.
+ *
  * @param signedTos - Whether the terms were signed with this save.
  */
 export function trackPayoutSave( signedTos: boolean ) {
@@ -126,7 +127,8 @@ export function trackPaymentsEvent(
 		| 'free_tier_edit_click'
 		| 'free_tier_update'
 		| 'coupon_save'
-		| 'coupon_delete',
+		| 'coupon_delete'
+		| 'upgrade_click',
 	properties: Record< string, unknown > = {}
 ) {
 	record( `jetpack_monetize_payments_${ action }`, properties );

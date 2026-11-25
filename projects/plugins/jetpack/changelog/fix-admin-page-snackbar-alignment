@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Dashboards: Center notifications at the bottom of the screen over the page content, not under the admin menu edge.

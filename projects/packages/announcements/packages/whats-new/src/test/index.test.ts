@@ -10,6 +10,9 @@ jest.mock( '../hooks', () => ( {
 jest.mock( '../components', () => ( {
 	WhatsNew: ( { channels }: { channels: string[] } ) => channels.join( ', ' ),
 } ) );
+jest.mock( '../utils', () => ( {
+	trackWhatsNew: jest.fn(),
+} ) );
 
 // The tests drive React's own `act`, so they set what @testing-library/react sets for it.
 ( globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean } ).IS_REACT_ACT_ENVIRONMENT = true;
@@ -77,5 +80,13 @@ describe( 'mountWhatsNew', () => {
 		await act( async () => mountWhatsNew( { channels: [ 'my-plugin' ] } ) );
 
 		expect( ensureAnnouncementEntity ).toHaveBeenCalled();
+	} );
+} );
+
+describe( 'trackWhatsNew', () => {
+	it( 'is offered to the host by the module', () => {
+		expect( jest.requireActual( '../index' ).trackWhatsNew ).toBe(
+			jest.requireMock( '../utils' ).trackWhatsNew
+		);
 	} );
 } );

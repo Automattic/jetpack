@@ -45,7 +45,7 @@ export function useMembershipsEarnings() {
 /**
  * The Stripe source WordPress.com returns to this dashboard from.
  */
-export const STRIPE_SOURCE = 'jetpack-monetize';
+const STRIPE_SOURCE = 'jetpack-monetize';
 
 const STATUS_KEY = [ 'monetize', 'memberships', 'status' ];
 const PRODUCTS_KEY = [ 'monetize', 'memberships', 'products' ];

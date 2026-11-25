@@ -5,6 +5,7 @@ import { currencyDollar, envelope, lock, megaphone, payment, tip } from '@wordpr
 import { Button, ButtonLink, Card, Icon, Link, Stack, Text } from '@wordpress/ui';
 import { getPageData } from '../../data/state';
 import { trackOverviewClick } from '../../data/tracking';
+import { useStoredAdsValues } from '../../data/use-ads-settings';
 import { useSiteHasFeature } from '../../data/use-site-feature';
 import { useAdsAccount } from '../../data/wordads';
 import { getDocUrl } from './docs';
@@ -114,7 +115,11 @@ function AdsCard( { openTab }: { openTab: ( tab: TabValue ) => void } ) {
 	const simple = isSimpleSite();
 	// Simple switches ads on WordPress.com, so only it knows whether they are on there.
 	const account = useAdsAccount( simple );
-	const isWordAdsActive = simple ? Boolean( account.data?.active ) : state.isWordAdsActive;
+	// Never fetched here: Settings fills this cache and updates it when ads are switched.
+	const stored = useStoredAdsValues( false );
+	const isWordAdsActive = simple
+		? Boolean( account.data?.active )
+		: ( stored.data?.wordads ?? state.isWordAdsActive );
 	const hasWordAds = useSiteHasFeature( 'wordads', state.hasWordAds );
 	const open = useCallback( () => {
 		trackOverviewClick( 'ads', 'open' );

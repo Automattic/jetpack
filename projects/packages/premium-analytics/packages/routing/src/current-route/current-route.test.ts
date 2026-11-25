@@ -1,5 +1,5 @@
 import { DASHBOARD_PAGE_SLUG } from '../dashboard-href';
-import { getCurrentRoutePath, onLocationChange } from './current-route';
+import { getCurrentRoutePath } from './current-route';
 
 const openUrl = ( search: string ): void => {
 	window.history.replaceState( null, '', search );
@@ -35,11 +35,23 @@ describe( 'getCurrentRoutePath', () => {
 } );
 
 describe( 'onLocationChange', () => {
-	afterEach( () => {
-		delete ( window as { navigation?: unknown } ).navigation;
+	let onLocationChange: ( listener: () => void ) => void;
+
+	beforeEach( async () => {
+		// Loaded again without its imports: a second copy of those evaluates Yjs twice, which logs an error.
+		jest.resetModules();
+		jest.doMock( '../dashboard-href', () => ( { DASHBOARD_PAGE_SLUG } ) );
+		( { onLocationChange } = await import( './current-route' ) );
 	} );
 
-	// Kept first: the cases below wrap the history, and it stays wrapped for the rest of the file.
+	afterEach( () => {
+		delete ( window as { navigation?: unknown } ).navigation;
+
+		for ( const method of [ 'pushState', 'replaceState' ] ) {
+			Reflect.deleteProperty( window.history, method );
+		}
+	} );
+
 	it( 'leaves the history alone where the Navigation API tells of its writes', () => {
 		Object.defineProperty( window, 'navigation', { configurable: true, value: new EventTarget() } );
 
