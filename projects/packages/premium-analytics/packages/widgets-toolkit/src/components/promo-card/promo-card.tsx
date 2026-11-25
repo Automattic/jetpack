@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { IconButton, Stack, Text } from '@jetpack-premium-analytics/externals';
+import { Card, IconButton, Stack, Text } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import {
@@ -10,6 +10,7 @@ import {
 	lazy,
 	useCallback,
 	useEffect,
+	useId,
 	useMemo,
 	useRef,
 	type ComponentType,
@@ -64,9 +65,6 @@ function DataOnlyContent( {
 }: Pick< PromoRenderProps, 'promo' | 'trackClick' > ): JSX.Element {
 	return (
 		<Stack direction="column" gap="sm" align="flex-start">
-			<Text variant="heading-md" render={ <h3 /> }>
-				{ promo.title }
-			</Text>
 			<Text variant="body-md">{ promo.description }</Text>
 			<PromoCta
 				href={ promo.cta_url }
@@ -90,7 +88,8 @@ export function PromoCard( { promo, resolveModule = importModule }: PromoCardPro
 	const { isDismissed, willBeFinal, dismiss } = usePromoDismissal( promo );
 	const trackEvent = useTrackEvent();
 
-	const cardRef = useRef< HTMLElement >( null );
+	const cardRef = useRef< HTMLDivElement >( null );
+	const titleId = useId();
 
 	// On its first intersection, not on mount: the Settings card is the last thing on the page, so a
 	// view recorded on load would report an impression to the registrant that nobody had.
@@ -131,6 +130,19 @@ export function PromoCard( { promo, resolveModule = importModule }: PromoCardPro
 			placement,
 			dismissal: willBeFinal ? 'final' : 'snooze',
 		} );
+
+		// The close control is inside the card, so unmounting drops focus to `<body>` and the next Tab
+		// starts again at the top of the page. The surrounding region catches it instead.
+		const region = cardRef.current?.parentElement;
+
+		if ( region ) {
+			region.tabIndex = -1;
+			region.focus();
+			region.addEventListener( 'blur', () => region.removeAttribute( 'tabindex' ), {
+				once: true,
+			} );
+		}
+
 		dismiss();
 	}, [ willBeFinal, trackEvent, slug, placement, dismiss ] );
 
@@ -146,10 +158,11 @@ export function PromoCard( { promo, resolveModule = importModule }: PromoCardPro
 	const fallback = <DataOnlyContent promo={ promo } trackClick={ trackClick } />;
 
 	return (
-		<aside
+		<Card.Root
 			ref={ cardRef }
 			className={ styles.card }
-			aria-label={ promo.title }
+			role="complementary"
+			aria-labelledby={ titleId }
 			data-testid="promo-card"
 		>
 			{ dismissible && (
@@ -163,19 +176,26 @@ export function PromoCard( { promo, resolveModule = importModule }: PromoCardPro
 					onClick={ handleDismiss }
 				/>
 			) }
-			{ Module ? (
-				<PromoErrorBoundary fallback={ fallback }>
-					<Suspense fallback={ fallback }>
-						<Module
-							promo={ promo }
-							onDismiss={ dismissible ? handleDismiss : undefined }
-							trackClick={ trackClick }
-						/>
-					</Suspense>
-				</PromoErrorBoundary>
-			) : (
-				fallback
-			) }
-		</aside>
+			<Card.Header>
+				<Card.Title id={ titleId } render={ <h3 /> }>
+					{ promo.title }
+				</Card.Title>
+			</Card.Header>
+			<Card.Content>
+				{ Module ? (
+					<PromoErrorBoundary fallback={ fallback }>
+						<Suspense fallback={ fallback }>
+							<Module
+								promo={ promo }
+								onDismiss={ dismissible ? handleDismiss : undefined }
+								trackClick={ trackClick }
+							/>
+						</Suspense>
+					</PromoErrorBoundary>
+				) : (
+					fallback
+				) }
+			</Card.Content>
+		</Card.Root>
 	);
 }

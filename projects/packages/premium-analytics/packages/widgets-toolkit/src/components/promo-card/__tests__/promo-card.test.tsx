@@ -204,6 +204,15 @@ describe( 'PromoCard', () => {
 		expect( screen.queryByText( 'Grow with Acme' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'parks focus on the surrounding region when the card closes', async () => {
+		const user = setupUser();
+		const { container } = render( <PromoCard promo={ makePromo() } /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Dismiss' } ) );
+
+		expect( container ).toHaveFocus();
+	} );
+
 	it( 'fires the dismiss event as final on the second close', async () => {
 		seed( { 'acme/offer': { count: 1, at: new Date( Date.now() - 100 * DAY ).toISOString() } } );
 		const user = setupUser();
@@ -228,13 +237,13 @@ describe( 'PromoCard', () => {
 	describe( 'with a render module', () => {
 		const withModule = makePromo( { render_module: 'acme/promo-module' } );
 
-		it( 'hands the whole content region to the module and draws neither title nor description', async () => {
+		it( 'hands the content region to the module and keeps the frame title', async () => {
 			const user = setupUser();
 			render( <PromoCard promo={ withModule } resolveModule={ resolving( ModuleContent ) } /> );
 
 			await user.click( await screen.findByRole( 'button', { name: 'Module for acme/offer' } ) );
 
-			expect( screen.queryByText( 'Grow with Acme' ) ).not.toBeInTheDocument();
+			expect( screen.getByRole( 'heading', { name: 'Grow with Acme' } ) ).toBeInTheDocument();
 			expect( screen.queryByText( 'Reach more readers.' ) ).not.toBeInTheDocument();
 			expect( recordEvent ).toHaveBeenCalledWith( 'jetpack_premium_analytics_promo_click', {
 				slug: 'acme/offer',
