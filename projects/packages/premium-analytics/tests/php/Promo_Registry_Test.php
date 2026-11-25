@@ -112,7 +112,6 @@ class Promo_Registry_Test extends BaseTestCase {
 		);
 	}
 
-
 	public function test_register_refuses_an_options_menu_promo_without_a_cta_label() {
 		$this->assert_refused(
 			'acme/offer',
