@@ -103,6 +103,7 @@ export default function useConnectionErrorNotice( {
 	const {
 		errors: displayableErrors,
 		title: errorTitle,
+		shortTitle: errorShortTitle,
 		groups: errorGroups,
 		showSupportLink,
 	} = useMemo( () => getConnectionErrorDetails( errorMap, viewer ), [ errorMap, viewer ] );
@@ -230,6 +231,7 @@ export default function useConnectionErrorNotice( {
 		connectionErrors: errorMap, // All errors for advanced use cases.
 		displayableErrors,
 		errorTitle,
+		errorShortTitle,
 		errorGroups,
 		showSupportLink,
 		viewer,

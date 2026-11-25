@@ -240,6 +240,36 @@ export function getConnectionErrorTitle(
 }
 
 /**
+ * The notice title without its "Jetpack Connection" lead, for a surface whose own heading already names the connection.
+ *
+ * @param {ConnectionErrorObject[]} errors - The displayable errors.
+ * @param {ConnectionErrorViewer}   viewer - Who is looking at the notice.
+ * @return {string} The short title.
+ */
+export function getConnectionErrorShortTitle(
+	errors: ConnectionErrorObject[],
+	viewer: ConnectionErrorViewer = {}
+): string {
+	if ( titleIncludesScope( errors ) ) {
+		return sprintf(
+			/* translators: %s is what the error applies to, e.g. "Site connection" or "Your account". */
+			__( 'Error: %s', 'jetpack-connection-js' ),
+			getConnectionErrorScopeLabel( errors[ 0 ], viewer )
+		);
+	}
+
+	if ( errors.length > 1 ) {
+		return sprintf(
+			/* translators: %d is the number of connection errors found. */
+			_n( '%d error', '%d errors', errors.length, 'jetpack-connection-js' ),
+			errors.length
+		);
+	}
+
+	return __( 'Error', 'jetpack-connection-js' );
+}
+
+/**
  * Collect the notice links declared by a set of errors, deduplicated by URL.
  *
  * Errors that describe the same condition (a blocked request reported against
@@ -299,6 +329,7 @@ export function getConnectionErrorDetails(
 ): {
 	errors: ConnectionErrorObject[];
 	title: string;
+	shortTitle: string;
 	groups: ConnectionErrorGroup[];
 	showSupportLink: boolean;
 } {
@@ -318,6 +349,7 @@ export function getConnectionErrorDetails(
 	return {
 		errors: displayable,
 		title: getConnectionErrorTitle( displayable, viewer ),
+		shortTitle: getConnectionErrorShortTitle( displayable, viewer ),
 		groups: groupConnectionErrorsByMessage( displayable ).map( group => {
 			const noticeLinks = getConnectionErrorNoticeLinks( group.errors ).filter(
 				link => ! seenLinkUrls.has( link.url )

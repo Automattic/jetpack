@@ -36,9 +36,10 @@ const STATUS_INTENTS = {
  * The badge text: a short "Connected" or "Not connected" for the plain connection states, else the state's own label.
  *
  * @param state - The connection state.
+ * @param label - The state's label as the header words it.
  * @return The badge text.
  */
-function getBadgeLabel( state: ConnectionState ): string {
+function getBadgeLabel( state: ConnectionState, label: string ): string {
 	if ( state.id === 'connected' || state.id === 'site-connected' ) {
 		return __( 'Connected', 'jetpack-my-jetpack' );
 	}
@@ -47,7 +48,7 @@ function getBadgeLabel( state: ConnectionState ): string {
 		return __( 'Not connected', 'jetpack-my-jetpack' );
 	}
 
-	return state.label;
+	return label;
 }
 
 interface ConnectionControlProps {
@@ -67,16 +68,22 @@ const ConnectionControl: FC< ConnectionControlProps > = ( { trackingContext } ) 
 	const { apiRoot, apiNonce, isUserConnected, connectedPlugins, userConnectionData } =
 		useMyJetpackConnection();
 	const trackingCallback = useConnectionErrorTracking();
-	const { errorGroups, showSupportLink, connectionErrorMessage, actions, restoreConnectionError } =
-		useConnectionErrorNotice( {
-			trackingCallback,
-			trackingContext,
-			trackingPlacement: 'header',
-			navigate: assignLocation,
-			reconnectFrom: CONNECTION_FROM?.myJetpackHeaderReconnect,
-			// Read on each render, which opening the popover causes, so a repair returns to the page the header is on.
-			reconnectRedirectUrl: window.location.href,
-		} );
+	const {
+		errorGroups,
+		errorShortTitle,
+		showSupportLink,
+		connectionErrorMessage,
+		actions,
+		restoreConnectionError,
+	} = useConnectionErrorNotice( {
+		trackingCallback,
+		trackingContext,
+		trackingPlacement: 'header',
+		navigate: assignLocation,
+		reconnectFrom: CONNECTION_FROM?.myJetpackHeaderReconnect,
+		// Read on each render, which opening the popover causes, so a repair returns to the page the header is on.
+		reconnectRedirectUrl: window.location.href,
+	} );
 	const [ isOpen, setIsOpen ] = useState( false );
 	const { recordEvent } = useAnalytics();
 	const context = trackingContext || null;
@@ -153,6 +160,8 @@ const ConnectionControl: FC< ConnectionControlProps > = ( { trackingContext } ) 
 	}, [] );
 	const onUnlinked = useCallback( () => window.location.reload(), [] );
 
+	// The heading and the button's name already say "Jetpack Connection", so an error drops that lead.
+	const label = state.id === 'error' ? errorShortTitle : state.label;
 	const avatar = userConnectionData?.currentUser?.wpcomUser?.avatar;
 	const showAvatar = isUserConnected || state.action === 'CONNECT_USER';
 
@@ -165,7 +174,7 @@ const ConnectionControl: FC< ConnectionControlProps > = ( { trackingContext } ) 
 					aria-label={ sprintf(
 						/* translators: %s is the connection state, e.g. "Site and account connected". */
 						__( 'Jetpack Connection: %s', 'jetpack-my-jetpack' ),
-						state.label
+						label
 					) }
 				>
 					<img
@@ -190,7 +199,9 @@ const ConnectionControl: FC< ConnectionControlProps > = ( { trackingContext } ) 
 								showAvatar={ showAvatar }
 								className={ styles.illustration }
 							/>
-							<Badge intent={ STATUS_INTENTS[ state.status ] }>{ getBadgeLabel( state ) }</Badge>
+							<Badge intent={ STATUS_INTENTS[ state.status ] }>
+								{ getBadgeLabel( state, label ) }
+							</Badge>
 							<ConnectionOwnerInfo />
 							{ state.isDiagnosis && restoreConnectionError && (
 								<Text variant="body-sm">

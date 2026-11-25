@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Header: Call the connection panel and its button "Jetpack Connection".
+Header: Call the connection panel and its button "Jetpack Connection", without repeating it in the error badge.
