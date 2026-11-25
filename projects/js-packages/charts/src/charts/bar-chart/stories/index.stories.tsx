@@ -963,7 +963,7 @@ export const Stacked: Story = {
 const deviceViewsWithPrevious: SeriesData[] = [
 	...deviceViewsData.map( series => ( { ...series, group: series.label } ) ),
 	...deviceViewsData.map( ( series, index ) => ( {
-		label: `${ series.label } (previous)`,
+		label: `Previous ${ series.label.toLowerCase() }`,
 		group: series.label,
 		options: { type: 'comparison' as const },
 		data: series.data.map( ( point, day ) => ( {
@@ -992,7 +992,7 @@ export const StackedComparison: Story = {
 		docs: {
 			description: {
 				story:
-					'The previous period of each device is summed into one bar beside each stack, named by `legend.comparisonItem`; hiding a device drops its previous period from that bar too.',
+					"Each device is paired by `group` with its previous four weeks, and those are summed into one bar beside each stack, in a gray that keeps 3:1 against the background. Hover a bar, or tab in and use the arrow keys, to read each device, the total, then the previous period's total; each day has a second stop on the gray bar. Hide a device from the legend and its previous period leaves the gray bar too, so both bars sum the same devices; `legend.comparisonItem` names that bar in the legend and the tooltip.",
 			},
 		},
 	},
