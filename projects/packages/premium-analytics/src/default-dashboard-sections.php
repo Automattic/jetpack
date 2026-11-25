@@ -292,6 +292,23 @@ function get_subscribers_section_default_layout() {
 }
 
 /**
+ * The AI tab's default widget layout.
+ *
+ * @return array Widget instances.
+ */
+function get_ai_section_default_layout() {
+	return array(
+		get_dashboard_default_widget_instance(
+			'default-requests-by-source-widget-instance',
+			'ai-traffic/requests-by-source',
+			0,
+			'full',
+			DASHBOARD_TILE_CARD
+		),
+	);
+}
+
+/**
  * Registers the default Premium Analytics dashboard sections.
  *
  * Hooked on the registration action and safe to call directly: a section already registered
@@ -345,11 +362,17 @@ function register_default_dashboard_sections( $registry = null ) {
 			'default_layout'      => __NAMESPACE__ . '\\get_subscribers_section_default_layout',
 		),
 		'analytics/ai'          => array(
-			'label'        => __( 'AI', 'jetpack-premium-analytics-pkg' ),
-			'title'        => __( 'AI activity', 'jetpack-premium-analytics-pkg' ),
+			'label'               => __( 'AI', 'jetpack-premium-analytics-pkg' ),
+			'title'               => __( 'AI activity', 'jetpack-premium-analytics-pkg' ),
 			// Right after Traffic, ahead of Insights.
-			'order'        => 15,
-			'is_available' => array( AI_Traffic::class, 'is_available' ),
+			'order'               => 15,
+			'is_available'        => array( AI_Traffic::class, 'is_available' ),
+			// The edge reports have no previous period yet, and pick their own buckets.
+			'date_filter_options' => array(
+				'with_date_comparison'         => false,
+				'with_header_interval_control' => false,
+			),
+			'default_layout'      => __NAMESPACE__ . '\\get_ai_section_default_layout',
 		),
 	);
 
