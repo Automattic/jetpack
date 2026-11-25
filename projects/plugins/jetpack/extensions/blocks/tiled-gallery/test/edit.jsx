@@ -1,4 +1,5 @@
 import { act, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { dispatch } from '@wordpress/data';
 import {
@@ -112,4 +113,82 @@ test( 'uploads files picked in the editor iframe into an empty gallery', async (
 
 	act( () => uploads[ 0 ].onFileChange( [ { id: 3, url: 'http://example.com/a.jpg' } ] ) );
 	expect( getColumns() ).toBe( 1 );
+} );
+
+test( 'marks derived columnWidths updates as non-persistent and combines remove/columns updates', async () => {
+	const user = userEvent.setup();
+	const originalClientWidth = Object.getOwnPropertyDescriptor(
+		HTMLElement.prototype,
+		'clientWidth'
+	);
+	Object.defineProperty( HTMLElement.prototype, 'clientWidth', {
+		configurable: true,
+		value: 600,
+	} );
+
+	const storeDispatch = dispatch( blockEditorStore );
+	const markSpy = jest.spyOn( storeDispatch, '__unstableMarkNextChangeAsNotPersistent' );
+	const calls = [];
+	let currentAttributes = {
+		...defaultAttributes,
+		columns: 2,
+		images: images.map( img => ( { ...img, width: 800, height: 600 } ) ),
+	};
+
+	const Controlled = () => (
+		<Edit
+			attributes={ currentAttributes }
+			clientId={ clientId }
+			isSelected
+			noticeOperations={ { createErrorNotice: jest.fn() } }
+			setAttributes={ attrs => {
+				calls.push( { attrs, markCountAtCall: markSpy.mock.calls.length } );
+				currentAttributes = { ...currentAttributes, ...attrs };
+			} }
+		/>
+	);
+
+	try {
+		const { rerender } = render( <Controlled /> );
+		await act( () => new Promise( resolve => requestAnimationFrame( resolve ) ) );
+		markSpy.mockClear();
+		calls.length = 0;
+
+		await user.click( screen.getByRole( 'button', { name: /image 1 of 2/i } ) );
+		await user.click( screen.getAllByRole( 'button', { name: 'Move image forward' } )[ 0 ] );
+		rerender( <Controlled /> );
+		await act( () => new Promise( resolve => requestAnimationFrame( resolve ) ) );
+
+		expect( calls.map( ( { attrs } ) => Object.keys( attrs ) ) ).toEqual( [
+			[ 'images', 'ids' ],
+			[ 'columnWidths' ],
+		] );
+		expect( calls[ 0 ].markCountAtCall ).toBe( 0 );
+		expect( calls[ 1 ].markCountAtCall ).toBe( 1 );
+
+		markSpy.mockClear();
+		calls.length = 0;
+
+		await user.click( screen.getAllByRole( 'button', { name: 'Remove image' } )[ 1 ] );
+		rerender( <Controlled /> );
+		await act( () => new Promise( resolve => requestAnimationFrame( resolve ) ) );
+
+		expect( calls[ 0 ].attrs ).toEqual(
+			expect.objectContaining( {
+				images: expect.any( Array ),
+				ids: expect.any( Array ),
+				columns: 1,
+			} )
+		);
+		expect(
+			calls.filter( ( { attrs } ) => 'columnWidths' in attrs ).every( c => c.markCountAtCall >= 1 )
+		).toBe( true );
+	} finally {
+		markSpy.mockRestore();
+		if ( originalClientWidth ) {
+			Object.defineProperty( HTMLElement.prototype, 'clientWidth', originalClientWidth );
+		} else {
+			delete HTMLElement.prototype.clientWidth;
+		}
+	}
 } );
