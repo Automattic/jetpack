@@ -79,33 +79,16 @@ function compute_available_promos() {
 		return array();
 	}
 
-	$promos = array_filter(
-		Promo_Registry::get_instance()->get_all_registered(),
-		static function ( Promo $promo ) {
-			// The Stats roles setting can let an editor or an author open the dashboard, and an
-			// upgrade is not theirs to buy.
-			return current_user_can( $promo->capability ) && $promo->is_available();
-		}
-	);
-
-	/**
-	 * Filters the promos that passed the flag, the promotions switch and their own rule.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param Promo[] $promos Available promos, as `$slug => $promo` pairs.
-	 */
-	$filtered = apply_filters( 'jetpack_premium_analytics_promos', $promos );
-
-	// A closure here would take the hook docblock's @param with it (PhanCommentParamWithoutRealParam).
-	$promos = array();
-	if ( is_array( $filtered ) ) {
-		foreach ( $filtered as $candidate ) {
-			if ( $candidate instanceof Promo ) {
-				$promos[] = $candidate;
+	$promos = array_values(
+		array_filter(
+			Promo_Registry::get_instance()->get_all_registered(),
+			static function ( Promo $promo ) {
+				// The Stats roles setting can let an editor or an author open the dashboard, and an
+				// upgrade is not theirs to buy.
+				return current_user_can( $promo->capability ) && $promo->is_available();
 			}
-		}
-	}
+		)
+	);
 
 	usort(
 		$promos,

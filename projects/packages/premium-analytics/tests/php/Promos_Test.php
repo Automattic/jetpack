@@ -52,7 +52,6 @@ class Promos_Test extends BaseTestCase {
 		unset( $_GET['page'], $GLOBALS['current_screen'] );
 		remove_all_filters( 'jetpack_admin_js_script_data' );
 		remove_all_filters( 'jetpack_show_promotions' );
-		remove_all_filters( 'jetpack_premium_analytics_promos' );
 		remove_all_filters( 'jetpack_feature_flag_enabled_' . PROMO_FLAG );
 		Feature_Flags::reset();
 
@@ -203,34 +202,6 @@ class Promos_Test extends BaseTestCase {
 		$this->assertSame( array( 'acme/shown' ), $this->available_slugs() );
 	}
 
-	public function test_the_runtime_filter_can_drop_a_promo() {
-		$this->register_fixture_promos(
-			array(
-				'slug'         => 'acme/kept',
-				'placement'    => 'settings',
-				'is_available' => true,
-			),
-			array(
-				'slug'         => 'acme/dropped',
-				'placement'    => 'settings',
-				'is_available' => true,
-			)
-		);
-		add_filter(
-			'jetpack_premium_analytics_promos',
-			static function ( array $promos ) {
-				return array_filter(
-					$promos,
-					static function ( Promo $promo ) {
-						return 'acme/dropped' !== $promo->slug;
-					}
-				);
-			}
-		);
-
-		$this->assertSame( array( 'acme/kept' ), $this->available_slugs() );
-	}
-
 	public function test_promos_are_sorted_by_order_then_slug() {
 		$this->register_fixture_promos(
 			array(
@@ -288,38 +259,6 @@ class Promos_Test extends BaseTestCase {
 		$this->assertTrue( $data['premium_analytics']['can_view_stats'] );
 		$this->assertCount( 1, $data['premium_analytics']['promos'] );
 		$this->assertSame( 'acme/offer', $data['premium_analytics']['promos'][0]['slug'] );
-	}
-
-	public function test_a_filter_returning_a_non_array_yields_no_promos() {
-		$this->register_fixture_promos(
-			array(
-				'slug'         => 'acme/offer',
-				'placement'    => 'settings',
-				'is_available' => true,
-			)
-		);
-		add_filter( 'jetpack_premium_analytics_promos', '__return_null' );
-
-		$this->assertSame( array(), get_available_promos() );
-	}
-
-	public function test_a_filter_adding_a_non_promo_item_does_not_break_the_list() {
-		$this->register_fixture_promos(
-			array(
-				'slug'         => 'acme/offer',
-				'placement'    => 'settings',
-				'is_available' => true,
-			)
-		);
-		add_filter(
-			'jetpack_premium_analytics_promos',
-			static function ( array $promos ) {
-				$promos[] = 'not a promo';
-				return $promos;
-			}
-		);
-
-		$this->assertSame( array( 'acme/offer' ), $this->available_slugs() );
 	}
 
 	public function test_script_data_is_left_alone_off_the_dashboard() {
