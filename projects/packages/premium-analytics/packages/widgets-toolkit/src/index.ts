@@ -16,6 +16,7 @@ export {
 	ComparativeLineChart,
 	type ComparativeLineChartSeries,
 	StackedAreaChart,
+	type StackedAreaSeries,
 	ComparativeBarChart,
 	type ComparativeBarChartProps,
 	type ComparativeBarChartSeries,

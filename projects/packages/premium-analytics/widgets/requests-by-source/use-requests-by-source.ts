@@ -13,7 +13,7 @@ import {
 import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
-import type { ComparativeLineChartSeries } from '@jetpack-premium-analytics/widgets-toolkit';
+import type { StackedAreaSeries } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /** A window this short is drawn by the hour, since two daily points make no area. */
 const HOURLY_MAX_DAYS = 2;
@@ -26,7 +26,7 @@ export type RequestSource = {
 	total: number;
 	/** Its part of every request in the window, 0 to 1; null when there were none. */
 	share: number | null;
-	series: ComparativeLineChartSeries;
+	series: StackedAreaSeries;
 };
 
 function sourceLabels(): Record< EdgeRequestSource, string > {
