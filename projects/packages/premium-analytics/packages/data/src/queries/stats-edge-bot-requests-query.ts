@@ -17,6 +17,7 @@ export type StatsEdgeBotRequestsParams = ReportParams &
 	};
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
+const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
 
 /** The most days each table serves; the endpoint answers a longer range with a 400. */
 const MAX_DAYS: Record< StatsEdgeBotRequestsGranularity, number > = { hour: 30, day: 366 };
@@ -39,7 +40,11 @@ function requestWindow( params: StatsEdgeBotRequestsParams ) {
 	if ( params.granularity === 'hour' ) {
 		const timezone = resolveReportTimeZone( params.timezone );
 		const from = toLocalTZ( params.from, timezone ).getTime();
-		const to = toLocalTZ( params.to, timezone ).getTime();
+		// A bare date closes at the end of that day, as the daily window reads it.
+		const to = toLocalTZ(
+			DATE_ONLY.test( params.to ) ? `${ params.to }T23:59:59.999` : params.to,
+			timezone
+		).getTime();
 
 		return Number.isFinite( from ) && Number.isFinite( to )
 			? { start: utcDay( from ), end: utcDay( to + MS_PER_DAY ), from, to }

@@ -1459,6 +1459,21 @@ describe( 'Stats query factories', () => {
 		} );
 	} );
 
+	it( 'closes an hourly window with a bare `to` at the end of that day', () => {
+		const query = statsEdgeBotRequestsQuery( {
+			from: '2026-11-01',
+			to: '2026-11-01',
+			interval: 'hour',
+			granularity: 'hour',
+			timezone: 'Asia/Taipei',
+		} );
+
+		expect( query.queryKey[ 8 ] ).toEqual( {
+			window_start: '2026-10-31T16:00:00.000Z',
+			window_end: '2026-11-01T15:59:59.999Z',
+		} );
+	} );
+
 	it.each( [
 		[ 'a year', '2025-11-08', true ],
 		[ 'more than the rollup table serves', '2023-11-08', false ],

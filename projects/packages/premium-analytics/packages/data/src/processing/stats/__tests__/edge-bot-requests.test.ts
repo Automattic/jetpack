@@ -92,6 +92,33 @@ describe( 'sanitizeStatsEdgeBotRequestsResponse', () => {
 		expect( report.data[ 23 ] ).toMatchObject( { date_start: '2026-11-02T23:00:00', human: 3 } );
 	} );
 
+	it( 'folds the repeated hour of a fall-back day into one bucket', () => {
+		// New York's November 1, 2026: 1 AM EDT (05:00Z) and 1 AM EST (06:00Z) both read 1 AM.
+		const report = sanitizeStatsEdgeBotRequestsResponse(
+			[
+				{ ts: '2026-11-01 05:00:00', human_requests: 2 },
+				{ ts: '2026-11-01 06:00:00', human_requests: 3 },
+			],
+			{
+				start: '2026-11-01',
+				end: '2026-11-03',
+				granularity: 'hour',
+				window_start: '2026-11-01T04:00:00.000Z',
+				window_end: '2026-11-02T04:59:59.999Z',
+				timezone: 'America/New_York',
+			}
+		);
+
+		expect( report.summary.human ).toBe( 5 );
+		expect( report.data ).toHaveLength( 24 );
+		expect( report.data[ 1 ] ).toMatchObject( {
+			date_start: '2026-11-01T01:00:00',
+			date_end: '2026-11-01T01:59:59',
+			human: 5,
+		} );
+		expect( report.data[ 2 ].date_start ).toBe( '2026-11-01T02:00:00' );
+	} );
+
 	it.each( [
 		[ 'day', '2026-11-05', [ '2026-11-01T00:00:00', '2026-11-03T00:00:00' ] ],
 		[ 'hour', '2026-11-04', [ '2026-11-03T00:00:00', '2026-11-03T17:00:00' ] ],

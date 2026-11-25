@@ -121,13 +121,25 @@ export function sanitizeStatsEdgeBotRequestsResponse(
 	}
 
 	const summary = emptyCounts();
-	const data = keys.map( key => {
+	// A fall-back day names two UTC hours by the same wall-clock hour, which the chart
+	// could only draw as two points on one instant, so they fold into one bucket.
+	const byStart = new Map< string, StatsEdgeBotRequestsDataPoint >();
+	for ( const key of keys ) {
 		const bucket = counts.get( key ) ?? emptyCounts();
+		const bounds = bucketBounds( key, hourly, query?.timezone );
+		const seen = byStart.get( bounds.date_start );
 		for ( const source of EDGE_REQUEST_SOURCES ) {
 			summary[ source ] += bucket[ source ];
+			if ( seen ) {
+				seen[ source ] += bucket[ source ];
+			}
 		}
-		return { ...bucketBounds( key, hourly, query?.timezone ), ...bucket };
-	} );
+		if ( seen ) {
+			seen.date_end = bounds.date_end;
+		} else {
+			byStart.set( bounds.date_start, { ...bounds, ...bucket } );
+		}
+	}
 
-	return { summary, data };
+	return { summary, data: [ ...byStart.values() ] };
 }
