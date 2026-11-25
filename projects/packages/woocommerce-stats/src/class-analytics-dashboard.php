@@ -263,7 +263,19 @@ class Analytics_Dashboard {
 			$messages[] = __( 'WooCommerce Analytics is off, so this tab can’t read your store’s orders. Turn it on in WooCommerce › Settings › Advanced › Features.', 'jetpack-woocommerce-stats-pkg' );
 		} else {
 			$import = $data_status->get_import_status();
-			if ( $import && $import['failed_count'] > 0 ) {
+			if ( $import && $import['failed_overflow_count'] > 0 ) {
+				// Retry reaches only the failures core stored; those past its cap need a full import.
+				$messages[] = sprintf(
+					/* translators: %d: Number of orders. */
+					_n(
+						'WooCommerce Analytics couldn’t import more than %d order. To import them all, run Import historical data in WooCommerce › Analytics › Settings with “Skip previously imported customers and orders” checked.',
+						'WooCommerce Analytics couldn’t import more than %d orders. To import them all, run Import historical data in WooCommerce › Analytics › Settings with “Skip previously imported customers and orders” checked.',
+						$import['failed_count'],
+						'jetpack-woocommerce-stats-pkg'
+					),
+					$import['failed_count']
+				);
+			} elseif ( $import && $import['failed_count'] > 0 ) {
 				$messages[] = sprintf(
 					/* translators: %d: Number of orders. */
 					_n(

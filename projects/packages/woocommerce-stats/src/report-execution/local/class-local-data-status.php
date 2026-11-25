@@ -33,11 +33,13 @@ class Local_Data_Status {
 	}
 
 	/**
-	 * Core's import status, as the current user may read it.
+	 * Core's import status, as the current user may read it. The route arrived in WooCommerce 10.5,
+	 * its failed import counts in 11.0; before those, there's no status and no failures to count.
 	 *
 	 * @return array|null `mode` (`immediate` or `scheduled`), `last_processed_date` and `next_scheduled`
-	 *                    (store time, scheduled mode only), and `failed_count`; null where core has no
-	 *                    such route or the user may not read it.
+	 *                    (store time, scheduled mode only), `failed_count` (orders Retry can reach) and
+	 *                    `failed_overflow_count` (failures past core's cap, which only a full import
+	 *                    recovers); null where core has no such route or the user may not read it.
 	 */
 	public function get_import_status() {
 		// An error answer, such as a 404 or 403, carries no `mode`.
@@ -47,10 +49,11 @@ class Local_Data_Status {
 		}
 
 		return array(
-			'mode'                => (string) $status['mode'],
-			'last_processed_date' => isset( $status['last_processed_date'] ) ? (string) $status['last_processed_date'] : null,
-			'next_scheduled'      => isset( $status['next_scheduled'] ) ? (string) $status['next_scheduled'] : null,
-			'failed_count'        => (int) ( $status['failed_count'] ?? 0 ) + (int) ( $status['failed_overflow_count'] ?? 0 ),
+			'mode'                  => (string) $status['mode'],
+			'last_processed_date'   => isset( $status['last_processed_date'] ) ? (string) $status['last_processed_date'] : null,
+			'next_scheduled'        => isset( $status['next_scheduled'] ) ? (string) $status['next_scheduled'] : null,
+			'failed_count'          => (int) ( $status['failed_count'] ?? 0 ),
+			'failed_overflow_count' => (int) ( $status['failed_overflow_count'] ?? 0 ),
 		);
 	}
 }

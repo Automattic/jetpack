@@ -354,8 +354,8 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		);
 
 		return array(
-			'immediate'                 => array( $immediate, array( 'need a Jetpack connection' ), array( 'updated', 'couldn’t import' ) ),
-			'scheduled'                 => array(
+			'immediate'                   => array( $immediate, array( 'need a Jetpack connection' ), array( 'updated', 'couldn’t import' ) ),
+			'scheduled'                   => array(
 				array(
 					'mode'                => 'scheduled',
 					'last_processed_date' => '2026-11-24 09:00:00',
@@ -364,18 +364,23 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 				array( 'last updated on 2026-11-24 09:00', 'next update runs on 2026-11-24 21:00', 'WooCommerce › Analytics › Settings', 'need a Jetpack connection' ),
 				array( 'couldn’t import' ),
 			),
-			'scheduled, never run'      => array(
+			'scheduled, never run'        => array(
 				array( 'mode' => 'scheduled' ) + $immediate,
 				array( 'hasn’t been updated yet' ),
 				array( 'next update' ),
 			),
-			'failed imports, immediate' => array(
+			'failed imports, immediate'   => array(
+				array( 'failed_count' => 2 ) + $immediate,
+				array( 'couldn’t import 2 orders. Retry them', 'Import historical data' ),
+				array( 'updated', 'more than' ),
+			),
+			'failed imports past the cap' => array(
 				array(
-					'failed_count'          => 2,
-					'failed_overflow_count' => 1,
+					'failed_count'          => 1000,
+					'failed_overflow_count' => 5,
 				) + $immediate,
-				array( 'couldn’t import 3 orders', 'Import historical data' ),
-				array( 'updated' ),
+				array( 'couldn’t import more than 1000 orders', 'Skip previously imported customers and orders' ),
+				array( 'Retry' ),
 			),
 		);
 	}
