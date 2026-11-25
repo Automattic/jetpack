@@ -10,30 +10,8 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
-use Automattic\Jetpack\Feature_Flags\Feature_Flags;
-
 require_once __DIR__ . '/class-promo.php';
 require_once __DIR__ . '/class-promo-registry.php';
-
-const PROMO_FLAG = 'jetpack-stats-promos';
-
-/**
- * Registers the promo flag, off by default.
- *
- * @since $$next-version$$
- *
- * @return void
- */
-function register_promos_feature_flag() {
-	Feature_Flags::register(
-		PROMO_FLAG,
-		array(
-			'default'     => false,
-			'description' => 'Show the promotions the Stats v2 options menu and Settings page offer.',
-			'owner'       => 'jetpack-stats',
-		)
-	);
-}
 
 /**
  * Registers a promo.
@@ -70,10 +48,6 @@ function get_available_promos() {
  * @return Promo[] Ordered list of available promos.
  */
 function compute_available_promos() {
-	if ( ! Feature_Flags::is_enabled( PROMO_FLAG ) ) {
-		return array();
-	}
-
 	/** This filter is documented in projects/plugins/jetpack/_inc/lib/admin-pages/class-jetpack-redux-state-helper.php */
 	if ( ! apply_filters( 'jetpack_show_promotions', true ) ) {
 		return array();

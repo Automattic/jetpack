@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
-use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use WorDBless\BaseTestCase;
 
@@ -18,10 +17,8 @@ require_once dirname( __DIR__, 2 ) . '/src/promos.php';
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_available_promos
  * @covers ::Automattic\Jetpack\PremiumAnalytics\inject_promos_script_data
  * @covers ::Automattic\Jetpack\PremiumAnalytics\register_promo
- * @covers ::Automattic\Jetpack\PremiumAnalytics\register_promos_feature_flag
  */
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\configure_promos' )]
-#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\register_promos_feature_flag' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_available_promos' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\inject_promos_script_data' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\register_promo' )]
@@ -45,15 +42,13 @@ class Promos_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Drop the flag, the filters and the registry the fixtures filled.
+	 * Drop the filters and the registry the fixtures filled.
 	 */
 	public function tear_down() {
 		wp_set_current_user( 0 );
 		unset( $_GET['page'], $GLOBALS['current_screen'] );
 		remove_all_filters( 'jetpack_admin_js_script_data' );
 		remove_all_filters( 'jetpack_show_promotions' );
-		remove_all_filters( 'jetpack_feature_flag_enabled_' . PROMO_FLAG );
-		Feature_Flags::reset();
 
 		foreach ( array( Promo_Registry::class, Dashboard_Section_Registry::class ) as $registry_class ) {
 			$instance = new \ReflectionProperty( $registry_class, 'instance' );
@@ -70,13 +65,11 @@ class Promos_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Turns the flag on and registers one promo per args array, each keyed by its `slug`.
+	 * Registers one promo per args array, each keyed by its `slug`.
 	 *
 	 * @param array ...$promos Promo arguments, each with a `slug` key.
 	 */
 	private function register_fixture_promos( array ...$promos ) {
-		add_filter( 'jetpack_feature_flag_enabled_' . PROMO_FLAG, '__return_true' );
-
 		foreach ( $promos as $args ) {
 			$slug = $args['slug'];
 			unset( $args['slug'] );
@@ -141,19 +134,6 @@ class Promos_Test extends BaseTestCase {
 		);
 
 		$this->assertSame( array( 'acme/offer' ), $this->available_slugs() );
-	}
-
-	public function test_no_promos_while_the_flag_is_off() {
-		$this->register_fixture_promos(
-			array(
-				'slug'         => 'acme/offer',
-				'placement'    => 'settings',
-				'is_available' => true,
-			)
-		);
-		remove_all_filters( 'jetpack_feature_flag_enabled_' . PROMO_FLAG );
-
-		$this->assertSame( array(), get_available_promos() );
 	}
 
 	public function test_no_promos_when_show_promotions_is_false() {
@@ -281,33 +261,6 @@ class Promos_Test extends BaseTestCase {
 		configure_promos();
 
 		$this->assertSame( 20, has_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_promos_script_data' ) );
-	}
-
-	public function test_the_flag_registers_off_by_default() {
-		register_promos_feature_flag();
-
-		$this->assertSame(
-			array(
-				'default'     => false,
-				'description' => 'Show the promotions the Stats v2 options menu and Settings page offer.',
-				'owner'       => 'jetpack-stats',
-				'name'        => PROMO_FLAG,
-			),
-			Feature_Flags::all()[ PROMO_FLAG ] ?? null
-		);
-	}
-
-	public function test_a_registered_promo_is_withheld_while_the_flag_is_unregistered() {
-		Promo_Registry::get_instance()->register(
-			'acme/offer',
-			array(
-				'placement'    => 'settings',
-				'title'        => 'Try Acme',
-				'is_available' => true,
-			)
-		);
-
-		$this->assertSame( array(), get_available_promos() );
 	}
 
 	public function test_a_promos_rule_runs_once_however_many_callers_ask() {
