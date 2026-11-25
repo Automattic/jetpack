@@ -35,7 +35,7 @@ class Jetpack_Sitemap_Finder {
 	public function construct_sitemap_url( $filename ) {
 		$url = jetpack_sitemap_uri( $filename );
 
-		if ( pathinfo( $filename, PATHINFO_EXTENSION ) === 'xsl' ) {
+		if ( in_array( pathinfo( $filename, PATHINFO_EXTENSION ), array( 'xsl', 'css' ), true ) ) {
 			// Strip scheme for sites where sitemap could be access via http or https.
 			$url = preg_replace( '/^https?:/', '', $url );
 		}
@@ -91,6 +91,12 @@ class Jetpack_Sitemap_Finder {
 	 * }
 	 */
 	public function recognize_sitemap_uri( $raw_uri ) {
+		$query = array();
+		wp_parse_str( (string) wp_parse_url( $raw_uri, PHP_URL_QUERY ), $query );
+		if ( isset( $query['jetpack-sitemap'] ) && 'sitemap-labels.css' === $query['jetpack-sitemap'] ) {
+			return array( 'sitemap_name' => 'sitemap-labels.css' );
+		}
+
 		// The path+query where sitemaps are served.
 		$sitemap_path = $this->the_jetpack_sitemap_path_and_query_prefix();
 
