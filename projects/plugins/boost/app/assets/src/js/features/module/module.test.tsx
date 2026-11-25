@@ -3,7 +3,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import Module from './module';
 import { recordBoostEvent } from '$lib/utils/analytics';
-import { ModuleSurfaceProvider } from './surface';
 
 jest.mock( './lib/stores', () => ( {
 	useSingleModuleState: () => [ mockState, mockSetStatus ],
@@ -19,9 +18,6 @@ let mockState: { active: boolean; available: boolean } | undefined;
 
 const boostGlobal = { site: { online: true, host: '' }, developmentFeatures: [] as string[] };
 
-const renderModule = ( ui: React.ReactElement, row: boolean ) =>
-	render( row ? <ModuleSurfaceProvider value="row">{ ui }</ModuleSurfaceProvider> : ui );
-
 describe( 'Module', () => {
 	beforeEach( () => {
 		mockState = { active: true, available: true };
@@ -32,11 +28,8 @@ describe( 'Module', () => {
 		( globalThis as unknown as { Jetpack_Boost: typeof boostGlobal } ).Jetpack_Boost = boostGlobal;
 	} );
 
-	it.each( [ false, true ] )( 'records each intentional module toggle on surface row=%s', row => {
-		const view = renderModule(
-			<Module slug="minify_js" title="Concatenate JS" description="Desc" />,
-			row
-		);
+	it( 'records each intentional module toggle', () => {
+		const view = render( <Module slug="minify_js" title="Concatenate JS" description="Desc" /> );
 		expect( recordBoostEvent ).not.toHaveBeenCalled();
 		fireEvent.click( screen.getByRole( 'checkbox' ) );
 		expect( recordBoostEvent ).toHaveBeenLastCalledWith( 'module_toggle_clicked', {
@@ -46,7 +39,7 @@ describe( 'Module', () => {
 		expect( mockSetStatus ).toHaveBeenLastCalledWith( false );
 		mockState = { active: false, available: true };
 		view.unmount();
-		renderModule( <Module slug="minify_js" title="Concatenate JS" description="Desc" />, row );
+		render( <Module slug="minify_js" title="Concatenate JS" description="Desc" /> );
 		fireEvent.click( screen.getByRole( 'checkbox' ) );
 		expect( recordBoostEvent ).toHaveBeenLastCalledWith( 'module_toggle_clicked', {
 			module: 'minify_js',
@@ -56,26 +49,11 @@ describe( 'Module', () => {
 		expect( recordBoostEvent ).toHaveBeenCalledTimes( 2 );
 	} );
 
-	it( 'renders a block with a heading and an unlabelled toggle without a surface provider', () => {
-		const { container } = renderModule(
+	it( 'renders a labelled toggle row', () => {
+		const { container } = render(
 			<Module slug="minify_js" title="Concatenate JS" description={ <p>Desc</p> }>
 				<span>child</span>
-			</Module>,
-			false
-		);
-
-		expect( screen.getByRole( 'heading', { level: 3 } ).textContent ).toBe( 'Concatenate JS' );
-		expect( screen.getByRole( 'checkbox', { name: '' } ) ).toBeTruthy();
-		expect( container.querySelector( '.jb-feature-toggle-minify_js' ) ).not.toBeNull();
-		expect( screen.getByText( 'child' ) ).toBeTruthy();
-	} );
-
-	it( 'renders a labelled toggle row under the row surface', () => {
-		const { container } = renderModule(
-			<Module slug="minify_js" title="Concatenate JS" description={ <p>Desc</p> }>
-				<span>child</span>
-			</Module>,
-			true
+			</Module>
 		);
 
 		expect( screen.getByRole( 'checkbox', { name: 'Concatenate JS' } ) ).toBeTruthy();
@@ -86,32 +64,22 @@ describe( 'Module', () => {
 		expect( container.querySelector( '.jb-feature-toggle-minify_js' ) ).not.toBeNull();
 	} );
 
-	it( 'hides children while the module is inactive on both surfaces', () => {
+	it( 'hides children while the module is inactive', () => {
 		mockState = { active: false, available: true };
 
-		for ( const row of [ false, true ] ) {
-			const view = renderModule(
-				<Module slug="minify_js" title="Concatenate JS" description="Desc">
-					<span>child</span>
-				</Module>,
-				row
-			);
-			expect( screen.queryByText( 'child' ) ).toBeNull();
-			view.unmount();
-		}
+		render(
+			<Module slug="minify_js" title="Concatenate JS" description="Desc">
+				<span>child</span>
+			</Module>
+		);
+		expect( screen.queryByText( 'child' ) ).toBeNull();
 	} );
 
-	it( 'renders nothing for an unavailable module on both surfaces', () => {
+	it( 'renders nothing for an unavailable module', () => {
 		mockState = { active: false, available: false };
 
-		for ( const row of [ false, true ] ) {
-			const view = renderModule(
-				<Module slug="minify_js" title="Concatenate JS" description="Desc" />,
-				row
-			);
-			expect( screen.queryByText( 'Concatenate JS' ) ).toBeNull();
-			view.unmount();
-		}
+		render( <Module slug="minify_js" title="Concatenate JS" description="Desc" /> );
+		expect( screen.queryByText( 'Concatenate JS' ) ).toBeNull();
 	} );
 
 	it.each( [ 'woa', 'atomic' ] )(
@@ -120,16 +88,10 @@ describe( 'Module', () => {
 			mockState = { active: false, available: false };
 			boostGlobal.site.host = host;
 
-			for ( const row of [ false, true ] ) {
-				const view = renderModule(
-					<Module slug="page_cache" title="Cache Site Pages" description="Desc" />,
-					row
-				);
-				const toggle = screen.getByRole( 'checkbox' ) as HTMLInputElement;
-				expect( toggle.checked ).toBe( true );
-				expect( toggle.disabled ).toBe( true );
-				view.unmount();
-			}
+			render( <Module slug="page_cache" title="Cache Site Pages" description="Desc" /> );
+			const toggle = screen.getByRole( 'checkbox' ) as HTMLInputElement;
+			expect( toggle.checked ).toBe( true );
+			expect( toggle.disabled ).toBe( true );
 		}
 	);
 
@@ -137,26 +99,19 @@ describe( 'Module', () => {
 		mockState = { active: false, available: false };
 		boostGlobal.site.host = 'other';
 
-		for ( const row of [ false, true ] ) {
-			const view = renderModule(
-				<Module slug="page_cache" title="Cache Site Pages" description="Desc" />,
-				row
-			);
-			const toggle = screen.getByRole( 'checkbox' ) as HTMLInputElement;
-			expect( toggle.checked ).toBe( false );
-			expect( toggle.disabled ).toBe( true );
-			view.unmount();
-		}
+		render( <Module slug="page_cache" title="Cache Site Pages" description="Desc" /> );
+		const toggle = screen.getByRole( 'checkbox' ) as HTMLInputElement;
+		expect( toggle.checked ).toBe( false );
+		expect( toggle.disabled ).toBe( true );
 	} );
 
-	it( 'shows the offline notice instead of children in a row', () => {
+	it( 'shows the offline notice instead of children', () => {
 		boostGlobal.site.online = false;
 
-		renderModule(
+		render(
 			<Module slug="image_cdn" title="Image CDN" description="Desc" worksOffline={ false }>
 				<span>child</span>
-			</Module>,
-			true
+			</Module>
 		);
 
 		// The notice also speaks its text into a live region.
@@ -164,17 +119,16 @@ describe( 'Module', () => {
 		expect( screen.queryByText( 'child' ) ).toBeNull();
 	} );
 
-	it( 'falls back to an error notice in a row when the module throws', () => {
+	it( 'falls back to an error notice when the module throws', () => {
 		const Boom = () => {
 			throw new Error( 'kaboom' );
 		};
 		jest.spyOn( console, 'error' ).mockImplementation( () => {} );
 
-		renderModule(
+		render(
 			<Module slug="minify_js" title="Concatenate JS" description="Desc">
 				<Boom />
-			</Module>,
-			true
+			</Module>
 		);
 
 		expect( screen.getByText( 'Failed to load module' ) ).toBeTruthy();
