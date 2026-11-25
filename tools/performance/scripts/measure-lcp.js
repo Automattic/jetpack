@@ -998,10 +998,13 @@ function resolveScenarioSet( scenarioFilter, scenarios ) {
  *
  * The posting policy lives here, once: exit 0 means "every required scenario measured —
  * safe to post". The runner treats a non-zero exit as fatal and never reaches the posting
- * step, which is the retry-safety invariant: a red build has posted nothing, so re-running
- * it cannot append duplicate points to the append-only, dedup-off CodeVitals store. A
- * failed `optional` scenario therefore must NOT fail the build — it warns, its keys skip
- * the build, and the poster skips its errored measurement. Two deliberate hard edges:
+ * step, which is the retry-safety invariant: a build that is red from a required failure
+ * has posted nothing, so re-running it cannot append duplicate points to the append-only,
+ * dedup-off CodeVitals store. A failed `optional` scenario therefore must NOT fail the
+ * build — it warns, its keys skip the build, and the poster skips its errored measurement.
+ * After the POST, invalid counts and counts below the expected count fail. Higher counts warn.
+ *
+ * Two deliberate hard edges:
  * every scenario in the run set failed → exit 1 even when all of them are optional, so a
  * targeted single-scenario run (SCENARIO=forms-responses) still fails loudly; and empty
  * measurements → exit 1 (backstop; resolveScenarioSet already rejects a filter that
