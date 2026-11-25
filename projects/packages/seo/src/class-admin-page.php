@@ -110,9 +110,9 @@ class Admin_Page {
 			self::MENU_SLUG,
 			$callback,
 			null,
-			// Hidden while seo-tools is off, like other Jetpack modules; My Jetpack turns it back on.
+			// Hidden while the SEO switch is off, like other Jetpack features; My Jetpack turns it back on.
 			array(
-				'module' => 'seo-tools',
+				'module' => Initializer::DASHBOARD_MODULE,
 				'key'    => 'jetpack-seo',
 			)
 		);
@@ -174,8 +174,8 @@ class Admin_Page {
 			return $members;
 		}
 
-		// The menu item hides while seo-tools is off, so there is no link to switch to.
-		if ( ! ( new Modules() )->is_active( 'seo-tools' ) ) {
+		// The menu item hides while its module is off, so there is no link to switch to.
+		if ( ! ( new Modules() )->is_active( Initializer::DASHBOARD_MODULE ) ) {
 			return $members;
 		}
 

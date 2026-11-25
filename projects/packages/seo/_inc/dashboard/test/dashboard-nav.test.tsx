@@ -27,10 +27,22 @@ describe( 'DashboardNav', () => {
 	it( 'navigates to /geo when the GEO tab is selected', () => {
 		render( <DashboardNav active="overview">content</DashboardNav> );
 
-		// eslint-disable-next-line testing-library/prefer-user-event -- fireEvent keeps this off the @testing-library/user-event devDep (avoids lockfile churn), matching the sibling enable-seo-empty-state test.
+		// eslint-disable-next-line testing-library/prefer-user-event -- fireEvent keeps this off the @testing-library/user-event devDep (avoids lockfile churn).
 		fireEvent.click( screen.getByRole( 'tab', { name: 'GEO' } ) );
 
 		expect( navigate ).toHaveBeenCalledWith( { href: '/geo' } );
+	} );
+
+	it( 'can hide the tabs and keep the content', () => {
+		render(
+			<DashboardNav active="settings" showTabs={ false }>
+				content
+			</DashboardNav>
+		);
+
+		expect( screen.queryByRole( 'tab' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'tabpanel' ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'content' ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows all four tabs with Settings last', () => {

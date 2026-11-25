@@ -413,7 +413,7 @@ export function useSettingsForm(): SettingsForm {
 				} )
 				// Recorded before the re-read, which can take seconds, so leaving the page
 				// straight after a save doesn't lose the event.
-				.then( () =>
+				.then( () => {
 					settings.forEach( setting =>
 						recordSeoEvent(
 							(
@@ -426,8 +426,14 @@ export function useSettingsForm(): SettingsForm {
 							'settings',
 							setting.props
 						)
-					)
-				)
+					);
+					// SEO tools keeps the event it had before it saved with the other settings.
+					if ( modulesApplied.includes( 'seo_tools_active' ) ) {
+						recordSeoEvent( 'jetpack_seo_tools_toggled', 'settings', {
+							enabled: values.seo_tools_active,
+						} );
+					}
+				} )
 				// Either way — including a save that failed with its first request already
 				// committed — the form is reconciled with the server before the controls
 				// unlock, so `isSaving` also serializes this against the next save.
