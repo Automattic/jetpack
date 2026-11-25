@@ -6,16 +6,18 @@ Which announcements a page shows is decided by channels, with a convention of th
 
 ## The convention
 
-Every page subscribes to two channels: `premium-analytics`, and `premium-analytics/<section>`.
+The channel of the dashboard is `stats`, the slug of the product.
+
+Every page subscribes to two channels: `stats`, and `stats/<section>`.
 
 The section is the first segment of the route of the page. The route `/` has no segment, so its section is `main`.
 
-| Page                         | Route             | Subscribes to                                     |
-| ---------------------------- | ----------------- | ------------------------------------------------- |
-| Dashboard, with all its tabs | `/`               | `premium-analytics`, `premium-analytics/main`     |
-| Settings                     | `/settings`       | `premium-analytics`, `premium-analytics/settings` |
-| A report                     | `/reports/clicks` | `premium-analytics`, `premium-analytics/reports`  |
-| A post                       | `/post/12`        | `premium-analytics`, `premium-analytics/post`     |
+| Page                         | Route             | Subscribes to             |
+| ---------------------------- | ----------------- | ------------------------- |
+| Dashboard, with all its tabs | `/`               | `stats`, `stats/main`     |
+| Settings                     | `/settings`       | `stats`, `stats/settings` |
+| A report                     | `/reports/clicks` | `stats`, `stats/reports`  |
+| A post                       | `/post/12`        | `stats`, `stats/post`     |
 
 A section here is a page of the app, not a tab of the dashboard: every tab is the same page, `main`.
 
@@ -25,11 +27,11 @@ A new route needs nothing: its first segment is its section.
 
 An announcement chooses where it shows by the channel it is published to.
 
-| Published to                 | Shows on           |
-| ---------------------------- | ------------------ |
-| `premium-analytics`          | Every page         |
-| `premium-analytics/main`     | The dashboard only |
-| `premium-analytics/settings` | Settings only      |
+| Published to     | Shows on           |
+| ---------------- | ------------------ |
+| `stats`          | Every page         |
+| `stats/main`     | The dashboard only |
+| `stats/settings` | Settings only      |
 
 The announcements of the dashboard are registered in `src/class-dashboard-announcements.php`.
 

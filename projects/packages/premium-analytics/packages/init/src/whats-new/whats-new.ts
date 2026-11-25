@@ -12,7 +12,7 @@ import { select } from '@wordpress/data';
 import { store as preferencesStore } from '@wordpress/preferences';
 
 // Every page of the dashboard subscribes to this channel, and to it followed by its own section.
-const CHANNEL = 'premium-analytics';
+const CHANNEL = 'stats';
 
 // The section of the route `/`, which has no segment to take a name from.
 const MAIN_SECTION = 'main';

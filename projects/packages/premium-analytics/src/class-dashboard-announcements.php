@@ -20,7 +20,7 @@ class Dashboard_Announcements {
 	 *
 	 * @see docs/whats-new-channels.md
 	 */
-	const CHANNEL = 'premium-analytics';
+	const CHANNEL = 'stats';
 
 	/**
 	 * Flag that turns the dashboard's What's new surface and its announcements on.

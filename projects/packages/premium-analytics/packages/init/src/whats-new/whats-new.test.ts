@@ -110,13 +110,9 @@ describe( 'showWhatsNew', () => {
 	} );
 
 	it.each( [
-		[ 'the dashboard', '/', 'premium-analytics/main' ],
-		[ 'Settings', '/settings', 'premium-analytics/settings' ],
-		[
-			'a report, by the first segment of its route',
-			'/reports/clicks',
-			'premium-analytics/reports',
-		],
+		[ 'the dashboard', '/', 'stats/main' ],
+		[ 'Settings', '/settings', 'stats/settings' ],
+		[ 'a report, by the first segment of its route', '/reports/clicks', 'stats/reports' ],
 	] )(
 		'subscribes %s to the channel of the dashboard and to its own',
 		async ( _case, path, own ) => {
@@ -126,7 +122,7 @@ describe( 'showWhatsNew', () => {
 			await showAndSettle();
 
 			expect( mountWhatsNew ).toHaveBeenCalledTimes( 1 );
-			expect( mountWhatsNew ).toHaveBeenCalledWith( { channels: [ 'premium-analytics', own ] } );
+			expect( mountWhatsNew ).toHaveBeenCalledWith( { channels: [ 'stats', own ] } );
 		}
 	);
 
@@ -139,7 +135,7 @@ describe( 'showWhatsNew', () => {
 
 		expect( mountWhatsNew ).toHaveBeenCalledTimes( 2 );
 		expect( mountWhatsNew ).toHaveBeenLastCalledWith( {
-			channels: [ 'premium-analytics', 'premium-analytics/settings' ],
+			channels: [ 'stats', 'stats/settings' ],
 		} );
 	} );
 
