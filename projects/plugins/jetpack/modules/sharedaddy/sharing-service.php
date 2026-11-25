@@ -705,8 +705,8 @@ class Sharing_Service_Total {
 	/**
 	 * Constructor.
 	 *
-	 * @param int $id      Service ID.
-	 * @param int $total   Total shares.
+	 * @param string $id      Service ID.
+	 * @param int    $total   Total shares.
 	 */
 	public function __construct( $id, $total ) {
 		$services      = new Sharing_Service();
