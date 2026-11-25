@@ -48,7 +48,9 @@
 	max-inline-size: 62ch;
 	margin: 0;
 	padding-block: var(--wpds-dimension-padding-sm);
-	padding-inline: calc(var(--wpds-dimension-padding-xl) + var(--wpds-dimension-padding-sm)) var(--wpds-dimension-padding-md);
+	padding-inline:
+		calc(var(--wpds-dimension-padding-xl) + var(--wpds-dimension-padding-sm))
+		var(--wpds-dimension-padding-md);
 	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 	border-radius: var(--wpds-border-radius-md);
 	background: var(--wpds-color-background-surface-neutral-weak);
@@ -68,6 +70,45 @@
 
 .footer {
 	padding-block-start: var(--wpds-dimension-padding-sm);
+}
+
+// `Link` styles the text; drop the button's own box.
+.text-button {
+	padding: 0;
+	border: 0;
+	background: none;
+	font: inherit;
+	text-decoration-line: underline;
+	cursor: pointer;
+}
+
+// wp-admin sets `strong` to 600, the heading's own weight.
+.question strong {
+	font-weight: 700;
+}
+
+.plain-list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.answer {
+	display: flex;
+	gap: var(--wpds-dimension-gap-sm);
+	justify-content: space-between;
+	align-items: center;
+	inline-size: 100%;
+	padding: var(--wpds-dimension-padding-md);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	border-radius: var(--wpds-border-radius-md);
+	text-align: start;
+	cursor: pointer;
+
+	&:hover {
+		border-color: var(--wpds-color-stroke-interactive-brand);
+		background: var(--wpds-color-background-surface-neutral-weak);
+	}
 }
 
 .chips {
