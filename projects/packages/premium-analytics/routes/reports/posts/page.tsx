@@ -43,13 +43,38 @@ import {
 	usePostsReportRecords,
 	usePostTitleLinks,
 } from './config';
-import type { JSX } from 'react';
+import type { JSX, ReactNode } from 'react';
 
 // Every report shares the single dynamic route, so route-level hooks and
 // navigations target this path with the `posts` param.
 const ROUTE_FROM = route.path;
 
-const EMPTY_POST_ROWS: StatsTopPostsComparisonItem[] = [];
+/**
+ * Resolve the mounted rows' thumbnails and hand them to the table's thumbnail cells.
+ *
+ * Its own component so a thumbnail arriving re-renders only the cells that read it: the table,
+ * passed in as `children`, is not re-rendered with it.
+ *
+ * @param {object}                        props          - Component props.
+ * @param {StatsTopPostsComparisonItem[]} props.rows     - The rows the table has mounted.
+ * @param {ReactNode}                     props.children - The records table.
+ * @return {JSX.Element} The provider.
+ */
+function PostThumbnailsProvider( {
+	rows,
+	children,
+}: {
+	rows: StatsTopPostsComparisonItem[];
+	children: ReactNode;
+} ): JSX.Element {
+	const thumbnailUrls = usePostThumbnails( rows );
+
+	return (
+		<PostThumbnailUrlsContext.Provider value={ thumbnailUrls }>
+			{ children }
+		</PostThumbnailUrlsContext.Provider>
+	);
+}
 
 /**
  * Stable row id for the records table — the post ID, or the label for rows
@@ -121,10 +146,6 @@ function PostsReport(): JSX.Element {
 				: rows
 		);
 	}, [] );
-	const thumbnailUrls = usePostThumbnails(
-		activeTab === 'posts-pages' ? visiblePostRows : EMPTY_POST_ROWS
-	);
-
 	const titleLinks = usePostTitleLinks( activeTab );
 	const postsFields = useMemo(
 		() => getPostsFields( records.posts.hasComparison, titleLinks ),
@@ -171,7 +192,7 @@ function PostsReport(): JSX.Element {
 	 */
 	const recordsTable =
 		activeTab === 'posts-pages' ? (
-			<PostThumbnailUrlsContext.Provider value={ thumbnailUrls }>
+			<PostThumbnailsProvider rows={ visiblePostRows }>
 				<ReportRecordsTable< StatsTopPostsComparisonItem >
 					key="posts-pages"
 					data={ records.posts.rows }
@@ -184,7 +205,7 @@ function PostsReport(): JSX.Element {
 					actions={ postActions }
 					onChangePageItems={ handleVisiblePostRowsChange }
 				/>
-			</PostThumbnailUrlsContext.Provider>
+			</PostThumbnailsProvider>
 		) : (
 			<ReportDrilldownTable< ArchiveRow >
 				key="archives"
