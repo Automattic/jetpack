@@ -228,7 +228,7 @@ class Dashboard {
 	 * @return array
 	 */
 	public static function add_script_data( $data ) {
-		if ( ! self::is_page_request() ) {
+		if ( ! self::renders_dashboard() ) {
 			return $data;
 		}
 
@@ -327,8 +327,17 @@ class Dashboard {
 	 */
 	public static function maybe_load_wp_build() {
 		if ( self::is_dashboard_request() ) {
-			self::load_wp_build( dirname( __DIR__ ) . '/build/build.php' );
+			self::load_wp_build( self::build_index() );
 		}
+	}
+
+	/**
+	 * Path to the generated wp-build index.
+	 *
+	 * @return string
+	 */
+	private static function build_index() {
+		return dirname( __DIR__ ) . '/build/build.php';
 	}
 
 	/**
@@ -348,13 +357,12 @@ class Dashboard {
 	 *
 	 * @return bool
 	 */
-	public static function is_page_request() {
+	public static function renders_dashboard() {
 		if ( self::is_dashboard_request() ) {
 			return true;
 		}
 		// An older admin-ui under the jetpack-autoloader may predate requested_guest().
-		return class_exists( Admin_Shell::class )
-			&& method_exists( Admin_Shell::class, 'requested_guest' )
+		return method_exists( Admin_Shell::class, 'requested_guest' )
 			&& self::MENU_SLUG === Admin_Shell::requested_guest();
 	}
 
@@ -443,17 +451,18 @@ class Dashboard {
 	 * @return array
 	 */
 	public static function add_admin_shell_member( $members ) {
-		if ( ! file_exists( dirname( __DIR__ ) . '/build/build.php' ) ) {
+		if ( ! file_exists( self::build_index() ) ) {
 			return $members;
 		}
 
+		$title                      = __( 'Monetize', 'jetpack-monetize' );
 		$members[ self::MENU_SLUG ] = array(
 			'build_prefix' => 'jetpack_monetize',
 			'build_page'   => self::WP_BUILD_PAGE_ID,
 			'init_modules' => array( '@jetpack-monetize/init' ),
-			'title'        => __( 'Monetize', 'jetpack-monetize' ),
+			'title'        => $title,
 			'header'       => array(
-				'title'    => __( 'Monetize', 'jetpack-monetize' ),
+				'title'    => $title,
 				'subtitle' => '',
 			),
 			'capability'   => 'manage_options',
@@ -472,7 +481,7 @@ class Dashboard {
 	 * @return void
 	 */
 	public static function load_as_admin_shell_guest() {
-		self::load_wp_build( dirname( __DIR__ ) . '/build/build.php', false );
+		self::load_wp_build( self::build_index(), false );
 	}
 
 	/**

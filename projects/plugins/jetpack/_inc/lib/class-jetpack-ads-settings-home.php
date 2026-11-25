@@ -122,11 +122,9 @@ class Jetpack_Ads_Settings_Home {
 	 */
 	private static function is_tab_request() {
 		// Do not reorder: is_on_monetize_page() checks that Dashboard exists.
-		if ( ! self::is_on_monetize_page() ) {
-			return false;
-		}
-		// is_page_request() also covers the admin shell loading the page; an older Monetize package lacks it.
-		return method_exists( Dashboard::class, 'is_page_request' ) ? Dashboard::is_page_request() : Dashboard::is_dashboard_request();
+		// renders_dashboard() also covers the admin shell loading the page; an older Monetize package lacks it.
+		return self::is_on_monetize_page()
+			&& ( method_exists( Dashboard::class, 'renders_dashboard' ) ? Dashboard::renders_dashboard() : Dashboard::is_dashboard_request() );
 	}
 
 	/**
