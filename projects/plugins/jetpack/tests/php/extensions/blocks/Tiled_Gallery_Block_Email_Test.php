@@ -233,6 +233,52 @@ class Tiled_Gallery_Block_Email_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A square image is cropped through Photon, since a site's own uploads URL ignores resize; one Photon skips gets no height.
+	 *
+	 * @param bool   $photon_skips    Whether Photon skips the image URL.
+	 * @param string $expected_src    Expected image URL.
+	 * @param string $expected_height Expected height attribute, or '' for none.
+	 * @dataProvider provide_square_image_urls
+	 */
+	#[DataProvider( 'provide_square_image_urls' )]
+	public function test_render_email_crops_square_images_through_photon( $photon_skips, $expected_src, $expected_height ) {
+		add_filter( 'jetpack_photon_skip_for_url', $photon_skips ? '__return_true' : '__return_false' );
+		$id = self::factory()->attachment->create_object(
+			array(
+				'file'           => 'photo.jpg',
+				'post_mime_type' => 'image/jpeg',
+			)
+		);
+
+		$result = \Automattic\Jetpack\Extensions\Tiled_Gallery::render_email(
+			'',
+			array(
+				'attrs' => array(
+					'ids'       => array( $id ),
+					'className' => 'is-style-square',
+				),
+			),
+			$this->create_rendering_context_mock( '740px' )
+		);
+		remove_filter( 'jetpack_photon_skip_for_url', $photon_skips ? '__return_true' : '__return_false' );
+
+		preg_match( '/<img [^>]*src="([^"]+)" width="(\d+)"(?: height="(\d+)")?/', $result, $image );
+		$this->assertSame( array( $expected_src, '736', $expected_height ), array( $image[1], $image[2], $image[3] ?? '' ) );
+	}
+
+	/**
+	 * Square image URLs Photon handles and skips.
+	 *
+	 * @return array
+	 */
+	public static function provide_square_image_urls() {
+		return array(
+			'self-hosted uploads URL' => array( false, 'https://i0.wp.com/example.org/wp-content/uploads/photo.jpg?resize=1300%2C1300', '736' ),
+			'URL Photon skips'        => array( true, 'http://example.org/wp-content/uploads/photo.jpg', '' ),
+		);
+	}
+
+	/**
 	 * Test render_email with square layout style.
 	 */
 	public function test_render_email_with_square_layout() {

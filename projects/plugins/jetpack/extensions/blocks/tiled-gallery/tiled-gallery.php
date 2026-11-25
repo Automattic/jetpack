@@ -374,17 +374,20 @@ class Tiled_Gallery {
 					// Start with full size image for better quality when resizing
 					$image_url = wp_get_attachment_image_url( $id, 'full' );
 
-					// If we have Photon/Jetpack image processing, request high-quality square crop
+					// If we have Photon/Jetpack image processing, request high-quality square crop.
+					// A site's own uploads URL ignores resize, so the crop has to go through Photon.
 					if ( function_exists( 'jetpack_photon_url' ) && $image_url ) {
-						$image_url = add_query_arg(
-							array(
-								'resize' => '1300,1300', // High-quality square crop for email
-								'crop'   => '1',
-							),
-							$image_url
+						$image_url = jetpack_photon_url(
+							remove_query_arg( array( 'w', 'h', 'fit', 'resize', 'crop' ), $image_url ),
+							array( 'resize' => '1300,1300' ),
+							'https'
 						);
-						$width     = 1300;
-						$height    = 1300;
+
+						// Photon skips some URLs, such as a private site's; leave those sizes unknown so Outlook keeps their proportions.
+						if ( self::is_resizable_image_url( $image_url ) ) {
+							$width  = 1300;
+							$height = 1300;
+						}
 					}
 				} else {
 					$image_src = wp_get_attachment_image_src( $id, 'large' );
@@ -435,6 +438,17 @@ class Tiled_Gallery {
 		}
 
 		return $images;
+	}
+
+	/**
+	 * Whether an image URL is served by a host that honors its resize arguments: Photon or WordPress.com files.
+	 *
+	 * @param string $url Image URL.
+	 * @return bool
+	 */
+	private static function is_resizable_image_url( $url ) {
+		$host = strtolower( (string) wp_parse_url( $url, PHP_URL_HOST ) );
+		return in_array( $host, array( 'i0.wp.com', 'i1.wp.com', 'i2.wp.com' ), true ) || str_ends_with( $host, '.files.wordpress.com' );
 	}
 
 	/**
