@@ -1,10 +1,9 @@
 import { useDispatch } from '@wordpress/data';
 import DashboardLoadError from '../../_inc/components/dashboard-load-error';
 import DashboardSkeleton from '../../_inc/components/dashboard-skeleton';
-import SeoDisabledStage from '../../_inc/components/seo-disabled-stage';
 import DashboardPage from '../../_inc/dashboard/dashboard-page';
 import { OVERVIEW_PATH, SETTINGS_PATH } from '../../_inc/data/get-preloaded';
-import isSeoToolsActive from '../../_inc/data/is-seo-tools-active';
+import isSeoToolsActive, { useSeoToolsActive } from '../../_inc/data/is-seo-tools-active';
 import { settingsStore } from '../../_inc/data/settings-store';
 import useEnsureTabData from '../../_inc/data/use-ensure-tab-data';
 import { useSettingsForm } from '../../_inc/data/use-settings';
@@ -18,18 +17,22 @@ import type { SettingsResponse } from '../../_inc/data/settings-types';
 // populated by then.
 const SettingsReady = () => {
 	const form = useSettingsForm();
+	const seoToolsActive = useSeoToolsActive();
+	// While SEO tools are off, or being turned off, the other tabs redirect here, so there is no tab bar.
 	return (
-		<DashboardPage active="settings">
-			<SettingsScreen form={ form } />
+		<DashboardPage
+			active="settings"
+			showTabs={ seoToolsActive && form.local?.seo_tools_active !== false }
+		>
+			<SettingsScreen form={ form } independentOnly={ ! seoToolsActive } />
 		</DashboardPage>
 	);
 };
 
 const Stage = () => {
 	const { setSettings } = useDispatch( settingsStore );
-	// Settings gates on the seo-tools state, which lives in the Overview slice, so
-	// ensure both are available. A recovered Settings payload is pushed into the
-	// store so the form (seeded from it) reflects it.
+	// Settings also reads the Overview slice. A recovered Settings payload is pushed
+	// into the store so the form (seeded from it) reflects it.
 	const { status, retry } = useEnsureTabData( [
 		{ path: OVERVIEW_PATH },
 		{ path: SETTINGS_PATH, seed: body => setSettings( body as SettingsResponse ) },
@@ -37,7 +40,7 @@ const Stage = () => {
 
 	if ( status === 'loading' ) {
 		return (
-			<DashboardPage active="settings">
+			<DashboardPage active="settings" showTabs={ isSeoToolsActive() }>
 				<DashboardSkeleton />
 			</DashboardPage>
 		);
@@ -45,15 +48,13 @@ const Stage = () => {
 
 	if ( status === 'error' ) {
 		return (
-			<DashboardPage active="settings">
+			<DashboardPage active="settings" showTabs={ isSeoToolsActive() }>
 				<DashboardLoadError onRetry={ retry } />
 			</DashboardPage>
 		);
 	}
 
-	// When the `seo-tools` module is off, show the enable affordance instead of the
-	// settings controls — they can't save (the REST endpoints aren't registered).
-	return isSeoToolsActive() ? <SettingsReady /> : <SeoDisabledStage active="settings" />;
+	return <SettingsReady />;
 };
 
 export { Stage as stage };

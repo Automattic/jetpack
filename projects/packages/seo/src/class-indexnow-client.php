@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\SEO;
 
-use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -56,7 +55,7 @@ class Indexnow_Client {
 		return (bool) get_option( self::ENABLED_OPTION, false )
 			&& $allowed
 			&& self::matches_scope( get_option( self::SCOPE_OPTION, '' ) )
-			&& Initializer::is_available() && ( new Modules() )->is_active( 'seo-tools' )
+			&& Initializer::is_available() && Initializer::is_seo_tools_active()
 			&& ! ( new Host() )->is_vip_site() && self::site_is_public()
 			&& ! Seo_Tools::is_disabled();
 	}

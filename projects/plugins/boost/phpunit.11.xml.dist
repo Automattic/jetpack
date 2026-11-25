@@ -37,6 +37,7 @@
 			<exclude>tests/php/lib/Body_Close_Locator_Test.php</exclude>
 			<exclude>tests/php/modules/optimizations/render-blocking-js/Render_Blocking_JS_Insertion_Test.php</exclude>
 			<exclude>tests/php/abilities/Boost_Abilities_Test.php</exclude>
+			<exclude>tests/php/modules/optimizations/defer-fonts/Defer_Fonts_Printer_Test.php</exclude>
 		</testsuite>
 		<testsuite name="with-wordpress">
 			<file>tests/php/Jetpack_Boost_Test.php</file>
@@ -55,6 +56,7 @@
 			<file>tests/php/lib/Body_Close_Locator_Test.php</file>
 			<file>tests/php/modules/optimizations/render-blocking-js/Render_Blocking_JS_Insertion_Test.php</file>
 			<file>tests/php/abilities/Boost_Abilities_Test.php</file>
+			<file>tests/php/modules/optimizations/defer-fonts/Defer_Fonts_Printer_Test.php</file>
 		</testsuite>
 	</testsuites>
 

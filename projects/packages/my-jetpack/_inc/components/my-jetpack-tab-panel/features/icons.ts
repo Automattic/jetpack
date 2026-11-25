@@ -16,6 +16,7 @@ import {
 	trendingUp,
 	video,
 } from '@wordpress/icons';
+import { seo } from './seo-icon';
 import type { ReactElement } from 'react';
 
 /**
@@ -36,6 +37,7 @@ const featureIcons: Record< string, ReactElement > = {
 	megaphone,
 	people,
 	search,
+	seo,
 	share,
 	shield,
 	star: starFilled,

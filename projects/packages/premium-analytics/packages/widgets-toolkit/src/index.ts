@@ -16,6 +16,7 @@ export {
 	ComparativeLineChart,
 	type ComparativeLineChartSeries,
 	StackedAreaChart,
+	type StackedAreaSeries,
 	ComparativeBarChart,
 	type ComparativeBarChartProps,
 	type ComparativeBarChartSeries,
@@ -192,6 +193,7 @@ export {
 	SkeletonRoot,
 	type SkeletonRootProps,
 } from './components';
+export { SeriesIndicator } from './components/chart-tooltip';
 
 /**
  * Report CSV exports

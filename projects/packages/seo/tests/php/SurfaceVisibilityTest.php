@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for the SEO surface's discoverability cohort and opt-in.
+ * Tests for SEO dashboard visibility and legacy opt-in signals.
  *
  * @package automattic/jetpack-seo
  */
@@ -58,20 +58,37 @@ class SurfaceVisibilityTest extends TestCase {
 	}
 
 	/**
-	 * On self-hosted sites, discoverability is driven by the durable cohort option:
-	 * hidden when absent (the non-disruptive default) or empty, visible when set.
+	 * @dataProvider saved_visibility_preferences
+	 * @param string|null $visibility Older saved discoverability preference.
 	 */
-	public function test_is_visible_reads_cohort_option_on_self_hosted() {
-		delete_option( Initializer::VISIBILITY_OPTION );
-		$this->assertFalse( Surface_Visibility::is_visible() );
+	#[DataProvider( 'saved_visibility_preferences' )]
+	public function test_existing_installs_get_the_dashboard_without_changing_preferences( $visibility ) {
+		$previous = get_option( Initializer::VISIBILITY_OPTION, null );
+		if ( null === $visibility ) {
+			delete_option( Initializer::VISIBILITY_OPTION );
+		} else {
+			update_option( Initializer::VISIBILITY_OPTION, $visibility );
+		}
+		try {
+			$this->assertTrue( Surface_Visibility::is_visible() );
+			$this->assertFalse( Surface_Visibility::is_optin_available() );
+			$this->assertSame( $visibility, get_option( Initializer::VISIBILITY_OPTION, null ) );
+		} finally {
+			if ( null === $previous ) {
+				delete_option( Initializer::VISIBILITY_OPTION );
+			} else {
+				update_option( Initializer::VISIBILITY_OPTION, $previous );
+			}
+		}
+	}
 
-		update_option( Initializer::VISIBILITY_OPTION, '1' );
-		$this->assertTrue( Surface_Visibility::is_visible() );
-
-		update_option( Initializer::VISIBILITY_OPTION, '' );
-		$this->assertFalse( Surface_Visibility::is_visible() );
-
-		delete_option( Initializer::VISIBILITY_OPTION );
+	/** @return array Saved visibility states. */
+	public static function saved_visibility_preferences() {
+		return array(
+			'absent' => array( null ),
+			'off'    => array( '0' ),
+			'on'     => array( '1' ),
+		);
 	}
 
 	/**
@@ -89,19 +106,11 @@ class SurfaceVisibilityTest extends TestCase {
 		}
 	}
 
-	public function test_is_optin_available_only_when_surface_hidden() {
-		delete_option( Initializer::VISIBILITY_OPTION );
-		$this->assertTrue( Surface_Visibility::is_optin_available() );
-		update_option( Initializer::VISIBILITY_OPTION, '1' );
-		$this->assertFalse( Surface_Visibility::is_optin_available() );
-		delete_option( Initializer::VISIBILITY_OPTION );
-	}
-
 	public function test_inject_optin_availability_preserves_other_script_data() {
 		delete_option( Initializer::VISIBILITY_OPTION );
 		$data = Surface_Visibility::inject_optin_availability( null );
-		$this->assertTrue( $data[ Initializer::SCRIPT_DATA_KEY ]['optin_available'] );
-		$this->assertFalse( $data[ Initializer::SCRIPT_DATA_KEY ]['surface_visible'] );
+		$this->assertFalse( $data[ Initializer::SCRIPT_DATA_KEY ]['optin_available'] );
+		$this->assertTrue( $data[ Initializer::SCRIPT_DATA_KEY ]['surface_visible'] );
 		update_option( Initializer::VISIBILITY_OPTION, '1' );
 		$data = Surface_Visibility::inject_optin_availability( array( 'keep' => 1 ) );
 		$this->assertFalse( $data[ Initializer::SCRIPT_DATA_KEY ]['optin_available'] );

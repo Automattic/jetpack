@@ -37,6 +37,9 @@ jest.mock( '$features/page-cache/page-cache', () => () => (
 jest.mock( '$features/render-blocking-js/render-blocking-js', () => () => (
 	<div data-testid="stub">render_blocking_js</div>
 ) );
+jest.mock( '$features/defer-fonts/defer-fonts', () => () => (
+	<div data-testid="stub">defer_fonts</div>
+) );
 jest.mock( '$features/minify-js/minify-js', () => () => <div data-testid="stub">minify_js</div> );
 jest.mock( '$features/minify-css/minify-css', () => () => (
 	<div data-testid="stub">minify_css</div>
@@ -77,6 +80,7 @@ describe( 'Settings', () => {
 			'cloud_css',
 			'page_cache',
 			'render_blocking_js',
+			'defer_fonts',
 		] );
 		expect( modulesIn( 'Code optimization' ) ).toEqual( [ 'minify_js', 'minify_css' ] );
 		expect( modulesIn( 'Images' ) ).toEqual( [ 'lcp', 'image_cdn', 'image_guide' ] );

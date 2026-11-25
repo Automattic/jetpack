@@ -56,6 +56,7 @@ class IndexnowEventsTest extends SeoTestCase {
 		remove_action( 'jetpack_seo_indexnow_url_changed', array( $this, 'capture_candidate' ) );
 		remove_filter( 'rsm_jetpack_seo', '__return_true' );
 		remove_all_filters( 'jetpack_active_modules' );
+		add_filter( 'jetpack_active_modules', 'jetpack_seo_test_switch_on', 1000 );
 		foreach ( array( Indexnow_Client::ENABLED_OPTION, Indexnow_Client::SCOPE_OPTION, Indexnow_Client::KEY_OPTION, 'home' ) as $option ) {
 			delete_option( $option );
 		}

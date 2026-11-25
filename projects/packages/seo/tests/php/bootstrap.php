@@ -37,6 +37,19 @@ if ( ! function_exists( 'populate_roles' ) ) {
 }
 populate_roles();
 
+/**
+ * Turn on the SEO switch the Jetpack plugin ships, as on a site whose owner never turned it off.
+ *
+ * Runs after tests' own module filters; a test that needs SEO off removes it.
+ *
+ * @param array $modules Active module slugs.
+ * @return array
+ */
+function jetpack_seo_test_switch_on( $modules ) {
+	return array_merge( (array) $modules, array( 'seo-dashboard' ) );
+}
+add_filter( 'jetpack_active_modules', 'jetpack_seo_test_switch_on', 1000 );
+
 // Shared base for test cases that touch site content or the coverage cache.
 // Not autoloaded: the package maps only src/, and the file doesn't match the
 // suite's *Test.php suffix.

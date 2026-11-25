@@ -63,6 +63,12 @@ export {
 export { sanitizeStatsStreakResponse } from './streak';
 export { sanitizeStatsTagsResponse } from './tags';
 export { mergeStatsDevicesComparisonRows, sanitizeStatsDevicesResponse } from './devices';
+export { EDGE_REQUEST_SOURCES, sanitizeStatsEdgeBotRequestsResponse } from './edge-bot-requests';
+export type {
+	EdgeRequestSource,
+	StatsEdgeBotRequestsDataPoint,
+	StatsEdgeBotRequestsReport,
+} from './edge-bot-requests';
 export { sanitizeStatsWordAdsStatsResponse, sanitizeStatsWordAdsEarningsResponse } from './wordads';
 export { sanitizeStatsSingleVideoResponse } from './single-video';
 export { sanitizeStatsAuthorResponse } from './author';

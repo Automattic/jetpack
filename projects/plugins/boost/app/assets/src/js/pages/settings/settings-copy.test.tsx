@@ -1,6 +1,7 @@
 /* eslint-disable jest-dom/prefer-in-document -- This Jest project does not load jest-dom. */
 import { render, screen } from '@testing-library/react';
 import CloudCssModule from '$features/critical-css/cloud-css-module/cloud-css-module';
+import DeferFonts from '$features/defer-fonts/defer-fonts';
 import ImageCdn from '$features/image-cdn/image-cdn';
 import ImageGuide from '$features/image-guide/image-guide';
 import Lcp from '$features/lcp/lcp';
@@ -70,6 +71,12 @@ test.each( [
 		component: RenderBlockingJs,
 		title: 'Defer Non-Essential JavaScript',
 		description: /Delays non-essential JavaScript until the main page content has loaded/,
+	},
+	{
+		component: DeferFonts,
+		title: 'Defer Web Fonts',
+		description:
+			'Loads web fonts after the main page content, showing a system font until they are ready.',
 	},
 	{
 		component: MinifyJs,
