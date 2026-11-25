@@ -38,6 +38,7 @@ use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Podcast\Podcast;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\SEO\Initializer as Jetpack_SEO_Initializer;
+use Automattic\Jetpack\SEO\Seo_Tools as Jetpack_SEO_Tools;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Status\Visitor;
@@ -2223,7 +2224,7 @@ class Jetpack {
 	 * @return void
 	 */
 	public function check_open_graph() {
-		if ( in_array( 'publicize', self::get_active_modules(), true ) || in_array( 'sharedaddy', self::get_active_modules(), true ) ) {
+		if ( in_array( 'publicize', self::get_active_modules(), true ) || in_array( 'sharedaddy', self::get_active_modules(), true ) || self::seo_enables_open_graph() ) {
 			include_once JETPACK__PLUGIN_DIR . 'enhanced-open-graph.php';
 			add_filter( 'jetpack_enable_open_graph', '__return_true', 0 );
 		}
@@ -2249,6 +2250,20 @@ class Jetpack {
 		if ( apply_filters( 'jetpack_enable_open_graph', false ) ) {
 			require_once JETPACK__PLUGIN_DIR . 'functions.opengraph.php';
 		}
+	}
+
+	/**
+	 * Whether Jetpack SEO turns on Open Graph tags: SEO Tools runs, and the site is one SEO is offered on.
+	 *
+	 * VIP is excluded so its existing SEO Tools activation doesn't start new output.
+	 *
+	 * @return bool
+	 */
+	private static function seo_enables_open_graph() {
+		return method_exists( Jetpack_SEO_Initializer::class, 'is_seo_tools_active' )
+			&& Jetpack_SEO_Initializer::is_available()
+			&& Jetpack_SEO_Initializer::is_seo_tools_active()
+			&& Jetpack_SEO_Tools::is_enabled();
 	}
 
 	/**
