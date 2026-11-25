@@ -42,4 +42,5 @@ export { StaleDataNotice } from './stale-data-notice';
 export { StatsBreadcrumbs, type StatsBreadcrumbsProps } from './stats-breadcrumbs';
 export { StatsTierSlider } from './stats-tier-slider';
 export { usePaginatedView, type PaginatedView } from './use-paginated-view';
+export { useRowBatches } from './use-row-batches';
 export { WidgetGridAnimation, type WidgetGridAnimationProps } from './widget-grid-animation';

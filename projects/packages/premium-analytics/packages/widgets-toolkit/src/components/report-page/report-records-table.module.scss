@@ -20,21 +20,6 @@
 
 .root :global(.dataviews-layout__container) {
 	flex: 1 1 auto;
-
-	/* DataViews' infinite scroll listens to this container's own scroll,
-	 * so cap it near the viewport. */
-	max-block-size: max(20rem, calc(100dvh - 16rem));
-}
-
-/* Focus lands here when a re-sort remounts the table; see `.root:focus`
- * in widget-state. */
-.focusTarget:focus {
-	outline: none;
-}
-
-.focusTarget:focus-visible {
-	outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
-	outline-offset: calc(-1 * var(--wpds-border-width-focus));
 }
 
 /* Per the report-table design, row links rest as neutral text and only take

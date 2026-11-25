@@ -246,6 +246,30 @@ describe( 'usePostThumbnails', () => {
 		expect( postQueries() ).toContain( firstBatch );
 	} );
 
+	it( 'keeps the thumbnails it showed while a grown row list resolves', () => {
+		const records: Record< string, unknown[] > = { post: [], attachment: [] };
+		for ( let id = 1; id <= 60; id++ ) {
+			records.post.push( { id, featured_media: 1000 + id } );
+			records.attachment.push( { id: 1000 + id, source_url: `https://example.com/${ id }.jpg` } );
+		}
+		mockEntityRecords( records );
+		const postRows = ( count: number ) =>
+			Array.from( { length: count }, ( _, index ) => ( { id: index + 1, type: 'post' } ) );
+
+		const { result, rerender } = renderHook(
+			( rows: { id: number; type: string }[] ) => usePostThumbnails( rows ),
+			{ initialProps: postRows( 50 ) }
+		);
+		expect( result.current[ 1 ] ).toBe( 'https://example.com/1.jpg' );
+
+		// The grown list is a new query, unresolved until its request returns.
+		getEntityRecords.mockReturnValue( null );
+		hasFinishedResolution.mockReturnValue( false );
+		rerender( postRows( 60 ) );
+
+		expect( result.current[ 1 ] ).toBe( 'https://example.com/1.jpg' );
+	} );
+
 	it( 'makes no entity requests without eligible rows', () => {
 		mockEntityRecords( {} );
 

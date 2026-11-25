@@ -3,7 +3,7 @@
  */
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 type PostEntity = {
 	id?: number;
@@ -202,7 +202,7 @@ export function usePostThumbnails( rows: PostThumbnailSource[] ): PostThumbnailU
 
 	const media = useMemo( () => mediaGroups.flatMap( records => records ?? [] ), [ mediaGroups ] );
 
-	return useMemo( () => {
+	const resolvedUrls = useMemo( () => {
 		const mediaById = new Map( media.map( item => [ item.id, item ] ) );
 
 		return postRecords.reduce< PostThumbnailUrls >( ( urls, post ) => {
@@ -213,4 +213,18 @@ export function usePostThumbnails( rows: PostThumbnailSource[] ): PostThumbnailU
 			return urls;
 		}, {} );
 	}, [ postRecords, media ] );
+
+	// A grown or re-sorted row list is a new query that resolves empty first; keep the URLs already
+	// shown meanwhile, so thumbnails do not blink back to their placeholder.
+	const [ shownUrls, setShownUrls ] = useState( resolvedUrls );
+	const hasNewUrl = Object.entries( resolvedUrls ).some(
+		( [ id, url ] ) => shownUrls[ Number( id ) ] !== url
+	);
+	if ( hasNewUrl ) {
+		const urls = { ...shownUrls, ...resolvedUrls };
+		setShownUrls( urls );
+		return urls;
+	}
+
+	return shownUrls;
 }

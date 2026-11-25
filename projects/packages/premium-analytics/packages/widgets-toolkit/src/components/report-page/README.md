@@ -45,8 +45,9 @@ const label = __( 'All pages' );
 - **`ReportLocationsMap`** — the Locations report's map of views by location,
   over the rows the records table already fetched. It renders the shared
   `LocationsGeoChart`, which the Locations dashboard widget also uses.
-- **`ReportRecordsTable`** — a Core DataViews table listing every one of the
-  module's summarized rows on one page; search, sorting, and column config run
+- **`ReportRecordsTable`** — a Core DataViews table over every one of the
+  module's summarized rows, with no pager: it mounts them in batches as its own
+  container scrolls (`useRowBatches`). Search, sorting, and column config run
   client-side via `filterSortAndPaginate`.
 - **`ReportThumbnail`** — a records-table row thumbnail for the view's
   `mediaField`, falling back to `fallbackIcon` when there is none or it fails

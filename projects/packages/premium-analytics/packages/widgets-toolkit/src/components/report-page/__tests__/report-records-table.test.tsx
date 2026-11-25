@@ -142,7 +142,7 @@ function numberedRows( count: number ): NumberedRow[] {
 }
 
 describe( 'ReportRecordsTable paging', () => {
-	it( 'mounts one scroll batch of a long report, with no pager or page size menu', async () => {
+	it( 'offers no pager or page size menu', async () => {
 		render(
 			<ReportRecordsTable< NumberedRow >
 				data={ numberedRows( 120 ) }
@@ -151,8 +151,6 @@ describe( 'ReportRecordsTable paging', () => {
 			/>
 		);
 
-		expect( screen.getByText( 'Row 50' ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'Row 51' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: /next page/i } ) ).not.toBeInTheDocument();
 
 		await userEvent.setup().click( screen.getByRole( 'button', { name: 'View options' } ) );
@@ -164,39 +162,35 @@ describe( 'ReportRecordsTable paging', () => {
 type TableProps = { isLoading?: boolean; isFetching?: boolean };
 
 // Each table wires its own empty-state and revalidation guards, so both run the same cases.
-// The records table is a `feed` under DataViews' infinite scroll; the drilldown stays a `table`.
-const TABLES: [ string, 'feed' | 'table', ( data: Row[], props?: TableProps ) => ReactElement ][] =
+const TABLES: [ string, ( data: Row[], props?: TableProps ) => ReactElement ][] = [
 	[
-		[
-			'ReportRecordsTable',
-			'feed',
-			( data, props ) => (
-				<ReportRecordsTable< Row >
-					data={ data }
-					fields={ fields }
-					getItemId={ item => item.id }
-					initialView={ INITIAL_VIEW }
-					{ ...props }
-				/>
-			),
-		],
-		[
-			'ReportDrilldownTable',
-			'table',
-			( data, props ) => (
-				<ReportDrilldownTable< Row >
-					data={ data }
-					fields={ fields }
-					getItemId={ item => item.id }
-					getItemParentId={ () => null }
-					initialView={ INITIAL_VIEW }
-					{ ...props }
-				/>
-			),
-		],
-	];
+		'ReportRecordsTable',
+		( data, props ) => (
+			<ReportRecordsTable< Row >
+				data={ data }
+				fields={ fields }
+				getItemId={ item => item.id }
+				initialView={ INITIAL_VIEW }
+				{ ...props }
+			/>
+		),
+	],
+	[
+		'ReportDrilldownTable',
+		( data, props ) => (
+			<ReportDrilldownTable< Row >
+				data={ data }
+				fields={ fields }
+				getItemId={ item => item.id }
+				getItemParentId={ () => null }
+				initialView={ INITIAL_VIEW }
+				{ ...props }
+			/>
+		),
+	],
+];
 
-describe.each( TABLES )( '%s with no rows', ( _name, role, table ) => {
+describe.each( TABLES )( '%s with no rows', ( _name, table ) => {
 	it( 'replaces the table with the empty state when the report has no rows', () => {
 		render( table( [] ) );
 
@@ -230,7 +224,7 @@ describe.each( TABLES )( '%s with no rows', ( _name, role, table ) => {
 		rerender( table( rows, { isFetching: true } ) );
 
 		expect( screen.getByText( 'Maharashtra' ) ).toBeInTheDocument();
-		expect( screen.getByRole( role ) ).toHaveAttribute( 'aria-busy', 'true' );
+		expect( screen.getByRole( 'table' ) ).toHaveAttribute( 'aria-busy', 'true' );
 	} );
 } );
 
@@ -272,5 +266,64 @@ describe( 'ReportRecordsTable with no rows', () => {
 
 		await expect( screen.findByText( 'No results' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'heading', { name: 'No data found' } ) ).not.toBeInTheDocument();
+	} );
+} );
+
+/** A long report: `Row 1`…`Row n`, views falling from the first row down. */
+function longReport( count = 120 ): Row[] {
+	return Array.from( { length: count }, ( _, index ) => ( {
+		id: `row-${ index + 1 }`,
+		label: `Row ${ index + 1 }`,
+		country: 'IN',
+		views: 1000 - index,
+	} ) );
+}
+
+/**
+ * Scroll the table's own container; jsdom lays nothing out, so any scroll reads as its end.
+ */
+function scrollTable() {
+	// eslint-disable-next-line testing-library/no-node-access -- the scroll container has no role.
+	fireEvent.scroll( screen.getByRole( 'table' ).closest( '.dataviews-layout__container' )! );
+}
+
+describe.each( TABLES )( '%s with a long report', ( _name, table ) => {
+	it( 'mounts one batch, then the next as the table scrolls', async () => {
+		render( table( longReport() ) );
+
+		expect( screen.getByText( 'Row 50' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Row 51' ) ).not.toBeInTheDocument();
+
+		scrollTable();
+
+		await expect( screen.findByText( 'Row 100' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Row 101' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'starts over from the first batch of a new sort order', async () => {
+		render( table( longReport() ) );
+		scrollTable();
+		await expect( screen.findByText( 'Row 100' ) ).resolves.toBeInTheDocument();
+
+		const user = userEvent.setup();
+		await user.click( screen.getByRole( 'button', { name: /^Views/ } ) );
+		await user.click( await screen.findByRole( 'menuitemradio', { name: /Sort ascending/i } ) );
+
+		await expect( screen.findByText( 'Row 120' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Row 70' ) ).not.toBeInTheDocument();
+	} );
+
+	it.each( [
+		[ 'keeps the mounted rows through a background refetch', { isFetching: true }, true ],
+		[ 'starts over when a new period loads', { isLoading: true }, false ],
+	] )( '%s', async ( _case, pending: TableProps, keepsRows ) => {
+		const { rerender } = render( table( longReport() ) );
+		scrollTable();
+		await expect( screen.findByText( 'Row 100' ) ).resolves.toBeInTheDocument();
+
+		rerender( table( longReport(), pending ) );
+		rerender( table( longReport() ) );
+
+		expect( screen.queryByText( 'Row 100' ) !== null ).toBe( keepsRows );
 	} );
 } );

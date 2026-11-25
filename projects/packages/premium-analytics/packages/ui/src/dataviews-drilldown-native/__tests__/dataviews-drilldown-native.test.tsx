@@ -234,10 +234,10 @@ function flatRows( count: number ): Row[] {
 }
 
 describe( 'DataViewsDrilldownNative paging', () => {
-	it( 'mounts more rows as the table scrolls, with no pager or page size menu', async () => {
+	it( 'lists every row on one page with no page size menu', async () => {
 		render(
 			<DataViewsDrilldownNative< Row >
-				data={ flatRows( 120 ) }
+				data={ flatRows( 25 ) }
 				fields={ fields }
 				getItemId={ item => item.id }
 				getItemParentId={ item => item.parentId }
@@ -245,18 +245,32 @@ describe( 'DataViewsDrilldownNative paging', () => {
 			/>
 		);
 
-		expect( screen.getByText( 'Row 50' ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'Row 51' ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'Row 25' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Next page' } ) ).not.toBeInTheDocument();
-
-		// jsdom lays nothing out, so any scroll of the container reads as reaching its end.
-		// eslint-disable-next-line testing-library/no-node-access -- the scroll container has no role.
-		fireEvent.scroll( screen.getByText( 'Row 50' ).closest( '.dataviews-layout__container' )! );
-		await expect( screen.findByText( 'Row 100' ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByText( 'Row 101' ) ).not.toBeInTheDocument();
 
 		await userEvent.setup().click( screen.getByRole( 'button', { name: 'View options' } ) );
 		await expect( screen.findByText( 'Sort by' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( 'Items per page' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'keeps the last parent mounted when a branch unfolds after scrolling', async () => {
+		const groups: Row[] = Array.from( { length: 60 }, ( _, index ) => [
+			{ id: `group-${ index + 1 }`, referrer: `Group ${ index + 1 }`, views: 1000 - index },
+			{
+				id: `child-${ index + 1 }`,
+				parentId: `group-${ index + 1 }`,
+				referrer: `Child ${ index + 1 }`,
+				views: 1,
+			},
+		] ).flat();
+		renderTable( { data: groups, collapsible: true, defaultExpanded: 'none' } );
+
+		// eslint-disable-next-line testing-library/no-node-access -- the scroll container has no role.
+		fireEvent.scroll( screen.getByText( 'Group 50' ).closest( '.dataviews-layout__container' )! );
+		await expect( screen.findByText( 'Group 60' ) ).resolves.toBeInTheDocument();
+		await userEvent.setup().click( screen.getByRole( 'button', { name: 'Group 59' } ) );
+
+		expect( screen.getByText( 'Child 59' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Group 60' ) ).toBeInTheDocument();
 	} );
 } );
