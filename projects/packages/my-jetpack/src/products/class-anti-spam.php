@@ -140,13 +140,14 @@ class Anti_Spam extends Product {
 	}
 
 	/**
-	 * Whether the site pays for Anti-spam; on WordPress.com, every plan includes the full Akismet service.
+	 * Whether the site pays for Anti-spam.
+	 *
+	 * WordPress.com grants `antispam` only from Business up, though every plan gets the full Akismet service.
+	 * Off WordPress.com a free Akismet key grants `akismet` too, so there it proves nothing.
 	 *
 	 * @return boolean
 	 */
 	public static function has_paid_plan_for_product() {
-		// WordPress.com grants `antispam` only from Business up, though Akismet serves every plan alike.
-		// Elsewhere free Akismet grants `akismet` too, so it proves nothing there.
 		if ( ( new Host() )->is_wpcom_platform() && static::does_site_have_feature( 'akismet' ) ) {
 			return true;
 		}

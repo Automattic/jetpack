@@ -93,6 +93,7 @@ class Anti_Spam_Product_Test extends TestCase {
 	public static function provide_site_features() {
 		return array(
 			'Atomic, akismet'       => array( true, array( 'akismet' ), true ),
+			'Atomic, no features'   => array( true, array(), false ),
 			'self-hosted, akismet'  => array( false, array( 'akismet' ), false ),
 			'self-hosted, antispam' => array( false, array( 'antispam' ), true ),
 		);
