@@ -163,7 +163,7 @@ const ConnectionControl: FC< ConnectionControlProps > = ( { trackingContext } ) 
 					ref={ triggerRef }
 					className={ styles.trigger }
 					aria-label={
-						// An error's label already starts "Jetpack Connection error:".
+						// An error's title already names Jetpack Connection.
 						state.id === 'error'
 							? state.label
 							: sprintf(
