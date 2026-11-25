@@ -122,6 +122,7 @@ function RequestsBySourceInner( { chartType }: { chartType: RequestsBySourceChar
 							layout="stacked"
 							dataFormat={ HEADLINE_COUNT_FORMAT }
 							tickResolution={ granularity }
+							showLegend={ false }
 						/>
 					) : (
 						<StackedAreaChart
