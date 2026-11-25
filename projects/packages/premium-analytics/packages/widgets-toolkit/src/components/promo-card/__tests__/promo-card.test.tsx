@@ -261,14 +261,15 @@ describe( 'PromoCard', () => {
 			);
 
 			await waitFor( () => expect( console ).toHaveErrored() );
-			expect( screen.getByText( 'Grow with Acme' ) ).toBeInTheDocument();
+			// The description, not the title: the frame draws the title whether the module ran or not.
+			expect( screen.getByText( 'Reach more readers.' ) ).toBeInTheDocument();
 		} );
 
 		it( 'falls back to the data-only card when the module throws on render', async () => {
 			render( <PromoCard promo={ withModule } resolveModule={ resolving( ThrowingModule ) } /> );
 
 			await waitFor( () => expect( console ).toHaveErrored() );
-			expect( screen.getByText( 'Grow with Acme' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Reach more readers.' ) ).toBeInTheDocument();
 		} );
 	} );
 } );

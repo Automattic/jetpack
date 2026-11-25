@@ -48,10 +48,6 @@ function FixtureModule( { promo, trackClick }: PromoRenderProps ) {
 	);
 }
 
-function ThrowingModule(): never {
-	throw new Error( 'The promo module failed to render.' );
-}
-
 const meta: Meta< typeof PromoCard > = {
 	title: 'Packages/Premium Analytics/Widgets Toolkit/Components/PromoCard',
 	component: PromoCard,
@@ -96,18 +92,4 @@ export const WithModule: Story = {
 			</div>
 		),
 	],
-};
-
-export const ModuleThrows: Story = {
-	args: {
-		promo: { ...basePromo, slug: 'storybook/throws', render_module: 'storybook/throws' },
-		resolveModule: () => Promise.resolve( { default: ThrowingModule } ),
-	},
-	parameters: {
-		docs: {
-			description: {
-				story: 'The module throws on render, so the card shows the data-only content instead.',
-			},
-		},
-	},
 };
