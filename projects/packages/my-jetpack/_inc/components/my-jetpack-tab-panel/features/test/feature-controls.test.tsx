@@ -1091,7 +1091,7 @@ describe( 'features waiting for an account', () => {
 		).toHaveFocus();
 	} );
 
-	it( 'keeps Connect in the details disabled, with its focus, until Deactivate lands', async () => {
+	it( 'keeps Connect in the details focused but disabled until Deactivate finishes', async () => {
 		const on = accountModule( true );
 		mockAskedFor = false;
 		const { rerender } = render(
@@ -1103,14 +1103,12 @@ describe( 'features waiting for an account', () => {
 		await userEvent.keyboard( '{Enter}' );
 
 		expect( connect ).toHaveFocus();
+		expect( connect ).toHaveAttribute( 'aria-disabled', 'true' );
 		expect( getUserConnectionUrl ).not.toHaveBeenCalled();
 		expect( leavePageFor ).not.toHaveBeenCalled();
 
 		mockAskedFor = null;
 		rerender( <FeatureModalActions state={ accountModule( false ) } /> );
-		expect(
-			screen.queryByRole( 'button', { name: 'Deactivate Activity Log' } )
-		).not.toBeInTheDocument();
 		await userEvent.keyboard( '{Enter}' );
 		expect( leavePageFor ).toHaveBeenCalledWith( connectionUrl );
 	} );

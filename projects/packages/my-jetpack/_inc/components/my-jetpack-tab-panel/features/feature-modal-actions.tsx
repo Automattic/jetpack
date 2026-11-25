@@ -190,7 +190,7 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 			) : null }
 
 			{ connectFirst ? (
-				// Connect leaves the page, so it stays disabled until a Deactivate in flight has landed.
+				// Connect leaves the page, so it stays disabled while this feature's switch request runs.
 				<ConnectButton
 					state={ state }
 					origin="modal"

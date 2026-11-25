@@ -357,6 +357,7 @@ export function ConnectButton( { state, origin, buttonRef, disabled }: ConnectBu
 			variant="outline"
 			size="compact"
 			disabled={ disabled }
+			focusableWhenDisabled
 			onClick={ onClick }
 			aria-label={ sprintf(
 				/* translators: %s is the feature name. */

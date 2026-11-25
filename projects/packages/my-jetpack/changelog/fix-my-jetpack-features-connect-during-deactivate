@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Features: Disable Connect in a feature's details while the feature is being deactivated.
+Features: Keep Connect disabled in a feature's details until the feature finishes turning on or off.
