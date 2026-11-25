@@ -1,4 +1,4 @@
-import { getSiteRequestFailureCause } from '../../helpers/get-site-request-failure';
+import { getSiteRequestFailureCause } from '../../helpers/get-site-request-failure.ts';
 import type { IdentityCrisisErrorCause } from './types';
 
 /**

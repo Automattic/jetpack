@@ -4,7 +4,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import {
 	getSiteRequestFailureCause,
 	getSiteRequestFailureMessage,
-} from './get-site-request-failure';
+} from './get-site-request-failure.ts';
 import type { RegistrationError } from '../components/use-connection/types';
 import type { ReactNode } from 'react';
 

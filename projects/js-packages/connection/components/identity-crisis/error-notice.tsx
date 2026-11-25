@@ -1,7 +1,7 @@
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
-import { getSiteRequestFailureMessage } from '../../helpers/get-site-request-failure';
+import { getSiteRequestFailureMessage } from '../../helpers/get-site-request-failure.ts';
 import SupportLink from './support-link';
 import type { IdentityCrisisErrorNoticeProps } from './types';
 import type { IdentityCrisisErrorCause } from '../../hooks/use-identity-crisis-actions/types';

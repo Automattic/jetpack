@@ -1,4 +1,4 @@
-import type { SiteRequestFailureCause } from '../../helpers/get-site-request-failure';
+import type { SiteRequestFailureCause } from '../../helpers/get-site-request-failure.ts';
 
 /** A Safe Mode resolution, named after its REST endpoint under `jetpack/v4/identity-crisis/`. */
 export type IdentityCrisisAction = 'migrate' | 'start-fresh' | 'confirm-safe-mode';
