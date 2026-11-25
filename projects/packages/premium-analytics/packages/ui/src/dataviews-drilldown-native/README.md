@@ -30,6 +30,13 @@ The first field in the view's field list becomes the view's `titleField` — the
 - **Cell content styling is the consumer's.** DataViews renders whatever the field's `render` returns, so a per-row treatment is a plain field-render concern — no override of DataViews internals needed. The title column keeps DataViews' title weight at every depth; the chevron alone marks a parent.
 - **Flat search, filter, and sort.** DataViews' `filterSortAndPaginate` is hierarchy-blind: a matching child whose parent is filtered out renders indented but orphaned, a matching parent renders alone with the aggregate its (dropped) children explain, and sorting by any field re-orders the rows flat — visually breaking the grouping. This component re-runs that pipeline hierarchy-aware instead: it matches first, re-attaches each match's ancestors _and_ descendants (`withHierarchyContext`), sorts within levels, and mounts the hierarchy-ordered rows in batches as the table scrolls (`useRowBatches`), with no pager. Leave `sort` out of the initial view to preserve hierarchy order.
 
+## Mounting rows in batches
+
+The table mounts its first 50 rows and grows by 50 as its own scroll container nears the end
+(`useRowBatches`). Folding keeps the rows mounted so far; a new sort, search or filter starts over
+from the first batch, scrolled to the top. Data swapped in without a view change keeps them too, so
+pass `batchResetKey` a new value when that data is a new set, such as another period.
+
 ## Siblings
 
 This is the third of three comparison implementations of the same drill-down surface:

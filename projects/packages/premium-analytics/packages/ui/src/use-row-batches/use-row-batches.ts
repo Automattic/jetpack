@@ -37,11 +37,16 @@ function isNearEnd( container: Element ): boolean {
  * Mount a DataViews table's rows a batch at a time, growing as its own scroll container nears
  * the end. Unlike DataViews' infinite scroll, rows stay a plain prefix of the ordered list.
  *
- * @param rowCount - How many rows the table could show.
- * @param resetKey - A new value starts over from the first batch, scrolled to the top.
+ * @param rowCount  - How many rows the table could show.
+ * @param resetKey  - A new value starts over from the first batch, scrolled to the top.
+ * @param isLoading - The `isLoading` handed to DataViews, which shows its previous rows meanwhile.
  * @return The row limit and the props for the element wrapping DataViews.
  */
-export function useRowBatches( rowCount: number, resetKey: unknown ): RowBatches {
+export function useRowBatches(
+	rowCount: number,
+	resetKey: string | number,
+	isLoading = false
+): RowBatches {
 	const [ batches, setBatches ] = useState( { resetKey, rowLimit: ROW_BATCH_SIZE } );
 	let { rowLimit } = batches;
 	if ( ! Object.is( batches.resetKey, resetKey ) ) {
@@ -51,9 +56,16 @@ export function useRowBatches( rowCount: number, resetKey: unknown ): RowBatches
 
 	const rowCountRef = useRef( rowCount );
 	rowCountRef.current = rowCount;
+	// Rows added while DataViews still shows its previous ones never reach the screen, so the
+	// container stays near its end and the fill below would grow every remaining row at once.
+	const isLoadingRef = useRef( isLoading );
+	isLoadingRef.current = isLoading;
 	const [ root, setRoot ] = useState< HTMLDivElement | null >( null );
 
 	const grow = useCallback( () => {
+		if ( isLoadingRef.current ) {
+			return;
+		}
 		setBatches( current =>
 			current.rowLimit < rowCountRef.current
 				? { ...current, rowLimit: current.rowLimit + ROW_BATCH_SIZE }
@@ -89,7 +101,7 @@ export function useRowBatches( rowCount: number, resetKey: unknown ): RowBatches
 		if ( container && container.clientHeight > 0 && isNearEnd( container ) ) {
 			grow();
 		}
-	}, [ root, rowLimit, rowCount, grow ] );
+	}, [ root, rowLimit, rowCount, isLoading, grow ] );
 
 	return {
 		rowLimit,

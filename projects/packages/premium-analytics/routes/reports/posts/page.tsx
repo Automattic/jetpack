@@ -38,6 +38,7 @@ import {
 	getPostsFields,
 	getReportPostsTabs,
 	getTabLabel,
+	PostThumbnailUrlsContext,
 	resolveTabId,
 	usePostsReportRecords,
 	usePostTitleLinks,
@@ -113,7 +114,7 @@ function PostsReport(): JSX.Element {
 	const records = usePostsReportRecords( activeTab, reportParams );
 	const [ visiblePostRows, setVisiblePostRows ] = useState< StatsTopPostsComparisonItem[] >( [] );
 	const handleVisiblePostRowsChange = useCallback( ( rows: StatsTopPostsComparisonItem[] ) => {
-		// Preserve the array when only thumbnail-backed fields changed, or this callback loops.
+		// Keep the array while the mounted rows are the same ones, so the thumbnail queries stay put.
 		setVisiblePostRows( previous =>
 			previous.length === rows.length && previous.every( ( row, index ) => row === rows[ index ] )
 				? previous
@@ -126,8 +127,8 @@ function PostsReport(): JSX.Element {
 
 	const titleLinks = usePostTitleLinks( activeTab );
 	const postsFields = useMemo(
-		() => getPostsFields( records.posts.hasComparison, titleLinks, thumbnailUrls ),
-		[ titleLinks, records.posts.hasComparison, thumbnailUrls ]
+		() => getPostsFields( records.posts.hasComparison, titleLinks ),
+		[ titleLinks, records.posts.hasComparison ]
 	);
 	const archivesFields = useMemo(
 		() => getArchivesFields( records.archives.hasComparison ),
@@ -170,18 +171,20 @@ function PostsReport(): JSX.Element {
 	 */
 	const recordsTable =
 		activeTab === 'posts-pages' ? (
-			<ReportRecordsTable< StatsTopPostsComparisonItem >
-				key="posts-pages"
-				data={ records.posts.rows }
-				fields={ postsFields }
-				getItemId={ getPostRowId }
-				isLoading={ records.posts.isLoading }
-				isFetching={ records.posts.isFetching }
-				initialView={ POSTS_VIEW }
-				searchLabel={ __( 'Search posts', 'jetpack-premium-analytics-pkg' ) }
-				actions={ postActions }
-				onChangePageItems={ handleVisiblePostRowsChange }
-			/>
+			<PostThumbnailUrlsContext.Provider value={ thumbnailUrls }>
+				<ReportRecordsTable< StatsTopPostsComparisonItem >
+					key="posts-pages"
+					data={ records.posts.rows }
+					fields={ postsFields }
+					getItemId={ getPostRowId }
+					isLoading={ records.posts.isLoading }
+					isFetching={ records.posts.isFetching }
+					initialView={ POSTS_VIEW }
+					searchLabel={ __( 'Search posts', 'jetpack-premium-analytics-pkg' ) }
+					actions={ postActions }
+					onChangePageItems={ handleVisiblePostRowsChange }
+				/>
+			</PostThumbnailUrlsContext.Provider>
 		) : (
 			<ReportDrilldownTable< ArchiveRow >
 				key="archives"

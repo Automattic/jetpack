@@ -21,7 +21,7 @@ import {
 import { __ } from '@wordpress/i18n';
 import { page as pageIcon, post as postIcon } from '@wordpress/icons';
 import { useSearch } from '@wordpress/route';
-import { memo, useMemo, type JSX } from 'react';
+import { createContext, memo, useContext, useMemo, type JSX } from 'react';
 /**
  * Internal dependencies
  */
@@ -110,6 +110,28 @@ const MemoizedPostTitle = memo(
 		previous.item.type === next.item.type
 );
 
+// Thumbnails resolve as rows mount; read them from context so a new one does not rebuild the
+// fields, which DataViews renders as component types and would remount in every row.
+export const PostThumbnailUrlsContext = createContext< PostThumbnailUrls >( {} );
+
+/**
+ * Render a post row's featured-image thumbnail, or its post type icon.
+ *
+ * @param {object}                      props      - Component props.
+ * @param {StatsTopPostsComparisonItem} props.item - The post row.
+ * @return The thumbnail.
+ */
+function PostThumbnail( { item }: { item: StatsTopPostsComparisonItem } ): JSX.Element {
+	const thumbnailUrls = useContext( PostThumbnailUrlsContext );
+
+	return (
+		<ReportThumbnail
+			thumbnailUrl={ thumbnailUrls[ Number( item.id ) ] }
+			fallbackIcon={ item.type === 'page' ? pageIcon : postIcon }
+		/>
+	);
+}
+
 /**
  * DataViews field config for the Posts & Pages records table.
  *
@@ -119,13 +141,11 @@ const MemoizedPostTitle = memo(
  *
  * @param withComparison - Whether to render available period-over-period deltas.
  * @param titleLinks     - Link context from `usePostTitleLinks`.
- * @param thumbnailUrls  - Thumbnail URLs keyed by post ID.
  * @return The field config.
  */
 export function getPostsFields(
 	withComparison: boolean,
-	titleLinks: PostTitleLinks,
-	thumbnailUrls: PostThumbnailUrls = {}
+	titleLinks: PostTitleLinks
 ): Field< StatsTopPostsComparisonItem >[] {
 	return [
 		{
@@ -141,12 +161,7 @@ export function getPostsFields(
 			type: 'media',
 			label: __( 'Thumbnail', 'jetpack-premium-analytics-pkg' ),
 			enableHiding: false,
-			render: ( { item } ) => (
-				<ReportThumbnail
-					thumbnailUrl={ thumbnailUrls[ Number( item.id ) ] }
-					fallbackIcon={ item.type === 'page' ? pageIcon : postIcon }
-				/>
-			),
+			render: ( { item } ) => <PostThumbnail item={ item } />,
 		},
 		{
 			id: 'views',

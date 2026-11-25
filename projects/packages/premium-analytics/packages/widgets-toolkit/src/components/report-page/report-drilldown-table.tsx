@@ -10,11 +10,14 @@ import {
  */
 import styles from './report-drilldown-table.module.scss';
 import { ReportTableEmptyState } from './report-empty-state';
-import { ReportPageSection } from './report-page-layout';
-import { useLoadCount } from './use-load-count';
+import { ReportPageSection, useReportPeriodKey } from './report-page-layout';
 import { useTableRevalidating } from './use-table-revalidating';
 
-export type ReportDrilldownTableProps< Item > = DataViewsDrilldownNativeProps< Item > & {
+// The table owns `batchResetKey`: it starts over with the report's period.
+export type ReportDrilldownTableProps< Item > = Omit<
+	DataViewsDrilldownNativeProps< Item >,
+	'batchResetKey'
+> & {
 	/** Whether the rows on screen are revalidating; see `ReportRecordsTable`. */
 	isFetching?: boolean;
 };
@@ -32,7 +35,7 @@ export function ReportDrilldownTable< Item >( {
 	...props
 }: ReportDrilldownTableProps< Item > ) {
 	const isRevalidating = useTableRevalidating( isFetching );
-	const loadCount = useLoadCount( props.isLoading ?? false );
+	const periodKey = useReportPeriodKey();
 
 	if ( props.data.length === 0 ) {
 		return <ReportTableEmptyState isLoading={ props.isLoading ?? false } />;
@@ -43,7 +46,7 @@ export function ReportDrilldownTable< Item >( {
 			<DataViewsDrilldownNative< Item >
 				{ ...props }
 				isLoading={ props.isLoading || isRevalidating }
-				batchResetKey={ loadCount }
+				batchResetKey={ periodKey }
 			/>
 		</ReportPageSection>
 	);

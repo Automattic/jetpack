@@ -7,9 +7,17 @@ import userEvent from '@testing-library/user-event';
  * Internal dependencies
  */
 import { ReportDrilldownTable } from '../report-drilldown-table';
+import { ReportPageLayout } from '../report-page-layout';
 import { ReportRecordsTable } from '../report-records-table';
 import type { Field, View } from '@jetpack-premium-analytics/externals';
+import type { ReportDateFilters } from '@jetpack-premium-analytics/routing';
 import type { ReactElement } from 'react';
+
+// The layout hands the date controller to this panel; only the applied range matters here.
+jest.mock( '@jetpack-premium-analytics/ui', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/ui' ),
+	DateFiltersPanel: () => null,
+} ) );
 
 interface Row {
 	id: string;
@@ -142,6 +150,26 @@ function numberedRows( count: number ): NumberedRow[] {
 }
 
 describe( 'ReportRecordsTable paging', () => {
+	it( 'reports only the rows it has mounted', async () => {
+		const onMountedRows = jest.fn();
+		render(
+			<ReportRecordsTable< Row >
+				data={ longReport() }
+				fields={ fields }
+				getItemId={ item => item.id }
+				initialView={ INITIAL_VIEW }
+				onChangePageItems={ onMountedRows }
+			/>
+		);
+		expect( onMountedRows ).toHaveBeenLastCalledWith( longReport().slice( 0, 50 ) );
+
+		scrollTable();
+
+		await waitFor( () =>
+			expect( onMountedRows ).toHaveBeenLastCalledWith( longReport().slice( 0, 100 ) )
+		);
+	} );
+
 	it( 'offers no pager or page size menu', async () => {
 		render(
 			<ReportRecordsTable< NumberedRow >
@@ -313,17 +341,42 @@ describe.each( TABLES )( '%s with a long report', ( _name, table ) => {
 		expect( screen.queryByText( 'Row 70' ) ).not.toBeInTheDocument();
 	} );
 
-	it.each( [
-		[ 'keeps the mounted rows through a background refetch', { isFetching: true }, true ],
-		[ 'starts over when a new period loads', { isLoading: true }, false ],
-	] )( '%s', async ( _case, pending: TableProps, keepsRows ) => {
+	it( 'keeps the mounted rows through a background refetch', async () => {
 		const { rerender } = render( table( longReport() ) );
 		scrollTable();
 		await expect( screen.findByText( 'Row 100' ) ).resolves.toBeInTheDocument();
 
-		rerender( table( longReport(), pending ) );
+		rerender( table( longReport(), { isFetching: true } ) );
 		rerender( table( longReport() ) );
 
-		expect( screen.queryByText( 'Row 100' ) !== null ).toBe( keepsRows );
+		expect( screen.getByText( 'Row 100' ) ).toBeInTheDocument();
+	} );
+
+	it( 'starts over on a new period, even one whose rows are cached', async () => {
+		const inPeriod = ( from: string ) => (
+			<ReportPageLayout
+				title="Report"
+				dateFilters={ { appliedRange: { from, to: '2026-11-24' } } as unknown as ReportDateFilters }
+			>
+				{ table( longReport() ) }
+			</ReportPageLayout>
+		);
+		const { rerender } = render( inPeriod( '2026-11-18' ) );
+		scrollTable();
+		await expect( screen.findByText( 'Row 100' ) ).resolves.toBeInTheDocument();
+
+		rerender( inPeriod( '2026-10-26' ) );
+
+		expect( screen.queryByText( 'Row 51' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'holds the next batch while the rows on screen revalidate', () => {
+		const { rerender } = render( table( longReport() ) );
+		rerender( table( longReport(), { isFetching: true } ) );
+
+		scrollTable();
+		rerender( table( longReport() ) );
+
+		expect( screen.queryByText( 'Row 51' ) ).not.toBeInTheDocument();
 	} );
 } );

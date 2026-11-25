@@ -15,10 +15,9 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
  * Internal dependencies
  */
 import { ReportTableEmptyState } from './report-empty-state';
-import { ReportPageSection } from './report-page-layout';
+import { ReportPageSection, useReportPeriodKey } from './report-page-layout';
 import styles from './report-records-table.module.scss';
 import './report-records-table.scss';
-import { useLoadCount } from './use-load-count';
 import { useTableRevalidating } from './use-table-revalidating';
 import type { ComponentProps, ReactElement } from 'react';
 
@@ -156,9 +155,14 @@ export function ReportRecordsTable< Item >( {
 	);
 
 	// A background refetch keeps the rows mounted so far; a new order, match set or period starts over.
-	const loadCount = useLoadCount( isLoading );
-	const rowBatchesResetKey = `${ JSON.stringify( [ view.sort, view.search, view.filters ] ) }:${ loadCount }`;
-	const { rowLimit, containerProps } = useRowBatches( orderedItems.length, rowBatchesResetKey );
+	const periodKey = useReportPeriodKey();
+	const rowBatchesResetKey = `${ JSON.stringify( [ view.sort, view.search, view.filters ] ) }:${ periodKey }`;
+	const isRevalidating = useTableRevalidating( isFetching );
+	const { rowLimit, containerProps } = useRowBatches(
+		orderedItems.length,
+		rowBatchesResetKey,
+		isLoading || isRevalidating
+	);
 	const mountedItems = useMemo(
 		() => orderedItems.slice( 0, rowLimit ),
 		[ orderedItems, rowLimit ]
@@ -167,8 +171,6 @@ export function ReportRecordsTable< Item >( {
 	useEffect( () => {
 		onChangePageItems?.( mountedItems );
 	}, [ onChangePageItems, mountedItems ] );
-
-	const isRevalidating = useTableRevalidating( isFetching );
 
 	// A filter the API applies server-side can scope the rows to none, and the table carries the control that clears it.
 	if ( data.length === 0 && ! view.filters?.length ) {

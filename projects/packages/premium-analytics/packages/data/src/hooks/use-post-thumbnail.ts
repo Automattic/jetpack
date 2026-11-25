@@ -35,18 +35,14 @@ type EntityRecordsSelector = {
 		name: string,
 		query: Record< string, unknown >
 	) => unknown[] | null;
-	hasFinishedResolution: ( selectorName: string, args: unknown[] ) => boolean;
 };
 
-// WP REST rejects a larger `per_page` with a 400, so longer id lists are requested in batches.
-const MAX_IDS_PER_REQUEST = 100;
+// Each query covers a run of this many rows, so rows mounted below add queries instead of changing
+// the ones core-data already resolved. WP REST rejects a `per_page` above 100.
+const ROWS_PER_QUERY = 50;
 
-function toBatches( ids: number[] ): number[][] {
-	const batches: number[][] = [];
-	for ( let start = 0; start < ids.length; start += MAX_IDS_PER_REQUEST ) {
-		batches.push( ids.slice( start, start + MAX_IDS_PER_REQUEST ) );
-	}
-	return batches;
+function sortedIds( ids: Iterable< number > ): number[] {
+	return Array.from( new Set( ids ) ).sort( ( a, b ) => a - b );
 }
 
 function getThumbnailUrl( media?: MediaEntity ): string | undefined {
@@ -107,37 +103,41 @@ export function usePostThumbnail(
  */
 export function usePostThumbnails( rows: PostThumbnailSource[] ): PostThumbnailUrls {
 	const postQueries = useMemo( () => {
-		const grouped = new Map< string, Set< number > >();
+		const queries: { type: string; query: Record< string, unknown > }[] = [];
 
-		for ( const row of rows ) {
-			const id = Number( row.id );
-			if (
-				typeof row.type !== 'string' ||
-				row.type === 'homepage' ||
-				! Number.isInteger( id ) ||
-				id <= 0
-			) {
-				continue;
+		for ( let start = 0; start < rows.length; start += ROWS_PER_QUERY ) {
+			const grouped = new Map< string, number[] >();
+
+			for ( const row of rows.slice( start, start + ROWS_PER_QUERY ) ) {
+				const id = Number( row.id );
+				if (
+					typeof row.type !== 'string' ||
+					row.type === 'homepage' ||
+					! Number.isInteger( id ) ||
+					id <= 0
+				) {
+					continue;
+				}
+
+				grouped.set( row.type, [ ...( grouped.get( row.type ) ?? [] ), id ] );
 			}
 
-			const ids = grouped.get( row.type ) ?? new Set< number >();
-			ids.add( id );
-			grouped.set( row.type, ids );
+			// Sorted, so a run whose rows trade places keeps its query.
+			for ( const [ type, ids ] of grouped ) {
+				const include = sortedIds( ids );
+				queries.push( {
+					type,
+					query: {
+						include,
+						per_page: include.length,
+						context: 'view',
+						_fields: 'id,featured_media',
+					},
+				} );
+			}
 		}
 
-		// Batched in row order, not sorted: a list that grows by appending keeps its earlier
-		// queries, which core-data has already resolved.
-		return Array.from( grouped ).flatMap( ( [ type, ids ] ) =>
-			toBatches( Array.from( ids ) ).map( include => ( {
-				type,
-				query: {
-					include,
-					per_page: include.length,
-					context: 'view',
-					_fields: 'id,featured_media',
-				},
-			} ) )
-		);
+		return queries;
 	}, [ rows ] );
 
 	const postRecordGroups = useSelect(
@@ -152,35 +152,23 @@ export function usePostThumbnails( rows: PostThumbnailSource[] ): PostThumbnailU
 		[ postQueries ]
 	);
 
-	const havePostQueriesResolved = useSelect(
-		select => {
-			const core = select( coreStore ) as unknown as EntityRecordsSelector;
-			return postQueries.every( ( { type, query } ) =>
-				core.hasFinishedResolution( 'getEntityRecords', [ 'postType', type, query ] )
-			);
-		},
-		[ postQueries ]
-	);
-
 	const postRecords = useMemo(
 		() => postRecordGroups.flatMap( records => records ?? [] ),
 		[ postRecordGroups ]
 	);
 
+	// One media query per resolved post query, so it too stays put as rows are added.
 	const mediaIdBatches = useMemo(
 		() =>
-			havePostQueriesResolved
-				? toBatches(
-						Array.from(
-							new Set(
-								postRecords
-									.map( post => post.featured_media )
-									.filter( ( id ): id is number => typeof id === 'number' && id > 0 )
-							)
-						)
-					)
-				: [],
-		[ havePostQueriesResolved, postRecords ]
+			postRecordGroups.flatMap( records => {
+				const include = sortedIds(
+					( records ?? [] )
+						.map( post => post.featured_media )
+						.filter( ( id ): id is number => typeof id === 'number' && id > 0 )
+				);
+				return include.length ? [ include ] : [];
+			} ),
+		[ postRecordGroups ]
 	);
 
 	const mediaGroups = useSelect(

@@ -155,8 +155,14 @@ describe( 'usePostThumbnails', () => {
 			_fields: 'id,featured_media',
 		} );
 		expect( getEntityRecords ).toHaveBeenCalledWith( 'postType', 'attachment', {
-			include: [ 12, 11 ],
-			per_page: 2,
+			include: [ 11 ],
+			per_page: 1,
+			context: 'view',
+			_fields: 'id,source_url,media_details',
+		} );
+		expect( getEntityRecords ).toHaveBeenCalledWith( 'postType', 'attachment', {
+			include: [ 12 ],
+			per_page: 1,
 			context: 'view',
 			_fields: 'id,source_url,media_details',
 		} );
@@ -168,8 +174,8 @@ describe( 'usePostThumbnails', () => {
 	} );
 
 	it.each( [
-		[ '150 posts', { post: 150 }, { post: 2, attachment: 2 } ],
-		[ '150 posts and 150 pages', { post: 150, page: 150 }, { post: 2, page: 2, attachment: 3 } ],
+		[ '150 posts', { post: 150 }, { post: 3, attachment: 3 } ],
+		[ '150 posts and 150 pages', { post: 150, page: 150 }, { post: 3, page: 3, attachment: 6 } ],
 	] )(
 		'resolves every thumbnail for %s in batches of at most 100',
 		( _description, countsByType: Record< string, number >, expectedBatches ) => {
@@ -210,43 +216,36 @@ describe( 'usePostThumbnails', () => {
 		}
 	);
 
-	it( 'keeps the queries it already made when more rows are appended', () => {
+	it( 'keeps the queries it already made when the table mounts more rows', () => {
 		const records: Record< string, unknown[] > = { post: [], attachment: [] };
-		for ( let id = 1; id <= 300; id++ ) {
+		for ( let id = 1; id <= 100; id++ ) {
 			records.post.push( { id, featured_media: 1000 + id } );
 			records.attachment.push( { id: 1000 + id, source_url: `https://example.com/${ id }.jpg` } );
 		}
 		mockEntityRecords( records );
-		// Ids interleave, so sorting them would move every batch boundary once rows are appended.
-		const firstRows = Array.from( { length: 150 }, ( _, index ) => ( {
-			id: 2 * ( index + 1 ),
-			type: 'post',
-		} ) );
-		const appendedRows = Array.from( { length: 100 }, ( _, index ) => ( {
-			id: 2 * index + 1,
-			type: 'post',
-		} ) );
-		const postQueries = () =>
+		const postRows = ( count: number ) =>
+			Array.from( { length: count }, ( _, index ) => ( { id: index + 1, type: 'post' } ) );
+		const queries = ( name: string ) =>
 			new Set(
 				getEntityRecords.mock.calls
-					.filter( ( [ , name ] ) => name === 'post' )
+					.filter( ( [ , queried ] ) => queried === name )
 					.map( ( [ , , query ] ) => String( query.include ) )
 			);
 
 		const { rerender } = renderHook(
 			( rows: { id: number; type: string }[] ) => usePostThumbnails( rows ),
-			{
-				initialProps: firstRows,
-			}
+			{ initialProps: postRows( 50 ) }
 		);
-		const [ firstBatch ] = postQueries();
+		const [ firstPosts ] = queries( 'post' );
+		const [ firstMedia ] = queries( 'attachment' );
 		getEntityRecords.mockClear();
-		rerender( [ ...firstRows, ...appendedRows ] );
+		rerender( postRows( 100 ) );
 
-		expect( postQueries() ).toContain( firstBatch );
+		expect( queries( 'post' ) ).toContain( firstPosts );
+		expect( queries( 'attachment' ) ).toContain( firstMedia );
 	} );
 
-	it( 'keeps the thumbnails it showed while a grown row list resolves', () => {
+	it( 'keeps the thumbnails it showed while a re-sorted row list resolves', () => {
 		const records: Record< string, unknown[] > = { post: [], attachment: [] };
 		for ( let id = 1; id <= 60; id++ ) {
 			records.post.push( { id, featured_media: 1000 + id } );
@@ -258,14 +257,13 @@ describe( 'usePostThumbnails', () => {
 
 		const { result, rerender } = renderHook(
 			( rows: { id: number; type: string }[] ) => usePostThumbnails( rows ),
-			{ initialProps: postRows( 50 ) }
+			{ initialProps: postRows( 60 ) }
 		);
 		expect( result.current[ 1 ] ).toBe( 'https://example.com/1.jpg' );
 
-		// The grown list is a new query, unresolved until its request returns.
+		// Re-sorted, the rows fall into new queries, unresolved until their requests return.
 		getEntityRecords.mockReturnValue( null );
-		hasFinishedResolution.mockReturnValue( false );
-		rerender( postRows( 60 ) );
+		rerender( [ ...postRows( 60 ) ].reverse() );
 
 		expect( result.current[ 1 ] ).toBe( 'https://example.com/1.jpg' );
 	} );
@@ -282,28 +280,5 @@ describe( 'usePostThumbnails', () => {
 
 		expect( result.current ).toEqual( {} );
 		expect( getEntityRecords ).not.toHaveBeenCalled();
-	} );
-
-	it( 'waits for every post type before requesting media', () => {
-		mockEntityRecords( {
-			post: [ { id: 1, featured_media: 11 } ],
-			page: [ { id: 2, featured_media: 12 } ],
-		} );
-		hasFinishedResolution.mockImplementation(
-			( _selectorName, args ) => ( args as [ string, string ] )[ 1 ] !== 'page'
-		);
-
-		renderHook( () =>
-			usePostThumbnails( [
-				{ id: 1, type: 'post' },
-				{ id: 2, type: 'page' },
-			] )
-		);
-
-		expect( getEntityRecords ).not.toHaveBeenCalledWith(
-			'postType',
-			'attachment',
-			expect.anything()
-		);
 	} );
 } );

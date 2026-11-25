@@ -14,6 +14,7 @@ import type { ReportDateFilters } from '@jetpack-premium-analytics/routing';
 import type { ReactNode } from 'react';
 
 const ReportHasPeriodContext = createContext( false );
+const ReportPeriodKeyContext = createContext( '' );
 
 const ALL_TIME_MENU = {
 	presetIds: MENU_SURFACE_PRESETS_WITH_ALL_TIME,
@@ -27,6 +28,16 @@ const ALL_TIME_MENU = {
  */
 export function useReportHasPeriod(): boolean {
 	return useContext( ReportHasPeriodContext );
+}
+
+/**
+ * Identify the period the report is showing, so its tables can start over when it changes — even
+ * to a period whose rows are cached and load without a loading state.
+ *
+ * @return A key that changes with the applied date range; empty on a report with no period.
+ */
+export function useReportPeriodKey(): string {
+	return useContext( ReportPeriodKeyContext );
 }
 
 export interface ReportPageLayoutProps {
@@ -70,7 +81,11 @@ export function ReportPageLayout( {
 				) : null }
 			</SectionHeader>
 			<ReportHasPeriodContext.Provider value={ !! dateFilters }>
-				<div className={ styles.sections }>{ children }</div>
+				<ReportPeriodKeyContext.Provider
+					value={ dateFilters ? JSON.stringify( dateFilters.appliedRange ) : '' }
+				>
+					<div className={ styles.sections }>{ children }</div>
+				</ReportPeriodKeyContext.Provider>
 			</ReportHasPeriodContext.Provider>
 			<JetpackFooter />
 		</div>
