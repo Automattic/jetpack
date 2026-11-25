@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for the Upgrade to Parsely prompt eligibility.
+ * Tests for the Upgrade to Parse.ly prompt eligibility.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -126,7 +126,7 @@ class Parsely_Prompts_Test extends BaseTestCase {
 	/**
 	 * Answer the Stats usage endpoint, counting the requests it receives.
 	 *
-	 * @param array|WP_Error $response The decoded payload, or a failed request.
+	 * @param array|string|WP_Error $response The payload WordPress.com answers with, or a failed request.
 	 */
 	private function answer_stats_usage_with( $response ) {
 		add_filter(
@@ -164,35 +164,34 @@ class Parsely_Prompts_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A usage payload reporting the given views per whole month, most recent first, behind a month
-	 * in progress that is far below the threshold. `billable_monthly_views` is 0, as it is for a
-	 * site whose plan already covers its traffic, so a gate reading it offers nothing.
+	 * A usage payload shaped like the live one: `recent_usages` carries the closed periods, most
+	 * recent first, and the period in progress is in `current_usage` alone, with a count far below
+	 * the threshold so that folding it into the figure would refuse the site.
+	 * `billable_monthly_views` is 0, as it is for a site whose plan already covers its traffic, so a
+	 * gate reading that offers nothing.
 	 *
-	 * @param array $monthly_views The views each whole month got.
+	 * @param array $monthly_views The views each closed period got.
 	 * @return array
 	 */
 	private static function usage_with_monthly_views( array $monthly_views ) {
-		$open_month = '2026-11-01';
-		$months     = array(
-			array(
-				'current_start' => $open_month,
-				'views_count'   => 1,
-			),
-		);
+		$months = array();
 
 		foreach ( $monthly_views as $index => $views ) {
 			$months[] = array(
-				'current_start' => sprintf( '2026-%02d-01', 10 - $index ),
+				'current_start' => sprintf( '2026-%02d-26', 9 - $index ),
+				'next_start'    => sprintf( '2026-%02d-26', 10 - $index ),
 				'views_count'   => $views,
+				'days_to_reset' => 30 * ( $index + 1 ),
 			);
 		}
 
 		return array(
 			'billable_monthly_views' => 0,
 			'current_usage'          => array(
-				'current_start' => $open_month,
+				'current_start' => '2026-10-26',
+				'next_start'    => '2026-11-26',
 				'views_count'   => 1,
-				'days_to_reset' => 12,
+				'days_to_reset' => 1,
 			),
 			'recent_usages'          => $months,
 		);

@@ -194,9 +194,12 @@ function fetch_monthly_stats_views() {
 }
 
 /**
- * The lowest views any recent whole month got. WordPress.com measures a site by that figure and
- * then subtracts the views its plan already paid for to reach `billable_monthly_views`, so a site
- * provisioned for its own traffic reports 0 there and would never qualify.
+ * The lowest views any of the site's closed billing periods got. `recent_usages` reports those, a
+ * month each, and the period in progress is reported apart from them in `current_usage`.
+ *
+ * WordPress.com measures a site by that figure and then subtracts the views its plan already paid
+ * for to reach `billable_monthly_views`, so a site provisioned for its own traffic reports 0 there
+ * and would never qualify.
  *
  * @since $$next-version$$
  *
@@ -210,21 +213,10 @@ function quietest_monthly_views( array $usage ) {
 		return null;
 	}
 
-	$open_month = $usage['current_usage']['current_start'] ?? null;
-	$counts     = array();
+	$counts = array();
 
 	foreach ( $months as $month ) {
 		if ( ! is_array( $month ) || ! is_numeric( $month['views_count'] ?? null ) ) {
-			continue;
-		}
-
-		/*
-		 * The month in progress is a part month, and the lowest of the set would read it as a
-		 * slump. Without `current_start` there is nothing to match it on, so it stays in and can
-		 * refuse a site that qualifies. Deliberate: withholding an offer costs less than making
-		 * one on a month that has not finished.
-		 */
-		if ( null !== $open_month && ( $month['current_start'] ?? null ) === $open_month ) {
 			continue;
 		}
 
