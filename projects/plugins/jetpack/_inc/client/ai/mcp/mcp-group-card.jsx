@@ -20,14 +20,18 @@ const LABEL_HIDE_OPERATIONS = __( 'Hide operations', 'jetpack' );
  *
  * @param {object}   props               - Component props.
  * @param {string}   props.toolId        - Tool identifier.
+ * @param {string}   [props.settingKey]  - Saved permission key when it differs from the tool ID.
  * @param {object}   props.tool          - Tool descriptor from the API.
  * @param {string}   props.view          - View path for the copy link, e.g. `mcp/read`.
  * @param {Set}      props.savingToolIds - Set of toolIds currently being saved.
- * @param {Function} props.onToggle      - Called with (toolId, enabled).
+ * @param {Function} props.onToggle      - Called with (settingKey, enabled).
  * @return {object} Component markup.
  */
-export function ToolToggle( { toolId, tool, view, savingToolIds, onToggle } ) {
-	const handleChange = useCallback( checked => onToggle( toolId, checked ), [ toolId, onToggle ] );
+export function ToolToggle( { toolId, settingKey = toolId, tool, view, savingToolIds, onToggle } ) {
+	const handleChange = useCallback(
+		checked => onToggle( settingKey, checked ),
+		[ settingKey, onToggle ]
+	);
 	const optIn = requiresOptIn( tool );
 	return (
 		<div id={ getToolDomId( toolId ) } className="jetpack-ai-mcp__tool-row">

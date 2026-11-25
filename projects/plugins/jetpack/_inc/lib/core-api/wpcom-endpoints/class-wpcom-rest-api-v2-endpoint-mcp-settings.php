@@ -193,9 +193,8 @@ class WPCOM_REST_API_V2_Endpoint_MCP_Settings extends WP_REST_Controller {
 		// Use only the explicit per-site user overrides returned by WPCOM in user_overrides.abilities.
 		// These are the raw values stored via SettingsHelper — not the computed effective states
 		// (account defaults merged with overrides). Keeping only explicit overrides here lets the
-		// JS fall back to site_level_enabled as the default for any tool not yet overridden,
-		// matching Calypso's display behaviour (all tools on when site_level_enabled:true and no
-		// per-tool overrides exist).
+		// JS fall back to site_level_enabled for ordinary Read tools without overrides.
+		// Other tools without overrides use the enabled value from WPCOM.
 		$site_tool_abilities = array();
 		if ( isset( $body['user_overrides']['abilities'] ) && is_array( $body['user_overrides']['abilities'] ) ) {
 			foreach ( $body['user_overrides']['abilities'] as $name => $value ) {

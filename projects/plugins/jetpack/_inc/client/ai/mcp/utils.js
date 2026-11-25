@@ -140,8 +140,7 @@ export function getRemoteAbilityKey( name, annotations = {} ) {
  * @return {boolean} Whether the ability requires opt-in.
  */
 export function isRemoteAbilityOptIn( name, remoteOptIn = [] ) {
-	// The settings client ships before the server returns this field.
-	return name === 'jetpack-stats/get-subscribers' || remoteOptIn.includes( name );
+	return remoteOptIn.includes( name );
 }
 
 /**
@@ -188,15 +187,16 @@ export function getRemoteAbilitiesDefaultEnabled( scopedTools ) {
  *
  * @param {Record<string, Object>}  accountAbilities - Tool definitions from the API.
  * @param {Record<string, boolean>} siteAbilities    - Explicit per-site overrides by tool ID (only tools the user has explicitly set).
- * @param {boolean|null}            defaultEnabled   - Site fallback for ordinary tools with no override.
+ * @param {boolean|null}            defaultEnabled   - Site fallback for ordinary Read tools with no override.
  * @return {Record<string, Object>} Merged abilities with site overrides applied.
  */
 export function mergeSiteMcpAbilities( accountAbilities, siteAbilities, defaultEnabled = null ) {
 	return Object.fromEntries(
 		Object.entries( accountAbilities ).map( ( [ toolId, tool ] ) => {
-			const fallbackEnabled = requiresOptIn( tool )
-				? tool.enabled
-				: ( defaultEnabled ?? tool.enabled );
+			const fallbackEnabled =
+				tool.readonly && ! requiresOptIn( tool )
+					? ( defaultEnabled ?? tool.enabled )
+					: tool.enabled;
 			return [
 				toolId,
 				{

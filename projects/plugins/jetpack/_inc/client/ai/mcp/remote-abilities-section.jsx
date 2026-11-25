@@ -37,12 +37,13 @@ function formatNamespace( namespace ) {
  * the abilities listed under it. Saved keys always get a card, so settings stay
  * visible when the site is unreachable or has stopped publishing an ability.
  *
- * @param {Array}                   abilities   - Published abilities.
- * @param {Record<string, boolean>} savedGroups - Saved allowlist.
- * @param {'read'|'write'}          view        - View to collect for.
+ * @param {Array}                   abilities     - Published abilities.
+ * @param {Record<string, boolean>} savedGroups   - Saved allowlist.
+ * @param {'read'|'write'}          view          - View to collect for.
+ * @param {string[]}                [remoteOptIn] - Opt-in ability names from the settings service.
  * @return {Map<string, {keys: string[], abilityKeys: string[], abilities: Array}>} Namespaces, sorted.
  */
-export function collectNamespaces( abilities, savedGroups, view ) {
+export function collectNamespaces( abilities, savedGroups, view, remoteOptIn ) {
 	const namespaces = new Map();
 	const entry = namespace => {
 		const group = namespaces.get( namespace ) ?? { keys: [], abilityKeys: [], abilities: [] };
@@ -55,6 +56,7 @@ export function collectNamespaces( abilities, savedGroups, view ) {
 		}
 	};
 
+	const publishedNames = new Set( abilities.map( ability => ability.name ) );
 	for ( const ability of abilities ) {
 		const annotations = ability.meta?.annotations;
 		if ( getRemoteAbilityCategory( ability.name, annotations ) !== view ) {
@@ -72,7 +74,20 @@ export function collectNamespaces( abilities, savedGroups, view ) {
 			continue;
 		}
 		const [ namespace, abilityPath ] = rest.split( '/' );
-		addKey( abilityPath ? entry( namespace ).abilityKeys : entry( namespace ).keys, savedKey );
+		const group = entry( namespace );
+		addKey( abilityPath ? group.abilityKeys : group.keys, savedKey );
+		if (
+			abilityPath &&
+			! publishedNames.has( rest ) &&
+			isRemoteAbilityOptIn( rest, remoteOptIn )
+		) {
+			// Keep individual grants editable if the site no longer publishes their catalog entries.
+			group.abilities.push( {
+				name: rest,
+				meta: { annotations: { readonly: kind === 'read', destructive: kind === 'destructive' } },
+				savedOnly: true,
+			} );
+		}
 	}
 
 	return new Map( [ ...namespaces ].sort( ( [ a ], [ b ] ) => a.localeCompare( b ) ) );
@@ -89,9 +104,10 @@ function getRemoteBulkKeys( group, remoteOptIn ) {
 	const individualKeys = group.abilityKeys.filter(
 		key => ! isRemoteAbilityOptIn( key.split( ':' )[ 1 ], remoteOptIn )
 	);
+	const publishedAbilities = group.abilities.filter( ability => ! ability.savedOnly );
 	const hasOnlyOptInAbilities =
-		group.abilities.length > 0 &&
-		group.abilities.every( ability => isRemoteAbilityOptIn( ability.name, remoteOptIn ) );
+		publishedAbilities.length > 0 &&
+		publishedAbilities.every( ability => isRemoteAbilityOptIn( ability.name, remoteOptIn ) );
 	return hasOnlyOptInAbilities && individualKeys.length === 0
 		? []
 		: [ ...group.keys, ...individualKeys ];
@@ -191,7 +207,7 @@ export default function RemoteAbilitiesSection( {
 	const remoteOptIn = mcpAbilities?.remote_abilities_requiring_opt_in;
 	const searchText = query.trim();
 
-	const allNamespaces = collectNamespaces( abilities, savedGroups, view );
+	const allNamespaces = collectNamespaces( abilities, savedGroups, view, remoteOptIn );
 	const namespaces = new Map( allNamespaces );
 	if ( searchText ) {
 		for ( const [ namespace, group ] of namespaces ) {
@@ -245,14 +261,9 @@ export default function RemoteAbilitiesSection( {
 		( enabled, { namespace, keys } ) => save( keys, enabled, `${ view }:${ namespace }` ),
 		[ save, view ]
 	);
-
 	const handleToolChange = useCallback(
-		( toolId, enabled ) => {
-			const ability = abilities.find( item => item.name === toolId );
-			const abilityKey = getRemoteAbilityKey( toolId, ability?.meta?.annotations );
-			save( [ abilityKey ], enabled, abilityKey );
-		},
-		[ abilities, save ]
+		( key, enabled ) => save( [ key ], enabled, key ),
+		[ save ]
 	);
 
 	if ( namespaces.size === 0 && ! isLoading ) {
@@ -326,8 +337,9 @@ export default function RemoteAbilitiesSection( {
 						<Stack direction="column" gap="md" className="jetpack-ai-mcp__group-body">
 							{ group.abilities.map( ability => (
 								<ToolToggle
-									key={ ability.name }
+									key={ getRemoteAbilityKey( ability.name, ability.meta?.annotations ) }
 									toolId={ ability.name }
+									settingKey={ getRemoteAbilityKey( ability.name, ability.meta?.annotations ) }
 									tool={ {
 										title: ability.label || ability.name,
 										description: ability.description,

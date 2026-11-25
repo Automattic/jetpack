@@ -22,11 +22,11 @@ const onUpdate = jest.fn();
 
 beforeEach( () => onUpdate.mockClear() );
 
-const renderSection = ( { view = 'write', saved = {}, state = {} } = {} ) => {
+const renderSection = ( { view = 'write', saved = {}, remoteOptIn, state = {} } = {} ) => {
 	render(
 		<RemoteAbilitiesSection
 			view={ view }
-			mcpAbilities={ withSaved( saved ) }
+			mcpAbilities={ { ...withSaved( saved ), remote_abilities_requiring_opt_in: remoteOptIn } }
 			blogId={ 1 }
 			remoteAbilities={ { abilities: CATALOG, isLoading: false, isError: false, ...state } }
 			query=""
@@ -90,6 +90,41 @@ describe( 'RemoteAbilitiesSection', () => {
 		renderSection( { saved: { 'write:akismet': true }, state: { abilities: [], isError: true } } );
 		expect( screen.getByText( 'Akismet' ) ).toBeInTheDocument();
 		expect( screen.getByText( /can’t be loaded right now/ ) ).toBeInTheDocument();
+	} );
+
+	test( 'a subscriber list inherits namespace access until the server marks it opt-in', async () => {
+		renderSection( {
+			view: 'read',
+			saved: { 'read:jetpack-stats': true },
+			state: {
+				abilities: [
+					{
+						name: 'jetpack-stats/get-subscribers',
+						label: 'List remote subscribers',
+						meta: { annotations: { readonly: true } },
+					},
+				],
+			},
+		} );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Show operations' } ) );
+		expect( screen.getByRole( 'switch', { name: 'List remote subscribers' } ) ).toBeChecked();
+		expect( screen.queryByText( 'Turn on individually' ) ).not.toBeInTheDocument();
+	} );
+
+	test( 'can revoke a saved individual grant when the catalog cannot be loaded', async () => {
+		const name = 'example/delete-post';
+		const key = `destructive:${ name }`;
+		renderSection( {
+			saved: { [ key ]: true },
+			remoteOptIn: [ name ],
+			state: { abilities: [], isError: true },
+		} );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Show operations' } ) );
+		const toggle = screen.getByRole( 'switch', { name } );
+		expect( toggle ).toBeChecked();
+		expect( screen.queryByRole( 'switch', { name: 'Enable all' } ) ).not.toBeInTheDocument();
+		await userEvent.click( toggle );
+		expect( sentGroups() ).toEqual( { [ key ]: false } );
 	} );
 } );
 
@@ -239,6 +274,7 @@ describe( 'page-level Enable all', () => {
 			<McpRead
 				mcpAbilities={ {
 					account: { ordinary: { title: 'Ordinary tool', enabled: true, readonly: true } },
+					remote_abilities_requiring_opt_in: [ 'jetpack-stats/get-subscribers' ],
 					sites: [
 						{
 							blog_id: 1,

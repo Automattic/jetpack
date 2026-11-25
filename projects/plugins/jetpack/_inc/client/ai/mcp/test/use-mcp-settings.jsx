@@ -109,7 +109,8 @@ describe( 'useMcpSettings with the native WordPress.com API', () => {
 					site_level_enabled: siteEnabled,
 					abilities: [
 						{ name: 'opt_in', enabled: backendEnabled, requires_opt_in: true },
-						{ name: 'ordinary', enabled: ! siteEnabled },
+						{ name: 'ordinary_read', readonly: true, enabled: ! siteEnabled },
+						{ name: 'ordinary_write', readonly: false, enabled: false },
 					],
 					user_overrides: { abilities: overrides },
 				},
@@ -124,7 +125,8 @@ describe( 'useMcpSettings with the native WordPress.com API', () => {
 				)
 			).toEqual( {
 				opt_in: { name: 'opt_in', enabled: expected, requires_opt_in: true },
-				ordinary: { name: 'ordinary', enabled: siteEnabled },
+				ordinary_read: { name: 'ordinary_read', readonly: true, enabled: siteEnabled },
+				ordinary_write: { name: 'ordinary_write', readonly: false, enabled: false },
 			} );
 		}
 	);
