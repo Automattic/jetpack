@@ -5,7 +5,6 @@ import {
 	getConnectionErrorDetails,
 	getConnectionErrorNoticeLinks,
 	getConnectionErrorScopeLabel,
-	getConnectionErrorShortTitle,
 	getConnectionErrorTitle,
 	groupConnectionErrorsByMessage,
 	hasSupportLink,
@@ -355,20 +354,6 @@ describe( 'getConnectionErrorTitle', () => {
 
 	it( 'falls back to a generic title when there are no errors', () => {
 		expect( getConnectionErrorTitle( [] ) ).toBe( 'Jetpack Connection error' );
-	} );
-} );
-
-describe( 'getConnectionErrorShortTitle', () => {
-	it.each( [
-		[ 'a single error', [ anError( { audience: 'user', user_id: '7' } ) ], 'Error: Your account' ],
-		[
-			'several errors',
-			[ anError( { audience: 'site' } ), anError( { audience: 'user', user_id: '7' } ) ],
-			'2 errors',
-		],
-		[ 'no errors', [], 'Error' ],
-	] )( 'leaves out "Jetpack Connection" for %s', ( _, errors, expected ) => {
-		expect( getConnectionErrorShortTitle( errors, { currentUserId: 7 } ) ).toBe( expected );
 	} );
 } );
 

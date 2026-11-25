@@ -56,7 +56,6 @@ jest.mock( '@automattic/jetpack-connection', () => ( {
 		return {
 			actions: [ { label: 'Restore connection', onClick: jest.fn() } ],
 			errorGroups: [],
-			errorShortTitle: 'Error: Your account (connection owner)',
 			showSupportLink: false,
 			connectionErrorMessage: '',
 			restoreConnectionError: mockRestoreConnectionError.current,
@@ -154,26 +153,14 @@ describe( 'HeaderControls', () => {
 		expect( dialog ).toContainElement( screen.getByRole( role, { name } ) );
 	} );
 
-	it( 'names an error without repeating "Jetpack Connection"', async () => {
+	it( 'names an error without repeating "Jetpack Connection"', () => {
+		const label = 'Jetpack Connection error: Your account (connection owner)';
 		mockUseConnectionState.mockReturnValue(
-			stateWith( {
-				id: 'error',
-				label: 'Jetpack Connection error: Your account (connection owner)',
-				action: 'REPAIR',
-				status: 'error',
-				isDiagnosis: true,
-			} )
+			stateWith( { id: 'error', label, action: 'REPAIR', status: 'error', isDiagnosis: true } )
 		);
 		render( <HeaderControls trackingContext="my-jetpack" /> );
 
-		const dialog = await openControl();
-
-		expect(
-			screen.getByRole( 'button', {
-				name: 'Jetpack Connection: Error: Your account (connection owner)',
-			} )
-		).toBeInTheDocument();
-		expect( within( dialog ).getByText( 'Error: Your account (connection owner)' ) ).toBeVisible();
+		expect( screen.getByRole( 'button', { name: label } ) ).toBeInTheDocument();
 	} );
 
 	it( 'focuses the panel, not its first link, when it opens with a click', async () => {

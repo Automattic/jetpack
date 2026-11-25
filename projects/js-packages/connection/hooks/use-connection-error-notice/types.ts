@@ -240,8 +240,6 @@ export interface UseConnectionErrorNoticeResult {
 	displayableErrors: ConnectionErrorObject[];
 	/** The notice title: names the scope for a single error, counts them otherwise. */
 	errorTitle: string;
-	/** The title for a surface whose own heading already names the connection; see `getConnectionErrorShortTitle`. */
-	errorShortTitle: string;
 	/**
 	 * The displayable errors grouped by shared message, each group carrying its
 	 * deduplicated scope lines. This is what a notice renders as its body.
