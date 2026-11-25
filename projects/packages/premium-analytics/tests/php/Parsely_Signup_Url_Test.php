@@ -19,11 +19,12 @@ require_once dirname( __DIR__, 2 ) . '/src/parsely-signup-url.php';
 class Parsely_Signup_Url_Test extends BaseTestCase {
 
 	/**
-	 * Drop the options the tests set.
+	 * Drop the options and the home override the tests set.
 	 */
 	public function tear_down() {
 		delete_option( 'blogname' );
 		delete_option( 'home' );
+		remove_all_filters( 'pre_option_home' );
 
 		parent::tear_down();
 	}
@@ -44,6 +45,21 @@ class Parsely_Signup_Url_Test extends BaseTestCase {
 
 		$this->assertSame(
 			'https://dash.parsely.com/self-serve?utm_source=jetpack&site_domain=newsupermedia.com',
+			parsely_signup_url()
+		);
+	}
+
+	public function test_a_site_without_a_name_or_a_host_still_gets_the_signup_url() {
+		update_option( 'blogname', '' );
+		add_filter(
+			'pre_option_home',
+			static function () {
+				return 'localhost';
+			}
+		);
+
+		$this->assertSame(
+			'https://dash.parsely.com/self-serve?utm_source=jetpack',
 			parsely_signup_url()
 		);
 	}
