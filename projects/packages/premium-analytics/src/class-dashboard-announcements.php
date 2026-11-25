@@ -88,7 +88,7 @@ class Dashboard_Announcements {
 
 		// The dashboard's own rules: what shipped before a user arrived is no news to them,
 		// and its news is for whoever can read the dashboard.
-		foreach ( self::get_announcements() as $id => $announcement ) {
+		foreach ( static::get_announcements() as $id => $announcement ) {
 			if ( ! self::predates_current_user( $announcement['date'] ) ) {
 				register_announcement( $id, $announcement + array( 'capability' => Capabilities::VIEW_ANALYTICS ) );
 			}
@@ -98,18 +98,12 @@ class Dashboard_Announcements {
 	/**
 	 * The announcements of the dashboard, as `$id => $args` pairs.
 	 *
+	 * @see docs/whats-new-channels.md
+	 *
 	 * @return array[]
 	 */
-	private static function get_announcements() {
-		return array(
-			'premium-analytics/arrange-tabs' => array(
-				'date'     => '2026-11-12',
-				'title'    => __( 'Arrange your tabs', 'jetpack-premium-analytics-pkg' ),
-				'excerpt'  => __( 'Reorder the dashboard tabs and choose the one that opens first.', 'jetpack-premium-analytics-pkg' ),
-				'content'  => '<p>' . esc_html__( 'Open the Stats options menu and choose Arrange tabs to reorder the tabs and to choose the one that opens first.', 'jetpack-premium-analytics-pkg' ) . '</p>',
-				'channels' => array( self::CHANNEL . '/main' ),
-			),
-		);
+	protected static function get_announcements() {
+		return array();
 	}
 
 	/**

@@ -33,7 +33,19 @@ An announcement chooses where it shows by the channel it is published to.
 | `stats/main`     | The dashboard only |
 | `stats/settings` | Settings only      |
 
-The announcements of the dashboard are registered in `src/class-dashboard-announcements.php`.
+The announcements of the dashboard are the entries of `get_announcements()`, in `src/class-dashboard-announcements.php`: an id, and the arguments of `register_announcement()`.
+
+```php
+'stats/arrange-tabs' => array(
+	'date'     => '2026-11-12',
+	'title'    => __( 'Arrange your tabs', 'jetpack-premium-analytics-pkg' ),
+	'excerpt'  => __( 'Reorder the dashboard tabs and choose the one that opens first.', 'jetpack-premium-analytics-pkg' ),
+	'content'  => '<p>' . esc_html__( 'Open the Stats options menu and choose Arrange tabs to reorder the tabs and to choose the one that opens first.', 'jetpack-premium-analytics-pkg' ) . '</p>',
+	'channels' => array( self::CHANNEL . '/main' ),
+),
+```
+
+The dashboard adds two rules to every entry. Only a user who can read the dashboard sees it, and a user who registered after its date does not.
 
 ## How it works
 
