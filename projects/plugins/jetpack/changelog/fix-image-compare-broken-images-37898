@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Image Compare: render slider even when images fail to load.
