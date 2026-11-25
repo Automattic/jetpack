@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.4.4] - 2026-11-23
+### Changed
+- Admin shell: Record the page view again when the shell shows the Search page again. [#55079]
+- Dashboard: Load settings and stats alongside the plan request for sites with a Search plan, and skip the pricing request they never see. [#55194]
+- Reduce database queries when loading Instant Search on sites without a persistent object cache. [#55053]
+- Update dependencies. [#55058]
+
+### Fixed
+- Dashboard: Hide the "Use license key" link where My Jetpack's add-license screen is turned off, such as in Offline Mode. [#55240]
+- Dashboard: Stop creating the purchase token when the admin shell readies the page on a menu hover. [#55128]
+- Load the Search block styles only on pages that show the blocks, on sites that turn off on-demand block assets. [#54912]
+
+## [8.4.3] - 2026-11-16
+### Added
+- Join the admin shell, so switching to and from other Jetpack dashboards skips the page load when the admin shell flag is on. [#54829]
+
+### Changed
+- Admin shell: Declare the page title and subtitle shown while the dashboard opens, when the admin shell flag is on. [#54945]
+- Remove the strip dependency in favor of an inline helper. [#54936]
+- Update package dependencies. [#54703]
+
 ## [8.4.2] - 2026-11-09
 ### Changed
 - Update dependencies. [#54609]
@@ -1991,6 +2012,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[8.4.4]: https://github.com/Automattic/jetpack-search/compare/v8.4.3...v8.4.4
+[8.4.3]: https://github.com/Automattic/jetpack-search/compare/v8.4.2...v8.4.3
 [8.4.2]: https://github.com/Automattic/jetpack-search/compare/v8.4.1...v8.4.2
 [8.4.1]: https://github.com/Automattic/jetpack-search/compare/v8.4.0...v8.4.1
 [8.4.0]: https://github.com/Automattic/jetpack-search/compare/v8.3.5...v8.4.0

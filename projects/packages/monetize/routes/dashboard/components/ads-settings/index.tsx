@@ -1,25 +1,27 @@
 import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
-import { isWoASite } from '@automattic/jetpack-script-data';
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Card, Fieldset, Link, Notice, Spinner, Stack, SwitchControl, Text } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { getAdsSettingsData } from '../../data/ads-settings-data';
-import { getTabHref } from '../../data/tabs';
+import { getTabHref, isPlainClick } from '../../data/tabs';
 import { trackClick } from '../../data/tracking';
 import { useAdsSettings } from '../../data/use-ads-settings';
 import { useSiteHasFeature } from '../../data/use-site-feature';
 import { usePayout, useSavePayout, useWpcomAdsSync } from '../../data/use-wpcom-ads-settings';
 import useWpcomConnection from '../../data/use-wpcom-connection';
+import { useAdsAccount, useAdsEarnings } from '../../data/wordads';
 import ConnectionGate from '../connection-gate';
+import { getDocUrl } from '../overview/docs';
 import { LearnMore, OptionSwitch } from './option-switch';
 import { PayoutCard } from './payout-card';
-import { AdsPrompt } from './prompt';
+import { AdsPrompt, JoinPrompt } from './prompt';
 import { TextOption } from './text-option';
 import type { Help } from './option-switch';
 import type { AdsSettingsData } from '../../data/ads-settings-data';
 import type { TabValue } from '../../data/tabs';
-import type { AdsOption } from '../../data/use-ads-settings';
+import type { AdsOption, SimpleOption } from '../../data/use-ads-settings';
 import type { MouseEvent } from 'react';
 
 type OpenTab = ( tab: TabValue ) => void;
@@ -36,6 +38,7 @@ const trackEarningsClick = () => trackClick( 'view-earnings' );
  * @return The options.
  */
 function AdsOptions( { data, openTab }: { data: AdsSettingsData; openTab: OpenTab } ) {
+	const simple = isSimpleSite();
 	const { canUseWpcom } = useWpcomConnection();
 	const requestSync = useWpcomAdsSync( canUseWpcom );
 	const { values, loadError, saveError, saving, setOption, setModuleActive } =
@@ -43,34 +46,25 @@ function AdsOptions( { data, openTab }: { data: AdsSettingsData; openTab: OpenTa
 	const payout = usePayout( canUseWpcom );
 	const acceptTerms = useSavePayout();
 
-	const tosSigned = payout.data?.tosSigned;
+	// False until the payout details load, so terms already on file aren't signed again.
+	const tosUnsigned = payout.data ? ! payout.data.tosSigned : false;
 	const { mutateAsync: signTerms } = acceptTerms;
 	const onAdsToggle = useCallback(
 		async ( active: boolean ) => {
-			// Turning ads on agrees to the terms, so WordPress.com records that first.
-			if ( active && canUseWpcom && ! tosSigned ) {
-				try {
-					await signTerms( { tos: true } );
-				} catch {
-					return;
-				}
+			// Turning ads on agrees to the terms, which only WordPress.com records; Simple's switch saves both at once.
+			if ( active && canUseWpcom && tosUnsigned && ! simple ) {
+				// On failure, ads still turn on and the payout card records the terms on its next save.
+				await signTerms( { tos: true } ).catch( () => undefined );
 			}
 			await setModuleActive( active );
 		},
-		[ canUseWpcom, tosSigned, signTerms, setModuleActive ]
+		[ simple, canUseWpcom, tosUnsigned, signTerms, setModuleActive ]
 	);
 
 	const openEarnings = useCallback(
 		( event: MouseEvent ) => {
 			trackEarningsClick();
-			// Let modified clicks open the tab's URL in a new browser tab.
-			if (
-				event.button !== 0 ||
-				event.metaKey ||
-				event.ctrlKey ||
-				event.shiftKey ||
-				event.altKey
-			) {
+			if ( ! isPlainClick( event ) ) {
 				return;
 			}
 			event.preventDefault();
@@ -96,7 +90,7 @@ function AdsOptions( { data, openTab }: { data: AdsSettingsData; openTab: OpenTa
 	const isActive = values.wordads;
 	const optionsDisabled = ! isActive || saving.has( 'wordads' );
 
-	const toggle = ( name: AdsOption, label: string, help?: Help ) => (
+	const toggle = ( name: AdsOption | SimpleOption, label: string, help?: Help ) => (
 		<OptionSwitch
 			name={ name }
 			label={ label }
@@ -126,63 +120,63 @@ function AdsOptions( { data, openTab }: { data: AdsSettingsData; openTab: OpenTa
 			) }
 
 			<Card.Root>
+				<Card.Header>
+					<Card.Title render={ <h2 /> }>{ __( 'Ads', 'jetpack-monetize' ) }</Card.Title>
+				</Card.Header>
 				<Card.Content>
 					<Stack direction="column" gap="lg">
-						<Text>
-							{ __(
-								'Show ads on the first article on your home page or at the end of every page and post. Place additional ads at the top of your site and to any widget area to increase your earnings.',
-								'jetpack-monetize'
-							) }
-						</Text>
-						<Text variant="body-sm">
-							{ createInterpolateElement(
-								__(
-									'By activating ads, you agree to the Automattic Ads <link>Terms of Service</link>, to post only <family>family-friendly content</family>, and not to purchase non-human traffic.',
+						<Stack direction="column" gap="xs">
+							<Text>
+								{ __(
+									'Show ads on the first article on your home page or at the end of every page and post. Place additional ads at the top of your site and to any widget area to increase your earnings.',
 									'jetpack-monetize'
-								),
-								{
-									link: (
-										<Link
-											href={ getRedirectUrl( 'wpcom-automattic-ads-tos' ) }
-											openInNewTab
-											onClick={ trackTermsClick }
-										/>
+								) }
+							</Text>
+							<Text variant="body-sm" className="jp-monetize-ads__terms">
+								{ createInterpolateElement(
+									__(
+										'By activating ads, you agree to the Automattic Ads <link>Terms of Service</link>, to post only <family>family-friendly content</family>, and not to purchase non-human traffic.',
+										'jetpack-monetize'
 									),
-									family: (
-										<Link href={ getRedirectUrl( 'wordads-family-safe-sites' ) } openInNewTab />
-									),
-								}
-							) }
-						</Text>
+									{
+										link: (
+											<Link
+												href={ getRedirectUrl( 'wpcom-automattic-ads-tos' ) }
+												openInNewTab
+												onClick={ trackTermsClick }
+											/>
+										),
+										family: (
+											<Link href={ getRedirectUrl( 'wordads-family-safe-sites' ) } openInNewTab />
+										),
+									}
+								) }
+							</Text>
+						</Stack>
 						<SwitchControl
 							label={ __( 'Enable ads and display an ad below each post', 'jetpack-monetize' ) }
 							description={ __(
 								'Displays high-quality ads on your site that allow you to earn income.',
 								'jetpack-monetize'
 							) }
-							details={ <LearnMore href={ getRedirectUrl( 'jetpack-support-ads' ) } /> }
+							details={ <LearnMore href={ getDocUrl( 'ads' ) } /> }
 							checked={ isActive }
 							disabled={
 								saving.has( 'wordads' ) || acceptTerms.isPending || Boolean( data.moduleOverride )
 							}
 							onCheckedChange={ onAdsToggle }
 						/>
-						{ acceptTerms.isError && (
-							<Notice.Root intent="error">
-								<Notice.Description>
-									{ __(
-										'Ads could not be turned on because your agreement to the Terms of Service could not be saved. Please try again.',
-										'jetpack-monetize'
-									) }
-								</Notice.Description>
-							</Notice.Root>
-						) }
+						{ simple &&
+							toggle(
+								'logged_out_only',
+								__( 'Only show ads to logged-out visitors', 'jetpack-monetize' )
+							) }
 						{ data.moduleOverride && (
 							<Notice.Root intent="info">
 								<Notice.Description>
 									{ data.moduleOverride === 'active'
-										? __( 'Enabled by your host or site administrator', 'jetpack-monetize' )
-										: __( 'Disabled by your host or site administrator', 'jetpack-monetize' ) }
+										? __( 'Enabled by your host or site administrator.', 'jetpack-monetize' )
+										: __( 'Disabled by your host or site administrator.', 'jetpack-monetize' ) }
 								</Notice.Description>
 							</Notice.Root>
 						) }
@@ -211,6 +205,7 @@ function AdsOptions( { data, openTab }: { data: AdsSettingsData; openTab: OpenTa
 									'wordads_inline_enabled',
 									__( 'Inline within post content', 'jetpack-monetize' )
 								) }
+								{ simple && toggle( 'sidebar', __( 'Sidebar', 'jetpack-monetize' ) ) }
 							</Stack>
 						</Fieldset.Root>
 						{ isActive && (
@@ -227,6 +222,11 @@ function AdsOptions( { data, openTab }: { data: AdsSettingsData; openTab: OpenTa
 			</ConnectionGate>
 
 			<Card.Root>
+				<Card.Header>
+					<Card.Title render={ <h2 /> }>
+						{ __( 'Privacy and consent', 'jetpack-monetize' ) }
+					</Card.Title>
+				</Card.Header>
 				<Card.Content>
 					<Stack direction="column" gap="lg">
 						{ toggle(
@@ -240,9 +240,7 @@ function AdsOptions( { data, openTab }: { data: AdsSettingsData; openTab: OpenTa
 									'Enables a targeted advertising opt-out link in US states where this is legally required.',
 									'jetpack-monetize'
 								),
-								href: getRedirectUrl(
-									isWoASite() ? 'wpcom-support-us-privacy' : 'jetpack-support-ads'
-								),
+								href: getDocUrl( 'adsUsPrivacy' ),
 							}
 						) }
 						{ values.wordads_ccpa_enabled && (
@@ -275,35 +273,35 @@ function AdsOptions( { data, openTab }: { data: AdsSettingsData; openTab: OpenTa
 											'jetpack-monetize'
 										) }
 									</Text>
+									<TextOption
+										{ ...text( 'wordads_ccpa_privacy_policy_url' ) }
+										label={ __( 'Privacy Policy URL', 'jetpack-monetize' ) }
+										placeholder="https://"
+										description={ __(
+											'Adds a link to your privacy policy to the notice popup triggered by the do not sell link (optional).',
+											'jetpack-monetize'
+										) }
+									/>
 								</Fieldset.Root>
-								<TextOption
-									{ ...text( 'wordads_ccpa_privacy_policy_url' ) }
-									label={ __( 'Privacy Policy URL', 'jetpack-monetize' ) }
-									placeholder="https://"
-									description={ __(
-										'Adds a link to your privacy policy to the notice popup triggered by the do not sell link (optional).',
-										'jetpack-monetize'
-									) }
-								/>
 							</>
 						) }
+						{ ! simple &&
+							toggle(
+								'wordads_cmp_enabled',
+								__( 'Enable GDPR Consent Banner', 'jetpack-monetize' ),
+								{
+									text: __(
+										'Show a cookie banner to all EU and UK site visitors prompting them to consent to their personal data being used to personalize the ads they see. Without proper consents EU/UK visitors will only see lower paying non-personalized ads.',
+										'jetpack-monetize'
+									),
+									href: getDocUrl( 'adsGdpr' ),
+								}
+							) }
 					</Stack>
 				</Card.Content>
 			</Card.Root>
 
-			<Card.Root>
-				<Card.Content>
-					{ toggle( 'wordads_cmp_enabled', __( 'Enable GDPR Consent Banner', 'jetpack-monetize' ), {
-						text: __(
-							'Show a cookie banner to all EU and UK site visitors prompting them to consent to their personal data being used to personalize the ads they see. Without proper consents EU/UK visitors will only see lower paying non-personalized ads.',
-							'jetpack-monetize'
-						),
-						href: getRedirectUrl( 'jetpack-support-ads' ),
-					} ) }
-				</Card.Content>
-			</Card.Root>
-
-			{ ! data.isSubdirectorySite && (
+			{ ! simple && ! data.isSubdirectorySite && (
 				<Card.Root>
 					<Card.Content>
 						<Stack direction="column" gap="lg">
@@ -315,7 +313,7 @@ function AdsOptions( { data, openTab }: { data: AdsSettingsData; openTab: OpenTa
 										'Ads.txt (Authorized Digital Sellers) is a mechanism that enables content owners to declare who is authorized to sell their ad inventory. It’s the formal list of advertising partners you support as a publisher.',
 										'jetpack-monetize'
 									),
-									href: 'https://jetpack.com/support/ads/',
+									href: getDocUrl( 'adsTxt' ),
 								}
 							) }
 							{ values.wordads_custom_adstxt_enabled && (
@@ -383,16 +381,40 @@ function Loading() {
  */
 function AdsCard( { data, openTab }: { data: AdsSettingsData; openTab: OpenTab } ) {
 	const hasWordAds = useSiteHasFeature( 'wordads', data.hasWordAds );
+	const simple = isSimpleSite();
+	const account = useAdsAccount( simple );
 
-	if ( hasWordAds === undefined ) {
+	if ( hasWordAds === undefined || ( simple && account.isPending ) ) {
 		return <Loading />;
 	}
 
-	return hasWordAds ? (
-		<AdsOptions data={ data } openTab={ openTab } />
-	) : (
-		<AdsPrompt data={ data } />
-	);
+	if ( ! hasWordAds ) {
+		return (
+			<Stack direction="column" gap="lg">
+				<AdsPrompt data={ data } />
+				<OwedPayout />
+			</Stack>
+		);
+	}
+
+	// Simple can switch ads on only once WordPress.com approves the site, which joining does.
+	if ( simple && account.data && ! account.data.approved ) {
+		return <JoinPrompt />;
+	}
+
+	return <AdsOptions data={ data } openTab={ openTab } />;
+}
+
+/**
+ * The payout card for a site whose plan no longer includes ads but is still owed earnings, which need a PayPal address to be paid.
+ *
+ * @return The card, or nothing.
+ */
+function OwedPayout() {
+	const { canUseWpcom } = useWpcomConnection();
+	const earnings = useAdsEarnings( canUseWpcom );
+
+	return ( earnings.data?.owed ?? 0 ) > 0 ? <PayoutCard adsActive={ false } /> : null;
 }
 
 /**

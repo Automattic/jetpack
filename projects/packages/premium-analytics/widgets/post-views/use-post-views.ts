@@ -37,6 +37,7 @@ export interface PostViewsState {
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
+	isPlaceholderData: boolean;
 	hasData: boolean;
 	refetch: () => void;
 }
@@ -146,7 +147,7 @@ export default function usePostViews(
 	reportParams: ReportParams,
 	period: StatsChartBucketPeriod
 ): PostViewsState {
-	const { data, isLoading, isFetching, isError, refetch } = useStatsPost( {
+	const { data, isLoading, isFetching, isError, isPlaceholderData, refetch } = useStatsPost( {
 		postId,
 		// Matches the highlights card's fields so both share one `stats/post` query.
 		fields: [ 'data', 'like_count', 'post' ],
@@ -166,6 +167,7 @@ export default function usePostViews(
 		isLoading,
 		isFetching,
 		isError,
+		isPlaceholderData,
 		hasData: !! data,
 		refetch,
 	};

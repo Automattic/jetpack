@@ -11,6 +11,7 @@ import {
 	ReportErrorState,
 	ReportPageTabs,
 	ReportRecordsTable,
+	StatsOptionsMenu,
 	commentsAuthorsCsvExporter,
 	commentsPostsCsvExporter,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -76,12 +77,17 @@ function CommentsReport(): JSX.Element {
 			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				<ExporterCsvAction
-					exporter={ activeTab === 'posts' ? commentsPostsCsvExporter : commentsAuthorsCsvExporter }
-					items={ records.rows }
-					status={ records }
-					reportParams={ reportParams }
-				/>
+				<>
+					<ExporterCsvAction
+						exporter={
+							activeTab === 'posts' ? commentsPostsCsvExporter : commentsAuthorsCsvExporter
+						}
+						items={ records.rows }
+						status={ records }
+						reportParams={ reportParams }
+					/>
+					<StatsOptionsMenu />
+				</>
 			}
 		>
 			<ReportPageLayout

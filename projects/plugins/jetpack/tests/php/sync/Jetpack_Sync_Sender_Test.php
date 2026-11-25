@@ -236,8 +236,6 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 
 		$this->assertCount( 2, $this->server_event_storage->get_all_events( 'my_action' ) );
 
-		sleep( 3 );
-
 		$next_sync_time = $this->sender->get_next_sync_time( 'sync' );
 		$this->assertTrue( $this->sender->do_sync() );
 		$this->assertCount( 4, $this->server_event_storage->get_all_events( 'my_action' ) );
@@ -251,7 +249,7 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 		$this->assertEquals( 'sync_throttled', $result->get_error_code() );
 		$this->assertCount( 4, $this->server_event_storage->get_all_events( 'my_action' ) );
 
-		sleep( 3 );
+		sleep( 2 );
 
 		$this->assertTrue( $this->sender->do_sync() );
 		$this->assertCount( 6, $this->server_event_storage->get_all_events( 'my_action' ) );
@@ -393,9 +391,9 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 
 	public function test_delays_next_send_if_exceeded_sync_wait_threshold() {
 		remove_all_filters( 'jetpack_sync_send_data' );
-		add_filter( 'jetpack_sync_send_data', array( $this, 'serverReceiveWithThreeSecondDelay' ) );
-		$this->sender->set_sync_wait_time( 10 );     // 10 second delay
-		$this->sender->set_sync_wait_threshold( 2 ); // wait no matter what
+		add_filter( 'jetpack_sync_send_data', array( $this, 'serverReceiveWithDelay' ) );
+		$this->sender->set_sync_wait_time( 10 );       // 10 second delay
+		$this->sender->set_sync_wait_threshold( 1 ); // shorter than the receive delay
 
 		self::factory()->post->create();
 
@@ -429,14 +427,14 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 
 		$this->assertSame( 0, $this->sender->get_sync_queue()->size() );
 
-		$this->sender->set_max_dequeue_time( 4 );
+		$this->sender->set_max_dequeue_time( 2 );
 
 		add_filter( 'jetpack_sync_before_send_super_slow_action', array( $this, 'before_send_super_slow_action' ) );
 
 		// register the action to be synced
 		add_action( 'super_slow_action', array( $this->listener, 'action_handler' ) );
 
-		// it should only dequeue 2 of these, because each takes 3 seconds to process, and 3*2 = 6, which is > 4
+		// it should only dequeue 2 of these, because each takes 1.1 seconds to process, and 1.1*2 = 2.2, which is > 2
 		do_action( 'super_slow_action' );
 		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentionally testing limits.
 		do_action( 'super_slow_action' );
@@ -501,7 +499,7 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 		$this->sender->do_sync();
 		remove_filter( 'jetpack_sync_send_data', array( $this, 'run_filter' ) );
 
-		$this->assertFalse( false, 'ran filter jetpack_sync_send_data' );
+		$this->assertFalse( $this->filter_ran, 'ran filter jetpack_sync_send_data' );
 
 		$event = $this->server_event_storage->get_most_recent_event( 'foo_action' );
 		$this->assertFalse( $event, 'Event data present' );
@@ -936,12 +934,12 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function before_send_super_slow_action( $args ) {
-		sleep( 3 );
+		usleep( 1100000 );
 		return $args;
 	}
 
-	public function serverReceiveWithThreeSecondDelay( $data ) {
-		sleep( 3 );
+	public function serverReceiveWithDelay( $data ) {
+		usleep( 1200000 );
 		return array_keys( $data );
 	}
 

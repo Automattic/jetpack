@@ -5,6 +5,55 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.15.0] - 2026-11-23
+### Added
+- Add a media library endpoint, so dashboards can load the media library when it is first opened instead of on every page load. [#55120]
+- Admin shell: Check that a page's feature is still on each time it is opened, and offer to turn it back on when it is not. [#55003]
+- Admin shell: Keep at most a few dashboards live, sized from the device's memory, and load the page past that, after asking hidden dashboards with unsaved changes. Add the jetpack_admin_shell_max_live_apps filter to set the limit. [#55111]
+- Admin shell: Name the page about to be shown in the page-hidden event, and document the page events. [#55073]
+- Admin shell: Say in page-shown how long a dashboard was hidden, and whether that left it stale. [#55114]
+- Admin shell: Say in the page-shown event whether the page opened at a different route than it was left on. [#55087]
+- Admin shell: Support dashboards on a top-level menu page, load the modules a dashboard adds to its own page, let a dashboard ask for the admin menu's pages on the guest endpoint, without what its callbacks print or hook, wait to run the script modules a dashboard's page init enqueues until the shell readies it, and add `Admin_Shell::requested_guest()` so a dashboard can tell the guest endpoint is loading it. [#54915]
+
+### Changed
+- Admin shell: Keep up to 10 dashboards live on devices with less than 8 GB of memory, or when the browser does not report it. [#55201]
+- Admin shell: Let a page opt out of the stand-in header, or keep a line for a subtitle it picks as it renders, and title a borrowed header with the page's declared title. [#55116]
+- Admin shell: Prewarm a dashboard only once the pointer rests on its menu link, and not at all when the browser reports Save-Data, low memory or a slow connection. [#55112]
+- Admin shell: Prewarm only the route a menu link opens, and load a dashboard's other routes when it first reaches them. [#55223]
+
+### Removed
+- Admin shell: Remove the media member key. Members load the media library with loadMediaLibrary() when it is opened. [#55124]
+
+### Fixed
+- Admin shell: Close the sidebar on phones when switching to another dashboard, as a page load does. [#55228]
+- Admin shell: Fix edge cases in the turned-off feature panel, such as a late feature check overruling a newer one, or hover preloading a page that is turned off. [#55186]
+- Admin shell: Give each dashboard its own Jetpack config when others are prewarmed. [#55126]
+- Admin shell: Keep a dashboard that hides its header from lending a blank one to the page that opens next. [#54958]
+- Admin shell: Stop other plugins' footer scripts from running again each time a dashboard opens. [#55115]
+- Admin shell: Stop scripts other plugins enqueue on the print hooks from loading again when switching dashboards, which broke switching to Social on WordPress.com. [#55219]
+- Admin shell: Switch pages without a reload when the Gutenberg plugin provides @wordpress/boot. [#55034]
+
+## [0.14.16] - 2026-11-17
+### Fixed
+- Admin shell: Wait for a closing dialog to finish its exit before announcing the page and moving focus, so the announcement isn't hidden from screen readers. [#54944]
+
+## [0.14.15] - 2026-11-16
+### Added
+- Add an off-by-default feature flag and member registration for the admin shell, which will switch between Jetpack dashboards without a page load. [#54696]
+- Add the admin shell client and its guest endpoint, so Jetpack dashboards can switch without a page load when the admin shell flag is on. [#54708]
+- Admin shell: Let members ask for the media library, so it works when their page opens inside another dashboard. [#54768]
+- Admin shell: Show the page header and its tabs straight away while a dashboard opens, including one opened for the first time. [#54881]
+
+### Changed
+- Admin shell: Show each page's own title and subtitle while it opens, on a first visit too. [#54945]
+
+### Fixed
+- Admin shell: Ask a page with unsaved changes before opening it at another route, so a link can no longer silently drop an edit. [#54951]
+- Admin shell: Give a dashboard opened inside another the same routes it has on its own page, including any added on its page init action. [#54946]
+- Admin shell: Move focus to the page heading, announce the page, and close a hidden page's dialogs on in-shell switches. [#54760]
+- Admin shell: Retry a dashboard's setup after it fails, and set up one dashboard at a time so each loads with its own configuration. [#54821]
+- Admin shell: Stop REST requests from retrying without end after the nonce expires on a page that loaded another dashboard. [#54768]
+
 ## [0.14.14] - 2026-11-09
 ### Changed
 - Internal updates.
@@ -444,6 +493,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixing menu visibility issues.
 
+[0.15.0]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.16...0.15.0
+[0.14.16]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.15...0.14.16
+[0.14.15]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.14...0.14.15
 [0.14.14]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.13...0.14.14
 [0.14.13]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.12...0.14.13
 [0.14.12]: https://github.com/Automattic/jetpack-admin-ui/compare/0.14.11...0.14.12

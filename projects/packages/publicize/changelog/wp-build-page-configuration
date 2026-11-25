@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Pass wp-build page configuration to the polyfills package.
+
+

@@ -1,3 +1,4 @@
+export { ConnectSection } from './connect-section';
 export { DashboardNotices } from './dashboard-notices';
 export { DashboardSections } from './dashboard-sections/dashboard-sections';
 export { FeedbackBanner } from './feedback-banner';

@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.4.1] - 2026-11-23
+### Changed
+- Abilities: Mark abilities as public with the `meta.public` flag. [#55104]
+- Dashboard: Load the other top tab's code when you point at or focus its tab, not on every visit. [#55215]
+
+### Fixed
+- Dashboard: Open the Responses tab without a delay when switching from the Forms tab, and the other way around. [#55036]
+- Dashboard: Stop saving the classic forms state when the admin shell readies the page on a menu hover. [#55127]
+- Link required checkbox, radio, rating and image choice groups to their error message for screen readers. [#55044]
+- Match the whole email address when exporting or erasing personal data, so addresses that only share a prefix are no longer included. [#55109]
+- Phone field: Return focus to the country selector when its dropdown is closed with Escape. [#55062]
+
+## [8.4.0] - 2026-11-16
+### Added
+- Add a `wp jetpack-forms export` command that exports form responses to CSV. [#54219]
+- Join the admin shell, so switching to and from other Jetpack dashboards skips the page load when the admin shell flag is on. [#54708]
+
+### Changed
+- Admin shell: Declare the page title and subtitle shown while the dashboard opens, when the admin shell flag is on. [#54945]
+- Show a progress indicator and a notice while exporting responses. [#54219]
+- Update package dependencies. [#54703]
+
+### Fixed
+- Apply Global Styles label settings to form labels, including the group label on multiple-choice fields. The Outlined and Animated styles keep their own label weight. [#51905]
+- Fix exporting to Google Sheets when a response has a very long value, and say when an export is too large for Google Sheets. [#54219]
+- Fix running out of memory when exporting a large number of responses to CSV or Google Drive. [#54219]
+- Inbox: Show "Anonymous" for responses with no author details, and hide the IP address row when no IP was recorded. [#53925]
+- Keep text typed with a Japanese, Chinese, or Korean input method in a choice option when Enter confirms the conversion. [#54691]
+
 ## [8.3.8] - 2026-11-09
 ### Changed
 - Describe the plugin install button and the IP lookup link to screen readers. [#54512]
@@ -2842,6 +2871,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[8.4.1]: https://github.com/automattic/jetpack-forms/compare/v8.4.0...v8.4.1
+[8.4.0]: https://github.com/automattic/jetpack-forms/compare/v8.3.8...v8.4.0
 [8.3.8]: https://github.com/automattic/jetpack-forms/compare/v8.3.7...v8.3.8
 [8.3.7]: https://github.com/automattic/jetpack-forms/compare/v8.3.6...v8.3.7
 [8.3.6]: https://github.com/automattic/jetpack-forms/compare/v8.3.5...v8.3.6

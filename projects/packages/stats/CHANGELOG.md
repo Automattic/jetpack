@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.25.0] - 2026-11-23
+### Added
+- Abilities: Add a definitions block to every Stats reader response, saying what each metric counts and which time window it covers. [#54488]
+- Abilities: Add a `compare` preset to the site overview and visits readers, matching the Compare menu in the Stats dashboard. [#54488]
+- Abilities: Add `expand` to the top-content reader, returning the pages, engines, links and terms each referrer, click and tags item groups. Links WordPress.com routes through its href.li redirector now report where they lead. [#54488]
+- Stats abilities: add an email detail reader that breaks one newsletter email down by mail app, device, country and clicked link, and a video reader for one video's plays over time; give video-plays top content items their video ID; add the posting calendar to insights, and find its streaks among a year of posts instead of only the latest. [#55139]
+- Stats abilities: add author views, insights, email stats, subscribers and ad stats readers; add regions, cities, devices, UTM and comment reports to top content; chart subscribers and count paid ones in followers. [#55043]
+- Stats abilities: add get-post-detail, one post or page's views, likes, comments, UTM values and newsletter email stats. [#55280]
+- Stats abilities: chart visits, post views, followers, author views and ad stats by quarter, and list the posts each UTM value sent views to with `expand`. [#55222]
+
+### Changed
+- Abilities: Label weekly visits rows with the date the week starts, return every top-content item for max=0, and flag top-content results that leave items out. [#54483]
+- Abilities: Mark abilities as public with the `meta.public` flag. [#55104]
+- Stats abilities: describe the email detail and video readers without naming other readers or listing their output fields. [#55163]
+- Stats abilities: Describe the site overview without calling it a zero-argument call, since MCP servers may add a site argument. [#54953]
+- Stats abilities: drop the posting streak from the site overview; get-insights reports it. [#55043]
+
+### Deprecated
+- Settings: Deprecate `Settings::update_reader_views()`, as the WordPress.com Reader no longer shows post views. [#54987]
+
+### Fixed
+- Abilities: Explain that file download stats are not available on Jetpack-connected sites, instead of failing with a generic error. [#53562]
+- Abilities: validate an unexpected input key on a no-argument ability as an error instead of a PHP error. [#55136]
+- Stats abilities: get-post-detail treats a post the user cannot open on the site as not found, counts the comments it lists the same way as its total, and keeps comment excerpts plain text. [#55318]
+
+## [0.24.2] - 2026-11-16
+### Changed
+- Abilities: Declare the nested Stats result fields in each output schema, and remove the result-shape sentences from the ability descriptions. [#54778]
+- Abilities: Describe what the site overview ability is for, and leave its result fields to the output schema. [#54909]
+- Stats abilities: Mark jetpack-stats/update-settings as destructive, since it overwrites the saved Stats settings. [#54724]
+
+### Fixed
+- Abilities: Limit get-settings to administrators, matching the Stats settings screen. [#53556]
+- Tracking pixel: Count visitors who have not made a consent choice on opt-out sites when a performance plugin delays the WP Consent API script. [#54675]
+- Tracking pixel: On sites running the WP Consent API, count AMP views only after an AMP consent banner is accepted, and stop counting AMP pages without one, AMP pages not rendered by the AMP plugin, and Web Stories. [#54671]
+
 ## [0.24.1] - 2026-11-09
 ### Fixed
 - Tracking pixel: Count visitors who allowed statistics when a performance plugin delays the WP Consent API script until they interact with the page. [#54520]
@@ -418,6 +454,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixing static method which was called without self reference. [#26640]
 
+[0.25.0]: https://github.com/Automattic/jetpack-stats/compare/v0.24.2...v0.25.0
+[0.24.2]: https://github.com/Automattic/jetpack-stats/compare/v0.24.1...v0.24.2
 [0.24.1]: https://github.com/Automattic/jetpack-stats/compare/v0.24.0...v0.24.1
 [0.24.0]: https://github.com/Automattic/jetpack-stats/compare/v0.23.2...v0.24.0
 [0.23.2]: https://github.com/Automattic/jetpack-stats/compare/v0.23.1...v0.23.2

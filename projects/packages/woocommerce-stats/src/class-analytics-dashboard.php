@@ -25,7 +25,7 @@ use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_TILE_LIST;
  */
 class Analytics_Dashboard {
 
-	const PACKAGE_VERSION = '0.3.3';
+	const PACKAGE_VERSION = '0.5.0';
 
 	/**
 	 * Namespaced section identifier. Its slug, `woocommerce`, keys the section's URL and stored layouts.
@@ -42,6 +42,7 @@ class Analytics_Dashboard {
 	const ORDERS_OVER_TIME_TYPE          = 'woocommerce-analytics/orders-over-time';
 	const AVERAGE_ORDER_VALUE_TYPE       = 'woocommerce-analytics/average-order-value';
 	const AVERAGE_ITEMS_PER_ORDER_TYPE   = 'woocommerce-analytics/average-items-per-order';
+	const ITEMS_SOLD_TYPE                = 'woocommerce-analytics/items-sold';
 	const BOOKINGS_OVER_TIME_TYPE        = 'woocommerce-analytics/bookings-over-time';
 	const VISITORS_OVER_TIME_TYPE        = 'woocommerce-analytics/visitors-over-time';
 	const NEW_VS_RETURNING_CUSTOMER_TYPE = 'woocommerce-analytics/new-vs-returning-customer';
@@ -134,9 +135,9 @@ class Analytics_Dashboard {
 	const DASHBOARD_PAGE_INIT_ACTION = 'jetpack-premium-analytics-wp-admin_init';
 
 	/**
-	 * Register the sync opt-in, then hook both registrants on the dashboard's registry actions, the Bookings metric on the dashboard
-	 * page, the reports proxy on REST requests and its cache reset on the end of the initial sync,
-	 * and the store currency on the script data.
+	 * Register the sync opt-in and the store tracking bootstrap, then hook the section and widget-type registrants on the dashboard's registry
+	 * actions, the Bookings metric on the dashboard page, the reports proxy on REST requests and its cache reset on the end of the
+	 * initial sync, and the store currency on the script data.
 	 *
 	 * Priority 20, after the dashboard package's own registrants: an older package that still
 	 * registers the section itself is found by slug and left alone.
@@ -147,6 +148,7 @@ class Analytics_Dashboard {
 	 */
 	public static function init() {
 		Sync_Configuration::register();
+		WooCommerce_Analytics_Tracker::configure();
 
 		add_action( self::REGISTER_SECTIONS_ACTION, array( __CLASS__, 'register_section' ), 20 );
 		add_action( self::REGISTER_WIDGET_TYPES_ACTION, array( __CLASS__, 'register_widget_types' ), 20 );
@@ -227,6 +229,7 @@ class Analytics_Dashboard {
 			get_dashboard_default_widget_instance( 'default-store-performance-widget-instance', self::STORE_PERFORMANCE_TYPE, 0, 'full', DASHBOARD_TILE_CARD ),
 
 			get_dashboard_default_widget_instance( 'default-top-performing-products-widget-instance', self::TOP_PERFORMING_PRODUCTS_TYPE, 10, 1, DASHBOARD_TILE_LIST ),
+			get_dashboard_default_widget_instance( 'default-items-sold-widget-instance', self::ITEMS_SOLD_TYPE, 15, 1, DASHBOARD_TILE_CARD ),
 			get_dashboard_default_widget_instance( 'default-average-order-value-widget-instance', self::AVERAGE_ORDER_VALUE_TYPE, 20, 1, DASHBOARD_TILE_CARD ),
 			get_dashboard_default_widget_instance( 'default-average-items-per-order-widget-instance', self::AVERAGE_ITEMS_PER_ORDER_TYPE, 30, 1, DASHBOARD_TILE_CARD ),
 
@@ -312,6 +315,8 @@ class Analytics_Dashboard {
 	 * @return void
 	 */
 	public static function register_widget_types( $registry ) {
+		add_filter( 'jetpack_premium_analytics_error_reporting_script_origins', array( __CLASS__, 'add_error_reporting_origin' ) );
+
 		if ( ! self::supports_widget_contract() || ! self::is_woocommerce_available() || ! self::current_user_can_view_store_reports() ) {
 			return;
 		}
@@ -329,6 +334,26 @@ class Analytics_Dashboard {
 			),
 			$registry
 		);
+	}
+
+	/**
+	 * Append this package's dashboard build directories to the error reporting origins.
+	 *
+	 * The widget and module directories rather than the whole build, which also carries script that
+	 * never runs on the dashboard. Every widget and module builds into one of these two, so a new
+	 * one needs no change here.
+	 *
+	 * @param string[] $origins Absolute URL prefixes, each ending in a slash.
+	 * @return string[]
+	 */
+	public static function add_error_reporting_origin( $origins ) {
+		$origins = is_array( $origins ) ? $origins : array();
+		$build   = trailingslashit( plugins_url( '', self::build_dir() . '/build.php' ) );
+
+		$origins[] = $build . 'widgets/';
+		$origins[] = $build . 'modules/';
+
+		return $origins;
 	}
 
 	/**

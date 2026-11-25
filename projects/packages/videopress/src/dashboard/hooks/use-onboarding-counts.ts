@@ -40,11 +40,15 @@ export type OnboardingCounts = {
  * choosing a button label — must wait for `isSettled`, per the same
  * don't-act-on-an-optimistic-count rule `useSettledFirstRunState` codifies.
  *
+ * @param options              - Count options.
+ * @param options.includeLocal - Request the local count; it only labels the modal's button, so it reads 0 when skipped.
  * @return Both counts and whether they have settled.
  */
-export function useOnboardingCounts(): OnboardingCounts {
+export function useOnboardingCounts( {
+	includeLocal = true,
+}: { includeLocal?: boolean } = {} ): OnboardingCounts {
 	const videoPress = useLibrary( VIDEOPRESS_COUNT_VIEW, { poll: false } );
-	const local = useLibrary( LOCAL_COUNT_VIEW, { poll: false } );
+	const local = useLibrary( LOCAL_COUNT_VIEW, { poll: false, enabled: includeLocal } );
 
 	return {
 		videoPressCount: videoPress.paginationInfo?.totalItems ?? 0,

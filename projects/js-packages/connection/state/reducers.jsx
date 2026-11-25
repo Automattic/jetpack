@@ -14,6 +14,8 @@ import {
 	SET_CONNECTION_ERRORS,
 	SET_IS_OFFLINE_MODE,
 	SET_CONNECTION_OWNER,
+	SET_IDENTITY_CRISIS_DISCONNECTED,
+	SET_IDENTITY_CRISIS_RESOLVED,
 } from './actions';
 
 const connectionStatus = ( state = {}, action ) => {
@@ -161,6 +163,20 @@ const requiresProtectedOwner = ( state = null ) => state;
 
 const useDefaultProtectedOwnerUi = ( state = null ) => state;
 
+// Server-decided too, so pass-throughs for the same reason.
+const canTakeOwnerSlot = ( state = null ) => state;
+// `useIdentityCrisisActions()` marks how a fresh connection ended here, so a remounted screen still knows.
+const identityCrisis = ( state = null, action ) => {
+	switch ( action.type ) {
+		case SET_IDENTITY_CRISIS_DISCONNECTED:
+			return state && ! state.isDisconnected ? { ...state, isDisconnected: true } : state;
+		case SET_IDENTITY_CRISIS_RESOLVED:
+			return state && ! state.isResolved ? { ...state, isResolved: true } : state;
+		default:
+			return state;
+	}
+};
+
 const connectionErrors = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case SET_CONNECTION_ERRORS:
@@ -193,6 +209,8 @@ const reducers = combineReducers( {
 	hasProtectedOwner,
 	requiresProtectedOwner,
 	useDefaultProtectedOwnerUi,
+	canTakeOwnerSlot,
+	identityCrisis,
 	connectionErrors,
 	isOfflineMode,
 } );

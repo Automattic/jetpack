@@ -1,6 +1,12 @@
 import '../../common/public-path';
+import { __ } from '@wordpress/i18n';
 import { createRoot } from 'react-dom/client';
 import CelebrateLaunchModal from '../../common/celebrate-launch/celebrate-launch-modal';
+import {
+	buildStudioSyncConnectUrl,
+	takeStudioSyncParams,
+} from '../../common/studio-sync/studio-sync-url';
+import { wpcomTrackEvent } from '../../common/tracks';
 import WpcomGeneralTasksWidget from './wpcom-general-tasks-widget';
 import WpcomLaunchpadWidget from './wpcom-launchpad-widget';
 import WpcomSiteManagementWidget from './wpcom-site-management-widget';
@@ -45,4 +51,47 @@ if ( url.searchParams.has( 'celebrate-launch' ) ) {
 			} }
 		/>
 	);
+}
+
+// Studio's publish flow lands here once the new site is ready: hand off so Studio connects to it.
+const studioSync = takeStudioSyncParams( window.location.href );
+if ( studioSync && data.wpcomBlogId ) {
+	window.history.replaceState( null, '', studioSync.url );
+	const openStudio = click => {
+		wpcomTrackEvent( 'calypso_studio_sync_connect_site', {
+			click,
+			studio_site_id: studioSync.params.studioSiteId,
+			blogId: data.wpcomBlogId,
+		} );
+		window.location.href = buildStudioSyncConnectUrl( {
+			...studioSync.params,
+			remoteSiteId: data.wpcomBlogId,
+		} );
+	};
+	// Opening the app while the page is still loading stalls the Dashboard until the prompt is answered.
+	window.addEventListener( 'load', () => openStudio( false ), { once: true } );
+
+	// The notice must stay up: navigating away dismisses Chrome's "Open Studio?" prompt.
+	const button = document.createElement( 'button' );
+	button.type = 'button';
+	button.className = 'button-link';
+	button.textContent = __( 'Open Studio', 'jetpack-mu-wpcom' );
+	button.addEventListener( 'click', () => openStudio( true ) );
+
+	const text = document.createElement( 'p' );
+	text.append(
+		__( 'Open WordPress Studio to connect your local site to this one.', 'jetpack-mu-wpcom' ) + ' ',
+		button
+	);
+
+	const notice = document.createElement( 'div' );
+	notice.className = 'notice notice-info';
+	notice.append( text );
+
+	const heading = document.querySelector( '#wpbody-content .wrap > h1' );
+	if ( heading ) {
+		heading.after( notice );
+	} else {
+		document.getElementById( 'wpbody-content' )?.prepend( notice );
+	}
 }

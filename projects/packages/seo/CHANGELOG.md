@@ -5,6 +5,55 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.0] - 2026-11-23
+### Added
+- Add automatic search engine notifications for content changes. [#54970]
+- llms.txt: Add a filter to change how many items are listed per content type. [#55090]
+
+### Changed
+- Admin shell: Let SEO join the shell on WordPress.com Simple sites too. [#55084]
+- Admin shell: Record the page view again when the shell shows the SEO page again. [#55079]
+- Improve access to SEO settings. [#54759]
+- Make manual SEO settings and output available on WordPress.com sites without a paid plan. [#54754]
+- Reduce storage used by pending search engine notifications. [#54967]
+
+### Fixed
+- Clarify site-wide search indexing restrictions and per-item preferences. [#54782]
+- Content: Allow posts and supported custom post types to be marked for inclusion in llms.txt. [#54961]
+- Dashboard: Fix console errors when switching between tabs. [#54973]
+- Detect static SEO files when WordPress is installed in a subdirectory. [#54972]
+- Fix IndexNow verification and delivery when a site's address resolves as HTTP or HTTPS. [#55234]
+- Hide AI SEO controls when metadata generation is unavailable. [#55133]
+- Identify the active SEO plugin before enabling SEO tools. [#54969]
+- Keep `llms.txt` from redirecting to posts, including before generation is enabled. [#55200]
+- Manage WordPress.com third-party sharing preferences from SEO settings. [#55236]
+- Schema: Stop including Query Loop block text in the Article description when Open Graph tags are off. [#54889]
+- Support automatic Google verification through the hosting platform when available. [#54920]
+
+## [0.12.0] - 2026-11-16
+### Added
+- Add a default share image setting and update social previews when it changes. [#54729]
+- Add a `jetpack_seo_llms_txt` filter so themes and plugins can add their own sections to llms.txt. [#54828]
+- Admin shell: Switch to and from the SEO page without a page load when the shell is on. [#54832]
+- Content: Add an "Always include in llms.txt" switch for pages, which lists a page first in llms.txt even when it is not in a menu. [#54550]
+- Let personal sites identify a person as their publisher in structured data. [#50875]
+- llms.txt: Add the `jetpack_seo_llms_txt_cleared` action so hosts and cache plugins can purge their cached copies when llms.txt changes. [#54773]
+
+### Changed
+- Admin shell: Declare the page title and subtitle shown while the dashboard opens, when the admin shell flag is on. [#54945]
+- llms.txt: Serve a stored copy that is rebuilt only after content or settings change, and let caches keep it for up to 15 minutes. [#54564]
+- Update package dependencies. [#54703]
+
+### Fixed
+- GEO tab: Group the AI crawler toggles so screen readers announce each group and its description. [#54712]
+- llms.txt: List pages from the main menu first, so they are not cut on sites with more than 50 pages. [#54549]
+- Omit separate first and last profile names from author structured data. [#54726]
+- Show apostrophes, quotes, and ampersands as characters instead of HTML entities in schema markup. [#54717]
+- Show site names, titles, and summaries in llms.txt as plain characters instead of HTML entities. [#54716]
+- Show the XML sitemap switch turned on for WordPress.com Simple sites that search engines can index. [#54715]
+- Stop listing theme and page builder layout post types, such as Kadence Elements, in llms.txt, the SEO page and the SEO columns on post lists. [#54713]
+- Use each post's SEO description for its llms.txt link summary when one is set. [#54714]
+
 ## [0.11.0] - 2026-11-09
 ### Added
 - GEO: Add more AI crawlers, block every robots.txt name each one uses, and show those names under each toggle. [#54321]
@@ -251,6 +300,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Create a Settings screen with site visibility, post title structure, front-page description, and site verification. [#49256]
 - Scaffold the new `jetpack-seo` package and mount its admin page. [#49203]
 
+[0.13.0]: https://github.com/Automattic/jetpack-seo/compare/0.12.0...0.13.0
+[0.12.0]: https://github.com/Automattic/jetpack-seo/compare/0.11.0...0.12.0
 [0.11.0]: https://github.com/Automattic/jetpack-seo/compare/0.10.3...0.11.0
 [0.10.3]: https://github.com/Automattic/jetpack-seo/compare/0.10.2...0.10.3
 [0.10.2]: https://github.com/Automattic/jetpack-seo/compare/0.10.1...0.10.2

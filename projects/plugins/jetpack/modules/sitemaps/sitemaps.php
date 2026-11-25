@@ -123,6 +123,7 @@ class Jetpack_Sitemap_Manager {
 		add_action( 'jetpack_activate_module_sitemaps', array( __CLASS__, 'callback_invalidate_index_cache' ) );
 		add_action( 'jetpack_deactivate_module_sitemaps', array( __CLASS__, 'callback_invalidate_index_cache' ) );
 		add_action( 'deleted_post', array( __CLASS__, 'callback_sitemap_deleted' ), 10, 2 );
+		add_action( 'deleted_post', array( $this, 'callback_action_news_post_deleted' ), 10, 2 );
 
 		// Add generator to wp_cron task list.
 		$this->schedule_sitemap_generation();
@@ -134,12 +135,12 @@ class Jetpack_Sitemap_Manager {
 			20
 		);
 
-		// The news sitemap is cached; here we add a callback to
-		// flush the cached news sitemap when a post is published.
+		// Keep cached news entries in sync with publication changes.
 		add_action(
-			'publish_post',
-			array( $this, 'callback_action_flush_news_sitemap_cache' ),
-			10
+			'transition_post_status',
+			array( $this, 'callback_action_news_publication_changed' ),
+			10,
+			3
 		);
 
 		// In case we need to purge all sitemaps, we do this.
@@ -166,7 +167,7 @@ class Jetpack_Sitemap_Manager {
 	/**
 	 * Whether Jetpack has stored a generated master index.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 * @return bool
 	 */
 	public function is_sitemap_ready() {
@@ -179,7 +180,7 @@ class Jetpack_Sitemap_Manager {
 	/**
 	 * Redirect submitted core indexes without breaking their child sitemap URLs.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 */
 	public function callback_redirect_core_index() {
 		if ( 'index' !== get_query_var( 'sitemap' ) || ! $this->is_sitemap_ready() || ! wp_sitemaps_get_server()->sitemaps_enabled() ) {
@@ -194,7 +195,7 @@ class Jetpack_Sitemap_Manager {
 	/**
 	 * Advertise only Jetpack's index once it is available.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 * @param string $output Robots.txt contents.
 	 * @return string
 	 */
@@ -210,7 +211,7 @@ class Jetpack_Sitemap_Manager {
 	/**
 	 * Apply SEO exclusions to core's fallback queries, including their page counts.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 * @param array $args Core sitemap query arguments.
 	 * @return array
 	 */
@@ -241,7 +242,7 @@ class Jetpack_Sitemap_Manager {
 	/**
 	 * Preserve custom Jetpack post exclusions on core's fallback sitemap pages.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 * @param WP_Post[] $posts Query results.
 	 * @param WP_Query  $query Current query.
 	 * @return WP_Post[]
@@ -264,7 +265,7 @@ class Jetpack_Sitemap_Manager {
 	/**
 	 * Invalidate only the index and discovery URLs after a stored index changes.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 * @return string[] Discovery URLs supplied to cache adapters.
 	 */
 	public static function callback_invalidate_index_cache() {
@@ -293,7 +294,7 @@ class Jetpack_Sitemap_Manager {
 		/**
 		 * Invalidate sitemap discovery responses in additional page caches.
 		 *
-		 * @since $$next-version$$
+		 * @since 16.5
 		 * @param string   $url  Jetpack sitemap index URL.
 		 * @param string[] $urls Sitemap index and discovery URLs to invalidate.
 		 */
@@ -304,7 +305,7 @@ class Jetpack_Sitemap_Manager {
 	/**
 	 * Purge cached pending responses when the first usable index is stored.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 * @param int           $post_id Stored post ID.
 	 * @param \WP_Post|null $post Stored sitemap post.
 	 * @param bool          $update Whether this updates an existing post.
@@ -328,7 +329,7 @@ class Jetpack_Sitemap_Manager {
 	/**
 	 * Finish deferred cache recovery in a web bootstrap with host cache APIs.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 */
 	public static function callback_purge_pending_index_cache() {
 		$pending = get_option( 'jetpack_sitemap_pending_cache_purge' );
@@ -351,7 +352,7 @@ class Jetpack_Sitemap_Manager {
 	/**
 	 * Invalidate discovery responses when the generated index is removed.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 * @param int           $post_id Deleted post ID.
 	 * @param \WP_Post|null $post Deleted post.
 	 */
@@ -364,7 +365,7 @@ class Jetpack_Sitemap_Manager {
 	/**
 	 * Keep pending sitemap responses and reversible redirects out of page caches.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 */
 	private function prevent_caching() {
 		nocache_headers();
@@ -722,6 +723,36 @@ class Jetpack_Sitemap_Manager {
 	}
 
 	/**
+	 * Invalidate news when an included post enters, leaves, or updates publication.
+	 *
+	 * @since $$next-version$$
+	 * @param string  $new_status New post status.
+	 * @param string  $old_status Previous post status.
+	 * @param WP_Post $post Updated post.
+	 */
+	public function callback_action_news_publication_changed( $new_status, $old_status, $post ) {
+		if ( 'publish' !== $new_status && 'publish' !== $old_status ) {
+			return;
+		}
+		/** This filter is documented in modules/sitemaps/sitemap-librarian.php. */
+		$post_types = apply_filters( 'jetpack_sitemap_news_sitemap_post_types', array( 'page', 'post' ) );
+		if ( in_array( $post->post_type, (array) $post_types, true ) ) {
+			$this->callback_action_flush_news_sitemap_cache();
+		}
+	}
+
+	/**
+	 * Invalidate news after an included published post is permanently deleted.
+	 *
+	 * @since $$next-version$$
+	 * @param int     $post_id Deleted post ID.
+	 * @param WP_Post $post Deleted post.
+	 */
+	public function callback_action_news_post_deleted( $post_id, $post ) {
+		$this->callback_action_news_publication_changed( 'delete', $post->post_status, $post );
+	}
+
+	/**
 	 * Callback to delete the news sitemap cache.
 	 *
 	 * @access public
@@ -729,6 +760,7 @@ class Jetpack_Sitemap_Manager {
 	 */
 	public function callback_action_flush_news_sitemap_cache() {
 		delete_transient( 'jetpack_news_sitemap_xml' );
+		delete_transient( 'jetpack_news_sitemap_xml_v2' );
 	}
 
 	/**

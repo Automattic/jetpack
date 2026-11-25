@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.16.2] - 2026-11-23
+### Changed
+- Remove five dependencies the package does not use. [#55224]
+
+## [4.16.1] - 2026-11-17
+### Changed
+- Update dependencies.
+
+## [4.16.0] - 2026-11-16
+### Changed
+- Heatmap Chart: Add `scale="log"` and `scale="buckets"` to color cells by their distance in log space or by their rank, keeping the existing placement by distance as the default, darken the top of the color range, and leave incomplete periods off the color scale with a hatched pattern. [#54838]
+- Update package dependencies. [#54703] [#54704]
+- Warn when a chart's parent cannot give it a width, and document the container a responsive chart needs. [#54720]
+
+### Fixed
+- Wait for a chart's size before drawing it, so charts and their legends no longer jump into place as a page loads. [#54720]
+
 ## [4.15.2] - 2026-11-09
 ### Fixed
 - Pie and semi-circle charts: Name each segment, so a screen reader reads the breakdown instead of an empty chart. [#54599]
@@ -1240,6 +1257,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[4.16.2]: https://github.com/Automattic/charts/compare/v4.16.1...v4.16.2
+[4.16.1]: https://github.com/Automattic/charts/compare/v4.16.0...v4.16.1
+[4.16.0]: https://github.com/Automattic/charts/compare/v4.15.2...v4.16.0
 [4.15.2]: https://github.com/Automattic/charts/compare/v4.15.1...v4.15.2
 [4.15.1]: https://github.com/Automattic/charts/compare/v4.15.0...v4.15.1
 [4.15.0]: https://github.com/Automattic/charts/compare/v4.14.0...v4.15.0

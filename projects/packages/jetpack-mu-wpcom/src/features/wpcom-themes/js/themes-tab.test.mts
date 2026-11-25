@@ -75,6 +75,66 @@ it( 'adds the tab as the first filter link', () => {
 	assert.equal( link.textContent, 'Marketplace' );
 } );
 
+it( 'scrolls the tabs with a mouse wheel, and gives the wheel back to the page at either end', () => {
+	const list = node( 'ul' ) as FakeNode & { clientWidth: number; scrollLeft: number };
+	const config = { sort: 'wpcom', label: 'Marketplace' };
+	const context = {
+		document: {
+			dir: 'ltr',
+			querySelector: () => list,
+			createElement: node,
+			addEventListener: () => {},
+		},
+		window: { wpcomThemesTab: config },
+		wpcomThemesTab: config,
+	};
+
+	// 300px of tabs out of view, clamped as a browser clamps them.
+	let scrolled = 0;
+	Object.defineProperty( list, 'scrollLeft', {
+		get: () => scrolled,
+		set: value => void ( scrolled = Math.min( 300, Math.max( 0, value ) ) ),
+	} );
+	list.clientWidth = 500;
+
+	const file = new URL( './themes-tab.js', import.meta.url ).pathname;
+	vm.createContext( context );
+	new vm.Script( readFileSync( file, 'utf8' ), { filename: file } ).runInContext( context );
+
+	const wheel = ( event: object ) => {
+		let prevented = false;
+		( list.listeners.wheel as unknown as ( event: object ) => void )( {
+			deltaX: 0,
+			deltaY: 0,
+			deltaMode: 0,
+			preventDefault: () => void ( prevented = true ),
+			...event,
+		} );
+		return prevented;
+	};
+
+	assert.equal( wheel( { deltaY: 100 } ), true );
+	assert.equal( scrolled, 100 );
+
+	// Firefox reports lines.
+	assert.equal( wheel( { deltaY: 3, deltaMode: 1 } ), true );
+	assert.equal( scrolled, 148 );
+
+	// A trackpad already scrolls sideways, and a pinch is a zoom.
+	assert.equal( wheel( { deltaX: 50, deltaY: 10 } ), false );
+	assert.equal( wheel( { deltaY: 100, ctrlKey: true } ), false );
+	assert.equal( scrolled, 148 );
+
+	assert.equal( wheel( { deltaY: 500 } ), true );
+	assert.equal( scrolled, 300 );
+	assert.equal( wheel( { deltaY: 100 } ), false );
+
+	// Right to left, the tabs run the other way.
+	context.document.dir = 'rtl';
+	assert.equal( wheel( { deltaY: 100 } ), true );
+	assert.equal( scrolled, 200 );
+} );
+
 it( "offers the plan a theme needs in place of core's install button", () => {
 	const install = node( 'a' );
 	install.className = 'button button-primary button-compact theme-install';
@@ -441,15 +501,34 @@ it( 'stops marking a theme once it renders outside the tab', () => {
 /**
  * Loads the script on a page with core's filter bar and theme collection.
  *
- * @return The pricing filter, and what core's collection and installer were asked for.
+ * @return The pricing filter, ways to drive core's installer, and what its collection was asked for.
  */
 function pricingPage() {
 	const list = node( 'ul' );
 	const requests: unknown[] = [];
-	const browsed: string[] = [];
 	const Collection = {
 		prototype: { query: ( request: unknown ) => void requests.push( request ) },
 	};
+	// Core's installer view, trimmed to how it asks the collection for themes.
+	const Installer = {
+		prototype: {
+			checked: [] as string[],
+			filtersChecked() {
+				return this.checked.length ? this.checked : false;
+			},
+			applyFilters() {
+				const tags = this.filtersChecked();
+				if ( tags ) {
+					Collection.prototype.query.call( {}, { tag: tags } );
+				}
+			},
+			browse( section: string ) {
+				Collection.prototype.query.call( {}, { browse: section } );
+			},
+		},
+	};
+	// Inherits from the prototype the script wraps, as core's running view does.
+	const installer = Object.create( Installer.prototype );
 	const config = { sort: 'wpcom', label: 'Marketplace', included: 'included' };
 	const context = {
 		document: { querySelector: () => list, createElement: node, addEventListener: () => {} },
@@ -457,9 +536,9 @@ function pricingPage() {
 			wpcomThemesTab: config,
 			wp: {
 				themes: {
-					view: { Theme: { prototype: { render: () => undefined } } },
+					view: { Theme: { prototype: { render: () => undefined } }, Installer },
 					Collection,
-					RunInstaller: { view: { browse: ( section: string ) => void browsed.push( section ) } },
+					RunInstaller: { view: installer },
 				},
 			},
 		},
@@ -476,9 +555,13 @@ function pricingPage() {
 		pricing,
 		select: pricing.children[ 1 ],
 		query: ( request: Record< string, unknown > ) => Collection.prototype.query.call( {}, request ),
+		check: ( tags: string[] ) => void ( installer.checked = tags ),
+		applyFilters: ( tags: string[] ) => {
+			installer.checked = tags;
+			installer.applyFilters();
+		},
 		// The script builds some requests in the vm's realm, which a strict deepEqual tells apart.
 		requests: () => JSON.parse( JSON.stringify( requests ) ),
-		browsed,
 	};
 }
 
@@ -507,5 +590,137 @@ it( 'lists the tab again when the filter changes', () => {
 	const page = pricingPage();
 	page.select.listeners.change();
 
-	assert.deepEqual( page.browsed, [ 'wpcom' ] );
+	assert.deepEqual( page.requests(), [ { browse: 'wpcom' } ] );
+} );
+
+it( 'keeps a feature filter applied on the tab there, and leaves other tabs to core', () => {
+	const page = pricingPage();
+	page.query( { browse: 'wpcom' } );
+	page.select.value = 'included';
+	page.applyFilters( [ 'blog' ] );
+	assert.equal( page.pricing.hidden, false );
+	// Applied again from the drawer, once core has taken the tab's highlight away.
+	page.applyFilters( [ 'blog', 'one-column' ] );
+
+	page.query( { browse: 'popular' } );
+	page.applyFilters( [ 'blog' ] );
+	page.query( { browse: 'wpcom' } );
+	// The Block Themes tab, which core lists by tag rather than by `browse`.
+	page.query( { tag: 'full-site-editing' } );
+
+	assert.deepEqual( page.requests(), [
+		{ browse: 'wpcom' },
+		{ tag: [ 'blog' ], browse: 'wpcom', wpcom_pricing: 'included' },
+		{ tag: [ 'blog', 'one-column' ], browse: 'wpcom', wpcom_pricing: 'included' },
+		{ browse: 'popular' },
+		{ tag: [ 'blog' ] },
+		{ browse: 'wpcom', wpcom_pricing: 'included' },
+		{ tag: 'full-site-editing' },
+	] );
+} );
+
+it( 'keeps the feature filter when the pricing filter changes on a filtered tab', () => {
+	const page = pricingPage();
+	page.query( { browse: 'wpcom' } );
+	page.applyFilters( [ 'blog' ] );
+	page.select.value = 'included';
+	page.select.listeners.change();
+
+	assert.deepEqual( page.requests().pop(), {
+		tag: [ 'blog' ],
+		browse: 'wpcom',
+		wpcom_pricing: 'included',
+	} );
+} );
+
+it( 'lists the whole tab when the pricing filter changes after every box is unchecked', () => {
+	const page = pricingPage();
+	page.query( { browse: 'wpcom' } );
+	page.applyFilters( [ 'blog' ] );
+	page.check( [] );
+	page.select.value = 'included';
+	page.select.listeners.change();
+
+	assert.deepEqual( page.requests().pop(), { browse: 'wpcom', wpcom_pricing: 'included' } );
+} );
+
+it( 'marks the side of the tabs that has more out of view', () => {
+	const classes = new Set< string >();
+	const list = Object.assign( node( 'ul' ), {
+		classList: {
+			contains: ( name: string ) => classes.has( name ),
+			toggle: ( name: string, on: boolean ) => {
+				if ( on ) {
+					classes.add( name );
+				} else {
+					classes.delete( name );
+				}
+			},
+		},
+		clientWidth: 500,
+		scrollWidth: 800,
+		scrollLeft: 0,
+	} );
+	const config = { sort: 'wpcom', label: 'Marketplace' };
+
+	// Stands in for the browser's observer, which reports once as soon as it starts watching.
+	let observed: unknown;
+	const ResizeObserver = function ( callback: () => void ) {
+		return {
+			observe: ( target: unknown ) => {
+				observed = target;
+				callback();
+			},
+		};
+	};
+	const context = {
+		document: { querySelector: () => list, createElement: node, addEventListener: () => {} },
+		window: { wpcomThemesTab: config, ResizeObserver },
+		wpcomThemesTab: config,
+	};
+	const file = new URL( './themes-tab.js', import.meta.url ).pathname;
+	vm.createContext( context );
+	new vm.Script( readFileSync( file, 'utf8' ), { filename: file } ).runInContext( context );
+
+	assert.equal( observed, list );
+	assert.deepEqual( [ ...classes ], [ 'is-clipped-end' ] );
+
+	list.scrollLeft = 150;
+	list.listeners.scroll();
+	assert.deepEqual( [ ...classes ].sort(), [ 'is-clipped-end', 'is-clipped-start' ] );
+
+	// Right to left, browsers count the scroll down from zero.
+	list.scrollLeft = -300;
+	list.listeners.scroll();
+	assert.deepEqual( [ ...classes ], [ 'is-clipped-start' ] );
+
+	// Nothing to fade once the tabs all fit.
+	list.scrollLeft = 0;
+	list.scrollWidth = 500;
+	list.listeners.scroll();
+	assert.deepEqual( [ ...classes ], [] );
+} );
+
+it( "names the search box, and keeps core's own attributes on it", () => {
+	const InstallerSearch = { prototype: { attributes: { type: 'search' } } };
+	const config = { sort: 'wpcom', label: 'Marketplace', searchLabel: 'Search Themes' };
+	const context = {
+		document: { querySelector: () => null, createElement: node, addEventListener: () => {} },
+		window: {
+			wpcomThemesTab: config,
+			wp: {
+				themes: {
+					view: { Theme: { prototype: { render: () => undefined } }, InstallerSearch },
+				},
+			},
+		},
+	};
+	const file = new URL( './themes-tab.js', import.meta.url ).pathname;
+	vm.createContext( context );
+	new vm.Script( readFileSync( file, 'utf8' ), { filename: file } ).runInContext( context );
+
+	assert.deepEqual( JSON.parse( JSON.stringify( InstallerSearch.prototype.attributes ) ), {
+		type: 'search',
+		placeholder: 'Search Themes',
+	} );
 } );

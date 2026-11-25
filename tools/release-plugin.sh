@@ -11,12 +11,16 @@ BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 . "$BASE/tools/includes/version-compare.sh"
 . "$BASE/tools/includes/normalize-version.sh"
 . "$BASE/tools/includes/changelogger.sh"
-. "$BASE/tools/includes/send_tracks_event.sh"
+
+export GH_REPO="${GH_REPO:-Automattic/jetpack}"
 
 VERSION_REGEX='^[0-9]+(\.[0-9]+)+(-.*)?$'
 CUR_STEP=0
 FROM_RELEASE_BRANCH=false
 LIST_STEPS=false
+
+# We use the message in a stable release to easily split the patch and the changelog commits.
+CHANGELOG_COMMIT_MSG='Aggregate raw changelogs and bump versions'
 
 RELEASE_STEPS=(
 	'do_prerelease_branch_prep'
@@ -24,7 +28,7 @@ RELEASE_STEPS=(
 	'do_readme'
 	'do_push_and_build'
 	'do_packagist_check'
-	'do_create_release_branches'
+	'do_create_release_branch'
 	'do_create_prerelease_PR'
 	'do_final_instructions'
 )
@@ -35,10 +39,11 @@ FROM_RELEASE_BRANCH_STEPS=(
 	'do_changelogs'
 	'do_readme'
 	'do_prerelease_branch_prep'
-	# 'do_push_and_build'
-	# 'do_packagist_check'
-	# 'do_push_release_branch'
-	# 'do_create_backport_PR'
+	'do_push_and_build'
+	'do_packagist_check'
+	'do_push_release_branch'
+	'do_create_backport_PR'
+	'do_final_instructions'
 )
 
 # Instructions
@@ -54,24 +59,12 @@ function usage {
 		    <plugin>                   Plugin name to release (e.g. jetpack)
 		    <version>                  Version number (defaults to next stable)
 
-		Conduct a full release of specified plugins through release branch creation.
+		Conduct a full release of the specified plugin through release branch creation.
 		Accepts the plugin name without a prefix, such as 'jetpack' or 'backup'. The
 		version is optional; if not specified it will be set to the next stable version.
 
 	EOH
 	exit 1
-}
-
-handle_exit() {
-	local exit_code=$?
-	local PAYLOAD
-	PAYLOAD="$(
-		jq -n \
-			--arg exit_code "$exit_code" \
-			--arg step "$CUR_STEP" \
-			'{"exit_code": $exit_code, "step": $step }'
-	)"
-	send_tracks_event "jetpack_release_exit" "$PAYLOAD"
 }
 
 # Preliminary environment checks.
@@ -121,7 +114,7 @@ function find_base_branch {
 		BASE_BRANCH=trunk
 		return
 	fi
-	prefix=$(jq -r '.extra["release-branch-prefix"] | if type == "array" then first else . end' "$BASE/projects/$PLUGIN/composer.json")
+	prefix=$(jq -r '.extra["release-branch-prefix"]' "$BASE/projects/$PLUGIN/composer.json")
 	stable=$(grep -oE '^[0-9]+\.[0-9]+' <<<"$VERSION")
 	# We only fetch the subset of branches needed, as no one sort order fits both: branch-x.y must sort below
 	# x.y-beta.N for stable and beta releases, but above it for point releases.
@@ -164,13 +157,29 @@ function current_version {
 }
 
 # Generates a command that can be used to resume the release script from the current step.
-# Currently unused.
 function generate_resume_command() {
-	local cmd="$0 -s $CUR_STEP"
-	for PLUGIN in "${!PROJECTS[@]}"; do
-		cmd+=" ${PLUGIN#plugins/} ${PROJECTS[$PLUGIN]}"
+	echo "$0 $($FROM_RELEASE_BRANCH && echo '-R ')-s $CUR_STEP ${PLUGIN#plugins/} $VERSION"
+}
+
+# Report the failed step and how to resume from it.
+function report_failed_step {
+	error "Failed on step $CUR_STEP: ${STEPS[$CUR_STEP]}"
+	warn "You may restart at the failed step if desired."
+	echo "Resume at your own risk with the following:"
+	generate_resume_command
+}
+
+# Wait for untracked files to be removed, e.g. build output and node_modules of a project that
+# exists in one checkout but not the other, whose .gitignore no longer applies.
+function wait_for_no_stray_untracked_files {
+	local untracked
+	# Use `--directory`; otherwise for node_modules one could end up with hundreds of lines.
+	while untracked=$(git ls-files --others --exclude-standard --directory --no-empty-directory) && [[ -n $untracked ]]; do
+		warn "Untracked files found after checkout:"
+		echo "$untracked"
+		echo "In another terminal, remove or otherwise resolve them."
+		proceed_p "" "Check again?" Y || die 'Aborted due to untracked files.'
 	done
-	echo "$cmd"
 }
 
 # Create the prerelease branch from the local release branch with -R, else from origin/trunk.
@@ -216,15 +225,14 @@ function do_prerelease_branch_prep() {
 		git fetch origin "$BASE_BRANCH"
 		git checkout --no-track -b prerelease "origin/$BASE_BRANCH"
 	fi
+	wait_for_no_stray_untracked_files
 	yellow "Installing root packages."
 	pnpm jetpack install --root
 	# @todo: Push once we're ready to test more lively.
 	$FROM_RELEASE_BRANCH && return
 	if ! git push -u origin HEAD; then
-		send_tracks_event "jetpack_release_prerelease_push" '{"result": "failure"}'
-		die "Branch push failed. Check #jetpack-releases and make sure no one is doing a release already, then delete the branch at https://github.com/Automattic/jetpack/branches"
+		die "Branch push failed. Check #jetpack-releases and make sure no one is doing a release already, then delete the branch at https://github.com/$GH_REPO/branches"
 	fi
-	send_tracks_event "jetpack_release_prerelease_push" '{"result": "success"}'
 }
 
 function do_create_release_branch_from_release_branch {
@@ -240,6 +248,7 @@ function do_create_release_branch_from_release_branch {
 	fi
 
 	git checkout --no-track -b "$RELEASE_BRANCH" "origin/$BASE_BRANCH"
+	wait_for_no_stray_untracked_files
 	yellow "Installing root packages."
 	pnpm jetpack install --root
 }
@@ -272,32 +281,28 @@ function do_apply_patches {
 
 function do_changelogs {
 	verify_on_branch "${RELEASE_BRANCH:-prerelease}"
-	# Loop through the projects and update the changelogs after building the arguments.
-	for PLUGIN in "${!PROJECTS[@]}"; do
-		yellow "Updating the changelog files for $PLUGIN."
+	yellow "Updating the changelog files for $PLUGIN."
 
-		# Add the PR numbers to the changelog.
-		ARGS=('-p')
+	# Add the PR numbers to the changelog.
+	ARGS=('-p')
 
-		# Add alpha and beta flags.
-		VERSION="${PROJECTS[$PLUGIN]}"
-		case $VERSION in
-			*-a* ) ARGS+=('-a');;
-			*-beta ) ARGS+=('-b');;
-		esac
+	# Add alpha and beta flags.
+	case $VERSION in
+		*-a* ) ARGS+=('-a');;
+		*-beta ) ARGS+=('-b');;
+	esac
 
-		if $FROM_RELEASE_BRANCH; then
-			ARGS+=( '-R' )
-		fi
+	if $FROM_RELEASE_BRANCH; then
+		ARGS+=( '-R' )
+	fi
 
-		# Explicitly pass the version number we want so there are no surprises.
-		ARGS+=( '-r' "${PROJECTS[$PLUGIN]}" )
-		ARGS+=("$PLUGIN");
-		tools/changelogger-release.sh "${ARGS[@]}"
-	done
+	# Explicitly pass the version number we want so there are no surprises.
+	ARGS+=( '-r' "$VERSION" )
+	ARGS+=( "$PLUGIN" )
+	tools/changelogger-release.sh "${ARGS[@]}"
 
 	git add --all
-	git commit -m "Aggregate raw changelogs and bump versions"
+	git commit -m "$CHANGELOG_COMMIT_MSG"
 
 	# When it completes, wait for user to edit anything they want, then push key to continue.
 	read -r -s -p $'Edit and save all the changelog entries you want in a separate terminal or in your text editor of choice.\nCheck for consistency between the different entries, and keep in mind that your plugin changelog will be used in the plugin readme file.\n\nOnce you are happy with your work, press enter to continue the release process.'
@@ -310,26 +315,22 @@ function do_changelogs {
 
 function do_readme {
 	verify_on_branch "${RELEASE_BRANCH:-prerelease}"
-	for PLUGIN in "${!PROJECTS[@]}"; do
-		# check if the plugin even has a readme.txt file.
-		if [[ ! -e "$BASE/projects/$PLUGIN/readme.txt" ]]; then
-			yellow "$PLUGIN has no readme.txt file, skipping."
-			continue
-		fi
-		yellow "Updating the readme.txt file for $PLUGIN."
-		ARGS=()
-		# Add alpha and beta flags.
-		VERSION="${PROJECTS[$PLUGIN]}"
-		case $VERSION in
-			*-a* ) ARGS+=('-a');;
-			*-beta ) ARGS+=('-b');;
-			* ) ARGS+=('-s');;
-		esac
-		pnpm jetpack release "$PLUGIN" readme "${ARGS[@]}"
-	done
+	if [[ ! -e "$BASE/projects/$PLUGIN/readme.txt" ]]; then
+		yellow "$PLUGIN has no readme.txt file, skipping."
+		return
+	fi
+	yellow "Updating the readme.txt file for $PLUGIN."
+	ARGS=()
+	# Add alpha and beta flags.
+	case $VERSION in
+		*-a* ) ARGS+=('-a');;
+		*-beta ) ARGS+=('-b');;
+		* ) ARGS+=('-s');;
+	esac
+	pnpm jetpack release "$PLUGIN" readme "${ARGS[@]}"
 
 	# If we're releasing Jetpack and it's a beta, amend the readme.txt
-	if [[ -v PROJECTS["plugins/jetpack"] && "${PROJECTS[plugins/jetpack]}" == *-beta ]]; then
+	if [[ $PLUGIN == plugins/jetpack && $VERSION == *-beta ]]; then
 		yellow "Releasing a beta for Jetpack, amending the readme.txt"
 		pnpm jetpack changelog squash plugins/jetpack readme
 	fi
@@ -357,17 +358,14 @@ function do_push_and_build {
 	done
 
 	if [[ -z "$BUILDID" ]]; then
-		send_tracks_event "jetpack_release_github_build" '{"result": "not_found"}'
 		die "Build ID not found. Check GitHub actions to see if build on prerelease branch is running, then continue with manual steps."
 	fi
 
 	yellow "Build ID found, waiting for build to complete and push to mirror repos."
 	if ! gh run watch "${BUILDID[0]}" --exit-status; then
-		send_tracks_event "jetpack_release_github_build" '{"result": "failure"}'
 		die "Build failed! Check for build errors on GitHub for more information."
 	fi
 
-	send_tracks_event "jetpack_release_github_build" '{"result": "success"}'
 	yellow "Build is complete."
 }
 
@@ -398,22 +396,11 @@ function do_push_release_branch {
 	git push -u origin "$RELEASE_BRANCH"
 }
 
-function do_create_release_branches {
-	# Run tools/create-release-branch.sh to create a release branch for each project.
-	for PREFIX in "${PREFIXES[@]}"; do
-		git checkout prerelease
-		PROJECT=$(jq -r --arg prefix "$PREFIX" '.[$prefix] | if length == 1 then "plugins/\(first)" else empty end' <<<"$PREFIXDATA")
-		if [[ -n "$PROJECT" && -n "${PROJECTS[$PROJECT]}" ]]; then
-			VERSION="${PROJECTS[$PROJECT]}"
-			yellow "Creating release branch for $PROJECT $VERSION"
-			tools/create-release-branch.sh "$PROJECT" "$VERSION"
-		else
-			yellow "Creating release branch for $PREFIX"
-			tools/create-release-branch.sh "$PREFIX"
-		fi
-	done
-
-	yellow "Release branches created!"
+function do_create_release_branch {
+	git checkout prerelease
+	yellow "Creating release branch for $PLUGIN $VERSION"
+	tools/create-release-branch.sh "$PLUGIN" "$VERSION"
+	yellow "Release branch created!"
 }
 
 function do_create_prerelease_PR {
@@ -428,46 +415,96 @@ function do_create_prerelease_PR {
 		git commit -am 'Version bumps'
 	fi
 	git push
-	PLUGINS_CHANGED=
-	for PLUGIN in "${!PROJECTS[@]}"; do
-		PLUGINS_CHANGED+="$(basename "$PLUGIN") ${PROJECTS[$PLUGIN]}, "
+	RELEASED_PLUGIN="$(basename "$PLUGIN") $VERSION"
 
-		# If the plugin has a readme.txt, update its stable tag to the release version.
-		README_FILE="$BASE/projects/$PLUGIN/readme.txt"
-		if [[ -f "$README_FILE" ]]; then
-			sed -i.bak -e "s/^Stable tag: .*/Stable tag: ${PROJECTS[$PLUGIN]}/" "$README_FILE"
-			rm -f "$README_FILE.bak"
-		fi
-	done
+	# If the plugin has a readme.txt, update its stable tag to the release version.
+	README_FILE="$BASE/projects/$PLUGIN/readme.txt"
+	if [[ -f "$README_FILE" ]]; then
+		sed -i.bak -e "s/^Stable tag: .*/Stable tag: $VERSION/" "$README_FILE"
+		rm -f "$README_FILE.bak"
+	fi
 
 	if [[ -n "$(git status --porcelain)" ]]; then
 		git commit -am 'Update stable tag in readme.txt'
 	fi
 	git push
 
-	# Remove the trailing comma and space
-	PLUGINS_CHANGED=${PLUGINS_CHANGED%, }
-	sed "s/%RELEASED_PLUGINS%/$PLUGINS_CHANGED/g" .github/files/BACKPORT_RELEASE_CHANGES.md > .github/files/TEMP_BACKPORT_RELEASE_CHANGES.md
-	gh pr create --title "Backport $PLUGINS_CHANGED changes" --body "$(cat .github/files/TEMP_BACKPORT_RELEASE_CHANGES.md)" --label "[Status] Needs Review" --label "[Type] Janitorial" --repo "Automattic/jetpack" --head "$(git rev-parse --abbrev-ref HEAD)"
-	rm .github/files/TEMP_BACKPORT_RELEASE_CHANGES.md
+	sed "s/%RELEASED_PLUGIN%/$RELEASED_PLUGIN/g" .github/files/BACKPORT_RELEASE_CHANGES.md | gh pr create --title "Backport $RELEASED_PLUGIN changes" --body-file - --label "[Status] Needs Review" --label "[Type] Janitorial" --head "$(git rev-parse --abbrev-ref HEAD)"
 }
 
-# @todo: Implement. Prints what's needed until then.
+# Rebuild prerelease from trunk with the release branch's patches and changelogs, then open a PR.
 function do_create_backport_PR {
-	cat <<-EOF
-		The changes on $RELEASE_BRANCH still needs backporting to trunk:
-		  1. Verify prerelease matches $RELEASE_BRANCH, then delete it remotely and locally. Otherwise stop.
-		  2. Create a new prerelease branch from origin/trunk.
-		  3. Cherry-pick the patch commits from $RELEASE_BRANCH onto it, skipping the changelog and readme
-		     commits. Patches already in trunk drop out as empty.
-		  4. Bring over the changelog changes, without changing any versions:
-		     - For the plugin and packages released normally, copy the new CHANGELOG.md files from
-		       $RELEASE_BRANCH and delete the change files they came from.
-		     - For packages released with a four-point version, add no entry and leave their change files.
-		     - Maybe update the readme.txt stable tag.
-		  5. Run tools/fixup-project-versions.sh and commit any changes.
-		  6. Push, and open a PR to merge prerelease into trunk.
-	EOF
+	changelog_commit=$(git log -n1 --format=%H --grep="^$CHANGELOG_COMMIT_MSG\$" "origin/$BASE_BRANCH..$RELEASE_BRANCH")
+	[[ -n $changelog_commit ]] || die "No changelog commit found on $RELEASE_BRANCH."
+	patch_range="origin/$BASE_BRANCH..$changelog_commit^"
+
+	yellow "Recreating prerelease branch from trunk."
+	git fetch origin trunk
+
+	# Rather than deleting the old branch, just reset it to `trunk`, which keeps other people from releasing until we're done.
+	git checkout --no-track -B prerelease origin/trunk
+	wait_for_no_stray_untracked_files
+	pnpm jetpack install --root
+
+	if [[ $(git rev-list --count "$patch_range") -gt 0 ]]; then
+		yellow "Cherry-picking patches from $RELEASE_BRANCH."
+		if ! git cherry-pick --empty=drop "$patch_range"; then
+			warn "Merge conflict during cherry-pick!"
+			echo "In another terminal, resolve the conflicts."
+			while git rev-parse -q --verify CHERRY_PICK_HEAD &>/dev/null; do
+				proceed_p "" "Continue the cherry-pick?" Y || die 'Aborted during cherry-pick.'
+				if [[ $(git diff --check HEAD) =~ 'leftover conflict marker' ]]; then
+					warn "Conflict markers remain."
+					continue
+				fi
+				git add -u
+				git cherry-pick --continue || true
+			done
+		fi
+	fi
+
+	yellow "Bringing over changelogs."
+
+	# Backport each released project's changelogs, skipping four-point package releases.
+	while read -r file; do
+		dir=${file%/CHANGELOG.md}
+		ver=$(git show "$RELEASE_BRANCH:$file" | sed -n -E -e 's/^## \[?([0-9.]+(-[a-zA-Z0-9.+-]*)?)\]? - .*$/\1/p' -e 'tq' -e 'd' -e ':q' -e 'q')
+		if [[ $dir == projects/packages/* && $ver =~ ^[0-9]+(\.[0-9]+){3}$ ]]; then
+			echo "Skipping $dir; released as four-point version $ver."
+			continue
+		fi
+		# Delete change files.
+		changes_dir=$(git show "$RELEASE_BRANCH:$dir/composer.json" | jq -r '.extra.changelogger["changes-dir"] // "changelog"')
+		change_files=$(git diff --name-only --diff-filter=D "$changelog_commit^" "$RELEASE_BRANCH" -- "$dir/$changes_dir")
+		if [[ -n "$change_files" ]]; then
+			git rm --ignore-unmatch --pathspec-from-file=- <<<"$change_files"
+		fi
+		git diff "$changelog_commit^" "$RELEASE_BRANCH" -- "$file" | git apply
+	done < <(git diff --name-only "$changelog_commit^" "$RELEASE_BRANCH" -- '*/CHANGELOG.md')
+
+	readme="$BASE/projects/$PLUGIN/readme.txt"
+	if [[ $VERSION != *-* && -f $readme ]]; then
+		stable=$(sed -n 's/^Stable tag: \(.*\)/\1/p' "$readme")
+		if version_compare "$VERSION" "$stable"; then
+			sed -i.bak -e "s/^Stable tag: .*/Stable tag: $VERSION/" "$readme"
+			rm -f "$readme.bak"
+		fi
+	fi
+
+	git add --all
+	if [[ -n "$(git status --porcelain)" ]]; then
+		git commit -m "Backport $PLUGIN $VERSION changelogs"
+	fi
+
+	tools/fixup-project-versions.sh
+	if [[ -n "$(git status --porcelain)" ]]; then
+		git commit -am 'Version bumps'
+	fi
+
+	# Replaces the prerelease branch pushed from the release branch.
+	git push -u --force-with-lease origin prerelease
+	RELEASED_PLUGIN="$(basename "$PLUGIN") $VERSION"
+	sed "s/%RELEASED_PLUGIN%/$RELEASED_PLUGIN/g" .github/files/BACKPORT_RELEASE_CHANGES.md | gh pr create --title "Backport $RELEASED_PLUGIN changes" --body-file - --label "[Status] Needs Review" --label "[Type] Janitorial" --head prerelease
 }
 
 function do_final_instructions {
@@ -476,51 +513,32 @@ function do_final_instructions {
 	echo ''
 	echo 'Backport the changes into trunk by reviewing and merging the above PR.'
 
-	AUTO=()
-	MANUALPUB=()
-	for PLUGIN in "${!PROJECTS[@]}"; do
-		F="$BASE/projects/$PLUGIN/composer.json"
-		if ! jq -e '.extra["mirror-repo"] // false' "$F" &>/dev/null; then
-			continue
-		fi
-
-		if ! jq -e '.extra["wp-plugin-slug"] // false' "$F" &>/dev/null; then
-			continue
-		fi
-
-		if jq -e '.extra["wp-svn-autopublish"] // false' "$F" &>/dev/null; then
-			AUTO+=( "$PLUGIN" )
-		else
-			MANUALPUB+=( "$PLUGIN" )
-		fi
-	done
-
-	if [[ ${#AUTO[@]} -gt 0 ]]; then
-		cat <<-EOM
-
-		For these plugins: ${AUTO[*]}
-		  1. Wait for the release to be automatically tagged in GitHub.
-		  2. Wait for the changes to be automatically deployed to SVN.
-		  3. Smoke test.
-		  4. Update the stable tag (if stable release): \`./tools/stable-tag.sh <plugin>\`
-		EOM
+	F="$BASE/projects/$PLUGIN/composer.json"
+	if ! jq -e '.extra["mirror-repo"] // false' "$F" &>/dev/null; then
+		return
 	fi
 
-	if [[ ${#MANUALPUB[@]} -gt 0 ]]; then
-		cat <<-EOM
+	if ! jq -e '.extra["wp-plugin-slug"] // false' "$F" &>/dev/null; then
+		return
+	fi
 
-		For these plugins: ${MANUALPUB[*]}
-		  1. Wait for the release to be automatically tagged in GitHub.
-		  2. Deploy to SVN: \`./tools/deploy-to-svn.sh <plugin> <tag>\`
-		  3. Smoke test.
-		  4. Update the stable tag (if stable release): \`./tools/stable-tag.sh <plugin>\`
-		EOM
+	if jq -e '.extra["wp-svn-autopublish"] // false' "$F" &>/dev/null; then
+		DEPLOY_STEP='Wait for the changes to be automatically deployed to SVN.'
+	else
+		DEPLOY_STEP="Deploy to SVN: \`./tools/deploy-to-svn.sh ${PLUGIN#plugins/} <tag>\`"
+	fi
+
+	cat <<-EOM
+
+	The release script has completed. The final steps are as follows:
+	  1. Wait for the release to be automatically tagged in GitHub.
+	  2. $DEPLOY_STEP
+	  3. Smoke test.
+	EOM
+	if [[ $VERSION != *-* ]]; then
+		echo "  4. Update the stable tag: \`./tools/stable-tag.sh ${PLUGIN#plugins/}\`"
 	fi
 }
-
-trap 'exit 130' SIGINT
-trap 'exit 143' SIGTERM
-trap 'handle_exit' EXIT
 
 preflight_checks
 
@@ -581,87 +599,31 @@ if [[ -z $VERSION ]]; then
 	VERSION=$(cd "$BASE/projects/$PLUGIN" && changelogger version next) || die "Cannot determine version number for $PLUGIN. Please supply one on the command line."
 fi
 
-# @todo: Rip out multi-plugin release support altogether.
-declare -A PROJECTS=( ["$PLUGIN"]="$VERSION" )
-
 find_base_branch
 git fetch origin "$BASE_BRANCH"
 if $FROM_RELEASE_BRANCH; then
 	RELEASE_BRANCH="${BASE_BRANCH%%/*}/branch-$VERSION"
 fi
 
-for PLUGIN in "${!PROJECTS[@]}"; do
-	normalize_version_number "${PROJECTS[$PLUGIN]}"
-	if [[ ! "$NORMALIZED_VERSION" =~ $VERSION_REGEX ]]; then
-		red "\"$NORMALIZED_VERSION\" does not appear to be a valid version number."
-		die "Please specify a valid version number."
-	fi
-	CUR_VERSION=$(current_version)
-	# shellcheck disable=SC2310
-	if version_compare "$CUR_VERSION" "$NORMALIZED_VERSION"; then
-		proceed_p "$PLUGIN: Version $NORMALIZED_VERSION is not higher than $CUR_VERSION." || die "User aborted script."
-	fi
-	echo "$PLUGIN: $CUR_VERSION -> ${PROJECTS[$PLUGIN]}"
-done
-
-proceed_p "" "Proceed releasing above projects?" Y
-
-# Sending tracking event
-RELEASED_PLUGINS="{}"
-for PLUGIN in "${!PROJECTS[@]}"; do
-
-	CUR_VERSION=$(current_version)
-	VERSION_DIFF=$( version_diff "$CUR_VERSION" "${PROJECTS[$PLUGIN]}" )
-
-	if [[ "${PROJECTS[$PLUGIN]}" == *-* ]]; then
-
-		# The version is a prerelease.
-		if proceed_p "" "Is this $PLUGIN release fixing a known problem caused by a previous release?" N; then
-			VERSION_DIFF="bugfix"
-		fi
-
-	elif [[ "${PROJECTS[$PLUGIN]}" =~ ^[0-9]+\.[0-9]+\.[0.]*[1-9] ]]; then
-
-		# The version in patch-level.
-		VERSION_DIFF="bugfix"
-
-		# If a project follows semver versioning, we prompt.
-		if jq -e '.extra.changelogger["versioning"] == "semver"' "$BASE/projects/$PLUGIN/composer.json" &>/dev/null; then
-			if ! proceed_p "" "Is this $PLUGIN release fixing a known problem caused by a previous release?" N; then
-				VERSION_DIFF="patch"
-			fi
-		fi
-	fi
-
-	RELEASED_PLUGINS=$(
-		jq \
-			--arg property "${PLUGIN//[\/-]/_}_release_type" \
-			--arg value "$VERSION_DIFF" \
-			'.[ $property ] = $value' <<< "$RELEASED_PLUGINS"
-	)
-	RELEASED_PLUGINS=$(
-		jq \
-			--arg property "${PLUGIN//[\/-]/_}_version" \
-			--arg value "${PROJECTS[$PLUGIN]}" \
-			'.[ $property ] = $value' <<< "$RELEASED_PLUGINS"
-	)
-done
-
-send_tracks_event "jetpack_release_start" "$RELEASED_PLUGINS"
-
-# Figure out which release branch prefixes to use.
-PREFIXDATA=$(jq -n 'reduce inputs as $in ({}; .[ $in.extra["release-branch-prefix"] | if . == null then empty elif type == "array" then .[] else . end ] += [ input_filename | capture( "projects/plugins/(?<p>[^/]+)/composer\\.json$" ).p ] ) | to_entries | sort_by( ( .value | -length ), .key ) | from_entries' "$BASE"/projects/plugins/*/composer.json)
-TMP=$(jq -rn --argjson d "$PREFIXDATA" '$d | reduce to_entries[] as $p ({ s: ( $ARGS.positional | map( sub( "^plugins/"; "" ) ) ), o: []}; if $p.value - .s == [] then .o += [ $p.key ] | .s -= $p.value else . end) | .o[]' --args "${!PROJECTS[@]}")
-mapfile -t PREFIXES <<<"$TMP"
-[[ ${#PREFIXES[@]} -eq 0 ]] && die "Could not determine prefixes for projects ${!PROJECTS[*]}"
-if [[ ${#PREFIXES[@]} -gt 1 ]]; then
-	yellow "The specified set of plugins will require multiple release branches: ${PREFIXES[*]}"
-	proceed_p "" "" Y
+normalize_version_number "$VERSION"
+if [[ ! "$NORMALIZED_VERSION" =~ $VERSION_REGEX ]]; then
+	red "\"$NORMALIZED_VERSION\" does not appear to be a valid version number."
+	die "Please specify a valid version number."
 fi
+CUR_VERSION=$(current_version)
+# shellcheck disable=SC2310
+if version_compare "$CUR_VERSION" "$NORMALIZED_VERSION"; then
+	proceed_p "$PLUGIN: Version $NORMALIZED_VERSION is not higher than $CUR_VERSION." || die "User aborted script."
+fi
+echo "$PLUGIN: $CUR_VERSION -> $VERSION"
+
+proceed_p "" "Proceed releasing $PLUGIN?" Y
 
 # Run each release step.
+trap report_failed_step EXIT
 for ((i = CUR_STEP; i < ${#STEPS[@]}; i++)); do
 	green "Step $i: ${STEPS[$i]}"
 	"${STEPS[$i]}"
 	((CUR_STEP+=1))
 done
+trap - EXIT

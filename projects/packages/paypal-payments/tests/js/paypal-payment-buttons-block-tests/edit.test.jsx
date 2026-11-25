@@ -133,6 +133,7 @@ jest.mock( '@wordpress/icons', () => {
 		pencil: icon( 'pencil' ),
 		replace: icon( 'replace' ),
 		trash: icon( 'trash' ),
+		update: icon( 'update' ),
 	};
 } );
 
@@ -144,6 +145,8 @@ jest.mock( 'qrcode', () => ( {
 const mockMarkNotPersistent = jest.fn();
 // What the save sync writes onto a block, by clientId.
 const mockUpdateBlockAttributes = jest.fn();
+// Which sidebar the block asks the editor to open.
+const mockEnableComplementaryArea = jest.fn();
 /**
  * Run editor.savePost, as core/editor does once the post has saved.
  *
@@ -155,7 +158,10 @@ const postSaved = ( options = {} ) =>
 // Whether the block renders in an inserter or pattern preview. Set per test.
 let mockIsPreviewMode = false;
 jest.mock( '@wordpress/data', () => ( {
-	dispatch: () => ( { updateBlockAttributes: mockUpdateBlockAttributes } ),
+	dispatch: store =>
+		store === 'core/interface'
+			? { enableComplementaryArea: mockEnableComplementaryArea }
+			: { updateBlockAttributes: mockUpdateBlockAttributes },
 	useDispatch: () => ( {
 		__unstableMarkNextChangeAsNotPersistent: mockMarkNotPersistent,
 	} ),
@@ -605,8 +611,8 @@ jest.mock( '@wordpress/components', () => ( {
 			{ help && <span className="components-base-control__help">{ help }</span> }
 		</div>
 	),
-	ToolbarButton: ( { label, onClick } ) => (
-		<button data-testid={ `toolbar-${ label }` } onClick={ onClick }>
+	ToolbarButton: ( { label, onClick, disabled } ) => (
+		<button data-testid={ `toolbar-${ label }` } onClick={ onClick } disabled={ disabled }>
 			{ label }
 		</button>
 	),
@@ -832,10 +838,17 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 	const openSavedForm = async () => {
 		await waitFor( () => {
 			if ( ! screen.queryByLabelText( 'Product Name' ) ) {
-				expect( screen.getByRole( 'button', { name: 'Edit' } ) ).toBeInTheDocument();
+				expect(
+					within( screen.getByTestId( 'inspector-controls' ) ).getByRole( 'button', {
+						name: 'Edit',
+					} )
+				).toBeInTheDocument();
 			}
 		} );
-		const edit = screen.queryByRole( 'button', { name: 'Edit' } );
+		// Look in the sidebar: the toolbar has an Edit too.
+		const edit = within( screen.getByTestId( 'inspector-controls' ) ).queryByRole( 'button', {
+			name: 'Edit',
+		} );
 		if ( edit ) {
 			await userEvent.setup().click( edit );
 		}
@@ -8188,7 +8201,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				);
 				await expect( screen.findByLabelText( 'Embed as' ) ).resolves.toBeInTheDocument();
 
-				await user.click( screen.getByRole( 'button', { name: 'Edit' } ) );
+				await openSavedForm();
 
 				expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
 				expect( screen.queryByLabelText( 'Embed as' ) ).not.toBeInTheDocument();
@@ -8957,7 +8970,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			} );
 		} );
 
-		it( 'offers the delete toolbar button when a button exists', async () => {
+		it( 'offers Edit, Change item and Delete in the toolbar when a button exists', async () => {
 			render(
 				<Edit
 					attributes={ {
@@ -8975,7 +8988,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await expect(
 				screen.findByTestId( 'toolbar-Delete payment button' )
 			).resolves.toBeInTheDocument();
-			expect( screen.queryByTestId( 'toolbar-Edit' ) ).not.toBeInTheDocument();
+			expect(
+				within( screen.getByTestId( 'block-controls' ) )
+					.getAllByRole( 'button' )
+					.map( button => button.textContent )
+			).toEqual( [ 'Edit', 'Change item', 'Delete payment button' ] );
 			expect( screen.queryByTestId( 'toolbar-Preview' ) ).not.toBeInTheDocument();
 		} );
 
@@ -9001,7 +9018,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( screen.getByTestId( 'paypal-button-preview' ) ).toBeInTheDocument();
 			expect( screen.queryByLabelText( 'Product Name' ) ).not.toBeInTheDocument();
 
-			await user.click( screen.getByRole( 'button', { name: 'Edit' } ) );
+			await openSavedForm();
 
 			expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
 			expect( screen.getByTestId( 'paypal-button-preview' ) ).toBeInTheDocument();
@@ -9246,7 +9263,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			await expect( screen.findByText( 'Hosted ID' ) ).resolves.toBeInTheDocument();
 			expect( panel( 'PayPal Connection' ) ).toBeUndefined();
-			await userEvent.setup().click( screen.getByRole( 'button', { name: 'Edit' } ) );
+			await openSavedForm();
 
 			expect( panel( 'Details' ) ).toBeInTheDocument();
 			expect( panel( 'Product Options' ) ).toBeInTheDocument();
@@ -9264,7 +9281,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			);
 
 			await expect( screen.findByText( 'Hosted ID' ) ).resolves.toBeInTheDocument();
-			await userEvent.setup().click( screen.getByRole( 'button', { name: 'Edit' } ) );
+			await openSavedForm();
 			expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
 
 			rerender(
@@ -9297,7 +9314,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					<Edit attributes={ saved } setAttributes={ setAttributes } clientId="a" />
 				);
 				await expect( screen.findByText( 'Hosted ID' ) ).resolves.toBeInTheDocument();
-				await user.click( screen.getByRole( 'button', { name: 'Edit' } ) );
+				await openSavedForm();
 				view.rerender(
 					<Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" />
 				);
@@ -9658,7 +9675,10 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				/>
 			);
 
-		const changeItem = () => screen.getByRole( 'button', { name: 'Change item' } );
+		const changeItem = () =>
+			within( screen.getByTestId( 'inspector-controls' ) ).getByRole( 'button', {
+				name: 'Change item',
+			} );
 
 		it( 'is greyed out while the account has no other link', async () => {
 			mockLinks( [ resource( 'PLB-A1', 'Croissant' ) ] );
@@ -9667,7 +9687,10 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			await expect( screen.findByText( 'Hosted ID' ) ).resolves.toBeInTheDocument();
 			await waitFor( () => expect( changeItem() ).toBeDisabled() );
-			expect( screen.getByRole( 'button', { name: 'Edit' } ) ).toBeEnabled();
+			expect( screen.getByTestId( 'toolbar-Change item' ) ).toBeDisabled();
+			expect(
+				within( screen.getByTestId( 'inspector-controls' ) ).getByRole( 'button', { name: 'Edit' } )
+			).toBeEnabled();
 		} );
 
 		it( 'is greyed out while PayPal is disconnected', async () => {
@@ -9677,6 +9700,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			await expect( screen.findByText( 'Hosted ID' ) ).resolves.toBeInTheDocument();
 			expect( changeItem() ).toBeDisabled();
+			expect( screen.getByTestId( 'toolbar-Change item' ) ).toBeDisabled();
 			expect( listRequests() ).toHaveLength( 0 );
 		} );
 
@@ -9696,6 +9720,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			await waitFor( () => expect( listRequests() ).toHaveLength( 1 ) );
 			await waitFor( () => expect( changeItem() ).toBeEnabled() );
+			expect( screen.getByTestId( 'toolbar-Change item' ) ).toBeEnabled();
 		} );
 
 		it( 'offers the other links, without the one the block has, and goes back to the details', async () => {
@@ -9716,7 +9741,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			// The current button stays on the canvas while another link is picked.
 			expect( screen.getByTestId( 'paypal-button-preview' ) ).toBeInTheDocument();
 
-			await user.click( screen.getByRole( 'button', { name: 'Change item' } ) );
+			await user.click( changeItem() );
 
 			expect( screen.getByText( 'Hosted ID' ) ).toBeInTheDocument();
 			expect( setAttributes ).not.toHaveBeenCalled();
@@ -9899,6 +9924,88 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			);
 			expect( setAttributes ).not.toHaveBeenCalled();
 			expect( screen.getByRole( 'button', { name: /Baguette/ } ) ).toBeEnabled();
+		} );
+
+		it( 'opens the form and the sidebar from toolbar Edit, then the list from Change item', async () => {
+			const user = userEvent.setup();
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ), resource( 'PLB-B2', 'Baguette' ) ] );
+			renderSelected();
+			await waitFor( () => expect( changeItem() ).toBeEnabled() );
+			await user.click( changeItem() );
+
+			await user.click( screen.getByTestId( 'toolbar-Edit' ) );
+
+			expect( screen.getByLabelText( 'Product Name' ) ).toHaveValue( 'Croissant' );
+			expect( screen.queryByText( 'Choose a button to change' ) ).not.toBeInTheDocument();
+			expect( mockEnableComplementaryArea ).toHaveBeenCalledWith( 'core', 'edit-post/block' );
+
+			// Nothing changed, so no dialog.
+			await user.click( screen.getByTestId( 'toolbar-Change item' ) );
+
+			expect( screen.getByText( 'Choose a button to change' ) ).toBeInTheDocument();
+			expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'opens the list and the sidebar from toolbar Change item', async () => {
+			const user = userEvent.setup();
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ), resource( 'PLB-B2', 'Baguette' ) ] );
+			renderSelected();
+			await waitFor( () => expect( changeItem() ).toBeEnabled() );
+
+			await user.click( screen.getByTestId( 'toolbar-Change item' ) );
+
+			expect( screen.getByText( 'Choose a button to change' ) ).toBeInTheDocument();
+			expect( mockEnableComplementaryArea ).toHaveBeenCalledWith( 'core', 'edit-post/block' );
+		} );
+
+		it( 'asks before leaving an edited form from toolbar Change item, and X keeps the edits', async () => {
+			const user = userEvent.setup();
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ), resource( 'PLB-B2', 'Baguette' ) ] );
+			const view = renderSelected();
+			await openSavedForm();
+			view.rerender(
+				<Edit
+					attributes={ { ...saved, productName: 'Pain au chocolat' } }
+					setAttributes={ setAttributes }
+					clientId="a"
+					isSelected
+				/>
+			);
+
+			await user.click( screen.getByTestId( 'toolbar-Change item' ) );
+			expect( screen.getByRole( 'dialog', { name: 'Changes made' } ) ).toBeInTheDocument();
+			await user.click( screen.getByTestId( 'modal-close' ) );
+
+			expect( screen.getByLabelText( 'Product Name' ) ).toHaveValue( 'Pain au chocolat' );
+			// X forgets Change item, so Back then leaves for the details.
+			await user.click( screen.getByRole( 'button', { name: 'Edit Button' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Don’t save' } ) );
+			expect( screen.getByText( 'Hosted ID' ) ).toBeInTheDocument();
+		} );
+
+		it.each( [
+			[ 'Don’t save', user => user.click( screen.getByRole( 'button', { name: 'Don’t save' } ) ) ],
+			[ 'Save', user => user.click( screen.getByRole( 'button', { name: 'Save' } ) ) ],
+			[ 'a post save', () => act( () => postSaved() ) ],
+		] )( 'shows the list after %s in Changes made', async ( _name, answer ) => {
+			const user = userEvent.setup();
+			mockLinks( [ resource( 'PLB-A1', 'Croissant' ), resource( 'PLB-B2', 'Baguette' ) ] );
+			const view = renderSelected();
+			await openSavedForm();
+			view.rerender(
+				<Edit
+					attributes={ { ...saved, productName: 'Pain au chocolat' } }
+					setAttributes={ setAttributes }
+					clientId="a"
+					isSelected
+				/>
+			);
+			await user.click( screen.getByTestId( 'toolbar-Change item' ) );
+
+			await answer( user );
+
+			await expect( screen.findByText( 'Choose a button to change' ) ).resolves.toBeInTheDocument();
+			expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
 		} );
 	} );
 

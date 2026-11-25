@@ -21,6 +21,15 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
+	 * What a WoA site defines.
+	 */
+	const WOA = array(
+		'ATOMIC_SITE_ID'       => 123,
+		'ATOMIC_CLIENT_ID'     => 2,
+		'WPCOMSH__PLUGIN_FILE' => '/wpcomsh.php',
+	);
+
+	/**
 	 * The asset file the screen looks for, which decides whether it enqueues anything.
 	 *
 	 * @var string
@@ -71,6 +80,13 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 	private $registered_blocks = array();
 
 	/**
+	 * The theme directories before a test registered the test themes, or null when it did not.
+	 *
+	 * @var array|null
+	 */
+	private $theme_directories = null;
+
+	/**
 	 * Set up.
 	 */
 	public function set_up() {
@@ -98,7 +114,22 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 		remove_all_actions( 'enqueue_block_assets' );
 		remove_all_actions( 'enqueue_block_editor_assets' );
 
+		// In set-up too, so a platform constant another test class leaked cannot pick the default.
+		$this->reset_platform();
+
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+	}
+
+	/**
+	 * Clear the platforms a test may have stood this site up as, and the default read from them.
+	 */
+	private function reset_platform() {
+		foreach ( array( 'IS_WPCOM', 'IS_ATOMIC', 'ATOMIC_SITE_ID', 'ATOMIC_CLIENT_ID', 'WPCOMSH__PLUGIN_FILE' ) as $name ) {
+			Constants::clear_single_constant( $name );
+		}
+		\Automattic\Jetpack\Status\Cache::clear();
+
+		Jetpack_Email_Design_Editor::register_feature_flags();
 	}
 
 	/**
@@ -124,10 +155,12 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 
 		Constants::clear_single_constant( 'AT_PROXIED_REQUEST' );
 
-		// The platforms a test may have stood this site up as.
-		foreach ( array( 'IS_WPCOM', 'ATOMIC_SITE_ID', 'ATOMIC_CLIENT_ID', 'WPCOMSH__PLUGIN_FILE' ) as $name ) {
-			Constants::clear_single_constant( $name );
+		if ( null !== $this->theme_directories ) {
+			$GLOBALS['wp_theme_directories'] = $this->theme_directories;
+			$this->theme_directories         = null;
 		}
+
+		$this->reset_platform();
 
 		// Held for the request, so a test that turned offline mode off would otherwise answer for
 		// the next one. {@see self::allow_tracking()}
@@ -232,6 +265,26 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Stand this site up as the given platform, with core's test themes to switch between.
+	 *
+	 * @param array $constants What the platform defines.
+	 * @return void
+	 */
+	private function as_platform_with_test_themes( array $constants ) {
+		foreach ( $constants as $name => $value ) {
+			Constants::set_constant( $name, $value );
+		}
+		\Automattic\Jetpack\Status\Cache::clear();
+
+		$this->theme_directories = $GLOBALS['wp_theme_directories'];
+		register_theme_directory( DIR_TESTDATA . '/themedir1' );
+
+		// The rest of Jetpack's `admin_menu` callbacks expect a real wp-admin request.
+		remove_all_actions( 'admin_menu' );
+		Jetpack_Email_Design_Editor::init();
+	}
+
+	/**
 	 * The submenu entries registered under Appearance for the screen's slug.
 	 *
 	 * @return array
@@ -249,15 +302,75 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 		);
 	}
 
-	public function test_the_flag_is_registered_and_defaults_to_off() {
-		$this->assertNotNull( Feature_Flags::get( Jetpack_Email_Design_Editor::FEATURE_FLAG ) );
-		$this->assertFalse( Jetpack_Email_Design_Editor::is_enabled() );
+	/**
+	 * The default the flag is registered with right now.
+	 *
+	 * @return bool
+	 */
+	private function registered_default() {
+		$definition = Feature_Flags::get( Jetpack_Email_Design_Editor::FEATURE_FLAG );
+
+		$this->assertNotNull( $definition, 'The flag must be registered, or there is no default to read.' );
+
+		return (bool) $definition['default'];
 	}
 
-	public function test_the_flag_can_be_turned_on_by_filter() {
-		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Email_Design_Editor::FEATURE_FLAG, '__return_true' );
+	public function test_a_self_hosted_site_gets_the_screen_without_anyone_turning_it_on() {
+		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
+			$this->markTestSkipped( 'This process runs as Atomic, where the sticker rather than the default answers the flag.' );
+		}
 
+		Jetpack_Email_Design_Editor::init();
+
+		$this->assertTrue( $this->registered_default() );
 		$this->assertTrue( Jetpack_Email_Design_Editor::is_enabled() );
+	}
+
+	/**
+	 * @param array $constants What the platform defines.
+	 * @param bool  $expected  Whether the screen is on by default there.
+	 *
+	 * @dataProvider provide_platform_defaults
+	 */
+	#[PHPUnit\Framework\Attributes\DataProvider( 'provide_platform_defaults' )]
+	public function test_the_default_follows_the_platform( $constants, $expected ) {
+		if ( $expected && isset( $constants['ATOMIC_CLIENT_ID'] ) && defined( 'WPCOMSH__PLUGIN_FILE' ) ) {
+			$this->markTestSkipped( 'This process loads wpcomsh, which makes any Atomic platform site here WoA.' );
+		}
+
+		foreach ( $constants as $name => $value ) {
+			Constants::set_constant( $name, $value );
+		}
+		\Automattic\Jetpack\Status\Cache::clear();
+
+		Jetpack_Email_Design_Editor::register_feature_flags();
+
+		$this->assertSame( $expected, $this->registered_default() );
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function provide_platform_defaults() {
+		return array(
+			'Simple'                 => array( array( 'IS_WPCOM' => true ), false ),
+			'WoA'                    => array(
+				array(
+					'ATOMIC_SITE_ID'       => 123,
+					'ATOMIC_CLIENT_ID'     => 2,
+					'WPCOMSH__PLUGIN_FILE' => '/wpcomsh.php',
+				),
+				false,
+			),
+			'WP Cloud partner'       => array(
+				array(
+					'ATOMIC_SITE_ID'   => 123,
+					'ATOMIC_CLIENT_ID' => 3,
+				),
+				true,
+			),
+			'Atomic without wpcomsh' => array( array( 'IS_ATOMIC' => true ), true ),
+		);
 	}
 
 	/**
@@ -355,13 +468,17 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 	 * Simple or a self-hosted site, where there is no sticker to roll the a12 group back with.
 	 */
 	public function test_the_proxy_does_not_decide_the_flag_off_atomic() {
-		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
 			$this->markTestSkipped( 'This process runs as Atomic, which is what this test is about not being.' );
 		}
 
 		Constants::set_constant( 'AT_PROXIED_REQUEST', true );
 
 		Jetpack_Email_Design_Editor::init();
+
+		// At the default priority, so the Atomic filter sees this as the incoming value and the
+		// assertion is that its proxy clause cannot widen it.
+		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Email_Design_Editor::FEATURE_FLAG, '__return_false' );
 
 		$this->assertFalse( Jetpack_Email_Design_Editor::is_enabled() );
 	}
@@ -398,14 +515,122 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 
 		Jetpack_Email_Design_Editor::init();
 
+		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Email_Design_Editor::FEATURE_FLAG, '__return_false' );
+
 		$this->assertFalse( Jetpack_Email_Design_Editor::is_enabled() );
 
+		remove_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Email_Design_Editor::FEATURE_FLAG, '__return_false' );
 		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Email_Design_Editor::FEATURE_FLAG, '__return_true' );
 
 		$this->assertTrue( Jetpack_Email_Design_Editor::is_enabled() );
 	}
 
+	/**
+	 * Flex is Atomic too, but its WP Cloud client does not load wpcomsh, and wpcom leaves it out.
+	 *
+	 * @param array $constants What the platform defines.
+	 * @param bool  $expected  Whether a block theme brings the site in.
+	 *
+	 * @dataProvider provide_block_theme_platforms
+	 */
+	#[PHPUnit\Framework\Attributes\DataProvider( 'provide_block_theme_platforms' )]
+	public function test_a_block_theme_brings_only_a_woa_site_in( $constants, $expected ) {
+		$this->as_platform_with_test_themes( $constants );
+
+		switch_theme( 'block-theme' );
+
+		$this->assertSame( $expected, (bool) get_option( Jetpack_Email_Design_Editor::BLOCK_THEME_OPTION ) );
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function provide_block_theme_platforms() {
+		return array(
+			'WoA'         => array( self::WOA, true ),
+			'Flex'        => array(
+				array(
+					'ATOMIC_SITE_ID'       => 123,
+					'ATOMIC_CLIENT_ID'     => 150,
+					'WPCOMSH__PLUGIN_FILE' => false,
+				),
+				false,
+			),
+			'self-hosted' => array(
+				array(
+					'ATOMIC_SITE_ID'   => false,
+					'ATOMIC_CLIENT_ID' => false,
+				),
+				false,
+			),
+		);
+	}
+
+	/**
+	 * Once in, stays in: wpcom keeps sending the new emails, so the screen to edit them has to stay.
+	 */
+	public function test_a_later_classic_theme_keeps_the_site_in() {
+		$this->as_platform_with_test_themes( self::WOA );
+
+		switch_theme( 'block-theme' );
+		switch_theme( 'default' );
+		do_action( 'admin_menu' );
+
+		$this->assertFalse( wp_is_block_theme(), 'Precondition: the site must have left the block theme.' );
+		$this->assertTrue( (bool) get_option( Jetpack_Email_Design_Editor::BLOCK_THEME_OPTION ) );
+	}
+
+	/**
+	 * A site already on a block theme comes in on its next wp-admin load, with the screen in that same menu.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_a_site_already_on_a_block_theme_gets_the_screen_on_its_next_wp_admin_load() {
+		$this->stub_site_stickers( array() );
+		$this->as_platform_with_test_themes( self::WOA );
+
+		remove_action( 'switch_theme', array( 'Jetpack_Email_Design_Editor', 'maybe_mark_block_theme' ) );
+		switch_theme( 'block-theme' );
+		$this->assertFalse( get_option( Jetpack_Email_Design_Editor::BLOCK_THEME_OPTION ), 'Precondition: the switch must not have set it.' );
+
+		do_action( 'admin_menu' );
+
+		$this->assertTrue( (bool) get_option( Jetpack_Email_Design_Editor::BLOCK_THEME_OPTION ) );
+		$this->assertCount( 1, $this->appearance_entries_for_screen() );
+	}
+
+	public function test_a_classic_theme_alone_does_not_bring_a_woa_site_in() {
+		$this->as_platform_with_test_themes( self::WOA );
+
+		switch_theme( 'default' );
+		do_action( 'admin_menu' );
+
+		$this->assertFalse( get_option( Jetpack_Email_Design_Editor::BLOCK_THEME_OPTION ) );
+	}
+
+	/**
+	 * Spelled out rather than read from the constant: wpcom reads the option under this name through sync.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_the_synced_option_name_turns_the_screen_on_on_atomic_without_the_sticker() {
+		$this->stub_site_stickers( array() );
+		update_option( 'jetpack_email_design_enabled', 1 );
+
+		Jetpack_Email_Design_Editor::init();
+
+		$this->assertTrue( Jetpack_Email_Design_Editor::is_enabled() );
+	}
+
 	public function test_no_appearance_page_while_the_flag_is_off() {
+		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Email_Design_Editor::FEATURE_FLAG, '__return_false' );
+
 		Jetpack_Email_Design_Editor::add_admin_page();
 
 		$this->assertSame( array(), $this->appearance_entries_for_screen() );
@@ -583,6 +808,8 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 	 * screen has to be told so rather than left to link at a page that will refuse it.
 	 */
 	public function test_the_script_data_withholds_the_link_while_the_flag_is_off() {
+		add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Email_Design_Editor::FEATURE_FLAG, '__return_false' );
+
 		Jetpack_Email_Design_Editor::add_admin_page();
 
 		$data = Jetpack_Email_Design_Editor::add_script_data( array() );

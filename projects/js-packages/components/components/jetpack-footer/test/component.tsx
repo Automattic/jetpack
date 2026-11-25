@@ -9,7 +9,7 @@ describe( 'JetpackFooter', () => {
 	beforeEach( () => {
 		window.JetpackScriptData = {
 			site: {},
-			myJetpack: { isAvailable: true },
+			myJetpack: { isAvailable: true, isShownByHost: true },
 			user: { current_user: { capabilities: { manage_options: true } } },
 		} as unknown as typeof window.JetpackScriptData;
 	} );
@@ -131,22 +131,39 @@ describe( 'JetpackFooter', () => {
 			);
 		} );
 
-		it( 'links users who cannot see Features to Help only', () => {
-			window.JetpackScriptData.user.current_user.capabilities.manage_options = false;
+		it.each( [
+			[
+				'users who cannot see Features',
+				() => {
+					window.JetpackScriptData.user.current_user.capabilities.manage_options = false;
+				},
+				{},
+			],
+			[ 'a page that opts out of Features', () => {}, { showFeaturesLink: false } ],
+		] )( 'links %s to Help only', ( _case, setUp, props ) => {
+			setUp();
 
-			render( <JetpackFooter /> );
+			render( <JetpackFooter { ...props } /> );
 
 			expect( screen.queryByRole( 'link', { name: 'Features' } ) ).not.toBeInTheDocument();
 			expect( screen.getByRole( 'link', { name: 'Help' } ) ).toBeInTheDocument();
 		} );
 
-		it( 'hides default links on WordPress.com platform sites', () => {
-			window.JetpackScriptData.site.is_wpcom_platform = true;
+		it.each( [
+			[ 'shows', 'a WordPress.com site that shows My Jetpack', true, true ],
+			[ 'hides', 'a WordPress.com site whose host hides My Jetpack', true, false ],
+			[ 'hides', 'a self-hosted site whose host hides My Jetpack', false, false ],
+			[ 'hides', 'a WordPress.com site with an older My Jetpack package', true, undefined ],
+			[ 'shows', 'a self-hosted site with an older My Jetpack package', false, undefined ],
+		] )( '%s My Jetpack links on %s', ( expected, _site, isWpcomPlatform, isShownByHost ) => {
+			window.JetpackScriptData.site.is_wpcom_platform = isWpcomPlatform;
+			window.JetpackScriptData.myJetpack = { isAvailable: true, isShownByHost };
 
 			render( <JetpackFooter /> );
 
-			expect( screen.queryByRole( 'link', { name: 'Features' } ) ).not.toBeInTheDocument();
-			expect( screen.queryByRole( 'link', { name: 'Help' } ) ).not.toBeInTheDocument();
+			expect( screen.queryAllByRole( 'link', { name: /^(Features|Help)$/ } ) ).toHaveLength(
+				expected === 'shows' ? 2 : 0
+			);
 		} );
 
 		it( 'should match the snapshot', () => {

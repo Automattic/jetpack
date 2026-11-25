@@ -10,16 +10,15 @@ packages:
   - tools/port-verification
   - .github/files/coverage-munger
 
+autoDedupe: true
 engineStrict: true
+lockfile:
+  includeResolutionSettings: true
 pmOnFail: ignore
 preferWorkspacePackages: true
 
-# Feature is buggy in pnpm 11.5, e.g. https://github.com/pnpm/pnpm/issues/12100.
-optimisticRepeatInstall: false
-
 # Be strict about peer deps
 autoInstallPeers: false
-dedupePeerDependents: false
 dedupePeers: false
 strictPeerDependencies: true
 
@@ -39,9 +38,6 @@ minimumReleaseAgeExclude:
   - '@wordpress/*'
   - 'gridicons'
   - 'wpcom-proxy-request'
-  # Bump for deprecation
-  - tldts-core@7.4.22
-  - tldts@7.4.22
 
 trustPolicy: no-downgrade
 trustPolicyExclude:
@@ -54,16 +50,25 @@ trustPolicyExclude:
 # Package compromise avoidance: require dep build script approval.
 strictDepBuilds: true
 verifyDepsBeforeRun: install
-allowBuilds:
+permissions:
   # Tries to download/install stuff if optional deps weren't installed.
-  esbuild: false
-  unrs-resolver: false
+  esbuild:
+    build: false
+  unrs-resolver:
+    build: false
   # Tries to rebuild itself if an environment variable is set.
-  '@parcel/watcher': false
+  '@parcel/watcher':
+    build: false
   # Attempt to show "support me" spam.
-  core-js: false
-  core-js-pure: false
-  print-this: false
+  core-js:
+    build: false
+  core-js-pure:
+    build: false
+  print-this:
+    build: false
+  # Unaudited.
+  tsdown:
+    skills: false
 
 # Package compromise avoidance: Block odd protocols in subdeps
 blockExoticSubdeps: true
@@ -92,7 +97,4 @@ patchedDependencies:
   # It also restores the `boot-layout-container` class on the mount element,
   # which those older cores' Boot uses to size the page to the viewport; 0.22.0
   # dropped it and WordPress/gutenberg#82112 (unreleased) brings it back.
-  # The patch also preloads WordPress 7.1's site-data field list. Keep that preload
-  # until Jetpack's minimum WordPress version requests the @wordpress/build 0.26 list,
-  # even if upstream fixes init-module handling first.
   "@wordpress/build": .pnpm-patches/@wordpress__build.patch

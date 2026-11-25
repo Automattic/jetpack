@@ -32,6 +32,23 @@
 }
 
 /*
+ * `VisuallyHidden` empties the lockup but leaves it a flex item, so the row
+ * keeps its gap beside nothing: 8px the actions need. Out of flow it takes that
+ * gap with it, and `space-between` then puts the lone remaining child at the
+ * start, so the actions need their own right anchor.
+ */
+.tightHeader {
+
+	[class*="__header-lockup"] {
+		position: absolute;
+	}
+
+	[class*="__header-actions"] {
+		margin-inline-start: auto;
+	}
+}
+
+/*
  * Widget inserter DataViewsPicker: preview tiles are Cards whose default
  * padding is too roomy. Scope via the admin body class because the dialog
  * portals outside `.dashboard`. :global — class is not a CSS Module local.

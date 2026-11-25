@@ -979,6 +979,114 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
+	 * A price less the link's discount, as text.
+	 *
+	 * Takes the discount as saved, the way PayPal's builder preview does, so the
+	 * result can be $0.00 or negative. Matches discountedPrice() in utils/link-price.js.
+	 *
+	 * @since 0.15.0
+	 *
+	 * @param string $value      The price before the discount.
+	 * @param array  $attributes The link's block attributes.
+	 * @return string The formatted price, or '' when no discount applies.
+	 */
+	private static function discounted_price( $value, array $attributes ) {
+		$pattern  = '/^(\d+\.?\d*|\.\d+)$/';
+		$amount   = trim( (string) $value );
+		$discount = trim( (string) ( $attributes['discountValue'] ?? '' ) );
+		if (
+			empty( $attributes['discountEnabled'] )
+			|| ! preg_match( $pattern, $amount )
+			|| ! preg_match( $pattern, $discount )
+		) {
+			return '';
+		}
+
+		$currency = $attributes['currencyCode'] ?? 'USD';
+		$decimals = PayPal_Attribute_Mapper::is_zero_decimal_currency( $currency ) ? 0 : 2;
+		$scale    = 10 ** $decimals;
+		$cents    = self::round_decimal( $amount, $scale );
+		// PayPal rounds the discount half up to the currency's smallest unit, then subtracts it.
+		$off       = 'PERCENTAGE' === ( $attributes['discountType'] ?? '' )
+			? self::round_decimal( $discount, $cents, 100 )
+			: self::round_decimal( $discount, $scale );
+		$result    = $cents - $off;
+		$formatted = self::format_price( number_format( abs( $result ) / $scale, $decimals, '.', '' ), $currency );
+
+		return $result < 0 ? '-' . $formatted : $formatted;
+	}
+
+	/**
+	 * A decimal string times `$multiplier` over `$divisor`, rounded half up to a whole number.
+	 *
+	 * Multiplies the string's digits as an integer, so 1.005 or 64.6% rounds the same as
+	 * PayPal. Matches roundDecimal() in utils/link-price.js.
+	 *
+	 * @since 0.15.0
+	 *
+	 * @param string    $decimal    A decimal string, digits and at most one point.
+	 * @param int|float $multiplier What to multiply by.
+	 * @param int       $divisor    What to divide by after.
+	 * @return float The rounded result.
+	 */
+	private static function round_decimal( $decimal, $multiplier, $divisor = 1 ) {
+		$parts    = explode( '.', $decimal );
+		$fraction = $parts[1] ?? '';
+		$digits   = (float) ( $parts[0] . $fraction );
+
+		return round( ( $digits * $multiplier ) / ( $divisor * 10 ** strlen( $fraction ) ) );
+	}
+
+	/**
+	 * The discount tag text, with the value as entered.
+	 *
+	 * Matches discountLabel() in utils/link-price.js.
+	 *
+	 * @since 0.15.0
+	 *
+	 * @param array $attributes The link's block attributes.
+	 * @return string "10% discount" or "$2.00 discount".
+	 */
+	private static function discount_label( array $attributes ) {
+		$discount = trim( (string) ( $attributes['discountValue'] ?? '' ) );
+
+		if ( 'PERCENTAGE' === ( $attributes['discountType'] ?? '' ) ) {
+			return sprintf(
+				/* translators: %s: discount percentage, e.g. "10" */
+				__( '%s%% discount', 'jetpack-paypal-payments' ),
+				$discount
+			);
+		}
+
+		return sprintf(
+			/* translators: %s: formatted discount amount, e.g. "$2.00" */
+			__( '%s discount', 'jetpack-paypal-payments' ),
+			self::format_price( $discount, $attributes['currencyCode'] ?? 'USD' )
+		);
+	}
+
+	/**
+	 * A price, struck through with the discounted price after it when a discount applies.
+	 *
+	 * Matches DiscountedPrice in components/paypal-button-preview.jsx.
+	 *
+	 * @since 0.15.0
+	 *
+	 * @param string $value      The price before the discount.
+	 * @param array  $attributes The link's block attributes.
+	 * @return string The escaped price or the two prices.
+	 */
+	private static function discounted_price_html( $value, array $attributes ) {
+		$price      = esc_html( self::format_price( $value, $attributes['currencyCode'] ?? 'USD' ) );
+		$discounted = self::discounted_price( $value, $attributes );
+		if ( '' === $discounted ) {
+			return $price;
+		}
+
+		return '<s class="jetpack-paypal-button__original-price">' . $price . '</s> ' . esc_html( $discounted );
+	}
+
+	/**
 	 * The formatted price of a payment resource from PayPal.
 	 *
 	 * Matches resourcePrice() in utils/link-price.js.
@@ -1002,7 +1110,6 @@ class PayPal_Payment_Buttons {
 		$resource_id         = $attributes['resourceId'] ?? '';
 		$payment_url         = $attributes['paymentLink'] ?? '';
 		$product_name        = trim( (string) ( $attributes['productName'] ?? '' ) );
-		$currency            = $attributes['currencyCode'] ?? 'USD';
 		$product_description = trim( (string) ( $attributes['productDescription'] ?? '' ) );
 		$image_url           = $attributes['imageUrl'] ?? '';
 		$variants_enabled    = ! empty( $attributes['variantsEnabled'] );
@@ -1171,9 +1278,26 @@ class PayPal_Payment_Buttons {
 		$headline_price = self::link_price( $attributes );
 		$price_html     = '';
 		if ( '' !== $headline_price ) {
+			// With priced options the discount comes off the cheapest, the price the From headline shows.
+			$headline_value = '' !== $price ? $price : (string) self::get_lowest_variant_price( $variants );
+			$amount_html    = esc_html( $headline_price );
+			$discount_html  = '';
+			if ( '' !== self::discounted_price( $headline_value, $attributes ) ) {
+				$amount_html = self::discounted_price_html( $headline_value, $attributes );
+				if ( '' === $price ) {
+					$amount_html = sprintf(
+						/* translators: %s: formatted price, e.g. "$29.99" */
+						esc_html__( 'From %s', 'jetpack-paypal-payments' ),
+						$amount_html
+					);
+				}
+				$discount_html = '<span class="jetpack-paypal-button__discount">' . esc_html( self::discount_label( $attributes ) ) . '</span>';
+			}
+
 			$price_html = sprintf(
-				'<span class="jetpack-paypal-button__product-price">%s</span>',
-				esc_html( $headline_price )
+				'<span class="jetpack-paypal-button__product-price">%s</span>%s',
+				$amount_html,
+				$discount_html
 			);
 		}
 
@@ -1208,7 +1332,7 @@ class PayPal_Payment_Buttons {
 					$option_price = '';
 					if ( '' !== $option_value && $option_value !== $price ) {
 						$option_price = ' <span class="jetpack-paypal-button__variant-price">'
-							. esc_html( self::format_price( $option_value, $currency ) )
+							. self::discounted_price_html( $option_value, $attributes )
 							. '</span>';
 					}
 
@@ -1570,14 +1694,16 @@ class PayPal_Payment_Buttons {
 			)
 		);
 
-		// The stacked preview needs a same-origin URL it can point an iframe at, and
-		// the connection wizard a page PayPal can send the seller back to.
+		// The stacked preview needs a same-origin URL it can point an iframe at, the
+		// connection wizard a page PayPal can send the seller back to, and the editor
+		// bundle the URL its images load from.
 		wp_add_inline_script(
 			'jp-paypal-payments-ncps-blocks',
 			'window.jetpackPayPalPayments = ' . wp_json_encode(
 				array(
 					'sdkHostUrl'          => self::get_sdk_host_url(),
 					'onboardingReturnUrl' => self::get_onboarding_return_url(),
+					'assetsUrl'           => self::get_assets_url(),
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',
@@ -1592,6 +1718,18 @@ class PayPal_Payment_Buttons {
 	 */
 	public static function get_onboarding_return_url() {
 		return admin_url( 'admin-post.php?action=' . self::ONBOARDING_RETURN_ACTION );
+	}
+
+	/**
+	 * URL of the package build dir, which the editor script loads its images from.
+	 *
+	 * Passed in because JS concatenation on WordPress.com Simple serves the editor
+	 * script from a `_static` URL, which points at the wrong dir.
+	 *
+	 * @return string
+	 */
+	public static function get_assets_url() {
+		return trailingslashit( Assets::normalize_path( plugins_url( '../../dist', __FILE__ ) ) );
 	}
 
 	/**

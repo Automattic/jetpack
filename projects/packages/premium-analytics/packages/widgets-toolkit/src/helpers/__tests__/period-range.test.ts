@@ -16,22 +16,27 @@ const bounds = {
 describe( 'monthRange', () => {
 	it( 'opens a whole month inside the post life', () => {
 		expect( monthRange( { year: 2026, month: 5 }, bounds ) ).toEqual( {
-			from: new Date( '2026-06-01T00:00:00.000Z' ),
-			to: new Date( '2026-06-30T23:59:59.999Z' ),
+			range: {
+				from: new Date( '2026-06-01T00:00:00.000Z' ),
+				to: new Date( '2026-06-30T23:59:59.999Z' ),
+			},
+			step: 'P1M',
 		} );
 	} );
 
-	it( 'starts the first month on the day the life starts', () => {
+	it( 'starts the first month on the day the life starts, leaving its step to the arrows', () => {
 		expect( monthRange( { year: 2026, month: 3 }, bounds ) ).toEqual( {
-			from: new Date( '2026-04-10T00:00:00.000Z' ),
-			to: new Date( '2026-04-30T23:59:59.999Z' ),
+			range: {
+				from: new Date( '2026-04-10T00:00:00.000Z' ),
+				to: new Date( '2026-04-30T23:59:59.999Z' ),
+			},
 		} );
 	} );
 
-	it( 'ends the current month now', () => {
+	it( 'ends the current month now, still stepping it by the month', () => {
 		expect( monthRange( { year: 2026, month: 8 }, bounds ) ).toEqual( {
-			from: new Date( '2026-09-01T00:00:00.000Z' ),
-			to: bounds.now,
+			range: { from: new Date( '2026-09-01T00:00:00.000Z' ), to: bounds.now },
+			step: 'P1M',
 		} );
 	} );
 
@@ -39,7 +44,7 @@ describe( 'monthRange', () => {
 		const range = monthRange(
 			{ year: 2026, month: 5 },
 			{ ...bounds, timeZone: 'America/New_York' }
-		);
+		)?.range;
 
 		expect( range?.from.toISOString() ).toBe( '2026-06-01T04:00:00.000Z' );
 		expect( range?.to.toISOString() ).toBe( '2026-07-01T03:59:59.999Z' );
@@ -54,17 +59,19 @@ describe( 'monthRange', () => {
 		expect(
 			monthRange( { year: 2026, month: 0 }, { ...bounds, lifeStartsAt: undefined } )
 		).toEqual( {
-			from: new Date( '2026-01-01T00:00:00.000Z' ),
-			to: new Date( '2026-01-31T23:59:59.999Z' ),
+			range: {
+				from: new Date( '2026-01-01T00:00:00.000Z' ),
+				to: new Date( '2026-01-31T23:59:59.999Z' ),
+			},
+			step: 'P1M',
 		} );
 	} );
 } );
 
 describe( 'yearRange', () => {
-	it( 'opens the year cut to the post life', () => {
+	it( 'opens the year cut to the post life, leaving its step to the arrows', () => {
 		expect( yearRange( 2026, bounds ) ).toEqual( {
-			from: new Date( '2026-04-10T00:00:00.000Z' ),
-			to: bounds.now,
+			range: { from: new Date( '2026-04-10T00:00:00.000Z' ), to: bounds.now },
 		} );
 	} );
 
@@ -72,8 +79,11 @@ describe( 'yearRange', () => {
 		expect(
 			yearRange( 2025, { ...bounds, lifeStartsAt: new Date( '2024-01-01T00:00:00Z' ) } )
 		).toEqual( {
-			from: new Date( '2025-01-01T00:00:00.000Z' ),
-			to: new Date( '2025-12-31T23:59:59.999Z' ),
+			range: {
+				from: new Date( '2025-01-01T00:00:00.000Z' ),
+				to: new Date( '2025-12-31T23:59:59.999Z' ),
+			},
+			step: 'P1Y',
 		} );
 	} );
 
@@ -93,8 +103,11 @@ describe( 'bucketRange', () => {
 		expect(
 			bucketRange( { date: new Date( '2026-07-22T00:00:00Z' ) }, 'week', window, clock )
 		).toEqual( {
-			from: new Date( '2026-07-20T00:00:00.000Z' ),
-			to: new Date( '2026-07-26T23:59:59.999Z' ),
+			range: {
+				from: new Date( '2026-07-20T00:00:00.000Z' ),
+				to: new Date( '2026-07-26T23:59:59.999Z' ),
+			},
+			step: 'P7D',
 		} );
 	} );
 
@@ -105,8 +118,11 @@ describe( 'bucketRange', () => {
 		expect(
 			bucketRange( { date: new Date( '2026-07-21T20:00:00Z' ) }, 'day', window, auckland )
 		).toEqual( {
-			from: new Date( '2026-07-21T12:00:00.000Z' ),
-			to: new Date( '2026-07-22T11:59:59.999Z' ),
+			range: {
+				from: new Date( '2026-07-21T12:00:00.000Z' ),
+				to: new Date( '2026-07-22T11:59:59.999Z' ),
+			},
+			step: 'P1D',
 		} );
 	} );
 
@@ -117,30 +133,37 @@ describe( 'bucketRange', () => {
 		};
 
 		expect( bucketRange( sundayWeek, 'week', window, clock ) ).toEqual( {
-			from: new Date( '2026-10-18T00:00:00.000Z' ),
-			to: new Date( '2026-10-24T23:59:59.999Z' ),
+			range: {
+				from: new Date( '2026-10-18T00:00:00.000Z' ),
+				to: new Date( '2026-10-24T23:59:59.999Z' ),
+			},
+			step: 'P7D',
 		} );
 	} );
 
+	// A bucket cut at its start is stepped by its days, so Previous then Next returns to
+	// it; one cut at its end, today's say, still steps by its own unit.
 	it.each( [
 		[
 			'leading',
 			{ from: localTZDate( '2026-07-22T00:00:00.000Z', 'UTC' ), to: window.to },
 			'2026-07-22T00:00:00.000Z',
 			'2026-07-26T23:59:59.999Z',
+			undefined,
 		],
 		[
 			'trailing',
 			{ from: window.from, to: localTZDate( '2026-07-22T23:59:59.999Z', 'UTC' ) },
 			'2026-07-20T00:00:00.000Z',
 			'2026-07-22T23:59:59.999Z',
+			'P7D',
 		],
-	] )( 'cuts a partial %s edge bucket to the window', ( _edge, partial, from, to ) => {
+	] )( 'cuts a partial %s edge bucket to the window', ( _edge, partial, from, to, step ) => {
 		expect(
 			bucketRange( { date: new Date( '2026-07-22T00:00:00Z' ) }, 'week', partial, clock )
 		).toEqual( {
-			from: new Date( from ),
-			to: new Date( to ),
+			range: { from: new Date( from ), to: new Date( to ) },
+			...( step ? { step } : {} ),
 		} );
 	} );
 

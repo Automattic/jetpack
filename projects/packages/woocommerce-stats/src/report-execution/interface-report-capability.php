@@ -13,7 +13,7 @@ namespace Automattic\Jetpack\WooCommerceStats\Report_Execution;
  *
  * @internal Not a stable contract yet: the signature changes in the next steps.
  *
- * @since $$next-version$$
+ * @since 0.4.0
  */
 interface Report_Capability {
 

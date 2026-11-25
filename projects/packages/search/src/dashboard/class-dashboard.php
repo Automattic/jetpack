@@ -87,6 +87,13 @@ class Dashboard {
 	protected $search_menu_priority = 1;
 
 	/**
+	 * Whether the admin shell's hover request is readying Search behind another dashboard, where nothing may be saved.
+	 *
+	 * @var bool
+	 */
+	private $is_admin_shell_guest = false;
+
+	/**
 	 * Contructor
 	 *
 	 * @param \Automattic\Jetpack\Search\Plan           $plan - Plan instance.
@@ -130,7 +137,7 @@ class Dashboard {
 	 *
 	 * The page is registered for every admin, with or without a menu entry, so links to it switch in place.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.4.3
 	 *
 	 * @param array $members Shell members keyed by admin page slug.
 	 * @return array
@@ -160,14 +167,26 @@ class Dashboard {
 	/**
 	 * Ready the Search routes and page data while another dashboard's page is open, without the screen ID alias.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.4.3
 	 *
 	 * @return void
 	 */
 	public function load_as_admin_shell_guest() {
+		// The shell also runs this on other dashboards' pages, to ready Search for a switch.
+		$this->is_admin_shell_guest = self::is_admin_shell_guest_request();
 		if ( $this->load_wp_build( false ) ) {
 			$this->admin_init();
 		}
+	}
+
+	/**
+	 * Whether this is the admin shell's hover request, which readies Search behind another dashboard.
+	 *
+	 * @return bool
+	 */
+	private static function is_admin_shell_guest_request() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Compared only; the shell checks the nonce.
+		return wp_doing_ajax() && isset( $_GET['action'] ) && Admin_Shell::GUEST_ACTION === wp_unslash( $_GET['action'] );
 	}
 
 	/**
@@ -186,7 +205,7 @@ class Dashboard {
 	/**
 	 * Load the wp-build bundle and its polyfills.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.4.3
 	 *
 	 * @param bool $alias Whether to alias the screen ID. Pass false to ready the routes on another page, which must not boot it.
 	 * @return bool Whether the build exists.
@@ -211,7 +230,14 @@ class Dashboard {
 
 		WP_Build_Polyfills::register(
 			'jetpack-search',
-			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )
+			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS ),
+			null,
+			array(
+				array(
+					'prefix' => 'jetpack_search',
+					'slug'   => self::WP_BUILD_PAGE_ID,
+				),
+			)
 		);
 		return true;
 	}
@@ -408,7 +434,7 @@ class Dashboard {
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
 		wp_add_inline_script(
 			self::DATA_SCRIPT_HANDLE,
-			( new Initial_State() )->render(),
+			( new Initial_State( null, null, $this->is_admin_shell_guest ) )->render(),
 			'before'
 		);
 

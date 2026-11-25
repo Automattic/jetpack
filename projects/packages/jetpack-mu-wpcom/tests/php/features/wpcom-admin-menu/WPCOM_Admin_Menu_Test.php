@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Scan;
+use Automattic\Jetpack\Monetize\Dashboard as Monetize_Dashboard;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -31,6 +32,15 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 			\Automattic\Jetpack\Current_Plan::update_from_site_record( array( 'plan' => array( 'product_slug' => $slug ) ) );
 			$this->assertSame( $available, apply_filters( 'jetpack_my_jetpack_modules_management_available', true ), $slug );
 		}
+
+		$flag_filter = 'jetpack_feature_flag_enabled_' . WPCOM_MY_JETPACK_ALL_ATOMIC_PLANS_FLAG;
+		$resolutions = did_filter( $flag_filter );
+		apply_filters( 'jetpack_my_jetpack_modules_management_available', true );
+		$this->assertSame( $resolutions, did_filter( $flag_filter ), 'business-bundle must not resolve the flag' );
+
+		add_filter( $flag_filter, '__return_true' );
+		\Automattic\Jetpack\Current_Plan::update_from_site_record( array( 'plan' => array( 'product_slug' => 'personal-bundle' ) ) );
+		$this->assertTrue( apply_filters( 'jetpack_my_jetpack_modules_management_available', true ), 'personal-bundle with the flag on' );
 	}
 
 	/**
@@ -90,6 +100,17 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 		Status_Cache::clear();
 		remove_all_filters( 'rsm_jetpack_ui_modernization_newsletter' );
 		remove_all_filters( 'rsm_jetpack_ui_modernization_backup' );
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . WPCOM_MY_JETPACK_ALL_ATOMIC_PLANS_FLAG );
+		$reset_plan_cache = Closure::bind(
+			/** @phan-closure-scope \Automattic\Jetpack\Current_Plan */
+			static function () {
+				// An empty array is a cache miss for Current_Plan::get().
+				self::$active_plan_cache = array();
+			},
+			null,
+			\Automattic\Jetpack\Current_Plan::class
+		);
+		$reset_plan_cache();
 		WPCOM_Scan::reset();
 		unset( $GLOBALS['wpcom_site_stickers_test_value'] );
 		delete_option( 'wpcom_admin_interface' );
@@ -363,7 +384,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Simple sites keep the Calypso Activity Log link and hide the native page.
+	 * Simple sites without the Activity Log package keep the Calypso link and hide the native page.
 	 *
 	 * Runs in a separate process because `wpcom_add_jetpack_submenu()` detects Simple
 	 * sites through the real `IS_WPCOM` constant.
@@ -373,7 +394,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_jetpack_submenu_links_activity_log_to_calypso_on_simple_sites() {
+	public function test_jetpack_submenu_links_activity_log_to_calypso_on_simple_sites_without_the_package() {
 		if ( ! defined( 'IS_WPCOM' ) ) {
 			define( 'IS_WPCOM', true );
 		}
@@ -410,7 +431,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Sets up a Simple site with an admin and the native Activity Log flag on.
+	 * Sets up a Simple site with an admin and the bundled Activity Log package.
 	 *
 	 * Callers run in a separate process, because `wpcom_add_jetpack_submenu()` reads the real `IS_WPCOM` constant.
 	 *
@@ -436,20 +457,19 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 		require_once __DIR__ . '/fixtures/class-jetpack-activity-log.php';
 		// @phan-suppress-next-line PhanUndeclaredClassStaticProperty -- Declared in a fixture excluded from Phan, as the real package is.
 		\Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log::$supports_simple = $package_supports_simple;
-		add_filter( 'jetpack_feature_flag_enabled_' . WPCOM_NATIVE_ACTIVITY_LOG_FLAG, '__return_true' );
 
 		return wp_parse_url( home_url(), PHP_URL_HOST );
 	}
 
 	/**
-	 * With the flag on, Simple sites show the native page instead of the Calypso link.
+	 * Simple sites show the native page instead of the Calypso link by default.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_jetpack_submenu_shows_native_activity_log_on_simple_sites_when_flagged() {
+	public function test_jetpack_submenu_shows_native_activity_log_on_simple_sites() {
 		$domain = $this->set_up_simple_site_with_native_activity_log( true );
 
 		wpcom_add_jetpack_submenu();
@@ -461,15 +481,34 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Jetpack deploys separately, so the flag can be on while the bundled package predates Simple support.
+	 * Cases where a Simple site keeps the Calypso Activity Log link.
 	 *
+	 * @return array
+	 */
+	public static function provide_calypso_activity_log_fallback_cases() {
+		return array(
+			// Jetpack deploys separately, so the bundled package can predate Simple support.
+			'package predates Simple support' => array( false, true ),
+			'flag switched off'               => array( true, false ),
+		);
+	}
+
+	/**
+	 * Simple sites fall back to the Calypso link when the native page cannot or should not register.
+	 *
+	 * @dataProvider provide_calypso_activity_log_fallback_cases
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
+	 *
+	 * @param bool $package_supports_simple Whether the bundled package can register the page on Simple.
+	 * @param bool $flag_enabled            Whether the native Activity Log flag is on.
 	 */
+	#[DataProvider( 'provide_calypso_activity_log_fallback_cases' )]
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_jetpack_submenu_falls_back_to_calypso_activity_log_when_the_package_cannot_register() {
-		$domain = $this->set_up_simple_site_with_native_activity_log( false );
+	public function test_jetpack_submenu_falls_back_to_calypso_activity_log( $package_supports_simple, $flag_enabled ) {
+		$domain = $this->set_up_simple_site_with_native_activity_log( $package_supports_simple );
+		add_filter( 'jetpack_feature_flag_enabled_' . WPCOM_NATIVE_ACTIVITY_LOG_FLAG, $flag_enabled ? '__return_true' : '__return_false' );
 
 		wpcom_add_jetpack_submenu();
 
@@ -579,6 +618,41 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Jetpack > Monetize opens the wp-admin page once it has loaded, and Calypso otherwise.
+	 *
+	 * @dataProvider provide_monetize_page_states
+	 *
+	 * @param bool   $loaded   Whether the Monetize page loaded.
+	 * @param string $expected The Jetpack > Monetize item's slug, `%domain%` standing for the site's.
+	 */
+	#[DataProvider( 'provide_monetize_page_states' )]
+	public function test_jetpack_submenu_opens_monetize_where_its_page_loaded( $loaded, $expected ) {
+		global $submenu;
+
+		\Jetpack_Options::update_option( 'id', 200 );
+		if ( $loaded ) {
+			Monetize_Dashboard::init();
+		}
+
+		wpcom_add_jetpack_submenu();
+
+		$monetize = array_values( array_filter( $submenu['jetpack'], fn( $item ) => 'Monetize' === $item[0] ) );
+		$this->assertSame( array( str_replace( '%domain%', self::$domain, $expected ) ), array_column( $monetize, 2 ) );
+	}
+
+	/**
+	 * Data provider for test_jetpack_submenu_opens_monetize_where_its_page_loaded.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_monetize_page_states() {
+		return array(
+			'page loaded'     => array( true, Monetize_Dashboard::MENU_SLUG ),
+			'page not loaded' => array( false, 'https://wordpress.com/earn/%domain%' ),
+		);
+	}
+
+	/**
 	 * Tests wpcom_add_hosting_menu
 	 */
 	public function test_add_hosting_menu() {
@@ -589,14 +663,14 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 		// Find the Hosting menu item.
 		$hosting_menu = null;
 		foreach ( $menu as $item ) {
-			if ( strpos( $item[2], 'https://wordpress.com/overview/' ) !== false ) {
+			if ( strpos( $item[2], 'https://my.wordpress.com/sites/' ) !== false ) {
 				$hosting_menu = $item;
 				break;
 			}
 		}
 
 		$this->assertNotNull( $hosting_menu, 'Hosting menu item should exist.' );
-		$this->assertSame( 'https://wordpress.com/overview/' . self::$domain, $hosting_menu[2] );
+		$this->assertSame( 'https://my.wordpress.com/sites/' . self::$domain, $hosting_menu[2] );
 		$this->assertStringContainsString( 'inline-icon', $hosting_menu[0] );
 		$this->assertStringContainsString( 'dashicons-external', $hosting_menu[0] );
 	}

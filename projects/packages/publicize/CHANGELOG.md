@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.90.0] - 2026-11-23
+### Added
+- Social: Add abilities to list connections, share a published post and delete a connection. [#54547]
+
+### Changed
+- Abilities: Mark abilities as public with the `meta.public` flag. [#55104]
+- Abilities: Register the Jetpack Social abilities by default when sharing is on, and leave their output shape and the other abilities out of their descriptions. [#53563]
+- Admin shell: Let Social join the shell on WordPress.com Simple sites too. [#55084]
+- Admin shell: Record one tab view, not two, when the shell reopens Social at another tab. [#55089]
+- Admin shell: Record the tab view again when the shell shows the Social page again. [#55078]
+- Dashboard: Load the media library when the default image picker opens it, instead of on every page load. [#55123]
+- Update dependencies. [#55058]
+
+## [0.89.0] - 2026-11-16
+### Added
+- Admin shell: Join the admin shell, loading the dashboard's page data from a new REST endpoint when it opens from another Jetpack dashboard, so switching between dashboards skips the page load when the admin shell flag is on. [#54821]
+- Block editor: Add a "Social preview" item to the Preview dropdown that opens the link preview. [#54636]
+
+### Changed
+- Admin shell: Declare the page title and subtitle shown while the dashboard opens, when the admin shell flag is on. [#54945]
+- Replace the deprecated ResponsiveWrapper component in the media picker. [#54743]
+- Social Image Generator: Allow WebP background images. [#54733]
+- Update package dependencies. [#54703]
+
+### Fixed
+- Fix the missing icon on the remove button of the default image picker. [#54743]
+
 ## [0.88.10] - 2026-11-09
 ### Changed
 - Connections list: Use the design system switch for the connection toggles. [#54512]
@@ -1743,6 +1770,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.90.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.89.0...v0.90.0
+[0.89.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.10...v0.89.0
 [0.88.10]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.9...v0.88.10
 [0.88.9]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.8...v0.88.9
 [0.88.8]: https://github.com/Automattic/jetpack-publicize/compare/v0.88.7...v0.88.8

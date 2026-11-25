@@ -1,5 +1,4 @@
 @use "../../styles/hover-action" as *;
-@use "../../styles/widget-text" as *;
 
 .container {
 	min-inline-size: 0;
@@ -8,8 +7,6 @@
 }
 
 .label {
-
-	@include widget-text-weight;
 	min-inline-size: 0;
 	overflow: hidden;
 	font-size: var(--wpds-typography-font-size-md);
@@ -165,6 +162,17 @@
 	flex: none;
 	position: relative;
 	z-index: 1;
+}
+
+/* A mark at the row's start, as classic Stats drew a post published in the
+ * period. */
+.indicated::before {
+	content: "";
+	position: absolute;
+	inset-block: 0;
+	inset-inline-start: 0;
+	inline-size: var(--wpds-border-width-md);
+	background-color: var(--wpds-color-foreground-interactive-brand);
 }
 
 /* DataViews picker cells stretch media images to 100%. Widget previews render

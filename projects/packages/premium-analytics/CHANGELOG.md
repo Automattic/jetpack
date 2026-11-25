@@ -5,6 +5,93 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.19.0] - 2026-11-23
+### Added
+- Add a feature flag for the AI tab. [#55284]
+- Dashboard: Add a What's new teaser with the announcements of the dashboard, behind a feature flag that is off by default. [#55054]
+- Dashboard: Track how readers use the Arrange tabs dialog. [#54983]
+- Date control: Add a zoom-out button beside the arrows that returns to the period a chart was zoomed in from. [#54774]
+- Email tabs: Add a time-since-send control to the opens and clicks charts on the post page's email tabs: the first 24 hours by the hour, the first week or 30 days by the day, or all time by the month. [#54835]
+- Join the Jetpack admin shell, so switching to and from Stats does not reload the page. [#54915]
+- Reload the analytics dashboard once when part of it fails to load after an update, instead of showing an error. [#54669]
+- Report uncaught dashboard JavaScript errors to WordPress.com for WordPress.com users on WordPress.com Simple and Atomic sites. [#54669]
+- Settings: Add a switch that turns the What's new teaser off, behind the feature flag of the teaser. [#55245]
+- Single-report pages: Add a report for an individual page at /report/page/<id>, with the same sections as a post. [#54991]
+
+### Changed
+- Dashboard: Let another plugin load the dashboard API and the shared script modules without booting Stats v2. [#55149]
+- Dashboard: Show a What's new announcement only on the pages it is published for, with a channel per page. [#55255]
+- Single-report pages: Offer a post type's page only where the type is registered in REST, and give the page report its own section and cards. [#55152]
+- Stats: Retire the classic Stats page by default, so Stats and old Stats links open the new Stats on every site. [#55286]
+- Stats options menu: Rename the page options menu to Stats options, and show it on the report, connect and upgrade pages so Settings can be reached from every page. [#55086]
+
+### Removed
+- Settings: Remove the WordPress.com Reader "Show post views for this site" setting, which no longer has any effect. [#54987]
+
+### Fixed
+- Charts: Decide a percentage axis from the series the legend leaves visible, so hiding a rate above 100% returns the others to a 0% to 100% axis. [#54979]
+- Charts: Name a whole month by its month and year in tooltips, not by its first day. [#55330]
+- Date control: Step from a chart bar clicked today by the bar's own unit, so the arrows land on the whole of yesterday, last week or last month. [#54777]
+- Draw the legend labels and values in breakdown charts such as Devices, and the links in a video's Used on posts & pages card, at the same 14px size as the rest of the widget text. [#55235]
+- Keep the days, the Locations tab and the video an old Stats link names when it opens the dashboard. [#54981]
+- Number formatting: Keep the decimal in short figures shown in lakh, crore or 万, so 9.5 lakh no longer shows as 9 lakh. [#55288]
+- Open the matching report for old Stats links to a summary page, such as referrers or search terms, and today by the hour for the old hourly Traffic link, instead of the Traffic tab or the dashboard root. [#54935]
+- Stop the customize buttons covering the breadcrumb trail on a narrow screen. [#55138]
+- Top pages: Mark the posts and pages published in the selected period, as classic Stats did. [#55166]
+- Traffic chart: Open today's bar over the whole day, so its hourly chart keeps 24 bars all day. [#55072]
+- Upgrade page: Price the Stats tiers for the visitor's location instead of the site's server when the user has not connected a WordPress.com account. [#55296]
+
+## [0.18.0] - 2026-11-16
+### Added
+- Add Download CSV to the Devices and Top platforms cards. [#54843]
+- Add Download CSV to the post, video and email detail cards. [#54849]
+- Add Download CSV to the Traffic summary card. [#54842]
+- Add Download CSV to the Views over years, Monthly posting activity, Shares and Subscriber summary cards. [#54848]
+- Dashboard: Add an Arrange tabs option to the page options menu, to reorder the tabs and choose the one that opens first. [#54806]
+- Date controls: Add a Last 3 years period to the date menu, charted by years, so traffic can be compared year by year without picking a custom range. [#54667]
+- Date controls: Offer a yearly chart interval on any date range that covers three calendar years. [#54667]
+- Single-report pages: Serve the author page from /report/author/<id>, rendered from its registered record; the old /author/<id> address redirects. [#54184]
+- Single-report pages: Serve the post page from /report/post/<id>, rendered from its registered record with its three sections; the old /post/<id> address redirects. [#54183]
+- Widget SDK: add `useOpenChartBucket`, which opens a clicked chart bucket, from either period, as the dashboard period (2.4.0). [#54573]
+
+### Changed
+- Dashboard: Preload the open screen's code and the first REST responses, so the first widgets appear sooner. [#54730]
+- Dashboard: Request the dashboard sections and widget types while the page is still loading the site details, instead of after. [#54784]
+- Dashboard: Start loading stats without waiting for the site settings when the dashboard opens with no dates in its URL. [#54775]
+- Date controls: Simplify how a period a widget sets is signalled to the date control. [#54727]
+- Date filters: Measure a comparison with one implementation for reading and writing the URL. [#54723]
+- Draw the text inside dashboard widgets at 14px, as classic Stats did, with headline figures in bold, so lists and figures are easier to read. [#54977]
+- Make view counts easier to compare across the heatmaps, so quiet periods can be told apart instead of sharing one pale shade, and mark months the data does not yet fill. [#54838]
+- Settings: Move the Stats settings from a dashboard tab to their own page, reached from the page options menu. [#54801]
+- Show the view options of Top pages, Top platforms, Latest emails sent, All-time traffic and Views over years as one-click toggles instead of a dropdown. [#54927]
+- Single-report pages: Let the VideoPress package register the video page instead of registering it here. [#54185]
+- Single-report pages: Open on the date range of the page that linked to them, instead of All time. [#54783]
+- Stats: Leave a bar chart column empty when its value is zero, instead of drawing a thin bar that looks like a small count. [#54850]
+- Top locations: Show Countries, Regions and Cities as one-click toggles instead of a dropdown. [#54803]
+- Update package dependencies. [#54703]
+
+### Removed
+- Dashboard: Remove the Site overview, Post traffic activity, Total views, Total visitors, Popular days, Popular hours and Hello World widgets, which no layout or widget picker offered. [#54921]
+
+### Fixed
+- Arrange tabs: Keep the place of a tab that is hidden when the order is saved. [#54868]
+- Charts: Let a percentage axis grow with the data once a value passes 100%, so a video's retention rate above 100% stays inside the chart. [#54937]
+- Charts: Stop hourly charts from showing a clickable cursor when a click opens nothing. [#54573]
+- Dates: Keep the month in month labels for Japanese, Chinese and Korean sites, which showed a day marker instead (2021年1日 rather than 2021年1月). [#54793]
+- Dates: Use the locale's default date format when the site's Date Format setting lacks a day, month or year, so chart labels and the date selector stay unambiguous. [#54793]
+- Improve page transitions between reports and detail views. [#54614]
+- Keep the widget title from being cut off beside a toggle, so the toggle folds into the widget controls menu at the same width whichever way the widget is resized. [#54927]
+- Metric tiles: Pick the layout from the size of the tiles' own box, so highlights stay in columns after switching dashboard tabs. [#54683]
+- Open the dashboard for `admin.php?page=stats` on WordPress 7.2, which reports an unregistered page as not found instead of denied. [#54800]
+- Shorten the breadcrumb trail and hide the Customizing badge on phones, instead of letting them cover the header buttons. [#54844]
+- Show metric cards as a list when the card is too narrow for every metric to fit side by side, instead of cutting off the figures. [#54923]
+- Single-report pages: Name an untitled post, author or video in the last breadcrumb as the header does. [#54928]
+- Single-report pages: Show the Jetpack footer on the video page again. [#54183]
+- Stats: Move an old Year to date or All time link to today's window when its saved interval no longer fits, so the address bar matches the charts. [#54722]
+- Stats: Move a preset's dates to the new day when a page is left open past midnight, so the numbers and the date controls include today. [#54721]
+- Stop a long post title from widening the page on desktop, so the header buttons stay in view. [#54847]
+- Widget header toggles: Keep the side padding on the longer of two options, such as Posts & pages on the Top pages card. [#54942]
+
 ## [0.17.0] - 2026-11-09
 ### Added
 - Offer a quarterly interval in the Traffic summary and the WooCommerce tab on ranges of a year or longer. [#54455]
@@ -754,6 +841,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - VideoPress: Add a video detail page with plays leaderboard, video highlights, and embed locations. [#50311] [#50536]
 - WordAds: Add widgets for ads served, average CPM and revenue over time, all-time earnings highlights, and earnings, sponsored content and adjustments history. [#50314] [#50490]
 
+[0.19.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.18.0...0.19.0
+[0.18.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.17.0...0.18.0
 [0.17.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.16.0...0.17.0
 [0.16.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.15.0...0.16.0
 [0.15.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.14.0...0.15.0

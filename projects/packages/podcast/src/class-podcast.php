@@ -16,7 +16,7 @@ use Automattic\Jetpack\Status\Host;
  */
 class Podcast {
 
-	const PACKAGE_VERSION = '2.2.6';
+	const PACKAGE_VERSION = '2.2.8';
 
 	/**
 	 * Whether the class has been initialized.
@@ -24,6 +24,43 @@ class Podcast {
 	 * @var bool
 	 */
 	private static $initialized = false;
+
+	/**
+	 * Limit a posts REST query for the podcast category to posts with an audio
+	 * or podcast episode block.
+	 *
+	 * @param array            $args    WP_Query args.
+	 * @param \WP_REST_Request $request REST request.
+	 * @return array
+	 */
+	public static function limit_episode_query( $args, $request ) {
+		$requested = array_map( 'intval', (array) $request->get_param( 'categories' ) );
+		if ( 1 !== count( $requested ) || 0 === $requested[0] || Customize_Feed::resolve_category_id() !== $requested[0] ) {
+			return $args;
+		}
+
+		$args['jetpack_podcast_episodes'] = true;
+		return $args;
+	}
+
+	/**
+	 * Restrict a flagged query to posts whose content has an audio or podcast episode block.
+	 *
+	 * @param string    $where WHERE clause.
+	 * @param \WP_Query $query Query.
+	 * @return string
+	 */
+	public static function limit_episode_where( $where, $query ) {
+		if ( ! $query->get( 'jetpack_podcast_episodes' ) ) {
+			return $where;
+		}
+
+		global $wpdb;
+		$audio   = '%' . $wpdb->esc_like( '<!-- wp:audio ' ) . '%';
+		$episode = '%' . $wpdb->esc_like( '<!-- wp:jetpack/podcast-episode ' ) . '%';
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Prepared below.
+		return $where . $wpdb->prepare( " AND ( {$wpdb->posts}.post_content LIKE %s OR {$wpdb->posts}.post_content LIKE %s )", $audio, $episode );
+	}
 
 	/**
 	 * Initialize the package. Loads unconditionally; callers decide whether to.
@@ -45,6 +82,9 @@ class Podcast {
 		// Wire the RSS feed customizations (`<itunes:*>` + `<podcast:*>` tags,
 		// stats-tracked enclosure URLs) for the configured podcast category.
 		Customize_Feed::init();
+
+		add_filter( 'rest_post_query', array( __CLASS__, 'limit_episode_query' ), 10, 2 );
+		add_filter( 'posts_where', array( __CLASS__, 'limit_episode_where' ), 10, 2 );
 
 		Tracks::init();
 

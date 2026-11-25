@@ -1,8 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import useAnalytics from '../../../hooks/use-analytics';
 import { SettingsPanel } from '../index';
 import { entrySettings, moduleSettings } from '../registry';
 import type { MyJetpackModule } from '../../../types';
+
+const mockRecordEvent = jest.mocked( jest.mocked( useAnalytics )().recordEvent );
 
 const mockNavigate = jest.fn();
 let mockSearch: Record< string, unknown > = {};
@@ -17,10 +20,6 @@ let mockEntries: MainFeatureSettingsEntry[] = [];
 jest.mock( '../../my-jetpack-tab-panel/features/use-main-features', () => ( {
 	QUERY_KEY: [ 'my-jetpack-main-features' ],
 	useMainFeatures: () => ( { settings_entries: mockEntries } ),
-} ) );
-jest.mock( '../../../hooks/use-analytics', () => ( {
-	__esModule: true,
-	default: () => ( { recordEvent: jest.fn() } ),
 } ) );
 jest.mock( '../../module-toggle', () => ( {
 	ModuleToggle: ( {
@@ -208,11 +207,18 @@ describe( 'SettingsPanel', () => {
 		[
 			'the close button',
 			() => userEvent.click( screen.getByRole( 'button', { name: 'Close' } ) ),
+			'close-button',
 		],
-		[ 'Escape', () => userEvent.keyboard( '{Escape}' ) ],
-	] )( 'closes on %s, dropping only the configure param', async ( _name, close ) => {
+		[ 'Escape', () => userEvent.keyboard( '{Escape}' ), 'escape' ],
+	] )( 'closes on %s, dropping only the configure param', async ( _name, close, method ) => {
 		render( <SettingsPanel /> );
 		await close();
+
+		expect( mockRecordEvent ).toHaveBeenLastCalledWith( 'jetpack_myjetpack_settings_panel_close', {
+			feature_slug: 'tiled-gallery',
+			method,
+			event_version: 1,
+		} );
 
 		expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
 		const options = mockNavigate.mock.calls[ 0 ][ 0 ];

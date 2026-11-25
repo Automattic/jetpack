@@ -116,6 +116,7 @@ function wpcom_themes_tab_enqueue_script() {
 			'allPlans'       => __( 'All plans', 'jetpack-mu-wpcom' ),
 			'included'       => WPCOM_THEMES_TAB_INCLUDED,
 			'includedLabel'  => __( 'Included with my plan', 'jetpack-mu-wpcom' ),
+			'searchLabel'    => __( 'Search Themes', 'jetpack-mu-wpcom' ),
 			'products'       => WPCom_Themes_Store::PRODUCTS_URL,
 			/* translators: %s: Price per month, for example $7.20. */
 			'price'          => __( '%s/mo, billed annually', 'jetpack-mu-wpcom' ),
@@ -126,7 +127,7 @@ function wpcom_themes_tab_enqueue_script() {
 	wp_enqueue_style(
 		'wpcom-themes-tab',
 		plugins_url( 'css/themes-tab.css', __FILE__ ),
-		array(),
+		array( 'wp-admin' ),
 		(string) filemtime( __DIR__ . '/css/themes-tab.css' )
 	);
 
@@ -429,8 +430,22 @@ function wpcom_themes_tab_serve_themes_api( $result, $action, $args ) {
 		);
 	}
 
-	$page   = isset( $args->page ) ? max( 1, (int) $args->page ) : 1;
 	$mapper = wpcom_themes_tab_mapper();
+
+	// Core's Feature Filter: as on WordPress.org, a theme has to carry every tag asked for.
+	$tags = isset( $args->tag ) ? array_filter( (array) $args->tag, 'is_string' ) : array();
+	if ( array() !== $tags ) {
+		$themes = array_values(
+			array_filter(
+				$themes,
+				static function ( $theme ) use ( $mapper, $tags ) {
+					return array() === array_diff( $tags, $mapper->build_theme_tags( $theme ) );
+				}
+			)
+		);
+	}
+
+	$page = isset( $args->page ) ? max( 1, (int) $args->page ) : 1;
 
 	// Only the page core asked for is mapped: mapping reads each theme from disk to say whether it
 	// is installed.

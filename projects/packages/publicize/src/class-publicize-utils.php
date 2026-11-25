@@ -89,7 +89,7 @@ class Publicize_Utils {
 	/**
 	 * Whether the current user may open the Social dashboard: admins can turn Social on, so they see it while Publicize is off.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.89.0
 	 *
 	 * @return bool
 	 */

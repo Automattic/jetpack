@@ -127,7 +127,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ16_5_a_1",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ16_5_a_5",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
@@ -142,11 +142,7 @@
 		},
 		"wp-svn-autopublish": true,
 		"mirror-repo": "Automattic/jetpack-production",
-		"release-branch-prefix": [
-			"jetpack",
-			"weekly",
-			"monthly"
-		],
+		"release-branch-prefix": "jetpack",
 		"version-constants": {
 			"JETPACK__VERSION": "jetpack.php"
 		},

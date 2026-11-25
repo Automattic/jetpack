@@ -25,7 +25,6 @@ const PurchaseSuccess: FC = () => {
 
 	return (
 		<CardPage
-			showActivateLicense={ false }
 			showBackButton={ false }
 			sidebarItem={
 				<img

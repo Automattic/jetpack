@@ -5,6 +5,7 @@ export {
 	useScopeLockedIntervals,
 	type DateLimits,
 	type DateLimitUpsellCopy,
+	type OpenPeriodOptions,
 	type ReportScope,
 } from './providers/report-scope';
 export {
@@ -74,6 +75,10 @@ export {
 	computeDateRangeFromPreset,
 	getApiErrorCode,
 	getApiErrorStatus,
+	emailSendWindowParams,
+	emailSendWindowRange,
+	readEmailSendWindow,
+	type EmailSendWindow,
 	findAuthorRow,
 	isAccessDenied,
 	isAnalyticsSchemaOutdated,
@@ -81,6 +86,7 @@ export {
 	isUserRetryableError,
 	saveBlob,
 	shouldRetryApiError,
+	StatsResponseShapeError,
 	toAuthorId,
 	toPostId,
 	useSiteHomeUrl,
@@ -108,6 +114,8 @@ export {
 	POST_DETAIL_SECTION,
 	type DashboardSectionSlug,
 } from './utils/dashboard-sections';
+export { getPostReportKind } from './utils/single-report-pages';
+export { DASHBOARD_ONBOARDING_KEY, DASHBOARD_STORE_ONBOARDING_KEY } from './utils/onboarding-keys';
 export {
 	getLockedFeature,
 	getLockedSection,

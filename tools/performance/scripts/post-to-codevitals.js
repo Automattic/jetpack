@@ -4,6 +4,21 @@ import fs from 'fs';
 import path from 'path';
 import { DASHBOARD_DELTA_METRICS, SCENARIOS, SANITY_RANGES } from './scenarios.js';
 
+// Metric keys expected to be registered on CodeVitals.
+const REGISTERED_CODEVITALS_KEYS = new Set( [
+	'wp-admin-dashboard-connection-sim-largestContentfulPaint',
+	'wp-admin-dashboard-connection-sim-timeToFirstByte',
+	'wp-admin-dashboard-connection-sim-firstContentfulPaint',
+	'forms-responses-connection-sim-largestContentfulPaint',
+	'forms-responses-connection-sim-timeToFirstByte',
+	'forms-responses-connection-sim-firstContentfulPaint',
+	'forms-responses-connection-sim-decodedBytesKB',
+	'my-jetpack-connection-sim-largestContentfulPaint',
+	'my-jetpack-connection-sim-timeToFirstByte',
+	'my-jetpack-connection-sim-firstContentfulPaint',
+	'my-jetpack-connection-sim-decodedBytesKB',
+] );
+
 /**
  * Exit code for a LOCAL data-integrity failure: a metric failed a sanity check, a
  * scenario is misconfigured, or the results file is missing/unusable. In short,
@@ -48,10 +63,9 @@ function exitCodeForError( error ) {
  * drives the sanity-range check; untyped legacy entries are posted unchecked.
  *
  * Three shapes, in precedence order. A `metrics` array yields one typed entry per element,
- * each reading its value from summary.<field>.median and posting to its own key (the
- * FORMS-707 multi-metric-per-scenario path). A single `metricKey` yields one typed entry
- * reading the flat summary.median (legacy). A `metricPrefix` yields five untyped
- * prefix-suffixed entries, posted unchecked (legacy).
+ * each reading its value from summary.<field>.median and posting to its own key.
+ * A single `metricKey` yields one typed entry from the flat summary.median (legacy).
+ * A `metricPrefix` yields five untyped entries with key suffixes (legacy).
  */
 function extractScenarioMetrics( scenario, summary ) {
 	const scenarioLabel = scenario.key ?? 'unknown';
@@ -362,9 +376,9 @@ function resolvePostTimestamp( results, config ) {
  *
  * IMPORTANT: the read and write backends must match before dedup can be trusted. This
  * reads gitaudit (metric `config.dedupMetricId`) while the POST targets
- * `config.codeVitalsUrl` (codevitals.run today). Until the two are reconciled (the
- * FORMS-705 host/metric work), a hash written to codevitals.run may not appear here, so
- * dedup is effectively a no-op. The "can only fail to skip, never wrongly skip" guarantee
+ * `config.codeVitalsUrl` (codevitals.run by default). While the backends differ, a hash
+ * written to codevitals.run may not appear here, so dedup is effectively a no-op.
+ * The "can only fail to skip, never wrongly skip" guarantee
  * holds ONLY while dedup is off (the default): with no read, no skip can happen. If an
  * operator enables dedup before the backends match, metric 58 is a different, *populated*
  * trunk series (not the codevitals.run write target), so a coincidental hash match there
@@ -601,6 +615,14 @@ async function postToCodeVitals( resultsPath, config ) {
 		return { posted: false, validationFailed };
 	}
 
+	const keysSent = Object.keys( metrics );
+	const expectedRows = keysSent.filter( key => REGISTERED_CODEVITALS_KEYS.has( key ) ).length;
+	if ( expectedRows === 0 ) {
+		throw new ValidationError(
+			'No measured keys are in REGISTERED_CODEVITALS_KEYS. No post was sent to CodeVitals.'
+		);
+	}
+
 	// Cross-commit dedup (live posts only — kept after the dry-run return so the
 	// token-free CI smoke test still makes zero network calls). CodeVitals is
 	// append-only, so re-testing a commit (a manual re-run, a TeamCity retryBuild,
@@ -653,13 +675,9 @@ async function postToCodeVitals( resultsPath, config ) {
 	// regression tests can use a short bound instead of waiting the full 30s.
 	const TIMEOUT_MS = config.postTimeoutMs ?? 30000;
 	const controller = new AbortController();
-	// The finally below always clears this timer, so it is never left unused by an early
-	// return/throw; the lint rule only fires because the first textual reference now lives in
-	// that finally — which is the whole point of the fix (the timer must stay armed across the
-	// body read, so it cannot be cleared early).
-	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- cleared in finally
 	const timeoutId = setTimeout( () => controller.abort(), TIMEOUT_MS );
 
+	let data;
 	try {
 		const response = await fetch( url, {
 			method: 'POST',
@@ -676,7 +694,6 @@ async function postToCodeVitals( resultsPath, config ) {
 			throw new Error( `CodeVitals API error (${ response.status }): ${ errorText }` );
 		}
 
-		let data;
 		try {
 			data = await response.json();
 		} catch ( jsonError ) {
@@ -690,8 +707,6 @@ async function postToCodeVitals( resultsPath, config ) {
 				cause: jsonError,
 			} );
 		}
-		console.log( '✓ Metrics posted successfully to CodeVitals' );
-		return { posted: true, data, validationFailed };
 	} catch ( error ) {
 		// Scrub the token from the caught error and its whole cause chain before we
 		// log it or re-use it as `cause`. fetch/undici can echo the token-bearing
@@ -715,6 +730,34 @@ async function postToCodeVitals( resultsPath, config ) {
 	} finally {
 		clearTimeout( timeoutId );
 	}
+
+	const rowsStored =
+		data !== null && typeof data === 'object' && ! Array.isArray( data ) ? data.count : undefined;
+	if ( ! Number.isInteger( rowsStored ) || rowsStored < expectedRows ) {
+		let received = 'no count';
+		if ( data === null ) {
+			received = 'null';
+		} else if ( rowsStored === null || typeof rowsStored === 'number' ) {
+			received = rowsStored;
+		} else if ( rowsStored !== undefined ) {
+			received = `a ${ typeof rowsStored } count`;
+		}
+		throw new Error(
+			`CodeVitals receipt expected ${ expectedRows } stored rows, received ${ received }. ` +
+				'The post was sent and rows may already be stored. Check the series before re-running.'
+		);
+	}
+
+	if ( rowsStored > expectedRows ) {
+		console.warn(
+			`Warning: CodeVitals receipt expected ${ expectedRows } stored rows, received ${ rowsStored }. ` +
+				'REGISTERED_CODEVITALS_KEYS may be missing a key registered on CodeVitals.'
+		);
+	}
+
+	console.log( `Sent ${ keysSent.length } keys. CodeVitals stored ${ rowsStored }.` );
+	console.log( '✓ Metrics posted successfully to CodeVitals' );
+	return { posted: true, data, validationFailed };
 }
 
 /**
@@ -879,6 +922,7 @@ export {
 	hashAlreadyPosted,
 	resolveDedupEnabled,
 	pairedCommitTimestampMs,
+	REGISTERED_CODEVITALS_KEYS,
 	ValidationError,
 	VALIDATION_FAILED_EXIT_CODE,
 };

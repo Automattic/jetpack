@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Admin_UI\Admin_Shell;
+use Automattic\Jetpack\Admin_UI\Media_Library;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Status\Host;
@@ -100,6 +101,11 @@ class Admin_UI {
 			add_filter( 'jetpack_admin_shell_members', array( __CLASS__, 'add_admin_shell_member' ) );
 		}
 
+		// The thumbnail picker loads the media library from this endpoint.
+		if ( method_exists( Media_Library::class, 'init' ) ) {
+			Media_Library::init();
+		}
+
 		// On WordPress.com Simple the standalone menu system (Admin_Menu) is not used:
 		// the Jetpack parent menu is created late (admin_menu priority 999999) by
 		// wpcom-admin-menu.php, which registers the VideoPress submenu directly via
@@ -120,6 +126,39 @@ class Admin_UI {
 		add_filter( 'get_edit_post_link', array( __CLASS__, 'edit_video_link' ), 10, 3 );
 
 		add_action( 'admin_init', array( __CLASS__, 'remove_jetpack_hooks' ) );
+
+		add_filter( 'jetpack_jitm_received_envelopes', array( __CLASS__, 'remove_license_activation_jitms' ), 10, 2 );
+	}
+
+	/**
+	 * Drops the license activation JITMs from the VideoPress page on free-plan sites.
+	 *
+	 * The dashboard's free-plan notice offers the license there, so the JITM would be a second upsell.
+	 *
+	 * @param array  $envelopes    The received JITMs.
+	 * @param string $message_path The message path the JITMs were requested for.
+	 * @return array The JITMs to show.
+	 */
+	public static function remove_license_activation_jitms( $envelopes, $message_path ) {
+		if (
+			! is_array( $envelopes )
+			|| ! is_string( $message_path )
+			|| ! str_contains( $message_path, 'jetpack_page_jetpack-videopress' )
+			|| false !== Initial_State::has_videopress_access()
+		) {
+			return $envelopes;
+		}
+
+		$license_jitm_ids = array( 'single_licensing_activation_notice', 'multiple_licensing_activation_notice' );
+
+		return array_values(
+			array_filter(
+				$envelopes,
+				function ( $envelope ) use ( $license_jitm_ids ) {
+					return ! is_object( $envelope ) || ! isset( $envelope->id ) || ! in_array( $envelope->id, $license_jitm_ids, true );
+				}
+			)
+		);
 	}
 
 	/**
@@ -349,7 +388,7 @@ class Admin_UI {
 	/**
 	 * Register VideoPress with the admin shell, which switches between Jetpack dashboards without a page load.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.63.0
 	 *
 	 * @param array $members Shell members keyed by admin page slug.
 	 * @return array
@@ -377,7 +416,6 @@ class Admin_UI {
 			),
 			'capability'   => 'manage_options',
 			'handles'      => array( self::GUEST_DATA_HANDLE, 'jetpack-videopress-dashboard-shell', Admin_Menu::DESIGN_TOKENS_HANDLE, 'jetpack-script-data', 'wp-jp-i18n-loader' ),
-			'media'        => true,
 			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
 		);
 		return $members;
@@ -396,7 +434,7 @@ class Admin_UI {
 	/**
 	 * Ready the VideoPress routes and page data while another dashboard's page is open, without the screen ID alias.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.63.0
 	 *
 	 * @return void
 	 */
@@ -409,7 +447,7 @@ class Admin_UI {
 	/**
 	 * Attach the initial state to a script of its own: the prerequisites script only exists on the VideoPress page.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.63.0
 	 *
 	 * @return void
 	 */
@@ -466,18 +504,13 @@ class Admin_UI {
 			wp_enqueue_style( 'jetpack-videopress-dashboard-shell' );
 		}
 
-		// The Video details screen's thumbnail editor opens the WordPress
-		// media library (via window.wp.media) for the "Upload image"
-		// action, so the media scripts must be present here too.
-		wp_enqueue_media();
-
 		// The i18n loader is registered on every admin page by jetpack-assets but
 		// only enqueued when depended on; the esbuild bundles don't pull it in.
 		if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
 			wp_enqueue_script( 'wp-jp-i18n-loader' );
 		}
 
-		// Beyond the shell stylesheet and the media library, wp-build
+		// Beyond the shell stylesheet, wp-build
 		// manages its own enqueue pipeline.
 	}
 
@@ -750,6 +783,13 @@ class Admin_UI {
 			array_merge(
 				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::SCRIPT_HANDLES,
 				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::MODULE_IDS
+			),
+			null,
+			array(
+				array(
+					'prefix' => 'jetpack_videopress',
+					'slug'   => 'jetpack-videopress-dashboard',
+				),
 			)
 		);
 	}

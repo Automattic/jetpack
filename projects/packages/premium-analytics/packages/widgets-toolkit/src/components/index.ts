@@ -14,6 +14,7 @@ export {
 	type SeriesStyle,
 	type TooltipExtraSeries,
 } from './chart-comparative-line';
+export { StackedAreaChart, type StackedAreaChartProps } from './chart-stacked-area';
 export {
 	ComparativeBarChart,
 	type ComparativeBarChartProps,
@@ -53,6 +54,7 @@ export {
 	resolveLeaderboardRowAction,
 	type LeaderboardRowAction,
 	type LeaderboardRowActionOptions,
+	type LeaderboardRowActionWithTrailing,
 	type LeaderboardRowChartProps,
 	type LeaderboardRowMedia,
 	type LeaderboardRowProps,
@@ -90,6 +92,7 @@ export {
 	type MonthlyHeatmapProps,
 	type MonthlyHeatmapRow,
 	type MonthlyHeatmapTarget,
+	monthlyHeatmapToCsv,
 } from './monthly-heatmap';
 export { WidgetLoadingOverlay } from './widget-loading-overlay';
 export {
@@ -169,12 +172,7 @@ export {
 export { PageEmptyState, type PageEmptyStateProps } from './page-empty-state';
 export { LockedPage, LockedWidget } from './locked-widget';
 export { PageNotice, type PageNoticeProps } from './page-notice';
-export {
-	canSendFeedback,
-	FeedbackModal,
-	PageOptionsMenu,
-	type FeedbackSource,
-} from './page-options-menu';
+export { canSendFeedback, FeedbackModal, StatsOptionsMenu } from './stats-options-menu';
 export { ResetLayoutAction, type ResetLayoutActionProps } from './reset-layout';
 export {
 	ReportCsvDownloadButton,

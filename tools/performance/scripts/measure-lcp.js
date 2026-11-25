@@ -124,15 +124,23 @@ function initializeLoadObservers() {
  * that page after login and wait for the page's own ready signal (SPA hydration included)
  * before measuring. Absent path/selector, the Dashboard flow is unchanged.
  *
- * @param {string} url        - Base site URL (no trailing path).
- * @param {string} username   - wp-admin username.
- * @param {string} password   - wp-admin password.
- * @param {number} iterations - Number of measurement iterations.
- * @param {object} [scenario] - Scenario config; reads optional `path`, `waitForSelector`,
- *                            `expectUrlIncludes`, `expectUrlHash`, `loadState`, `minResourceCount`, and `metrics`.
+ * @param {string}   url                - Base site URL (no trailing path).
+ * @param {string}   username           - wp-admin username.
+ * @param {string}   password           - wp-admin password.
+ * @param {number}   iterations         - Number of measurement iterations.
+ * @param {object}   [scenario]         - Scenario config; reads optional `path`, `waitForSelector`,
+ *                                      `expectUrlIncludes`, `expectUrlHash`, `loadState`, `minResourceCount`, and `metrics`.
+ * @param {Function} [onBrowserVersion] - Receives the version at the first launch.
  * @return {Promise<object>} { summary, results, url }.
  */
-async function measureLCP( url, username, password, iterations = 5, scenario = {} ) {
+async function measureLCP(
+	url,
+	username,
+	password,
+	iterations = 5,
+	scenario = {},
+	onBrowserVersion
+) {
 	const results = [];
 
 	// Optional page navigation: when a scenario targets a specific admin page (not the wp-admin
@@ -149,7 +157,7 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 	// pending — e.g. the Forms dashboard's canUser OPTIONS to /wp/v2/settings stalls in the
 	// headless-Chromium fixture — sets 'load' so a single un-settling request cannot blackhole the
 	// whole scenario; readiness is then carried by the visible-selector + hydration + resource-count
-	// settle below, not by network quiescence. See scenarios.js (formsResponses) and FORMS-729.
+	// settle below, not by network quiescence. See formsResponses in scenarios.js.
 	const navWaitUntil = scenario.loadState || 'networkidle';
 	// The one predicate the readiness plumbing branches on, bound once so the ledger creation,
 	// the warm-up settle and the measured settle can never disagree about which path they are on.
@@ -164,6 +172,9 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 			headless: true,
 			args: [ '--disable-dev-shm-usage', '--no-sandbox', '--disable-gpu' ],
 		} );
+		if ( i === 0 ) {
+			onBrowserVersion?.( browser.version() );
+		}
 
 		const context = await browser.newContext( {
 			viewport: { width: 1920, height: 1080 },
@@ -570,12 +581,7 @@ function readIterationField( result, field ) {
  */
 function summarizeField( values ) {
 	const finite = values.filter( v => typeof v === 'number' && Number.isFinite( v ) );
-	// Require a STRICT majority of the valid iterations to have produced a finite sample:
-	// finite*2 > n. This keeps single-iteration runs working (1 of 1) while rejecting a thin
-	// field that would otherwise post a lone/minority sample as a trend point — including the
-	// even-count edge (1 of 2, 2 of 4) that a ceil(n/2) floor would let slip through. n=0 also
-	// falls through to null (0 > 0 is false). LCP is unaffected in practice: it is finite on
-	// every valid iteration by construction (validResults already filtered out null LCP).
+	// A strict majority rejects ties, such as one finite sample from two successful loads.
 	if ( finite.length * 2 <= values.length ) {
 		return null;
 	}
@@ -655,17 +661,12 @@ function findIncompleteSummaryFields( scenario, summary ) {
 /**
  * Turn the raw per-iteration results into the scenario's final measurement, or throw.
  *
- * The tail of measureLCP(), extracted pure so its two refusal paths are unit-testable
- * without a browser: (1) no valid iterations at all; (2) an INCOMPLETE summary — a posted
- * field dropped by summarizeField's majority rule. Both must throw INSIDE the measure
- * step, so main()'s catch records a scenario error the optional/required policy can
- * classify. An incomplete summary let through would green this step with no warning
- * naming the scenario, then trip the poster's atomic sanity gate on the undefined
- * median — one flaky optional field blanking the whole post, required survivors included.
+ * Reject incomplete summaries during measurement so the poster's sanity gate
+ * cannot block the entire post when an optional page is missing a metric.
  *
  * @param {object} scenario   - Scenario definition; its metrics[] names the posted fields.
  * @param {Array}  results    - Raw per-iteration results (successes and error records).
- * @param {number} iterations - Total iterations attempted (for the summary counters).
+ * @param {number} iterations - Total loads attempted.
  * @param {string} url        - The measured URL, echoed into the saved measurement.
  * @return {object} The measurement: `{ summary, results, url }`.
  */
@@ -675,6 +676,12 @@ function finalizeMeasurement( scenario, results, iterations, url ) {
 	if ( validResults.length === 0 ) {
 		throw new Error(
 			'All iterations failed - check WordPress is accessible and credentials are correct'
+		);
+	}
+	const minimumSuccessfulLoads = Math.floor( iterations / 2 ) + 1;
+	if ( validResults.length < minimumSuccessfulLoads ) {
+		throw new Error(
+			`Only ${ validResults.length } of ${ iterations } loads succeeded. At least ${ minimumSuccessfulLoads } are required.`
 		);
 	}
 
@@ -991,10 +998,13 @@ function resolveScenarioSet( scenarioFilter, scenarios ) {
  *
  * The posting policy lives here, once: exit 0 means "every required scenario measured —
  * safe to post". The runner treats a non-zero exit as fatal and never reaches the posting
- * step, which is the retry-safety invariant: a red build has posted nothing, so re-running
- * it cannot append duplicate points to the append-only, dedup-off CodeVitals store. A
- * failed `optional` scenario therefore must NOT fail the build — it warns, its keys skip
- * the build, and the poster skips its errored measurement. Two deliberate hard edges:
+ * step, which is the retry-safety invariant: a build that is red from a required failure
+ * has posted nothing, so re-running it cannot append duplicate points to the append-only,
+ * dedup-off CodeVitals store. A failed `optional` scenario therefore must NOT fail the
+ * build — it warns, its keys skip the build, and the poster skips its errored measurement.
+ * After the POST, invalid counts and counts below the expected count fail. Higher counts warn.
+ *
+ * Two deliberate hard edges:
  * every scenario in the run set failed → exit 1 even when all of them are optional, so a
  * targeted single-scenario run (SCENARIO=forms-responses) still fails loudly; and empty
  * measurements → exit 1 (backstop; resolveScenarioSet already rejects a filter that
@@ -1080,6 +1090,7 @@ async function main() {
 	console.log( '' );
 
 	const measurements = {};
+	let browserVersion = null;
 
 	// Run each scenario in the resolved set
 	for ( const scenario of scenariosToRun ) {
@@ -1094,7 +1105,10 @@ async function main() {
 				username,
 				password,
 				iterations,
-				scenario
+				scenario,
+				version => {
+					browserVersion ??= version;
+				}
 			);
 			console.log(
 				`✓ ${ scenario.name } median LCP: ${ measurements[ scenario.key ].summary.median }ms; median TBT: ${
@@ -1157,17 +1171,13 @@ async function main() {
 		timestamp: new Date().toISOString(),
 		metric: 'LCP',
 		methodology: 'Login then refresh dashboard for clean measurement',
-		config: {
+		config: buildResultsConfig( {
 			iterations,
 			scenario: scenarioFilter,
-			cpuThrottling: calibration
-				? {
-						enabled: true,
-						rate: calibration.cpuRate,
-						calibratedAt: calibration.calibratedAt,
-					}
-				: { enabled: false },
-		},
+			browserVersion,
+			calibration,
+			agentName: process.env.TEAMCITY_AGENT_NAME,
+		} ),
 		measurements,
 		git: resolveResultsGit( process.env ),
 	};
@@ -1184,6 +1194,38 @@ async function main() {
 		);
 	}
 	process.exit( outcome.exitCode );
+}
+
+/**
+ * Build the run settings saved with the measurements.
+ *
+ * @param {object}  options                - Run settings.
+ * @param {number}  options.iterations     - Number of iterations per scenario.
+ * @param {string}  options.scenario       - Selected scenario filter.
+ * @param {?string} options.browserVersion - Version of the launched browser, if available.
+ * @param {?object} options.calibration    - CPU calibration data, if available.
+ * @param {string}  [options.agentName]    - Name of the CI agent, if supplied.
+ * @return {object} The results config block.
+ */
+function buildResultsConfig( {
+	iterations,
+	scenario,
+	browserVersion,
+	calibration: calibrationData,
+	agentName = '',
+} ) {
+	return {
+		iterations,
+		scenario,
+		browserVersion,
+		agentName,
+		cpuThrottling: {
+			enabled: Boolean( calibrationData ),
+			rate: calibrationData?.cpuRate ?? 1,
+			calibratedAt: calibrationData?.calibratedAt,
+			samples: calibrationData?.samples ?? [],
+		},
+	};
 }
 
 /**
@@ -1223,6 +1265,7 @@ export {
 	parseServerTiming,
 	initializeLoadObservers,
 	resolveResultsGit,
+	buildResultsConfig,
 	buildSummary,
 	findIncompleteSummaryFields,
 	finalizeMeasurement,

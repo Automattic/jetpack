@@ -96,7 +96,7 @@ class Jetpack_AI_Page {
 	/**
 	 * Register Jetpack AI with the admin shell, which switches between Jetpack dashboards without a page load.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 *
 	 * @param array $members Shell members keyed by admin page slug.
 	 * @return array
@@ -131,7 +131,7 @@ class Jetpack_AI_Page {
 	/**
 	 * Ready the AI Hub routes and page data while another dashboard's page is open, without the screen ID alias.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 *
 	 * @return void
 	 */
@@ -398,6 +398,9 @@ class Jetpack_AI_Page {
 				),
 				// Self-hosted sites get the Hub's `-self-hosted` ChatGPT and Claude connect links.
 				'isSelfHosted'      => ! $host->is_wpcom_platform(),
+				// WordPress.com MCP runs a site's own abilities on every Jetpack site,
+				// Atomic included, as Calypso's MCP page shows them.
+				'showSiteAbilities' => ! $host->is_wpcom_simple(),
 			)
 		);
 
@@ -483,6 +486,7 @@ class Jetpack_AI_Page {
 			'tracksUserData'      => $can_send_tracks ? self::get_tracks_user_data() : null,
 			'mcpSettingsApi'      => $config['mcpSettingsApi'] ?? array(),
 			'isSelfHosted'        => true === ( $config['isSelfHosted'] ?? false ),
+			'showSiteAbilities'   => true === ( $config['showSiteAbilities'] ?? false ),
 		);
 
 		wp_add_inline_script(
@@ -592,7 +596,7 @@ class Jetpack_AI_Page {
 	 *
 	 * A host that removes the page on `admin_menu` isn't seen here.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.5
 	 *
 	 * @return bool
 	 */

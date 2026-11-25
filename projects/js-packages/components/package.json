@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "6.2.1",
+	"version": "7.1.0",
 	"description": "Jetpack Components Package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/components/#readme",
 	"bugs": {
@@ -37,11 +37,6 @@
 			"jetpack:src": "./components/checkbox-card/index.tsx",
 			"types": "./build/components/checkbox-card/index.d.ts",
 			"default": "./build/components/checkbox-card/index.js"
-		},
-		"./global-notices": {
-			"jetpack:src": "./components/global-notices/index.ts",
-			"types": "./build/components/global-notices/index.d.ts",
-			"default": "./build/components/global-notices/index.js"
 		},
 		"./gravatar": {
 			"jetpack:src": "./components/gravatar/index.tsx",
@@ -101,6 +96,11 @@
 			"jetpack:src": "./tools/jp-redirect/index.ts",
 			"types": "./build/tools/jp-redirect/index.d.ts",
 			"default": "./build/tools/jp-redirect/index.js"
+		},
+		"./tools/load-media-library": {
+			"jetpack:src": "./tools/load-media-library/index.ts",
+			"types": "./build/tools/load-media-library/index.d.ts",
+			"default": "./build/tools/load-media-library/index.js"
 		}
 	},
 	"scripts": {
@@ -133,7 +133,6 @@
 		"@wordpress/element": "10.1.0",
 		"@wordpress/i18n": "7.1.0",
 		"@wordpress/icons": "20.0.0",
-		"@wordpress/notices": "6.1.0",
 		"@wordpress/theme": "4.0.0",
 		"@wordpress/ui": "0.26.0",
 		"clsx": "2.1.1",

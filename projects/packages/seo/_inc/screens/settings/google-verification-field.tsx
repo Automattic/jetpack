@@ -1,9 +1,8 @@
 /* eslint-disable react/jsx-no-bind */
 
-import { TextControl } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Badge, Button, Link, Stack, Text } from '@wordpress/ui';
+import { Badge, Button, InputControl, Link, Stack, Text } from '@wordpress/ui';
 import { useGoogleVerify } from '../../data/use-google-verify';
 import type { FC } from 'react';
 
@@ -31,9 +30,7 @@ const manualHelp = __(
 );
 
 /**
- * Google verification: a WordPress.com keyring auto-verify flow on connected sites,
- * with manual meta-tag entry as a fallback (and the only option when disconnected).
- * The other services stay simple code fields in the parent card.
+ * Offer the host's Google verification flow with manual code entry as a fallback.
  *
  * @param props          - Component props.
  * @param props.value    - The manual Google verification code.
@@ -50,7 +47,7 @@ const GoogleVerificationField: FC< Props > = ( {
 	onCommit,
 	disabled,
 } ) => {
-	const { state, isConnected, isOwner, searchConsoleUrl, isVerifying, isConfirming, autoVerify } =
+	const { state, canAutoVerify, isOwner, searchConsoleUrl, isVerifying, isConfirming, autoVerify } =
 		useGoogleVerify( { saveCode } );
 	const [ manualOpen, setManualOpen ] = useState( false );
 	const manualVisible = manualOpen || !! value;
@@ -64,34 +61,28 @@ const GoogleVerificationField: FC< Props > = ( {
 	}, [ value ] );
 
 	const manualField = (
-		<TextControl
+		<InputControl
 			label={ __( 'Google verification code', 'jetpack-seo' ) }
 			value={ value }
-			onChange={ onChange }
+			onValueChange={ onChange }
 			onBlur={ onCommit }
-			help={ manualHelp }
+			description={ manualHelp }
 			// Locked once the popup returns, so a code typed meanwhile can't save after the token and
 			// replace it. Not while the popup is open: a blocked popup never returns.
 			disabled={ disabled || isConfirming }
-			__next40pxDefaultSize
-			__nextHasNoMarginBottom
 		/>
 	);
 
-	// Manual entry only when there is no keyring auto-verify path: a disconnected
-	// self-hosted site (no popup), or a site where the status check came back
-	// `unavailable` (e.g. a `forbidden` response on an under-construction site).
-	if ( ! isConnected || state === 'unavailable' ) {
+	// Keep manual entry available when the host lacks or forbids automatic verification.
+	if ( ! canAutoVerify || state === 'unavailable' ) {
 		return (
-			<TextControl
+			<InputControl
 				label={ __( 'Google', 'jetpack-seo' ) }
 				value={ value }
-				onChange={ onChange }
+				onValueChange={ onChange }
 				onBlur={ onCommit }
-				help={ manualHelp }
+				description={ manualHelp }
 				disabled={ disabled }
-				__next40pxDefaultSize
-				__nextHasNoMarginBottom
 			/>
 		);
 	}
@@ -103,12 +94,8 @@ const GoogleVerificationField: FC< Props > = ( {
 	return (
 		<Stack direction="column" gap="md" role="group" aria-labelledby={ GROUP_LABEL_ID }>
 			<Stack direction="row" justify="space-between" align="center" gap="sm">
-				{ /* `heading-sm` is the field-label treatment — 11px uppercase, the same
-				     size and casing as the `TextControl` labels the other four services
-				     render, and as this field's own manual-entry branch above (also a
-				     `TextControl`). Not pixel-identical: `heading-sm` is weight 499 against
-				     the control label's 600. It previously used `heading-md`, so "Google"
-				     changed typography depending on whether the site was Jetpack-connected. */ }
+				{ /* `heading-sm` matches the 11px uppercase `InputControl` labels of the other
+				     services and of this field's manual-entry branch above. */ }
 				<Text variant="heading-sm" render={ <span /> } id={ GROUP_LABEL_ID }>
 					{ __( 'Google', 'jetpack-seo' ) }
 				</Text>

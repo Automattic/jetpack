@@ -62,8 +62,9 @@ export function generateDefine( yargs ) {
 		yarg => {
 			yarg
 				.positional( 'type', {
-					describe: 'Type of project being worked on, e.g. package, plugin, etc',
+					describe: 'Type of project to create.',
 					type: 'string',
+					choices: projectTypes.map( type => pluralize.singular( type ) ),
 				} )
 				.options( 'name', {
 					alias: 'n',

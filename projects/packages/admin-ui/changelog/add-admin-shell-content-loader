@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Admin shell: Show a progress bar in the content area while a dashboard loads.

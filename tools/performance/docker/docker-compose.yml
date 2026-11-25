@@ -7,7 +7,7 @@
 services:
   # Shared MySQL database
   db:
-    image: mysql:8.0
+    image: mysql:8.0@sha256:7dcddc01f13bab2f15cde676d44d01f61fc9f99fe7785e86196dfc07d358ae2b
     command: --default-authentication-plugin=mysql_native_password
     volumes:
       - db_data:/var/lib/mysql
@@ -27,7 +27,7 @@ services:
   # WordPress with Jetpack simulated connection
   # Uses mu-plugin to fake connection tokens and intercept WP.com API calls with artificial latency
   wordpress-jetpack-connected:
-    image: wordpress:7.0-php8.2-apache
+    image: wordpress:7.0-php8.2-apache@sha256:38b906b70449a4f7d6b8bdfd2b9ad737882c2ae47c177e141fa7ed6f6093ae1e
     ports:
       - '127.0.0.1::80' # Dynamic port - use 'docker compose port wordpress-jetpack-connected 80' to discover
     restart: unless-stopped
@@ -52,7 +52,7 @@ services:
 
   # Dashboard control: same plugin files, without activation or connection simulation.
   wordpress-no-jetpack:
-    image: wordpress:7.0-php8.2-apache
+    image: wordpress:7.0-php8.2-apache@sha256:38b906b70449a4f7d6b8bdfd2b9ad737882c2ae47c177e141fa7ed6f6093ae1e
     ports:
       - '127.0.0.1::80'
     restart: unless-stopped
@@ -75,7 +75,7 @@ services:
 
   # WP-CLI for setup operations
   wpcli:
-    image: wordpress:cli-2.10-php8.2
+    image: wordpress:cli-2.10-php8.2@sha256:1a2ec548acbb20820fa5a630927452ed39b680fbd7c57af9aa0eb52e68a83380
     user: '33:33' # Match www-data UID from WordPress Debian image
     volumes:
       - wp_jetpack_connected:/var/www/html/jetpack-connected

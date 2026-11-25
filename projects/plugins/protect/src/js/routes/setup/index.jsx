@@ -22,9 +22,11 @@ const SetupRoute = () => {
 			title={ 'Protect' /** "Protect" is a product name, do not translate. */ }
 			subTitle={ __( 'Automated malware scanning and firewall protection.', 'jetpack-protect' ) }
 			actions={
-				<Button variant="secondary" href={ ACTIVATE_LICENSE_URL }>
-					{ __( 'Use license key', 'jetpack-protect' ) }
-				</Button>
+				window.jetpackProtectInitialState?.addLicense !== false && (
+					<Button variant="secondary" href={ ACTIVATE_LICENSE_URL }>
+						{ __( 'Use license key', 'jetpack-protect' ) }
+					</Button>
+				)
 			}
 		>
 			<AdminSectionHero>

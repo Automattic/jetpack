@@ -9,7 +9,7 @@
 
 // MetricValue's sm face, so "No data" reads as a value, not a label.
 .value {
-	font-weight: 500;
+	font-weight: var(--wpds-typography-font-weight-emphasis);
 	font-size: var(--wpds-typography-font-size-sm);
 	line-height: var(--wpds-typography-line-height-sm);
 }

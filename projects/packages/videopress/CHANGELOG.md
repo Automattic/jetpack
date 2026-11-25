@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.63.1] - 2026-11-23
+### Changed
+- Admin shell: Record the page view again when the shell shows the VideoPress page again. [#55078]
+- Dashboard: Load the media library when a thumbnail upload opens it, instead of on every page load. [#55121]
+- Dashboard: Show portrait videos in a tall player on the video details page instead of a small letterboxed one. [#55298]
+- Dashboard: Skip the library count requests the Library page can answer without them. [#55210]
+- Dashboard: Tell free-plan users on the Overview tab that they have used their one video, not that one upload is allowed. [#55247]
+- Update dependencies. [#55058]
+
+### Fixed
+- Admin shell: Don't ask a second time about unsaved edits when the shell already asked before loading the page. [#55111]
+- Channel: Only match and quote private videos' transcripts in playlist searches for site members. [#55157]
+- Dashboard: Match the "Record a video" button height to the upload buttons beside it. [#55081]
+- Media Library: Delete selected VideoPress videos a few at a time, with progress and per-item errors, and stop reporting a video as deleted when WordPress.com did not confirm it. [#55197]
+- Private videos: Apply the post's password check to video access. [#55287]
+- Video block: Validate preview-on-hover timing values so incomplete block attributes no longer emit PHP warnings or invalid player data. [#55198]
+
+## [0.63.0] - 2026-11-16
+### Added
+- Channels: Find videos by words spoken in them, show the matching passage with its time, and open the video at that moment. [#54642]
+- Join the admin shell, so switching to and from other Jetpack dashboards skips the page load when the admin shell flag is on. [#54768]
+- Keep a searchable transcript of each channel video from its edited or VideoPress caption track, rebuilt when tracks change, and add a transcript REST route. [#54641]
+- Register the video single-report page on the Premium Analytics dashboard. [#54185]
+
+### Changed
+- Admin shell: Declare the page title and subtitle shown while the dashboard opens, when the admin shell flag is on. [#54945]
+- Dashboard: Switch the Library and Playlists between grid and table in one click. [#54990]
+- Latest Videos Playlist: Style the search, sort and length controls and pagination like the playlist, with the theme's font and button styles. [#54738]
+- Update package dependencies. [#54703]
+
+### Fixed
+- Dashboard: Ask before the Jetpack admin shell opens VideoPress at another screen while a video, trim, chapter or playlist edit is unsaved, and keep the trim and chapter editors from asking while another dashboard is on screen. [#54951]
+- Dashboard: Show an error when a video details or privacy change is not saved, instead of reporting success. [#54929]
+- Playlists: Load the Playlists tab on WordPress.com sites, where it showed "We couldn't load your playlists." [#54894]
+
 ## [0.62.0] - 2026-11-09
 ### Added
 - Dashboard: Add a Playlists tab to create, edit, publish and delete video playlists, with every Video Playlist block setting. [#54504]
@@ -2418,6 +2453,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.63.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.63.0...v0.63.1
+[0.63.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.62.0...v0.63.0
 [0.62.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.61.0...v0.62.0
 [0.61.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.60.1...v0.61.0
 [0.60.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.60.0...v0.60.1

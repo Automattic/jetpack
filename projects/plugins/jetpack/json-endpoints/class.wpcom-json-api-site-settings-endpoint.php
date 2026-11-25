@@ -53,7 +53,6 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 
 		'request_format'      => array(
 			'migration_source_site_domain'              => '(string) The source site URL, from the migration flow',
-			'in_site_migration_flow'                    => '(string) The migration flow the site is in',
 			'blogname'                                  => '(string) Blog name',
 			'blogdescription'                           => '(string) Blog description',
 			'default_pingback_flag'                     => '(bool) Notify blogs linked from article?',
@@ -515,7 +514,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'enable_blocks_comments'           => (bool) get_option( 'enable_blocks_comments', true ),
 						'highlander_comment_form_prompt'   => $this->get_highlander_comment_form_prompt_option(),
 						'jetpack_comment_form_color_scheme' => (string) get_option( 'jetpack_comment_form_color_scheme' ),
-						'in_site_migration_flow'           => (string) get_option( 'in_site_migration_flow', '' ),
 						'migration_source_site_domain'     => (string) get_option( 'migration_source_site_domain' ),
 						'jetpack_waf_automatic_rules'      => (bool) get_option( 'jetpack_waf_automatic_rules' ),
 						'jetpack_waf_ip_allow_list'        => (string) get_option( 'jetpack_waf_ip_allow_list' ),
@@ -1428,25 +1426,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 					break;
 
-				case 'in_site_migration_flow':
-					if ( empty( $value ) ) {
-						delete_option( 'in_site_migration_flow' );
-						break;
-					}
-
-					$migration_flow_whitelist = array(
-						'site-migration',
-						'migration-signup',
-					);
-
-					if ( ! in_array( $value, $migration_flow_whitelist, true ) ) {
-						break;
-					}
-
-					update_option( 'in_site_migration_flow', $value );
-					$updated[ $key ] = $value;
-					break;
-
 				case 'migration_source_site_domain':
 					// If we get an empty value, delete the option
 					if ( empty( $value ) ) {
@@ -1513,7 +1492,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		if ( $jetpack_relatedposts_options !== array() ) {
 			// track new jetpack_relatedposts options against old.
-			$old_relatedposts_options = Jetpack_Options::get_option( 'relatedposts' );
+			$old_relatedposts_options = Jetpack_Options::get_option( 'relatedposts', array() );
 
 			$jetpack_relatedposts_options_to_save = $old_relatedposts_options;
 			foreach ( $jetpack_relatedposts_options as $key => $value ) {

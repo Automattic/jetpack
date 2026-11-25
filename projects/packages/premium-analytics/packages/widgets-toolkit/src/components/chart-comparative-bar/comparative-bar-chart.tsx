@@ -423,12 +423,17 @@ export function ComparativeBarChart( {
 	);
 
 	/**
-	 * A pinned domain for percentage metrics and all-zero periods. Null lets the
-	 * chart scale to the data.
+	 * A pinned domain for percentage metrics and all-zero periods, read from the
+	 * bars the legend leaves visible. Null lets the chart scale to the data.
 	 */
 	const fixedYAxis = useMemo(
-		() => getFixedYAxis( dataFormat.type, isEmptyData, drawnSeries ),
-		[ dataFormat.type, isEmptyData, drawnSeries ]
+		() =>
+			getFixedYAxis(
+				dataFormat.type,
+				isEmptyData,
+				drawnSeries.filter( item => isSeriesVisible( chartId, item.label ) )
+			),
+		[ dataFormat.type, isEmptyData, drawnSeries, isSeriesVisible, chartId ]
 	);
 
 	const chartOptions = useMemo( () => {

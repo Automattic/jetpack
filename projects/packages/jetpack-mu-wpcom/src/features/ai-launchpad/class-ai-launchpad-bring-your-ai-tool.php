@@ -16,7 +16,7 @@ class AI_Launchpad_Bring_Your_AI_Tool {
 	/**
 	 * The ExPlat experiment.
 	 */
-	const EXPERIMENT = 'wpcom_ai_launchpad_bring_your_ai_tool_202611';
+	const EXPERIMENT = 'wpcom_ai_launchpad_bring_your_ai_tool_202611_v2';
 
 	/**
 	 * The variation that opens the wizard on the setup choice. The other variation, `control`, opens on the goals.

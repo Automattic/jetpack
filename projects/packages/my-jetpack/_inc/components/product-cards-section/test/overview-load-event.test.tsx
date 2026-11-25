@@ -1,20 +1,25 @@
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import useAnalytics from '../../../hooks/use-analytics';
 import BoostOverviewItem from '../boost-card/overview';
 import ProtectOverviewItem from '../protect-card/overview';
 import StatsOverviewItem from '../stats-card/overview';
 import type { FC } from 'react';
 
-const mockRecordEvent = jest.fn();
+const mockRecordEvent = jest.mocked( jest.mocked( useAnalytics )().recordEvent );
 let mockProductStatus = 'active';
 let mockStatsVisits = {};
+let mockHostPurchaseUrl: string | undefined;
 
-jest.mock( '../../../hooks/use-analytics', () => () => ( { recordEvent: mockRecordEvent } ) );
 jest.mock( '../../../hooks/use-my-jetpack-connection', () => () => ( {
 	blogID: '1',
 	isSiteConnected: true,
 } ) );
 jest.mock( '../../../data/products/use-product', () => () => ( {
-	detail: { status: mockProductStatus, manageUrl: 'https://example.org/manage' },
+	detail: {
+		status: mockProductStatus,
+		manageUrl: 'https://example.org/manage',
+		hostPurchaseUrl: mockHostPurchaseUrl,
+	},
 	isLoading: false,
 } ) );
 jest.mock( '../../../data/products/use-products-by-ownership', () => () => ( {
@@ -27,7 +32,7 @@ jest.mock( '../../../hooks/use-stats-visits', () => () => mockStatsVisits );
 jest.mock( '../overview-item/use-status-action', () => () => ( { isPending: false } ) );
 jest.mock( '../stats-card/overview-stats', () => () => null );
 jest.mock( '../../../data/use-simple-query', () => () => ( {
-	data: { scanData: { num_threats: 0 }, wafConfig: {} },
+	data: { scanData: { threats: [] }, wafConfig: {} },
 	isLoading: false,
 	isFetching: false,
 	isError: false,
@@ -42,7 +47,7 @@ jest.mock( '../boost-card/use-boost-speed-score', () => () => ( {
 } ) );
 
 const StatsItem: FC< { admin: boolean } > = props => (
-	<StatsOverviewItem { ...props } period={ { days: 7, end: new Date() } } />
+	<StatsOverviewItem { ...props } period={ { days: 7, end: new Date(), offset: 0 } } />
 );
 
 const loaded = {
@@ -71,5 +76,25 @@ describe( 'Overview load event', () => {
 				( [ name ] ) => name === 'jetpack_myjetpack_product_card_load'
 			)
 		).toHaveLength( 1 );
+	} );
+} );
+
+describe( "Protect's Scan upsell", () => {
+	afterEach( () => {
+		mockHostPurchaseUrl = undefined;
+	} );
+
+	it.each( [
+		[ 'its pricing page', undefined, '#/add-protect' ],
+		[ 'the plans its host sells', 'https://example.com/plans', 'https://example.com/plans' ],
+	] )( 'goes to %s', ( _, hostPurchaseUrl, href ) => {
+		mockProductStatus = 'active';
+		mockHostPurchaseUrl = hostPurchaseUrl;
+		render( <ProtectOverviewItem admin /> );
+
+		expect( screen.getByRole( 'link', { name: 'Add malware scanning' } ) ).toHaveAttribute(
+			'href',
+			href
+		);
 	} );
 } );

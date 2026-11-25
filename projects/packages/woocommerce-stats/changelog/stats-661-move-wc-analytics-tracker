@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Start WooCommerce Analytics store tracking, which Premium Analytics used to start. Add a filter that lets the host turn it off.

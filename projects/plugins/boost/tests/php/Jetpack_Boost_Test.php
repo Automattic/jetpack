@@ -6,8 +6,15 @@ use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
 use Automattic\Jetpack_Boost\Jetpack_Boost;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Minify\Config;
+use Automattic\Jetpack_Boost\Lib\Status;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Lcp\LCP_State;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_Common;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 // Include the main plugin file to load all functions and classes
@@ -19,6 +26,68 @@ require_once dirname( __DIR__, 2 ) . '/jetpack-boost.php';
  * @package Automattic\Jetpack_Boost\Tests
  */
 class Jetpack_Boost_Test extends BaseTestCase {
+
+	public function test_activation_runs_enabled_modules_and_skips_disabled_modules() {
+		add_filter( 'jetpack_boost_connection_bypass', '__return_true' );
+		( new Status( Minify_CSS::get_slug() ) )->set( true );
+		( new Status( Minify_JS::get_slug() ) )->set( false );
+		add_filter(
+			'jetpack_boost_can_module_run',
+			function ( $can_run, $module ) {
+				return in_array( $module->get_slug(), array( Minify_CSS::get_slug(), Minify_JS::get_slug() ), true );
+			},
+			10,
+			2
+		);
+		$activation_count = did_action( 'jetpack_boost_page_output_changed' );
+
+		Jetpack_Boost::activate();
+
+		$this->assertSame( 1, did_action( 'jetpack_boost_page_output_changed' ) - $activation_count );
+	}
+
+	public function test_activation_keeps_critical_css_off_when_cloud_css_is_disabled() {
+		add_filter( 'jetpack_boost_connection_bypass', '__return_true' );
+		add_filter( 'jetpack_boost_has_feature_cloud-critical-css', '__return_true' );
+		add_filter( 'jetpack_boost_can_module_run', '__return_false' );
+		( new Status( Cloud_CSS::get_slug() ) )->set( false );
+		( new Status( Critical_CSS::get_slug() ) )->set( false );
+
+		Jetpack_Boost::activate();
+
+		$this->assertFalse( ( new Status( Critical_CSS::get_slug() ) )->get() );
+	}
+
+	/**
+	 * @dataProvider provide_parent_module_status
+	 * @param bool $parents_enabled Whether both minify parents are enabled.
+	 */
+	#[DataProvider( 'provide_parent_module_status' )]
+	public function test_activation_only_runs_subfeatures_with_an_enabled_parent( $parents_enabled ) {
+		add_filter( 'jetpack_boost_connection_bypass', '__return_true' );
+		( new Status( Minify_CSS::get_slug() ) )->set( $parents_enabled );
+		( new Status( Minify_JS::get_slug() ) )->set( $parents_enabled );
+		add_filter(
+			'jetpack_boost_can_module_run',
+			function ( $can_run, $module ) {
+				return $module->get_slug() === Minify_Common::get_slug();
+			},
+			10,
+			2
+		);
+		wp_clear_scheduled_hook( 'jetpack_boost_minify_cron_cache_cleanup' );
+
+		Jetpack_Boost::activate();
+
+		$this->assertSame( $parents_enabled, false !== wp_next_scheduled( 'jetpack_boost_minify_cron_cache_cleanup' ) );
+	}
+
+	public static function provide_parent_module_status() {
+		return array(
+			'parents disabled' => array( false ),
+			'parents enabled'  => array( true ),
+		);
+	}
 
 	/**
 	 * Test that handle_version_change removes empty string from cornerstone_pages_list
@@ -100,6 +169,77 @@ class Jetpack_Boost_Test extends BaseTestCase {
 		// Verify that the array remains unchanged
 		$this->assertIsArray( $updated_pages, 'The updated pages should be an array' );
 		$this->assertEquals( array_map( 'home_url', $initial_pages ), $updated_pages, 'The array should remain unchanged when no empty string is present' );
+	}
+
+	/**
+	 * Test that module status writes queue a `boost_modules` snapshot, and other writes don't.
+	 *
+	 * @param callable $write       Option write to run.
+	 * @param bool     $expect_sync Whether a snapshot should be queued.
+	 * @dataProvider provide_option_writes
+	 */
+	#[DataProvider( 'provide_option_writes' )]
+	public function test_module_status_writes_queue_boost_modules_sync( $write, $expect_sync ) {
+		add_option( 'jetpack_boost_status_minify-js', '0' );
+		new Jetpack_Boost();
+		remove_all_actions( 'shutdown' );
+
+		$synced = array();
+		add_action(
+			'jetpack_sync_callable',
+			function ( $name, $value ) use ( &$synced ) {
+				$synced[] = array( $name => $value );
+			},
+			10,
+			2
+		);
+
+		$write();
+		do_action( 'shutdown' );
+
+		$expected = $expect_sync ? array( array( 'boost_modules' => ( new Modules_Setup() )->get_status() ) ) : array();
+		$this->assertEquals( $expected, $synced );
+	}
+
+	/**
+	 * Data provider for test_module_status_writes_queue_boost_modules_sync.
+	 *
+	 * @return array
+	 */
+	public static function provide_option_writes() {
+		return array(
+			'status add'        => array(
+				function () {
+					add_option( 'jetpack_boost_status_page-cache', true );
+				},
+				true,
+			),
+			'status update'     => array(
+				function () {
+					update_option( 'jetpack_boost_status_minify-js', true );
+				},
+				true,
+			),
+			'status delete'     => array(
+				function () {
+					delete_option( 'jetpack_boost_status_minify-js' );
+				},
+				true,
+			),
+			'two status writes' => array(
+				function () {
+					update_option( 'jetpack_boost_status_minify-js', true );
+					add_option( 'jetpack_boost_status_page-cache', true );
+				},
+				true,
+			),
+			'unrelated option'  => array(
+				function () {
+					update_option( 'blogname', 'Changed' );
+				},
+				false,
+			),
+		);
 	}
 
 	/**

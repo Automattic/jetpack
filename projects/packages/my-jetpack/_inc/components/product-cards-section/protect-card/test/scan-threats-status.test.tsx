@@ -3,19 +3,15 @@ import { render, renderHook, screen } from '@testing-library/react';
 import { ScanAndThreatStatus } from '../scan-threats-status';
 import { useLastScanText } from '../use-last-scan-text';
 
+let mockHasPaidPlan = true;
 jest.mock( '../../../../data/products/use-product', () => ( {
 	__esModule: true,
-	default: () => ( { detail: { isPluginActive: true, hasPaidPlanForProduct: true } } ),
+	default: () => ( { detail: { isPluginActive: true, hasPaidPlanForProduct: mockHasPaidPlan } } ),
 } ) );
 
 jest.mock( '../../../../hooks/use-my-jetpack-connection', () => ( {
 	__esModule: true,
 	default: () => ( { isSiteConnected: true } ),
-} ) );
-
-jest.mock( '../../../../hooks/use-analytics', () => ( {
-	__esModule: true,
-	default: () => ( { recordEvent: jest.fn() } ),
 } ) );
 
 jest.mock( '../../../../data/utils/get-my-jetpack-window-state', () => ( {
@@ -32,6 +28,7 @@ const scanData = (
 			last_checked: lastChecked,
 			last_scan_failed: lastScanFailed,
 			num_threats: numThreats,
+			threats: Array.from( { length: numThreats }, ( _, id ) => ( { id, severity: 1 } ) ),
 			num_plugins_threats: 0,
 			num_themes_threats: 0,
 			plugins: [],
@@ -68,5 +65,21 @@ describe( 'Protect card scan status with a paid plan and no threats', () => {
 		render( <ScanAndThreatStatus data={ scanData( false, 0, lastChecked ) } /> );
 
 		expect( screen.getByText( status ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'Protect card threat count', () => {
+	afterEach( () => {
+		mockHasPaidPlan = true;
+	} );
+
+	it( 'counts affected items, not the free report’s vulnerabilities', () => {
+		mockHasPaidPlan = false;
+		const data = scanData( false, 1 );
+		data.scanData.num_threats = 5;
+		render( <ScanAndThreatStatus data={ data } /> );
+
+		expect( screen.getByText( '1' ) ).toBeInTheDocument();
+		expect( screen.queryByText( '5' ) ).not.toBeInTheDocument();
 	} );
 } );

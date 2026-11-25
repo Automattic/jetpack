@@ -949,7 +949,7 @@ class PayPal_REST_Controller {
 	 * an image PayPal took, or `error` (name and message) for one it, or the checks
 	 * here, refused. A failure of the whole call is an error response instead.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.15.0
 	 *
 	 * @param WP_REST_Request $request The REST request.
 	 * @return WP_REST_Response|WP_Error Response on success, WP_Error on failure.
@@ -1035,7 +1035,7 @@ class PayPal_REST_Controller {
 	/**
 	 * Handle DELETE /paypal/images -- delete an image no payment carries.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.15.0
 	 *
 	 * @param WP_REST_Request $request The REST request.
 	 * @return WP_REST_Response|WP_Error Response on success, WP_Error on failure.
@@ -1077,7 +1077,7 @@ class PayPal_REST_Controller {
 	/**
 	 * Read a media library image, checked against PayPal's limits first.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.15.0
 	 *
 	 * @param int $attachment_id The attachment.
 	 * @return array|WP_Error Its name, type and content, or why it cannot go, as PayPal would name it.
@@ -1237,7 +1237,7 @@ class PayPal_REST_Controller {
 	 *
 	 * Best effort: a delete that fails leaves an unused image in the account, nothing more.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.15.0
 	 *
 	 * @param array $current The payment as the GET before the update returned it.
 	 * @param array $updated The body the update sent.
@@ -1817,7 +1817,7 @@ class PayPal_REST_Controller {
 	 * Line-item images are capped at five with exactly one primary: the one flagged,
 	 * or else the first. A variant option takes one image and no flag.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.15.0
 	 *
 	 * @param array $images       Raw entries from the REST request.
 	 * @param bool  $is_line_item Whether these are the line item's images rather than an option's.

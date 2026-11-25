@@ -9,9 +9,11 @@ namespace Automattic\Jetpack\IdentityCrisis;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication;
+use Automattic\Jetpack\Status;
 use Jetpack_Options;
 use Jetpack_XMLRPC_Server;
 use WP_Error;
+use WP_HTTP_Response;
 use WP_REST_Server;
 
 /**
@@ -58,6 +60,10 @@ class REST_Endpoints {
 				'callback'            => __CLASS__ . '::start_fresh_connection',
 				'permission_callback' => __CLASS__ . '::identity_crisis_mitigation_permission_check',
 				'args'                => array(
+					'from'         => array(
+						'description' => __( 'Indicates where the registration action was triggered for tracking/segmentation purposes', 'jetpack-connection' ),
+						'type'        => 'string',
+					),
 					'redirect_uri' => array(
 						'description' => __( 'URI of the admin page where the user should be redirected after connection flow', 'jetpack-connection' ),
 						'type'        => 'string',
@@ -226,12 +232,26 @@ class REST_Endpoints {
 	 *
 	 * @since 0.2.0
 	 * @since-jetpack 4.4.0
+	 * @since 9.18.3 Accepts `from`, reported to WordPress.com for the registration and the authorization.
+	 * @since $$next-version$$ A failed registration's error data has `disconnected` set, since the site is already disconnected.
+	 * @since $$next-version$$ Refuses with `start_fresh_not_in_safe_mode` when the site is connected and no longer in Safe Mode.
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
 	 * @return \WP_REST_Response|WP_Error
 	 */
 	public static function start_fresh_connection( $request ) {
+		$connection = new Connection_Manager();
+
+		// A screen left open, e.g. in another tab, must not undo a connection made since.
+		if ( $connection->is_connected() && ! ( new Status() )->in_safe_mode() ) {
+			return new WP_Error(
+				'start_fresh_not_in_safe_mode',
+				esc_html__( 'This site is no longer in Safe Mode, so it keeps its connection.', 'jetpack-connection' ),
+				array( 'status' => 409 )
+			);
+		}
+
 		/**
 		 * Fires when Users have requested through Identity Crisis for the connection to be reset.
 		 * Should be used to disconnect any connections and reset options.
@@ -240,12 +260,19 @@ class REST_Endpoints {
 		 */
 		do_action( 'jetpack_idc_disconnect' );
 
-		$connection = new Connection_Manager();
-		$result     = $connection->try_registration( true, true );
+		// Before registering, so the registration is attributed too, as in the connection/register endpoint.
+		$from = (string) $request->get_param( 'from' );
+		if ( '' !== $from ) {
+			$connection->add_register_request_param( 'from', $from );
+		}
 
-		// early return if site registration fails.
-		if ( ! $result || is_wp_error( $result ) ) {
-			return rest_ensure_response( $result );
+		$result = $connection->try_registration( true, true );
+
+		if ( is_wp_error( $result ) ) {
+			// Any existing data moves to the response's `additional_data`.
+			$data = $result->get_error_data();
+			$result->add_data( array_merge( is_array( $data ) ? $data : array(), array( 'disconnected' => true ) ) );
+			return $result;
 		}
 
 		$redirect_uri = $request->get_param( 'redirect_uri' ) ? admin_url( $request->get_param( 'redirect_uri' ) ) : null;
@@ -253,11 +280,29 @@ class REST_Endpoints {
 		/**
 		 * Filters the connection url that users should be redirected to for re-establishing their connection.
 		 *
+		 * The data must be an http(s) URL; anything else makes the endpoint return a `start_fresh_missing_connection_url` error.
+		 *
 		 * @since 0.2.0
 		 *
 		 * @param \WP_REST_Response|WP_Error    $connection_url Connection URL user should be redirected to.
 		 */
-		return apply_filters( 'jetpack_idc_authorization_url', rest_ensure_response( $connection->get_authorization_url( null, $redirect_uri ) ) );
+		$response = apply_filters( 'jetpack_idc_authorization_url', rest_ensure_response( $connection->get_authorization_url( null, $redirect_uri, $from ) ) );
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		// The Safe Mode screens send the browser to whatever comes back, so it must be a web address.
+		$url = $response instanceof WP_HTTP_Response ? $response->get_data() : $response;
+		if ( ! is_string( $url ) || ! in_array( strtolower( (string) wp_parse_url( $url, PHP_URL_SCHEME ) ), array( 'http', 'https' ), true ) ) {
+			return new WP_Error(
+				'start_fresh_missing_connection_url',
+				esc_html__( 'Jetpack could not get the address to connect this site to WordPress.com.', 'jetpack-connection' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		return $response;
 	}
 
 	/**
@@ -273,8 +318,7 @@ class REST_Endpoints {
 			return true;
 		}
 		$error_msg = esc_html__(
-			'You do not have the correct user permissions to perform this action.
-			Please contact your site admin if you think this is a mistake.',
+			'You do not have the correct user permissions to perform this action. Please contact your site admin if you think this is a mistake.',
 			'jetpack-connection'
 		);
 

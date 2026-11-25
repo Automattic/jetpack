@@ -4,7 +4,6 @@ import { render, screen } from '@testing-library/react';
 
 const useEnsureTabData = jest.fn< () => { status: string; retry: () => void } >();
 const isSeoToolsActive = jest.fn< () => boolean >();
-const isGated = jest.fn< () => boolean >();
 
 jest.unstable_mockModule( '../../../_inc/components/dashboard-load-error', () => ( {
 	default: () => 'load-error',
@@ -20,9 +19,6 @@ jest.unstable_mockModule( '../../../_inc/dashboard/dashboard-page', () => ( {
 } ) );
 jest.unstable_mockModule( '../../../_inc/data/get-preloaded', () => ( {
 	OVERVIEW_PATH: '/jetpack/v4/seo/overview',
-} ) );
-jest.unstable_mockModule( '../../../_inc/data/is-gated', () => ( {
-	isGated,
 } ) );
 jest.unstable_mockModule( '../../../_inc/data/is-seo-tools-active', () => ( {
 	default: isSeoToolsActive,
@@ -41,7 +37,6 @@ describe( 'Overview route stage', () => {
 		jest.clearAllMocks();
 		useEnsureTabData.mockReturnValue( { status: 'ready', retry: jest.fn() } );
 		isSeoToolsActive.mockReturnValue( true );
-		isGated.mockReturnValue( false );
 	} );
 
 	it( 'renders the Overview when SEO tools are on', () => {
@@ -61,15 +56,6 @@ describe( 'Overview route stage', () => {
 
 		expect( screen.getByText( 'seo-disabled:overview' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'overview-screen' ) ).not.toBeInTheDocument();
-	} );
-
-	it( 'keeps the reduced Overview on plan-gated sites even with SEO tools off', () => {
-		isSeoToolsActive.mockReturnValue( false );
-		isGated.mockReturnValue( true );
-
-		render( <Stage /> );
-
-		expect( screen.getByText( 'overview-screen' ) ).toBeInTheDocument();
 	} );
 
 	// The module state lives in the Overview slice, so it isn't known until it loads.
