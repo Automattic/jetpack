@@ -13,8 +13,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
-require_once __DIR__ . '/sitemap-stylist.php';
-
 /**
  * A buffer for constructing sitemap xml files.
  *

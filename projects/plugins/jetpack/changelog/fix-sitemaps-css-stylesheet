@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Sitemaps: Use CSS to keep XML sitemaps readable in browsers removing XSLT support.

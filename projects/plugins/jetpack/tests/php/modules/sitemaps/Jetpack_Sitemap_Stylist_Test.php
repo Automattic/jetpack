@@ -148,16 +148,4 @@ class Jetpack_Sitemap_Stylist_Test extends WP_UnitTestCase {
 		$namespaces = array_keys( $result->getNamespaces() );
 		$this->assertEquals( array( 'xsl' ), $namespaces );
 	}
-
-	public function test_css_escapes_translated_quotes_backslashes_and_line_breaks() {
-		$translate = static function ( $translation, $text, $domain ) {
-			return 'jetpack' === $domain && 'XML Sitemap' === $text ? "A \"quoted\" \\ title\nnext line" : $translation;
-		};
-		add_filter( 'gettext', $translate, 10, 3 );
-		try {
-			$this->assertStringContainsString( '--jetpack-sitemap-title: "A \"quoted\" \\\\ title next line";', Jetpack_Sitemap_Stylist::sitemap_css() );
-		} finally {
-			remove_filter( 'gettext', $translate );
-		}
-	}
 }
