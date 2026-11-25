@@ -35,15 +35,22 @@ export function useComparativeLegend(
 		() => ( {
 			collapseGroups: true,
 			interactive,
-			comparisonSeriesItems: ( metric: string ) =>
-				sprintf(
-					/* translators: 1: metric name, e.g. "Views"; 2: comparison period, e.g. "Prev. 30 days". */
-					_x( '%1$s (%2$s)', 'metric with its comparison period', 'jetpack-premium-analytics-pkg' ),
-					metric,
-					comparisonLabel
-				),
+			// A stack sums its comparisons into one bar, so there is no per-metric item to name.
+			...( barLayout !== 'stacked' && {
+				comparisonSeriesItems: ( metric: string ) =>
+					sprintf(
+						/* translators: 1: metric name, e.g. "Views"; 2: comparison period, e.g. "Prev. 30 days". */
+						_x(
+							'%1$s (%2$s)',
+							'metric with its comparison period',
+							'jetpack-premium-analytics-pkg'
+						),
+						metric,
+						comparisonLabel
+					),
+			} ),
 		} ),
-		[ interactive, comparisonLabel ]
+		[ interactive, comparisonLabel, barLayout ]
 	);
 	const itemOptions = useMemo( () => ( { ...config, layout: barLayout } ), [ config, barLayout ] );
 	const items = useLockedPrimaryLegendItems( series, itemOptions, shape, primaryLabel );

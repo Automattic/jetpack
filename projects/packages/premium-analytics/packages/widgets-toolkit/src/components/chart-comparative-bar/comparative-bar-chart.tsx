@@ -3,6 +3,7 @@
  */
 import {
 	BarChart,
+	COMPARISON_TOTAL_KEY,
 	Stack,
 	getBucketInfo,
 	useBarColors,
@@ -407,14 +408,7 @@ export function ComparativeBarChart( {
 			const augmented = { ...datumByKey };
 
 			// A stack's previous-period total is the chart's own bar, not a series; each group's previous value is read out instead.
-			if ( layout === 'stacked' ) {
-				const labels = new Set( alignedSeries.map( ( { label } ) => label ) );
-				for ( const key of Object.keys( augmented ) ) {
-					if ( ! labels.has( key ) ) {
-						delete augmented[ key ];
-					}
-				}
-			}
+			delete augmented[ COMPARISON_TOTAL_KEY ];
 
 			for ( const [ index, seriesData ] of alignedSeries.entries() ) {
 				if ( seriesData.options?.type !== 'comparison' || augmented[ seriesData.label ] ) {
@@ -445,7 +439,7 @@ export function ComparativeBarChart( {
 
 			return { ...tooltipData, datumByKey: augmented };
 		},
-		[ alignedSeries, primarySeriesByGroup, layout ]
+		[ alignedSeries, primarySeriesByGroup ]
 	);
 
 	const renderTooltip = useCallback(

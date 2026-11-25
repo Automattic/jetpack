@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { GlobalChartsProvider, useGlobalChartsContext } from '@jetpack-premium-analytics/externals';
+import {
+	COMPARISON_TOTAL_KEY,
+	GlobalChartsProvider,
+	useGlobalChartsContext,
+} from '@jetpack-premium-analytics/externals';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 /**
@@ -253,7 +257,7 @@ describe( 'ComparativeBarChart previous-period toggle', () => {
 				datumByKey: {
 					Views: { ...entry( 'Views', 100 ), index: 0 },
 					Visitors: { ...entry( 'Visitors', 40 ), index: 1 },
-					'Comparison period': { ...entry( 'Comparison period', 110 ), index: 2 },
+					[ COMPARISON_TOTAL_KEY ]: { ...entry( COMPARISON_TOTAL_KEY, 110 ), index: 2 },
 				},
 			},
 		} );
