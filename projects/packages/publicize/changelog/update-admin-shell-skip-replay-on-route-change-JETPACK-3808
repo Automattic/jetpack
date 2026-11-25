@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Admin shell: Record one tab view, not two, when the shell reopens Social at another tab.

@@ -14,9 +14,11 @@ The plugin that bundles it, Jetpack, Jetpack Stats or the standalone Premium Ana
 
 The package also owns when store data syncs to WordPress.com. `Sync_Configuration` opts in to the shared `woocommerce_analytics` sync module on a store running WooCommerce, registers its name through `jetpack_premium_analytics_sync_modules`, and drops per-order changes until that module's first full sync has started. The dashboard package's `Sync_Status_Tracker` records starts separately for each registered module. `Lookup_Data_Backfill` resends, once, the order lookup data and product catalog that stores synced through the standalone WooCommerce Analytics plugin never sent.
 
+It starts WooCommerce Analytics store tracking too: `WooCommerce_Analytics_Tracker` turns on the ClickHouse and proxy pipeline and hands over to the WooCommerce Analytics package, which decides where the tracker runs. A host turns it off with the `jetpack_woocommerce_stats_store_tracking_enabled` filter, as the Jetpack plugin does while its WooCommerce Analytics module is off.
+
 ## Using this package in your WordPress plugin
 
-Require it with Composer and call `\Automattic\Jetpack\WooCommerceStats\Analytics_Dashboard::init()` before `plugins_loaded` completes, so the sync opt-in reaches this request's Sync setup. The registration happens when the dashboard's section registry hydrates, so the call is inert on a site without the dashboard.
+Require it with Composer and call `\Automattic\Jetpack\WooCommerceStats\Analytics_Dashboard::init()` on every request, not only admin ones, and before `plugins_loaded` completes, so store tracking reaches the front end and the sync opt-in reaches this request's Sync setup. The section and widget types register when the dashboard's section registry hydrates, so call it only where the dashboard is on.
 
 ## Security
 

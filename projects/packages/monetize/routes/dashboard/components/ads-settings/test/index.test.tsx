@@ -5,14 +5,30 @@ import apiFetch from '@wordpress/api-fetch';
 import { getAdsSettingsData } from '../../../data/ads-settings-data';
 import { useAdsSettings } from '../../../data/use-ads-settings';
 import { usePayout, useSavePayout } from '../../../data/use-wpcom-ads-settings';
+import { useAdsAccount, useAdsEarnings } from '../../../data/wordads';
 import { AdsSettings } from '../index';
 import type { AdsSettingsData } from '../../../data/ads-settings-data';
 import type { AdsValues } from '../../../data/use-ads-settings';
 
+let mockSimple = false;
+let mockCanJoin = true;
+const mockJoin = jest.fn();
+
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	isSimpleSite: () => mockSimple,
+	isWpcomPlatformSite: () => mockSimple,
+} ) );
+jest.mock( '../../../data/wordads', () => ( {
+	useAdsAccount: jest.fn(),
+	useAdsEarnings: jest.fn(),
+	useJoinWordAds: () => ( { mutate: mockJoin, isPending: false, isError: false } ),
+} ) );
+jest.mock( '../../../data/notices' );
 jest.mock( '../../../data/ads-settings-data' );
 jest.mock( '../../../data/state', () => ( {
 	getPageData: () => ( { upgradeUrl: MOCK_UPGRADE_URL, tracks: true } ),
+	getSectionState: () => ( { canJoinWordAds: mockCanJoin } ),
 } ) );
 jest.mock( '../../../data/tracking' );
 jest.mock( '../../../data/use-ads-settings', () => ( {
@@ -28,7 +44,7 @@ jest.mock( '../../../data/use-wpcom-ads-settings', () => ( {
 	usePayout: jest.fn(),
 	useSavePayout: jest.fn(),
 } ) );
-jest.mock( '../payout-card', () => ( { PayoutCard: () => null } ) );
+jest.mock( '../payout-card', () => ( { PayoutCard: () => <p>Payout card</p> } ) );
 jest.mock( '@automattic/jetpack-connection/get-user-connection-url', () => ( {
 	getUserConnectionUrl: () => '#connect',
 } ) );
@@ -99,9 +115,16 @@ const openTab = jest.fn();
 
 describe( 'AdsSettings', () => {
 	beforeEach( () => {
+		mockSimple = false;
+		mockCanJoin = true;
+		( useAdsAccount as jest.Mock ).mockReturnValue( {
+			data: { approved: true },
+			isPending: false,
+		} );
 		mockedApiFetch.mockReset();
 		openTab.mockReset();
 		acceptTerms.mockReset().mockResolvedValue( {} );
+		( useAdsEarnings as jest.Mock ).mockReturnValue( { data: undefined } );
 		( usePayout as jest.Mock ).mockReturnValue( { data: { paypal: '', tosSigned: false } } );
 		( useSavePayout as jest.Mock ).mockReturnValue( {
 			mutateAsync: acceptTerms,
@@ -111,11 +134,20 @@ describe( 'AdsSettings', () => {
 	} );
 
 	it.each( [
-		[ 'accepts the terms before turning ads on', false, true, true ],
-		[ 'leaves ads off when the terms cannot be accepted', false, false, false ],
-		[ 'turns ads on straight away once the terms are signed', true, true, true ],
-	] )( '%s', async ( _name, tosSigned, accepted, activated ) => {
-		( usePayout as jest.Mock ).mockReturnValue( { data: { paypal: '', tosSigned } } );
+		[ 'accepts the terms before turning ads on', { tosSigned: false }, true, false, 1 ],
+		[ 'turns ads on when the terms cannot be accepted', { tosSigned: false }, false, false, 1 ],
+		[ 'turns ads on straight away once the terms are signed', { tosSigned: true }, true, false, 0 ],
+		[ 'turns ads on before the payout details load', undefined, true, false, 0 ],
+		[
+			'turns ads on and signs the terms in one save on Simple',
+			{ tosSigned: false },
+			true,
+			true,
+			0,
+		],
+	] )( '%s', async ( _name, payout, accepted, simple, signs ) => {
+		mockSimple = simple;
+		( usePayout as jest.Mock ).mockReturnValue( { data: payout && { paypal: '', ...payout } } );
 		if ( ! accepted ) {
 			acceptTerms.mockRejectedValue( new Error() );
 		}
@@ -125,55 +157,62 @@ describe( 'AdsSettings', () => {
 		await userEvent.click( screen.getByRole( 'switch', { name: SWITCH } ) );
 		await act( () => Promise.resolve() );
 
-		expect( acceptTerms ).toHaveBeenCalledTimes( tosSigned ? 0 : 1 );
-		expect( setModuleActive ).toHaveBeenCalledTimes( activated ? 1 : 0 );
+		expect( acceptTerms ).toHaveBeenCalledTimes( signs );
+		expect( setModuleActive ).toHaveBeenCalledWith( true );
 	} );
 
 	it.each( [
-		[ 'the upgrade prompt without a plan', { hasWordAds: false }, [], 'link', 'Upgrade' ],
+		[ 'the upgrade prompt without a plan', { hasWordAds: false }, [], 'Upgrade', MOCK_UPGRADE_URL ],
 		[
 			'the connect prompt without a plan or owner',
 			{ hasWordAds: false, hasConnectedOwner: false },
 			[],
-			'link',
 			'Connect',
-		],
-		[ 'the Ads switch with a plan', {}, [], 'switch', SWITCH ],
-		[
-			'the Ads switch when the cached plan missed a purchase',
-			{ hasWordAds: false },
-			[ 'wordads' ],
-			'switch',
-			SWITCH,
+			'#connect',
 		],
 		[
 			'the upgrade prompt when WordPress.com cannot say',
 			{ hasWordAds: false },
 			new Error(),
-			'link',
 			'Upgrade',
+			MOCK_UPGRADE_URL,
 		],
-	] )( 'shows %s', async ( _label, data, features, role, name ) => {
+	] )( 'shows %s', async ( _label, data, features, name, href ) => {
 		renderTab( data, {}, features );
 
-		await expect( screen.findByRole( role, { name } ) ).resolves.toBeInTheDocument();
-		expect( screen.queryAllByRole( 'switch' ).length > 0 ).toBe( role === 'switch' );
+		await expect( screen.findByRole( 'link', { name } ) ).resolves.toHaveAttribute( 'href', href );
+		expect( screen.queryByRole( 'switch' ) ).not.toBeInTheDocument();
 	} );
+
+	it.each( [
+		[ 'with a plan', {}, [] ],
+		[ 'when the cached plan missed a purchase', { hasWordAds: false }, [ 'wordads' ] ],
+	] )( 'shows the Ads switch %s', async ( _label, data, features ) => {
+		renderTab( data, {}, features );
+
+		await expect( screen.findByRole( 'switch', { name: SWITCH } ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
+	} );
+
+	it.each( [
+		[ 'shows', 5, true ],
+		[ 'hides', 0, false ],
+	] )(
+		'%s the payout card without a plan when the site is owed %d',
+		async ( _label, owed, shown ) => {
+			( useAdsEarnings as jest.Mock ).mockReturnValue( { data: { owed } } );
+			renderTab( { hasWordAds: false } );
+
+			await expect( screen.findByRole( 'link', { name: 'Upgrade' } ) ).resolves.toBeInTheDocument();
+			expect( screen.queryByText( 'Payout card' ) !== null ).toBe( shown );
+		}
+	);
 
 	it( 'asks WordPress.com only when the cached plan lacks WordAds', async () => {
 		renderTab();
 
 		await expect( screen.findByRole( 'switch', { name: SWITCH } ) ).resolves.toBeInTheDocument();
 		expect( mockedApiFetch ).not.toHaveBeenCalled();
-	} );
-
-	it( 'links the upgrade prompt to the upgrade URL', async () => {
-		renderTab( { hasWordAds: false } );
-
-		await expect( screen.findByRole( 'link', { name: 'Upgrade' } ) ).resolves.toHaveAttribute(
-			'href',
-			MOCK_UPGRADE_URL
-		);
 	} );
 
 	it( 'locks the Ads switch the host forces, and says why', () => {
@@ -183,7 +222,16 @@ describe( 'AdsSettings', () => {
 			'aria-disabled',
 			'true'
 		);
-		expect( screen.getByText( 'Enabled by your host or site administrator' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Enabled by your host or site administrator.' ) ).toBeInTheDocument();
+	} );
+
+	it( 'offers no upgrade when the host keeps ads off', async () => {
+		renderTab( { hasWordAds: false, moduleOverride: 'inactive' } );
+
+		await expect(
+			screen.findByText( 'Disabled by your host or site administrator.' )
+		).resolves.toBeVisible();
+		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'disables the placements while ads are off', () => {
@@ -204,6 +252,64 @@ describe( 'AdsSettings', () => {
 		expect(
 			screen.getByRole( 'switch', { name: 'Enable GDPR Consent Banner' } )
 		).toBeInTheDocument();
+	} );
+
+	it( 'shows Simple’s own options, and none it cannot save', () => {
+		mockSimple = true;
+		renderTab();
+
+		expect(
+			screen.getByRole( 'switch', { name: 'Only show ads to logged-out visitors' } )
+		).toBeInTheDocument();
+		expect( screen.getByRole( 'switch', { name: 'Sidebar' } ) ).toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'switch', { name: 'Enable GDPR Consent Banner' } )
+		).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'switch', { name: 'Customize your ads.txt file' } )
+		).not.toBeInTheDocument();
+	} );
+
+	it( 'lets the owner of a Simple site join WordAds in place', async () => {
+		mockSimple = true;
+		( useAdsAccount as jest.Mock ).mockReturnValue( {
+			data: { approved: false },
+			isPending: false,
+		} );
+		renderTab();
+
+		expect( screen.queryByRole( 'switch', { name: SWITCH } ) ).not.toBeInTheDocument();
+		await userEvent.click( screen.getByRole( 'button', { name: 'Join WordAds' } ) );
+		expect( mockJoin ).toHaveBeenCalled();
+		expect( openTab ).not.toHaveBeenCalled();
+	} );
+
+	it( 'says why the owner cannot join when WordPress.com reports the site unsafe', () => {
+		mockSimple = true;
+		( useAdsAccount as jest.Mock ).mockReturnValue( {
+			data: { approved: false, unsafe: 'mature' },
+			isPending: false,
+		} );
+		renderTab();
+
+		expect( screen.getByText( /identified as serving mature content/ ) ).toBeVisible();
+		expect( screen.getByRole( 'button', { name: 'Join WordAds' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+	} );
+
+	it( 'tells an admin who is not the owner that only the owner can join', () => {
+		mockSimple = true;
+		mockCanJoin = false;
+		( useAdsAccount as jest.Mock ).mockReturnValue( {
+			data: { approved: false },
+			isPending: false,
+		} );
+		renderTab();
+
+		expect( screen.getByText( /Only the site owner can join WordAds/ ) ).toBeVisible();
+		expect( screen.queryByRole( 'button', { name: 'Join WordAds' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'opens the Ads tab in place for earnings', async () => {

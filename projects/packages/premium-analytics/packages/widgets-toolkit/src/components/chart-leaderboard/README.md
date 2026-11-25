@@ -150,6 +150,20 @@ rejects it on a row that links out as a whole:
 } ),
 ```
 
+A `postLink` or `videoLink` row in the `list` variant can also take an `indicator`, the name of a
+mark drawn at the row's start, as Top pages does for a post published in the selected period. The
+row draws the mark and its name describes the title link, so focusing the title announces it while
+the link keeps its own name:
+
+```tsx
+...buildLeaderboardRow( {
+	label: 'Hello world',
+	media: { kind: 'none' },
+	action: { kind: 'postLink', id: 5, href: null, search: {} },
+	indicator: __( 'Published in this period', 'jetpack-premium-analytics-pkg' ),
+} ),
+```
+
 For a drill-down row, pass the chart-level action to the builder. Its result includes the
 `onClick` and `ariaLabel` fields expected by `LeaderboardChart`:
 

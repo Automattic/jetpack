@@ -9,6 +9,7 @@ const globalControl = <button>Global control</button>;
 describe( 'AdminPage', () => {
 	afterEach( () => {
 		jest.restoreAllMocks();
+		delete window.JetpackScriptData;
 	} );
 
 	it.each( [
@@ -68,5 +69,25 @@ describe( 'AdminPage', () => {
 
 		expect( setApiRoot ).toHaveBeenCalledWith( 'https://example.com/wp-json/' );
 		expect( setApiNonce ).toHaveBeenCalledWith( 'nonce' );
+	} );
+
+	it.each( [
+		[ 'with a title', 'Jetpack' ],
+		[ 'without a title', undefined ],
+	] )( 'leaves Features out of the footer when asked, %s', ( _, title ) => {
+		window.JetpackScriptData = {
+			site: {},
+			myJetpack: { isAvailable: true, isShownByHost: true },
+			user: { current_user: { capabilities: { manage_options: true } } },
+		} as unknown as typeof window.JetpackScriptData;
+
+		render(
+			<AdminPage title={ title } showFooterFeaturesLink={ false }>
+				Content
+			</AdminPage>
+		);
+
+		expect( screen.queryByRole( 'link', { name: 'Features' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Help' } ) ).toBeInTheDocument();
 	} );
 } );

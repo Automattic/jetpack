@@ -42,3 +42,4 @@ import JetpackFooter from '@automattic/jetpack-components/jetpack-footer/unstyle
 
 - `className`: String - (default: `jetpack-footer`) the additional class name set on the element.
 - `menu`: JetpackFooterMenuItem[] - (default: `undefined`) set additional menu items to be rendered in the footer.
+- `showFeaturesLink`: Boolean - (default: `true`) whether to link to Features. Turn it off on a page that already links there.

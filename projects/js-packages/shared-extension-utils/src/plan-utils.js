@@ -149,6 +149,15 @@ const usableBlockWithFreePlan = [
 		fileType: 'audio',
 		description: __( 'Upgrade your plan to upload audio', 'jetpack-shared-extension-utils' ),
 	},
+	{
+		name: 'core/video',
+		mediaPlaceholder: true,
+		mediaReplaceFlow: true,
+		fileType: 'video',
+		// The banner stays up while this attribute is empty: an empty block can only be filled by uploading.
+		bannerUntilAttribute: 'src',
+		description: __( 'Upgrade your plan to upload videos', 'jetpack-shared-extension-utils' ),
+	},
 ];
 
 /**

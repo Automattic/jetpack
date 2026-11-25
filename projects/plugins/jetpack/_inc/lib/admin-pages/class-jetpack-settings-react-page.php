@@ -8,7 +8,11 @@
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\My_Jetpack\Google_Analytics_Settings;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
+use Automattic\Jetpack\PremiumAnalytics\Analytics;
+use Automattic\Jetpack\SEO\Initializer as SEO_Initializer;
+use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -211,7 +215,7 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 	 * @return string The page hook.
 	 */
 	public function get_page_hook() {
-		if ( ! $this->can_access_settings() ) {
+		if ( ! $this->can_access_settings() || array() === self::get_remaining_tabs() ) {
 			add_filter( 'jetpack_admin_menu_visibility', array( __CLASS__, 'hide_menu_item' ) );
 		}
 
@@ -234,7 +238,7 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 	}
 
 	/**
-	 * Hide the sidebar entry from users who cannot use Settings.
+	 * Hide the sidebar entry from users who cannot use Settings, or who have no tab left on it.
 	 *
 	 * @param array $states Menu item key to visibility state.
 	 * @return array
@@ -242,6 +246,56 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 	public static function hide_menu_item( $states ) {
 		$states['jetpack-settings'] = 'hidden';
 		return $states;
+	}
+
+	/**
+	 * The tabs Settings still shows this user once settings move to My Jetpack, which the sidebar entry and the nav both follow.
+	 *
+	 * @since 16.5
+	 *
+	 * @return string[]|null Tab routes without the slash, or null while settings stay here: consolidation is off, or the user cannot manage modules.
+	 */
+	public static function get_remaining_tabs() {
+		if ( ! current_user_can( 'jetpack_manage_modules' ) || ! self::are_settings_moving_out() ) {
+			return null;
+		}
+
+		$available = Jetpack::get_available_modules();
+		$has_any   = static function ( array $modules ) use ( $available ) {
+			return array() !== array_intersect( $modules, $available );
+		};
+
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		$tabs = array();
+
+		if (
+			! did_action( 'jetpack_protect_dashboard_initialized' )
+			&& ( $has_any( array( 'protect', 'sso', 'vaultpress' ) ) || is_plugin_active( 'akismet/akismet.php' ) )
+		) {
+			$tabs[] = 'security';
+		}
+
+		$has_seo_page        = method_exists( SEO_Initializer::class, 'is_seo_surface_visible' ) && SEO_Initializer::is_seo_surface_visible();
+		$has_analytics_panel = method_exists( Google_Analytics_Settings::class, 'is_available' ) && Google_Analytics_Settings::is_available();
+		// Stats v2 counts wherever it booted, the Premium Analytics plugin included.
+		$has_stats_v2   = method_exists( Analytics::class, 'is_initialized' ) ? Analytics::is_initialized() : Jetpack::is_premium_analytics_enabled();
+		$has_stats_page = Stats_Options::get_option( 'enable_odyssey_stats' ) || $has_stats_v2;
+		if (
+			( ! $has_seo_page && $has_any( array( 'seo-tools', 'canonical-urls', 'verification-tools', 'sitemaps' ) ) )
+			|| ( ( new Host() )->is_woa_site() && ! $has_analytics_panel )
+			|| ( ! $has_stats_page && $has_any( array( 'stats' ) ) )
+		) {
+			$tabs[] = 'traffic';
+		}
+
+		if ( $has_any( array( 'wordads' ) ) && ! Jetpack_Ads_Settings_Home::is_moved_off_settings() ) {
+			$tabs[] = 'earn';
+		}
+
+		return $tabs;
 	}
 
 	/**
@@ -323,7 +377,7 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 			 * If those modules are not available, bail.
 			 */
 			if (
-				( ! Jetpack::is_module_active( 'post-by-email' ) || self::is_post_by_email_on_profile_only() )
+				( ! Jetpack::is_module_active( 'post-by-email' ) || self::are_settings_moving_out() )
 					&& (
 						! Jetpack::is_module_active( 'publicize' ) ||
 						! current_user_can( 'publish_posts' )
@@ -338,13 +392,13 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 	}
 
 	/**
-	 * Whether users who cannot manage modules find Post by Email only on their Profile page, once settings move to My Jetpack.
+	 * Whether settings move to My Jetpack, which leaves Post by Email for non-admins only on their Profile page.
 	 *
 	 * Uses the check that needs no admin menu, since this runs while the menu is built.
 	 *
 	 * @return bool
 	 */
-	private static function is_post_by_email_on_profile_only() {
+	private static function are_settings_moving_out() {
 		return method_exists( My_Jetpack_Initializer::class, 'is_settings_consolidation_on_for_site' )
 			&& My_Jetpack_Initializer::is_settings_consolidation_on_for_site();
 	}

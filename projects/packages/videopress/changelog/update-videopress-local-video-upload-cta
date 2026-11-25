@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Library: Always show the Upload to VideoPress button on local videos, in both grid and table layouts.

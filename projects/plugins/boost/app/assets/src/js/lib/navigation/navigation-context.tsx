@@ -1,5 +1,4 @@
 import { createContext, useContext, useMemo } from 'react';
-import { useNavigate } from 'react-router';
 import { navigateTo, settingsUrl } from '$lib/modern/routes';
 import type { ReactNode } from 'react';
 
@@ -23,22 +22,6 @@ export function useBoostNavigation(): BoostNavigation {
 	}
 
 	return navigation;
-}
-
-/**
- * Navigation for the legacy hash router. Must render inside the router.
- *
- * @param props          - Component props.
- * @param props.children - Tree to provide navigation to.
- */
-export function LegacyNavigationProvider( { children }: { children: ReactNode } ) {
-	const navigate = useNavigate();
-	const navigation = useMemo< BoostNavigation >(
-		() => ( { returnToSettings: options => navigate( '/', options ), settingsHref: '#/' } ),
-		[ navigate ]
-	);
-
-	return <NavigationContext.Provider value={ navigation }>{ children }</NavigationContext.Provider>;
 }
 
 /**

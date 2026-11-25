@@ -21,10 +21,12 @@ const WIDGET_SIZES_OPTIONS = [
 	{ value: 'resizable', title: 'Widget: resizable' },
 ];
 
+const WIDGET_STORY_PATHS = [ '/premium-analytics/widgets/', '/woocommerce-stats/widgets/' ];
+
 /**
- * Whether a story is a close-up of a Premium Analytics widget, the kind the canvas
- * reading the `widgetSizes` global frames. A story tagged `widget-dashboard` is
- * not: it mounts the real dashboard.
+ * Whether a story is a close-up of a widget, the kind the canvas reading the
+ * `widgetSizes` global frames. A story tagged `widget-dashboard` is not: it
+ * mounts the real dashboard.
  *
  * @param {object} story - Entry of the story on screen.
  * @return {boolean} Whether the story follows the control.
@@ -32,7 +34,7 @@ const WIDGET_SIZES_OPTIONS = [
 function isWidgetCloseUp( story ) {
 	return (
 		story?.type === 'story' &&
-		story.importPath?.includes( '/premium-analytics/widgets/' ) &&
+		WIDGET_STORY_PATHS.some( path => story.importPath?.includes( path ) ) &&
 		! story.tags?.includes( 'widget-dashboard' )
 	);
 }

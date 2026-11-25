@@ -710,6 +710,24 @@ class Wpcom_Themes_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Simple sites can't request the store, so wpcom supplies it through the filter instead.
+	 */
+	public function test_a_partner_theme_is_sold_from_the_supplied_store() {
+		$this->site_has_plan( true );
+		$this->answer_wpcom( array( 'tier=partner' => array( 'body' => self::PARTNER_THEMES ) ) );
+		$supplied = static function () {
+			return self::STORE_PRODUCTS + array( 'personal-bundle' => array( 'product_type' => 'bundle' ) );
+		};
+
+		add_filter( 'wpcom_marketplace_store_products', $supplied );
+		$theme = $this->add_plan_to_partner_theme();
+		remove_filter( 'wpcom_marketplace_store_products', $supplied );
+
+		$this->assertSame( 'theme_stax_yearly', $theme->price_product );
+		$this->assertSame( array(), preg_grep( '#/products#', $this->requests ) );
+	}
+
+	/**
 	 * A theme the site already subscribes to is core's to install, so it is not sold again.
 	 */
 	public function test_a_subscribed_partner_theme_claims_nothing() {

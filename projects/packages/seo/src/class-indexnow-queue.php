@@ -61,7 +61,7 @@ class Indexnow_Queue {
 		/**
 		 * Filters the maximum pending IndexNow URLs admitted on a site.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.13.0
 		 * @param int $capacity Pending URLs, between 1 and 50,000.
 		 */
 		$capacity = apply_filters( 'jetpack_seo_indexnow_queue_capacity', self::CAPACITY );
@@ -399,7 +399,7 @@ class Indexnow_Queue {
 	/**
 	 * Avoid queue work for passive site changes before the first admission.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.13.0
 	 */
 	public static function clear_if_used() {
 		if ( self::row( self::GENERATION_OPTION ) ) {
@@ -631,14 +631,15 @@ class Indexnow_Queue {
 					self::delete_rows( array( $enqueue_error ), $generation );
 					self::invalidate_summary_cache( array( 'jetpack_seo_indexnow_enqueue_error' ) );
 				}
+				$now = time();
 				if ( 'http_429' === $result['state'] ) {
-					self::store_status_option( self::COOLDOWN_OPTION, time() + max( 600, $result['retry_after'] ?? 0 ), $generation );
+					self::store_status_option( self::COOLDOWN_OPTION, $now + max( 600, $result['retry_after'] ?? 0 ), $generation );
 				}
 				foreach ( $claimed as $row ) {
 					$item = (array) json_decode( $row['option_value'], true );
 					if ( $result['retry'] && $item['attempt'] < 5 ) {
 						++$item['attempt'];
-						$item['due']  = time() + max( $result['retry_after'] ?? 0, min( 43200, 60 * pow( 4, $item['attempt'] ) ), 'http_429' === $result['state'] ? 600 : 0 );
+						$item['due']  = $now + max( $result['retry_after'] ?? 0, min( 43200, 60 * pow( 4, $item['attempt'] ) ), 'http_429' === $result['state'] ? 600 : 0 );
 						$earliest_due = min( $earliest_due, $item['due'] );
 						$retrying    += self::compare_and_swap( $row, $item, $generation ) ? 1 : 0;
 					} elseif ( self::compare_and_swap( $row, null ) ) {

@@ -3,7 +3,6 @@ import { userCanManageModules } from 'state/initial-state';
 import {
 	areStatsSettingsMovedOut,
 	getMovedOutModules,
-	hasTrafficCardsLeft,
 	isInSettingsPanel,
 	isSettingsConsolidationEnabled,
 } from '../index';
@@ -52,64 +51,6 @@ describe( 'isInSettingsPanel', () => {
 		userCanManageModules.mockReturnValue( canManage );
 
 		expect( isInSettingsPanel( {} ) ).toBe( expected );
-	} );
-} );
-
-describe( 'hasTrafficCardsLeft', () => {
-	const ANALYTICS = { enabled: true, page_slug: 'stats-v2', can_view: true, timezone: 'UTC' };
-
-	it.each( [
-		[ 'nothing once Stats links to its own page', {}, false, [ 'stats' ], true, false ],
-		[ 'the legacy SEO settings', { seo: {} }, false, [ 'seo-tools' ], true, true ],
-		[ 'Google Analytics without its panel', {}, true, [ 'stats' ], true, true ],
-		[
-			'nothing once Google Analytics has its panel',
-			{ myJetpack: { googleAnalyticsPanel: 'url' } },
-			true,
-			[],
-			true,
-			false,
-		],
-		[ 'classic Stats', {}, false, [ 'stats' ], false, true ],
-		[
-			'nothing once Stats v2 holds the Stats settings',
-			{ analytics: ANALYTICS },
-			false,
-			[ 'stats' ],
-			false,
-			false,
-		],
-	] )( 'finds %s', ( _what, data, woa, modules, odyssey, expected ) => {
-		getScriptData.mockReturnValue( {
-			seo: { surface_visible: true },
-			...data,
-			myJetpack: { settingsConsolidation: true, ...data.myJetpack },
-		} );
-		isWoASite.mockReturnValue( woa );
-		const state = {
-			jetpack: {
-				initialState: { isOdysseyStatsEnabled: odyssey },
-				modules: { items: Object.fromEntries( modules.map( slug => [ slug, {} ] ) ) },
-			},
-		};
-
-		expect( hasTrafficCardsLeft( state ) ).toBe( expected );
-	} );
-
-	it( 'finds classic Stats before setInitialState() fills the modules slice', () => {
-		getScriptData.mockReturnValue( {
-			seo: { surface_visible: true },
-			myJetpack: { settingsConsolidation: true },
-		} );
-		isWoASite.mockReturnValue( false );
-		const state = {
-			jetpack: {
-				initialState: { isOdysseyStatsEnabled: false, getModules: { stats: {} } },
-				modules: { items: {} },
-			},
-		};
-
-		expect( hasTrafficCardsLeft( state ) ).toBe( true );
 	} );
 } );
 

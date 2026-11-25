@@ -126,6 +126,39 @@ class Admin_UI {
 		add_filter( 'get_edit_post_link', array( __CLASS__, 'edit_video_link' ), 10, 3 );
 
 		add_action( 'admin_init', array( __CLASS__, 'remove_jetpack_hooks' ) );
+
+		add_filter( 'jetpack_jitm_received_envelopes', array( __CLASS__, 'remove_license_activation_jitms' ), 10, 2 );
+	}
+
+	/**
+	 * Drops the license activation JITMs from the VideoPress page on free-plan sites.
+	 *
+	 * The dashboard's free-plan notice offers the license there, so the JITM would be a second upsell.
+	 *
+	 * @param array  $envelopes    The received JITMs.
+	 * @param string $message_path The message path the JITMs were requested for.
+	 * @return array The JITMs to show.
+	 */
+	public static function remove_license_activation_jitms( $envelopes, $message_path ) {
+		if (
+			! is_array( $envelopes )
+			|| ! is_string( $message_path )
+			|| ! str_contains( $message_path, 'jetpack_page_jetpack-videopress' )
+			|| false !== Initial_State::has_videopress_access()
+		) {
+			return $envelopes;
+		}
+
+		$license_jitm_ids = array( 'single_licensing_activation_notice', 'multiple_licensing_activation_notice' );
+
+		return array_values(
+			array_filter(
+				$envelopes,
+				function ( $envelope ) use ( $license_jitm_ids ) {
+					return ! is_object( $envelope ) || ! isset( $envelope->id ) || ! in_array( $envelope->id, $license_jitm_ids, true );
+				}
+			)
+		);
 	}
 
 	/**
@@ -750,6 +783,13 @@ class Admin_UI {
 			array_merge(
 				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::SCRIPT_HANDLES,
 				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::MODULE_IDS
+			),
+			null,
+			array(
+				array(
+					'prefix' => 'jetpack_videopress',
+					'slug'   => 'jetpack-videopress-dashboard',
+				),
 			)
 		);
 	}

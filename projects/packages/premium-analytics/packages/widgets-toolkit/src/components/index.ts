@@ -14,6 +14,7 @@ export {
 	type SeriesStyle,
 	type TooltipExtraSeries,
 } from './chart-comparative-line';
+export { StackedAreaChart, type StackedAreaChartProps } from './chart-stacked-area';
 export {
 	ComparativeBarChart,
 	type ComparativeBarChartProps,
@@ -53,6 +54,7 @@ export {
 	resolveLeaderboardRowAction,
 	type LeaderboardRowAction,
 	type LeaderboardRowActionOptions,
+	type LeaderboardRowActionWithTrailing,
 	type LeaderboardRowChartProps,
 	type LeaderboardRowMedia,
 	type LeaderboardRowProps,

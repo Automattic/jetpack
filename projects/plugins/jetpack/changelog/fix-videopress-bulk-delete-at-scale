@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-VideoPress: Fix bulk-deleting many videos from the Media Library timing out; deletion now shows progress and lists any item that could not be deleted.

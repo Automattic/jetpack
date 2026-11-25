@@ -7,7 +7,11 @@
 
 namespace Automattic\Jetpack\WooCommerceStats;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\PremiumAnalytics\Dashboard_Section;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Local_Data_Status;
+use Automattic\Jetpack\WooCommerceStats\Report_Execution\Provider_Setting;
 use function Automattic\Jetpack\PremiumAnalytics\get_dashboard_default_widget_instance;
 use function Automattic\Jetpack\PremiumAnalytics\register_dashboard_section;
 use function Automattic\Jetpack\PremiumAnalytics\register_widget_types_from_manifest;
@@ -25,7 +29,7 @@ use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_TILE_LIST;
  */
 class Analytics_Dashboard {
 
-	const PACKAGE_VERSION = '0.4.0';
+	const PACKAGE_VERSION = '0.5.0';
 
 	/**
 	 * Namespaced section identifier. Its slug, `woocommerce`, keys the section's URL and stored layouts.
@@ -135,9 +139,9 @@ class Analytics_Dashboard {
 	const DASHBOARD_PAGE_INIT_ACTION = 'jetpack-premium-analytics-wp-admin_init';
 
 	/**
-	 * Register the sync opt-in, then hook both registrants on the dashboard's registry actions, the Bookings metric on the dashboard
-	 * page, the reports proxy on REST requests and its cache reset on the end of the initial sync,
-	 * and the store currency on the script data.
+	 * Register the sync opt-in and the store tracking bootstrap, then hook the section and widget-type registrants on the dashboard's registry
+	 * actions, the Bookings metric on the dashboard page, the reports proxy on REST requests and its cache reset on the end of the
+	 * initial sync, and the store currency on the script data.
 	 *
 	 * Priority 20, after the dashboard package's own registrants: an older package that still
 	 * registers the section itself is found by slug and left alone.
@@ -148,6 +152,7 @@ class Analytics_Dashboard {
 	 */
 	public static function init() {
 		Sync_Configuration::register();
+		WooCommerce_Analytics_Tracker::configure();
 
 		add_action( self::REGISTER_SECTIONS_ACTION, array( __CLASS__, 'register_section' ), 20 );
 		add_action( self::REGISTER_WIDGET_TYPES_ACTION, array( __CLASS__, 'register_widget_types' ), 20 );
@@ -172,6 +177,9 @@ class Analytics_Dashboard {
 			return;
 		}
 
+		// A dashboard that predates the arg still sends a disconnected site to `/connect`.
+		$runs_without_connection = property_exists( Dashboard_Section::class, 'requires_connection' ) && self::runs_without_connection();
+
 		register_dashboard_section(
 			DASHBOARD_NAME,
 			self::SECTION_ID,
@@ -181,7 +189,12 @@ class Analytics_Dashboard {
 				'is_available'            => array( __CLASS__, 'is_section_available' ),
 				// Nothing backfills historical orders to WordPress.com but the analytics full sync.
 				'requires_sync'           => true,
-				'notice'                  => array( __CLASS__, 'get_no_orders_notice' ),
+				'requires_connection'     => ! $runs_without_connection,
+				'notice'                  => $runs_without_connection
+					? static function () {
+						return self::get_local_mode_notice();
+					}
+					: array( __CLASS__, 'get_no_orders_notice' ),
 				'default_layout'          => array( __CLASS__, 'get_default_layout' ),
 				'insertable_widget_types' => self::INSERTABLE_WIDGET_TYPES,
 			)
@@ -213,6 +226,105 @@ class Analytics_Dashboard {
 		}
 
 		return __( 'Your store has no orders yet. Your sales, orders and customers will show here after your first order.', 'jetpack-woocommerce-stats-pkg' );
+	}
+
+	/**
+	 * Whether the tab opens on this disconnected site because its provider setting puts `local`
+	 * ahead of `wpcom`. Behind it, `local` serves nothing: `wpcom` covers every report.
+	 *
+	 * @phan-suppress PhanAccessMethodInternal, PhanAccessClassConstantInternal -- Internal to this package, not to its sub-namespace.
+	 *
+	 * @return bool
+	 */
+	private static function runs_without_connection() {
+		if ( ( new Connection_Manager() )->is_connected() || ! self::is_woocommerce_available() ) {
+			return false;
+		}
+
+		$providers = Provider_Setting::get_providers();
+		$local     = array_search( 'local', $providers, true );
+		$wpcom     = array_search( Provider_Setting::DEFAULT_PROVIDER, $providers, true );
+
+		return false !== $local && ( false === $wpcom || $local < $wpcom );
+	}
+
+	/**
+	 * The message above the tab of a disconnected store set to local: what its own data lacks, then
+	 * what the missing connection holds back. A store without orders gets that message between them.
+	 *
+	 * @phan-suppress PhanAccessMethodInternal -- Internal to this package, not to its sub-namespace.
+	 *
+	 * @return string
+	 */
+	private static function get_local_mode_notice() {
+		$data_status = new Local_Data_Status();
+		$messages    = array();
+
+		if ( ! $data_status->is_analytics_enabled() ) {
+			$messages[] = __( 'WooCommerce Analytics is off, so this tab can’t read your store’s orders. Turn it on in WooCommerce › Settings › Advanced › Features.', 'jetpack-woocommerce-stats-pkg' );
+		} else {
+			$import = $data_status->get_import_status();
+			if ( $import && $import['failed_overflow_count'] > 0 ) {
+				// Retry reaches only the failures core stored; those past its cap need a full import.
+				$messages[] = sprintf(
+					/* translators: %d: Number of orders. */
+					_n(
+						'WooCommerce Analytics couldn’t import more than %d order. To import them all, run Import historical data in WooCommerce › Analytics › Settings with “Skip previously imported customers and orders” checked.',
+						'WooCommerce Analytics couldn’t import more than %d orders. To import them all, run Import historical data in WooCommerce › Analytics › Settings with “Skip previously imported customers and orders” checked.',
+						$import['failed_count'],
+						'jetpack-woocommerce-stats-pkg'
+					),
+					$import['failed_count']
+				);
+			} elseif ( $import && $import['failed_count'] > 0 ) {
+				$messages[] = sprintf(
+					/* translators: %d: Number of orders. */
+					_n(
+						'WooCommerce Analytics couldn’t import %d order. Retry it in WooCommerce › Analytics › Settings › Import historical data.',
+						'WooCommerce Analytics couldn’t import %d orders. Retry them in WooCommerce › Analytics › Settings › Import historical data.',
+						$import['failed_count'],
+						'jetpack-woocommerce-stats-pkg'
+					),
+					$import['failed_count']
+				);
+			}
+			if ( $import && 'scheduled' === $import['mode'] ) {
+				$messages[] = self::describe_scheduled_import( $import['last_processed_date'], $import['next_scheduled'] );
+			}
+		}
+
+		$no_orders = self::get_no_orders_notice();
+		if ( null !== $no_orders ) {
+			$messages[] = $no_orders;
+		}
+
+		$messages[] = __( 'Some reports need a Jetpack connection, so they can’t load yet.', 'jetpack-woocommerce-stats-pkg' );
+
+		return implode( ' ', $messages );
+	}
+
+	/**
+	 * When a scheduled WooCommerce Analytics import last ran and runs next, as its Data status says.
+	 *
+	 * @param string|null $last The last update, in store time; null before the first.
+	 * @param string|null $next The next update, in store time; null when none is scheduled.
+	 * @return string
+	 */
+	private static function describe_scheduled_import( $last, $next ) {
+		$format = get_option( 'date_format' ) . ' ' . get_option( 'time_format' );
+		$parts  = array(
+			$last
+				/* translators: %s: Date and time. */
+				? sprintf( __( 'Your store’s data was last updated on %s.', 'jetpack-woocommerce-stats-pkg' ), mysql2date( $format, $last ) )
+				: __( 'Your store’s data hasn’t been updated yet.', 'jetpack-woocommerce-stats-pkg' ),
+		);
+		if ( $next ) {
+			/* translators: %s: Date and time. */
+			$parts[] = sprintf( __( 'The next update runs on %s.', 'jetpack-woocommerce-stats-pkg' ), mysql2date( $format, $next ) );
+		}
+		$parts[] = __( 'To update it now, go to WooCommerce › Analytics › Settings.', 'jetpack-woocommerce-stats-pkg' );
+
+		return implode( ' ', $parts );
 	}
 
 	/**

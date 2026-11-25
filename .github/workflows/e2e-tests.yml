@@ -190,6 +190,9 @@ jobs:
 
       - name: Setup tools
         uses: $/.github/actions/tool-setup
+        with:
+          # pnpm/setup v3's attempt to workaround its own brokenness fails for this job.
+          pnpm-save-cache: false
 
       - name: Install cloudflared
         if: env.USE_CLOUDFLARE_TUNNEL

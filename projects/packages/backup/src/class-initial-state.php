@@ -61,7 +61,7 @@ class Initial_State {
 	/**
 	 * Whether My Jetpack's add-license screen is available, which offline mode turns off.
 	 *
-	 * @since $$next-version$$
+	 * @since 5.3.0
 	 *
 	 * @return bool
 	 */

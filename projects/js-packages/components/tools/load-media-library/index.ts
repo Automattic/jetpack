@@ -159,9 +159,19 @@ async function load(): Promise< void > {
 		throw new Error( 'Media library: ajaxurl is on another origin' );
 	}
 	url.searchParams.set( 'action', AJAX_ACTION );
-	url.searchParams.set( 'scripts', concatenatedHandles( 'load-scripts.php' ) );
-	url.searchParams.set( 'styles', concatenatedHandles( 'load-styles.php' ) );
+	// From Page_Handles in automattic/jetpack-admin-ui. Posted, since it's long.
+	let printed: { scripts?: string[]; styles?: string[] } = {};
+	try {
+		printed = JSON.parse( document.getElementById( 'jetpack-page-handles' )?.textContent ?? '{}' );
+	} catch {
+		// Fall back to the load-scripts.php URLs.
+	}
 	const response = await fetch( url, {
+		method: 'POST',
+		body: new URLSearchParams( {
+			scripts: printed.scripts?.join( ',' ) ?? concatenatedHandles( 'load-scripts.php' ),
+			styles: printed.styles?.join( ',' ) ?? concatenatedHandles( 'load-styles.php' ),
+		} ),
 		credentials: 'same-origin',
 		signal: AbortSignal.timeout( TIMEOUT_MS ),
 	} );

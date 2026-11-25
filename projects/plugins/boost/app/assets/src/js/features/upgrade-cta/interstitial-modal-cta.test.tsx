@@ -1,7 +1,7 @@
 /* eslint-disable jest-dom/prefer-in-document */
 import apiFetch from '@wordpress/api-fetch';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { LEGACY_ROOT_ID, MODERN_ROOT_ID } from '$lib/modern/mode';
+import { MODERN_ROOT_ID } from '$lib/modern/mode';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
 import InterstitialModalCTA from './interstitial-modal-cta';
 
@@ -16,7 +16,7 @@ jest.mock( '$lib/stores/premium-features', () => ( {
 } ) );
 jest.mock( 'jetpackConfig', () => ( { consumer_slug: 'jetpack-boost' } ), { virtual: true } );
 
-const boostGlobal = { site: { online: true, myJetpack: true, addLicense: true, host: 'unknown' } };
+const boostGlobal = { site: { online: true, myJetpack: true, host: 'unknown' } };
 
 describe( 'InterstitialModalCTA', () => {
 	beforeEach( () => {
@@ -25,7 +25,6 @@ describe( 'InterstitialModalCTA', () => {
 		Object.assign( boostGlobal.site, {
 			online: true,
 			myJetpack: true,
-			addLicense: true,
 			host: 'unknown',
 		} );
 		jest.mocked( usePremiumFeatures ).mockReturnValue( [] );
@@ -80,28 +79,15 @@ describe( 'InterstitialModalCTA', () => {
 		expect( apiFetch ).not.toHaveBeenCalled();
 	} );
 
-	it.each( [ LEGACY_ROOT_ID, MODERN_ROOT_ID ] )(
-		'hides prompts when My Jetpack is unavailable (%s)',
-		rootId => {
-			boostGlobal.site.myJetpack = false;
-			render( <div id={ rootId } data-testid="dashboard-root" /> );
-			render( <InterstitialModalCTA identifier="critical-css" />, {
-				container: screen.getByTestId( 'dashboard-root' ),
-			} );
-			expect( screen.queryByRole( 'button' ) ).toBeNull();
-			expect( screen.queryByRole( 'link' ) ).toBeNull();
-			expect( screen.queryByRole( 'dialog' ) ).toBeNull();
-			expect( apiFetch ).not.toHaveBeenCalled();
-		}
-	);
-
-	it( 'keeps the legacy upsell when the add-license screen is disabled', () => {
-		boostGlobal.site.addLicense = false;
-		render( <div id={ LEGACY_ROOT_ID } data-testid="dashboard-root" /> );
+	it( 'hides prompts when My Jetpack is unavailable', () => {
+		boostGlobal.site.myJetpack = false;
+		render( <div id={ MODERN_ROOT_ID } data-testid="dashboard-root" /> );
 		render( <InterstitialModalCTA identifier="critical-css" />, {
 			container: screen.getByTestId( 'dashboard-root' ),
 		} );
-		expect( screen.getByRole( 'button', { name: /Upgrade now/ } ) ).toBeTruthy();
-		expect( screen.queryByRole( 'link', { name: 'Use license key' } ) ).toBeNull();
+		expect( screen.queryByRole( 'button' ) ).toBeNull();
+		expect( screen.queryByRole( 'link' ) ).toBeNull();
+		expect( screen.queryByRole( 'dialog' ) ).toBeNull();
+		expect( apiFetch ).not.toHaveBeenCalled();
 	} );
 } );
