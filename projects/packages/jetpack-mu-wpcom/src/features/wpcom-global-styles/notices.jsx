@@ -43,9 +43,9 @@ function GlobalStylesWarningNotice() {
 			<Notice.Root intent="warning" icon={ null } className="wpcom-global-styles-notice">
 				<Notice.Description>
 					{ sprintf(
-						/* translators: %s is the short-form name of the plan that unlocks site styles. Site styles are the sitewide changes made in the Styles panel (Global Styles). Visitors only see them on a paid plan. */
+						/* translators: %s is the short-form name of the plan that unlocks sitewide styles. The Styles panel is the Global Styles sidebar of the Site Editor. */
 						__(
-							'Your sitewide styles (changes made in Styles) are only visible to visitors after upgrading to the %s plan or higher.',
+							'Your sitewide styles (changes made in the Styles panel) are only visible to visitors after upgrading to the %s plan or higher.',
 							'jetpack-mu-wpcom'
 						),
 						planName
@@ -163,9 +163,9 @@ function GlobalStylesEditNotice() {
 		const planName = wpcomGlobalStyles.planName;
 		createWarningNotice(
 			sprintf(
-				/* translators: %s is the short-form name of the plan that unlocks site styles. Site styles are the sitewide changes made in the Styles panel (Global Styles). Visitors only see them on a paid plan. */
+				/* translators: %s is the short-form name of the plan that unlocks sitewide styles. The Styles panel is the Global Styles sidebar of the Site Editor. */
 				__(
-					'Your sitewide styles (changes made in Styles) are only visible to visitors after upgrading to the %s plan or higher.',
+					'Your sitewide styles (changes made in the Styles panel) are only visible to visitors after upgrading to the %s plan or higher.',
 					'jetpack-mu-wpcom'
 				),
 				planName

@@ -529,9 +529,9 @@ function wpcom_display_global_styles_notice_admin_bar( $wp_admin_bar ) {
 		: 'https://wordpress.com/support/using-styles/';
 
 	$message = sprintf(
-		/* translators: %1$s - documentation URL, %2$s - the name of the plan that unlocks site styles. Site styles are the sitewide changes made in the Styles panel (Global Styles). Visitors only see them on a paid plan. */
+		/* translators: %1$s - documentation URL, %2$s - the name of the plan that unlocks sitewide styles. The Styles panel is the Global Styles sidebar of the Site Editor. */
 		__(
-			'Your <a href="%1$s" target="_blank">sitewide styles</a> (changes made in Styles) are only visible to visitors after upgrading to the %2$s plan or higher.',
+			'Your <a href="%1$s" target="_blank">sitewide styles</a> (changes made in the Styles panel) are only visible to visitors after upgrading to the %2$s plan or higher.',
 			'jetpack-mu-wpcom'
 		),
 		$support_url,
