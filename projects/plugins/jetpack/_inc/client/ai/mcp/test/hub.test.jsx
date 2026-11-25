@@ -29,7 +29,7 @@ const renderHub = ( { siteLevelEnabled = true, activityLogFiltered = false } = {
 	);
 
 describe( 'McpHub connect card', () => {
-	test( 'summary badge uses the site fallback for an opt-in tool with no override', () => {
+	test( 'summary badge uses the API state for an opt-in tool with no override', () => {
 		render(
 			<McpHub
 				mcpAbilities={ {
@@ -46,7 +46,7 @@ describe( 'McpHub connect card', () => {
 			/>
 		);
 
-		expect( screen.getByRole( 'button', { name: /Read/ } ) ).toHaveTextContent( 'All enabled' );
+		expect( screen.getByRole( 'button', { name: /Read/ } ) ).toHaveTextContent( '1 of 2 enabled' );
 	} );
 
 	test( 'sits above the access card, and replaces the setup row', () => {

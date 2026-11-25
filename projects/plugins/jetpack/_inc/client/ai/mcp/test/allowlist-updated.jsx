@@ -30,7 +30,7 @@ const abilitiesWithTool = ( { readonly, enabled = false } ) => ( {
 			category: 'posts',
 		},
 	},
-	sites: [],
+	sites: [ { blog_id: BLOG_ID, site_level_enabled: true } ],
 } );
 
 const allowlistUpdatedCalls = () =>
@@ -61,7 +61,9 @@ describe( 'jetpack_mcp_allowlist_updated', () => {
 
 			// Individual tool toggles sit behind the group's "Show operations" chevron.
 			await userEvent.click( screen.getByRole( 'button', { name: 'Show operations' } ) );
-			await userEvent.click( screen.getByRole( 'switch', { name: 'List posts' } ) );
+			const toolSwitch = screen.getByRole( 'switch', { name: 'List posts' } );
+			expect( toolSwitch ).not.toBeChecked();
+			await userEvent.click( toolSwitch );
 
 			// toEqual pins the whole property bag: ability_name present, no tool_id,
 			// plus the AI-product-standard audience properties (AIINT-586). This

@@ -6,7 +6,7 @@
  */
 
 import { _n, sprintf } from '@wordpress/i18n';
-import { getOrdinaryTools } from './group-intents';
+import { getOrdinaryTools, requiresOptIn } from './group-intents';
 
 /**
  * Describe which tools the bulk switch leaves untouched.
@@ -188,20 +188,23 @@ export function getRemoteAbilitiesDefaultEnabled( scopedTools ) {
  *
  * @param {Record<string, Object>}  accountAbilities - Tool definitions from the API.
  * @param {Record<string, boolean>} siteAbilities    - Explicit per-site overrides by tool ID (only tools the user has explicitly set).
- * @param {boolean|null}            defaultEnabled   - Site fallback for tools with no override, or null to use the API value.
+ * @param {boolean|null}            defaultEnabled   - Site fallback for ordinary tools with no override.
  * @return {Record<string, Object>} Merged abilities with site overrides applied.
  */
 export function mergeSiteMcpAbilities( accountAbilities, siteAbilities, defaultEnabled = null ) {
-	// Keep the site fallback until the API reports effective state, including account choices.
 	return Object.fromEntries(
-		Object.entries( accountAbilities ).map( ( [ toolId, tool ] ) => [
-			toolId,
-			{
-				...tool,
-				enabled:
-					toolId in siteAbilities ? siteAbilities[ toolId ] : ( defaultEnabled ?? tool.enabled ),
-			},
-		] )
+		Object.entries( accountAbilities ).map( ( [ toolId, tool ] ) => {
+			const fallbackEnabled = requiresOptIn( tool )
+				? tool.enabled
+				: ( defaultEnabled ?? tool.enabled );
+			return [
+				toolId,
+				{
+					...tool,
+					enabled: toolId in siteAbilities ? siteAbilities[ toolId ] : fallbackEnabled,
+				},
+			];
+		} )
 	);
 }
 
