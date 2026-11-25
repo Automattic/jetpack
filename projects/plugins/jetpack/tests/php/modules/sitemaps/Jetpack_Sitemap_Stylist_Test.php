@@ -6,7 +6,9 @@
  * @since 4.7.0
  */
 
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 
 require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-stylist.php';
@@ -147,5 +149,57 @@ class Jetpack_Sitemap_Stylist_Test extends WP_UnitTestCase {
 
 		$namespaces = array_keys( $result->getNamespaces() );
 		$this->assertEquals( array( 'xsl' ), $namespaces );
+	}
+
+	/**
+	 * @dataProvider layout_url_cases
+	 */
+	#[DataProvider( 'layout_url_cases' )]
+	public function test_layout_css_uses_the_host_asset_path( $is_simple, $home, $plugin_url, $expected ) {
+		$home_filter   = static fn () => $home;
+		$plugin_filter = static fn () => $plugin_url;
+		Constants::set_constant( 'IS_WPCOM', $is_simple );
+		add_filter( 'home_url', $home_filter );
+		add_filter( 'plugins_url', $plugin_filter );
+		try {
+			$this->assertSame(
+				array(
+					$expected . '?ver=' . md5_file( JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap.css' ),
+					preg_replace( '/^https?:/', '', $home ) . '?jetpack-sitemap=sitemap-labels.css',
+				),
+				Jetpack_Sitemap_Stylist::sitemap_stylesheet_urls()
+			);
+		} finally {
+			remove_filter( 'home_url', $home_filter );
+			remove_filter( 'plugins_url', $plugin_filter );
+			Constants::clear_single_constant( 'IS_WPCOM' );
+		}
+	}
+
+	/**
+	 * Asset URLs for path-based sites and host or plugin configurations that already resolve.
+	 *
+	 * @return array Test cases.
+	 */
+	public static function layout_url_cases() {
+		$mu_asset = '/wp-content/mu-plugins/jetpack-plugin/sun/modules/sitemaps/sitemap.css';
+		return array(
+			'Simple on a subdirectory'           => array( true, 'https://example.org/blog/', 'https://example.org/blog' . $mu_asset, '//example.org' . $mu_asset ),
+			'Simple with root-relative URL'      => array( true, 'https://example.org/company/news/', '/company/news' . $mu_asset, $mu_asset ),
+			'Simple with a CDN asset'            => array( true, 'https://example.org/blog/', 'https://cdn.example.org' . $mu_asset, '//cdn.example.org' . $mu_asset ),
+			'Self-hosted subdirectory MU plugin' => array( false, 'https://example.org/blog/', 'https://example.org/blog' . $mu_asset, '//example.org/blog' . $mu_asset ),
+		);
+	}
+
+	public function test_css_escapes_translated_quotes_backslashes_and_line_breaks() {
+		$translate = static function ( $translation, $text, $domain ) {
+			return 'jetpack' === $domain && 'XML Sitemap' === $text ? "A \"quoted\" \\ title\nnext line" : $translation;
+		};
+		add_filter( 'gettext', $translate, 10, 3 );
+		try {
+			$this->assertStringContainsString( '--jetpack-sitemap-title: "A \"quoted\" \\\\ title next line";', Jetpack_Sitemap_Stylist::sitemap_css() );
+		} finally {
+			remove_filter( 'gettext', $translate );
+		}
 	}
 }
