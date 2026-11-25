@@ -1,6 +1,4 @@
-import { dispatch } from '@wordpress/data';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { store as noticesStore } from '@wordpress/notices';
 import {
 	Button,
 	Dialog,
@@ -16,6 +14,7 @@ import {
 import { useCallback, useMemo, useState } from 'react';
 import { useSaveCoupon } from '../../data/coupons';
 import { useMembershipProducts } from '../../data/memberships';
+import { showSuccessSnackbar } from '../../data/notices';
 import { trackPaymentsEvent } from '../../data/tracking';
 import {
 	DURATIONS,
@@ -217,7 +216,7 @@ export default function CouponDialog( { coupon, codes, currencies, onClose }: Pr
 							sprintf( __( 'Coupon “%s” updated.', 'jetpack-monetize' ), form.code )
 						: /* translators: %s: a coupon code. */
 							sprintf( __( 'Coupon “%s” added.', 'jetpack-monetize' ), form.code );
-					dispatch( noticesStore ).createSuccessNotice( message, { type: 'snackbar' } );
+					showSuccessSnackbar( message );
 					onClose();
 				},
 			}

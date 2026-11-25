@@ -1209,6 +1209,36 @@ function buildStatsLocationViewsResponse(
 	};
 }
 
+/**
+ * One row per bucket of the requested window, as ClickHouse answers: counts as
+ * strings, and no row for a bucket without requests (every seventh here).
+ *
+ * @param query - The request's query string.
+ * @return The `edge-bot-requests` rows.
+ */
+function buildEdgeBotRequestsResponse( query: URLSearchParams ) {
+	const step = ( query.get( 'granularity' ) === 'hour' ? 1 : 24 ) * 60 * 60 * 1000;
+	const start = Date.parse( `${ query.get( 'start' ) }T00:00:00Z` );
+	const end = Date.parse( `${ query.get( 'end' ) }T00:00:00Z` );
+	const rows = [];
+
+	for ( let time = start, index = 0; time < end; time += step, index++ ) {
+		if ( index % 7 === 6 ) {
+			continue;
+		}
+		const wave = 1 + 0.4 * Math.sin( index / 2 );
+		rows.push( {
+			ts: new Date( time ).toISOString().slice( 0, 19 ).replace( 'T', ' ' ),
+			human_requests: String( Math.round( 5200 * wave ) ),
+			ai_requests: String( Math.round( 1400 * ( 2 - wave ) ) ),
+			other_requests: String( Math.round( 900 * wave ) ),
+			blocked_requests: String( Math.round( 320 * ( 2 - wave ) ) ),
+		} );
+	}
+
+	return rows;
+}
+
 export function getStatsMock( path: string ): unknown | null {
 	const withoutBase = path.slice( STATS_BASE.length );
 	const queryIndex = withoutBase.indexOf( '?' );
@@ -1255,6 +1285,10 @@ export function getStatsMock( path: string ): unknown | null {
 		}
 
 		return { top_utm_values: {}, top_posts: {} };
+	}
+
+	if ( subPath === '/ua-queries' && query.get( 'template' ) === 'edge-bot-requests' ) {
+		return buildEdgeBotRequestsResponse( query );
 	}
 
 	if ( subPath.startsWith( '/devices/screensize' ) ) {

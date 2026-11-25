@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Header: Call the connection panel and its button "Jetpack Connection", without repeating it in the button's name during a connection error.

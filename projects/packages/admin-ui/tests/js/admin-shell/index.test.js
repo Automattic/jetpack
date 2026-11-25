@@ -756,6 +756,30 @@ describe( 'admin shell stand-in header', () => {
 	} );
 } );
 
+describe( 'admin shell loader', () => {
+	const loaders = () =>
+		[ ...document.querySelectorAll( '[data-shell-loader]' ) ].map(
+			node => node.dataset.shellLoader
+		);
+
+	it.each( [
+		[ 'renders', render => render() ],
+		[ 'is left for another page', () => open( 'guest-b' ) ],
+	] )( 'takes the loader down once a booting page %s', async ( _, then ) => {
+		const { whenRendered } = require( '../../../src/admin-shell/app' );
+		let render;
+		whenRendered.mockImplementationOnce( () => new Promise( resolve => ( render = resolve ) ) );
+		open( 'guest-a' );
+		await settle();
+		expect( loaders() ).toEqual( [ 'guest-a' ] );
+
+		then( render );
+		await settle();
+
+		expect( loaders() ).toEqual( [] );
+	} );
+} );
+
 describe( 'admin shell live-app limit', () => {
 	const A = '/wp-admin/admin.php?page=guest-a';
 	// Whether the shell kept the last click, or left it to load the page.

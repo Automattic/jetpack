@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Safe Mode: Mark a failed registration during a fresh connection as having left the site disconnected.

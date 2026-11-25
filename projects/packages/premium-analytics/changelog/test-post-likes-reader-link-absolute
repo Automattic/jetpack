@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Add a test pinning the Post likes widget's Reader links to absolute wordpress.com URLs.
+
+

@@ -662,7 +662,7 @@ if (
  * @param string $content HTML content.
  */
 function jetpack_fix_youtube_shortcode_display_filter( $content ) {
-	if ( strpos( $content, '[youtube=' ) !== false ) {
+	if ( is_string( $content ) && strpos( $content, '[youtube=' ) !== false ) {
 		$content = preg_replace( '@\[youtube=(.*?)\]@', '[youtube $1]', $content );
 	}
 

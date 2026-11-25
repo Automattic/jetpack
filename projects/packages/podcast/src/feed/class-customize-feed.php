@@ -74,6 +74,29 @@ class Customize_Feed {
 		add_action( 'pre_get_posts', array( __CLASS__, 'apply_feed_limit' ), PHP_INT_MAX );
 		add_filter( 'posts_where', array( __CLASS__, 'constrain_feed_query' ), 10, 2 );
 		add_filter( 'the_posts', array( __CLASS__, 'filter_posts_with_enclosure' ), 10, 2 );
+
+		add_action( 'added_post_meta', array( __CLASS__, 'touch_episode_on_enclosure' ), 10, 3 );
+	}
+
+	/**
+	 * Bump an episode's modified time when cron adds its enclosure. The feed
+	 * leaves the episode out until then, and its `Last-Modified` would otherwise
+	 * stay put, so podcast apps that fetched in between get 304s indefinitely.
+	 *
+	 * @param int    $meta_id  Meta ID.
+	 * @param int    $post_id  Post ID.
+	 * @param string $meta_key Meta key.
+	 */
+	public static function touch_episode_on_enclosure( $meta_id, $post_id, $meta_key ) {
+		if ( 'enclosure' !== $meta_key || 'publish' !== get_post_status( $post_id ) ) {
+			return;
+		}
+		$category_id = self::resolve_category_id();
+		if ( 0 === $category_id || ! has_category( $category_id, $post_id ) ) {
+			return;
+		}
+
+		wp_update_post( array( 'ID' => $post_id ) );
 	}
 
 	/**

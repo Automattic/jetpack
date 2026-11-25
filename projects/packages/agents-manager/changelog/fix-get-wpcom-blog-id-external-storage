@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Atomic: Read the WordPress.com blog ID through Jetpack_Options, so that a migrated site gets its own ID.

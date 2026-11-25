@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\WooCommerceStats\Report_Execution;
  *
  * @internal Not a stable contract yet: the format may change before a settings UI exists.
  *
- * @since $$next-version$$
+ * @since 0.5.0
  */
 class Provider_Setting {
 
@@ -41,7 +41,7 @@ class Provider_Setting {
 		 * Filters the providers a store report requested with `provider=auto` may use, in order of
 		 * preference. Experimental: the format may change before a settings UI exists.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.5.0
 		 *
 		 * @param string[]|string $providers Registered provider names, such as `wpcom` or `local`, as a list or comma-separated.
 		 */

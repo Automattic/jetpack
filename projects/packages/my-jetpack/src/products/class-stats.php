@@ -340,7 +340,7 @@ class Stats extends Hybrid_Product {
 	 * dashboard. Null is also the base-class default, which falls the action
 	 * button back to the existing `#/add-stats` interstitial.
 	 *
-	 * @since $$next-version$$ A host's own address comes first.
+	 * @since 6.19.0 A host's own address comes first.
 	 *
 	 * @return ?string
 	 */

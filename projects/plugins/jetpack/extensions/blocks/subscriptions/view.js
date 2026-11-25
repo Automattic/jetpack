@@ -60,13 +60,24 @@ domReady( function () {
 					return;
 				}
 
+				const emailInput = form.querySelector( 'input[type="email"]' );
+
+				// The field is rendered with aria-required so it isn't announced as invalid on focus;
+				// require it now so the browser asks for an email instead of opening the modal.
+				if ( emailInput && ! emailInput.value ) {
+					event.preventDefault();
+					emailInput.required = true;
+					form.reportValidity();
+					return;
+				}
+
 				button.classList.add( 'is-loading' );
 				button.setAttribute( 'aria-busy', 'true' );
 				button.setAttribute( 'aria-live', 'polite' );
 
 				// If email is empty, we will ask for it in the modal that opens
 				// Email input can be hidden for "button only style" for example.
-				let email = form.querySelector( 'input[type="email"]' )?.value ?? '';
+				let email = emailInput?.value ?? '';
 
 				// Fallback to provided email from the logged in user when set
 				if ( ! email && form.dataset.subscriber_email ) {

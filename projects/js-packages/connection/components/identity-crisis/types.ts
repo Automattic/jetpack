@@ -11,17 +11,19 @@ export type IdentityCrisisActionResult =
 	| { action: 'confirm-safe-mode' };
 
 export interface IdentityCrisisProps {
-	/** Where the screen shows; the events' `context` (CONNECT-620). `connectors` hides the header, which the card already shows. */
+	/** Where the screen shows; the events' `context` (CONNECT-620). */
 	context: 'notice' | 'my-jetpack' | 'connectors';
+	/** Show the logo and heading; false where the host already shows both, as the Connectors card does. Defaults to true. */
+	showHeader?: boolean;
 	/** Admin path to return to after a fresh connection. */
 	redirectUri?: string;
 	/** Name from `CONNECTION_FROM`, reported to WordPress.com with a fresh connection. */
 	from?: string;
 	/** Host actions below the content, e.g. Disconnect on the Connectors card. Shown only to viewers who can resolve Safe Mode. */
 	hostActions?: ReactNode;
-	/** After an action succeeds; the host reloads, navigates or closes. Migrate fires before its done view shows. */
-	onActionSuccess: ( result: IdentityCrisisActionResult ) => void;
-	/** "Got it, thanks" on the migrate-done view; no button without it. */
+	/** After an action succeeds. Migrate fires before its done view shows. Defaults to `onIdentityCrisisActionSuccess`. */
+	onActionSuccess?: ( result: IdentityCrisisActionResult ) => void;
+	/** "Got it, thanks" on the migrate-done view. Defaults to reloading the page. */
 	onMigratedDone?: () => void;
 	/** Dismiss for viewers who cannot resolve Safe Mode; no button without it. */
 	onDismiss?: () => void;
@@ -32,6 +34,8 @@ export interface IdentityCrisisLayoutProps {
 	logoUrl?: string;
 	/** Show the logo and heading; hide them where the host already shows both. Defaults to true. */
 	showHeader?: boolean;
+	/** Replaces the Safe Mode heading, and labels the region when `showHeader` is false. */
+	heading?: string;
 	children: ReactNode;
 	/** Actions the host adds below the content, such as Disconnect on the Connectors card. */
 	hostActions?: ReactNode;

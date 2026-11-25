@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+VideoPress: Show one upgrade notice on the dashboard, with an option to activate an unused license, instead of two separate banners.

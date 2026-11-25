@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { makeLibraryItem } from '../../../test-utils/library-item';
 import { libraryFields } from '../fields';
 import { UploadActionsProvider } from '../upload-actions-context';
@@ -43,6 +44,20 @@ describe( 'title field upload pill', () => {
 		expect( screen.getByText( 'Conversion failed' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Upload failed' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( /^Processing/ ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'offers Upload to VideoPress next to an idle local row only', async () => {
+		const { unmount } = renderTitle( makeLibraryItem( { id: '7', type: 'local' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Upload to VideoPress' } ) );
+		expect( uploadActions.promoteLocal ).toHaveBeenCalledWith( '7' );
+		unmount();
+
+		renderTitle(
+			makeLibraryItem( { type: 'local', upload: { status: 'uploading', progress: 40 } } )
+		);
+		expect(
+			screen.queryByRole( 'button', { name: 'Upload to VideoPress' } )
+		).not.toBeInTheDocument();
 	} );
 
 	it( 'points a connection-caused failure at the connection notice', () => {

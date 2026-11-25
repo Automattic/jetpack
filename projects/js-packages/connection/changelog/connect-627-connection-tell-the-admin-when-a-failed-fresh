@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Safe Mode: Tell the admin when a failed fresh connection has left the site disconnected.

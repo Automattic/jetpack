@@ -15,7 +15,9 @@ jest.mock( '../pricing-upsell', () => ( {
 } ) );
 jest.mock( '../connect-screen', () => ( {
 	__esModule: true,
-	default: () => <div>Connect screen</div>,
+	default: ( { needsUserConnection }: { needsUserConnection?: boolean } ) => (
+		<div>{ needsUserConnection ? 'Connect your account screen' : 'Connect screen' }</div>
+	),
 } ) );
 
 const mockUseConnection = useConnection as jest.Mock;
@@ -81,16 +83,23 @@ describe( 'ConnectionGate', () => {
 	} );
 
 	it.each( [
-		[ 'there is no connected owner', { hasConnectedOwner: false } ],
-		[ 'the current user is not connected', { isUserConnected: false } ],
-	] )( 'shows the connect screen when the site is registered but %s', ( _label, overrides ) => {
-		// Pricing present to prove a registered site never sees the upsell.
-		setPricing( { title: 'VideoPress', features: [], yearly: {} } );
-		mockUseConnection.mockReturnValue( { ...connected, ...overrides } );
+		[ 'there is no connected owner', { hasConnectedOwner: false }, 'Connect screen' ],
+		[
+			'the current user is not connected',
+			{ isUserConnected: false },
+			'Connect your account screen',
+		],
+	] )(
+		'shows the connect screen when the site is registered but %s',
+		( _label, overrides, expected ) => {
+			// Pricing present to prove a registered site never sees the upsell.
+			setPricing( { title: 'VideoPress', features: [], yearly: {} } );
+			mockUseConnection.mockReturnValue( { ...connected, ...overrides } );
 
-		renderGate();
+			renderGate();
 
-		expect( screen.getByText( 'Connect screen' ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'Pricing upsell' ) ).not.toBeInTheDocument();
-	} );
+			expect( screen.getByText( expected ) ).toBeInTheDocument();
+			expect( screen.queryByText( 'Pricing upsell' ) ).not.toBeInTheDocument();
+		}
+	);
 } );

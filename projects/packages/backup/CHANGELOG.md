@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.3.0] - 2026-11-23
+### Changed
+- Abilities: Mark abilities as public with the `meta.public` flag. [#55104]
+- Abilities: Register the Backup abilities by default. [#53563]
+- Admin shell: Refetch the dashboard's data when the shell shows it again after five minutes hidden. [#55114]
+- Cache the storage figures and plan check for five minutes, so returning to the Backup page asks WordPress.com less. [#55207]
+- Update dependencies. [#55058]
+
+### Fixed
+- Dashboard: Stop logging a missing jetpackConfig error to the console on a full page load. [#55262]
+- Hide the "Use license key" link where My Jetpack's add-license screen is turned off, such as in Offline Mode. [#55239]
+
 ## [5.2.5] - 2026-11-16
 ### Added
 - Join the admin shell, so switching to and from other Jetpack dashboards skips the page load when the admin shell flag is on. [#54829]
@@ -1319,6 +1331,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[5.3.0]: https://github.com/Automattic/jetpack-backup/compare/v5.2.5...v5.3.0
 [5.2.5]: https://github.com/Automattic/jetpack-backup/compare/v5.2.4...v5.2.5
 [5.2.4]: https://github.com/Automattic/jetpack-backup/compare/v5.2.3...v5.2.4
 [5.2.3]: https://github.com/Automattic/jetpack-backup/compare/v5.2.2...v5.2.3

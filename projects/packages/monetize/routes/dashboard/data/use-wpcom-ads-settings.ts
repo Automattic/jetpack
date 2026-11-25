@@ -2,6 +2,7 @@ import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { useCallback, useEffect, useRef } from 'react';
+import { ADS_ACCOUNT_KEY, WPCOM_ADS_SETTINGS_KEY } from './ads-keys';
 import { getSectionState } from './state';
 import { wpcomFetch } from './wpcom-fetch';
 import { PROXY_BASE } from './wpcom-request';
@@ -12,12 +13,44 @@ export interface Payout {
 	tosSigned: boolean;
 }
 
-interface WpcomAdsSettings {
-	settings?: { paypal?: string; tos?: string };
+export interface WpcomAdsSettings {
+	settings?: {
+		paypal?: string;
+		tos?: string;
+		show_to_logged_in?: string;
+		display_options?: Record< string, boolean >;
+		ccpa_enabled?: boolean;
+		ccpa_privacy_policy_url?: string;
+	};
 }
 
-const SETTINGS: WpcomRequest = { api: 'wpcom/v2', path: 'wordads/settings' };
-const PAYOUT_KEY = [ 'monetize', 'ads', 'payout' ];
+export const WPCOM_ADS_SETTINGS: WpcomRequest = { api: 'wpcom/v2', path: 'wordads/settings' };
+
+export const fetchWpcomAdsSettings = () => wpcomFetch< WpcomAdsSettings >( WPCOM_ADS_SETTINGS );
+
+/**
+ * WordPress.com's Ads settings after a save, which keeps every field the save left out.
+ *
+ * @param prev   - The cached settings.
+ * @param change - What was saved.
+ * @return The settings now, or undefined before they've loaded.
+ */
+export function mergeWpcomAdsSettings(
+	prev: WpcomAdsSettings | undefined,
+	change: WpcomAdsSettings[ 'settings' ] = {}
+): WpcomAdsSettings | undefined {
+	return (
+		prev && {
+			...prev,
+			settings: {
+				...prev.settings,
+				...change,
+				display_options: { ...prev.settings?.display_options, ...change.display_options },
+			},
+		}
+	);
+}
+
 const SYNC_KEY = [ 'monetize', 'ads', 'sync' ];
 // Waits for a burst of switch changes to settle, so WordPress.com gets one save.
 const SYNC_DELAY = 2000;
@@ -36,12 +69,16 @@ const sync = () => apiFetch( { path: `${ PROXY_BASE }/ads/sync`, method: 'POST' 
  * @return The query.
  */
 export function usePayout( enabled = true ) {
-	return useQuery< Payout, WpcomApiError >( {
-		queryKey: PAYOUT_KEY,
-		queryFn: async () => toPayout( await wpcomFetch< WpcomAdsSettings >( SETTINGS ) ),
+	return useQuery< WpcomAdsSettings, WpcomApiError, Payout >( {
+		queryKey: WPCOM_ADS_SETTINGS_KEY,
+		queryFn: fetchWpcomAdsSettings,
+		select: toPayout,
 		enabled,
 	} );
 }
+
+/** A payout save, and on Simple whether ads are off, which keeps the save from switching them on. */
+type PayoutChange = { paypal?: string; tos: boolean; adsOff?: boolean };
 
 /**
  * Save the PayPal address, the terms when first signed, or both.
@@ -51,16 +88,22 @@ export function usePayout( enabled = true ) {
 export function useSavePayout() {
 	const queryClient = useQueryClient();
 
-	return useMutation< Payout, WpcomApiError, { paypal?: string; tos: boolean } >( {
-		mutationFn: async ( { paypal, tos } ) =>
-			toPayout(
-				await wpcomFetch< WpcomAdsSettings >( {
-					...SETTINGS,
-					method: 'POST',
-					data: { ...( paypal ? { paypal } : {} ), ...( tos ? { tos: 'signed' } : {} ) },
-				} )
-			),
-		onSuccess: payout => queryClient.setQueryData( PAYOUT_KEY, payout ),
+	return useMutation< void, WpcomApiError, PayoutChange >( {
+		mutationFn: async ( { paypal, tos, adsOff } ) => {
+			const change = {
+				...( paypal ? { paypal } : {} ),
+				...( tos ? { tos: 'signed' } : {} ),
+				...( adsOff && isSimpleSite() ? { show_to_logged_in: 'pause' } : {} ),
+			};
+			await wpcomFetch( { ...WPCOM_ADS_SETTINGS, method: 'POST', data: change } );
+			queryClient.setQueryData< WpcomAdsSettings >( WPCOM_ADS_SETTINGS_KEY, prev =>
+				mergeWpcomAdsSettings( prev, change )
+			);
+		},
+		onSuccess: () => {
+			// WordPress.com can update the Ads account along with the payout details.
+			queryClient.invalidateQueries( { queryKey: ADS_ACCOUNT_KEY } );
+		},
 	} );
 }
 

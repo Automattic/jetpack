@@ -5,7 +5,7 @@ import {
 	isOdysseyStatsEnabled,
 	userCanManageModules,
 } from 'state/initial-state';
-import { hasAnyOfTheseModules, isModuleActivated } from 'state/modules';
+import { isModuleActivated } from 'state/modules';
 import { hasAnalyticsDashboard } from '../../../shared/analytics-url';
 
 // The modules behind the Writing tab's Widgets card, in card order.
@@ -123,6 +123,26 @@ export function isDeprecatedInFeatures( state, module ) {
 }
 
 /**
+ * Whether a search matches the Privacy card's search terms.
+ *
+ * @param {string} searchTerm - The search term.
+ * @return {boolean} True on a match.
+ */
+export const searchFindsPrivacy = searchTerm =>
+	!! searchTerm &&
+	[
+		_x( 'privacy', 'Search term.', 'jetpack' ),
+		_x( 'tracks', 'Search term.', 'jetpack' ),
+		_x( 'data', 'Search term.', 'jetpack' ),
+		_x( 'gdpr', 'Search term.', 'jetpack' ),
+		_x( 'tos', 'Search term.', 'jetpack' ),
+		_x( 'terms of service', 'Search term.', 'jetpack' ),
+	]
+		.join( ' ' )
+		.toLowerCase()
+		.includes( searchTerm.toLowerCase() );
+
+/**
  * Whether a search names Google Analytics, in English or the site's language.
  *
  * @param {string} searchTerm - The search term.
@@ -144,24 +164,3 @@ export const searchFindsGoogleAnalytics = searchTerm =>
  */
 export const areStatsSettingsMovedOut = state =>
 	isSettingsConsolidationEnabled() && ( isOdysseyStatsEnabled( state ) || hasAnalyticsDashboard() );
-
-/**
- * Whether the Traffic tab keeps a card once settings move out: the legacy SEO settings, Google Analytics without its panel, or classic Stats.
- *
- * @param {object} state - Global state tree.
- * @return {boolean} True while a card still waits for a new home.
- */
-export function hasTrafficCardsLeft( state ) {
-	// Main renders once before setInitialState() copies the page's modules into the modules slice.
-	const pageModules = state.jetpack.initialState?.getModules ?? {};
-	const hasModules = modules =>
-		hasAnyOfTheseModules( state, modules ) || modules.some( module => !! pageModules[ module ] );
-
-	const legacySeo =
-		getScriptData()?.seo?.surface_visible !== true &&
-		hasModules( [ 'seo-tools', 'verification-tools', 'sitemaps' ] );
-	const analyticsCard = isWoASite() && ! getScriptData()?.myJetpack?.googleAnalyticsPanel;
-	const statsCard = hasModules( [ 'stats' ] ) && ! areStatsSettingsMovedOut( state );
-
-	return legacySeo || analyticsCard || statsCard;
-}

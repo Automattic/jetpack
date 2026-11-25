@@ -1,5 +1,10 @@
 import { jest } from '@jest/globals';
 import { act, renderHook } from '@testing-library/react';
+import { createReduxStore, register, select } from '@wordpress/data';
+import actions from '../../../state/actions';
+import reducers from '../../../state/reducers';
+import selectors from '../../../state/selectors';
+import STORE_ID from '../../../state/store-id';
 
 const migrateIDC = jest.fn< () => Promise< unknown > >();
 const startIDCFresh = jest.fn< ( redirectUri?: string, from?: string ) => Promise< unknown > >();
@@ -29,12 +34,13 @@ const { getIdentityCrisisErrorCause, getIdentityCrisisErrorCode } =
  *
  * @param code   - The REST error code.
  * @param status - The HTTP status.
+ * @param data   - More of the error's `data`.
  * @return The error.
  */
-function apiError( code: string, status: number ): Error {
+function apiError( code: string, status: number, data: Record< string, unknown > = {} ): Error {
 	return Object.assign( new Error( code ), {
 		name: 'ApiError',
-		response: { code, data: { status } },
+		response: { code, data: { status, ...data } },
 	} );
 }
 
@@ -164,6 +170,37 @@ describe( 'useIdentityCrisisActions', () => {
 		}
 	);
 
+	it.each( [
+		[ 'isDisconnected', apiError( 'cannot_save_secrets', 500, { disconnected: true } ) ],
+		[ 'isResolved', apiError( 'start_fresh_not_in_safe_mode', 409 ) ],
+	] as const )(
+		'keeps %s, and marks the connection store, after a later different failure',
+		async ( flag, firstError ) => {
+			// Registered once: the rows check different keys.
+			if ( ! select( STORE_ID ) ) {
+				register(
+					createReduxStore( STORE_ID, {
+						reducer: reducers,
+						actions,
+						selectors,
+						initialState: { identityCrisis: { useNewScreen: true, canResolve: false } },
+					} )
+				);
+			}
+			startIDCFresh
+				.mockRejectedValueOnce( firstError )
+				.mockRejectedValueOnce( new clientErrors.FetchNetworkError() );
+			const { result } = renderHook( () => useIdentityCrisisActions() );
+
+			await act( () => result.current.startFresh() );
+			await act( () => result.current.startFresh() );
+
+			expect( result.current.error?.cause ).toBe( 'offline' );
+			expect( result.current[ flag ] ).toBe( true );
+			expect( select( STORE_ID ).getIdentityCrisis() ).toMatchObject( { [ flag ]: true } );
+		}
+	);
+
 	it( 'clears the previous error when an action is retried', async () => {
 		confirmIDCSafeMode
 			.mockRejectedValueOnce( new clientErrors.FetchNetworkError() )
@@ -210,6 +247,12 @@ describe( 'getIdentityCrisisErrorCause and getIdentityCrisisErrorCode', () => {
 		],
 		[ apiError( 'some_plugin_error', 403 ), 'permission', 'some_plugin_error' ],
 		[ apiError( 'error', 500 ), 'server', 'error' ],
+		[ apiError( 'start_fresh_not_in_safe_mode', 409 ), 'resolved', 'start_fresh_not_in_safe_mode' ],
+		[
+			apiError( 'site_inaccessible', 500, { disconnected: true } ),
+			'disconnected',
+			'site_inaccessible',
+		],
 		[ new Error( 'boom' ), 'server', undefined ],
 		[ undefined, 'server', undefined ],
 	] )( '%s is %s with code %s', ( error, cause, code ) => {

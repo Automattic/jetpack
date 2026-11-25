@@ -26,6 +26,12 @@ jest.mock( '../../onboarding-modal', () => ( {
 	default: () => null,
 } ) );
 
+// Same reason: the notice reads settings through react-query. Covered by its own tests.
+jest.mock( '../../site-privacy-notice', () => ( {
+	__esModule: true,
+	default: () => null,
+} ) );
+
 // Same reason: the guard reaches react-query via useUpload. Its own behavior
 // is covered by use-upload-unload-guard's tests.
 jest.mock( '../../../hooks/use-upload-unload-guard', () => ( {

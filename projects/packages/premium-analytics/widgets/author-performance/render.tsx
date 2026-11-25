@@ -129,6 +129,7 @@ function AuthorPerformanceInner( { chartType }: AuthorPerformanceInnerProps ) {
 					metrics={ metricTabs }
 					dataFormat={ HEADLINE_COUNT_FORMAT }
 					chartType={ chartType }
+					tickResolution={ period }
 					empty={ <ChartEmptyState /> }
 				/>
 			</WidgetState>

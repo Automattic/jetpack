@@ -1,5 +1,5 @@
 import { SETTINGS_SLOT_ID, SUBPAGE_SLOT_ID } from '../../../../../../_inc/runtime-contract';
-import { detectMode, LEGACY_ROOT_ID, MODERN_ROOT_ID, waitForSlots } from './mode';
+import { detectMode, MODERN_ROOT_ID, waitForSlots } from './mode';
 
 const addRoot = ( id: string ) => {
 	const root = document.createElement( 'div' );
@@ -14,27 +14,14 @@ describe( 'detectMode', () => {
 		document.body.innerHTML = '';
 	} );
 
-	it( 'reads legacy from the legacy root', () => {
-		addRoot( LEGACY_ROOT_ID );
-
-		expect( detectMode() ).toBe( 'legacy' );
-	} );
-
 	it( 'reads modern from the chassis root', () => {
 		addRoot( MODERN_ROOT_ID );
 
 		expect( detectMode() ).toBe( 'modern' );
 	} );
 
-	it( 'returns null when neither root is present', () => {
+	it( 'returns null without the chassis root', () => {
 		expect( detectMode() ).toBeNull();
-	} );
-
-	it( 'prefers legacy when both roots are present', () => {
-		addRoot( MODERN_ROOT_ID );
-		addRoot( LEGACY_ROOT_ID );
-
-		expect( detectMode() ).toBe( 'legacy' );
 	} );
 } );
 

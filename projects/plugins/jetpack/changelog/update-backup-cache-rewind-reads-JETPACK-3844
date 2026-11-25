@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Backup: Load the Backup page faster on return visits by caching the storage figures and plan check for five minutes.

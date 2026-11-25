@@ -8,8 +8,8 @@ describe( 'discountLabel', () => {
 			'20% off forever',
 		],
 		[
-			{ discount_type: 'percentage', discount_percentage: 12.5, duration: '1 months' },
-			'12.5% off for 1 month',
+			{ discount_type: 'percentage', discount_percentage: 15, duration: '1 months' },
+			'15% off for 1 month',
 		],
 		[
 			{

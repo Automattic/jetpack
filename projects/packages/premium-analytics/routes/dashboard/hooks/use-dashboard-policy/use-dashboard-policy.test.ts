@@ -67,6 +67,16 @@ describe( 'useDashboardPolicy', () => {
 		expect( result.current( { operation: 'remove', widget, widgetType } ) ).toBe( false );
 	} );
 
+	it( 'offers no Customize, insert or remove on a section that shows the connect prompt', () => {
+		const { result } = renderHook( () =>
+			useDashboardPolicy( { ...POLICY_INPUTS, needsConnection: true } )
+		);
+
+		expect( result.current( { operation: 'customize' } ) ).toBe( false );
+		expect( result.current( { operation: 'insert', widgetType } ) ).toBe( false );
+		expect( result.current( { operation: 'remove', widget, widgetType } ) ).toBe( false );
+	} );
+
 	it( 'offers no Customize on a locked section that shows no widget', () => {
 		const { result } = renderHook( () =>
 			useDashboardPolicy( { ...POLICY_INPUTS, lockedLayout: [] } )

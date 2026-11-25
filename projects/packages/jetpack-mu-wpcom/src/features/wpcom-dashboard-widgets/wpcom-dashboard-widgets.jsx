@@ -72,24 +72,26 @@ if ( studioSync && data.wpcomBlogId ) {
 	window.addEventListener( 'load', () => openStudio( false ), { once: true } );
 
 	// The notice must stay up: navigating away dismisses Chrome's "Open Studio?" prompt.
-	const container = document.createElement( 'div' );
+	const button = document.createElement( 'button' );
+	button.type = 'button';
+	button.className = 'button-link';
+	button.textContent = __( 'Open Studio', 'jetpack-mu-wpcom' );
+	button.addEventListener( 'click', () => openStudio( true ) );
+
+	const text = document.createElement( 'p' );
+	text.append(
+		__( 'Open WordPress Studio to connect your local site to this one.', 'jetpack-mu-wpcom' ) + ' ',
+		button
+	);
+
+	const notice = document.createElement( 'div' );
+	notice.className = 'notice notice-info';
+	notice.append( text );
+
 	const heading = document.querySelector( '#wpbody-content .wrap > h1' );
 	if ( heading ) {
-		heading.after( container );
+		heading.after( notice );
 	} else {
-		document.getElementById( 'wpbody-content' )?.prepend( container );
+		document.getElementById( 'wpbody-content' )?.prepend( notice );
 	}
-	createRoot( container ).render(
-		<div className="notice notice-info">
-			<p>
-				{ __(
-					'Open WordPress Studio to connect your local site to this one.',
-					'jetpack-mu-wpcom'
-				) }{ ' ' }
-				<button type="button" className="button-link" onClick={ () => openStudio( true ) }>
-					{ __( 'Open Studio', 'jetpack-mu-wpcom' ) }
-				</button>
-			</p>
-		</div>
-	);
 }

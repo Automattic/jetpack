@@ -360,16 +360,23 @@ describe( 'Phone Field View', () => {
 	} );
 
 	describe( 'Keyboard navigation', () => {
-		test( 'handles Escape key', () => {
+		test( 'Escape closes the dropdown and returns focus to the trigger', () => {
 			mockContext.comboboxOpen = true;
-
+			const search = document.querySelector( '.jetpack-combobox-search' );
+			search.focus();
 			const mockEvent = {
 				key: 'Escape',
+				target: search,
+				preventDefault: jest.fn(),
+				stopPropagation: jest.fn(),
 			};
 
 			storeConfig.actions.phoneComboboxKeydownHandler( mockEvent );
 
 			expect( mockContext.comboboxOpen ).toBe( false );
+			expect( mockEvent.preventDefault ).toHaveBeenCalled();
+			expect( mockEvent.stopPropagation ).toHaveBeenCalled();
+			expect( document.querySelector( '.jetpack-combobox-trigger' ) ).toHaveFocus();
 		} );
 
 		test( 'handles Enter key with filtered countries', () => {

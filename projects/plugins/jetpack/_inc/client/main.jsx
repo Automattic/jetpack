@@ -19,11 +19,7 @@ import SettingsAdminPage from 'components/settings-admin-page';
 import SettingsNavTabs from 'components/settings-nav-tabs';
 import Tracker from 'components/tracker';
 import analytics from 'lib/analytics';
-import {
-	getAdsSettingsUrl,
-	hasTrafficCardsLeft,
-	isSettingsConsolidationEnabled,
-} from 'lib/settings-consolidation';
+import { getAdsSettingsUrl, isSettingsConsolidationEnabled } from 'lib/settings-consolidation';
 import { openProtectSettings } from 'security/protect-page';
 import SearchableSettings from 'settings/index.jsx';
 import {
@@ -50,6 +46,7 @@ import {
 	getCurrentVersion,
 	getTracksUserData,
 	getPluginBaseUrl,
+	getRemainingSettingsTabs,
 	hasProtectPage,
 	hasSocialPage,
 	userIsSubscriber,
@@ -336,15 +333,30 @@ export class Main extends Component {
 			case '/traffic':
 				if (
 					'/traffic' === route &&
-					isSettingsConsolidationEnabled() &&
-					! this.props.hasTrafficCards
+					this.props.remainingTabs &&
+					! this.props.remainingTabs.includes( 'traffic' )
 				) {
 					window.location.replace( getAdminUrl( 'admin.php?page=my-jetpack#/features' ) );
 					break;
 				}
 			// Falls through.
 			case '/settings':
+				// With no tab left the bare page is empty, but a search still shows where settings went.
+				if (
+					'/settings' === route &&
+					0 === this.props.remainingTabs?.length &&
+					! new URLSearchParams( this.props.location.search ).get( 'term' )
+				) {
+					window.location.replace( getAdminUrl( 'admin.php?page=my-jetpack#/features' ) );
+					break;
+				}
+			// Falls through.
 			case '/privacy':
+				// The Profile page's Privacy section (Jetpack_Privacy_Settings_Home) takes over from the card.
+				if ( '/privacy' === route && isSettingsConsolidationEnabled() ) {
+					window.location.replace( getAdminUrl( 'profile.php#jetpack-privacy' ) );
+					break;
+				}
 				pageComponent = (
 					<SearchableSettings
 						siteAdminUrl={ this.props.siteAdminUrl }
@@ -507,7 +519,7 @@ export default connect(
 			isSubscriber: userIsSubscriber( state ),
 			hasProtectPage: hasProtectPage( state ),
 			hasSocialPage: hasSocialPage( state ),
-			hasTrafficCards: hasTrafficCardsLeft( state ),
+			remainingTabs: getRemainingSettingsTabs( state ),
 		};
 	},
 	dispatch => ( {
