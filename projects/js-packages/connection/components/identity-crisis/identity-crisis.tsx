@@ -7,8 +7,8 @@ import useIdentityCrisisActions from '../../hooks/use-identity-crisis-actions';
 import IdentityCrisisAddresses from './addresses';
 import IdentityCrisisErrorNotice from './error-notice';
 import ChoiceStep from './flow/choice-step';
-import ConclusionStep from './flow/conclusion-step';
 import {
+	getConclusionCopy,
 	getConfirmedNote,
 	getGuideFactLines,
 	getOptionCopy,
@@ -27,7 +27,7 @@ import {
 	getOptions,
 	getPath,
 	getResultAction,
-	isChoiceStep,
+	isConcluded,
 	isGuideStep,
 	isResultStep,
 } from './flow/steps';
@@ -270,70 +270,44 @@ function IdentityCrisisResolver( {
 			onLater={ flow.later }
 		/>
 	);
-	const actionsFor = ( action: ActionCopy | null, stepFooter: ReactNode ) => (
-		<>
-			<IdentityCrisisErrorNotice error={ actions.error } />
-			<StepActions
-				action={ action }
-				isBusy={ isBusy }
-				hasError={ actions.error !== null }
-				canGoBack={ flow.state.history.length > 0 }
-				onContinue={ onContinue }
-				onBack={ flow.back }
-				footer={ stepFooter }
-			/>
-		</>
-	);
 
 	let stepView: ReactNode;
+	let actionCopy: ActionCopy | null;
 	if ( isGuideStep( step ) ) {
 		stepView = (
-			<>
-				<GuideStep
-					step={ step }
-					copy={ copy }
-					facts={ getGuideFactLines( copy, ctx.isDevelopmentSite ) }
-					openUrl={ getSiteUrl( state.wpcomHomeUrl ) }
-					trail={ trail }
-					onAnswer={ flow.answer }
-					onBack={ flow.back }
-					headingRef={ headingRef }
-				/>
-				{ footer }
-			</>
+			<GuideStep
+				step={ step }
+				copy={ copy }
+				facts={ getGuideFactLines( copy, ctx.isDevelopmentSite ) }
+				openUrl={ getSiteUrl( state.wpcomHomeUrl ) }
+				trail={ trail }
+				onAnswer={ flow.answer }
+				onBack={ flow.back }
+				headingRef={ headingRef }
+			/>
 		);
-	} else if ( isChoiceStep( step ) && flow.state.concluded && flow.selected ) {
-		const option = getOptionCopy( flow.selected.id, copy );
-		stepView = (
-			<>
-				<ConclusionStep option={ option } copy={ copy } headingRef={ headingRef } />
-				{ actionsFor( option, footer ) }
-			</>
-		);
-	} else if ( isChoiceStep( step ) ) {
-		stepView = (
-			<>
-				<ChoiceStep
-					step={ step }
-					options={ getOptions( step, ctx ) }
-					pick={ flow.state.pick }
-					copy={ copy }
-					disabled={ isBusy }
-					onPick={ flow.pick }
-					legendRef={ legendRef }
-				/>
-				{ actionsFor( flow.selected ? getOptionCopy( flow.selected.id, copy ) : null, footer ) }
-			</>
-		);
-	} else {
-		// A result ends the path, so it offers no way into or out of the guide.
+		actionCopy = null;
+	} else if ( isResultStep( step ) ) {
 		const result = getResultCopy( step, copy );
+		stepView = <ResultStep result={ result } copy={ copy } headingRef={ headingRef } />;
+		actionCopy = result;
+	} else if ( isConcluded( flow.state ) && flow.selected ) {
+		const conclusion = getConclusionCopy( flow.selected.id, copy );
+		stepView = <ResultStep result={ conclusion } copy={ copy } headingRef={ headingRef } />;
+		actionCopy = conclusion;
+	} else {
 		stepView = (
-			<>
-				<ResultStep result={ result } copy={ copy } headingRef={ headingRef } />
-				{ actionsFor( result, null ) }
-			</>
+			<ChoiceStep
+				step={ step }
+				options={ getOptions( step, ctx ) }
+				pick={ flow.state.pick }
+				copy={ copy }
+				disabled={ isBusy }
+				onPick={ flow.pick }
+				legendRef={ legendRef }
+			/>
 		);
+		actionCopy = flow.selected ? getOptionCopy( flow.selected.id, copy ) : null;
 	}
 
 	return (
@@ -364,6 +338,23 @@ function IdentityCrisisResolver( {
 			<Stack direction="column" gap="md">
 				{ ! isGuideStep( step ) && trail }
 				{ stepView }
+				{ isGuideStep( step ) ? (
+					footer
+				) : (
+					<>
+						<IdentityCrisisErrorNotice error={ actions.error } />
+						<StepActions
+							action={ actionCopy }
+							isBusy={ isBusy }
+							hasError={ actions.error !== null }
+							canGoBack={ flow.state.history.length > 0 }
+							onContinue={ onContinue }
+							onBack={ flow.back }
+							// A result ends the path, so it offers no way into or out of the guide.
+							footer={ isResultStep( step ) ? null : footer }
+						/>
+					</>
+				) }
 			</Stack>
 		</IdentityCrisisLayout>
 	);

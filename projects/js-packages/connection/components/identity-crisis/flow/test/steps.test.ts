@@ -74,12 +74,6 @@ describe( 'Safe Mode flow steps', () => {
 		expect( getPath( result, flowCtx ) ).toBe( 'same' );
 		expect( flowReducer( result, { type: 'back' } ) ).toEqual( picked );
 	} );
-
-	it( 'keeps a statement the guide reached from being changed', () => {
-		const concluded = guide( ctx, [ 'forwards' ] );
-
-		expect( flowReducer( concluded, { type: 'pick', option: 'original' } ) ).toBe( concluded );
-	} );
 } );
 
 /**
@@ -134,18 +128,18 @@ describe( 'Safe Mode step-by-step guide', () => {
 			'guide>loads>separate>unsure',
 		],
 		[
-			[ 'loads', 'separate', 'z' ],
+			[ 'loads', 'separate', 'other_address' ],
 			[ 'safe' ],
 			'copy',
 			'confirm-safe-mode',
-			'guide>loads>separate>z>original>safe',
+			'guide>loads>separate>other_address>original>safe',
 		],
 		[
-			[ 'loads', 'separate', 'x' ],
+			[ 'loads', 'separate', 'this_address' ],
 			[ 'yes' ],
 			'replaced',
 			'start-fresh',
-			'guide>loads>separate>x>copyof>yes',
+			'guide>loads>separate>this_address>copyof>yes',
 		],
 	] as const )(
 		'answers %j then %j end on %s, which runs %s with path %s',
@@ -164,7 +158,7 @@ describe( 'Safe Mode step-by-step guide', () => {
 			{ type: 'open-guide', ctx },
 			{ type: 'answer', answer: 'loads' },
 			{ type: 'answer', answer: 'separate' },
-			{ type: 'answer', answer: 'z' },
+			{ type: 'answer', answer: 'other_address' },
 			{ type: 'next' },
 		] as const;
 		for ( const change of changes ) {
@@ -193,18 +187,18 @@ describe( 'Safe Mode step-by-step guide', () => {
 	} );
 
 	it( 'lists the guide answers so far, each pointing at its question', () => {
-		const state = guide( ctx, [ 'loads', 'separate', 'z' ], [ 'safe' ] );
+		const state = guide( ctx, [ 'loads', 'separate', 'other_address' ], [ 'safe' ] );
 
 		expect( getGuideTrail( state ) ).toEqual( [
 			{ index: 1, answer: 'loads' },
 			{ index: 2, answer: 'separate' },
-			{ index: 3, answer: 'z' },
+			{ index: 3, answer: 'other_address' },
 		] );
 		expect( getGuideTrail( answer( ctx, [ 'original', 'safe' ] ) ) ).toEqual( [] );
 	} );
 
 	it( 'jumps back to any earlier step as if Back were pressed until there', () => {
-		const state = guide( ctx, [ 'loads', 'separate', 'z' ], [ 'safe' ] );
+		const state = guide( ctx, [ 'loads', 'separate', 'other_address' ], [ 'safe' ] );
 
 		state.history.forEach( ( _, index ) => {
 			let backed = state;

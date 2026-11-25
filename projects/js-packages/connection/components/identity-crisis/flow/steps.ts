@@ -4,7 +4,7 @@ import type { IdentityCrisisAction } from '../../../hooks/use-identity-crisis-ac
 export type ChoiceStepId = 'main' | 'copy' | 'replaced';
 
 /** A step-by-step guide question: one thing the admin can check, answered by moving on. */
-export type GuideStepId = 'g1' | 'g1b' | 'g2' | 'g3';
+export type GuideStepId = 'open_address' | 'was_it_there' | 'same_or_separate' | 'visitors_use';
 
 /** A step that explains a result and offers one action, without a question. */
 export type ResultStepId = 'two-addresses' | 'ask' | 'later';
@@ -25,8 +25,8 @@ export type GuideAnswerId =
 	| 'same'
 	| 'separate'
 	| 'unsure'
-	| 'z'
-	| 'x';
+	| 'other_address'
+	| 'this_address';
 
 /** A main-question statement the guide can reach. */
 export type ConclusionId = Extract< OptionId, 'old' | 'original' | 'copyof' >;
@@ -59,14 +59,12 @@ export interface FlowState {
 	entry: 'main' | 'guide';
 	step: StepId;
 	pick: OptionId | null;
-	/** The guide reached `pick` on the main question, so only that statement shows. */
-	concluded: boolean;
 	/** The steps left behind, oldest first. */
 	history: FlowHistoryEntry[];
 }
 
 /** A step left behind, restored by Back. `answer` is null for a step left without answering. */
-export type FlowHistoryEntry = Pick< FlowState, 'entry' | 'step' | 'pick' | 'concluded' > & {
+export type FlowHistoryEntry = Pick< FlowState, 'entry' | 'step' | 'pick' > & {
 	answer: OptionId | GuideAnswerId | null;
 };
 
@@ -101,23 +99,23 @@ const CHOICE_STEPS: Readonly< Record< ChoiceStepId, readonly Option[] > > = {
 
 // One thing to check per question; the copy lives in `copy.tsx`.
 const GUIDE_STEPS: Readonly< Record< GuideStepId, readonly GuideAnswer[] > > = {
-	g1: [
+	open_address: [
 		{ id: 'forwards', conclude: 'old' },
-		{ id: 'nothing', next: 'g1b' },
-		{ id: 'loads', next: 'g2' },
+		{ id: 'nothing', next: 'was_it_there' },
+		{ id: 'loads', next: 'same_or_separate' },
 	],
-	g1b: [
+	was_it_there: [
 		{ id: 'was_there', conclude: 'old' },
 		{ id: 'not_there', next: 'ask' },
 	],
-	g2: [
+	same_or_separate: [
 		{ id: 'same', next: 'two-addresses' },
-		{ id: 'separate', next: 'g3' },
+		{ id: 'separate', next: 'visitors_use' },
 		{ id: 'unsure', next: 'ask' },
 	],
-	g3: [
-		{ id: 'z', conclude: 'original' },
-		{ id: 'x', conclude: 'copyof' },
+	visitors_use: [
+		{ id: 'other_address', conclude: 'original' },
+		{ id: 'this_address', conclude: 'copyof' },
 		{ id: 'unsure', next: 'ask' },
 	],
 };
@@ -157,6 +155,16 @@ export function isGuideStep( step: StepId ): step is GuideStepId {
  */
 export function isResultStep( step: StepId ): step is ResultStepId {
 	return Object.hasOwn( RESULT_STEPS, step );
+}
+
+/**
+ * Whether the guide reached a statement on the main question, so only that statement shows.
+ *
+ * @param state - The flow state.
+ * @return True for a conclusion.
+ */
+export function isConcluded( state: FlowState ): boolean {
+	return state.entry === 'guide' && state.step === 'main';
 }
 
 /**
@@ -234,13 +242,7 @@ export type FlowAction =
  * @return The entry.
  */
 function leave( state: FlowState, answer: FlowHistoryEntry[ 'answer' ] ): FlowHistoryEntry {
-	return {
-		entry: state.entry,
-		step: state.step,
-		pick: state.pick,
-		concluded: state.concluded,
-		answer,
-	};
+	return { entry: state.entry, step: state.step, pick: state.pick, answer };
 }
 
 /**
@@ -255,8 +257,8 @@ function restore( state: FlowState, index: number ): FlowState {
 	if ( ! previous ) {
 		return state;
 	}
-	const { entry, step, pick, concluded } = previous;
-	return { entry, step, pick, concluded, history: state.history.slice( 0, index ) };
+	const { entry, step, pick } = previous;
+	return { entry, step, pick, history: state.history.slice( 0, index ) };
 }
 
 /**
@@ -266,7 +268,7 @@ function restore( state: FlowState, index: number ): FlowState {
  * @return The state.
  */
 export function getInitialFlowState( ctx: FlowContext ): FlowState {
-	return { entry: 'main', ...getHomeStep( ctx ), concluded: false, history: [] };
+	return { entry: 'main', ...getHomeStep( ctx ), history: [] };
 }
 
 /**
@@ -279,10 +281,7 @@ export function getInitialFlowState( ctx: FlowContext ): FlowState {
 export function flowReducer( state: FlowState, action: FlowAction ): FlowState {
 	switch ( action.type ) {
 		case 'pick':
-			// A statement the guide reached shows alone, so it cannot change.
-			return ! state.concluded && getOption( state.step, action.option )
-				? { ...state, pick: action.option }
-				: state;
+			return getOption( state.step, action.option ) ? { ...state, pick: action.option } : state;
 		case 'next': {
 			const option = getOption( state.step, state.pick );
 			if ( ! option || ! ( 'next' in option ) ) {
@@ -292,7 +291,6 @@ export function flowReducer( state: FlowState, action: FlowAction ): FlowState {
 				...state,
 				step: option.next,
 				pick: null,
-				concluded: false,
 				history: [ ...state.history, leave( state, option.id ) ],
 			};
 		}
@@ -306,9 +304,8 @@ export function flowReducer( state: FlowState, action: FlowAction ): FlowState {
 			// Back from the first guide question returns to the first screen.
 			return {
 				entry: 'guide',
-				step: 'g1',
+				step: 'open_address',
 				pick: null,
-				concluded: false,
 				history: [ leave( getInitialFlowState( action.ctx ), null ) ],
 			};
 		case 'answer': {
@@ -321,8 +318,8 @@ export function flowReducer( state: FlowState, action: FlowAction ): FlowState {
 			}
 			const history = [ ...state.history, leave( state, answer.id ) ];
 			return 'conclude' in answer
-				? { ...state, step: 'main', pick: answer.conclude, concluded: true, history }
-				: { ...state, step: answer.next, pick: null, concluded: false, history };
+				? { ...state, step: 'main', pick: answer.conclude, history }
+				: { ...state, step: answer.next, pick: null, history };
 		}
 		case 'later':
 			if ( state.entry !== 'guide' || state.step === 'later' ) {
@@ -332,7 +329,6 @@ export function flowReducer( state: FlowState, action: FlowAction ): FlowState {
 				...state,
 				step: 'later',
 				pick: null,
-				concluded: false,
 				history: [ ...state.history, leave( state, null ) ],
 			};
 		default: {
@@ -347,7 +343,7 @@ export function flowReducer( state: FlowState, action: FlowAction ): FlowState {
  *
  * @param state - The flow state.
  * @param ctx   - The flow context.
- * @return E.g. `original>safe`, `detected_copy>fresh` or `guide>loads>separate>z>original>safe`; `none` before any answer.
+ * @return E.g. `original>safe`, `detected_copy>fresh` or `guide>loads>separate>other_address>original>safe`; `none` before any answer.
  */
 export function getPath( state: FlowState, ctx: FlowContext ): string {
 	const parts: string[] = [];

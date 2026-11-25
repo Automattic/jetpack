@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { Button, Stack } from '@wordpress/ui';
 import styles from '../styles.module.scss';
 import SupportLink from '../support-link';
+import { getBackText } from './copy';
 import type { ActionCopy } from './copy';
 import type { ReactNode } from 'react';
 
@@ -54,7 +55,7 @@ export default function StepActions( {
 				</Button>
 				{ canGoBack && (
 					<Button variant="minimal" onClick={ onBack } disabled={ isBusy }>
-						{ __( 'Back', 'jetpack-connection-js' ) }
+						{ getBackText() }
 					</Button>
 				) }
 				{ action?.link && (

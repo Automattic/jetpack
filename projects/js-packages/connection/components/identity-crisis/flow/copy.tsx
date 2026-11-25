@@ -57,6 +57,8 @@ export interface FactLine {
 }
 
 export interface ResultCopy extends ActionCopy {
+	/** A line above the title. */
+	lead?: string;
 	title: ReactNode;
 	help: ReactNode;
 	/** One line per fact that applies. */
@@ -499,7 +501,7 @@ export function getResultCopy( step: ResultStepId, c: CopyContext ): ResultCopy 
 					label: __( 'Send this to your host or developer', 'jetpack-connection-js' ),
 					text: sprintf( messageFormat, c.x, c.z ),
 				},
-				link: { text: __( 'Contact support', 'jetpack-connection-js' ), topic: 'contact' },
+				link: { text: getContactText(), topic: 'contact' },
 				button: __( 'Stay in Safe Mode', 'jetpack-connection-js' ),
 				busy: __( 'Saving…', 'jetpack-connection-js' ),
 			};
@@ -512,7 +514,7 @@ export function getResultCopy( step: ResultStepId, c: CopyContext ): ResultCopy 
 					'jetpack-connection-js'
 				),
 				facts: [],
-				more: getStayPausedText( c ),
+				more: getPausedText( c ),
 				button: __( 'Stay in Safe Mode', 'jetpack-connection-js' ),
 				busy: __( 'Saving…', 'jetpack-connection-js' ),
 			};
@@ -521,6 +523,25 @@ export function getResultCopy( step: ResultStepId, c: CopyContext ): ResultCopy 
 			return unhandled;
 		}
 	}
+}
+
+/**
+ * The statement the guide reached and what it will do, for the admin to confirm.
+ *
+ * @param id - The statement.
+ * @param c  - The copy context.
+ * @return The copy, with the statement's button.
+ */
+export function getConclusionCopy( id: OptionId, c: CopyContext ): ResultCopy {
+	const { label, statement, more, button, busy } = getOptionCopy( id, c );
+	return {
+		lead: __( 'From what you saw:', 'jetpack-connection-js' ),
+		title: statement ?? label,
+		help: more,
+		facts: [],
+		button,
+		busy,
+	};
 }
 
 /**
@@ -613,12 +634,12 @@ export function getGuideIntro( c: CopyContext ): string {
  */
 export function getGuideStepCopy( step: GuideStepId, c: CopyContext ): GuideStepCopy {
 	switch ( step ) {
-		case 'g1':
+		case 'open_address':
 			return {
 				/* translators: <z />: the address WordPress.com has on record. */
 				title: fill( __( 'Open <z /> in a new tab. What happens?', 'jetpack-connection-js' ), c ),
 			};
-		case 'g1b':
+		case 'was_it_there':
 			return {
 				title: fill(
 					c.isStore
@@ -633,7 +654,7 @@ export function getGuideStepCopy( step: GuideStepId, c: CopyContext ): GuideStep
 					c
 				),
 			};
-		case 'g2':
+		case 'same_or_separate':
 			return {
 				title: c.isStore
 					? _x(
@@ -650,7 +671,7 @@ export function getGuideStepCopy( step: GuideStepId, c: CopyContext ): GuideStep
 						)
 					: __( 'Compare the latest post or page at both addresses.', 'jetpack-connection-js' ),
 			};
-		case 'g3':
+		case 'visitors_use':
 			return {
 				title: c.isStore
 					? _x( 'Which one do your customers use?', 'WooCommerce store', 'jetpack-connection-js' )
@@ -735,7 +756,7 @@ export function getGuideAnswerCopy( id: GuideAnswerId, c: CopyContext ): GuideAn
 			};
 		case 'unsure':
 			return { label: __( 'I’m not sure', 'jetpack-connection-js' ) };
-		case 'z':
+		case 'other_address':
 			return {
 				label: <strong>{ c.z }</strong>,
 				hint: fill(
@@ -744,7 +765,7 @@ export function getGuideAnswerCopy( id: GuideAnswerId, c: CopyContext ): GuideAn
 					c
 				),
 			};
-		case 'x':
+		case 'this_address':
 			return {
 				/* translators: <x />: this site's address. */
 				label: fill( __( 'This one, <x />', 'jetpack-connection-js' ), c ),
@@ -771,7 +792,6 @@ export function getGuideText( c: CopyContext ) {
 	return {
 		/* translators: %s: the address WordPress.com has on record, e.g. example.com. */
 		openAddress: sprintf( __( 'Open %s', 'jetpack-connection-js' ), c.z ),
-		conclusionLead: __( 'From what you saw:', 'jetpack-connection-js' ),
 		backToStart: __( 'Back to the first screen', 'jetpack-connection-js' ),
 		trailLabel: __( 'Your answers:', 'jetpack-connection-js' ),
 		/* translators: Read by screen readers before an earlier answer, which the button goes back to. */
@@ -779,6 +799,42 @@ export function getGuideText( c: CopyContext ) {
 		copyMessage: __( 'Copy message', 'jetpack-connection-js' ),
 		copied: __( 'Copied', 'jetpack-connection-js' ),
 	};
+}
+
+/**
+ * The label of "Back", which returns to the previous step.
+ *
+ * @return The text.
+ */
+export function getBackText(): string {
+	return __( 'Back', 'jetpack-connection-js' );
+}
+
+/**
+ * The name of the list of facts.
+ *
+ * @return The text.
+ */
+export function getFactsLabel(): string {
+	return __( 'What we already know', 'jetpack-connection-js' );
+}
+
+/**
+ * The link to contact support.
+ *
+ * @return The text.
+ */
+export function getContactText(): string {
+	return __( 'Contact support', 'jetpack-connection-js' );
+}
+
+/**
+ * The footer link to the Safe Mode support page.
+ *
+ * @return The text.
+ */
+export function getLearnMoreText(): string {
+	return __( 'Learn more about Safe Mode', 'jetpack-connection-js' );
 }
 
 /**
@@ -820,35 +876,7 @@ export function getLaterText( link: ReactElement ): ReactNode {
 }
 
 /**
- * What staying in Safe Mode keeps paused.
- *
- * @param c - The copy context.
- * @return The text.
- */
-function getStayPausedText( c: CopyContext ): string {
-	if ( c.hasJetpackPlugin ) {
-		return c.isStore
-			? _x(
-					'Features that sync with WordPress.com — like Stats and Backups — stay paused here. Payments will not be interrupted.',
-					'WooCommerce store',
-					'jetpack-connection-js'
-				)
-			: __(
-					'Features that sync with WordPress.com — like Stats and Backups — stay paused here.',
-					'jetpack-connection-js'
-				);
-	}
-	return c.isStore
-		? _x(
-				'Features that sync with WordPress.com stay paused here. Payments will not be interrupted.',
-				'WooCommerce store',
-				'jetpack-connection-js'
-			)
-		: __( 'Features that sync with WordPress.com stay paused here.', 'jetpack-connection-js' );
-}
-
-/**
- * What Safe Mode pauses, on the first view.
+ * What Safe Mode pauses, on the first view and the "later" result.
  *
  * @param c - The copy context.
  * @return The text.

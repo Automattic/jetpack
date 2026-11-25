@@ -1,8 +1,7 @@
-import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import styles from '../styles.module.scss';
 import SupportLink from '../support-link';
-import { getLaterText, getOpenGuideText } from './copy';
+import { getContactText, getLaterText, getLearnMoreText, getOpenGuideText } from './copy';
 import TextButton from './text-button';
 import type { FlowState } from './steps';
 import type { ReactNode } from 'react';
@@ -42,9 +41,7 @@ export default function StepFooter( {
 		return (
 			<Stack { ...FOOTER_LAYOUT }>
 				<span>{ getLaterText( <TextButton onClick={ onLater } disabled={ disabled } /> ) }</span>
-				<SupportLink topic="contact">
-					{ __( 'Contact support', 'jetpack-connection-js' ) }
-				</SupportLink>
+				<SupportLink topic="contact">{ getContactText() }</SupportLink>
 			</Stack>
 		);
 	}
@@ -56,7 +53,7 @@ export default function StepFooter( {
 					{ getOpenGuideText( <TextButton onClick={ onOpenGuide } disabled={ disabled } /> ) }
 				</span>
 			) }
-			<SupportLink>{ __( 'Learn more about Safe Mode', 'jetpack-connection-js' ) }</SupportLink>
+			<SupportLink>{ getLearnMoreText() }</SupportLink>
 		</Stack>
 	);
 }

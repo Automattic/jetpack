@@ -1,9 +1,16 @@
-import { __, isRTL } from '@wordpress/i18n';
+import { isRTL } from '@wordpress/i18n';
 import { chevronLeft, chevronRight } from '@wordpress/icons';
 import { Button, ButtonLink, Icon, Stack, Text } from '@wordpress/ui';
 import { useCallback, useId } from 'react';
 import styles from '../styles.module.scss';
-import { getGuideAnswerCopy, getGuideIntro, getGuideStepCopy, getGuideText } from './copy';
+import {
+	getBackText,
+	getGuideAnswerCopy,
+	getGuideIntro,
+	getGuideStepCopy,
+	getGuideText,
+} from './copy';
+import FactList from './fact-list';
 import { getGuideAnswers } from './steps';
 import type { CopyContext, FactLine, GuideAnswerCopy } from './copy';
 import type { GuideAnswerId, GuideStepId } from './steps';
@@ -82,14 +89,14 @@ export default function GuideStep( {
 }: GuideStepProps ): ReactNode {
 	const text = getGuideText( copy );
 	const question = getGuideStepCopy( step, copy );
-	const isFirst = step === 'g1';
+	const isFirst = step === 'open_address';
 
 	return (
 		<Stack direction="column" gap="sm">
 			<div>
 				<Button variant="minimal" size="compact" onClick={ onBack }>
 					<Button.Icon icon={ isRTL() ? chevronRight : chevronLeft } />
-					{ isFirst ? text.backToStart : __( 'Back', 'jetpack-connection-js' ) }
+					{ isFirst ? text.backToStart : getBackText() }
 				</Button>
 			</div>
 			{ trail }
@@ -98,16 +105,7 @@ export default function GuideStep( {
 					<Text variant="body-md" render={ <p /> } className={ styles.prose }>
 						{ getGuideIntro( copy ) }
 					</Text>
-					<ul
-						className={ styles.facts }
-						aria-label={ __( 'What we already know', 'jetpack-connection-js' ) }
-					>
-						{ facts.map( fact => (
-							<Text key={ fact.key } variant="body-sm" render={ <li /> }>
-								{ fact.text }
-							</Text>
-						) ) }
-					</ul>
+					<FactList facts={ facts } />
 				</>
 			) }
 			<Text

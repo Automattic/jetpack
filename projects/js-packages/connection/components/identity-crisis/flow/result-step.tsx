@@ -1,9 +1,9 @@
 import { useCopyToClipboard } from '@wordpress/compose';
-import { __ } from '@wordpress/i18n';
 import { Button, Stack, Text } from '@wordpress/ui';
 import { useCallback, useState } from 'react';
 import styles from '../styles.module.scss';
 import { getGuideText } from './copy';
+import FactList from './fact-list';
 import type { CopyContext, ResultCopy } from './copy';
 import type { ReactNode, Ref } from 'react';
 
@@ -56,7 +56,7 @@ interface ResultStepProps {
 }
 
 /**
- * A result: why it happened, what the screen can tell, and what to do next.
+ * A result, or the statement the guide reached: what it means, and what to do next.
  *
  * @param {ResultStepProps} props - Component props.
  * @return {ReactNode} The step.
@@ -64,24 +64,24 @@ interface ResultStepProps {
 export default function ResultStep( { result, copy, headingRef }: ResultStepProps ): ReactNode {
 	return (
 		<Stack direction="column" gap="sm">
-			<Text variant="heading-md" render={ <h3 ref={ headingRef } tabIndex={ -1 } /> }>
+			{ result.lead && (
+				<Text variant="body-sm" render={ <p /> } className={ styles.hint }>
+					{ result.lead }
+				</Text>
+			) }
+			<Text
+				variant="heading-md"
+				render={ <h3 ref={ headingRef } tabIndex={ -1 } /> }
+				className={ styles.question }
+			>
 				{ result.title }
 			</Text>
-			<Text variant="body-md" render={ <p /> } className={ styles.prose }>
-				{ result.help }
-			</Text>
-			{ result.facts.length > 0 && (
-				<ul
-					className={ styles.facts }
-					aria-label={ __( 'What we already know', 'jetpack-connection-js' ) }
-				>
-					{ result.facts.map( fact => (
-						<Text key={ fact.key } variant="body-sm" render={ <li /> }>
-							{ fact.text }
-						</Text>
-					) ) }
-				</ul>
+			{ result.help && (
+				<Text variant="body-md" render={ <p /> } className={ styles.prose }>
+					{ result.help }
+				</Text>
 			) }
+			<FactList facts={ result.facts } />
 			{ result.fixes && (
 				<>
 					<Text variant="body-md" render={ <p /> }>
