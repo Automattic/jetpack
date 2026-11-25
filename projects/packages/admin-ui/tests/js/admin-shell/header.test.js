@@ -1,12 +1,11 @@
 import { configureHeaders, rememberHeader, showHeader } from '../../../src/admin-shell/header';
 
 const PREFIX = 'jetpack-admin-shell-header:1:7:0.15.0:abc:';
-const SEEN = 'jetpack-admin-shell-header:seen';
-const DAY = 24 * 60 * 60 * 1000;
 
 beforeEach( () => {
 	document.head.innerHTML = '';
 	localStorage.clear();
+	sessionStorage.clear();
 	document.body.innerHTML = '<section id="app"></section>';
 	configureHeaders( PREFIX, MEMBERS );
 } );
@@ -16,58 +15,28 @@ const MEMBERS = {
 	newsletter: { bodyClass: 'jetpack_page_newsletter' },
 };
 
-const stored = () => JSON.parse( localStorage.getItem( PREFIX ) ) ?? { pieces: {}, pages: {} };
+const stored = () => JSON.parse( sessionStorage.getItem( PREFIX ) ) ?? { pieces: {}, pages: {} };
 
 const save = ( slug, html, css = '' ) => {
 	const { pieces, pages } = stored();
 	pieces[ slug ] = css;
 	pages[ slug ] = { html, css: [ slug ], styles: [] };
-	localStorage.setItem( PREFIX, JSON.stringify( { pieces, pages } ) );
+	sessionStorage.setItem( PREFIX, JSON.stringify( { pieces, pages } ) );
 };
 
 describe( 'header stand-in', () => {
-	it( 'drops headers an earlier release, login or layout saved for this site and user, and no one else’s', () => {
-		localStorage.setItem( PREFIX, '{}' );
-		localStorage.setItem( PREFIX + 'forms', '{}' );
-		localStorage.setItem( 'jetpack-admin-shell-header:1:7:0.15.0:old:', '{}' );
+	it( 'drops headers saved for another site, release or login, and those earlier releases kept for good', () => {
+		sessionStorage.setItem( PREFIX, '{}' );
+		sessionStorage.setItem( PREFIX + 'forms', '{}' );
+		sessionStorage.setItem( 'jetpack-admin-shell-header:1:7:0.15.0:old:', '{}' );
+		sessionStorage.setItem( 'jetpack-admin-shell-header:2:7:0.15.0:abc:', '{}' );
 		localStorage.setItem( 'jetpack-admin-shell-header:1:7:0.14.0:forms', '{}' );
-		localStorage.setItem( 'jetpack-admin-shell-header:1:8:0.14.0:forms', '{}' );
-		localStorage.setItem( 'jetpack-admin-shell-header:forms', '{}' );
+		localStorage.setItem( 'jetpack-admin-shell-loader-offset', '40' );
 
 		configureHeaders( PREFIX );
 
-		expect( Object.keys( localStorage ).sort() ).toEqual( [
-			PREFIX,
-			'jetpack-admin-shell-header:1:8:0.14.0:forms',
-			SEEN,
-		] );
-	} );
-
-	it.each( [
-		[ 'kept', 29, true ],
-		[ 'dropped', 31, false ],
-	] )( 'another site’s headers last opened %s days ago are %s', ( _, days, kept ) => {
-		const other = 'jetpack-admin-shell-header:2:7:0.15.0:abc:';
-		localStorage.setItem( other, '{}' );
-		localStorage.setItem( SEEN, JSON.stringify( { '2:7': Date.now() - days * DAY } ) );
-
-		configureHeaders( PREFIX );
-
-		expect( localStorage.getItem( other ) !== null ).toBe( kept );
-		expect( '2:7' in JSON.parse( localStorage.getItem( SEEN ) ) ).toBe( kept );
-	} );
-
-	it( 'starts the clock on headers saved before it was kept', () => {
-		jest.useFakeTimers();
-		const other = 'jetpack-admin-shell-header:2:7:0.15.0:abc:';
-		localStorage.setItem( other, '{}' );
-		configureHeaders( PREFIX );
-
-		jest.setSystemTime( Date.now() + 31 * DAY );
-		configureHeaders( PREFIX );
-
-		expect( localStorage.getItem( other ) ).toBeNull();
-		jest.useRealTimers();
+		expect( Object.keys( sessionStorage ) ).toEqual( [ PREFIX ] );
+		expect( Object.keys( localStorage ) ).toEqual( [ 'jetpack-admin-shell-loader-offset' ] );
 	} );
 
 	it( 'drops the headers of pages the shell no longer has, and the pieces only they used', () => {
@@ -239,7 +208,7 @@ describe( 'header stand-in', () => {
 		rememberHeader( 'boost', app );
 		jest.runAllTimers();
 
-		expect( localStorage.getItem( PREFIX ) ).toBeNull();
+		expect( sessionStorage.getItem( PREFIX ) ).toBeNull();
 		jest.useRealTimers();
 	} );
 
@@ -312,22 +281,6 @@ describe( 'header stand-in', () => {
 		jest.useRealTimers();
 	} );
 
-	it( 'saves a header again once another tab’s save has dropped it', () => {
-		jest.useFakeTimers();
-		const app = document.getElementById( 'app' );
-		app.innerHTML = '<div class="admin-ui-navigable-region"><header><h1>Social</h1></header></div>';
-		rememberHeader( 'social', app );
-		jest.runAllTimers();
-
-		localStorage.setItem( PREFIX, '{}' );
-		window.dispatchEvent( new StorageEvent( 'storage', { key: PREFIX } ) );
-		rememberHeader( 'social', app );
-		jest.runAllTimers();
-
-		expect( Object.keys( stored().pages ) ).toEqual( [ 'social' ] );
-		jest.useRealTimers();
-	} );
-
 	// The module as a new document loads it, with nothing remembered from earlier saves.
 	const freshHeader = () => {
 		let header;
@@ -364,7 +317,7 @@ describe( 'header stand-in', () => {
 		jest.useFakeTimers();
 		const html = style =>
 			`<div class="admin-ui-navigable-region" style="${ style }"><header><h1>Forms</h1></header></div>`;
-		localStorage.setItem(
+		sessionStorage.setItem(
 			PREFIX,
 			JSON.stringify( {
 				pieces: {},
@@ -378,23 +331,6 @@ describe( 'header stand-in', () => {
 		jest.runAllTimers();
 
 		expect( Object.values( stored().pieces ) ).toEqual( [ 'color: red;' ] );
-		jest.useRealTimers();
-	} );
-
-	it( 'keeps a page another tab saves while this one walks the stylesheets', () => {
-		jest.useFakeTimers();
-		const app = document.getElementById( 'app' );
-		app.innerHTML =
-			'<div class="admin-ui-navigable-region"><header><h1 class="x__title">Stats</h1></header></div>';
-		const escape = jest
-			.spyOn( CSS, 'escape' )
-			.mockImplementationOnce( name => ( save( 'other', '<div><h1>Other</h1></div>' ), name ) );
-
-		rememberHeader( 'stats', app );
-		jest.runAllTimers();
-
-		expect( Object.keys( stored().pages ).sort() ).toEqual( [ 'other', 'stats' ] );
-		escape.mockRestore();
 		jest.useRealTimers();
 	} );
 
@@ -412,7 +348,7 @@ describe( 'header stand-in', () => {
 			},
 		],
 	] )( 'shows what it can of a store with %s, without failing', ( _, store ) => {
-		localStorage.setItem( PREFIX, JSON.stringify( store ) );
+		sessionStorage.setItem( PREFIX, JSON.stringify( store ) );
 
 		expect( () => showHeader( 'forms', document.getElementById( 'app' ), 'Forms' ) ).not.toThrow();
 		expect( document.body.innerHTML ).not.toContain( 'undefined' );

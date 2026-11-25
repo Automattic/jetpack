@@ -16,23 +16,6 @@ const PAGE_CLASS = 'jetpack-admin-shell-page';
 let storageKey = KEY_ROOT;
 let bodyClassOf = () => null;
 
-// When the shell last ran for each `<blog>:<user>`, so another site's or user's headers can expire.
-const SEEN_KEY = KEY_ROOT + 'seen';
-const MAX_AGE = 30 * 24 * 60 * 60 * 1000;
-const REFRESH_SEEN = 24 * 60 * 60 * 1000;
-
-// `<blog>:<user>` of a key, or null for one saved before headers were per site and user.
-const scopeOf = key => key.slice( KEY_ROOT.length ).match( /^(\d+:\d+):/ )?.[ 1 ] ?? null;
-
-const readSeen = () => {
-	try {
-		const seen = JSON.parse( localStorage.getItem( SEEN_KEY ) );
-		return isObject( seen ) ? seen : {};
-	} catch {
-		return {};
-	}
-};
-
 /**
  * Set where headers are saved, and drop the saved headers nothing will show again.
  *
@@ -42,40 +25,17 @@ const readSeen = () => {
 export function configureHeaders( prefix, members = {} ) {
 	storageKey = prefix;
 	bodyClassOf = slug => members[ slug ]?.bodyClass;
-	window.addEventListener( 'storage', forgetSaved );
-	const own = scopeOf( prefix );
-	const now = Date.now();
+	const drop = ( area, keep ) =>
+		Object.keys( area )
+			.filter( key => key.startsWith( KEY_ROOT ) && key !== keep )
+			.forEach( key => area.removeItem( key ) );
 	try {
-		const seen = readSeen();
-		const live = new Set( [ own ] );
-		for ( const key of Object.keys( localStorage ) ) {
-			if ( ! key.startsWith( KEY_ROOT ) || key === SEEN_KEY || key === prefix ) {
-				continue;
-			}
-			const scope = scopeOf( key );
-			// A scope first met here expires a full age from now.
-			if ( scope && scope !== own ) {
-				seen[ scope ] ??= now;
-			}
-			// This scope's other releases, logins and layouts; another's no one has opened lately.
-			if ( ! scope || scope === own || now - seen[ scope ] > MAX_AGE ) {
-				localStorage.removeItem( key );
-			} else {
-				live.add( scope );
-			}
-		}
-		// Once a day is precise enough for a 30-day age, and keeps page loads from writing.
-		if ( ! ( now - seen[ own ] < REFRESH_SEEN ) ) {
-			seen[ own ] = now;
-		}
-		const kept = JSON.stringify(
-			Object.fromEntries( Object.entries( seen ).filter( ( [ scope ] ) => live.has( scope ) ) )
-		);
-		if ( kept !== localStorage.getItem( SEEN_KEY ) ) {
-			localStorage.setItem( SEEN_KEY, kept );
-		}
+		// Earlier releases saved headers in localStorage, where nothing would clear them.
+		drop( localStorage );
+		// This tab's headers from another site, release or login.
+		drop( sessionStorage, prefix );
 	} catch {
-		// Blocked or full storage: nothing more will be saved either.
+		// Blocked storage: nothing was saved either.
 	}
 	if ( Object.keys( members ).length ) {
 		const store = readStore();
@@ -129,7 +89,7 @@ const isPage = page =>
 const readStore = () => {
 	let stored;
 	try {
-		stored = JSON.parse( localStorage.getItem( storageKey ) );
+		stored = JSON.parse( sessionStorage.getItem( storageKey ) );
 	} catch {
 		// Blocked storage, or not JSON: nothing is saved.
 	}
@@ -253,13 +213,6 @@ const rulesFor = classNames => {
 // The header HTML last saved for each page in this document, so a check doesn't parse storage.
 const savedHtml = new Map();
 
-// Another tab's save can drop or replace this tab's, so check storage again on the next save.
-const forgetSaved = event => {
-	if ( event.key === storageKey || event.key === null ) {
-		savedHtml.clear();
-	}
-};
-
 // A page's saved header with its pieces filled in.
 const readSaved = ( slug, { pieces, pages } = readStore() ) => {
 	const page = pages[ slug ];
@@ -296,7 +249,7 @@ const write = ( { pieces, pages } ) => {
 		}
 	}
 	try {
-		localStorage.setItem( storageKey, JSON.stringify( { pieces: used, pages } ) );
+		sessionStorage.setItem( storageKey, JSON.stringify( { pieces: used, pages } ) );
 	} catch {
 		// Storage full or blocked: the next opening shows no stand-in.
 	}
@@ -338,7 +291,6 @@ export function rememberHeader( slug, el ) {
 		const rules = rulesFor( classNames ).map( rule =>
 			pageScoped ? rule.replace( pageScoped, PAGE_CLASS ) : rule
 		);
-		// Read after the walk, right before writing, so what another tab saved meanwhile is kept.
 		const store = readStore();
 		const add = namer( store.pieces );
 		const { html: savedAs, styles } = withPieceIds( frame, add );
