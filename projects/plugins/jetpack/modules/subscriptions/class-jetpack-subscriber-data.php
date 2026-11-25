@@ -21,17 +21,34 @@ class Jetpack_Subscriber_Data {
 	const COUNTS_CACHE_KEY = 'jetpack_subscriber_counts';
 
 	/**
+	 * Get the combined subscriber and social follower count.
+	 *
+	 * @param bool $refresh Whether to refresh a successful cached count.
+	 * @return int
+	 */
+	public static function get_count( $refresh = false ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return wpcom_reach_total_for_blog();
+		}
+
+		$subs_count = self::get_counts( $refresh );
+		$counts     = $subs_count['value'];
+		return (int) ( $counts['total_subscribers'] ?? 0 ) + (int) ( $counts['social_followers'] ?? 0 );
+	}
+
+	/**
 	 * Preserve the public count envelope and the native WordPress.com cache.
 	 *
+	 * @param bool $refresh Whether to refresh successful cached counts.
 	 * @return array
 	 */
-	public static function get_counts() {
+	public static function get_counts( $refresh = false ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			return array( 'value' => wpcom_fetch_subs_counts( true ) );
 		}
 
 		$subs_count = get_transient( self::COUNTS_CACHE_KEY );
-		if ( false === $subs_count ) {
+		if ( false === $subs_count || ( $refresh && 'success' === $subs_count['status'] ) ) {
 			$xml = new Jetpack_IXR_Client();
 			$xml->query( 'jetpack.fetchSubscriberCounts' );
 			$is_error = $xml->isError();

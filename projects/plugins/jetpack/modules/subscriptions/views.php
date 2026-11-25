@@ -655,13 +655,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	 * @return int
 	 */
 	public static function fetch_subscriber_count() {
-		if ( self::is_wpcom() ) {
-			return wpcom_reach_total_for_blog();
-		}
-
-		$subs_count = Jetpack_Subscriber_Data::get_counts();
-		$counts     = $subs_count['value'];
-		return (int) ( $counts['total_subscribers'] ?? 0 ) + (int) ( $counts['social_followers'] ?? 0 );
+		return Jetpack_Subscriber_Data::get_count();
 	}
 
 	/**

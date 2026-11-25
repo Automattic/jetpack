@@ -178,9 +178,16 @@ class WPCOM_REST_API_V2_Subscribers_Endpoint_Test extends Jetpack_REST_TestCase 
 
 		$cache_key = Jetpack_Subscriber_Data::COUNTS_CACHE_KEY;
 		delete_transient( $cache_key );
+		wp_set_current_user( self::$editor_user_id );
 
-		$requests = 0;
-		$mock     = \Patchwork\redefine(
+		$constants_mock = \Patchwork\redefine(
+			Constants::class . '::is_defined',
+			static function ( $name ) {
+				return 'TESTING_IN_JETPACK' === $name ? false : \Patchwork\relay();
+			}
+		);
+		$requests       = 0;
+		$request_mock   = \Patchwork\redefine(
 			Client::class . '::remote_request',
 			static function () use ( &$requests, $failed_response ) {
 				++$requests;
@@ -198,12 +205,18 @@ class WPCOM_REST_API_V2_Subscribers_Endpoint_Test extends Jetpack_REST_TestCase 
 		try {
 			$this->assertSame( 0, Jetpack_Subscriptions_Widget::fetch_subscriber_count() );
 			$this->assertSame( 0, Jetpack_Subscriptions_Widget::fetch_subscriber_count() );
+			$combined = $this->server->dispatch( new WP_REST_Request( WP_REST_Server::READABLE, '/wpcom/v2/subscribers/count' ) );
+			$split    = $this->server->dispatch( new WP_REST_Request( WP_REST_Server::READABLE, '/wpcom/v2/subscribers/counts' ) );
+			$this->assertSame( array( 'count' => 0 ), $combined->get_data() );
+			$this->assertSame( 0, $split->get_data()['counts']['total_subscribers'] );
 			$this->assertSame( 1, $requests );
 			$this->assertSame( 5 * MINUTE_IN_SECONDS, $expiry );
 			$this->assertSame( 'failed', get_transient( $cache_key )['status'] );
 		} finally {
-			if ( null !== $mock ) {
-				\Patchwork\restore( $mock );
+			foreach ( array( $request_mock, $constants_mock ) as $mock ) {
+				if ( null !== $mock ) {
+					\Patchwork\restore( $mock );
+				}
 			}
 			remove_filter( 'expiration_of_transient_' . $cache_key, $record_expiry );
 			delete_transient( $cache_key );
