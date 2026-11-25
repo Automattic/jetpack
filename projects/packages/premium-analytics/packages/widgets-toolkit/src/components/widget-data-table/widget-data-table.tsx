@@ -10,6 +10,7 @@ import {
 	type View,
 } from '@jetpack-premium-analytics/externals';
 import { usePaginatedView } from '@jetpack-premium-analytics/ui';
+import { Button } from '@wordpress/components';
 import { useEffect, useMemo, useRef, useState, type JSX } from 'react';
 /**
  * Internal dependencies
@@ -23,13 +24,16 @@ const PER_PAGE = 10;
 
 const DEFAULT_LAYOUTS: SupportedLayouts = { table: {} };
 
+const SORT_ARROWS = { asc: '↑', desc: '↓' } as const;
+
 export type WidgetDataTableProps< Item > = {
 	/**
 	 * Every row of the report: the table searches, sorts and paginates them.
 	 */
 	data: Item[];
 	/**
-	 * DataViews field definitions. One with `enableGlobalSearch` turns the search on.
+	 * DataViews field definitions. One with `enableGlobalSearch` turns the search on, and a
+	 * sortable one sorts from its header.
 	 */
 	fields: Field< Item >[];
 	/**
@@ -94,6 +98,7 @@ export function WidgetDataTable< Item >( props: WidgetDataTableProps< Item > ): 
 				search: '',
 				fields: fields.map( field => field.id ),
 				...initialView,
+				layout: { ...initialView?.layout, enableMoving: false },
 			} ) as View
 	);
 	const page = usePaginatedView( data, view, fields, setView );
@@ -113,6 +118,49 @@ export function WidgetDataTable< Item >( props: WidgetDataTableProps< Item > ): 
 		onChangePageItems?.( page.data );
 	}, [ onChangePageItems, page.data ] );
 
+	// DataViews draws a menu on a column that can sort, hide or filter: its copy of the fields
+	// can do none, and a sortable column brings a header button that toggles the direction.
+	const tableFields = useMemo(
+		() =>
+			fields.map( ( field ): Field< unknown > => {
+				const header = field.header || field.label || field.id;
+				const sort = page.view.sort;
+				const isSorted = sort?.field === field.id;
+
+				return {
+					...field,
+					enableSorting: false,
+					enableHiding: false,
+					filterBy: false,
+					header:
+						field.enableSorting === false ? (
+							header
+						) : (
+							<Button
+								size="compact"
+								variant="tertiary"
+								className="dataviews-view-table-header-button"
+								onClick={ () =>
+									setView( {
+										...page.view,
+										sort: {
+											field: field.id,
+											direction: isSorted && sort?.direction === 'desc' ? 'asc' : 'desc',
+										},
+									} )
+								}
+							>
+								{ header }
+								{ isSorted && sort && (
+									<span aria-hidden="true">{ SORT_ARROWS[ sort.direction ] }</span>
+								) }
+							</Button>
+						),
+				};
+			} ),
+		[ fields, page.view ]
+	);
+
 	const errorState = useMemo( () => resolveWidgetStateError( error, refetch ), [ error, refetch ] );
 	const isSearchable = fields.some( field => field.enableGlobalSearch );
 	const hasPagination = page.paginationInfo.totalPages > 1;
@@ -129,7 +177,7 @@ export function WidgetDataTable< Item >( props: WidgetDataTableProps< Item > ): 
 				<DataViews
 					view={ page.view }
 					onChangeView={ setView }
-					fields={ fields }
+					fields={ tableFields }
 					data={ page.data }
 					getItemId={ getItemId }
 					paginationInfo={ page.paginationInfo }

@@ -68,6 +68,23 @@ describe( 'WidgetDataTable', () => {
 		] );
 	} );
 
+	it( 'sorts a column from its header button, toggling the direction', async () => {
+		const user = userEvent.setup();
+		const shownRows = () => screen.getAllByText( /^Row \d$/ ).map( row => row.textContent );
+		render( table( 3, { initialView: { titleField: 'label', fields: [ 'views' ] } } ) );
+
+		await user.click( screen.getByRole( 'button', { name: 'Views' } ) );
+		expect( shownRows() ).toEqual( [ 'Row 3', 'Row 2', 'Row 1' ] );
+		expect( screen.getByRole( 'columnheader', { name: 'Views' } ) ).toHaveAttribute(
+			'aria-sort',
+			'descending'
+		);
+
+		await user.click( screen.getByRole( 'button', { name: 'Views' } ) );
+		expect( shownRows() ).toEqual( [ 'Row 1', 'Row 2', 'Row 3' ] );
+		expect( screen.queryByRole( 'menu' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'reports the rows on screen once per change', async () => {
 		const user = userEvent.setup();
 		const data = rows( 25 );
