@@ -1,6 +1,8 @@
 import { configureHeaders, rememberHeader, showHeader } from '../../../src/admin-shell/header';
 
-const PREFIX = 'jetpack-admin-shell-header:1:7:0.15.0:';
+const PREFIX = 'jetpack-admin-shell-header:1:7:0.15.0:abc:';
+const SEEN = 'jetpack-admin-shell-header:seen';
+const DAY = 24 * 60 * 60 * 1000;
 
 beforeEach( () => {
 	document.head.innerHTML = '';
@@ -24,9 +26,10 @@ const save = ( slug, html, css = '' ) => {
 };
 
 describe( 'header stand-in', () => {
-	it( 'drops headers an earlier release or layout saved for this site and user, and no one else’s', () => {
+	it( 'drops headers an earlier release, login or layout saved for this site and user, and no one else’s', () => {
 		localStorage.setItem( PREFIX, '{}' );
 		localStorage.setItem( PREFIX + 'forms', '{}' );
+		localStorage.setItem( 'jetpack-admin-shell-header:1:7:0.15.0:old:', '{}' );
 		localStorage.setItem( 'jetpack-admin-shell-header:1:7:0.14.0:forms', '{}' );
 		localStorage.setItem( 'jetpack-admin-shell-header:1:8:0.14.0:forms', '{}' );
 		localStorage.setItem( 'jetpack-admin-shell-header:forms', '{}' );
@@ -36,7 +39,60 @@ describe( 'header stand-in', () => {
 		expect( Object.keys( localStorage ).sort() ).toEqual( [
 			PREFIX,
 			'jetpack-admin-shell-header:1:8:0.14.0:forms',
+			SEEN,
 		] );
+	} );
+
+	it.each( [
+		[ 'kept', 29, true ],
+		[ 'dropped', 31, false ],
+	] )( 'another site’s headers last opened %s days ago are %s', ( _, days, kept ) => {
+		const other = 'jetpack-admin-shell-header:2:7:0.15.0:abc:';
+		localStorage.setItem( other, '{}' );
+		localStorage.setItem( SEEN, JSON.stringify( { '2:7': Date.now() - days * DAY } ) );
+
+		configureHeaders( PREFIX );
+
+		expect( localStorage.getItem( other ) !== null ).toBe( kept );
+		expect( '2:7' in JSON.parse( localStorage.getItem( SEEN ) ) ).toBe( kept );
+	} );
+
+	it( 'starts the clock on headers saved before it was kept', () => {
+		jest.useFakeTimers();
+		const other = 'jetpack-admin-shell-header:2:7:0.15.0:abc:';
+		localStorage.setItem( other, '{}' );
+		configureHeaders( PREFIX );
+
+		jest.setSystemTime( Date.now() + 31 * DAY );
+		configureHeaders( PREFIX );
+
+		expect( localStorage.getItem( other ) ).toBeNull();
+		jest.useRealTimers();
+	} );
+
+	it( 'drops every saved header when a log out link is clicked', () => {
+		save( 'forms', '<div><h1>Forms</h1></div>' );
+		localStorage.setItem( 'jetpack-admin-shell-header:2:8:0.15.0:abc:', '{}' );
+		localStorage.setItem( 'unrelated', '1' );
+		document.body.innerHTML =
+			'<a href="/wp-login.php?action=logout&_wpnonce=1"><span>Log Out</span></a>';
+		document.querySelector( 'a' ).addEventListener( 'click', event => event.preventDefault() );
+
+		document.querySelector( 'span' ).click();
+
+		expect( Object.keys( localStorage ) ).toEqual( [ 'unrelated' ] );
+	} );
+
+	it( 'drops the headers of pages the shell no longer has, and the pieces only they used', () => {
+		save( 'forms', '<div><h1>Forms</h1></div>', '.a{}' );
+		save( 'blaze', '<div><h1>Blaze</h1></div>', '.b{}' );
+
+		configureHeaders( PREFIX, MEMBERS );
+
+		expect( stored() ).toEqual( {
+			pieces: { forms: '.a{}' },
+			pages: { forms: { html: '<div><h1>Forms</h1></div>', css: [ 'forms' ], styles: [] } },
+		} );
 	} );
 
 	it( 'shows a copy that cannot run anything', () => {
@@ -196,7 +252,7 @@ describe( 'header stand-in', () => {
 		rememberHeader( 'boost', app );
 		jest.runAllTimers();
 
-		expect( Object.keys( localStorage ) ).toEqual( [] );
+		expect( localStorage.getItem( PREFIX ) ).toBeNull();
 		jest.useRealTimers();
 	} );
 

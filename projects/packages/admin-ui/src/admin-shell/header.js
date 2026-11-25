@@ -16,29 +16,88 @@ const PAGE_CLASS = 'jetpack-admin-shell-page';
 let storageKey = KEY_ROOT;
 let bodyClassOf = () => null;
 
+// When the shell last ran for each `<blog>:<user>`, so another site's or user's headers can expire.
+const SEEN_KEY = KEY_ROOT + 'seen';
+const MAX_AGE = 30 * 24 * 60 * 60 * 1000;
+const REFRESH_SEEN = 24 * 60 * 60 * 1000;
+
+// `<blog>:<user>` of a key, or null for one saved before headers were per site and user.
+const scopeOf = key => key.slice( KEY_ROOT.length ).match( /^(\d+:\d+):/ )?.[ 1 ] ?? null;
+
+const readSeen = () => {
+	try {
+		const seen = JSON.parse( localStorage.getItem( SEEN_KEY ) );
+		return isObject( seen ) ? seen : {};
+	} catch {
+		return {};
+	}
+};
+
+// Saved headers outlive the login: drop them all when the person logs out from a shell page.
+const forgetOnLogout = event => {
+	if ( event.target.closest?.( 'a[href*="action=logout"]' ) ) {
+		try {
+			Object.keys( localStorage )
+				.filter( key => key.startsWith( KEY_ROOT ) )
+				.forEach( key => localStorage.removeItem( key ) );
+		} catch {
+			// Blocked storage: nothing was saved either.
+		}
+	}
+};
+
 /**
- * Set where headers are saved, and drop the ones an earlier release saved for this site and user.
+ * Set where headers are saved, and drop the saved headers nothing will show again.
  *
- * @param {string} prefix  - `jetpack-admin-shell-header:<blog>:<user>:<version>:`.
+ * @param {string} prefix  - `jetpack-admin-shell-header:<blog>:<user>:<version>:<session>:`.
  * @param {object} members - Member config keyed by slug, for each page's body class.
  */
 export function configureHeaders( prefix, members = {} ) {
 	storageKey = prefix;
 	bodyClassOf = slug => members[ slug ]?.bodyClass;
 	window.addEventListener( 'storage', forgetSaved );
-	const scope = prefix.split( ':' ).slice( 0, 3 ).join( ':' ) + ':';
+	document.addEventListener( 'click', forgetOnLogout, true );
+	const own = scopeOf( prefix );
+	const now = Date.now();
 	try {
+		const seen = readSeen();
+		const live = new Set( [ own ] );
 		for ( const key of Object.keys( localStorage ) ) {
-			// Other releases', and the per-page keys of an earlier layout.
-			const stale = key.startsWith( scope ) && key !== prefix;
-			// Keys from before headers were saved per site and user have no blog ID.
-			const unscoped = key.startsWith( KEY_ROOT ) && ! /^\d+:/.test( key.slice( KEY_ROOT.length ) );
-			if ( stale || unscoped ) {
+			if ( ! key.startsWith( KEY_ROOT ) || key === SEEN_KEY || key === prefix ) {
+				continue;
+			}
+			const scope = scopeOf( key );
+			// A scope first met here expires a full age from now.
+			if ( scope && scope !== own ) {
+				seen[ scope ] ??= now;
+			}
+			// This scope's other releases, logins and layouts; another's no one has opened lately.
+			if ( ! scope || scope === own || now - seen[ scope ] > MAX_AGE ) {
 				localStorage.removeItem( key );
+			} else {
+				live.add( scope );
 			}
 		}
+		// Once a day is precise enough for a 30-day age, and keeps page loads from writing.
+		if ( ! ( now - seen[ own ] < REFRESH_SEEN ) ) {
+			seen[ own ] = now;
+		}
+		const kept = JSON.stringify(
+			Object.fromEntries( Object.entries( seen ).filter( ( [ scope ] ) => live.has( scope ) ) )
+		);
+		if ( kept !== localStorage.getItem( SEEN_KEY ) ) {
+			localStorage.setItem( SEEN_KEY, kept );
+		}
 	} catch {
-		// Blocked storage: nothing was saved either.
+		// Blocked or full storage: nothing more will be saved either.
+	}
+	if ( Object.keys( members ).length ) {
+		const store = readStore();
+		const gone = Object.keys( store.pages ).filter( slug => ! Object.hasOwn( members, slug ) );
+		gone.forEach( slug => delete store.pages[ slug ] );
+		if ( gone.length ) {
+			write( store );
+		}
 	}
 }
 
@@ -242,9 +301,8 @@ const withPieceIds = ( frame, add ) => {
 	return { html: copy.outerHTML, styles };
 };
 
-// Save a page's header, keeping only the pieces some page uses.
-const write = ( slug, page, { pieces, pages } ) => {
-	pages[ slug ] = page;
+// Save the pages, keeping only the pieces some page uses.
+const write = ( { pieces, pages } ) => {
 	const used = {};
 	for ( const { css, styles } of Object.values( pages ) ) {
 		for ( const id of [ ...css, ...styles ] ) {
@@ -300,7 +358,8 @@ export function rememberHeader( slug, el ) {
 		const { html: savedAs, styles } = withPieceIds( frame, add );
 		const css = rules.map( add );
 		log( 'header', `saved ${ slug }'s header with ${ css.length } CSS rules` );
-		write( slug, { html: savedAs, css, styles }, store );
+		store.pages[ slug ] = { html: savedAs, css, styles };
+		write( store );
 	} );
 }
 
