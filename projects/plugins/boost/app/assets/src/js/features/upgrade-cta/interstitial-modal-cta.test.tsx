@@ -16,7 +16,7 @@ jest.mock( '$lib/stores/premium-features', () => ( {
 } ) );
 jest.mock( 'jetpackConfig', () => ( { consumer_slug: 'jetpack-boost' } ), { virtual: true } );
 
-const boostGlobal = { site: { online: true, myJetpack: true, addLicense: true, host: 'unknown' } };
+const boostGlobal = { site: { online: true, myJetpack: true, host: 'unknown' } };
 
 describe( 'InterstitialModalCTA', () => {
 	beforeEach( () => {
@@ -25,7 +25,6 @@ describe( 'InterstitialModalCTA', () => {
 		Object.assign( boostGlobal.site, {
 			online: true,
 			myJetpack: true,
-			addLicense: true,
 			host: 'unknown',
 		} );
 		jest.mocked( usePremiumFeatures ).mockReturnValue( [] );
@@ -90,15 +89,5 @@ describe( 'InterstitialModalCTA', () => {
 		expect( screen.queryByRole( 'link' ) ).toBeNull();
 		expect( screen.queryByRole( 'dialog' ) ).toBeNull();
 		expect( apiFetch ).not.toHaveBeenCalled();
-	} );
-
-	it( 'keeps the legacy upsell when the add-license screen is disabled', () => {
-		boostGlobal.site.addLicense = false;
-		render( <div id={ MODERN_ROOT_ID } data-testid="dashboard-root" /> );
-		render( <InterstitialModalCTA identifier="critical-css" />, {
-			container: screen.getByTestId( 'dashboard-root' ),
-		} );
-		expect( screen.getByRole( 'button', { name: /Upgrade now/ } ) ).toBeTruthy();
-		expect( screen.queryByRole( 'link', { name: 'Use license key' } ) ).toBeNull();
 	} );
 } );
