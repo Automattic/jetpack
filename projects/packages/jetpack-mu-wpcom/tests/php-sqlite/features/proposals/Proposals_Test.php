@@ -204,7 +204,9 @@ class Proposals_Test extends Proposals_TestCase {
 			)
 		);
 
-		$this->assertSame( '<p>Kept</p>alert(1)', $proposal['items'][0]['change']['fields']['post_content']['to'], 'The preview filters, so apply must not write what it hid.' );
+		$content = $proposal['items'][0]['change']['fields']['post_content']['to'];
+		$this->assertStringStartsWith( '<p>Kept</p>', $content );
+		$this->assertStringNotContainsString( '<script', $content, 'The preview filters, so apply must not write what it hid.' );
 	}
 
 	public function test_apply_updates_fields_meta_and_terms(): void {

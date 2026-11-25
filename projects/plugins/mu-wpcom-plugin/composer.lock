@@ -1498,7 +1498,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "b5f2bd29c91ccae2655bb3a5be0b87a649cb6cb3"
+                "reference": "f4be7aac779a51f5d00aad808cd620f7aff002a3"
             },
             "require": {
                 "automattic/block-delimiter": "@dev",
@@ -1570,6 +1570,9 @@
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
+                "phpunit-sqlite": [
+                    "phpunit-select-config phpunit-sqlite.#.xml.dist --colors=always"
+                ],
                 "test-js": [
                     "pnpm run test"
                 ],
@@ -1577,10 +1580,12 @@
                     "pnpm run test-coverage"
                 ],
                 "test-php": [
-                    "@composer phpunit"
+                    "@composer phpunit",
+                    "@composer phpunit-sqlite"
                 ],
                 "test-php-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"",
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit-sqlite.#.xml.dist --coverage-php \"$COVERAGE_DIR/php-sqlite.cov\""
                 ],
                 "build-production": [
                     "pnpm run build-production-js"
@@ -4921,7 +4926,8 @@
                 "security": "https://github.com/Yoast/PHPUnit-Polyfills/security/policy",
                 "source": "https://github.com/Yoast/PHPUnit-Polyfills"
             },
-            "time": "2025-02-09T18:58:54+00:00"
+            "time": "2025-02-09T18:58:54+00:00",
+            "published-time": "2025-02-09T19:10:16+00:00"
         }
     ],
     "aliases": [],
