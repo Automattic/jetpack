@@ -33,19 +33,6 @@ const readSeen = () => {
 	}
 };
 
-// Saved headers outlive the login: drop them all when the person logs out from a shell page.
-const forgetOnLogout = event => {
-	if ( event.target.closest?.( 'a[href*="action=logout"]' ) ) {
-		try {
-			Object.keys( localStorage )
-				.filter( key => key.startsWith( KEY_ROOT ) )
-				.forEach( key => localStorage.removeItem( key ) );
-		} catch {
-			// Blocked storage: nothing was saved either.
-		}
-	}
-};
-
 /**
  * Set where headers are saved, and drop the saved headers nothing will show again.
  *
@@ -56,7 +43,6 @@ export function configureHeaders( prefix, members = {} ) {
 	storageKey = prefix;
 	bodyClassOf = slug => members[ slug ]?.bodyClass;
 	window.addEventListener( 'storage', forgetSaved );
-	document.addEventListener( 'click', forgetOnLogout, true );
 	const own = scopeOf( prefix );
 	const now = Date.now();
 	try {

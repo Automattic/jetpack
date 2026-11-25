@@ -70,19 +70,6 @@ describe( 'header stand-in', () => {
 		jest.useRealTimers();
 	} );
 
-	it( 'drops every saved header when a log out link is clicked', () => {
-		save( 'forms', '<div><h1>Forms</h1></div>' );
-		localStorage.setItem( 'jetpack-admin-shell-header:2:8:0.15.0:abc:', '{}' );
-		localStorage.setItem( 'unrelated', '1' );
-		document.body.innerHTML =
-			'<a href="/wp-login.php?action=logout&_wpnonce=1"><span>Log Out</span></a>';
-		document.querySelector( 'a' ).addEventListener( 'click', event => event.preventDefault() );
-
-		document.querySelector( 'span' ).click();
-
-		expect( Object.keys( localStorage ) ).toEqual( [ 'unrelated' ] );
-	} );
-
 	it( 'drops the headers of pages the shell no longer has, and the pieces only they used', () => {
 		save( 'forms', '<div><h1>Forms</h1></div>', '.a{}' );
 		save( 'blaze', '<div><h1>Blaze</h1></div>', '.b{}' );
