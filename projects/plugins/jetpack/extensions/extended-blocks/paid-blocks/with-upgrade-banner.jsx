@@ -30,8 +30,11 @@ const withUpgradeBanner = createHigherOrderComponent(
 
 		const isDualMode = isStillUsableWithFreePlan( name );
 		const usableBlocksProps = getUsableBlockProps( name );
+		const bannerUntilAttribute = usableBlocksProps?.bannerUntilAttribute;
+		const showsBannerByDefault =
+			! isDualMode || ( !! bannerUntilAttribute && ! attributes?.[ bannerUntilAttribute ] );
 
-		const [ isVisible, setIsVisible ] = useState( ! isDualMode );
+		const [ isVisible, setIsVisible ] = useState( showsBannerByDefault );
 		const [ hasBannerAlreadyShown, setBannerAlreadyShown ] = useState( false );
 
 		const bannerContext = 'editor-canvas';
@@ -70,7 +73,10 @@ const withUpgradeBanner = createHigherOrderComponent(
 		}, [ hasBannerAlreadyShown, trackEventData, isBannerVisible ] );
 
 		// Hide Banner when block changes its attributes (dual Mode).
-		useEffect( () => setIsVisible( ! isDualMode ), [ attributes, setIsVisible, isDualMode ] );
+		useEffect(
+			() => setIsVisible( showsBannerByDefault ),
+			[ attributes, setIsVisible, showsBannerByDefault ]
+		);
 
 		// Record whether the banner should be displayed on the frontend.
 		useEffect( () => {
