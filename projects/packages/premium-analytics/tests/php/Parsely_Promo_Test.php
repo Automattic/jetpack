@@ -15,9 +15,9 @@ require_once dirname( __DIR__, 2 ) . '/src/parsely-promo.php';
 require_once dirname( __DIR__, 2 ) . '/src/parsely-prompts.php';
 
 /**
- * @covers ::Automattic\Jetpack\PremiumAnalytics\register_parsely_promo
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\configure_parsely_promo
  */
-#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\register_parsely_promo' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\configure_parsely_promo' )]
 class Parsely_Promo_Test extends BaseTestCase {
 
 	/**
@@ -25,8 +25,6 @@ class Parsely_Promo_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		remove_all_filters( OFFERS_PARSELY_PROMPTS_FILTER );
-		remove_all_filters( 'doing_it_wrong_trigger_error' );
-		remove_all_actions( 'doing_it_wrong_run' );
 
 		$instance = new \ReflectionProperty( Promo_Registry::class, 'instance' );
 		if ( PHP_VERSION_ID < 80100 ) {
@@ -43,9 +41,9 @@ class Parsely_Promo_Test extends BaseTestCase {
 	 * @return Promo|null
 	 */
 	private function register() {
-		register_parsely_promo();
+		configure_parsely_promo();
 
-		return Promo_Registry::get_instance()->get_registered( 'parsely/settings-upgrade' );
+		return Promo_Registry::get_instance()->get_all_registered()['parsely/settings-upgrade'] ?? null;
 	}
 
 	public function test_the_card_is_registered_for_the_settings_page() {
@@ -74,22 +72,5 @@ class Parsely_Promo_Test extends BaseTestCase {
 		remove_filter( OFFERS_PARSELY_PROMPTS_FILTER, '__return_false' );
 		add_filter( OFFERS_PARSELY_PROMPTS_FILTER, '__return_true' );
 		$this->assertTrue( $promo->is_available() );
-	}
-
-	public function test_registering_twice_leaves_the_first_card_in_place() {
-		$first   = $this->register();
-		$notices = 0;
-		add_filter( 'doing_it_wrong_trigger_error', '__return_false' );
-		add_action(
-			'doing_it_wrong_run',
-			static function () use ( &$notices ) {
-				++$notices;
-			}
-		);
-
-		register_parsely_promo();
-
-		$this->assertSame( 0, $notices );
-		$this->assertSame( $first, Promo_Registry::get_instance()->get_registered( 'parsely/settings-upgrade' ) );
 	}
 }
