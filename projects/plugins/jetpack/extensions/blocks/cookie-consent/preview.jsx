@@ -1,11 +1,11 @@
 import {
-	RichText,
 	store as blockEditorStore,
 	useBlockEditingMode,
 	useBlockProps,
 } from '@wordpress/block-editor';
 import { getSaveElement } from '@wordpress/blocks';
 import { useSelect } from '@wordpress/data';
+import { RawHTML } from '@wordpress/element';
 import { Fragment } from 'react';
 import { DEFAULT_TEXT } from './constants';
 
@@ -25,7 +25,7 @@ export default function CookieConsentPreview( {
 
 	return (
 		<div { ...blockProps }>
-			<RichText.Content tagName="p" value={ text } />
+			<RawHTML>{ `<p>${ text }</p>` }</RawHTML>
 			{ innerBlocks
 				.filter( block => block.name === 'core/button' )
 				.map( ( { name, attributes, clientId: buttonId } ) => (
