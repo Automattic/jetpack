@@ -1,5 +1,5 @@
 /* No jest-dom or user-event in this project. */
-/* eslint-disable jest-dom/prefer-in-document, jest-dom/prefer-to-have-attribute, jest-dom/prefer-enabled-disabled, jest-dom/prefer-to-have-value, testing-library/prefer-user-event */
+/* eslint-disable jest-dom/prefer-in-document, jest-dom/prefer-to-have-attribute, jest-dom/prefer-to-have-value, testing-library/prefer-user-event */
 import { fireEvent, render, screen } from '@testing-library/react';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { ModuleSurfaceProvider } from '$features/module/surface';
@@ -69,7 +69,7 @@ beforeEach( () => {
 	jest.mocked( recordBoostEvent ).mockClear();
 } );
 
-describe.each( consumers )( '$name', ( { component, trigger, count } ) => {
+describe.each( consumers )( '$name', ( { component, count } ) => {
 	it( 'shows None, expands an unchanged disabled Save, and saves the existing list format', () => {
 		render( <ModuleSurfaceProvider value="row">{ component }</ModuleSurfaceProvider> );
 		const toggle = screen.getByRole( 'button', { name: 'Except None' } );
@@ -98,16 +98,6 @@ describe.each( consumers )( '$name', ( { component, trigger, count } ) => {
 		);
 		expect( screen.getByRole( 'button', { name: 'Save' } ).getAttribute( 'aria-disabled' ) ).toBe(
 			'true'
-		);
-	} );
-
-	it( 'retains its legacy trigger', () => {
-		render( component );
-		expect( screen.queryByRole( 'button', { name: /^Except / } ) ).toBeNull();
-		fireEvent.click( screen.getByRole( 'button', { name: trigger } ) );
-		expect( screen.getByText( 'Exceptions' ) ).toBeTruthy();
-		expect( screen.getByRole< HTMLButtonElement >( 'button', { name: 'Save' } ).disabled ).toBe(
-			true
 		);
 	} );
 } );

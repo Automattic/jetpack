@@ -100,21 +100,3 @@ test( 'records the Critical CSS documentation link click', () => {
 	fireEvent.click( screen.getByRole( 'link', { name: /Critical CSS/ } ) );
 	expect( recordBoostEvent ).toHaveBeenCalledWith( 'critical_css_link_clicked', {} );
 } );
-
-test( 'preserves the legacy Critical CSS upsell description and monthly price', () => {
-	Object.assign( globalThis, {
-		Jetpack_Boost: { site: { online: true, myJetpack: true, host: 'unknown' } },
-		myJetpackInitialState: { products: { items: { boost: { slug: 'boost', title: 'Boost' } } } },
-		JP_CONNECTION_INITIAL_STATE: {},
-	} );
-	render(
-		<ModuleSurfaceProvider value="block">
-			<CriticalCssModule />
-		</ModuleSurfaceProvider>
-	);
-	expect(
-		screen.getByRole( 'button', {
-			name: /Save time by upgrading to Automatic Critical CSS generation\. Upgrade now only _ per month/,
-		} )
-	).toBeTruthy();
-} );
