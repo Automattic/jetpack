@@ -116,7 +116,9 @@ export default function AiToolStep( {
 	const [ copiedAt, setCopiedAt ] = useState( 0 );
 	// The tools that were connected before the view opened.
 	const [ existingTools, setExistingTools ] = useState< AiTool[] >( [] );
-	// The count to beat while waiting for another AI tool: the count at the copy, lowered if it drops.
+	// Whether a copy is waiting for another AI tool to connect.
+	const [ waitingForOther, setWaitingForOther ] = useState( false );
+	// The count to beat while waiting: the first count read after the copy, lowered if it drops.
 	const [ otherBaseline, setOtherBaseline ] = useState< number | null >( null );
 	// When the prompt was last copied for a wait, so each copy restarts the wait's timeout.
 	const [ otherWaitStartedAt, setOtherWaitStartedAt ] = useState( 0 );
@@ -179,7 +181,7 @@ export default function AiToolStep( {
 	}, [ detectsConnections, onConnected, onReadOnlyChange ] );
 
 	useEffect( () => {
-		if ( ! waitingFor && ( otherBaseline === null || otherConnected ) ) {
+		if ( ! waitingFor && ( ! waitingForOther || otherConnected ) ) {
 			return;
 		}
 		let stopped = false;
@@ -191,7 +193,7 @@ export default function AiToolStep( {
 			}
 			inFlight = true;
 			apiFetch< McpConnections >( {
-				path: otherBaseline === null ? MCP_CONNECTIONS_PATH : MCP_CONNECTIONS_WITH_OTHERS_PATH,
+				path: waitingForOther ? MCP_CONNECTIONS_WITH_OTHERS_PATH : MCP_CONNECTIONS_PATH,
 			} )
 				.then( data => {
 					if ( stopped ) {
@@ -199,11 +201,12 @@ export default function AiToolStep( {
 					}
 					onReadOnlyChange( data?.access_level ?? null );
 					const count = otherConnectionCount( data?.other_connections );
-					if ( otherToolConnected( otherBaseline, count ) ) {
+					if ( waitingForOther && otherToolConnected( otherBaseline, count ) ) {
 						onOtherConnected();
+						setWaitingForOther( false );
 						setOtherBaseline( null );
-					} else if ( otherBaseline !== null ) {
-						setOtherBaseline( otherWaitBaseline( otherBaseline, count ) );
+					} else if ( waitingForOther ) {
+						setOtherBaseline( current => otherWaitBaseline( current, count ) );
 					}
 					if ( ! waitingFor ) {
 						return;
@@ -246,8 +249,9 @@ export default function AiToolStep( {
 				setTimedOut( waitingFor );
 				setWaitingFor( null );
 			}
-			if ( otherBaseline !== null ) {
+			if ( waitingForOther ) {
 				setOtherTimedOut( otherBaseline );
+				setWaitingForOther( false );
 				setOtherBaseline( null );
 			}
 		}, MCP_POLL_TIMEOUT_MS );
@@ -268,6 +272,7 @@ export default function AiToolStep( {
 		};
 	}, [
 		waitingFor,
+		waitingForOther,
 		otherBaseline,
 		otherWaitStartedAt,
 		otherConnected,
@@ -319,14 +324,16 @@ export default function AiToolStep( {
 	}, [ readOnly, waitingFor, connected, timedOut, pollsRemotely ] );
 
 	useEffect( () => {
-		const baseline =
-			otherBaseline === null
-				? rewaitOtherOnReturn( { timedOut: otherTimedOut, otherConnected, pollsRemotely } )
-				: null;
+		const baseline = waitingForOther
+			? null
+			: rewaitOtherOnReturn( { timedOut: otherTimedOut, otherConnected, pollsRemotely } );
 		if ( baseline === null ) {
 			return;
 		}
-		const rewait = () => setOtherBaseline( baseline );
+		const rewait = () => {
+			setOtherBaseline( baseline );
+			setWaitingForOther( true );
+		};
 		const onVisibilityChange = () => {
 			if ( document.visibilityState === 'visible' ) {
 				rewait();
@@ -338,7 +345,7 @@ export default function AiToolStep( {
 			document.removeEventListener( 'visibilitychange', onVisibilityChange );
 			window.removeEventListener( 'focus', rewait );
 		};
-	}, [ otherBaseline, otherTimedOut, otherConnected, pollsRemotely ] );
+	}, [ waitingForOther, otherTimedOut, otherConnected, pollsRemotely ] );
 
 	// The level is account-wide, so read-only access shown for ChatGPT or Claude applies to the other tool too.
 	let otherDescription: string = copy.otherToolDescription;
@@ -348,18 +355,18 @@ export default function AiToolStep( {
 		otherStatus = readOnly ? copy.readOnly : copy.connected;
 	}
 
-	// Counts at the copy; a later copy keeps the lower count, so a tool connected after the first copy still counts.
-	// An unknown count starts no wait.
+	// Waits even when the count can't be read yet: the first count read becomes the baseline. A later copy keeps the
+	// lower count, so a tool connected after the first copy still counts.
 	const startOtherWait = () => {
+		setWaitingForOther( true );
+		setOtherTimedOut( null );
+		setOtherWaitStartedAt( Date.now() );
 		apiFetch< McpConnections >( { path: MCP_CONNECTIONS_WITH_OTHERS_PATH } )
 			.then( data => {
 				const count = otherConnectionCount( data?.other_connections );
-				if ( count === null ) {
-					return;
+				if ( count !== null ) {
+					setOtherBaseline( current => otherWaitBaseline( current, count ) );
 				}
-				setOtherBaseline( current => otherWaitBaseline( current, count ) );
-				setOtherTimedOut( null );
-				setOtherWaitStartedAt( Date.now() );
 			} )
 			.catch( () => {} );
 	};

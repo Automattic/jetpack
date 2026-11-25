@@ -2258,9 +2258,14 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	#[PreserveGlobalState( false )]
 	public function test_get_mcp_connections_returns_the_ai_tool_connections() {
 		$user_id = get_current_user_id();
-		\Brain\Monkey\Functions\expect( 'wpcom_mcp_get_user_connections' )
+		$clients = array( 7 => array( 'integration' => '' ) );
+		\Brain\Monkey\Functions\expect( 'wpcom_mcp_get_user_connected_clients' )
 			->once()
 			->with( $user_id )
+			->andReturn( $clients );
+		\Brain\Monkey\Functions\expect( 'wpcom_mcp_get_user_connections' )
+			->once()
+			->with( $user_id, $clients )
 			->andReturn(
 				array(
 					array(
@@ -2283,7 +2288,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 			->andReturn( 'read_only' );
 		\Brain\Monkey\Functions\expect( 'wpcom_mcp_count_user_connections_excluding' )
 			->once()
-			->with( $user_id, array( 'chatgpt', 'claude' ) )
+			->with( $user_id, array( 'chatgpt', 'claude' ), $clients )
 			->andReturn( 1 );
 
 		$result = $this->call_api( Requests::GET, '/mcp-connections', null, array( 'other_connections' => '1' ) );
@@ -2311,6 +2316,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 	#[PreserveGlobalState( false )]
 	public function test_get_mcp_connections_counts_other_tools_only_when_asked() {
 		\Brain\Monkey\Functions\when( 'wpcom_mcp_get_user_connections' )->justReturn( array() );
+		\Brain\Monkey\Functions\expect( 'wpcom_mcp_get_user_connected_clients' )->never();
 		\Brain\Monkey\Functions\expect( 'wpcom_mcp_count_user_connections_excluding' )->never();
 
 		$result = $this->call_api( Requests::GET, '/mcp-connections' );

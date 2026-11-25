@@ -1259,9 +1259,17 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			return $remote;
 		}
 
+		$user_id = get_current_user_id();
+		// Read once when counting too, so the list and the count share it; wpcom reads it itself when given null.
+		$clients = null;
+		if ( $counts_others && function_exists( 'wpcom_mcp_get_user_connected_clients' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, not yet in the wpcom stubs.
+			$clients = (array) wpcom_mcp_get_user_connected_clients( $user_id );
+		}
+
 		$connections = array();
 		// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, not yet in the wpcom stubs.
-		foreach ( (array) wpcom_mcp_get_user_connections( get_current_user_id() ) as $connection ) {
+		foreach ( (array) wpcom_mcp_get_user_connections( $user_id, $clients ) as $connection ) {
 			if ( ! is_array( $connection ) || ! in_array( $connection['integration'] ?? null, self::MCP_INTEGRATIONS, true ) ) {
 				continue;
 			}
@@ -1271,14 +1279,14 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		$access_level = null;
 		if ( $connections && function_exists( 'wpcom_mcp_get_user_access_level' ) ) {
 			// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, not yet in the wpcom stubs.
-			$level        = wpcom_mcp_get_user_access_level( get_current_user_id() );
+			$level        = wpcom_mcp_get_user_access_level( $user_id );
 			$access_level = is_string( $level ) ? $level : null;
 		}
 
 		$other_connections = null;
 		if ( $counts_others && function_exists( 'wpcom_mcp_count_user_connections_excluding' ) ) {
 			// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, not yet in the wpcom stubs.
-			$other_connections = self::connection_count( wpcom_mcp_count_user_connections_excluding( get_current_user_id(), self::MCP_INTEGRATIONS ) );
+			$other_connections = self::connection_count( wpcom_mcp_count_user_connections_excluding( $user_id, self::MCP_INTEGRATIONS, $clients ) );
 		}
 
 		return array(
