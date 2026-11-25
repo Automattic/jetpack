@@ -52,7 +52,7 @@ const loadScroller = () => {
 beforeAll( () => {
 	window.XMLHttpRequest = FakeXHR;
 	jest
-		.spyOn( HTMLElement.prototype, 'getBoundingClientRect' )
+		.spyOn( Element.prototype, 'getBoundingClientRect' )
 		.mockImplementation( () => ( { top: 0, bottom: contentBottom } ) );
 } );
 
@@ -74,7 +74,7 @@ describe( 'Infinite Scroll in a viewport the first pages do not fill', () => {
 		contentBottom = window.innerHeight + 1;
 		respondToLastRequest();
 
-		// A later page, fetched by scrolling, must not restart the fill.
+		// Catches a listener that is never removed: a later scrolled page must not refill.
 		contentBottom = 100;
 		window.infiniteScroll.scroller.refresh();
 		respondToLastRequest();
