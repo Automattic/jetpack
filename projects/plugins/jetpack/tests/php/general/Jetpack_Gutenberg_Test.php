@@ -138,7 +138,12 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	 */
 	#[DataProvider( 'provide_seo_package_started' )]
 	public function test_seo_auto_enhance_waits_for_the_seo_package( $started ) {
-		global $current_screen;
+		global $current_screen, $wp_actions;
+
+		// The package now starts during bootstrap for existing installs too. Isolate
+		// this fixture so both host startup states are exercised.
+		$original_seo_init_count = $wp_actions['jetpack_seo_init'] ?? null;
+		unset( $wp_actions['jetpack_seo_init'] );
 
 		// Available everywhere but started only where the host boots it, as on WordPress.com.
 		update_option( 'jetpack_seo_surface_visible_v2', true );
@@ -157,6 +162,11 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 			Jetpack_Gutenberg::enqueue_block_editor_assets();
 		} finally {
 			$current_screen = $previous_screen;
+			if ( null === $original_seo_init_count ) {
+				unset( $wp_actions['jetpack_seo_init'] );
+			} else {
+				$wp_actions['jetpack_seo_init'] = $original_seo_init_count;
+			}
 		}
 
 		preg_match(

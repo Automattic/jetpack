@@ -26,6 +26,7 @@ class IndexnowSettingsTest extends SeoTestCase {
 		}
 		remove_filter( 'rsm_jetpack_seo', '__return_true' );
 		remove_all_filters( 'jetpack_active_modules' );
+		add_filter( 'jetpack_active_modules', 'jetpack_seo_test_switch_on', 1000 );
 		remove_all_filters( 'jetpack_seo_indexnow_can_notify' );
 		wp_set_current_user( 0 );
 		remove_action( 'rest_api_init', array( Indexnow::class, 'register_routes' ) );

@@ -1,8 +1,6 @@
 <?php
 /**
- * The discoverability cohort for the Jetpack SEO surface, and the opt-in
- * that flips it: whether the admin menu registers on this site, and the
- * REST route existing self-hosted installs use to switch over.
+ * SEO dashboard visibility and legacy opt-in compatibility.
  *
  * @package automattic/jetpack-seo-package
  */
@@ -10,54 +8,32 @@
 namespace Automattic\Jetpack\SEO;
 
 use Automattic\Jetpack\Modules;
-use Automattic\Jetpack\Status\Host;
 
 /**
- * Decides whether the SEO surface is discoverable and handles the opt-in.
+ * Makes the dashboard discoverable while retaining the legacy opt-in API.
  */
 class Surface_Visibility {
 
 	/**
-	 * Whether the Jetpack SEO surface should be discoverable (admin menu registered).
-	 *
-	 * WordPress.com sites (Simple + Atomic) are always discoverable — how SEO presents
-	 * there is a Dotcom decision, independent of the self-hosted rollout. On self-hosted
-	 * sites the durable {@see Initializer::VISIBILITY_OPTION} cohort flag decides: fresh installs
-	 * are seeded visible, existing installs stay hidden until they opt in. Defaults to
-	 * hidden when the option is absent (e.g. before the plugin's seed has run), so an
-	 * existing site is never surprised by the new surface before its cohort is recorded.
+	 * Whether the dashboard is available, regardless of an older opt-in preference.
 	 *
 	 * @return bool
 	 */
 	public static function is_visible() {
-		if ( ! Initializer::is_available() ) {
-			return false;
-		}
-
-		if ( class_exists( 'Automattic\\Jetpack\\Status\\Host' ) && ( new Host() )->is_wpcom_platform() ) {
-			return true;
-		}
-
-		return (bool) get_option( Initializer::VISIBILITY_OPTION, false );
+		return Initializer::is_available();
 	}
 
 	/**
-	 * Whether to offer an existing install the chance to opt into the new SEO experience.
-	 *
-	 * The single source of truth for the opt-in surfaces (legacy Traffic-page banner, My
-	 * Jetpack card). True only when the SEO product is available and the surface isn't
-	 * visible yet — and since {@see self::is_visible()} already returns true for
-	 * WordPress.com and for self-hosted installs that have opted in, "not visible"
-	 * cleanly means "a self-hosted install that hasn't opted in".
+	 * Retain the discovery signal without offering a redundant opt-in.
 	 *
 	 * @return bool
 	 */
 	public static function is_optin_available() {
-		return Initializer::is_available() && ! self::is_visible();
+		return false;
 	}
 
 	/**
-	 * Expose SEO opt-in and surface visibility state to other admin screens.
+	 * Expose legacy opt-in and dashboard visibility state to other admin screens.
 	 *
 	 * @param array $data Script data being injected onto the page.
 	 * @return array
@@ -68,22 +44,17 @@ class Surface_Visibility {
 		}
 
 		$data[ Initializer::SCRIPT_DATA_KEY ]['optin_available'] = self::is_optin_available();
-		// Read by the legacy Traffic page to hide its SEO / Sitemaps sections once the
-		// site is on the new experience (fresh install / opted-in / WordPress.com), so the
-		// two surfaces never show at once. The legacy sections stay for self-hosted installs
-		// that haven't opted in.
+		// Eligible sites use the dashboard; VIP keeps its existing Traffic controls.
 		$data[ Initializer::SCRIPT_DATA_KEY ]['surface_visible'] = self::is_visible();
 
 		return $data;
 	}
 
 	/**
-	 * Register the opt-in REST route that switches an existing self-hosted install over to
-	 * the new SEO experience.
+	 * Retain the opt-in REST route for older clients that still offer migration.
 	 *
-	 * Lives on the `jetpack/v4` namespace and is registered ahead of the cohort gate, so a
-	 * site whose SEO surface is still hidden can reach it from the legacy Traffic page or
-	 * My Jetpack. See {@see self::handle_optin()}.
+	 * An explicit request still preserves its activation contract. Migration itself does
+	 * not call this route or change module choices. See {@see self::handle_optin()}.
 	 *
 	 * @return void
 	 */

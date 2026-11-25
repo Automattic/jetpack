@@ -167,9 +167,9 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 			static function ( $modules ) use ( $active ) {
 				$modules = array_diff( (array) $modules, array( 'seo-tools' ) );
 				if ( $active ) {
-					$modules[] = 'seo-tools';
+					$modules = array_merge( $modules, array( 'seo-tools', 'seo-dashboard' ) );
 				}
-				return array_values( $modules );
+				return array_values( array_unique( $modules ) );
 			}
 		);
 	}

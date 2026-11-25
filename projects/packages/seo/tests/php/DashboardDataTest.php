@@ -36,6 +36,7 @@ class DashboardDataTest extends SeoTestCase {
 		delete_option( 'jetpack_seo_sitemap_enabled' );
 		delete_option( 'jetpack_seo_canonical_urls_enabled' );
 		remove_all_filters( 'jetpack_active_modules' );
+		add_filter( 'jetpack_active_modules', 'jetpack_seo_test_switch_on', 1000 );
 		remove_all_filters( 'jetpack_ai_seo_enabled' );
 		remove_all_filters( 'jetpack_seo_conflicting_plugin' );
 		remove_all_filters( 'jetpack_disable_seo_tools' );

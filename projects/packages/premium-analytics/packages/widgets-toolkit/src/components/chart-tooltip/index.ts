@@ -1,4 +1,9 @@
-export { ChartTooltip, type ChartTooltipProps, type TooltipStyle } from './chart-tooltip';
+export {
+	ChartTooltip,
+	SeriesIndicator,
+	type ChartTooltipProps,
+	type TooltipStyle,
+} from './chart-tooltip';
 export { DatedTooltip, type DatedTooltipProps } from './dated-tooltip';
 export {
 	buildDatedTooltipModel,
