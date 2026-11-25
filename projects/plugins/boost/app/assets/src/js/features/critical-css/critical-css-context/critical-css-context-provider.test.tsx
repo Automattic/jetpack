@@ -31,9 +31,12 @@ jest.mock( '..', () => ( {
 	RegenerateCriticalCssSuggestion: () => null,
 	useRegenerationReason: () => [ { data: null } ],
 } ) );
-jest.mock( '../status/status', () => ( props: { cssState: CriticalCssState } ) => (
-	<div data-testid="status">{ props.cssState.status_error }</div>
-) );
+jest.mock(
+	'../show-stopper-error/show-stopper-error',
+	() => ( props: { cssState: CriticalCssState } ) => (
+		<div data-testid="status">{ props.cssState.status_error }</div>
+	)
+);
 
 const mockRunLocalGenerator = runLocalGenerator as jest.Mock;
 

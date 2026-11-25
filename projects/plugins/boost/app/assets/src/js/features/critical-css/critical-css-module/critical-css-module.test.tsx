@@ -5,6 +5,8 @@ import { recordBoostEvent } from '$lib/utils/analytics';
 import CriticalCssModule from './critical-css-module';
 import type { ReactNode } from 'react';
 
+const mockRegenerate = jest.fn();
+
 jest.mock( '@wordpress/api-fetch', () => jest.fn( () => new Promise( () => {} ) ) );
 jest.mock(
 	'@automattic/jetpack-my-jetpack/components/product-interstitial/assets/boost.webp',
@@ -12,14 +14,26 @@ jest.mock(
 );
 jest.mock( '$features/module/module', () => ( {
 	__esModule: true,
-	default: ( { description, children }: { description: ReactNode; children: ReactNode } ) => (
+	default: ( {
+		description,
+		children,
+		onEnable,
+	}: {
+		description: ReactNode;
+		children: ReactNode;
+		onEnable?: () => void;
+	} ) => (
 		<section data-testid="module-card">
+			<button onClick={ onEnable }>Enable</button>
 			{ description }
 			{ children }
 		</section>
 	),
 } ) );
 jest.mock( '$features/critical-css/critical-css-meta/critical-css-meta', () => () => null );
+jest.mock( '$features/critical-css/lib/stores/critical-css-state', () => ( {
+	useRegenerateCriticalCssAction: () => ( { mutate: mockRegenerate } ),
+} ) );
 jest.mock( '$lib/utils/analytics', () => ( { recordBoostEvent: jest.fn() } ) );
 jest.mock( '$lib/stores/pricing', () => ( { usePricing: () => null } ) );
 jest.mock( '$lib/stores/premium-features', () => ( { usePremiumFeatures: () => [] } ) );
@@ -48,4 +62,16 @@ test( 'records the Critical CSS documentation link click', () => {
 	// eslint-disable-next-line testing-library/prefer-user-event -- This project does not provide user-event.
 	fireEvent.click( screen.getByRole( 'link', { name: /Critical CSS/ } ) );
 	expect( recordBoostEvent ).toHaveBeenCalledWith( 'critical_css_link_clicked', {} );
+} );
+
+test( 'enabling manual CSS waits for Generate instead of regenerating', () => {
+	Object.assign( globalThis, {
+		Jetpack_Boost: { site: { online: true, myJetpack: true, host: 'unknown' } },
+		myJetpackInitialState: { products: { items: { boost: { slug: 'boost', title: 'Boost' } } } },
+		JP_CONNECTION_INITIAL_STATE: {},
+	} );
+	render( <CriticalCssModule /> );
+	// eslint-disable-next-line testing-library/prefer-user-event -- This project does not provide user-event.
+	fireEvent.click( screen.getByRole( 'button', { name: 'Enable' } ) );
+	expect( mockRegenerate ).not.toHaveBeenCalled();
 } );

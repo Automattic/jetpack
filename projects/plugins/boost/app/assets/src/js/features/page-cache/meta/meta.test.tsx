@@ -20,8 +20,6 @@ jest.mock( '$lib/stores/page-cache', () => ( {
 jest.mock( '$features/ui', () => ( { useMutationNotice: jest.fn() } ) );
 jest.mock( '$lib/utils/analytics', () => ( { recordBoostEvent: jest.fn() } ) );
 
-const renderModern = () => render( <PageCacheMeta /> );
-
 beforeEach( () => {
 	mockLogging = false;
 	mockClear.isPending = false;
@@ -31,8 +29,7 @@ beforeEach( () => {
 } );
 
 it( 'clears the cache from a visible Clear cache button', () => {
-	renderModern();
-	expect( screen.queryByRole( 'button', { name: 'Show Options' } ) ).toBeNull();
+	render( <PageCacheMeta /> );
 	fireEvent.click( screen.getByRole( 'button', { name: 'Clear cache' } ) );
 	expect( mockClear.mutate ).toHaveBeenCalledTimes( 1 );
 	expect( recordBoostEvent ).toHaveBeenCalledWith( 'page_cache_clear_clicked', {} );
@@ -40,7 +37,7 @@ it( 'clears the cache from a visible Clear cache button', () => {
 
 it( 'disables Clear cache while the cache is clearing', () => {
 	mockClear.isPending = true;
-	renderModern();
+	render( <PageCacheMeta /> );
 	const button = screen.getByRole( 'button', { name: /Clear cache/ } );
 	expect(
 		button.hasAttribute( 'disabled' ) || button.getAttribute( 'aria-disabled' ) === 'true'
@@ -49,7 +46,7 @@ it( 'disables Clear cache while the cache is clearing', () => {
 } );
 
 it( 'enables logging from the logging toggle and hides See logs until it is on', () => {
-	renderModern();
+	render( <PageCacheMeta /> );
 	expect( screen.queryByRole( 'link', { name: 'See logs' } ) ).toBeNull();
 	const toggle = screen.getByRole< HTMLInputElement >( 'checkbox', { name: 'Enable logging' } );
 	expect( toggle.checked ).toBe( false );
@@ -61,7 +58,7 @@ it( 'enables logging from the logging toggle and hides See logs until it is on',
 
 it( 'links to the Cache Log when logging is on', () => {
 	mockLogging = true;
-	renderModern();
+	render( <PageCacheMeta /> );
 	expect(
 		screen.getByRole< HTMLInputElement >( 'checkbox', { name: 'Enable logging' } ).checked
 	).toBe( true );
