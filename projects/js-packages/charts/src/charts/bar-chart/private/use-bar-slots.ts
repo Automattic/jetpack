@@ -1,6 +1,12 @@
 import { useMemo } from 'react';
 import { categoryKey, isSameCategory } from './category';
-import { COMPARISON_SLOT, PRIMARY_SLOT, getOverlapPlacements } from './overlap-bars';
+import {
+	COMPARISON_SLOT,
+	COMPARISON_TOTAL_KEY,
+	PRIMARY_SLOT,
+	getOverlapPlacements,
+	isComparisonSeries,
+} from './overlap-bars';
 import { getComparisonTotalSeries, getStackLayout } from './stack-layout';
 import { isBarRendered } from './value-domain';
 import type { SelectedBar } from './selected-bar-ring';
@@ -32,20 +38,16 @@ export type StopPosition = {
 
 export type SelectedSlot = SelectedBar & { members: SlotMember[] };
 
-const isComparison = ( series: SeriesData ) => series.options?.type === 'comparison';
-
 /**
  * Lays out the visible series in slots: overlap layers primaries and comparisons in two, stacked puts every primary in one and sums the comparisons into a bar in a second.
  *
  * @param layout               - How the chart places its series in a category.
  * @param seriesWithVisibility - Every series, with its index and whether it is visible.
- * @param comparisonLabel      - The label of a stacked layout's comparison total.
  * @return The slots, or undefined for a grouped layout.
  */
 export function useBarSlots(
 	layout: BarChartLayout,
-	seriesWithVisibility: ( SeriesEntry & { isVisible: boolean } )[],
-	comparisonLabel = ''
+	seriesWithVisibility: ( SeriesEntry & { isVisible: boolean } )[]
 ): BarSlots | undefined {
 	return useMemo( () => {
 		if ( layout === 'grouped' ) {
@@ -56,28 +58,30 @@ export function useBarSlots(
 
 		if ( layout === 'stacked' ) {
 			// Bottom to top, so the top segment names each keyboard stop.
-			const primaries = visible.filter( ( { series } ) => ! isComparison( series ) );
+			const primaries = visible.filter( ( { series } ) => ! isComparisonSeries( series ) );
 			const visibleGroups = new Set( primaries.map( ( { series } ) => series.group ) );
 			const hiddenGroups = new Set(
 				seriesWithVisibility.flatMap( ( { series, isVisible } ) =>
-					isVisible || isComparison( series ) ? [] : [ series.group ]
+					isVisible || isComparisonSeries( series ) ? [] : [ series.group ]
 				)
 			);
 			// A comparison leaves the total with the primary it is paired with, so both bars sum the same series.
 			const comparisons = visible.filter(
 				( { series } ) =>
-					isComparison( series ) &&
+					isComparisonSeries( series ) &&
 					( visibleGroups.has( series.group ) || ! hiddenGroups.has( series.group ) )
 			);
-			const total = comparisons.length
-				? {
-						series: getComparisonTotalSeries(
-							comparisons.map( ( { series } ) => series ),
-							comparisonLabel
-						),
-						index: comparisons[ 0 ].index,
-					}
-				: undefined;
+			// Without a primary there is no stack to compare with, so the chart shows its empty state.
+			const total =
+				primaries.length && comparisons.length
+					? {
+							series: getComparisonTotalSeries(
+								comparisons.map( ( { series } ) => series ),
+								COMPARISON_TOTAL_KEY
+							),
+							index: comparisons[ 0 ].index,
+						}
+					: undefined;
 			const entries = [ ...primaries, ...( total ? [ total ] : [] ) ].map(
 				( { series, index } ) => ( { series, index } )
 			);
@@ -134,7 +138,7 @@ export function useBarSlots(
 			thicknessOf,
 			positions: getStopPositions( entries, slotKeys, slotOf ),
 		};
-	}, [ layout, seriesWithVisibility, comparisonLabel ] );
+	}, [ layout, seriesWithVisibility ] );
 }
 
 /**

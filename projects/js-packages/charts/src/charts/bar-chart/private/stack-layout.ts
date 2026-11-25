@@ -13,7 +13,7 @@ export type ComparisonTotal = { key: string; series: SeriesData[] };
 export type StackLayout = {
 	/** Where a series' bar runs at a datum's category; undefined when that datum has no reading. */
 	segmentOf: ( key: string, datum: DataPointDate ) => StackSegment | undefined;
-	/** The lowest negative sum and highest positive sum at the datum's category, both including 0, of the bar `key` is drawn in. */
+	/** The lowest negative and highest positive sum at the datum's category, both including 0; with `key`, those of its bar. */
 	extentAt: ( category: DataPointDate, key?: string ) => [ number, number ];
 	/** The widest `extentAt` over every category and bar, or null without a finite value. */
 	extent: [ number, number ] | null;
@@ -57,7 +57,7 @@ function stackSeries(
 }
 
 /**
- * Stacks the series in order at each category: positives upward and negatives downward from zero. Comparisons are summed the same way into one bar of their own.
+ * Stacks the series in order at each category, positives up and negatives down from zero, and sums comparisons into one bar.
  *
  * @param series     - The series to stack, bottom first.
  * @param comparison - The comparison series to sum, and the key their bar is drawn under.
@@ -107,7 +107,7 @@ export function getStackLayout( series: SeriesData[], comparison?: ComparisonTot
  * The series of a comparison total: at each category the comparisons have a reading, the net of their readings.
  *
  * @param comparisons - The comparison series to sum.
- * @param label       - The total's label.
+ * @param label       - The total's key.
  * @return The total, a comparison series named `label`.
  */
 export function getComparisonTotalSeries( comparisons: SeriesData[], label: string ): SeriesData {

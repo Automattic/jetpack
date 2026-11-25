@@ -111,6 +111,14 @@ describe( 'getComparisonTotalSeries', () => {
 			[ 'Wed', null ],
 		] );
 	} );
+
+	it( 'keeps the first reading of a category a comparison repeats, as the bar does', () => {
+		const total = getComparisonTotalSeries(
+			[ s( 'A', [ 30, 99 ], [ 'Mon', 'Mon' ] ) ],
+			'Previous'
+		);
+		expect( total.data.map( ( { value } ) => value ) ).toEqual( [ 30 ] );
+	} );
 } );
 
 describe( 'getStackedValueDomain', () => {

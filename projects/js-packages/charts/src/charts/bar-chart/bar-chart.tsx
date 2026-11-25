@@ -161,6 +161,13 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		);
 	}
 
+	if ( layout === 'stacked' && legend.comparisonSeriesItems ) {
+		warnOnce(
+			'bar-chart-stacked-comparison-series-items',
+			'BarChart: a stacked layout sums its comparisons into one bar, so legend.comparisonSeriesItems is ignored; name that bar with legend.comparisonItem.'
+		);
+	}
+
 	if ( ! withTooltips && ( withBandHighlight || onBandHighlightChange ) ) {
 		warnOnce(
 			'bar-chart-band-highlight-without-tooltips',
@@ -183,8 +190,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	);
 	const theme = useXYChartTheme( data );
 
-	const transformedData = useChartDataTransform( data );
-	const dataSorted = transformedData;
+	const dataSorted = useChartDataTransform( data );
 
 	// Transform data to add a small value for zero bars to make them visible
 	// For vertical bars, height determines bar pixel height; for horizontal bars, width does
@@ -192,18 +198,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		enabled: showZeroValues && ! isStacked,
 		valueAxisLength: horizontal ? width : height,
 	} );
-
-	// Create legend items using the reusable hook
-	const legendOptions = useMemo(
-		() => ( {
-			collapseGroups: legendCollapseGroups,
-			comparisonItem: legendComparisonItem,
-			comparisonSeriesItems: legendComparisonSeriesItems,
-			layout,
-		} ),
-		[ legendCollapseGroups, legendComparisonItem, legendComparisonSeriesItems, layout ]
-	);
-	const legendItems = useBarLegendItems( dataSorted, legendOptions );
 
 	const { getElementStyles, theme: providerTheme } = useGlobalChartsContext();
 	const getBarColors = useBarColors();
@@ -271,17 +265,33 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		[ seriesWithVisibility ]
 	);
 
-	const barSlots = useBarSlots(
-		layout,
-		seriesWithVisibility,
-		getComparisonItemLabel( legendComparisonItem )
-	);
+	const barSlots = useBarSlots( layout, seriesWithVisibility );
 
 	// A stack's comparisons leave with their primaries, so it is empty once it draws nothing.
 	const allSeriesHidden =
 		barSlots?.kind === 'stacked'
 			? barSlots.entries.length === 0
 			: seriesWithVisibility.every( ( { isVisible } ) => ! isVisible );
+
+	// A stack's comparison item names its total bar, so it leaves the legend whenever that bar does.
+	const hasComparisonTotal = !! barSlots?.slotKeys.includes( COMPARISON_SLOT );
+	const legendOptions = useMemo(
+		() => ( {
+			collapseGroups: legendCollapseGroups,
+			comparisonItem: isStacked && ! hasComparisonTotal ? false : legendComparisonItem,
+			comparisonSeriesItems: legendComparisonSeriesItems,
+			layout,
+		} ),
+		[
+			legendCollapseGroups,
+			legendComparisonItem,
+			legendComparisonSeriesItems,
+			layout,
+			isStacked,
+			hasComparisonTotal,
+		]
+	);
+	const legendItems = useBarLegendItems( dataSorted, legendOptions );
 
 	const chartOptions = useBarChartOptions(
 		dataWithVisibleZeros,
@@ -481,6 +491,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		[ chartOptions.tooltip, dataSorted ]
 	);
 
+	const comparisonTotalLabel = getComparisonItemLabel( legendComparisonItem );
 	// Lists the stack last series first, a null reading as "No data", then the total and the comparison total.
 	const renderStackedTooltip = useCallback(
 		( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
@@ -523,13 +534,13 @@ const BarChartInternal: FC< BarChartProps > = ( {
 						) }
 					{ comparisonRows.map( ( { label, datum } ) => (
 						<Fragment key={ label }>
-							{ renderTooltipRow( label, formatReading( datum.value ) ) }
+							{ renderTooltipRow( comparisonTotalLabel, formatReading( datum.value ) ) }
 						</Fragment>
 					) ) }
 				</div>
 			);
 		},
-		[ chartOptions.tooltip, barSlots ]
+		[ chartOptions.tooltip, barSlots, comparisonTotalLabel ]
 	);
 
 	const renderDefaultTooltip = useCallback(

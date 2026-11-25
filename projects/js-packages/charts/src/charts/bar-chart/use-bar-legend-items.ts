@@ -3,6 +3,7 @@ import {
 	useChartLegendItems,
 	getComparisonItemLabel,
 } from '../../components/legend/hooks/use-chart-legend-items';
+import { COMPARISON_TOTAL_KEY } from './private/overlap-bars';
 import { useBarColors } from './use-bar-colors';
 import type { ChartLegendOptions } from '../../components/legend/hooks/use-chart-legend-items';
 import type { BaseLegendItem } from '../../components/legend/types';
@@ -21,12 +22,12 @@ const isComparison = ( data: SeriesData[], label: string | undefined ) =>
  *
  * @param data           - The chart's series.
  * @param comparisonItem - The legend's `comparisonItem` option.
- * @return The series, each one's index in `data`, and the comparison the total's item is shown with.
+ * @return The series, and each one's index in `data` for its color.
  */
 function getStackedLegendSeries(
 	data: SeriesData[],
 	comparisonItem: BarLegendOptions[ 'comparisonItem' ]
-): { series: SeriesData[]; indexes: number[]; describes?: string } {
+): { series: SeriesData[]; indexes: number[] } {
 	const indexes = data.flatMap( ( series, index ) =>
 		series.options?.type === 'comparison' ? [] : [ index ]
 	);
@@ -41,24 +42,23 @@ function getStackedLegendSeries(
 		series: [
 			...series,
 			{
-				label: getComparisonItemLabel( comparisonItem ),
+				label: COMPARISON_TOTAL_KEY,
 				data: [],
 				options: { type: 'comparison' },
 			},
 		],
 		indexes: [ ...indexes, comparison ],
-		describes: data[ comparison ].label,
 	};
 }
 
 /**
- * Applies what a bar layout changes about a legend: a stacked comparison total is a static item; overlap lists every primary before every comparison, as it draws their slots, with every swatch opaque like its bar; a collapsed grouped item takes its comparison's tint, the wider bar that frames the group.
+ * Applies what a bar layout changes about a legend: its swatch colors, and the order and kind of its comparison items.
  *
  * @param data         - The series the items were built from.
  * @param items        - The legend items.
  * @param layout       - The layout the bars are drawn in.
  * @param seriesColors - Each series' bar color, by index.
- * @param describes    - The comparison a stacked total's item leaves the legend with while it is hidden.
+ * @param totalLabel   - The name of a stacked layout's comparison total.
  * @return The legend items.
  */
 function forBarLayout(
@@ -66,17 +66,18 @@ function forBarLayout(
 	items: BaseLegendItem[],
 	layout: BarChartLayout,
 	seriesColors: string[],
-	describes?: string
+	totalLabel: string
 ): BaseLegendItem[] {
 	if ( layout === 'stacked' ) {
 		// The comparison total is not a series to toggle: hiding a primary already drops its comparison from it.
 		return items.map( item =>
-			isComparison( data, item.seriesLabels?.[ 0 ] )
-				? { ...item, seriesLabels: undefined, interactive: false, describesSeries: describes }
+			item.seriesLabels?.[ 0 ] === COMPARISON_TOTAL_KEY
+				? { ...item, label: totalLabel, seriesLabels: undefined, interactive: false }
 				: item
 		);
 	}
 
+	// Overlap lists every primary before every comparison, as it draws their slots, with opaque swatches.
 	if ( layout === 'overlap' ) {
 		const opaque = items.map( item =>
 			item.shapeStyle ? { ...item, shapeStyle: { ...item.shapeStyle, opacity: undefined } } : item
@@ -92,6 +93,7 @@ function forBarLayout(
 		];
 	}
 
+	// A collapsed grouped item takes its comparison's tint, the wider bar that frames the group.
 	return items.map( item => {
 		if ( ( item.seriesLabels?.length ?? 0 ) < 2 ) {
 			return item;
@@ -143,11 +145,18 @@ export function useBarLegendItems(
 	);
 	const items = useChartLegendItems( data, chartLegendOptions, legendShape );
 
+	const { comparisonItem } = options;
 	return useMemo(
 		() =>
 			layout && seriesColors
-				? forBarLayout( data, items, layout, seriesColors, stacked?.describes )
+				? forBarLayout(
+						data,
+						items,
+						layout,
+						seriesColors,
+						getComparisonItemLabel( comparisonItem )
+					)
 				: items,
-		[ data, items, layout, seriesColors, stacked ]
+		[ data, items, layout, seriesColors, comparisonItem ]
 	);
 }

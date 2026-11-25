@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { COMPARISON_TOTAL_KEY } from '..';
 import { GlobalChartsProvider } from '../../../providers';
 import { selectedBarRingBounds as selectedRing } from '../../../test-utils/selected-bar-ring';
 import { BarChartUnresponsive } from '../bar-chart';
@@ -326,6 +327,7 @@ describe( 'BarChart stacked layout', () => {
 		expect( previousBar().height / desktop.height ).toBeCloseTo( 500 / 100 );
 		expect( fills().slice( 0, 5 ) ).toEqual( plainFills );
 		expect( new Set( fills().slice( 5 ) ).size ).toBe( 1 );
+		expect( plainFills ).not.toContain( fills()[ 5 ] );
 	} );
 
 	it( 'lists the comparison total after the stack total, named by the legend comparison item', async () => {
@@ -343,17 +345,54 @@ describe( 'BarChart stacked layout', () => {
 		expect( screen.getByText( 'Prev. 7 days' ) ).toBeInTheDocument();
 	} );
 
-	it( 'stops on the comparison total after its stack, and rings it', async () => {
+	it( 'stops on the comparison total after its stack, rings it, and activates it by its fixed key', async () => {
 		const user = userEvent.setup();
-		renderStacked( { data: WITH_PREVIOUS } );
+		const onDatumActivate = jest.fn();
+		renderStacked( {
+			data: WITH_PREVIOUS,
+			legend: { comparisonItem: 'Prev. 7 days' },
+			onDatumActivate,
+		} );
 
 		await user.tab();
-		await user.keyboard( '{ArrowRight}{ArrowRight}' );
+		await user.keyboard( '{ArrowRight}{ArrowRight}{Enter}' );
 		expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveTextContent(
-			/Mon.*Total: 180.*Comparison period: 500/
+			/Mon.*Total: 180.*Prev\. 7 days: 500/
 		);
 		expect( rounded( selectedRing() ) ).toEqual( rounded( previousBar() ) );
+		expect( onDatumActivate ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				key: COMPARISON_TOTAL_KEY,
+				datum: expect.objectContaining( { value: 500 } ),
+			} )
+		);
 	} );
+
+	it.each( [ undefined, 'Prev' ] )(
+		'keeps a primary named like the comparison item in its stack, with comparisonItem %p',
+		comparisonItem => {
+			const label = comparisonItem ?? 'Comparison period';
+			const data: SeriesData[] = [
+				{ label: 'Desktop', group: 'd', data: [ day( 'Mon', 100 ) ] },
+				{ label, group: 'm', data: [ day( 'Mon', 60 ) ] },
+				{
+					label: 'Desktop (prev)',
+					group: 'd',
+					options: { type: 'comparison' },
+					data: [ day( 'Mon', 300 ) ],
+				},
+			];
+			renderStacked( { data, showLegend: true, legend: { comparisonItem, interactive: true } } );
+
+			const desktop = barIn( data, 'Desktop' );
+			const named = barIn( data, label );
+			expect( named.x ).toBeCloseTo( desktop.x );
+			expect( named.height / desktop.height ).toBeCloseTo( 60 / 100 );
+			expect(
+				screen.getByRole( 'button', { name: new RegExp( `^${ label }:` ) } )
+			).toBeInTheDocument();
+		}
+	);
 
 	it.each( [
 		[ 'vertical', [ 300, 150, 50 ], 'top' ],
@@ -382,9 +421,18 @@ describe( 'BarChart stacked layout', () => {
 		}
 	);
 
-	it( 'shows the empty state once every stacked series is hidden, comparisons and all', () => {
+	const UNPAIRED: SeriesData = {
+		label: 'All (prev)',
+		options: { type: 'comparison' },
+		data: [ day( 'Mon', 300 ) ],
+	};
+
+	it.each( [
+		[ 'paired comparisons', WITH_PREVIOUS ],
+		[ 'a comparison no primary shares a group with', [ ...WITH_PREVIOUS.slice( 0, 3 ), UNPAIRED ] ],
+	] )( 'shows the empty state once every primary is hidden, with %s', ( _case, data ) => {
 		renderStacked( {
-			data: WITH_PREVIOUS,
+			data,
 			showLegend: true,
 			legend: { interactive: true },
 			defaultHiddenSeries: DATA.map( series => series.label ),
@@ -394,16 +442,48 @@ describe( 'BarChart stacked layout', () => {
 		expect( screen.getByText( /All series are hidden/ ) ).toBeInTheDocument();
 	} );
 
-	it( 'leaves the comparison item out of the legend while the comparisons are hidden', () => {
+	it( 'keeps a comparison no primary shares a group with in the total', () => {
+		const data = [ ...WITH_PREVIOUS.slice( 0, 3 ), UNPAIRED ];
+		renderStacked( { data } );
+
+		expect( previousBar( 0 ).height / barIn( data, 'Desktop' ).height ).toBeCloseTo( 300 / 100 );
+	} );
+
+	it.each( [
+		[ 'every comparison', WITH_PREVIOUS, WITH_PREVIOUS.slice( 3 ), false ],
+		[ 'every primary', WITH_PREVIOUS, DATA, false ],
+		[
+			'the primary of the only comparison',
+			[ ...WITH_PREVIOUS.slice( 0, 2 ), WITH_PREVIOUS[ 3 ] ],
+			DATA.slice( 0, 1 ),
+			false,
+		],
+		[ 'only the first comparison', WITH_PREVIOUS, WITH_PREVIOUS.slice( 3, 4 ), true ],
+	] )(
+		'lists the comparison item only while the total is drawn, hiding %s',
+		( _case, data, hidden, listed ) => {
+			renderStacked( {
+				data,
+				showLegend: true,
+				legend: { comparisonItem: 'Prev. 7 days' },
+				defaultHiddenSeries: hidden.map( series => series.label ),
+			} );
+
+			expect( screen.queryByText( 'Prev. 7 days' ) !== null ).toBe( listed );
+		}
+	);
+
+	it( 'ignores legend.comparisonSeriesItems, and says so', () => {
+		const warn = jest.spyOn( console, 'warn' ).mockImplementation( () => {} );
 		renderStacked( {
 			data: WITH_PREVIOUS,
 			showLegend: true,
-			legend: { comparisonItem: 'Prev. 7 days' },
-			defaultHiddenSeries: WITH_PREVIOUS.slice( 3 ).map( series => series.label ),
+			legend: { comparisonSeriesItems: label => `${ label } before` },
 		} );
 
-		expect( barRects() ).toHaveLength( 5 );
-		expect( screen.queryByText( 'Prev. 7 days' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /before/ ) ).not.toBeInTheDocument();
+		expect( warn ).toHaveBeenCalledWith( expect.stringContaining( 'comparisonSeriesItems' ) );
+		warn.mockRestore();
 	} );
 
 	it( 'keeps a comparison in the total while a primary of its group is shown', async () => {

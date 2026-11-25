@@ -28,7 +28,7 @@ type Props = Pick<
 };
 
 /**
- * The side a segment rounds when it ends its drawn stack: the far end of the positives or of the negatives, or both for a comparison total that spans zero.
+ * The side a segment rounds when it ends its drawn stack, or `both` for a comparison total that spans zero.
  *
  * @param stack      - The stack layout.
  * @param key        - The series the segment is drawn for.
