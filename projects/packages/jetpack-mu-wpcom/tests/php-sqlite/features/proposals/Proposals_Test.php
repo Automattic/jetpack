@@ -505,6 +505,12 @@ class Proposals_Test extends Proposals_TestCase {
 					return $items;
 				},
 			),
+			'meta without from'    => array(
+				static function ( array $items ): array {
+					$items[0]['change']['meta']['jetpack_seo_noindex'] = array( 'to' => true );
+					return $items;
+				},
+			),
 			'unlisted meta key'    => array(
 				static function ( array $items ): array {
 					$items[0]['change']['meta']['_edit_lock'] = array(

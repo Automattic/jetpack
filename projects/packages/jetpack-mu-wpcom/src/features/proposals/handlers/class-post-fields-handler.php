@@ -258,7 +258,7 @@ class Post_Fields_Handler implements Proposal_Handler {
 		}
 		foreach ( (array) ( $change['meta'] ?? array() ) as $key => $meta_change ) {
 			$kind = self::META_ALLOWLIST[ $key ] ?? null;
-			if ( ! $kind || ! is_array( $meta_change ) || ! array_key_exists( 'to', $meta_change ) || ( 'bool' === $kind ? ! is_bool( $meta_change['to'] ) : ! is_string( $meta_change['to'] ) ) ) {
+			if ( ! $kind || ! is_array( $meta_change ) || ! array_key_exists( 'from', $meta_change ) || ! array_key_exists( 'to', $meta_change ) || ( 'bool' === $kind ? ! is_bool( $meta_change['to'] ) : ! is_string( $meta_change['to'] ) ) ) {
 				return false;
 			}
 			if ( 'bool' !== $kind && sanitize_text_field( $meta_change['to'] ) !== $meta_change['to'] ) {
