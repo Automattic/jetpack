@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Stop starting WooCommerce store tracking, which WooCommerce Stats now starts, and drop the WooCommerce Analytics dependency.

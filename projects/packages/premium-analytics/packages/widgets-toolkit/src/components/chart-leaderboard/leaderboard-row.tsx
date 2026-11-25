@@ -1,7 +1,9 @@
 /**
  * External dependencies
  */
+import { VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import clsx from 'clsx';
+import { useId } from 'react';
 /**
  * Internal dependencies
  */
@@ -32,6 +34,8 @@ export type LeaderboardRowAction =
 			id?: number | string;
 			/** Public URL. The "View" action beside a title that opens the detail page; the link itself otherwise. */
 			href?: string | null;
+			/** Post type of the row, so a type with a report page of its own opens that page. */
+			postType?: string;
 			/**
 			 * Required, so a row cannot silently open the detail page on its own
 			 * default range. Pass `{}` to navigate without a window on purpose.
@@ -121,8 +125,8 @@ export type LeaderboardRowProps = {
 			variant?: 'list';
 			trailingAction?: ReactElement;
 			/**
-			 * Names a mark drawn at the row's start, e.g. "Published in this period". It sits
-			 * beside the title link, so the link keeps its name.
+			 * Names a mark drawn at the row's start, e.g. "Published in this period". It
+			 * describes the title link, which keeps its own name.
 			 */
 			indicator?: string;
 	  }
@@ -192,8 +196,12 @@ export function LeaderboardRow( {
 	const rowClassName = clsx( styles.row, variant === 'bars' && styles.bars );
 	const rowLinkClassName = clsx( styles.rowLink, variant === 'bars' && styles.bars );
 	const trailing = trailingAction && <span className={ styles.rowAction }>{ trailingAction }</span>;
+	const markId = useId();
+	// The row draws the bar; this names it for the title link's description.
 	const mark = indicator && (
-		<span role="img" aria-label={ indicator } className={ styles.indicator } />
+		<VisuallyHidden render={ <span /> } id={ markId }>
+			{ indicator }
+		</VisuallyHidden>
 	);
 
 	if ( action.kind === 'postLink' || action.kind === 'videoLink' ) {
@@ -209,17 +217,19 @@ export function LeaderboardRow( {
 			) : undefined;
 		const titleLinkProps = {
 			id: action.id,
+			postType: action.kind === 'postLink' ? action.postType : undefined,
 			label,
 			link: action.href,
 			search: action.search,
 			title: label,
+			ariaDescribedBy: mark ? markId : undefined,
 		};
 
 		// A row with a trailing action or a mark holds more than the title, so the row
 		// chrome goes on a wrapper and the title keeps the tooltip.
 		if ( liveUrl !== undefined || trailing || mark ) {
 			return (
-				<span className={ rowClassName }>
+				<span className={ clsx( rowClassName, mark && styles.indicated ) }>
 					{ mark }
 					<TitleLink
 						{ ...titleLinkProps }

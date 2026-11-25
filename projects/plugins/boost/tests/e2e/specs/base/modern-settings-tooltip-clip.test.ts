@@ -143,24 +143,6 @@ for ( const direction of [ 'ltr', 'rtl' ] as const ) {
 	}
 }
 
-test( 'the legacy dashboard keeps its inline popover and its 70vw mobile width', async ( {
-	page,
-}, testInfo ) => {
-	await page.setViewportSize( { width: 390, height: 900 } );
-	await page.goto( 'http://boost-settings.test/?legacy' );
-	const content = await openTooltip( page );
-
-	await expect( content ).toHaveCSS( 'width', '273px' );
-	expect( await content.evaluate( element => !! element.closest( '.icon-tooltip-wrapper' ) ) ).toBe(
-		true
-	);
-
-	await testInfo.attach( 'legacy-ltr-390.png', {
-		body: await page.screenshot(),
-		contentType: 'image/png',
-	} );
-} );
-
 test( 'tabbing out of the portaled tooltip resumes from the trigger', async ( { page } ) => {
 	await page.setViewportSize( { width: 1440, height: 900 } );
 	await page.goto( 'http://boost-settings.test/' );

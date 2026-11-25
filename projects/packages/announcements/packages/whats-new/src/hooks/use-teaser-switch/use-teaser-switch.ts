@@ -7,6 +7,7 @@ import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
+import { emitSurfaceEvent } from '../../utils';
 import { PREFERENCES_SCOPE } from '../constants';
 import type * as Contract from '@automattic/jetpack-announcements';
 
@@ -46,6 +47,7 @@ export const useTeaserSwitch: typeof Contract.useTeaserSwitch = () => {
 				TEASER_OFF_KEY,
 				! next
 			);
+			emitSurfaceEvent( { type: 'teaserSwitch', isOn: next } );
 		},
 		[ registry ]
 	);

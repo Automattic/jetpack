@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Remove code the legacy dashboard left unused and restore test coverage.
+
+

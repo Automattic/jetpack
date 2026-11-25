@@ -21,7 +21,7 @@ jest.mock( '@automattic/jetpack-analytics', () => ( {
 	default: { tracks: { recordEvent: jest.fn() } },
 } ) );
 
-import { LEGACY_ROOT_ID, MODERN_ROOT_ID } from '$lib/modern/mode';
+import { MODERN_ROOT_ID } from '$lib/modern/mode';
 
 const settingsEvents = [
 	'cornerstone_pages_save',
@@ -91,47 +91,38 @@ describe( 'Settings event context', () => {
 		document.body.replaceChildren();
 	} );
 
-	it.each( [
-		[ LEGACY_ROOT_ID, 'legacy' ],
-		[ MODERN_ROOT_ID, 'modern' ],
-	] )( 'uses the rendered %s for every Settings action and page view', async ( root, mode ) => {
+	it( 'uses the rendered dashboard for every Settings action and page view', async () => {
 		const element = document.createElement( 'div' );
-		element.id = root;
+		element.id = MODERN_ROOT_ID;
 		document.body.append( element );
 		for ( const event of settingsEvents ) {
 			await recordBoostEvent( event, { count: 2 } );
 			expect( mockRecordAjaxEvent ).toHaveBeenLastCalledWith( `boost_${ event }`, 'click', {
 				count: 2,
 				boost_version: '4.8.1',
-				dashboard_variant: mode,
+				dashboard_variant: 'modern',
 			} );
 		}
 	} );
 
-	it.each( [
-		[ LEGACY_ROOT_ID, 'legacy', 'all_options', 'section' ],
-		[ MODERN_ROOT_ID, 'modern', 'exceptions', 'editor' ],
-	] )(
-		'annotates the two panel meanings in %s',
-		async ( root, mode, cacheScope, cornerstoneScope ) => {
-			const element = document.createElement( 'div' );
-			element.id = root;
-			document.body.append( element );
-			for ( const [ event, scope ] of [
-				[ 'page_cache_exceptions_panel_toggle', cacheScope ],
-				[ 'cornerstone_pages_panel_toggle', cornerstoneScope ],
-			] ) {
-				await recordBoostEvent( event, { status: 'open', panel_scope: scope } );
-				expect( mockRecordAjaxEvent ).toHaveBeenLastCalledWith( `boost_${ event }`, 'click', {
-					status: 'open',
-					panel_scope: scope,
-					boost_version: '4.8.1',
-					dashboard_variant: mode,
-				} );
-			}
-			expect( mockRecordAjaxEvent ).toHaveBeenCalledTimes( 2 );
+	it( 'annotates the two panel meanings', async () => {
+		const element = document.createElement( 'div' );
+		element.id = MODERN_ROOT_ID;
+		document.body.append( element );
+		for ( const [ event, scope ] of [
+			[ 'page_cache_exceptions_panel_toggle', 'exceptions' ],
+			[ 'cornerstone_pages_panel_toggle', 'editor' ],
+		] ) {
+			await recordBoostEvent( event, { status: 'open', panel_scope: scope } );
+			expect( mockRecordAjaxEvent ).toHaveBeenLastCalledWith( `boost_${ event }`, 'click', {
+				status: 'open',
+				panel_scope: scope,
+				boost_version: '4.8.1',
+				dashboard_variant: 'modern',
+			} );
 		}
-	);
+		expect( mockRecordAjaxEvent ).toHaveBeenCalledTimes( 2 );
+	} );
 
 	it( 'preserves caller properties over version and rendered dashboard context', async () => {
 		const element = document.createElement( 'div' );
@@ -155,18 +146,17 @@ describe( 'Settings event context', () => {
 		);
 	} );
 
-	it.each( [ 'speed_score_request_error', 'performance_history_toggle' ] )(
-		'leaves %s outside the Settings action context',
-		async event => {
-			const element = document.createElement( 'div' );
-			element.id = MODERN_ROOT_ID;
-			document.body.append( element );
-			await recordBoostEvent( event, {} );
-			expect( mockRecordAjaxEvent ).toHaveBeenLastCalledWith( `boost_${ event }`, 'click', {
-				boost_version: '4.8.1',
-			} );
-		}
-	);
+	it( 'leaves speed_score_request_error outside the Settings action context', async () => {
+		const element = document.createElement( 'div' );
+		element.id = MODERN_ROOT_ID;
+		document.body.append( element );
+		await recordBoostEvent( 'speed_score_request_error', {} );
+		expect( mockRecordAjaxEvent ).toHaveBeenLastCalledWith(
+			'boost_speed_score_request_error',
+			'click',
+			{ boost_version: '4.8.1' }
+		);
+	} );
 
 	it( 'does not invent UI context without a dashboard root or for server status events', async () => {
 		await recordBoostEvent( 'settings_view', {} );

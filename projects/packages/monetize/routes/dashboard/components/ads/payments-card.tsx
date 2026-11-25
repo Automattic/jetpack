@@ -1,7 +1,7 @@
 import { formatCurrency } from '@automattic/number-formatters';
 import { dateI18n, getSettings } from '@wordpress/date';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import { Badge, Card, Notice, Stack, Text } from '@wordpress/ui';
+import { Badge, Card, Notice, Spinner, Stack, Text } from '@wordpress/ui';
 import { useMemo } from 'react';
 import { useAdsPayments } from '../../data/wordads';
 import DataTable from './data-table';
@@ -113,7 +113,11 @@ export default function PaymentsCard( { paypal }: { paypal?: string } ) {
 			</Notice.Root>
 		);
 	} else if ( ! payments ) {
-		content = <Text>{ __( 'Loading…', 'jetpack-monetize' ) }</Text>;
+		content = (
+			<Stack direction="row" justify="center" className="jp-monetize-loading">
+				<Spinner />
+			</Stack>
+		);
 	} else if ( payments.length === 0 ) {
 		content = (
 			<Text>
@@ -144,7 +148,7 @@ export default function PaymentsCard( { paypal }: { paypal?: string } ) {
 	return (
 		<Card.Root>
 			<Card.Header>
-				<Card.Title render={ <h2 /> }>{ __( 'Payouts', 'jetpack-monetize' ) }</Card.Title>
+				<Card.Title render={ <h2 /> }>{ __( 'Payout history', 'jetpack-monetize' ) }</Card.Title>
 			</Card.Header>
 			<Card.Content>{ content }</Card.Content>
 		</Card.Root>

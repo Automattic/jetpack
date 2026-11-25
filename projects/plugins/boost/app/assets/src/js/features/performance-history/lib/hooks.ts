@@ -30,34 +30,6 @@ export const performanceHistoryDataSchema = z
 	} )
 	.nullable();
 
-export const usePerformanceHistoryQuery = () => {
-	const [ query ] = useDataSync(
-		'jetpack_boost_ds',
-		'performance_history',
-		performanceHistoryDataSchema,
-		{
-			query: {
-				staleTime: 12 * 60 * 60 * 1000, // 12 hours
-			},
-		}
-	);
-
-	return query;
-};
-
-/**
- * A custom hook to handle performance history panel being open or closed.
- */
-export const usePerformanceHistoryPanelQuery = () => {
-	const [ { data }, { mutate } ] = useDataSync(
-		'jetpack_boost_ds',
-		'performance_history_toggle',
-		z.boolean()
-	);
-
-	return [ data, mutate ] as const;
-};
-
 type AlertIds =
 	'performance_history_fresh_start' | 'score_increase' | 'score_decrease' | 'legacy_minify_notice';
 

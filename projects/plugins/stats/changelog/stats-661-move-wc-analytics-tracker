@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Update package dependencies: WooCommerce Analytics store tracking moved from Premium Analytics to WooCommerce Stats, which now requires the WooCommerce Analytics package.
+

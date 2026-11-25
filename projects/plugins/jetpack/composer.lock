@@ -3439,7 +3439,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "9f0f71573c0753451bdc3db35fe7d8f58dc8715e"
+                "reference": "40866c411b346ca33493dba8a2e0ba5898b59f9a"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -3453,7 +3453,6 @@
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-sync": "@dev",
                 "automattic/jetpack-wp-build-polyfills": "@dev",
-                "automattic/woocommerce-analytics": "^0.18",
                 "php": ">=7.4"
             },
             "require-dev": {
@@ -4614,13 +4613,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/woocommerce-stats",
-                "reference": "79af2a3f0f04ba82dc7d9aea7eff3f66a3443e13"
+                "reference": "d4b9d99dae53ad8410ab19f5c57a2bcdbfa24119"
             },
             "require": {
                 "automattic/jetpack-config": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-premium-analytics": "@dev",
                 "automattic/jetpack-sync": "@dev",
+                "automattic/woocommerce-analytics": "^0.18",
                 "php": ">=7.4"
             },
             "require-dev": {

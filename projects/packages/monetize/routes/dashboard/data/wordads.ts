@@ -173,13 +173,15 @@ export function toAdsEarnings( data: EarningsResponse ): AdsEarnings {
 /**
  * What the site has earned from ads, all time and by month.
  *
+ * @param enabled - Whether to fetch, e.g. only once the user can call WordPress.com.
  * @return The query.
  */
-export function useAdsEarnings() {
+export function useAdsEarnings( enabled = true ) {
 	return useQuery< EarningsResponse, WpcomApiError, AdsEarnings >( {
 		queryKey: [ 'monetize', 'ads', 'earnings' ],
 		queryFn: () => wpcomFetch( { api: 'wpcom/v2', path: 'wordads/earnings' } ),
 		select: toAdsEarnings,
+		enabled,
 	} );
 }
 

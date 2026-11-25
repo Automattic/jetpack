@@ -46,7 +46,7 @@ export default function FreeTierDialog( {
 			{
 				onSuccess: () => {
 					trackPaymentsEvent( 'free_tier_update', { hide_free_tier: hidden } );
-					showSuccessSnackbar( __( 'Free plan updated.', 'jetpack-monetize' ) );
+					showSuccessSnackbar( __( 'Free tier updated.', 'jetpack-monetize' ) );
 					onClose();
 				},
 			}
@@ -97,7 +97,7 @@ export default function FreeTierDialog( {
 					<Button variant="outline" tone="neutral" onClick={ onClose } disabled={ isPending }>
 						{ __( 'Cancel', 'jetpack-monetize' ) }
 					</Button>
-					<Button onClick={ onSave } disabled={ isTooLong } loading={ isPending }>
+					<Button onClick={ onSave } disabled={ isTooLong || isPending } loading={ isPending }>
 						{ __( 'Save', 'jetpack-monetize' ) }
 					</Button>
 				</Dialog.Footer>

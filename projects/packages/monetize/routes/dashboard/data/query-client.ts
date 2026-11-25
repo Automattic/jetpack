@@ -11,7 +11,12 @@ const MAX_RETRIES = 3;
  * @return Whether to retry.
  */
 export function shouldRetry( failureCount: number, error: unknown ): boolean {
-	if ( error instanceof WpcomApiError && error.status && error.status < 500 ) {
+	// apiFetch's own errors carry the status under `data`.
+	const status =
+		error instanceof WpcomApiError
+			? error.status
+			: ( error as { data?: { status?: number } } | null )?.data?.status;
+	if ( status && status < 500 ) {
 		return false;
 	}
 	return failureCount < MAX_RETRIES;

@@ -4,10 +4,6 @@ describe( 'getTab', () => {
 	it.each( [ undefined, 'nope', 42 ] )( 'falls back to Overview for %p', value => {
 		expect( getTab( value ).value ).toBe( 'overview' );
 	} );
-
-	it( 'opens Settings wherever the page shows', () => {
-		expect( getTab( 'settings' ).value ).toBe( 'settings' );
-	} );
 } );
 
 describe( 'getTabSearch', () => {

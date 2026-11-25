@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Safe Mode: Show the new Safe Mode screen in the Safe Mode window behind a feature flag.
