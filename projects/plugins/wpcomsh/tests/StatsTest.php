@@ -21,15 +21,6 @@ class StatsTest extends WP_UnitTestCase {
 
 	const RETIRED_FLAG = 'jetpack-stats-classic-page-retired';
 	const STATS_V2     = 'Automattic\\Jetpack\\PremiumAnalytics\\Analytics';
-	const ENABLEMENT   = 'Automattic\\Jetpack\\PremiumAnalytics\\Enablement';
-
-	public function test_proxy_tracking_stays_off_without_stats_v2() {
-		if ( class_exists( self::ENABLEMENT ) ) {
-			$this->markTestSkipped( 'Stats v2 is already loaded from another plugin.' );
-		}
-
-		$this->assertFalse( apply_filters( 'woocommerce_analytics_experimental_proxy_tracking_enabled', false ) );
-	}
 
 	/**
 	 * @runInSeparateProcess
@@ -38,15 +29,17 @@ class StatsTest extends WP_UnitTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_proxy_tracking_follows_whether_stats_v2_runs() {
-		if ( class_exists( self::ENABLEMENT ) ) {
+		if ( class_exists( self::STATS_V2 ) ) {
 			$this->markTestSkipped( 'Stats v2 is already loaded from another plugin.' );
 		}
-		eval( 'namespace Automattic\Jetpack\PremiumAnalytics; class Enablement { public static function is_enabled() { return (bool) get_option( "stats_v2_test_enabled" ); } }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
+		$this->assertFalse( apply_filters( 'woocommerce_analytics_experimental_proxy_tracking_enabled', false ) );
 
-		update_option( 'stats_v2_test_enabled', 1 );
+		eval( 'namespace Automattic\Jetpack\PremiumAnalytics; class Analytics { public static function is_initialized() { return (bool) get_option( "stats_v2_test_booted" ); } }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
+
+		update_option( 'stats_v2_test_booted', 1 );
 		$this->assertTrue( apply_filters( 'woocommerce_analytics_experimental_proxy_tracking_enabled', false ) );
 
-		update_option( 'stats_v2_test_enabled', 0 );
+		update_option( 'stats_v2_test_booted', 0 );
 		$this->assertFalse( apply_filters( 'woocommerce_analytics_experimental_proxy_tracking_enabled', false ) );
 	}
 

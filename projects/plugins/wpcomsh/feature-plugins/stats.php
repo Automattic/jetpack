@@ -47,7 +47,7 @@ function wpcomsh_retire_classic_stats( $enabled, $name ) {
 add_filter( 'jetpack_feature_flag_enabled', 'wpcomsh_retire_classic_stats', 5, 2 );
 
 /**
- * Turns on WooCommerce Analytics proxy tracking while Stats v2 runs, which leaves it to the host.
+ * Turns on WooCommerce Analytics proxy tracking while Stats v2 runs.
  *
  * Asked when the filter is read rather than at file scope, because Jetpack loads after wpcomsh.
  *
@@ -55,8 +55,8 @@ add_filter( 'jetpack_feature_flag_enabled', 'wpcomsh_retire_classic_stats', 5, 2
  * @return bool
  */
 function wpcomsh_enable_woocommerce_analytics_proxy_tracking( $enabled ) {
-	$enablement = 'Automattic\Jetpack\PremiumAnalytics\Enablement';
+	$analytics = 'Automattic\Jetpack\PremiumAnalytics\Analytics';
 
-	return $enabled || ( is_callable( array( $enablement, 'is_enabled' ) ) && $enablement::is_enabled() );
+	return $enabled || ( is_callable( array( $analytics, 'is_initialized' ) ) && $analytics::is_initialized() );
 }
 add_filter( 'woocommerce_analytics_experimental_proxy_tracking_enabled', 'wpcomsh_enable_woocommerce_analytics_proxy_tracking' );
