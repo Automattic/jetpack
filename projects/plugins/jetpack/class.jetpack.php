@@ -1103,7 +1103,7 @@ class Jetpack {
 		// Analytics::init() for why.
 		if ( self::is_premium_analytics_enabled() ) {
 			\Automattic\Jetpack\PremiumAnalytics\Analytics::init();
-			add_filter( 'jetpack_premium_analytics_store_tracking_enabled', array( __CLASS__, 'premium_analytics_store_tracking_enabled' ) );
+			add_filter( 'jetpack_woocommerce_stats_store_tracking_enabled', array( __CLASS__, 'premium_analytics_store_tracking_enabled' ) );
 			if ( class_exists( 'Automattic\Jetpack\WooCommerceStats\Analytics_Dashboard' ) ) {
 				\Automattic\Jetpack\WooCommerceStats\Analytics_Dashboard::init();
 			}
