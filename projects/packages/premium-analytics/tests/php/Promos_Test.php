@@ -384,9 +384,10 @@ class Promos_Test extends BaseTestCase {
 			)
 		);
 
-		get_available_promos();
-		get_available_promos();
+		$first  = $this->available_slugs();
+		$second = $this->available_slugs();
 
 		$this->assertSame( 1, $calls );
+		$this->assertSame( $first, $second );
 	}
 }

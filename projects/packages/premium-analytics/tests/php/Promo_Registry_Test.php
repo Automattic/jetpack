@@ -180,9 +180,10 @@ class Promo_Registry_Test extends BaseTestCase {
 			return array();
 		};
 
-		$registry->remember_available( $compute );
-		$registry->remember_available( $compute );
+		$first  = $registry->remember_available( $compute );
+		$second = $registry->remember_available( $compute );
 
 		$this->assertSame( 1, $calls );
+		$this->assertSame( $first, $second );
 	}
 }
