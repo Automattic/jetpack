@@ -3,12 +3,13 @@
  */
 import { ButtonLink } from '@jetpack-premium-analytics/externals';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
+import type { PromoCtaVariant } from '@jetpack-premium-analytics/data';
 import type { JSX } from 'react';
 
 export type PromoCtaProps = {
 	href: string;
 	label: string;
-	variant?: 'primary' | 'secondary';
+	variant?: PromoCtaVariant;
 	trackClick: () => void;
 };
 

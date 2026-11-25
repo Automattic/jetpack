@@ -23,6 +23,14 @@ final class Promo_Registry {
 	const PLACEMENTS = array( 'options-menu', 'settings' );
 
 	/**
+	 * Call-to-action styles a promo may use: filled or outlined.
+	 *
+	 * @since $$next-version$$
+	 * @var string[]
+	 */
+	const CTA_VARIANTS = array( 'primary', 'secondary' );
+
+	/**
 	 * Registered promos, as `$slug => $promo` pairs.
 	 *
 	 * @var array<string, Promo>
@@ -76,6 +84,11 @@ final class Promo_Registry {
 		// renders as nothing while still taking the one item the menu offers, hiding any other.
 		if ( '' !== $promo->cta_label && ! $this->is_linkable( $promo->cta_url ) ) {
 			return $this->refuse( __( 'A promo cta_url must be an http or https URL.', 'jetpack-premium-analytics-pkg' ) );
+		}
+
+		if ( ! in_array( $promo->cta_variant, self::CTA_VARIANTS, true ) ) {
+			/* translators: %s: Comma-separated list of call-to-action variants. */
+			return $this->refuse( sprintf( __( 'A promo cta_variant must be one of: %s.', 'jetpack-premium-analytics-pkg' ), implode( ', ', self::CTA_VARIANTS ) ) );
 		}
 
 		$this->registered_promos[ $slug ] = $promo;

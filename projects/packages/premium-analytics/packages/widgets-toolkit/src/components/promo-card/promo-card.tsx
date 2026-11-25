@@ -128,7 +128,7 @@ export function PromoCard( { promo }: PromoCardProps ) {
 					<PromoCta
 						href={ promo.cta_url }
 						label={ promo.cta_label }
-						variant="primary"
+						variant={ promo.cta_variant }
 						trackClick={ trackClick }
 					/>
 				</Stack>

@@ -89,6 +89,7 @@ describe( 'stats-options-menu Settings entry', () => {
 						cta_url: 'https://example.com/acme',
 						dismissible: false,
 						snooze_days: 0,
+						cta_variant: 'primary',
 					},
 				],
 			},

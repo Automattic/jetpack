@@ -12,6 +12,7 @@ const basePromo: Promo = {
 	cta_url: 'https://example.com/acme',
 	dismissible: false,
 	snooze_days: 90,
+	cta_variant: 'primary',
 };
 
 const meta: Meta< typeof PromoCard > = {

@@ -73,6 +73,19 @@ class Promo_Test extends BaseTestCase {
 		$this->assertSame( 90, $promo->snooze_days );
 	}
 
+	public function test_a_promo_is_filled_by_default() {
+		$promo = new Promo( 'acme/offer', array() );
+
+		$this->assertSame( 'primary', $promo->cta_variant );
+		$this->assertSame( 'primary', $promo->to_array()['cta_variant'] );
+	}
+
+	public function test_a_promo_can_ask_for_an_outlined_call_to_action() {
+		$promo = new Promo( 'acme/offer', array( 'cta_variant' => 'secondary' ) );
+
+		$this->assertSame( 'secondary', $promo->to_array()['cta_variant'] );
+	}
+
 	/**
 	 * The array form carries the registered fields and omits the server-side rule.
 	 */
@@ -101,6 +114,7 @@ class Promo_Test extends BaseTestCase {
 				'description' => 'Grow with Acme.',
 				'cta_label'   => 'Upgrade to Acme',
 				'cta_url'     => 'https://example.com/acme',
+				'cta_variant' => 'primary',
 				'dismissible' => true,
 				'snooze_days' => 30,
 			),
