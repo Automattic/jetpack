@@ -85,7 +85,10 @@ export default ( {
 					value={ attributes.mapHeight || '' }
 					min={ minHeight }
 					onChange={ newValue => {
-						setAttributes( { mapHeight: newValue } );
+						const parsed = newValue === '' ? undefined : parseInt( newValue, 10 );
+						setAttributes( {
+							mapHeight: Number.isNaN( parsed ) ? undefined : parsed,
+						} );
 					} }
 					size="__unstable-large"
 					step={ 10 }

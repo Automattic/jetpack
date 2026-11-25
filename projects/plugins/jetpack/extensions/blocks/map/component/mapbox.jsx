@@ -174,6 +174,9 @@ export class MapBoxComponent extends Component {
 				map.removeControl( fullscreenControl );
 			}
 		}
+		if ( this.props.mapHeight !== prevProps.mapHeight ) {
+			this.sizeMap( this.props.mapHeight );
+		}
 	}
 	/* Event handling */
 	onMarkerClick = marker => {
@@ -207,14 +210,18 @@ export class MapBoxComponent extends Component {
 		this.setState( { activeMarker: null } );
 	};
 	// Various map functions
-	sizeMap = () => {
-		const { mapHeight } = this.props;
+	sizeMap = ( height = null ) => {
+		const targetHeight = typeof height === 'number' ? height : this.props.mapHeight;
 		const { map } = this.state;
-		const mapEl = this.mapRef.current;
+		const mapEl = this.mapRef?.current;
 
-		resizeMapContainer( mapEl, mapHeight );
-		map.resize( VIEWPORT_SYNC );
-		this.setBoundsByMarkers();
+		if ( mapEl ) {
+			resizeMapContainer( mapEl, targetHeight );
+		}
+		if ( map ) {
+			map.resize( VIEWPORT_SYNC );
+			this.setBoundsByMarkers();
+		}
 	};
 	updateZoom = () => {
 		const { zoom } = this.props;

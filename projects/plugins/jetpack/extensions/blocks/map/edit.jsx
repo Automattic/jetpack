@@ -188,22 +188,46 @@ const MapEdit = ( {
 	 * @param {Event}       event     - The event object.
 	 * @param {string}      direction - A string representing which resize handler was used.
 	 * @param {HTMLElement} elt       - A ref to the ResizeableBox's container element.
-	 * @param {object}      delta     - Information about how far the element was resized.
 	 */
-	const onMapResize = ( event, direction, elt, delta ) => {
-		toggleSelection( true );
-		const ref = mapRef?.current?.mapRef ?? mapRef;
+	const onMapResizePreview = ( event, direction, elt ) => {
+		const rawHeight = parseInt( elt?.style?.height, 10 ) || elt?.offsetHeight;
+		if ( ! rawHeight ) {
+			return;
+		}
+		const height = Math.max( MIN_HEIGHT, rawHeight );
 
-		if ( ref ) {
-			const height = parseInt( ref.current.offsetHeight + delta.height, 10 );
-
-			setAttributes( {
-				mapHeight: height,
-			} );
-
-			if ( ref.current.sizeMap ) {
-				setTimeout( ref.current.sizeMap, 0 );
+		if ( mapRef.current?.sizeMap ) {
+			mapRef.current.sizeMap( height );
+		} else if ( mapRef.current?.style ) {
+			mapRef.current.style.height = `${ height }px`;
+			const container = mapRef.current.querySelector( '.wp-block-jetpack-map__gm-container' );
+			if ( container ) {
+				container.style.height = `${ height }px`;
 			}
+		}
+	};
+
+	/**
+	 * Event handler for the ResizableBox stop event. Persists the updated height attribute.
+	 *
+	 * @param {Event}       event     - The event object.
+	 * @param {string}      direction - A string representing which resize handler was used.
+	 * @param {HTMLElement} elt       - A ref to the ResizeableBox's container element.
+	 */
+	const onMapResize = ( event, direction, elt ) => {
+		toggleSelection( true );
+		const rawHeight = parseInt( elt?.style?.height, 10 ) || elt?.offsetHeight;
+		if ( ! rawHeight ) {
+			return;
+		}
+		const height = Math.max( MIN_HEIGHT, rawHeight );
+
+		setAttributes( {
+			mapHeight: height,
+		} );
+
+		if ( mapRef.current?.sizeMap ) {
+			setTimeout( () => mapRef.current?.sizeMap?.( height ), 0 );
 		}
 	};
 
@@ -343,6 +367,7 @@ const MapEdit = ( {
 					minHeight={ MIN_HEIGHT }
 					enable={ RESIZABLE_BOX_ENABLE_OPTION }
 					onResizeStart={ () => toggleSelection( false ) }
+					onResize={ onMapResizePreview }
 					onResizeStop={ onMapResize }
 				>
 					<div className="wp-block-jetpack-map__map_wrapper">

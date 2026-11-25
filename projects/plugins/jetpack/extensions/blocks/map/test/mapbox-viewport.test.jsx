@@ -1,10 +1,11 @@
 import { MapBoxComponent } from '../component/mapbox';
+import { resizeMapContainer } from '../utils';
 
 jest.mock( '@wordpress/components', () => ( {} ) );
 jest.mock( '../component/info-window', () => () => null );
 jest.mock( '../component/map-marker', () => () => null );
 jest.mock( '../mapbox-map-formatter', () => ( { mapboxMapFormatter: () => ( {} ) } ) );
-jest.mock( '../utils', () => ( { resizeMapContainer: () => {} } ) );
+jest.mock( '../utils', () => ( { resizeMapContainer: jest.fn() } ) );
 jest.mock( '../../../shared/block-editor-asset-loader', () => ( {} ) );
 
 function createMap( points ) {
@@ -99,3 +100,21 @@ it.each( [ 'resize', 'orientationchange' ] )(
 		component.componentWillUnmount();
 	}
 );
+
+it( 'resizes map container and Mapbox viewport when mapHeight updates', () => {
+	const { component, map } = createMap( [] );
+	const resizeSpy = jest.spyOn( map, 'resize' );
+	component.props = { ...component.props, mapHeight: 550 };
+	component.componentDidUpdate( { ...component.props, mapHeight: 400 } );
+	expect( resizeMapContainer ).toHaveBeenCalledWith( component.mapRef.current, 550 );
+	expect( resizeSpy ).toHaveBeenCalled();
+	component.componentWillUnmount();
+} );
+
+it( 'ignores Event arguments passed to sizeMap from window resize listeners', () => {
+	const { component } = createMap( [] );
+	component.props = { ...component.props, mapHeight: 480 };
+	component.sizeMap( new Event( 'resize' ) );
+	expect( resizeMapContainer ).toHaveBeenCalledWith( component.mapRef.current, 480 );
+	component.componentWillUnmount();
+} );

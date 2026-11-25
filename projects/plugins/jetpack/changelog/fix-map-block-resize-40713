@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Map block: Fix real-time resizing via drag handle and inspector controls.
