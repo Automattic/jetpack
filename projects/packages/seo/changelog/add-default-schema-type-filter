@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a `jetpack_seo_default_schema_type` filter so custom post types can default to Article schema.
