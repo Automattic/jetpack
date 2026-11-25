@@ -21,12 +21,6 @@ jest.mock( '@wordpress/data', () => {
 	} );
 } );
 
-const setFlag = ( enabled: boolean ) => {
-	window.JetpackScriptData = {
-		premium_analytics: { whats_new_enabled: enabled },
-	} as typeof window.JetpackScriptData;
-};
-
 describe( 'WhatsNewCard', () => {
 	beforeEach( () => {
 		jest.useFakeTimers();
@@ -35,20 +29,10 @@ describe( 'WhatsNewCard', () => {
 	afterEach( () => {
 		jest.useRealTimers();
 		jest.clearAllMocks();
-		delete window.JetpackScriptData;
-	} );
-
-	it( 'draws nothing while What’s new is off for the site', () => {
-		setFlag( false );
-
-		const { container } = render( <WhatsNewCard /> );
-
-		expect( container ).toBeEmptyDOMElement();
 	} );
 
 	it( 'has the switch tracked, turns the teaser off for the user, and says it was saved', async () => {
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
-		setFlag( true );
 
 		render( <WhatsNewCard /> );
 		const toggle = await screen.findByRole( 'checkbox', {

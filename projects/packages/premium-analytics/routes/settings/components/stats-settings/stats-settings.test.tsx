@@ -9,6 +9,7 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 
 jest.mock( '../consent-card', () => ( { ConsentCard: () => null } ) );
 jest.mock( '../plan-usage-card', () => ( { PlanUsageCard: () => null } ) );
+jest.mock( '../whats-new-card', () => ( { WhatsNewCard: () => null } ) );
 jest.mock( '../settings-form', () => ( {
 	SettingsForm: () => <div data-testid="settings-form" />,
 } ) );

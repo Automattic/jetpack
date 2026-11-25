@@ -64,17 +64,12 @@ function getChannels(): string[] {
 }
 
 /**
- * Show the What's new surface with the announcements of the page on screen, while its feature
- * flag is on.
+ * Show the What's new surface with the announcements of the page on screen.
  *
  * Imported on demand and never awaited, so the surface stays out of the dashboard's first
  * render. A load that fails leaves the dashboard without it.
  */
 export function showWhatsNew(): void {
-	if ( ! getScriptData()?.premium_analytics?.whats_new_enabled ) {
-		return;
-	}
-
 	// Held for this page load: the welcome modal and its tour are about to ask for the same attention.
 	if ( isOnboardingPending() ) {
 		return;

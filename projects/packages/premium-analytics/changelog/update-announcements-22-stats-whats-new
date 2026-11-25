@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Dashboard: Show What's new on every site, without its feature flag, and name the channel of the dashboard `stats`. The dashboard publishes no announcement yet.
