@@ -2,7 +2,6 @@
 /* eslint-disable jest-dom/prefer-in-document, jest-dom/prefer-to-have-attribute, jest-dom/prefer-to-have-value, testing-library/prefer-user-event */
 import { fireEvent, render, screen } from '@testing-library/react';
 import { recordBoostEvent } from '$lib/utils/analytics';
-import { ModuleSurfaceProvider } from '$features/module/surface';
 import RenderBlockingJsMeta from '$features/render-blocking-js/render-blocking-js-meta';
 import MinifyMeta from '$features/minify-meta/minify-meta';
 import PageCacheMeta from '$features/page-cache/meta/meta';
@@ -37,22 +36,14 @@ const consumers = [
 	{
 		name: 'Defer JS',
 		component: <RenderBlockingJsMeta />,
-		trigger: 'Exclude URL patterns',
 		count: false,
 	},
 	...( [ 'js', 'css' ] as const ).map( type => ( {
 		name: `Concatenate ${ type }`,
-		component: (
-			<MinifyMeta
-				datasyncKey={ `minify_${ type }_excludes` }
-				buttonText={ `Exclude ${ type.toUpperCase() } handles` }
-				placeholder="Handles"
-			/>
-		),
-		trigger: `Exclude ${ type.toUpperCase() } handles`,
+		component: <MinifyMeta datasyncKey={ `minify_${ type }_excludes` } placeholder="Handles" />,
 		count: false,
 	} ) ),
-	{ name: 'Page Cache', component: <PageCacheMeta />, trigger: 'Show Options', count: true },
+	{ name: 'Page Cache', component: <PageCacheMeta />, count: true },
 ];
 
 beforeEach( () => {
@@ -63,7 +54,7 @@ beforeEach( () => {
 
 describe.each( consumers )( '$name', ( { component, count } ) => {
 	it( 'shows None, expands an unchanged disabled Save, and saves the existing list format', () => {
-		render( <ModuleSurfaceProvider value="row">{ component }</ModuleSurfaceProvider> );
+		render( component );
 		const toggle = screen.getByRole( 'button', { name: 'Except None' } );
 		expect( toggle.getAttribute( 'aria-expanded' ) ).toBe( 'false' );
 		expect( screen.queryByRole( 'textbox' ) ).toBeNull();
@@ -84,7 +75,7 @@ describe.each( consumers )( '$name', ( { component, count } ) => {
 
 	it( 'summarizes saved exceptions and disables Save until the value changes', () => {
 		mockValues = [ 'checkout', 'about' ];
-		render( <ModuleSurfaceProvider value="row">{ component }</ModuleSurfaceProvider> );
+		render( component );
 		fireEvent.click(
 			screen.getByRole( 'button', { name: count ? 'Except 2 pages' : 'Except checkout, about' } )
 		);
@@ -96,11 +87,7 @@ describe.each( consumers )( '$name', ( { component, count } ) => {
 
 it( 'keeps invalid Page Cache patterns disabled and counts only nonempty patterns', () => {
 	mockValues = [ 'checkout', '' ];
-	render(
-		<ModuleSurfaceProvider value="row">
-			<PageCacheMeta />
-		</ModuleSurfaceProvider>
-	);
+	render( <PageCacheMeta /> );
 	fireEvent.click( screen.getByRole( 'button', { name: 'Except 1 page' } ) );
 	fireEvent.change( screen.getByRole( 'textbox' ), { target: { value: '[' } } );
 	expect( screen.getByRole( 'button', { name: 'Save' } ).getAttribute( 'aria-disabled' ) ).toBe(
@@ -109,15 +96,7 @@ it( 'keeps invalid Page Cache patterns disabled and counts only nonempty pattern
 } );
 
 it.each( [ 'js', 'css' ] as const )( 'keeps Load default handles for Concatenate %s', type => {
-	render(
-		<ModuleSurfaceProvider value="row">
-			<MinifyMeta
-				datasyncKey={ `minify_${ type }_excludes` }
-				buttonText="Exclude"
-				placeholder="Handles"
-			/>
-		</ModuleSurfaceProvider>
-	);
+	render( <MinifyMeta datasyncKey={ `minify_${ type }_excludes` } placeholder="Handles" /> );
 	fireEvent.click( screen.getByRole( 'button', { name: 'Except None' } ) );
 	fireEvent.click( screen.getByRole( 'button', { name: 'Load default handles' } ) );
 	expect( screen.getByRole< HTMLInputElement >( 'textbox' ).value ).toBe( 'jquery' );
@@ -127,11 +106,7 @@ it.each( [ 'js', 'css' ] as const )( 'keeps Load default handles for Concatenate
 } );
 
 it( 'records the Page Cache Except toggle events', () => {
-	render(
-		<ModuleSurfaceProvider value="row">
-			<PageCacheMeta />
-		</ModuleSurfaceProvider>
-	);
+	render( <PageCacheMeta /> );
 	const except = screen.getByRole( 'button', { name: 'Except None' } );
 	fireEvent.click( except );
 	expect( recordBoostEvent ).toHaveBeenLastCalledWith( 'page_cache_exceptions_panel_toggle', {
@@ -147,11 +122,7 @@ it( 'records the Page Cache Except toggle events', () => {
 } );
 
 it( 'keeps the Page Cache textarea section inside its styling body and panel', () => {
-	render(
-		<ModuleSurfaceProvider value="row">
-			<PageCacheMeta />
-		</ModuleSurfaceProvider>
-	);
+	render( <PageCacheMeta /> );
 	const toggle = screen.getByRole( 'button', { name: 'Except None' } );
 	fireEvent.click( toggle );
 	// eslint-disable-next-line testing-library/no-node-access
@@ -164,48 +135,19 @@ it( 'keeps the Page Cache textarea section inside its styling body and panel', (
 } );
 
 it.each( consumers.filter( consumer => ! consumer.count ) )(
-	'$name uses modern field copy and retains legacy field copy',
-	( { component, trigger } ) => {
-		const modernLabel =
-			trigger === 'Exclude URL patterns'
+	'$name labels its field and explains the exceptions',
+	( { name, component } ) => {
+		const label =
+			name === 'Defer JS'
 				? 'Add URLs or patterns separated with a comma:'
 				: 'Add handles separated with a comma:';
-		const modernHelp =
-			trigger === 'Exclude URL patterns'
+		const help =
+			name === 'Defer JS'
 				? "JavaScript won't be deferred on these pages."
-				: `${ trigger.includes( 'JS' ) ? 'Scripts' : 'Styles' } listed here will be excluded from concatenation and minification. They continue loading separately.`;
-		const view = render( <ModuleSurfaceProvider value="row">{ component }</ModuleSurfaceProvider> );
-		fireEvent.click( screen.getByRole( 'button', { name: 'Except None' } ) );
-		expect( screen.getByRole( 'textbox', { name: modernLabel } ) ).toBeTruthy();
-		expect( screen.getByText( modernHelp, { exact: false } ) ).toBeTruthy();
-		view.unmount();
+				: `${ name.endsWith( 'js' ) ? 'Scripts' : 'Styles' } listed here will be excluded from concatenation and minification. They continue loading separately.`;
 		render( component );
-		fireEvent.click( screen.getByRole( 'button', { name: trigger } ) );
-		expect( screen.getByRole( 'textbox', { name: `${ trigger }:` } ) ).toBeTruthy();
-
-		expect(
-			screen.getByText(
-				trigger === 'Exclude URL patterns'
-					? 'JavaScript will not be deferred on pages matching these URL patterns. Use a comma (,) to separate the patterns. Use (.*) to address multiple URLs under a given path.To keep a single script in place on every page instead, add the attribute to its script tag.'
-					: 'Use a comma (,) to separate the handles.'
-			)
-		).toBeTruthy();
+		fireEvent.click( screen.getByRole( 'button', { name: 'Except None' } ) );
+		expect( screen.getByRole( 'textbox', { name: label } ) ).toBeTruthy();
+		expect( screen.getByText( help, { exact: false } ) ).toBeTruthy();
 	}
 );
-
-it( 'preserves the legacy Defer JS placeholder and script exclusion help', () => {
-	render( <RenderBlockingJsMeta /> );
-	fireEvent.click( screen.getByRole( 'button', { name: 'Exclude URL patterns' } ) );
-	expect(
-		screen.getByPlaceholderText(
-			'Comma-separated list of URL patterns to exclude, e.g.: checkout, gallery/(.*)'
-		)
-	).toBeTruthy();
-	expect(
-		screen.getByText(
-			( _, element ) =>
-				element?.textContent ===
-				'JavaScript will not be deferred on pages matching these URL patterns. Use a comma (,) to separate the patterns. Use (.*) to address multiple URLs under a given path.To keep a single script in place on every page instead, add the data-jetpack-boost="ignore" attribute to its script tag.'
-		)
-	).toBeTruthy();
-} );

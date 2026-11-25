@@ -18,22 +18,14 @@
 		}
 	}
 
-	.edit-button {
-		font-size: 14px;
-	}
-
 	.actions {
+		display: flex;
+		align-items: center;
+		gap: var(--wpds-dimension-gap-xs);
 
 		svg {
 			fill: var(--wp-admin-theme-color);
 		}
-	}
-
-	// Icon-first buttons have no text baseline, so center them instead.
-	.row-actions {
-		display: flex;
-		align-items: center;
-		gap: var(--wpds-dimension-gap-xs);
 	}
 
 	.summary {

@@ -20,7 +20,7 @@
 		font-size: 14px;
 		line-height: 22px;
 
-		@include mixins.breakpoint(xs) {
+		@include mixins.breakpoint( xs ) {
 			display: block;
 		}
 	}
@@ -31,13 +31,6 @@
 		padding: 16px;
 		border-radius: 4px;
 		background-color: var(--gray-0);
-
-		.title {
-			margin-bottom: 16px;
-			font-size: 16px;
-			line-height: 1;
-			font-weight: 600;
-		}
 	}
 
 	.description {

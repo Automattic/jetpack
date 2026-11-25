@@ -1,14 +1,10 @@
-import { useModuleSurface } from '$features/module/surface';
 import ExceptPanel from './except-panel';
 import styles from './collapsible-meta.module.scss';
-import { Button } from '@automattic/jetpack-components';
 import { chevronDown, chevronUp } from '@wordpress/icons';
 import { IconButton } from '@wordpress/ui';
 import { useId, useState } from 'react';
 import clsx from 'clsx';
 import type { ReactNode } from 'react';
-import ChevronDown from '$svg/chevron-down';
-import ChevronUp from '$svg/chevron-up';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import type { TracksEventProperties } from '$lib/utils/analytics';
 
@@ -18,7 +14,7 @@ type CollapsibleMetaProps = {
 	countExceptions?: boolean;
 	header?: ReactNode;
 	summary?: ReactNode;
-	toggleText: string;
+	toggleText?: string;
 	headerText?: string;
 	compactHeader?: boolean;
 	tracksEvent?: string;
@@ -35,7 +31,6 @@ const CollapsibleMeta = ( {
 	exceptions,
 	countExceptions = false,
 	header = null,
-	summary = null,
 	toggleText = '',
 	tracksEvent = '',
 	tracksEventProps = {},
@@ -45,7 +40,6 @@ const CollapsibleMeta = ( {
 	onToggleHandler = () => {},
 }: CollapsibleMetaProps ) => {
 	const [ isExpanded, setIsExpanded ] = useState( false );
-	const isRow = useModuleSurface() === 'row';
 	const contentId = useId();
 
 	const onToggle = () => {
@@ -60,7 +54,7 @@ const CollapsibleMeta = ( {
 		}
 	};
 
-	if ( isRow && exceptions ) {
+	if ( exceptions ) {
 		return (
 			<ExceptPanel
 				exceptions={ exceptions }
@@ -80,51 +74,32 @@ const CollapsibleMeta = ( {
 	const sectionHeader = (
 		<div className={ clsx( styles.header, { [ styles[ 'compact-header' ] ]: compactHeader } ) }>
 			{ header ? header : <div className={ styles.summary }>{ headerText }</div> }
-			<div className={ clsx( styles.actions, { [ styles[ 'row-actions' ] ]: isRow } ) }>
+			<div className={ styles.actions }>
 				{ extraButtons && extraButtons }{ ' ' }
-				{ isRow ? (
-					<IconButton
-						icon={ isExpanded ? chevronUp : chevronDown }
-						label={ toggleText }
-						size="small"
-						variant="minimal"
-						tone="neutral"
-						aria-expanded={ isExpanded }
-						aria-controls={ contentId }
-						onClick={ onToggle }
-					/>
-				) : (
-					<Button
-						variant="link"
-						size="small"
-						weight="regular"
-						icon={ isExpanded ? <ChevronUp /> : <ChevronDown /> }
-						className={ styles[ 'edit-button' ] }
-						onClick={ onToggle }
-					>
-						{ toggleText }
-					</Button>
-				) }
+				<IconButton
+					icon={ isExpanded ? chevronUp : chevronDown }
+					label={ toggleText }
+					size="small"
+					variant="minimal"
+					tone="neutral"
+					aria-expanded={ isExpanded }
+					aria-controls={ contentId }
+					onClick={ onToggle }
+				/>
 			</div>
 		</div>
 	);
 
 	/*
 	 * The content of the collapsible meta section.
-	 * It displays the (toggle, extra) buttons, main content of the expanded section or the summary.
+	 * It displays the main content of the expanded section.
 	 */
 	return (
 		<div className={ styles[ 'collapsible-meta' ] }>
 			{ sectionHeader }
-			{ isRow ? (
-				<div id={ contentId } hidden={ ! isExpanded }>
-					{ isExpanded && children }
-				</div>
-			) : (
-				<>
-					{ isExpanded ? children : summary && <div className={ styles.summary }>{ summary }</div> }
-				</>
-			) }
+			<div id={ contentId } hidden={ ! isExpanded }>
+				{ isExpanded && children }
+			</div>
 		</div>
 	);
 };
