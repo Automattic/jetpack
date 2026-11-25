@@ -74,8 +74,10 @@ describe( 'Infinite Scroll in a viewport the first pages do not fill', () => {
 		contentBottom = window.innerHeight + 1;
 		respondToLastRequest();
 
+		// A later page, fetched by scrolling, must not restart the fill.
 		contentBottom = 100;
-		window.infiniteScroll.scroller.trigger( document.body, 'is.post-load', { data: {} } );
-		expect( sentRequests ).toHaveLength( 1 );
+		window.infiniteScroll.scroller.refresh();
+		respondToLastRequest();
+		expect( sentRequests ).toHaveLength( 2 );
 	} );
 } );
