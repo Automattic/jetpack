@@ -635,8 +635,14 @@ class WPCOM_Stats {
 	 */
 	protected function fetch_stats( $args = array(), $api_version = self::STATS_REST_API_VERSION, $base_api_path = 'rest', $request_args = array() ) {
 		$endpoint = $this->build_endpoint();
-		// `$request_args` stays out of the key: callers asking for different timeouts want the same answer.
-		$cache_key      = md5( implode( '|', array( $endpoint, $api_version, wp_json_encode( $args, JSON_UNESCAPED_SLASHES ) ) ) );
+
+		/*
+		 * The timeout is part of the key because failures are cached. A request that gave up after
+		 * 5 seconds says nothing about one willing to wait 20, and sharing the entry would hand the
+		 * patient caller a deadline it never asked for.
+		 */
+		$timeout        = (int) ( $request_args['timeout'] ?? self::REQUEST_TIMEOUT );
+		$cache_key      = md5( implode( '|', array( $endpoint, $api_version, wp_json_encode( $args, JSON_UNESCAPED_SLASHES ), $timeout ) ) );
 		$transient_name = self::STATS_CACHE_TRANSIENT_PREFIX . $cache_key;
 		$stats_cache    = $this->should_bypass_cache() ? false : get_transient( $transient_name );
 
