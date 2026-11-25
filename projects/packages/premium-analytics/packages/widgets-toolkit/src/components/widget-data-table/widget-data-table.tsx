@@ -16,9 +16,10 @@ import { useEffect, useMemo, useRef, useState, type JSX } from 'react';
  */
 import { WidgetState, resolveWidgetStateError, type WidgetStateError } from '../widget-state';
 import './style.scss';
+import styles from './style.module.scss';
 import type { WidgetStatus } from '../../types';
 
-const PER_PAGE_SIZES = [ 10, 25, 50, 100 ];
+const PER_PAGE = 10;
 
 const DEFAULT_LAYOUTS: SupportedLayouts = { table: {} };
 
@@ -89,7 +90,7 @@ export function WidgetDataTable< Item >( props: WidgetDataTableProps< Item > ): 
 			( {
 				type: 'table',
 				page: 1,
-				perPage: PER_PAGE_SIZES[ 0 ],
+				perPage: PER_PAGE,
 				search: '',
 				fields: fields.map( field => field.id ),
 				...initialView,
@@ -113,9 +114,11 @@ export function WidgetDataTable< Item >( props: WidgetDataTableProps< Item > ): 
 	}, [ onChangePageItems, page.data ] );
 
 	const errorState = useMemo( () => resolveWidgetStateError( error, refetch ), [ error, refetch ] );
+	const isSearchable = fields.some( field => field.enableGlobalSearch );
+	const hasPagination = page.paginationInfo.totalPages > 1;
 
 	return (
-		<Stack direction="column">
+		<Stack direction="column" className={ styles.container }>
 			<WidgetState
 				isLoading={ isLoading }
 				isFetching={ isFetching }
@@ -132,10 +135,20 @@ export function WidgetDataTable< Item >( props: WidgetDataTableProps< Item > ): 
 					paginationInfo={ page.paginationInfo }
 					defaultLayouts={ DEFAULT_LAYOUTS }
 					actions={ actions }
-					search={ fields.some( field => field.enableGlobalSearch ) }
-					searchLabel={ searchLabel }
-					config={ { perPageSizes: PER_PAGE_SIZES } }
-				/>
+				>
+					<DataViews.Layout />
+
+					{ ( isSearchable || hasPagination ) && (
+						<Stack
+							className={ styles[ 'custom-footer' ] }
+							justify={ isSearchable ? 'space-between' : 'end' }
+							align="center"
+						>
+							{ isSearchable && <DataViews.Search label={ searchLabel } /> }
+							<DataViews.Pagination />
+						</Stack>
+					) }
+				</DataViews>
 			</WidgetState>
 		</Stack>
 	);
