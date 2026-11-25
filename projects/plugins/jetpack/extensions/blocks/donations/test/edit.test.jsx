@@ -34,6 +34,7 @@ jest.mock( '../style-controls', () => () => null );
 let events;
 let blockAttributes;
 let updateBlock;
+const markNotPersistent = jest.fn( () => ( { type: 'NOOP' } ) );
 
 const record = event => () => {
 	events.push( event );
@@ -45,6 +46,7 @@ registry.registerStore( 'core/block-editor', {
 	reducer: () => ( {} ),
 	selectors: { getSettings: () => ( {} ), getBlockAttributes: () => blockAttributes },
 	actions: {
+		__unstableMarkNextChangeAsNotPersistent: markNotPersistent,
 		updateBlockAttributes: ( clientId, updates ) => {
 			events.push( `plans for ${ clientId }` );
 			updateBlock( updates );
@@ -171,5 +173,19 @@ describe( 'Donations Edit', () => {
 		await act( async () => fetches[ 1 ]() );
 		expect( blockAttributes.oneTimeDonation.planId ).toBe( 11 );
 		expect( events.slice( -2 ) ).toEqual( [ 'plans for donations-1', 'unlock' ] );
+	} );
+
+	test( 'marks automatic currency, plan ID, and style migration updates as non-persistent for undo', async () => {
+		renderBlock( {
+			...tipsVariationAttributes,
+			className: 'custom-class is-style-buttons',
+		} );
+
+		await waitFor( () => expect( blockAttributes.oneTimeDonation.planId ).toBe( 11 ) );
+		expect( blockAttributes.tabsAppearance ).toBe( 'buttons' );
+		expect( blockAttributes.className ).toBe( 'custom-class' );
+		expect( blockAttributes.currency ).toBe( 'USD' );
+		// Marked before style migration, initial currency, and plan ID assignment.
+		expect( markNotPersistent ).toHaveBeenCalledTimes( 3 );
 	} );
 } );
