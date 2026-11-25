@@ -14,10 +14,16 @@ use WorDBless\BaseTestCase;
 require_once dirname( __DIR__, 2 ) . '/src/promos.php';
 
 /**
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\add_promo_modules_to_boot_deps
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\configure_promos
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_available_promos
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\inject_promos_script_data
  * @covers ::Automattic\Jetpack\PremiumAnalytics\register_promo
  */
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\add_promo_modules_to_boot_deps' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\configure_promos' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_available_promos' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\inject_promos_script_data' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\register_promo' )]
 class Promos_Test extends BaseTestCase {
 
@@ -25,6 +31,9 @@ class Promos_Test extends BaseTestCase {
 	 * Drop the flag, the filters, the registrants and the registry they hydrated.
 	 */
 	public function tear_down() {
+		unset( $_GET['page'], $GLOBALS['current_screen'] );
+		remove_all_filters( 'jetpack_admin_js_script_data' );
+		remove_all_filters( 'jetpack-premium-analytics-wp-admin_boot_dependencies' );
 		remove_all_filters( 'jetpack_show_promotions' );
 		remove_all_filters( 'jetpack_premium_analytics_promos' );
 		remove_all_filters( 'jetpack_feature_flag_enabled_' . PROMO_FLAG );
@@ -193,5 +202,101 @@ class Promos_Test extends BaseTestCase {
 			array( 'acme/zzz-first', 'acme/alpha', 'acme/zeta', 'acme/late' ),
 			$this->available_slugs()
 		);
+	}
+
+	/**
+	 * Serve the dashboard page.
+	 */
+	private function open_dashboard() {
+		$_GET['page'] = Analytics::MENU_PAGE_SLUG;
+		set_current_screen( 'toplevel_page_' . Analytics::MENU_PAGE_SLUG );
+	}
+
+	public function test_script_data_carries_the_promos_without_clobbering_siblings() {
+		$this->register_fixture_promos(
+			array(
+				'slug'         => 'acme/offer',
+				'placement'    => 'settings',
+				'is_available' => true,
+			)
+		);
+		$this->open_dashboard();
+
+		$data = inject_promos_script_data( array( 'premium_analytics' => array( 'can_view_stats' => true ) ) );
+
+		$this->assertTrue( $data['premium_analytics']['can_view_stats'] );
+		$this->assertCount( 1, $data['premium_analytics']['promos'] );
+		$this->assertSame( 'acme/offer', $data['premium_analytics']['promos'][0]['slug'] );
+	}
+
+	public function test_script_data_is_left_alone_off_the_dashboard() {
+		$this->register_fixture_promos(
+			array(
+				'slug'         => 'acme/offer',
+				'placement'    => 'settings',
+				'is_available' => true,
+			)
+		);
+		$_GET['page'] = 'jetpack';
+		set_current_screen( 'toplevel_page_jetpack' );
+
+		$data = array( 'other' => 1 );
+
+		$this->assertSame( $data, inject_promos_script_data( $data ) );
+	}
+
+	public function test_configure_registers_the_injector_at_priority_20() {
+		configure_promos();
+
+		$this->assertSame( 20, has_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_promos_script_data' ) );
+	}
+
+	public function test_configure_registers_the_flag_off_by_default() {
+		do_action( 'init' );
+		configure_promos();
+		Promo_Registry::get_instance()->register(
+			'acme/offer',
+			array(
+				'placement'    => 'settings',
+				'is_available' => true,
+			)
+		);
+
+		$this->assertFalse( Feature_Flags::is_enabled( PROMO_FLAG ) );
+		$this->assertSame( array(), get_available_promos() );
+	}
+
+	public function test_render_modules_reach_the_page_import_map() {
+		$this->register_fixture_promos(
+			array(
+				'slug'          => 'acme/offer',
+				'placement'     => 'settings',
+				'is_available'  => true,
+				'render_module' => 'acme/promo-render',
+			)
+		);
+
+		$this->assertSame(
+			array(
+				array( 'import' => 'static' ),
+				array(
+					'import' => 'dynamic',
+					'id'     => 'acme/promo-render',
+				),
+			),
+			add_promo_modules_to_boot_deps( array( array( 'import' => 'static' ) ) )
+		);
+	}
+
+	public function test_a_promo_without_a_render_module_adds_no_import() {
+		$this->register_fixture_promos(
+			array(
+				'slug'         => 'acme/offer',
+				'placement'    => 'settings',
+				'is_available' => true,
+			)
+		);
+
+		$this->assertSame( array(), add_promo_modules_to_boot_deps( array() ) );
 	}
 }

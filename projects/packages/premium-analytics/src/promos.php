@@ -81,3 +81,72 @@ function get_available_promos() {
 
 	return $promos;
 }
+
+/**
+ * Registers the promo flag, off by default, and the hooks that publish promos to the dashboard.
+ *
+ * @since $$next-version$$
+ *
+ * @return void
+ */
+function configure_promos() {
+	Feature_Flags::register(
+		PROMO_FLAG,
+		array(
+			'default'     => false,
+			'description' => 'Show promotional cards that other packages register into the Stats v2 dashboard, menu and Settings.',
+			'owner'       => 'jetpack-stats',
+		)
+	);
+
+	add_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_promos_script_data', 20 );
+	add_filter( 'jetpack-premium-analytics-wp-admin_boot_dependencies', __NAMESPACE__ . '\\add_promo_modules_to_boot_deps' );
+}
+
+/**
+ * Publishes the available promos as `premium_analytics.promos` in the script data.
+ *
+ * @since $$next-version$$
+ *
+ * @param array $data The script data passed by the assets package.
+ * @return array
+ */
+function inject_promos_script_data( array $data ): array {
+	if ( ! Analytics::renders_dashboard() ) {
+		return $data;
+	}
+
+	if ( ! isset( $data['premium_analytics'] ) || ! is_array( $data['premium_analytics'] ) ) {
+		$data['premium_analytics'] = array();
+	}
+
+	$data['premium_analytics']['promos'] = array_map(
+		static function ( Promo $promo ) {
+			return $promo->to_array();
+		},
+		get_available_promos()
+	);
+
+	return $data;
+}
+
+/**
+ * Adds the available promos' render modules to the page import map as dynamic dependencies.
+ *
+ * @since $$next-version$$
+ *
+ * @param array $boot_dependencies Boot dependencies for the page.
+ * @return array Updated boot dependencies.
+ */
+function add_promo_modules_to_boot_deps( $boot_dependencies ) {
+	foreach ( get_available_promos() as $promo ) {
+		if ( ! empty( $promo->render_module ) ) {
+			$boot_dependencies[] = array(
+				'import' => 'dynamic',
+				'id'     => $promo->render_module,
+			);
+		}
+	}
+
+	return $boot_dependencies;
+}
