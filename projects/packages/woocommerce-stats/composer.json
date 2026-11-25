@@ -8,7 +8,6 @@
 		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-premium-analytics": "@dev",
-		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-sync": "@dev",
 		"automattic/woocommerce-analytics": "^0.18"
 	},

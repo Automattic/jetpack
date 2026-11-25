@@ -20,6 +20,10 @@ class StatsTest extends WP_UnitTestCase {
 	const RETIRED_FLAG = 'jetpack-stats-classic-page-retired';
 	const STATS_V2     = 'Automattic\\Jetpack\\PremiumAnalytics\\Analytics';
 
+	public function test_atomic_turns_on_woocommerce_analytics_proxy_tracking() {
+		$this->assertTrue( apply_filters( 'woocommerce_analytics_experimental_proxy_tracking_enabled', false ) );
+	}
+
 	public function test_classic_stats_stays_until_jetpack_lists_stats_v2_in_calypsos_menu() {
 		if ( class_exists( self::STATS_V2 ) ) {
 			$this->markTestSkipped( 'Stats v2 is already loaded from another plugin.' );

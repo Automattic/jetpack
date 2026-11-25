@@ -45,3 +45,6 @@ function wpcomsh_retire_classic_stats( $enabled, $name ) {
 	return method_exists( 'Automattic\Jetpack\PremiumAnalytics\Analytics', 'register_replayed_admin_menu' ) ? true : $enabled;
 }
 add_filter( 'jetpack_feature_flag_enabled', 'wpcomsh_retire_classic_stats', 5, 2 );
+
+// Stats v2 leaves WooCommerce Analytics proxy tracking to the host; Atomic opts in.
+add_filter( 'woocommerce_analytics_experimental_proxy_tracking_enabled', '__return_true' );
