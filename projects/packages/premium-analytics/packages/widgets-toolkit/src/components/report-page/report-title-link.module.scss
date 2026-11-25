@@ -8,7 +8,10 @@
 	white-space: normal;
 }
 
+/* Also used without the link, where nothing else lifts DataViews' single
+ * line. */
 .text {
 	min-inline-size: 0;
+	white-space: normal;
 	overflow-wrap: anywhere;
 }
