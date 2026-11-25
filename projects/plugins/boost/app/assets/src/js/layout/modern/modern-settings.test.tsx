@@ -32,11 +32,10 @@ jest.mock( '$features/notice/manager', () => ( {
 
 describe( 'ModernSettings', () => {
 	it( 'renders the settings body without the chassis-owned header or speed scores', () => {
-		const { container } = render( <ModernSettings /> );
+		render( <ModernSettings /> );
 
 		expect( screen.getByText( 'settings body' ) ).toBeTruthy();
 		expect( screen.getByText( 'modern notices' ) ).toBeTruthy();
-		expect( container.querySelector( '.jb-dashboard' ) ).toBeNull();
 	} );
 
 	it( 'hides itself without unmounting while a redirect is pending', () => {

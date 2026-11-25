@@ -81,7 +81,7 @@ const GettingStarted: FC = () => {
 
 	return (
 		<BoostAdminPage>
-			<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
+			<div className={ styles.page }>
 				<div className="jb-section jb-section--alt">
 					<div className="jb-container">
 						<div className={ styles[ 'pricing-table' ] }>

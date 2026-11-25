@@ -20,7 +20,7 @@ const CardPage = ( {
 }: CardPageProps ) => {
 	return (
 		<BoostAdminPage>
-			<div id="jb-dashboard" className="jb-dashboard">
+			<div className={ styles.page }>
 				<div className={ styles.body }>
 					<div className={ 'jb-container jb-container--fixed mt-2' }>
 						{ showBackButton && <BackButton /> }
