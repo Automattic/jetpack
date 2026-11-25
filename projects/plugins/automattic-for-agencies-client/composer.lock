@@ -65,7 +65,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "bf4b9fcc4888a4b3a8bcc72d0e878fb970869cd4"
+                "reference": "40ddc6b58e0301c9210a1bedde56a2e67a3e7df9"
             },
             "require": {
                 "automattic/jetpack-feature-flags": "@dev",
@@ -416,7 +416,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "3c1ee1080cbc5f1035282f735539cdb0bedaeb27"
+                "reference": "e402e7a24fb1857ccb581e675f0049b39b0174fa"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -677,7 +677,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/password-checker",
-                "reference": "7850956ffe95c26160b933636952768333894876"
+                "reference": "6de1902705364f57e3121d4b7ea267cf2c5d4747"
             },
             "require": {
                 "php": ">=7.4"
@@ -968,7 +968,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "8445087228e624d0dd71975fb11249796d3f8e60"
+                "reference": "c67fb61561cc0d4f4cf572dd0659c67d5e14ffa4"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1041,7 +1041,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/test-environment",
-                "reference": "e9a187ef89c4e2ea3716948128cce7a450e51a22"
+                "reference": "5f0ed323eaec2ea23ed43b1fa6fa22bb2bfc4ff3"
             },
             "require": {
                 "php": ">=7.4"
