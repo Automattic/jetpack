@@ -30,7 +30,7 @@ class Jetpack_WooCommerce_Analytics {
 	/**
 	 * Instance of the Universal functions
 	 *
-	 * @var Jetpack_WooCommerce_Analytics_Universal|false Static property to hold concrete analytics implementation that does the work (universal or legacy)
+	 * @var Jetpack_WooCommerce_Analytics_Universal|false Static property to hold concrete analytics implementation that does the work.
 	 */
 	private static $analytics = false;
 
