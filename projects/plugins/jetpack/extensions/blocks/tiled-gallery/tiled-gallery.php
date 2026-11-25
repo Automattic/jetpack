@@ -448,8 +448,7 @@ class Tiled_Gallery {
 	 * @return bool
 	 */
 	private static function is_resizable_image_url( $url ) {
-		$host = strtolower( (string) wp_parse_url( $url, PHP_URL_HOST ) );
-		return in_array( $host, array( 'i0.wp.com', 'i1.wp.com', 'i2.wp.com' ), true ) || str_ends_with( $host, '.files.wordpress.com' );
+		return Image_CDN_Core::is_cdn_url( $url ) || str_ends_with( strtolower( (string) wp_parse_url( $url, PHP_URL_HOST ) ), '.files.wordpress.com' );
 	}
 
 	/**

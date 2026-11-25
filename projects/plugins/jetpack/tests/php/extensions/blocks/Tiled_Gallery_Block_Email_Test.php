@@ -139,7 +139,12 @@ class Tiled_Gallery_Block_Email_Test extends WP_UnitTestCase {
 			$attrs['ids'][] = $id;
 		}
 
+		// Square and Circle crop through Photon, so make sure it handles the uploads URL.
+		add_filter( 'jetpack_photon_development_mode', '__return_false' );
+		add_filter( 'jetpack_photon_skip_for_url', '__return_false' );
 		$result = \Automattic\Jetpack\Extensions\Tiled_Gallery::render_email( '', array( 'attrs' => $attrs ), $this->create_rendering_context_mock( '740px' ) );
+		remove_filter( 'jetpack_photon_development_mode', '__return_false' );
+		remove_filter( 'jetpack_photon_skip_for_url', '__return_false' );
 
 		preg_match_all( '/<img [^>]*width="(\d+)"(?: height="(\d+)")?/', $result, $sizes );
 		$this->assertSame( $expected_sizes, array_map( null, $sizes[1], $sizes[2] ) );
@@ -242,6 +247,7 @@ class Tiled_Gallery_Block_Email_Test extends WP_UnitTestCase {
 	 */
 	#[DataProvider( 'provide_square_image_urls' )]
 	public function test_render_email_crops_square_images_through_photon( $photon_skips, $expected_src, $expected_height ) {
+		add_filter( 'jetpack_photon_development_mode', '__return_false' );
 		add_filter( 'jetpack_photon_skip_for_url', $photon_skips ? '__return_true' : '__return_false' );
 		$id = self::factory()->attachment->create_object(
 			array(
@@ -260,6 +266,7 @@ class Tiled_Gallery_Block_Email_Test extends WP_UnitTestCase {
 			),
 			$this->create_rendering_context_mock( '740px' )
 		);
+		remove_filter( 'jetpack_photon_development_mode', '__return_false' );
 		remove_filter( 'jetpack_photon_skip_for_url', $photon_skips ? '__return_true' : '__return_false' );
 
 		preg_match( '/<img [^>]*src="([^"]+)" width="(\d+)"(?: height="(\d+)")?/', $result, $image );
