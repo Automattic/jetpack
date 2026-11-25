@@ -164,7 +164,7 @@ const ConnectionControl: FC< ConnectionControlProps > = ( { trackingContext } ) 
 					className={ styles.trigger }
 					aria-label={ sprintf(
 						/* translators: %s is the connection state, e.g. "Site and account connected". */
-						__( 'Connection: %s', 'jetpack-my-jetpack' ),
+						__( 'Jetpack Connection: %s', 'jetpack-my-jetpack' ),
 						state.label
 					) }
 				>
@@ -183,7 +183,7 @@ const ConnectionControl: FC< ConnectionControlProps > = ( { trackingContext } ) 
 					<Stack direction="column" gap="lg" className={ styles.content }>
 						<Stack direction="column" gap="sm" align="start">
 							<Text variant="heading-md" render={ <Popover.Title /> }>
-								{ __( 'Connection', 'jetpack-my-jetpack' ) }
+								{ __( 'Jetpack Connection', 'jetpack-my-jetpack' ) }
 							</Text>
 							<ConnectionStatus
 								status={ state.status }
