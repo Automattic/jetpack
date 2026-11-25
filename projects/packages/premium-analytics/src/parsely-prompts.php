@@ -218,7 +218,12 @@ function quietest_monthly_views( array $usage ) {
 			continue;
 		}
 
-		// The month in progress is a part month, and the lowest of the set would read it as a slump.
+		/*
+		 * The month in progress is a part month, and the lowest of the set would read it as a
+		 * slump. Without `current_start` there is nothing to match it on, so it stays in and can
+		 * refuse a site that qualifies. Deliberate: withholding an offer costs less than making
+		 * one on a month that has not finished.
+		 */
 		if ( null !== $open_month && ( $month['current_start'] ?? null ) === $open_month ) {
 			continue;
 		}
