@@ -56,7 +56,7 @@ class Jetpack_Sitemap_Stylist {
 		$is_local = ! isset( $asset['host'] );
 		foreach ( array( $home_url, site_url( '/' ) ) as $local_url ) {
 			$local = wp_parse_url( $local_url );
-			if ( isset( $asset['host'], $local['host'] ) && 0 === strcasecmp( $asset['host'], $local['host'] ) && ( $asset['port'] ?? null ) === ( $local['port'] ?? null ) ) {
+			if ( isset( $asset['host'] ) && isset( $local['host'] ) && 0 === strcasecmp( $asset['host'], $local['host'] ) && ( $asset['port'] ?? null ) === ( $local['port'] ?? null ) ) {
 				$is_local = true;
 			}
 		}
