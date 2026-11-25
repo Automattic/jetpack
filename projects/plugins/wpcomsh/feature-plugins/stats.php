@@ -26,25 +26,10 @@ function wpcomsh_extend_stats_menu_item_access( $default_value ) {
 add_filter( 'default_option_stats_options', 'wpcomsh_extend_stats_menu_item_access' );
 
 /**
- * Turns on the bundled Premium Analytics dashboard for Atomic sites carrying the blog sticker.
- *
- * The filter is registered here, at file scope, because Jetpack resolves the flag once per request
- * from `Jetpack::configure()` on `plugins_loaded` — a callback added on `plugins_loaded` or later
- * would be too late to be seen.
- *
- * @param bool $enabled Whether Premium Analytics is already enabled.
- * @return bool
- */
-function wpcomsh_enable_premium_analytics( $enabled ) {
-	return $enabled || wpcomsh_is_site_sticker_active( 'jetpack-premium-analytics' );
-}
-add_filter( 'jetpack_premium_analytics_enabled', 'wpcomsh_enable_premium_analytics' );
-
-/**
  * Turns on the classic Stats page retirement, so Atomic sites open only Stats v2.
  *
- * At file scope for the same reason as above. Priority 5 leaves the last word to the a8c Feature Flags
- * screen's per-site override at 10, which a `jetpack_feature_flag_enabled_{flag}` filter would beat.
+ * At file scope because Jetpack resolves the flag on `plugins_loaded`. Priority 5 leaves the last word to the
+ * a8c Feature Flags screen's per-site override at 10, which a `jetpack_feature_flag_enabled_{flag}` filter would beat.
  *
  * @param bool   $enabled Whether the flag is enabled.
  * @param string $name    Feature flag name.

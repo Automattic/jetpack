@@ -1,9 +1,8 @@
 /* eslint-disable react/jsx-no-bind */
 
-import { TextControl, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { globe } from '@wordpress/icons';
-import { Card, CollapsibleCard, Stack, Text } from '@wordpress/ui';
+import { Card, CollapsibleCard, InputControl, Stack, SwitchControl, Text } from '@wordpress/ui';
 import CardTitleIcon from '../../components/card-title-icon';
 import StatusIndicator from '../../components/status-indicator';
 import { VERIFICATION_SERVICES } from '../../data/verification-services';
@@ -115,16 +114,15 @@ const VerificationCard: FC< Props > = ( {
 						{ description }
 					</Text>
 					{ onToggle && (
-						<ToggleControl
+						<SwitchControl
 							label={ __( 'Enable site verification', 'jetpack-seo' ) }
-							help={ __(
+							description={ __(
 								'Adds your saved verification codes to the site so supported services can confirm ownership.',
 								'jetpack-seo'
 							) }
 							checked={ active }
-							onChange={ onToggle }
+							onCheckedChange={ onToggle }
 							disabled={ disabled }
-							__nextHasNoMarginBottom
 						/>
 					) }
 					{ /* Google gets the keyring auto-verify flow; the rest are simple code fields. */ }
@@ -138,16 +136,14 @@ const VerificationCard: FC< Props > = ( {
 					<Stack direction="column" gap="md">
 						{ VERIFICATION_SERVICES.filter( ( { key } ) => key !== 'google' ).map(
 							( { key, label } ) => (
-								<TextControl
+								<InputControl
 									key={ key }
 									label={ label }
 									value={ value[ key ] }
-									onChange={ next => onChange( key, next ) }
+									onValueChange={ next => onChange( key, next ) }
 									onBlur={ onCommit }
-									help={ HINTS[ key ] }
+									description={ HINTS[ key ] }
 									disabled={ controlsDisabled }
-									__next40pxDefaultSize
-									__nextHasNoMarginBottom
 								/>
 							)
 						) }

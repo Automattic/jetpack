@@ -12,6 +12,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 use WP_Error;
 
@@ -443,6 +444,11 @@ abstract class Product {
 			return false;
 		}
 
+		// Simple runs the API call in-process, which 404s for the v1.1 features route, so ask WordPress.com's own check.
+		if ( ( new Host() )->is_wpcom_simple() && function_exists( 'wpcom_site_has_feature' ) ) {
+			return \wpcom_site_has_feature( $feature );
+		}
+
 		$features = self::get_site_features_from_wpcom();
 		if ( is_wp_error( $features ) ) {
 			return false;
@@ -546,7 +552,7 @@ abstract class Product {
 	/**
 	 * Get the URL where the user can purchase the product iff it doesn't have an interstitial page in My Jetpack.
 	 *
-	 * @since $$next-version$$ Returns the host's own address when it sells the product's feature.
+	 * @since 6.19.0 Returns the host's own address when it sells the product's feature.
 	 *
 	 * @return ?string
 	 */
@@ -558,7 +564,7 @@ abstract class Product {
 	/**
 	 * Get the URL where the site's host sells the product, in place of My Jetpack's interstitial page.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.19.0
 	 *
 	 * @return ?string Null when no host sells it or the site already has it.
 	 */
@@ -1021,7 +1027,7 @@ abstract class Product {
 	 *
 	 * Turning its module or plugin on can't bring it back, so nothing should offer to.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.19.0
 	 *
 	 * @return bool
 	 */

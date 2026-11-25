@@ -2,6 +2,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Button, CheckboxControl, Dialog, Notice, Stack, TextareaControl } from '@wordpress/ui';
 import { useCallback, useState } from 'react';
 import { FREE_TIER_DESCRIPTION_MAX, useSaveFreeTier } from '../../data/free-tier';
+import { showSuccessSnackbar } from '../../data/notices';
 import { trackPaymentsEvent } from '../../data/tracking';
 import type { FreeTier } from '../../data/free-tier';
 import type { ChangeEvent } from 'react';
@@ -45,6 +46,7 @@ export default function FreeTierDialog( {
 			{
 				onSuccess: () => {
 					trackPaymentsEvent( 'free_tier_update', { hide_free_tier: hidden } );
+					showSuccessSnackbar( __( 'Free tier updated.', 'jetpack-monetize' ) );
 					onClose();
 				},
 			}
@@ -95,7 +97,7 @@ export default function FreeTierDialog( {
 					<Button variant="outline" tone="neutral" onClick={ onClose } disabled={ isPending }>
 						{ __( 'Cancel', 'jetpack-monetize' ) }
 					</Button>
-					<Button onClick={ onSave } disabled={ isTooLong } loading={ isPending }>
+					<Button onClick={ onSave } disabled={ isTooLong || isPending } loading={ isPending }>
 						{ __( 'Save', 'jetpack-monetize' ) }
 					</Button>
 				</Dialog.Footer>

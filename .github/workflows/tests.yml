@@ -91,6 +91,8 @@ jobs:
           php: ${{ matrix.php }}
           coverage: ${{ case( matrix.script == 'test-php-coverage', 'pcov', 'none' ) }}
           node: ${{ matrix.node }}
+          # pnpm/setup v3's attempt to workaround its own brokenness fails for this job.
+          pnpm-save-cache: false
 
       - name: Monorepo install
         run: |

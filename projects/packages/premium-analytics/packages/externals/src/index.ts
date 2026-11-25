@@ -15,6 +15,7 @@ import '@automattic/jetpack-components/jetpack-footer/style.scss';
  * Charts
  */
 export {
+	AreaChart,
 	BarChart,
 	COMPARISON_TOTAL_KEY,
 	ConversionFunnelChart,

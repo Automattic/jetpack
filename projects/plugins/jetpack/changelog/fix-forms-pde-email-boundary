@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Forms: Match the whole email address when exporting or erasing personal data, so addresses that only share a prefix are no longer included.

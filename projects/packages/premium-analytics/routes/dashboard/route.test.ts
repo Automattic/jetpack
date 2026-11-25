@@ -1,5 +1,6 @@
 import { needsReportDateParamsSeed } from '@jetpack-premium-analytics/data';
 import {
+	getConnectionlessSectionSlugs,
 	isPremiumAnalyticsInitialSyncFinished,
 	isPremiumAnalyticsSiteConnected,
 } from '../site-readiness';
@@ -43,6 +44,7 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 } ) );
 
 jest.mock( '../site-readiness', () => ( {
+	getConnectionlessSectionSlugs: jest.fn( () => [] ),
 	isPremiumAnalyticsSiteConnected: jest.fn( () => true ),
 	isPremiumAnalyticsInitialSyncFinished: jest.fn( () => true ),
 } ) );
@@ -89,6 +91,13 @@ describe( 'dashboard route.beforeLoad', () => {
 		( isPremiumAnalyticsSiteConnected as jest.Mock ).mockReturnValueOnce( false );
 
 		await expect( beforeLoad( settledSearch ) ).rejects.toMatchObject( { to: '/connect' } );
+	} );
+
+	it( 'opens on a disconnected site with a tab that runs without a connection', async () => {
+		( isPremiumAnalyticsSiteConnected as jest.Mock ).mockReturnValueOnce( false );
+		( getConnectionlessSectionSlugs as jest.Mock ).mockReturnValueOnce( [ 'woocommerce' ] );
+
+		await expect( beforeLoad( settledSearch ) ).resolves.toBeUndefined();
 	} );
 
 	it( 'sends a link to the former Settings tab to the Settings page, with the rest of its search', async () => {

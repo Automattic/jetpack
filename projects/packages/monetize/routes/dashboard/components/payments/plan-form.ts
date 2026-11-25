@@ -51,6 +51,25 @@ export function defaultCurrency( currencies: Currencies ): string {
 }
 
 /**
+ * A tier's default annual price, twelve months rounded to the currency's minor units.
+ *
+ * @param price    - The monthly price.
+ * @param currency - The plan's currency.
+ * @return The annual price.
+ */
+export function annualPriceFor( price: number, currency: string ): number {
+	let digits = 2;
+	try {
+		digits =
+			new Intl.NumberFormat( 'en', { style: 'currency', currency } ).resolvedOptions()
+				.maximumFractionDigits ?? digits;
+	} catch {
+		// Not an ISO currency code, so keep cents.
+	}
+	return Number( ( price * 12 ).toFixed( digits ) );
+}
+
+/**
  * The name a new plan starts with.
  *
  * @param isTier   - Whether it's a newsletter tier.
@@ -90,7 +109,7 @@ export function initialForm( plan: Plan | null, currencies: Currencies, isTier =
 			interval: product.interval,
 			currency: product.currency,
 			price: product.price,
-			annualPrice: annual?.price ?? product.price * 12,
+			annualPrice: annual?.price ?? annualPriceFor( product.price, product.currency ),
 			welcomeMessage: product.welcomeEmailContent,
 			payWhatYouWant: product.buyerCanChangeAmount,
 			multiplePerUser: product.multiplePerUser,
@@ -108,7 +127,7 @@ export function initialForm( plan: Plan | null, currencies: Currencies, isTier =
 		interval: '1 month',
 		currency,
 		price,
-		annualPrice: price * 12,
+		annualPrice: annualPriceFor( price, currency ),
 		welcomeMessage: '',
 		payWhatYouWant: false,
 		multiplePerUser: false,

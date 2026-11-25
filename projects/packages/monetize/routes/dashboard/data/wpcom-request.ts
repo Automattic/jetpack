@@ -1,6 +1,6 @@
 import { addQueryArgs } from '@wordpress/url';
 
-export type WpcomApi = 'wpcom/v2' | 'rest/v1.1';
+type WpcomApi = 'wpcom/v2' | 'rest/v1.1';
 
 export interface WpcomRequest {
 	api: WpcomApi;
@@ -11,7 +11,7 @@ export interface WpcomRequest {
 	data?: unknown;
 }
 
-export interface FetchOptions {
+interface FetchOptions {
 	path: string;
 	method: string;
 	data?: unknown;
@@ -64,18 +64,28 @@ export function toWpcomApiError( error: unknown ): WpcomApiError {
 		return error;
 	}
 
-	// The memberships endpoints nest `{ code, message }` under `error`, which apiFetch rejects with as is.
-	const nested = ( error as { error?: unknown } | null )?.error;
-	if ( nested && typeof nested === 'object' ) {
-		return toWpcomApiError( nested );
-	}
-
 	const {
-		code = 'error',
+		error: nested,
+		code,
 		message = '',
 		data,
-	} = ( error ?? {} ) as { code?: string; message?: string; data?: { status?: number } };
-	return new WpcomApiError( code, message, data?.status );
+	} = ( error ?? {} ) as {
+		error?: unknown;
+		code?: string;
+		message?: string;
+		data?: { status?: number };
+	};
+
+	// The memberships endpoints nest `{ code, message }` under `error`, which apiFetch rejects with as is.
+	if ( nested && typeof nested === 'object' ) {
+		const apiError = toWpcomApiError( nested );
+		apiError.status ??= data?.status;
+		return apiError;
+	}
+
+	// The v1.1 endpoints send the code as a string `error` beside `message`.
+	const fallbackCode = typeof nested === 'string' && nested ? nested : 'error';
+	return new WpcomApiError( code ?? fallbackCode, message, data?.status );
 }
 
 /**

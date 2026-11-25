@@ -2,6 +2,7 @@ import { humanTimeDiff } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { tip } from '@wordpress/icons';
 import { Link, Stack, Text } from '@wordpress/ui';
+import clsx from 'clsx';
 import { QUERY_BLOG_POSTS_KEY, REST_API_BLOG_POSTS_ENDPOINT } from '../../data/constants';
 import useSimpleQuery from '../../data/use-simple-query';
 import OverviewSection from '../product-cards-section/overview-section';
@@ -13,6 +14,7 @@ type BlogPost = {
 	link: string;
 	date: string | null;
 	excerpt: string;
+	excerpt_is_automatic: boolean;
 	thumbnail: string | null;
 };
 
@@ -35,13 +37,36 @@ const OverviewBlogPosts: FC = () => {
 	return (
 		<OverviewSection icon={ tip } title={ __( 'What’s new in Jetpack?', 'jetpack-my-jetpack' ) }>
 			<Stack direction="column" gap="lg" align="start">
-				<Stack direction="column" gap="lg" render={ <ul className={ styles.list } /> }>
+				<ul className={ styles.list }>
 					{ posts.map( post => (
-						<Stack direction="row" gap="md" align="center" render={ <li /> } key={ post.link }>
-							{ post.thumbnail && (
+						<li className={ styles.post } key={ post.link }>
+							{ post.thumbnail ? (
 								<img className={ styles.thumbnail } src={ post.thumbnail } alt="" loading="lazy" />
+							) : (
+								<span className={ clsx( styles.thumbnail, styles[ 'thumbnail--empty' ] ) } />
 							) }
-							<Stack direction="column" gap="xs">
+							<Stack direction="column" gap="xs" className={ styles.text }>
+								<Text variant="heading-md" className={ styles.title } render={ <div /> }>
+									<Link
+										href={ post.link }
+										openInNewTab
+										tone="neutral"
+										variant="unstyled"
+										className={ styles.link }
+									>
+										{ post.title }
+									</Link>
+								</Text>
+								{ post.excerpt && (
+									<Text
+										variant="body-sm"
+										className={ clsx( styles.muted, styles.excerpt, {
+											[ styles[ 'excerpt--automatic' ] ]: post.excerpt_is_automatic,
+										} ) }
+									>
+										{ post.excerpt }
+									</Text>
+								) }
 								{ post.date && (
 									<Text
 										variant="body-sm"
@@ -51,20 +76,12 @@ const OverviewBlogPosts: FC = () => {
 										{ humanTimeDiff( post.date ) }
 									</Text>
 								) }
-								<Link href={ post.link } openInNewTab tone="neutral" variant="unstyled">
-									<Text variant="body-md">{ post.title }</Text>
-								</Link>
-								{ post.excerpt && (
-									<Text variant="body-sm" className={ styles.muted }>
-										{ post.excerpt }
-									</Text>
-								) }
 							</Stack>
-						</Stack>
+						</li>
 					) ) }
-				</Stack>
+				</ul>
 				<Link href="https://jetpack.com/resources/" openInNewTab>
-					{ __( 'Read more', 'jetpack-my-jetpack' ) }
+					{ __( 'See all Jetpack news', 'jetpack-my-jetpack' ) }
 				</Link>
 			</Stack>
 		</OverviewSection>

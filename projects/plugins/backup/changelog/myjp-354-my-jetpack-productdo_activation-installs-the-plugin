@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+My Jetpack: Don't install a product's plugin when plugin installs are turned off or the user can't install plugins.
