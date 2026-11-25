@@ -40,7 +40,7 @@ export const getRegistrationErrorCode = (
  * @param {RegistrationError|false} registrationError - The `registrationError` from `useConnection()`.
  * @return {number|undefined} The status, or undefined when the error has none.
  */
-export const getRegistrationErrorStatus = (
+const getRegistrationErrorStatus = (
 	registrationError?: RegistrationError | false
 ): number | undefined => {
 	const data: unknown = registrationError ? registrationError.response?.data : undefined;
@@ -111,6 +111,8 @@ export type RegistrationErrorDisplay = {
 	message?: ReactNode;
 	/** A second line with the underlying cause, when it adds something the message doesn't say. */
 	detail?: string;
+	/** Whether `message` is our own copy, rather than the site's text or nothing. */
+	isMapped?: boolean;
 };
 
 /**
@@ -139,13 +141,17 @@ export const getRegistrationErrorDisplay = (
 	const description = getRegistrationErrorDescription( registrationError );
 
 	if ( ! message ) {
-		return { message: description };
+		return { message: description, isMapped: false };
 	}
 	if ( ! description ) {
-		return { message };
+		return { message, isMapped: true };
 	}
-	if ( code === 'register_http_request_failed' ) {
-		return { message, detail: description };
+	// A message from the status alone is generic, so keep the site's text, which may name the plugin or setting.
+	if (
+		code === 'register_http_request_failed' ||
+		! getConnectScreenErrorMessage( code, isOfflineMode )
+	) {
+		return { message, detail: description, isMapped: true };
 	}
 	if ( code && /^site_inaccessible_\d{3}$/.test( code ) ) {
 		return {
@@ -155,9 +161,10 @@ export const getRegistrationErrorDisplay = (
 				getSiteUrl( description ),
 				status
 			),
+			isMapped: true,
 		};
 	}
-	return { message };
+	return { message, isMapped: true };
 };
 
 const offlineModeMessage = () =>
@@ -272,7 +279,7 @@ const siteHttpErrorMessage = ( status: number, siteUrl?: string ): string => {
 };
 
 /**
- * Maps a connection error code (and offline mode) to a user-facing message.
+ * Maps a connection error code, offline mode and the HTTP status to a user-facing message.
  *
  * The Jetpack plugin's `state-notices.jsx` (`getErrorFromKey`) keeps an overlapping map;
  * when changing copy for a code in both, check the other file too.
@@ -280,7 +287,7 @@ const siteHttpErrorMessage = ( status: number, siteUrl?: string ): string => {
  * @param {string}  errorCode     - The connection error code, see `getRegistrationErrorCode()`.
  * @param {boolean} isOfflineMode - Whether the site is in offline mode.
  * @param {string}  siteUrl       - For `site_inaccessible_{status}`: the URL WordPress.com tried, when known.
- * @param {number}  status        - The HTTP status the site's REST API sent, see `getRegistrationErrorStatus()`.
+ * @param {number}  status        - The HTTP status the site's REST API sent with the error, when known.
  * @return {import('react').ReactNode} The error message, or undefined if there isn't one.
  */
 export const getConnectScreenErrorMessage = (
@@ -391,9 +398,9 @@ export const getConnectScreenErrorMessage = (
 				'jetpack-connection-js'
 			);
 
-		// The connect endpoint's own permission check; a 401 means nobody is logged in, e.g. an expired session.
+		// The connect endpoint's own permission check.
 		case 'invalid_user_permission_jetpack_connect':
-			if ( status === 401 ) {
+			if ( getSiteRequestFailureCause( errorCode, status ) === 'session' ) {
 				return getSiteRequestFailureMessage( 'session' );
 			}
 			return __(
@@ -425,8 +432,8 @@ export const getConnectScreenErrorMessage = (
 			);
 	}
 
-	// Checked after the codes above, so the 401/403 rules can't override them.
-	const siteFailure = getSiteRequestFailureCause( errorCode, status );
+	// After the codes above, so the 401/403 rules can't override them; offline mode outranks those rules too.
+	const siteFailure = getSiteRequestFailureCause( errorCode, isOfflineMode ? undefined : status );
 	if ( siteFailure ) {
 		return getSiteRequestFailureMessage( siteFailure );
 	}

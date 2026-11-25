@@ -29,14 +29,14 @@ const { getIdentityCrisisErrorCause, getIdentityCrisisErrorCode } =
  * An error shaped like the client's `ApiError`, which carries the REST error body.
  *
  * @param code   - The REST error code.
- * @param status - The HTTP status.
+ * @param status - The HTTP status, if any.
  * @param data   - More of the error's `data`.
  * @return The error.
  */
-function apiError( code: string, status: number, data: Record< string, unknown > = {} ): Error {
+function apiError( code: string, status?: number, data: Record< string, unknown > = {} ): Error {
 	return Object.assign( new Error( code ), {
 		name: 'ApiError',
-		response: { code, data: { status, ...data } },
+		response: { code, data: status === undefined ? data : { status, ...data } },
 	} );
 }
 
@@ -233,10 +233,7 @@ describe( 'getIdentityCrisisErrorCause and getIdentityCrisisErrorCode', () => {
 			'invalid_user_permission_identity_crisis',
 		],
 		[
-			Object.assign( new Error(), {
-				name: 'ApiError',
-				response: { code: 'invalid_user_permission_identity_crisis', data: {} },
-			} ),
+			apiError( 'invalid_user_permission_identity_crisis' ),
 			'permission',
 			'invalid_user_permission_identity_crisis',
 		],

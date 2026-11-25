@@ -1,5 +1,4 @@
 Significance: patch
 Type: changed
-Comment: Update the onboarding tests for the connection package's new wording.
 
-
+Onboarding: Take the error's HTTP status into account when telling the user why connecting failed.

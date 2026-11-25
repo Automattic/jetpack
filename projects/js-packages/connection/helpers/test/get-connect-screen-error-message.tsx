@@ -260,18 +260,66 @@ describe( 'getRegistrationErrorDisplay', () => {
 		).toBe( message );
 	} );
 
+	it( 'keeps the site’s text when only the status gave the message', () => {
+		expect(
+			getRegistrationErrorDisplay( {
+				response: {
+					code: 'some_plugin_error',
+					message: 'Blocked by Plugin X.',
+					data: { status: 403 },
+				},
+			} )
+		).toEqual( {
+			message: getSiteRequestFailureMessage( 'permission' ),
+			detail: 'Blocked by Plugin X.',
+			isMapped: true,
+		} );
+	} );
+
+	it( 'reads no status from WordPress.com’s bare-number error data', () => {
+		expect(
+			getRegistrationErrorDisplay( {
+				response: { code: 'some_wpcom_error', message: 'WordPress.com text.', data: 403 },
+			} )
+		).toEqual( { message: 'WordPress.com text.', isMapped: false } );
+	} );
+
+	it( 'says offline mode, not permission, for a 403 on an offline site', () => {
+		render(
+			<>
+				{
+					getRegistrationErrorDisplay(
+						{
+							response: {
+								code: 'invalid_user_permission_user_connection_data',
+								message: '',
+								data: { status: 403 },
+							},
+						},
+						true
+					).message
+				}
+			</>
+		);
+		expect( screen.getByRole( 'link', { name: 'Offline Mode' } ) ).toBeInTheDocument();
+	} );
+
 	it( 'shows only our copy for a mapped code', () => {
 		expect(
 			display( 'request_cancelled', 'Your site has been generating too many attempts.' )
-		).toEqual( { message: getConnectScreenErrorMessage( 'request_cancelled' ) } );
+		).toEqual( { message: getConnectScreenErrorMessage( 'request_cancelled' ), isMapped: true } );
 		expect( display( 'rest_cookie_invalid_nonce', 'Cookie check failed' ).detail ).toBeUndefined();
 	} );
 
 	it( 'uses the site’s own text as the message for an unmapped code', () => {
 		expect( display( 'cannot_save_secrets', 'Please contact your host.' ) ).toEqual( {
 			message: 'Please contact your host.',
+			isMapped: false,
 		} );
-		expect( display( 'cannot_save_secrets', '' ) ).toEqual( { message: undefined } );
+		expect( display( 'cannot_save_secrets', '' ) ).toEqual( {
+			message: undefined,
+			isMapped: false,
+		} );
 	} );
 
 	it( 'keeps the cURL error for a failed request to WordPress.com', () => {
@@ -285,13 +333,14 @@ describe( 'getRegistrationErrorDisplay', () => {
 			'The Jetpack server was unable to communicate with your site https://example.com [REST http_request_failed: cURL error 28: Operation timed out]';
 		expect( display( 'request_timeout', text ) ).toEqual( {
 			message: getConnectScreenErrorMessage( 'request_timeout' ),
+			isMapped: true,
 		} );
 		expect(
 			display(
 				'ssl_error',
 				'Invalid SSL response [IXR -32300: transport error - SSL_ERROR_SYSCALL]'
 			)
-		).toEqual( { message: getConnectScreenErrorMessage( 'ssl_error' ) } );
+		).toEqual( { message: getConnectScreenErrorMessage( 'ssl_error' ), isMapped: true } );
 	} );
 
 	it( 'names the URL WordPress.com tried for an HTTP status from the site, in one message', () => {
@@ -300,6 +349,7 @@ describe( 'getRegistrationErrorDisplay', () => {
 		expect( display( 'site_inaccessible_503', text( 503 ) ) ).toEqual( {
 			message:
 				'WordPress.com got an error (HTTP 503) when it tried to verify your site at https://example.com. Your site’s error log may show the cause.',
+			isMapped: true,
 		} );
 		expect( display( 'site_inaccessible_403', text( 403 ) ).message ).toContain(
 			'verifying your site at https://example.com (HTTP 403)'
@@ -318,18 +368,21 @@ describe( 'getRegistrationErrorDisplay', () => {
 	it( 'falls back to the message without a URL when WordPress.com’s text has none', () => {
 		expect( display( 'site_inaccessible_503', 'Unexpected text.' ) ).toEqual( {
 			message: getConnectScreenErrorMessage( 'site_inaccessible_503' ),
+			isMapped: true,
 		} );
 	} );
 
 	it( 'shows nothing extra for a status-only message', () => {
 		expect( display( 'wpcom_bad_response', '403' ) ).toEqual( {
 			message: getConnectScreenErrorMessage( 'wpcom_bad_response' ),
+			isMapped: true,
 		} );
 	} );
 
 	it( 'names a missing PHP XML extension', () => {
 		expect( display( 'xml_extension_missing', 'PHP’s XML extension is not available.' ) ).toEqual( {
 			message: expect.stringContaining( 'XML extension' ),
+			isMapped: true,
 		} );
 	} );
 } );

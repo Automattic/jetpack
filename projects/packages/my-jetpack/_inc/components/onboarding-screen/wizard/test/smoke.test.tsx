@@ -35,15 +35,9 @@ jest.mock( '@automattic/jetpack-connection', () => ( {
 	__esModule: true,
 	CONNECTION_FROM: jest.requireActual( '@automattic/jetpack-connection' ).CONNECTION_FROM,
 	useConnection: ( ...args: unknown[] ) => mockUseConnection( ...( args as [] ) ),
-	// The real helpers: what counts as a mapped message is part of what is under test.
-	getRegistrationErrorSummary: jest.requireActual( '@automattic/jetpack-connection' )
-		.getRegistrationErrorSummary,
-	getRegistrationErrorCode: jest.requireActual( '@automattic/jetpack-connection' )
-		.getRegistrationErrorCode,
-	getRegistrationErrorStatus: jest.requireActual( '@automattic/jetpack-connection' )
-		.getRegistrationErrorStatus,
-	getConnectScreenErrorMessage: jest.requireActual( '@automattic/jetpack-connection' )
-		.getConnectScreenErrorMessage,
+	// The real helper: what counts as a mapped message is part of what is under test.
+	getRegistrationErrorDisplay: jest.requireActual( '@automattic/jetpack-connection' )
+		.getRegistrationErrorDisplay,
 } ) );
 
 const mockRecordEvent = jest.mocked( jest.mocked( useAnalytics )().recordEvent );
