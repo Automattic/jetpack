@@ -1,4 +1,3 @@
-import { getScriptData } from '@automattic/jetpack-script-data';
 import {
 	Card,
 	DataForm,
@@ -106,7 +105,6 @@ function LoadingCard(): JSX.Element {
  */
 const NoCard = (): null => null;
 
-// On demand, so the page loads nothing of What's new while its flag is off.
 const TeaserSwitch = lazy( async () => {
 	// A load that fails, or an older copy of the module without the hook, leaves the page without the card.
 	const whatsNew = await import( '@automattic/jetpack-announcements' ).catch( () => undefined );
@@ -130,13 +128,9 @@ const TeaserSwitch = lazy( async () => {
 /**
  * The card where the current user turns the teaser of What's new on or off.
  *
- * @return The card, or nothing while What's new is off for the site.
+ * @return The card.
  */
-export function WhatsNewCard(): JSX.Element | null {
-	if ( ! getScriptData()?.premium_analytics?.whats_new_enabled ) {
-		return null;
-	}
-
+export function WhatsNewCard(): JSX.Element {
 	return (
 		<Suspense fallback={ <LoadingCard /> }>
 			<TeaserSwitch />

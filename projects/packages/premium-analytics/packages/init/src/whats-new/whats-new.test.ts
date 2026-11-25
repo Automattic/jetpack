@@ -48,10 +48,10 @@ const setPreference = ( key: string, value: string | undefined ): void => {
 	);
 };
 
-const setFlag = ( enabled: boolean, sections?: string[] ): void => {
+const setSections = ( sections?: string[] ): void => {
 	Object.defineProperty( window, 'JetpackScriptData', {
 		configurable: true,
-		value: { premium_analytics: { whats_new_enabled: enabled, sections } },
+		value: { premium_analytics: { sections } },
 	} );
 };
 
@@ -91,7 +91,6 @@ describe( 'showWhatsNew', () => {
 	} );
 
 	it( 'asks the surface to record what the reader does with it', async () => {
-		setFlag( true );
 		openRoute( '/' );
 
 		await showAndSettle();
@@ -101,7 +100,6 @@ describe( 'showWhatsNew', () => {
 
 	it( 'mounts with an older copy of the module, which has no tracking', async () => {
 		delete announcementsModule.trackWhatsNew;
-		setFlag( true );
 		openRoute( '/' );
 
 		await showAndSettle();
@@ -110,28 +108,22 @@ describe( 'showWhatsNew', () => {
 	} );
 
 	it.each( [
-		[ 'the dashboard', '/', 'premium-analytics/main' ],
-		[ 'Settings', '/settings', 'premium-analytics/settings' ],
-		[
-			'a report, by the first segment of its route',
-			'/reports/clicks',
-			'premium-analytics/reports',
-		],
+		[ 'the dashboard', '/', 'stats/main' ],
+		[ 'Settings', '/settings', 'stats/settings' ],
+		[ 'a report, by the first segment of its route', '/reports/clicks', 'stats/reports' ],
 	] )(
 		'subscribes %s to the channel of the dashboard and to its own',
 		async ( _case, path, own ) => {
-			setFlag( true );
 			openRoute( path );
 
 			await showAndSettle();
 
 			expect( mountWhatsNew ).toHaveBeenCalledTimes( 1 );
-			expect( mountWhatsNew ).toHaveBeenCalledWith( { channels: [ 'premium-analytics', own ] } );
+			expect( mountWhatsNew ).toHaveBeenCalledWith( { channels: [ 'stats', own ] } );
 		}
 	);
 
 	it( 'follows the page on screen', async () => {
-		setFlag( true );
 		openRoute( '/' );
 		await showAndSettle();
 
@@ -139,12 +131,11 @@ describe( 'showWhatsNew', () => {
 
 		expect( mountWhatsNew ).toHaveBeenCalledTimes( 2 );
 		expect( mountWhatsNew ).toHaveBeenLastCalledWith( {
-			channels: [ 'premium-analytics', 'premium-analytics/settings' ],
+			channels: [ 'stats', 'stats/settings' ],
 		} );
 	} );
 
 	it( 'does not mount again while the section stays the same', async () => {
-		setFlag( true );
 		openRoute( '/reports/clicks' );
 		await showAndSettle();
 
@@ -154,7 +145,6 @@ describe( 'showWhatsNew', () => {
 	} );
 
 	it( 'mounts nothing while another page is on screen', async () => {
-		setFlag( true );
 		openRoute( null );
 
 		await showAndSettle();
@@ -163,7 +153,6 @@ describe( 'showWhatsNew', () => {
 	} );
 
 	it( 'leaves the screen with the dashboard, and comes back with it', async () => {
-		setFlag( true );
 		openRoute( '/' );
 		await showAndSettle();
 
@@ -191,7 +180,7 @@ describe( 'showWhatsNew', () => {
 	] )( '%s', async ( _case, statsSeen, storeSeen, sections, mounts ) => {
 		setPreference( DASHBOARD_ONBOARDING_KEY, statsSeen );
 		setPreference( DASHBOARD_STORE_ONBOARDING_KEY, storeSeen );
-		setFlag( true, sections );
+		setSections( sections );
 		openRoute( '/' );
 
 		await showAndSettle();
@@ -199,20 +188,11 @@ describe( 'showWhatsNew', () => {
 		expect( mountWhatsNew ).toHaveBeenCalledTimes( mounts );
 	} );
 
-	it( 'mounts nothing while the flag is off', async () => {
-		setFlag( false );
-
-		await showAndSettle();
-
-		expect( mountWhatsNew ).not.toHaveBeenCalled();
-	} );
-
 	// Jest fails a test that leaves a rejection unhandled.
 	it( 'stays quiet when the surface fails to mount', async () => {
 		jest.mocked( mountWhatsNew ).mockImplementationOnce( () => {
 			throw new Error( 'mount failed' );
 		} );
-		setFlag( true );
 		openRoute( '/' );
 
 		await showAndSettle();
