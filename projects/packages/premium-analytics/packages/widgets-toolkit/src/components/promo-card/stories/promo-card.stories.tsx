@@ -53,14 +53,14 @@ function ThrowingModule(): never {
 }
 
 const meta: Meta< typeof PromoCard > = {
-	title: 'Packages/Premium Analytics/Widgets Toolkit/PromoCard',
+	title: 'Packages/Premium Analytics/Widgets Toolkit/Components/PromoCard',
 	component: PromoCard,
 	tags: [ 'autodocs' ],
 	parameters: {
 		docs: {
 			description: {
 				component:
-					'A promo another plugin registered, drawn as a card. Without a render module the card draws the registered title, description and call to action. With one, the module draws the whole content region and the card keeps only its frame and close control. A module that fails to load or render falls back to the data-only card.',
+					'A registered promo drawn as a card. The card owns the frame, the title and the close control. Without a render module it also draws the registered description and call to action; with one, that module draws the content region under the title. A module that fails to load or render falls back to the registered copy.',
 			},
 		},
 	},
