@@ -2,10 +2,10 @@ import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 
-const mockUseGoogleVerify = jest.fn();
+const mockUseSiteVerify = jest.fn();
 
-jest.unstable_mockModule( '../../../data/use-google-verify', () => ( {
-	useGoogleVerify: mockUseGoogleVerify,
+jest.unstable_mockModule( '../../../data/use-site-verify', () => ( {
+	useSiteVerify: mockUseSiteVerify,
 } ) );
 
 const { default: VerificationCard } = await import( '../verification-card' );
@@ -14,17 +14,17 @@ const EMPTY = { google: '', bing: '', pinterest: '', yandex: '', facebook: '' };
 
 describe( 'VerificationCard', () => {
 	beforeEach( () => {
-		mockUseGoogleVerify.mockReturnValue( {
+		mockUseSiteVerify.mockReturnValue( {
 			state: 'unverified',
 			canAutoVerify: true,
 			isOwner: false,
-			searchConsoleUrl: '',
+			toolsUrl: '',
 			isVerifying: false,
 			autoVerify: jest.fn(),
 		} );
 	} );
 
-	it( 'retains saved codes but disables editing and Google verification while inactive', () => {
+	it( 'retains saved codes but disables editing and keyring verification while inactive', () => {
 		render(
 			<VerificationCard
 				value={ {
@@ -37,7 +37,7 @@ describe( 'VerificationCard', () => {
 				active={ false }
 				onToggle={ jest.fn() }
 				onChange={ jest.fn() }
-				saveGoogleCode={ jest.fn< ( code: string ) => Promise< void > >() }
+				saveVerificationCode={ jest.fn< ( key: string, code: string ) => Promise< void > >() }
 				open
 				onOpenChange={ jest.fn() }
 			/>
@@ -47,6 +47,10 @@ describe( 'VerificationCard', () => {
 			screen.getByRole( 'switch', { name: /Enable site verification/ } )
 		).not.toHaveAttribute( 'aria-disabled' );
 		expect( screen.getByRole( 'button', { name: /Verify with Google/ } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		expect( screen.getByRole( 'button', { name: /Connect Bing/ } ) ).toHaveAttribute(
 			'aria-disabled',
 			'true'
 		);
@@ -64,7 +68,7 @@ describe( 'VerificationCard', () => {
 				value={ { ...EMPTY, bing: 'bing-code' } }
 				active
 				onChange={ jest.fn() }
-				saveGoogleCode={ jest.fn< ( code: string ) => Promise< void > >() }
+				saveVerificationCode={ jest.fn< ( key: string, code: string ) => Promise< void > >() }
 				open
 				onOpenChange={ jest.fn() }
 			/>

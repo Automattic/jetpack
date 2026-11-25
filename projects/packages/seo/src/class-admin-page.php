@@ -440,6 +440,7 @@ class Admin_Page {
 		// Small synchronous reads used outside the per-tab data stores, and not part of
 		// the load-error path.
 		$data[ Initializer::SCRIPT_DATA_KEY ]['google_verify']      = Dashboard_Data::get_google_verify_data();
+		$data[ Initializer::SCRIPT_DATA_KEY ]['bing_verify']        = Dashboard_Data::get_bing_verify_data();
 		$data[ Initializer::SCRIPT_DATA_KEY ]['site']               = Dashboard_Data::get_site_data();
 		$data[ Initializer::SCRIPT_DATA_KEY ]['output']             = Dashboard_Data::get_output_data();
 		$data[ Initializer::SCRIPT_DATA_KEY ]['indexnow_available'] = ! ( new Host() )->is_vip_site();

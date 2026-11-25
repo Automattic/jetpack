@@ -15,8 +15,8 @@ jest.unstable_mockModule( '@wordpress/route', () => ( {
 
 // Stub the cards that own their own header, so each assertion below is
 // unambiguously about the module it names. The verification card is left real —
-// its completion threshold is one of the rules under test — but the Google field
-// inside it reaches for the verify endpoint, so that one field is stubbed.
+// its completion threshold is one of the rules under test — but the keyring fields
+// inside it reach for the verify endpoints, so those are stubbed.
 jest.unstable_mockModule( '../author-profile-card', () => ( {
 	default: ( { disabled }: { disabled?: boolean } ) => (
 		<div data-testid="author" aria-disabled={ disabled }>
@@ -41,8 +41,8 @@ jest.unstable_mockModule( '../social-previews-card', () => ( {
 jest.unstable_mockModule( '../title-structure-field', () => ( {
 	default: () => <div>title structure</div>,
 } ) );
-jest.unstable_mockModule( '../google-verification-field', () => ( {
-	default: () => <div>google field</div>,
+jest.unstable_mockModule( '../site-verification-field', () => ( {
+	default: ( { service }: { service: { key: string } } ) => <div>{ service.key } field</div>,
 } ) );
 
 const IndexnowSettings = jest.fn< ( props: Record< string, unknown > ) => ReactElement >( () => (
@@ -506,12 +506,12 @@ describe( 'WordPress.com Simple settings', () => {
 			// eslint-disable-next-line testing-library/prefer-user-event -- Match this file's existing disclosure tests.
 			fireEvent.click( screen.getByRole( 'button', { name: 'Site verification' } ) );
 
-			const input = screen.getByRole( 'textbox', { name: /Bing/ } );
+			const input = screen.getByRole( 'textbox', { name: /Yandex/ } );
 			expect( input ).toBeEnabled();
 			// eslint-disable-next-line testing-library/prefer-user-event -- Exercise the controlled field's change callback directly.
-			fireEvent.change( input, { target: { value: 'bing-code' } } );
+			fireEvent.change( input, { target: { value: 'yandex-code' } } );
 			fireEvent.blur( input );
-			expect( form.setVerification ).toHaveBeenCalledWith( 'bing', 'bing-code' );
+			expect( form.setVerification ).toHaveBeenCalledWith( 'yandex', 'yandex-code' );
 			expect( form.commitFields ).toHaveBeenCalledWith( [ 'verification' ] );
 
 			const toggle = screen.queryByRole( 'switch', { name: /Enable site verification/ } );

@@ -67,6 +67,20 @@ class AdminPageTest extends TestCase {
 	}
 
 	/**
+	 * The Settings tab reads each keyring verify flow's bootstrap from script data.
+	 */
+	public function test_script_data_bootstraps_each_verify_flow() {
+		$data = Admin_Page::inject_script_data( array() );
+
+		foreach ( array(
+			'google_verify' => 'google_site_verification',
+			'bing_verify'   => 'bing_webmaster',
+		) as $key => $service ) {
+			$this->assertStringContainsString( "service=$service", $data[ Initializer::SCRIPT_DATA_KEY ][ $key ]['connect_url'] );
+		}
+	}
+
+	/**
 	 * Every tab reads whether SEO output is paused from the same script data.
 	 */
 	public function test_script_data_reports_the_output_state() {

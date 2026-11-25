@@ -1,6 +1,7 @@
 import { jest } from '@jest/globals';
 import { act, renderHook, waitFor } from '@testing-library/react';
-import type { GoogleVerifyBootstrap } from '../google-verify-types';
+import type { SiteVerifyService } from '../site-verify-services';
+import type { SiteVerifyBootstrap } from '../site-verify-types';
 
 type Request = { path: string; method?: string };
 
@@ -13,9 +14,9 @@ jest.unstable_mockModule( '@wordpress/api-fetch', () => ( { default: mockApiFetc
 jest.unstable_mockModule( '@automattic/request-external-access', () => ( {
 	default: popup,
 } ) );
-let bootstrap: GoogleVerifyBootstrap;
+let scriptData: Record< string, SiteVerifyBootstrap > = {};
 jest.unstable_mockModule( '@automattic/jetpack-script-data', () => ( {
-	getScriptData: () => ( { seo: { google_verify: bootstrap } } ),
+	getScriptData: () => ( { seo: scriptData } ),
 } ) );
 jest.unstable_mockModule( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 const createErrorNotice = jest.fn();
@@ -28,48 +29,65 @@ jest.unstable_mockModule( '@wordpress/data', () => ( {
 	} ),
 } ) );
 
-const { useGoogleVerify } = await import( '../use-google-verify' );
+const { useSiteVerify } = await import( '../use-site-verify' );
+const { SITE_VERIFY_SERVICES } = await import( '../site-verify-services' );
 
-const VERIFY_POST = expect.objectContaining( {
-	path: '/jetpack/v4/verify-site/google',
-	method: 'POST',
-} );
+describe.each( [
+	{
+		key: 'google',
+		endpoint: '/jetpack/v4/verify-site/google',
+		scriptDataKey: 'google_verify',
+		toolsUrlField: 'google_search_console_url',
+	},
+	{
+		key: 'bing',
+		endpoint: '/jetpack/v4/verify-site/bing',
+		scriptDataKey: 'bing_verify',
+		toolsUrlField: 'webmaster_tools_url',
+	},
+] as const )( 'useSiteVerify ($key)', ( { key, endpoint, scriptDataKey, toolsUrlField } ) => {
+	const service = SITE_VERIFY_SERVICES[ key ];
+	let bootstrap: SiteVerifyBootstrap;
+	const setBootstrap = ( next: SiteVerifyBootstrap ) => {
+		bootstrap = next;
+		scriptData = { [ scriptDataKey ]: next };
+	};
+	const VERIFY_POST = expect.objectContaining( { path: endpoint, method: 'POST' } );
 
-/**
- * Answer the verify-site status reads, and acknowledge every POST.
- *
- * @param alreadyVerified - Whether Google already considers the site verified.
- */
-function respond( alreadyVerified = false ) {
-	mockApiFetch.mockImplementation( ( { path, method } ) =>
-		Promise.resolve(
-			method === 'POST'
-				? {}
-				: {
-						verified: alreadyVerified && path.endsWith( '/7' ),
-						is_owner: true,
-						google_search_console_url: '',
-						token: 'tok',
-					}
-		)
-	);
-}
+	/**
+	 * Answer the verify-site status reads, and acknowledge every POST.
+	 *
+	 * @param alreadyVerified - Whether the service already considers the site verified.
+	 */
+	function respond( alreadyVerified = false ) {
+		mockApiFetch.mockImplementation( ( { path, method } ) =>
+			Promise.resolve(
+				method === 'POST'
+					? {}
+					: {
+							verified: alreadyVerified && path.endsWith( '/7' ),
+							is_owner: true,
+							token: 'tok',
+						}
+			)
+		);
+	}
 
-/**
- * Mount the hook and wait for its status read.
- *
- * @return The rendered hook.
- */
-async function mountHook() {
-	const view = renderHook( () => useGoogleVerify( { saveCode } ) );
-	await waitFor( () => expect( view.result.current.state ).not.toBe( 'loading' ) );
-	return view;
-}
+	/**
+	 * Mount the hook and wait for its status read.
+	 *
+	 * @param forService - The service to verify with.
+	 * @return The rendered hook.
+	 */
+	async function mountHook( forService: SiteVerifyService = service ) {
+		const view = renderHook( () => useSiteVerify( forService, { saveCode } ) );
+		await waitFor( () => expect( view.result.current.state ).not.toBe( 'loading' ) );
+		return view;
+	}
 
-describe( 'useGoogleVerify', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-		bootstrap = { connect_url: 'https://example.com/connect', is_connected: true };
+		setBootstrap( { connect_url: 'https://example.com/connect', is_connected: true } );
 		popup.mockImplementation( ( _url, callback ) => callback( { keyring_id: 7 } ) );
 		saveCode.mockResolvedValue( undefined );
 	} );
@@ -89,7 +107,7 @@ describe( 'useGoogleVerify', () => {
 		);
 	} );
 
-	it( 'asks Google to verify only once the code is saved', async () => {
+	it( 'asks the service to verify only once the code is saved', async () => {
 		let finishSave: () => void = () => undefined;
 		saveCode.mockImplementation(
 			() =>
@@ -122,13 +140,27 @@ describe( 'useGoogleVerify', () => {
 		expect( mockApiFetch ).not.toHaveBeenCalledWith( VERIFY_POST );
 		expect( createErrorNotice ).toHaveBeenCalledWith( 'Nope.', expect.anything() );
 	} );
+
+	it( "links to the service's own dashboard from its status field", async () => {
+		mockApiFetch.mockResolvedValue( {
+			verified: true,
+			is_owner: true,
+			google_search_console_url: 'https://example.com/google_search_console_url',
+			webmaster_tools_url: 'https://example.com/webmaster_tools_url',
+		} );
+		const { result } = await mountHook();
+
+		expect( result.current.toolsUrl ).toBe( `https://example.com/${ toolsUrlField }` );
+	} );
+
 	it( 'uses a native host transport without a Jetpack user connection', async () => {
-		bootstrap = {
+		const apiPath = `/wpcom/v2/seo/${ key }-verify`;
+		setBootstrap( {
 			connect_url: 'https://example.com/native-connect',
 			is_connected: false,
 			can_auto_verify: true,
-			api_path: '/wpcom/v2/seo/google-verify',
-		};
+			api_path: apiPath,
+		} );
 		respond();
 		const { result } = await mountHook();
 		expect( result.current.canAutoVerify ).toBe( true );
@@ -137,10 +169,10 @@ describe( 'useGoogleVerify', () => {
 		expect(
 			mockApiFetch.mock.calls.map( ( [ request ] ) => [ request.path, request.method ?? 'GET' ] )
 		).toEqual( [
-			[ '/wpcom/v2/seo/google-verify', 'GET' ],
-			[ '/wpcom/v2/seo/google-verify/7', 'GET' ],
-			[ '/wpcom/v2/seo/google-verify', 'POST' ],
-			[ '/wpcom/v2/seo/google-verify/7', 'GET' ],
+			[ apiPath, 'GET' ],
+			[ `${ apiPath }/7`, 'GET' ],
+			[ apiPath, 'POST' ],
+			[ `${ apiPath }/7`, 'GET' ],
 		] );
 		expect( saveCode ).toHaveBeenCalledWith( 'tok' );
 		expect( popup ).toHaveBeenCalledWith( bootstrap.connect_url, expect.any( Function ) );
@@ -151,12 +183,18 @@ describe( 'useGoogleVerify', () => {
 		[ 'missing popup URL', { connect_url: '' } ],
 		[ 'host disables automatic verification', { can_auto_verify: false } ],
 	] )( 'keeps manual entry for %s', async ( _label, overrides ) => {
-		bootstrap = { ...bootstrap, ...overrides };
+		setBootstrap( { ...bootstrap, ...overrides } );
 		const { result } = await mountHook();
 		expect( result.current.canAutoVerify ).toBe( false );
 		expect( result.current.state ).toBe( 'unavailable' );
 		act( () => result.current.autoVerify() );
 		expect( mockApiFetch ).not.toHaveBeenCalled();
+	} );
+
+	it( "ignores another service's bootstrap", async () => {
+		const other = Object.values( SITE_VERIFY_SERVICES ).find( s => s.key !== key );
+		const { result } = await mountHook( other );
+		expect( result.current.state ).toBe( 'unavailable' );
 	} );
 
 	it.each( [ 'forbidden', 'rest_forbidden', 'rest_no_route' ] )(
