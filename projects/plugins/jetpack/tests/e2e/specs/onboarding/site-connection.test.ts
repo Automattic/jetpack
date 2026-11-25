@@ -23,7 +23,7 @@ test( 'Site only connection', async ( { page, admin } ) => {
 	await test.step( 'Verify site connection', async () => {
 		await admin.visitAdminPage( 'admin.php', 'page=my-jetpack' );
 
-		await page.getByRole( 'button', { name: 'Connection: Site connected', exact: true } ).click();
+		await page.getByRole( 'button', { name: 'Connection: Not connected', exact: true } ).click();
 		const connectionPopover = page.getByRole( 'dialog', { name: 'Connection', exact: true } );
 
 		await expect( connectionPopover.getByText( 'Not connected', { exact: true } ), {
