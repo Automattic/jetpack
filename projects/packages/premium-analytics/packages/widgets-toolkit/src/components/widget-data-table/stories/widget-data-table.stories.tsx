@@ -10,21 +10,23 @@ type PostRow = {
 	id: string;
 	title: string;
 	views: number;
+	likes: number;
+	comments: number;
 };
 
 const POSTS: PostRow[] = [
-	{ id: '1', title: 'Getting Started with WordPress', views: 3820 },
-	{ id: '2', title: 'Product Launch Highlights', views: 2640 },
-	{ id: '3', title: 'Customer Story: Acme', views: 1210 },
-	{ id: '4', title: 'Behind the Scenes', views: 940 },
-	{ id: '5', title: 'A Guide to Better Images', views: 735 },
-	{ id: '6', title: 'Meet the Team', views: 620 },
-	{ id: '7', title: 'Our Favorite Development Tools', views: 510 },
-	{ id: '8', title: 'Understanding Web Performance', views: 405 },
-	{ id: '9', title: 'A Year in Review', views: 320 },
-	{ id: '10', title: 'Design Trends for Publishers', views: 245 },
-	{ id: '11', title: 'How We Grew Our Newsletter', views: 180 },
-	{ id: '12', title: 'The Complete SEO Checklist', views: 95 },
+	{ id: '1', title: 'Getting Started with WordPress', views: 3820, likes: 96, comments: 14 },
+	{ id: '2', title: 'Product Launch Highlights', views: 2640, likes: 187, comments: 42 },
+	{ id: '3', title: 'Customer Story: Acme', views: 1210, likes: 64, comments: 3 },
+	{ id: '4', title: 'Behind the Scenes', views: 940, likes: 133, comments: 27 },
+	{ id: '5', title: 'A Guide to Better Images', views: 735, likes: 48, comments: 9 },
+	{ id: '6', title: 'Meet the Team', views: 620, likes: 152, comments: 31 },
+	{ id: '7', title: 'Our Favorite Development Tools', views: 510, likes: 41, comments: 18 },
+	{ id: '8', title: 'Understanding Web Performance', views: 405, likes: 77, comments: 6 },
+	{ id: '9', title: 'A Year in Review', views: 320, likes: 110, comments: 22 },
+	{ id: '10', title: 'Design Trends for Publishers', views: 245, likes: 12, comments: 1 },
+	{ id: '11', title: 'How We Grew Our Newsletter', views: 180, likes: 59, comments: 11 },
+	{ id: '12', title: 'The Complete SEO Checklist', views: 95, likes: 23, comments: 0 },
 ];
 
 const FIELDS: Field< PostRow >[] = [
@@ -40,6 +42,16 @@ const FIELDS: Field< PostRow >[] = [
 		label: 'Views',
 		getValue: ( { item } ) => item.views,
 	},
+	{
+		id: 'likes',
+		label: 'Likes',
+		getValue: ( { item } ) => item.likes,
+	},
+	{
+		id: 'comments',
+		label: 'Comments',
+		getValue: ( { item } ) => item.comments,
+	},
 ];
 
 const meta = {
@@ -50,7 +62,8 @@ const meta = {
 		layout: 'centered',
 		docs: {
 			description: {
-				component: 'A searchable, sortable and paginated records table for dashboard widgets.',
+				component:
+					'A searchable, sortable and paginated records table for dashboard widgets. A sortable column sorts from its header: one click sorts by it, the next one flips the direction.',
 			},
 		},
 	},
@@ -75,8 +88,15 @@ export const Default: Story = {
 		status: { isLoading: false },
 		initialView: {
 			titleField: 'title',
-			fields: [ 'views' ],
+			fields: [ 'views', 'likes', 'comments' ],
 			sort: { field: 'views', direction: 'desc' },
+			layout: {
+				styles: {
+					views: { align: 'end' },
+					likes: { align: 'end' },
+					comments: { align: 'end' },
+				},
+			},
 		},
 		searchLabel: 'Search posts',
 	},
