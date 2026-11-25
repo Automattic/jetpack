@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Bar chart: Sum comparison series into one bar beside each stack in the stacked layout.
+Bar chart: Sum comparison series into one bar beside each stack in the stacked layout, which callbacks report as `COMPARISON_TOTAL_KEY`.

@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { categoryKey, isSameCategory } from './category';
 import {
 	COMPARISON_SLOT,
+	COMPARISON_TOTAL_KEY,
 	PRIMARY_SLOT,
 	getOverlapPlacements,
 	isComparisonSeries,
@@ -42,13 +43,11 @@ export type SelectedSlot = SelectedBar & { members: SlotMember[] };
  *
  * @param layout               - How the chart places its series in a category.
  * @param seriesWithVisibility - Every series, with its index and whether it is visible.
- * @param comparisonLabel      - The label of a stacked layout's comparison total.
  * @return The slots, or undefined for a grouped layout.
  */
 export function useBarSlots(
 	layout: BarChartLayout,
-	seriesWithVisibility: ( SeriesEntry & { isVisible: boolean } )[],
-	comparisonLabel = ''
+	seriesWithVisibility: ( SeriesEntry & { isVisible: boolean } )[]
 ): BarSlots | undefined {
 	return useMemo( () => {
 		if ( layout === 'grouped' ) {
@@ -78,7 +77,7 @@ export function useBarSlots(
 					? {
 							series: getComparisonTotalSeries(
 								comparisons.map( ( { series } ) => series ),
-								comparisonLabel
+								COMPARISON_TOTAL_KEY
 							),
 							index: comparisons[ 0 ].index,
 						}
@@ -139,7 +138,7 @@ export function useBarSlots(
 			thicknessOf,
 			positions: getStopPositions( entries, slotKeys, slotOf ),
 		};
-	}, [ layout, seriesWithVisibility, comparisonLabel ] );
+	}, [ layout, seriesWithVisibility ] );
 }
 
 /**

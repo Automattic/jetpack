@@ -265,11 +265,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		[ seriesWithVisibility ]
 	);
 
-	const barSlots = useBarSlots(
-		layout,
-		seriesWithVisibility,
-		getComparisonItemLabel( legendComparisonItem )
-	);
+	const barSlots = useBarSlots( layout, seriesWithVisibility );
 
 	// A stack's comparisons leave with their primaries, so it is empty once it draws nothing.
 	const allSeriesHidden =
@@ -495,6 +491,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		[ chartOptions.tooltip, dataSorted ]
 	);
 
+	const comparisonTotalLabel = getComparisonItemLabel( legendComparisonItem );
 	// Lists the stack last series first, a null reading as "No data", then the total and the comparison total.
 	const renderStackedTooltip = useCallback(
 		( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
@@ -537,13 +534,13 @@ const BarChartInternal: FC< BarChartProps > = ( {
 						) }
 					{ comparisonRows.map( ( { label, datum } ) => (
 						<Fragment key={ label }>
-							{ renderTooltipRow( label, formatReading( datum.value ) ) }
+							{ renderTooltipRow( comparisonTotalLabel, formatReading( datum.value ) ) }
 						</Fragment>
 					) ) }
 				</div>
 			);
 		},
-		[ chartOptions.tooltip, barSlots ]
+		[ chartOptions.tooltip, barSlots, comparisonTotalLabel ]
 	);
 
 	const renderDefaultTooltip = useCallback(

@@ -107,7 +107,7 @@ export function getStackLayout( series: SeriesData[], comparison?: ComparisonTot
  * The series of a comparison total: at each category the comparisons have a reading, the net of their readings.
  *
  * @param comparisons - The comparison series to sum.
- * @param label       - The total's label.
+ * @param label       - The total's key.
  * @return The total, a comparison series named `label`.
  */
 export function getComparisonTotalSeries( comparisons: SeriesData[], label: string ): SeriesData {

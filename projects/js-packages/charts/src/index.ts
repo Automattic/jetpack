@@ -3,6 +3,7 @@ export { AreaChart, AreaChartUnresponsive } from './charts/area-chart';
 export {
 	BarChart,
 	BarChartUnresponsive,
+	COMPARISON_TOTAL_KEY,
 	useBarColors,
 	useBarLegendItems,
 } from './charts/bar-chart';

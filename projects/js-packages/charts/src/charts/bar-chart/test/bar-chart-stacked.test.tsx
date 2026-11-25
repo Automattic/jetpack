@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { COMPARISON_TOTAL_KEY } from '..';
 import { GlobalChartsProvider } from '../../../providers';
 import { selectedBarRingBounds as selectedRing } from '../../../test-utils/selected-bar-ring';
 import { BarChartUnresponsive } from '../bar-chart';
@@ -344,17 +345,54 @@ describe( 'BarChart stacked layout', () => {
 		expect( screen.getByText( 'Prev. 7 days' ) ).toBeInTheDocument();
 	} );
 
-	it( 'stops on the comparison total after its stack, and rings it', async () => {
+	it( 'stops on the comparison total after its stack, rings it, and activates it by its fixed key', async () => {
 		const user = userEvent.setup();
-		renderStacked( { data: WITH_PREVIOUS } );
+		const onDatumActivate = jest.fn();
+		renderStacked( {
+			data: WITH_PREVIOUS,
+			legend: { comparisonItem: 'Prev. 7 days' },
+			onDatumActivate,
+		} );
 
 		await user.tab();
-		await user.keyboard( '{ArrowRight}{ArrowRight}' );
+		await user.keyboard( '{ArrowRight}{ArrowRight}{Enter}' );
 		expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveTextContent(
-			/Mon.*Total: 180.*Comparison period: 500/
+			/Mon.*Total: 180.*Prev\. 7 days: 500/
 		);
 		expect( rounded( selectedRing() ) ).toEqual( rounded( previousBar() ) );
+		expect( onDatumActivate ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				key: COMPARISON_TOTAL_KEY,
+				datum: expect.objectContaining( { value: 500 } ),
+			} )
+		);
 	} );
+
+	it.each( [ undefined, 'Prev' ] )(
+		'keeps a primary named like the comparison item in its stack, with comparisonItem %p',
+		comparisonItem => {
+			const label = comparisonItem ?? 'Comparison period';
+			const data: SeriesData[] = [
+				{ label: 'Desktop', group: 'd', data: [ day( 'Mon', 100 ) ] },
+				{ label, group: 'm', data: [ day( 'Mon', 60 ) ] },
+				{
+					label: 'Desktop (prev)',
+					group: 'd',
+					options: { type: 'comparison' },
+					data: [ day( 'Mon', 300 ) ],
+				},
+			];
+			renderStacked( { data, showLegend: true, legend: { comparisonItem, interactive: true } } );
+
+			const desktop = barIn( data, 'Desktop' );
+			const named = barIn( data, label );
+			expect( named.x ).toBeCloseTo( desktop.x );
+			expect( named.height / desktop.height ).toBeCloseTo( 60 / 100 );
+			expect(
+				screen.getByRole( 'button', { name: new RegExp( `^${ label }:` ) } )
+			).toBeInTheDocument();
+		}
+	);
 
 	it.each( [
 		[ 'vertical', [ 300, 150, 50 ], 'top' ],
