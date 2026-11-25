@@ -38,13 +38,13 @@ class Jetpack_Monetize_Feature_Flags {
 	/**
 	 * Drop the module from the available list while the flag is off, which also keeps it from loading.
 	 *
-	 * It stays off on the wpcom platform too, where the dashboard adds no page: see the package README.
+	 * It stays off on Simple, where jetpack-mu-wpcom loads the dashboard itself.
 	 *
 	 * @param array $modules Available modules, keyed by slug.
 	 * @return array
 	 */
 	public static function filter_available_modules( $modules ) {
-		if ( ! class_exists( Dashboard::class ) || ! Dashboard::is_enabled() || ( new Host() )->is_wpcom_platform() ) {
+		if ( ! class_exists( Dashboard::class ) || ! Dashboard::is_enabled() || ( new Host() )->is_wpcom_simple() ) {
 			unset( $modules[ self::MODULE ] );
 		}
 		return $modules;

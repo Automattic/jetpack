@@ -1,7 +1,7 @@
 import { formatCurrency, formatNumber } from '@automattic/number-formatters';
 import { DataViews } from '@wordpress/dataviews';
 import { __, sprintf } from '@wordpress/i18n';
-import { ButtonLink, Card, Link, Notice, Stack, Text } from '@wordpress/ui';
+import { ButtonLink, Card, Link, Notice, Spinner, Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { SUBSCRIBERS_PER_PAGE, usePaidSubscriptions } from '../../data/subscribers';
 import { trackSubscribersEvent } from '../../data/tracking';
@@ -170,7 +170,24 @@ export default function Subscribers() {
 				</Notice.Actions>
 			</Notice.Root>
 		);
+	} else if ( ! data ) {
+		content = (
+			<Stack direction="row" justify="center" className="jp-monetize-loading">
+				<Spinner />
+			</Stack>
+		);
+	} else if ( ! total && ! isPlaceholderData ) {
+		content = (
+			<Text>
+				{ __( 'You don’t have any paid subscribers yet.', 'jetpack-monetize' ) }{ ' ' }
+				<Link href={ getDocUrl( 'payments' ) } openInNewTab>
+					{ __( 'Learn how to collect payments', 'jetpack-monetize' ) }
+				</Link>
+			</Text>
+		);
 	} else {
+		// The previous page's rows stand in while a page loads, but not once it fails.
+		const pageFailed = isError && isPlaceholderData;
 		content = (
 			<Stack direction="column" gap="md">
 				{ isError && (
@@ -179,30 +196,29 @@ export default function Subscribers() {
 							{ error.message ||
 								__( 'This page could not be loaded. Please try again.', 'jetpack-monetize' ) }
 						</Notice.Description>
+						<Notice.Actions>
+							<Notice.ActionButton onClick={ retry } loading={ isFetching } disabled={ isFetching }>
+								{ __( 'Try again', 'jetpack-monetize' ) }
+							</Notice.ActionButton>
+						</Notice.Actions>
 					</Notice.Root>
 				) }
-				<DataViews< PaidSubscription >
-					data={ data?.subscriptions ?? [] }
-					fields={ fields }
-					view={ view }
-					onChangeView={ setView }
-					actions={ actions }
-					getItemId={ getItemId }
-					onClickItem={ openDetails }
-					isLoading={ ! data || isPlaceholderData }
-					paginationInfo={ { totalItems: total, totalPages } }
-					defaultLayouts={ DEFAULT_LAYOUTS }
-					config={ CONFIG }
-					search={ false }
-					empty={
-						<Text>
-							{ __( 'You don’t have any paid subscribers yet.', 'jetpack-monetize' ) }{ ' ' }
-							<Link href={ getDocUrl( 'payments' ) } openInNewTab>
-								{ __( 'Learn how to collect payments', 'jetpack-monetize' ) }
-							</Link>
-						</Text>
-					}
-				/>
+				<div className="jp-monetize-subscribers__table">
+					<DataViews< PaidSubscription >
+						data={ pageFailed ? [] : data.subscriptions }
+						fields={ fields }
+						view={ view }
+						onChangeView={ setView }
+						actions={ actions }
+						getItemId={ getItemId }
+						onClickItem={ openDetails }
+						isLoading={ isPlaceholderData && ! pageFailed }
+						paginationInfo={ { totalItems: total, totalPages } }
+						defaultLayouts={ DEFAULT_LAYOUTS }
+						config={ CONFIG }
+						search={ false }
+					/>
+				</div>
 			</Stack>
 		);
 	}

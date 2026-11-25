@@ -30,12 +30,13 @@ const COLORS = {
 	switch: '#cc1818',
 	router: '#7a00df',
 	header: '#00739c',
+	loader: '#c9356e',
 };
 
 /**
  * Log one step, stamped with the time since the page load started.
  *
- * @param {string} area    - Part of the shell, picks the colour: shell, host, prewarm, switch, router, header.
+ * @param {string} area    - Part of the shell, picks the colour: shell, host, prewarm, switch, router, header, loader.
  * @param {string} message - What happened.
  * @param {...*}   details - Anything worth expanding in the console.
  */

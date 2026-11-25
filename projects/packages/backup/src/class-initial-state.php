@@ -12,6 +12,7 @@
 namespace Automattic\Jetpack\Backup\V0005;
 
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
+use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Status;
 use Jetpack_Options;
 use function add_action;
@@ -46,14 +47,26 @@ class Initial_State {
 			),
 			'connectedPlugins' => Connection_Plugin_Storage::get_all(),
 			'siteData'         => array(
-				'id'       => Jetpack_Options::get_option( 'id' ),
-				'title'    => get_bloginfo( 'name' ) ? get_bloginfo( 'name' ) : get_site_url(),
-				'adminUrl' => esc_url( admin_url() ),
+				'id'         => Jetpack_Options::get_option( 'id' ),
+				'title'      => get_bloginfo( 'name' ) ? get_bloginfo( 'name' ) : get_site_url(),
+				'adminUrl'   => esc_url( admin_url() ),
+				'addLicense' => self::is_add_license_screen_enabled(),
 			),
 			'assets'           => array(
 				'buildUrl' => plugins_url( '../build/', __FILE__ ),
 			),
 		);
+	}
+
+	/**
+	 * Whether My Jetpack's add-license screen is available, which offline mode turns off.
+	 *
+	 * @since 5.3.0
+	 *
+	 * @return bool
+	 */
+	public static function is_add_license_screen_enabled() {
+		return class_exists( My_Jetpack_Initializer::class ) && My_Jetpack_Initializer::is_licensing_ui_enabled();
 	}
 
 	/**

@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Scan;
+use Automattic\Jetpack\Monetize\Dashboard as Monetize_Dashboard;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -613,6 +614,41 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 			'upgrade prompt' => array( 'upgrade prompt', array( 'jetpack-protect', 'calypso', 'jetpack-search' ) ),
 			// As while the dashboard's feature flag is off on a plan that includes Scan.
 			'nothing'        => array( 'nothing', array( 'calypso', 'jetpack-search' ) ),
+		);
+	}
+
+	/**
+	 * Jetpack > Monetize opens the wp-admin page once it has loaded, and Calypso otherwise.
+	 *
+	 * @dataProvider provide_monetize_page_states
+	 *
+	 * @param bool   $loaded   Whether the Monetize page loaded.
+	 * @param string $expected The Jetpack > Monetize item's slug, `%domain%` standing for the site's.
+	 */
+	#[DataProvider( 'provide_monetize_page_states' )]
+	public function test_jetpack_submenu_opens_monetize_where_its_page_loaded( $loaded, $expected ) {
+		global $submenu;
+
+		\Jetpack_Options::update_option( 'id', 200 );
+		if ( $loaded ) {
+			Monetize_Dashboard::init();
+		}
+
+		wpcom_add_jetpack_submenu();
+
+		$monetize = array_values( array_filter( $submenu['jetpack'], fn( $item ) => 'Monetize' === $item[0] ) );
+		$this->assertSame( array( str_replace( '%domain%', self::$domain, $expected ) ), array_column( $monetize, 2 ) );
+	}
+
+	/**
+	 * Data provider for test_jetpack_submenu_opens_monetize_where_its_page_loaded.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_monetize_page_states() {
+		return array(
+			'page loaded'     => array( true, Monetize_Dashboard::MENU_SLUG ),
+			'page not loaded' => array( false, 'https://wordpress.com/earn/%domain%' ),
 		);
 	}
 

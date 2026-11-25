@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Show one upgrade notice, with an option to activate an unused license, instead of two separate banners.

@@ -67,11 +67,23 @@ export function planPriceLabel( plan: Plan ): string {
 }
 
 /**
- * Whether a plan is a paid newsletter tier, which brings the free tier into the list.
+ * Whether a plan is a paid newsletter tier.
  *
  * @param plan - The plan.
  * @return Whether it's a tier.
  */
 export function isTier( plan: Plan ): boolean {
 	return plan.product.type === 'tier';
+}
+
+/**
+ * Whether the site has a monthly paid tier, which brings the free tier into the list.
+ *
+ * An annual product whose monthly one is gone doesn't count.
+ *
+ * @param plans - The plans.
+ * @return Whether one is a monthly tier.
+ */
+export function hasMonthlyTier( plans: Plan[] ): boolean {
+	return plans.some( plan => isTier( plan ) && ! plan.product.tier );
 }

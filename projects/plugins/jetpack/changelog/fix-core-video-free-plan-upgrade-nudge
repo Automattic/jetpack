@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Video block: Stop showing the premium block upgrade banner over videos that already play on free plans; the nudge now appears only for uploads.

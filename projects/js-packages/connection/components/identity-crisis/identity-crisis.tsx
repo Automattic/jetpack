@@ -1,26 +1,54 @@
+import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { formatSiteAddress } from '../../helpers/format-site-address';
+import { formatSiteAddress, getSiteUrl } from '../../helpers/format-site-address';
 import { hasJetpackPlugin, hasWooPlugin } from '../../helpers/site-words';
 import useIdentityCrisisActions from '../../hooks/use-identity-crisis-actions';
 import IdentityCrisisAddresses from './addresses';
 import IdentityCrisisErrorNotice from './error-notice';
 import ChoiceStep from './flow/choice-step';
-import { getOptionCopy, getStagingNote } from './flow/copy';
+import {
+	getConclusionCopy,
+	getConfirmedNote,
+	getGuideFactLines,
+	getOptionCopy,
+	getResultCopy,
+	getStagingGuideText,
+	getStagingNote,
+} from './flow/copy';
+import GuideStep from './flow/guide-step';
+import GuideTrail from './flow/guide-trail';
 import Intro from './flow/intro';
+import ResultStep from './flow/result-step';
 import StepActions from './flow/step-actions';
-import { getOptions, getPath } from './flow/steps';
+import StepFooter from './flow/step-footer';
+import {
+	getGuideTrail,
+	getOptions,
+	getPath,
+	getResultAction,
+	isConcluded,
+	isGuideStep,
+	isResultStep,
+} from './flow/steps';
+import TextButton from './flow/text-button';
 import useIdentityCrisisFlow from './flow/use-identity-crisis-flow';
 import IdentityCrisisLayout from './layout';
 import IdentityCrisisMigrated from './migrated';
+import { reloadPage } from './navigate';
 import IdentityCrisisNonAdmin from './non-admin';
+import { onIdentityCrisisActionSuccess } from './on-action-success';
 import styles from './styles.module.scss';
 import useIdentityCrisisState from './use-identity-crisis-state';
-import type { CopyContext } from './flow/copy';
+import type { ActionCopy, CopyContext } from './flow/copy';
 import type { FlowContext } from './flow/steps';
 import type { IdentityCrisisProps } from './types';
 import type { ConnectedPlugin } from '../../helpers/site-words';
-import type { IdentityCrisisActionPath } from '../../hooks/use-identity-crisis-actions/types';
+import type {
+	IdentityCrisisAction,
+	IdentityCrisisActionPath,
+	IdentityCrisisError,
+} from '../../hooks/use-identity-crisis-actions/types';
 import type { IdentityCrisisState } from '../../types';
 import type { ReactNode } from 'react';
 
@@ -31,8 +59,11 @@ interface ResolverProps extends IdentityCrisisProps {
 	plugins: ConnectedPlugin[];
 }
 
+const DISCONNECTED_ERROR: IdentityCrisisError = { action: 'start-fresh', cause: 'disconnected' };
+const RESOLVED_ERROR: IdentityCrisisError = { action: 'start-fresh', cause: 'resolved' };
+
 /**
- * The questions that lead to a Safe Mode action, then the migrate-done view.
+ * The questions, or the step-by-step guide, that lead to a Safe Mode action, then the migrate-done view.
  *
  * @param {ResolverProps} props - Component props.
  * @return {ReactNode} The view.
@@ -40,12 +71,12 @@ interface ResolverProps extends IdentityCrisisProps {
 function IdentityCrisisResolver( {
 	state,
 	plugins,
-	context,
+	showHeader = true,
 	redirectUri,
 	from,
 	hostActions,
-	onActionSuccess,
-	onMigratedDone,
+	onActionSuccess = onIdentityCrisisActionSuccess,
+	onMigratedDone = reloadPage,
 }: ResolverProps ): ReactNode {
 	const actions = useIdentityCrisisActions( { redirectUri, from } );
 	const ctx: FlowContext = useMemo(
@@ -60,23 +91,81 @@ function IdentityCrisisResolver( {
 	const copy: CopyContext = {
 		isStore: ctx.isStore,
 		hasJetpackPlugin: ctx.hasJetpackPlugin,
+		isDynamicAddress: state.possibleDynamicSiteUrlDetected,
 		x: formatSiteAddress( state.currentUrl ),
 		z: formatSiteAddress( state.wpcomHomeUrl ),
 	};
 	const flow = useIdentityCrisisFlow( ctx, actions.clearError );
+	// The site is no longer in Safe Mode, so the questions no longer apply. Resolved wins: the site is connected again.
+	let finalView: 'resolved' | 'disconnected' | null = null;
+	if ( actions.isResolved || state.isResolved === true ) {
+		finalView = 'resolved';
+	} else if ( actions.isDisconnected || state.isDisconnected === true ) {
+		finalView = 'disconnected';
+	}
+	// The view replaces the focused button, so move focus to its own.
+	const finalViewRef = useRef< HTMLDivElement >( null );
+	const previousFinalView = useRef( finalView );
+	useEffect( () => {
+		if ( finalView && finalView !== previousFinalView.current ) {
+			finalViewRef.current?.querySelector( 'button' )?.focus();
+		}
+		previousFinalView.current = finalView;
+	}, [ finalView ] );
 
-	// Focus the new question when the step changes, but not on the first render.
+	// Focus the new question, statement or result when the step changes, but not on the first render.
 	const legendRef = useRef< HTMLDivElement >( null );
+	const headingRef = useRef< HTMLHeadingElement >( null );
 	const stepKey = `${ flow.state.step }:${ flow.state.history.length }`;
 	const previousStepKey = useRef( stepKey );
 	useEffect( () => {
 		if ( previousStepKey.current !== stepKey ) {
 			previousStepKey.current = stepKey;
-			legendRef.current?.focus();
+			( legendRef.current ?? headingRef.current )?.focus();
 		}
 	}, [ stepKey ] );
 
+	const runAction = useCallback(
+		async ( action: IdentityCrisisAction ) => {
+			const path: IdentityCrisisActionPath = {
+				entry: flow.state.entry,
+				path: getPath( flow.state, ctx ),
+			};
+			switch ( action ) {
+				case 'migrate':
+					if ( await actions.migrate( path ) ) {
+						onActionSuccess( { action: 'migrate' } );
+					}
+					return;
+				case 'start-fresh': {
+					const connectUrl = await actions.startFresh( path );
+					if ( connectUrl ) {
+						onActionSuccess( { action: 'start-fresh', connectUrl } );
+					}
+					return;
+				}
+				case 'confirm-safe-mode':
+					if ( await actions.confirmSafeMode( path ) ) {
+						onActionSuccess( { action: 'confirm-safe-mode' } );
+					}
+					return;
+				default: {
+					const unhandled: never = action;
+					return unhandled;
+				}
+			}
+		},
+		[ flow.state, ctx, actions, onActionSuccess ]
+	);
+
+	const retryStartFresh = useCallback( () => runAction( 'start-fresh' ), [ runAction ] );
+
+	const step = flow.state.step;
 	const onContinue = useCallback( async () => {
+		if ( isResultStep( step ) ) {
+			await runAction( getResultAction( step ) );
+			return;
+		}
 		const option = flow.selected;
 		if ( ! option ) {
 			return;
@@ -85,34 +174,8 @@ function IdentityCrisisResolver( {
 			flow.next();
 			return;
 		}
-		const path: IdentityCrisisActionPath = {
-			entry: flow.state.entry,
-			path: getPath( flow.state, ctx ),
-		};
-		switch ( option.action ) {
-			case 'migrate':
-				if ( await actions.migrate( path ) ) {
-					onActionSuccess( { action: 'migrate' } );
-				}
-				return;
-			case 'start-fresh': {
-				const connectUrl = await actions.startFresh( path );
-				if ( connectUrl ) {
-					onActionSuccess( { action: 'start-fresh', connectUrl } );
-				}
-				return;
-			}
-			case 'confirm-safe-mode':
-				if ( await actions.confirmSafeMode( path ) ) {
-					onActionSuccess( { action: 'confirm-safe-mode' } );
-				}
-				return;
-			default: {
-				const unhandled: never = option.action;
-				return unhandled;
-			}
-		}
-	}, [ flow, ctx, actions, onActionSuccess ] );
+		await runAction( option.action );
+	}, [ step, flow, runAction ] );
 
 	const addresses = (
 		<IdentityCrisisAddresses
@@ -126,7 +189,7 @@ function IdentityCrisisResolver( {
 		return (
 			<IdentityCrisisLayout
 				logoUrl={ state.logoUrl }
-				showHeader={ context !== 'connectors' }
+				showHeader={ showHeader }
 				hostActions={ hostActions }
 			>
 				{ addresses }
@@ -141,38 +204,158 @@ function IdentityCrisisResolver( {
 
 	const isBusy = actions.busyAction !== null;
 
+	if ( finalView === 'resolved' ) {
+		return (
+			<IdentityCrisisLayout
+				logoUrl={ state.logoUrl }
+				showHeader={ showHeader }
+				heading={ __( 'Jetpack Connection is no longer in Safe Mode', 'jetpack-connection-js' ) }
+			>
+				<Stack direction="column" gap="md" ref={ finalViewRef }>
+					<IdentityCrisisErrorNotice error={ RESOLVED_ERROR } />
+					<StepActions
+						action={ { button: __( 'Reload', 'jetpack-connection-js' ) } }
+						isBusy={ false }
+						hasError={ false }
+						canGoBack={ false }
+						onContinue={ reloadPage }
+						onBack={ flow.back }
+					/>
+				</Stack>
+			</IdentityCrisisLayout>
+		);
+	}
+
+	if ( finalView === 'disconnected' ) {
+		return (
+			// No host actions: Disconnect and the like no longer apply.
+			<IdentityCrisisLayout
+				logoUrl={ state.logoUrl }
+				showHeader={ showHeader }
+				heading={ __( 'Jetpack Connection is disconnected', 'jetpack-connection-js' ) }
+			>
+				<Stack direction="column" gap="md" ref={ finalViewRef }>
+					{ /* Hidden while retrying, so a repeated failure is announced again. */ }
+					{ ! isBusy && (
+						<IdentityCrisisErrorNotice error={ actions.error ?? DISCONNECTED_ERROR } />
+					) }
+					<StepActions
+						action={ getOptionCopy( 'fresh', copy ) }
+						isBusy={ isBusy }
+						hasError
+						canGoBack={ false }
+						onContinue={ retryStartFresh }
+						onBack={ flow.back }
+					/>
+				</Stack>
+			</IdentityCrisisLayout>
+		);
+	}
+
+	const trail = (
+		<GuideTrail
+			items={ getGuideTrail( flow.state ) }
+			copy={ copy }
+			disabled={ isBusy }
+			onBackTo={ flow.backTo }
+		/>
+	);
+	const isStagingHome = flow.isFirstView && ctx.isDevelopmentSite;
+	const footer = (
+		<StepFooter
+			entry={ flow.state.entry }
+			offerGuide={ ! isStagingHome }
+			disabled={ isBusy }
+			onOpenGuide={ flow.openGuide }
+			onLater={ flow.later }
+		/>
+	);
+
+	let stepView: ReactNode;
+	let actionCopy: ActionCopy | null;
+	if ( isGuideStep( step ) ) {
+		stepView = (
+			<GuideStep
+				step={ step }
+				copy={ copy }
+				facts={ getGuideFactLines( copy, ctx.isDevelopmentSite ) }
+				openUrl={ getSiteUrl( state.wpcomHomeUrl ) }
+				trail={ trail }
+				onAnswer={ flow.answer }
+				isBackToStart={ flow.state.history.length === 1 }
+				onBack={ flow.back }
+				headingRef={ headingRef }
+			/>
+		);
+		actionCopy = null;
+	} else if ( isResultStep( step ) ) {
+		const result = getResultCopy( step, copy );
+		stepView = <ResultStep result={ result } copy={ copy } headingRef={ headingRef } />;
+		actionCopy = result;
+	} else if ( isConcluded( flow.state ) && flow.selected ) {
+		const conclusion = getConclusionCopy( flow.selected.id, copy );
+		stepView = <ResultStep result={ conclusion } copy={ copy } headingRef={ headingRef } />;
+		actionCopy = conclusion;
+	} else {
+		stepView = (
+			<ChoiceStep
+				step={ step }
+				options={ getOptions( step, ctx ) }
+				pick={ flow.state.pick }
+				copy={ copy }
+				disabled={ isBusy }
+				onPick={ flow.pick }
+				legendRef={ legendRef }
+			/>
+		);
+		actionCopy = flow.selected ? getOptionCopy( flow.selected.id, copy ) : null;
+	}
+
 	return (
 		<IdentityCrisisLayout
 			logoUrl={ state.logoUrl }
-			showHeader={ context !== 'connectors' }
+			showHeader={ showHeader }
 			hostActions={ hostActions }
 		>
 			{ addresses }
 			{ flow.isFirstView && <Intro copy={ copy } plugins={ plugins } /> }
-			{ flow.isFirstView && ctx.isDevelopmentSite && (
+			{ isStagingHome && (
+				<Stack direction="column" gap="xs" className={ styles.note }>
+					<Text variant="body-md" render={ <p /> }>
+						{ getStagingNote( copy ) }
+					</Text>
+					<span>
+						<TextButton onClick={ flow.openGuide } disabled={ isBusy }>
+							{ getStagingGuideText() }
+						</TextButton>
+					</span>
+				</Stack>
+			) }
+			{ flow.isFirstView && state.isSafeModeConfirmed && (
 				<Text variant="body-md" render={ <p /> } className={ styles.note }>
-					{ getStagingNote( copy ) }
+					{ getConfirmedNote() }
 				</Text>
 			) }
 			<Stack direction="column" gap="md">
-				<ChoiceStep
-					step={ flow.state.step }
-					options={ getOptions( flow.state.step, ctx ) }
-					pick={ flow.state.pick }
-					copy={ copy }
-					disabled={ isBusy }
-					onPick={ flow.pick }
-					legendRef={ legendRef }
-				/>
-				<IdentityCrisisErrorNotice error={ actions.error } />
-				<StepActions
-					selected={ flow.selected ? getOptionCopy( flow.selected.id, copy ) : null }
-					isBusy={ isBusy }
-					hasError={ actions.error !== null }
-					canGoBack={ flow.state.history.length > 0 }
-					onContinue={ onContinue }
-					onBack={ flow.back }
-				/>
+				{ ! isGuideStep( step ) && trail }
+				{ stepView }
+				{ isGuideStep( step ) ? (
+					footer
+				) : (
+					<>
+						<IdentityCrisisErrorNotice error={ actions.error } />
+						<StepActions
+							action={ actionCopy }
+							isBusy={ isBusy }
+							hasError={ actions.error !== null }
+							canGoBack={ flow.state.history.length > 0 }
+							onContinue={ onContinue }
+							onBack={ flow.back }
+							// A result ends the path, so it offers no way into or out of the guide.
+							footer={ isResultStep( step ) ? null : footer }
+						/>
+					</>
+				) }
 			</Stack>
 		</IdentityCrisisLayout>
 	);
@@ -193,7 +376,7 @@ export default function IdentityCrisis( props: IdentityCrisisProps ): ReactNode 
 
 	if ( ! state.canResolve ) {
 		return (
-			<IdentityCrisisLayout showHeader={ props.context !== 'connectors' }>
+			<IdentityCrisisLayout showHeader={ props.showHeader ?? true }>
 				<IdentityCrisisNonAdmin isStore={ hasWooPlugin( plugins ) } onDismiss={ props.onDismiss } />
 			</IdentityCrisisLayout>
 		);

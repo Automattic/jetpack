@@ -20,8 +20,8 @@ export default function useWpcomConnection() {
 		isOfflineMode,
 	} = useConnection( {
 		from: CONNECTION_FROM.jetpackMonetizeConnectionGate,
-		// Relative to wp-admin: the connection REST API adds the admin URL.
-		redirectUri: 'admin.php?page=jetpack-monetize',
+		// Relative to wp-admin: the connection REST API adds the admin URL. Keeps `?p=` so the user returns to the same tab.
+		redirectUri: `admin.php${ window.location.search }`,
 	} );
 
 	return {

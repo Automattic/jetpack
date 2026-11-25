@@ -1,7 +1,9 @@
 /**
  * External dependencies
  */
+import { VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import clsx from 'clsx';
+import { useId } from 'react';
 /**
  * Internal dependencies
  */
@@ -32,6 +34,8 @@ export type LeaderboardRowAction =
 			id?: number | string;
 			/** Public URL. The "View" action beside a title that opens the detail page; the link itself otherwise. */
 			href?: string | null;
+			/** Post type of the row, so a type with a report page of its own opens that page. */
+			postType?: string;
 			/**
 			 * Required, so a row cannot silently open the detail page on its own
 			 * default range. Pass `{}` to navigate without a window on purpose.
@@ -91,6 +95,12 @@ export type LeaderboardRowActionWithTrailing = Extract<
 	{ kind: 'viewLink' | 'postLink' | 'videoLink' | 'static' | 'drillDown' }
 >;
 
+/** The actions whose title is its own link, so a mark beside it stays out of every control's name. */
+type LeaderboardRowActionWithIndicator = Extract<
+	LeaderboardRowAction,
+	{ kind: 'postLink' | 'videoLink' }
+>;
+
 export type LeaderboardRowProps = {
 	/** Label text. */
 	label: string;
@@ -107,11 +117,24 @@ export type LeaderboardRowProps = {
 			 * "View" action when there is one).
 			 */
 			trailingAction?: ReactElement;
+			indicator?: never;
+	  }
+	| {
+			action: LeaderboardRowActionWithIndicator;
+			/** A `bars` row has no room for the mark: its bar starts where the mark would sit. */
+			variant?: 'list';
+			trailingAction?: ReactElement;
+			/**
+			 * Names a mark drawn at the row's start, e.g. "Published in this period". It
+			 * describes the title link, which keeps its own name.
+			 */
+			indicator?: string;
 	  }
 	| {
 			/** Any action; a row that links out as a whole has no room for another. */
 			action: LeaderboardRowAction;
 			trailingAction?: never;
+			indicator?: never;
 	  }
 );
 
@@ -168,10 +191,18 @@ export function LeaderboardRow( {
 	action,
 	trailingAction,
 	variant = 'list',
+	indicator,
 }: LeaderboardRowProps ): ReactElement {
 	const rowClassName = clsx( styles.row, variant === 'bars' && styles.bars );
 	const rowLinkClassName = clsx( styles.rowLink, variant === 'bars' && styles.bars );
 	const trailing = trailingAction && <span className={ styles.rowAction }>{ trailingAction }</span>;
+	const markId = useId();
+	// The row draws the bar; this names it for the title link's description.
+	const mark = indicator && (
+		<VisuallyHidden render={ <span /> } id={ markId }>
+			{ indicator }
+		</VisuallyHidden>
+	);
 
 	if ( action.kind === 'postLink' || action.kind === 'videoLink' ) {
 		const TitleLink = action.kind === 'postLink' ? PostTitleLink : VideoTitleLink;
@@ -186,17 +217,20 @@ export function LeaderboardRow( {
 			) : undefined;
 		const titleLinkProps = {
 			id: action.id,
+			postType: action.kind === 'postLink' ? action.postType : undefined,
 			label,
 			link: action.href,
 			search: action.search,
 			title: label,
+			ariaDescribedBy: mark ? markId : undefined,
 		};
 
-		// A row with a trailing action holds two controls, so the row chrome goes on a
-		// wrapper and the title keeps the tooltip.
-		if ( liveUrl !== undefined || trailing ) {
+		// A row with a trailing action or a mark holds more than the title, so the row
+		// chrome goes on a wrapper and the title keeps the tooltip.
+		if ( liveUrl !== undefined || trailing || mark ) {
 			return (
-				<span className={ rowClassName }>
+				<span className={ clsx( rowClassName, mark && styles.indicated ) }>
+					{ mark }
 					<TitleLink
 						{ ...titleLinkProps }
 						classNames={ {

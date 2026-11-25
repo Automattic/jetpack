@@ -16,7 +16,7 @@ type BucketDatum = { date: Date; realDate?: Date; endDate?: Date };
 /**
  * The date a tooltip row names for a point: the days its own bucket covers when a
  * date-labelled bucket spans several (a week, a quarter) or the range cuts a month or
- * year, otherwise the bucket's start.
+ * year, otherwise the bucket's start, named as precisely as its size needs.
  *
  * @param datum             - The point; a comparison point's own dates are in `realDate`.
  * @param displayResolution - The resolution the chart labels its buckets at.

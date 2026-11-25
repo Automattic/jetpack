@@ -36,6 +36,8 @@ add_filter( 'jetpack_offline_mode', '__return_false', 99 );
 add_filter( 'pre_http_request', 'e2e_pa_intercept_wpcom', 10, 3 );
 add_filter( 'nonce_life', 'e2e_pa_nonce_life' );
 add_filter( 'jetpack_premium_analytics_stats_plan_tier', 'e2e_pa_stats_tier' );
+// Classic_Stats::RETIRED_FLAG is not loadable yet: this file runs before the plugin's autoloader.
+add_filter( 'jetpack_feature_flag_enabled_jetpack-stats-classic-page-retired', 'e2e_pa_classic_stats_retired' );
 add_action( 'rest_api_init', 'e2e_pa_register_site_state_route' );
 
 /**
@@ -47,6 +49,16 @@ add_action( 'rest_api_init', 'e2e_pa_register_site_state_route' );
 function e2e_pa_stats_tier( $tier ) {
 	$forced = get_option( 'e2e_pa_stats_tier' );
 	return $forced ? $forced : $tier;
+}
+
+/**
+ * Keeps the classic Stats page while a spec sets `e2e_pa_classic_stats_kept`, as a per-site flag override does.
+ *
+ * @param bool $retired Whether the classic Stats page is retired.
+ * @return bool
+ */
+function e2e_pa_classic_stats_retired( $retired ) {
+	return get_option( 'e2e_pa_classic_stats_kept' ) ? false : $retired;
 }
 
 /**
@@ -63,29 +75,33 @@ function e2e_pa_register_site_state_route() {
 				return current_user_can( 'manage_options' );
 			},
 			'args'                => array(
-				'enabled'           => array(
+				'enabled'               => array(
 					'type'     => 'boolean',
 					'required' => true,
 				),
-				'subscriptions'     => array(
+				'subscriptions'         => array(
 					'type'     => 'boolean',
 					'required' => true,
 				),
-				'wordads'           => array(
+				'wordads'               => array(
 					'type'     => 'boolean',
 					'required' => true,
 				),
-				'timezone'          => array(
+				'timezone'              => array(
 					'type'    => 'string',
 					'default' => 'UTC',
 				),
-				'tier'              => array(
+				'tier'                  => array(
 					'type'    => 'string',
 					'default' => '',
 				),
-				'remembered_preset' => array(
+				'remembered_preset'     => array(
 					'type'    => 'string',
 					'default' => '',
+				),
+				'classic_stats_retired' => array(
+					'type'    => 'boolean',
+					'default' => true,
 				),
 			),
 		)
@@ -95,7 +111,7 @@ function e2e_pa_register_site_state_route() {
 /**
  * Puts the site in one dashboard state. The mocked plan must already be set, since WordAds activates only on a plan that includes it.
  *
- * @param WP_REST_Request $request Request with the `enabled`, `subscriptions`, `wordads`, `timezone`, `tier` and `remembered_preset` params.
+ * @param WP_REST_Request $request Request with the `enabled`, `subscriptions`, `wordads`, `timezone`, `tier`, `remembered_preset` and `classic_stats_retired` params.
  * @return WP_REST_Response|WP_Error
  */
 function e2e_pa_set_site_state( $request ) {
@@ -106,6 +122,11 @@ function e2e_pa_set_site_state( $request ) {
 		update_option( 'e2e_pa_stats_tier', $request['tier'] );
 	} else {
 		delete_option( 'e2e_pa_stats_tier' );
+	}
+	if ( $request['classic_stats_retired'] ) {
+		delete_option( 'e2e_pa_classic_stats_kept' );
+	} else {
+		update_option( 'e2e_pa_classic_stats_kept', 1 );
 	}
 	update_option( Enablement_Setting::ENABLED_OPTION, $request['enabled'] ? 1 : 0 );
 	// The welcome dialog marks everything behind it inert, so specs start with onboarding done.

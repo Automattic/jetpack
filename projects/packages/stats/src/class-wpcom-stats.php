@@ -452,6 +452,18 @@ class WPCOM_Stats {
 	}
 
 	/**
+	 * Get the people who liked a post, most recent first, with `found` counting them all.
+	 *
+	 * @param int $post_id The post ID.
+	 * @return array|WP_Error
+	 */
+	public function get_post_likes( $post_id ) {
+		$this->resource = sprintf( '/posts/%d/likes', $post_id );
+
+		return $this->fetch_stats();
+	}
+
+	/**
 	 * Get the site's views by device property.
 	 *
 	 * @param string $property One of `browser`, `platform` or `screensize`.
@@ -501,6 +513,20 @@ class WPCOM_Stats {
 		$this->resource = sprintf( '%s/emails/%d/%s', $stat, $post_id, $field );
 
 		return $this->fetch_stats();
+	}
+
+	/**
+	 * Get the opens or clicks of a post the site sent as an email, bucketed over time.
+	 *
+	 * @param int    $post_id The post the site emailed.
+	 * @param string $stat    `opens` or `clicks`.
+	 * @param array  $args    `period` (`hour`, `day` or `month`), `quantity` buckets, and the first bucket's `date`.
+	 * @return array|WP_Error
+	 */
+	public function get_email_timeline( $post_id, $stat, $args = array() ) {
+		$this->resource = sprintf( '%s/emails/%d', $stat, $post_id );
+
+		return $this->fetch_stats( array_merge( $args, array( 'stats_fields' => 'timeline' ) ) );
 	}
 
 	/**

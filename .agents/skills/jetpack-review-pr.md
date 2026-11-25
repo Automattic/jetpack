@@ -169,6 +169,7 @@ Note: `AGENTS.md` is already loaded in your context via the CLAUDE.md `@AGENTS.m
 *Backward compatibility* (all depths — this catches fatal errors):
 - **Removed public methods/functions**: Must deprecate with `_deprecated_function()` + `$$next-version$$` first. Flag as `[blocker]`.
 - **Removed/renamed hooks**: Must use `apply_filters_deprecated()` / `do_action_deprecated()`
+- **Removed deprecated code**: only after the deprecation period in `docs/coding-guidelines.md` § "Deprecating code".
 - **Changed signatures**: New params must be optional with defaults. Required params break callers. `[blocker]`.
 - **Removed REST endpoints**: Must version or deprecate
 - **Removed public constants/properties**: Fatal errors in consumers

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+VideoPress: Editing a VideoPress shortcode's settings in the Classic editor now updates that video instead of adding a second one, and keeps the shortcode's other attributes.

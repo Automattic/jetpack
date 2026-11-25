@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add `trackWhatsNew()` to the contract of the What's new module.

@@ -6,7 +6,7 @@
  * package external.
  */
 
-export type WhatsNewOptions = {
+type WhatsNewOptions = {
 	/*
 	 * The channels the host subscribes to. An announcement is shown when it is published to one of them.
 	 */
@@ -23,3 +23,36 @@ export type WhatsNewOptions = {
  * @return {() => void} The function that takes the surface off the page.
  */
 export declare function mountWhatsNew( options: WhatsNewOptions ): () => void;
+
+type TeaserSwitch = {
+	/*
+	 * Whether the teaser is on for the current user.
+	 */
+	isOn: boolean;
+
+	/*
+	 * Turns the teaser on or off. The switch is one for every host on the site.
+	 */
+	setIsOn: ( isOn: boolean ) => void;
+};
+
+/**
+ * Reads and writes the switch that turns the teaser off for the current user.
+ *
+ * A React hook, for the control a host offers in its own settings. It works with or without
+ * the surface mounted.
+ *
+ * @return {TeaserSwitch} Whether the teaser is on, and the function that turns it on or off.
+ */
+export declare function useTeaserSwitch(): TeaserSwitch;
+
+/**
+ * Records the events of the surface in Tracks, from this call on: the teaser shown, opened and
+ * dismissed, the link of the reader followed, and the switch changed.
+ *
+ * Optional. The surface works the same without it, and a second call does nothing.
+ */
+export declare function trackWhatsNew(): void;
+
+// Without this, a declaration file exports every top-level name, the types above included.
+export {};

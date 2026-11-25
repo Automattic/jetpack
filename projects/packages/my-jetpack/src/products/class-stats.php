@@ -340,9 +340,16 @@ class Stats extends Hybrid_Product {
 	 * dashboard. Null is also the base-class default, which falls the action
 	 * button back to the existing `#/add-stats` interstitial.
 	 *
+	 * @since 6.19.0 A host's own address comes first.
+	 *
 	 * @return ?string
 	 */
 	public static function get_purchase_url() {
+		$host_url = static::get_host_purchase_url();
+		if ( $host_url ) {
+			return $host_url;
+		}
+
 		if ( self::is_premium_analytics_enabled() ) {
 			return null;
 		}
