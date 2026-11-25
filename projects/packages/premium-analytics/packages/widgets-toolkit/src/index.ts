@@ -139,8 +139,6 @@ export {
 	PageNotice,
 	type PageNoticeProps,
 	PromoCard,
-	PromoCta,
-	type PromoRenderProps,
 	StatsOptionsMenu,
 	ResetLayoutAction,
 	type ResetLayoutActionProps,

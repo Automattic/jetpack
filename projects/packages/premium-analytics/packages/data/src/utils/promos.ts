@@ -20,7 +20,6 @@ export type Promo = {
 	cta_url: string;
 	dismissible: boolean;
 	snooze_days: number;
-	render_module: string | null;
 };
 
 /**

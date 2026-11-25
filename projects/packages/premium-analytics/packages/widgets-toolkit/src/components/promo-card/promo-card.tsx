@@ -4,32 +4,16 @@
 import { Card, IconButton, Stack, Text } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
-import {
-	Component,
-	Suspense,
-	lazy,
-	useCallback,
-	useEffect,
-	useId,
-	useMemo,
-	useRef,
-	type ComponentType,
-	type JSX,
-	type ReactNode,
-} from 'react';
+import { useCallback, useEffect, useId, useRef } from 'react';
 /**
  * Internal dependencies
  */
 import { usePromoDismissal, useTrackEvent } from '../../hooks';
 import { PromoCta } from './promo-cta';
-import type { PromoRenderProps } from './types';
 import type { Promo, PromoPlacement } from '@jetpack-premium-analytics/data';
-
-type ResolveModule = ( id: string ) => Promise< { default: ComponentType< PromoRenderProps > } >;
 
 export type PromoCardProps = {
 	promo: Promo;
-	resolveModule?: ResolveModule;
 };
 
 const viewedPlacements = new Set< PromoPlacement >();
@@ -41,49 +25,14 @@ export function resetPromoViewsForTesting() {
 	viewedPlacements.clear();
 }
 
-const importModule: ResolveModule = id => import( /* webpackIgnore: true */ id );
-
-class PromoErrorBoundary extends Component<
-	{ fallback: ReactNode; children: ReactNode },
-	{ hasError: boolean }
-> {
-	state = { hasError: false };
-
-	static getDerivedStateFromError() {
-		return { hasError: true };
-	}
-
-	render() {
-		return this.state.hasError ? this.props.fallback : this.props.children;
-	}
-}
-
-function DataOnlyContent( {
-	promo,
-	trackClick,
-}: Pick< PromoRenderProps, 'promo' | 'trackClick' > ): JSX.Element {
-	return (
-		<Stack direction="column" gap="sm" align="flex-start">
-			<Text variant="body-md">{ promo.description }</Text>
-			<PromoCta
-				href={ promo.cta_url }
-				label={ promo.cta_label }
-				variant="primary"
-				trackClick={ trackClick }
-			/>
-		</Stack>
-	);
-}
-
 /**
- * A registered promo as a card. Without a `render_module` the card draws the payload's own copy
- * and CTA. With one, the module draws the whole content region and the card keeps only its frame.
+ * A promo as a card, drawing the payload's own copy and CTA.
  *
  * @param {PromoCardProps} props - The component props.
  * @return The card, or null once the promo is dismissed.
  */
-export function PromoCard( { promo, resolveModule = importModule }: PromoCardProps ) {
-	const { slug, placement, dismissible, render_module: renderModule } = promo;
+export function PromoCard( { promo }: PromoCardProps ) {
+	const { slug, placement, dismissible } = promo;
 	const { isDismissed, willBeFinal, dismiss } = usePromoDismissal( promo );
 	const trackEvent = useTrackEvent();
 
@@ -91,7 +40,7 @@ export function PromoCard( { promo, resolveModule = importModule }: PromoCardPro
 	const titleId = useId();
 
 	// On its first intersection, not on mount: the Settings card is the last thing on the page, so a
-	// view recorded on load would report an impression to the registrant that nobody had.
+	// view recorded on load would report an impression that nobody had.
 	useEffect( () => {
 		const card = cardRef.current;
 
@@ -118,8 +67,7 @@ export function PromoCard( { promo, resolveModule = importModule }: PromoCardPro
 	}, [ isDismissed, placement, slug, trackEvent ] );
 
 	const trackClick = useCallback(
-		( label: string ) =>
-			trackEvent( 'jetpack_premium_analytics_promo_click', { slug, placement, label } ),
+		() => trackEvent( 'jetpack_premium_analytics_promo_click', { slug, placement, label: 'cta' } ),
 		[ trackEvent, slug, placement ]
 	);
 
@@ -145,16 +93,9 @@ export function PromoCard( { promo, resolveModule = importModule }: PromoCardPro
 		dismiss();
 	}, [ willBeFinal, trackEvent, slug, placement, dismiss ] );
 
-	const Module = useMemo(
-		() => ( renderModule ? lazy( () => resolveModule( renderModule ) ) : null ),
-		[ renderModule, resolveModule ]
-	);
-
 	if ( isDismissed ) {
 		return null;
 	}
-
-	const fallback = <DataOnlyContent promo={ promo } trackClick={ trackClick } />;
 
 	return (
 		<Card.Root
@@ -182,19 +123,15 @@ export function PromoCard( { promo, resolveModule = importModule }: PromoCardPro
 				</Stack>
 			</Card.Header>
 			<Card.Content>
-				{ Module ? (
-					<PromoErrorBoundary fallback={ fallback }>
-						<Suspense fallback={ fallback }>
-							<Module
-								promo={ promo }
-								onDismiss={ dismissible ? handleDismiss : undefined }
-								trackClick={ trackClick }
-							/>
-						</Suspense>
-					</PromoErrorBoundary>
-				) : (
-					fallback
-				) }
+				<Stack direction="column" gap="sm" align="flex-start">
+					<Text variant="body-md">{ promo.description }</Text>
+					<PromoCta
+						href={ promo.cta_url }
+						label={ promo.cta_label }
+						variant="primary"
+						trackClick={ trackClick }
+					/>
+				</Stack>
 			</Card.Content>
 		</Card.Root>
 	);

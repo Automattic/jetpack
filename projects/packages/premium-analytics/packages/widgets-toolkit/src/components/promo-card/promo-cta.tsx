@@ -9,12 +9,12 @@ export type PromoCtaProps = {
 	href: string;
 	label: string;
 	variant?: 'primary' | 'secondary';
-	trackClick: ( label: string ) => void;
+	trackClick: () => void;
 };
 
 /**
  * The call to action of a promo: a button-styled link that opens in a new tab.
- * Plain text when `href` is not http(s), so a registrant cannot ship a `javascript:` link.
+ * Plain text when `href` is not http(s), so a bad URL cannot ship a `javascript:` link.
  *
  * @param {PromoCtaProps} props - The component props.
  * @return The link, or null when there is no label to show.
@@ -40,7 +40,7 @@ export function PromoCta( {
 			href={ safeHref }
 			variant={ variant === 'primary' ? 'solid' : 'outline' }
 			openInNewTab
-			onClick={ () => trackClick( label ) }
+			onClick={ trackClick }
 		>
 			{ label }
 		</ButtonLink>

@@ -3,7 +3,7 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { DASHBOARD_PREFERENCES_SCOPE, type Promo } from '@jetpack-premium-analytics/data';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { dispatch } from '@wordpress/data';
 import { store as preferencesStore } from '@wordpress/preferences';
@@ -12,8 +12,6 @@ import { store as preferencesStore } from '@wordpress/preferences';
  */
 import { resetPromoDismissalForTesting } from '../../../hooks';
 import { PromoCard, resetPromoViewsForTesting } from '../promo-card';
-import type { PromoRenderProps } from '../types';
-import type { ComponentType } from 'react';
 
 jest.mock(
 	'@automattic/jetpack-script-data',
@@ -79,7 +77,6 @@ const makePromo = ( overrides: Partial< Promo > = {} ): Promo => ( {
 	cta_url: 'https://example.com/acme',
 	dismissible: true,
 	snooze_days: 90,
-	render_module: null,
 	...overrides,
 } );
 
@@ -90,22 +87,7 @@ const seed = ( value: unknown ) =>
 		value as never
 	);
 
-function ModuleContent( { promo, trackClick }: PromoRenderProps ) {
-	return (
-		<button type="button" onClick={ () => trackClick( 'module-link' ) }>
-			{ `Module for ${ promo.slug }` }
-		</button>
-	);
-}
-
-function ThrowingModule(): never {
-	throw new Error( 'module failed' );
-}
-
 const setupUser = () => userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
-
-const resolving = ( component: ComponentType< PromoRenderProps > ) => () =>
-	Promise.resolve( { default: component } );
 
 describe( 'PromoCard', () => {
 	beforeEach( () => {
@@ -186,7 +168,7 @@ describe( 'PromoCard', () => {
 		expect( recordEvent ).toHaveBeenCalledWith( 'jetpack_premium_analytics_promo_click', {
 			slug: 'acme/offer',
 			placement: 'settings',
-			label: 'Try Acme',
+			label: 'cta',
 		} );
 	} );
 
@@ -232,44 +214,5 @@ describe( 'PromoCard', () => {
 
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'Try Acme' ) ).toBeInTheDocument();
-	} );
-
-	describe( 'with a render module', () => {
-		const withModule = makePromo( { render_module: 'acme/promo-module' } );
-
-		it( 'hands the content region to the module and keeps the frame title', async () => {
-			const user = setupUser();
-			render( <PromoCard promo={ withModule } resolveModule={ resolving( ModuleContent ) } /> );
-
-			await user.click( await screen.findByRole( 'button', { name: 'Module for acme/offer' } ) );
-
-			expect( screen.getByRole( 'heading', { name: 'Grow with Acme' } ) ).toBeInTheDocument();
-			expect( screen.queryByText( 'Reach more readers.' ) ).not.toBeInTheDocument();
-			expect( recordEvent ).toHaveBeenCalledWith( 'jetpack_premium_analytics_promo_click', {
-				slug: 'acme/offer',
-				placement: 'settings',
-				label: 'module-link',
-			} );
-		} );
-
-		it( 'falls back to the data-only card when the module import rejects', async () => {
-			render(
-				<PromoCard
-					promo={ withModule }
-					resolveModule={ () => Promise.reject( new Error( 'import failed' ) ) }
-				/>
-			);
-
-			await waitFor( () => expect( console ).toHaveErrored() );
-			// The description, not the title: the frame draws the title whether the module ran or not.
-			expect( screen.getByText( 'Reach more readers.' ) ).toBeInTheDocument();
-		} );
-
-		it( 'falls back to the data-only card when the module throws on render', async () => {
-			render( <PromoCard promo={ withModule } resolveModule={ resolving( ThrowingModule ) } /> );
-
-			await waitFor( () => expect( console ).toHaveErrored() );
-			expect( screen.getByText( 'Reach more readers.' ) ).toBeInTheDocument();
-		} );
 	} );
 } );

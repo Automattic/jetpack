@@ -51,7 +51,6 @@ const PROMO: Promo = {
 	cta_url: 'https://example.com/acme',
 	dismissible: false,
 	snooze_days: 0,
-	render_module: null,
 };
 
 // What the settings route echoes once the opt-in is off.

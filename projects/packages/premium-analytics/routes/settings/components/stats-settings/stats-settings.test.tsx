@@ -49,7 +49,6 @@ const settingsPromo = {
 	cta_url: 'https://example.com',
 	dismissible: true,
 	snooze_days: 7,
-	render_module: null,
 };
 
 describe( 'StatsSettingsPanel', () => {
