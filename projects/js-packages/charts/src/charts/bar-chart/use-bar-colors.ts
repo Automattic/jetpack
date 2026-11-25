@@ -1,13 +1,12 @@
 import { useCallback } from 'react';
 import { useGlobalChartsContext } from '../../providers/chart-context/hooks/use-global-charts-context';
-import { BACKGROUND_FALLBACK } from '../../providers/chart-context/private/catalog-pointers';
+import {
+	BACKGROUND_FALLBACK,
+	COMPARISON_FALLBACK,
+} from '../../providers/chart-context/private/catalog-pointers';
 import { isValidHexColor } from '../../utils/color-utils';
 import { getGroupedBarColors } from './private/grouped-bars';
-import {
-	getOverlapBarColors,
-	isComparisonSeries,
-	neutralWithContrast,
-} from './private/overlap-bars';
+import { getOverlapBarColors, isComparisonSeries, tintWithContrast } from './private/overlap-bars';
 import type { BarChartLayout, SeriesData } from '../../types';
 
 export type GetBarColors = (
@@ -24,6 +23,7 @@ export function useBarColors(): GetBarColors {
 	const {
 		getElementStyles,
 		backgroundColor = BACKGROUND_FALLBACK,
+		comparisonColor = COMPARISON_FALLBACK,
 		theme,
 	} = useGlobalChartsContext();
 	const comparisonOpacity = theme.barChart?.barStyles?.comparison?.opacity;
@@ -33,19 +33,19 @@ export function useBarColors(): GetBarColors {
 			const colors = series.map( ( data, index ) => getElementStyles( { data, index } ).color );
 
 			if ( layout === 'stacked' ) {
-				// Comparisons share one bar: no palette slot, and the first stroke set among them, else a contrast gray.
+				// Comparisons share one bar: no palette slot, and the first stroke set among them, else the comparison role.
 				const primaries = series.filter( data => ! isComparisonSeries( data ) );
 				const stroked = series.findIndex(
 					data => isComparisonSeries( data ) && data.options?.stroke
 				);
 				const firstComparison = series.findIndex( isComparisonSeries );
-				const comparisonColor =
+				const totalColor =
 					stroked === -1 && isValidHexColor( backgroundColor )
-						? neutralWithContrast( backgroundColor )
+						? tintWithContrast( comparisonColor, backgroundColor )
 						: colors[ stroked === -1 ? firstComparison : stroked ];
 				return series.map( data =>
 					isComparisonSeries( data )
-						? comparisonColor
+						? totalColor
 						: getElementStyles( { data, index: primaries.indexOf( data ) } ).color
 				);
 			}
@@ -64,6 +64,6 @@ export function useBarColors(): GetBarColors {
 				backgroundColor
 			);
 		},
-		[ getElementStyles, backgroundColor, comparisonOpacity ]
+		[ getElementStyles, backgroundColor, comparisonColor, comparisonOpacity ]
 	);
 }

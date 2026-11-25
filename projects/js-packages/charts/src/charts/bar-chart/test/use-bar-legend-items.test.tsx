@@ -114,15 +114,25 @@ describe( 'useBarLegendItems', () => {
 			{ wrapper }
 		).result.current;
 
-	test( 'colors every stacked comparison in the gray nearest the background that keeps 3:1', () => {
-		const { colors, background } = stackedColors( twoMetricData );
-		const [ red, green, blue ] = colors[ 1 ].slice( 1 ).match( /../g ) ?? [];
+	test.each( [
+		[ 'the default gray', undefined, true ],
+		[ 'a themed role', '#3858e9', false ],
+	] )(
+		'colors every stacked comparison in the comparison role toned to 3:1, from %s',
+		( _case, role, gray ) => {
+			if ( role ) {
+				document.documentElement.style.setProperty( '--a8c-charts-color-comparison', role );
+			}
+			const { colors, background } = stackedColors( twoMetricData );
+			document.documentElement.style.removeProperty( '--a8c-charts-color-comparison' );
+			const [ red, green, blue ] = colors[ 1 ].slice( 1 ).match( /../g ) ?? [];
 
-		expect( colors[ 3 ] ).toBe( colors[ 1 ] );
-		expect( [ green, blue ] ).toEqual( [ red, red ] );
-		expect( contrastRatio( colors[ 1 ], background ) ).toBeGreaterThanOrEqual( 3 );
-		expect( contrastRatio( colors[ 1 ], background ) ).toBeLessThan( 3.2 );
-	} );
+			expect( colors[ 3 ] ).toBe( colors[ 1 ] );
+			expect( red === green && green === blue ).toBe( gray );
+			expect( contrastRatio( colors[ 1 ], background ) ).toBeGreaterThanOrEqual( 3 );
+			expect( contrastRatio( colors[ 1 ], background ) ).toBeLessThan( 3.2 );
+		}
+	);
 
 	test( "colors every stacked comparison in the first comparison's own stroke", () => {
 		const { colors } = stackedColors(
