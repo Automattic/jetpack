@@ -1,6 +1,6 @@
 <?php
 /**
- * Promo Slot API: Promo_Registry class.
+ * Promos: Promo_Registry class.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -10,20 +10,9 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 /**
  * Stores Promo instances keyed by slug.
  *
- * Hydrates on its first read: the registration action fires once, and every registrant registers
- * its promos from there.
- *
  * @since $$next-version$$
  */
 final class Promo_Registry {
-
-	/**
-	 * Action through which promos are registered, fired once on the first read.
-	 *
-	 * @since $$next-version$$
-	 * @var string
-	 */
-	const REGISTER_ACTION = 'jetpack_premium_analytics_register_promos';
 
 	/**
 	 * Placements a promo may render in.
@@ -39,13 +28,6 @@ final class Promo_Registry {
 	 * @var array<string, Promo>
 	 */
 	private $registered_promos = array();
-
-	/**
-	 * Whether the registration action has fired.
-	 *
-	 * @var bool
-	 */
-	private $hydrated = false;
 
 	/**
 	 * The gated promos for this request, or null before anything has asked for them.
@@ -71,36 +53,20 @@ final class Promo_Registry {
 	 * @return Promo|false The registered promo on success, or false on failure.
 	 */
 	public function register( $slug, $args = array() ) {
-		if ( ! is_string( $slug ) || 1 !== preg_match( '/^[a-z][a-z0-9-]*\/[a-z][a-z0-9-]*$/', $slug ) ) {
-			return $this->refuse( __( 'Promo slugs must be lowercase and contain a namespace prefix. Example: my-plugin/my-offer', 'jetpack-premium-analytics-pkg' ) );
-		}
-
 		if ( $this->is_registered( $slug ) ) {
 			/* translators: %s: Promo slug. */
 			return $this->refuse( sprintf( __( 'Promo "%s" is already registered.', 'jetpack-premium-analytics-pkg' ), $slug ) );
 		}
 
-		$args = is_array( $args ) ? $args : array();
+		$promo    = new Promo( $slug, is_array( $args ) ? $args : array() );
+		$required = self::required_fields()[ $promo->placement ] ?? null;
 
-		// Checked on the raw value: Promo casts it to a string, which would let any scalar through.
-		if ( isset( $args['render_module'] ) && ( ! is_string( $args['render_module'] ) || '' === $args['render_module'] ) ) {
-			return $this->refuse( __( 'A promo render module must be a non-empty string.', 'jetpack-premium-analytics-pkg' ) );
-		}
-
-		// A misspelled function name is truthy, and the promo would show to everyone.
-		if ( isset( $args['is_available'] ) && ! is_bool( $args['is_available'] ) && ! is_callable( $args['is_available'] ) ) {
-			return $this->refuse( __( 'A promo is_available must be a callable or a boolean.', 'jetpack-premium-analytics-pkg' ) );
-		}
-
-		$promo = new Promo( $slug, $args );
-		$rules = self::placement_rules()[ $promo->placement ] ?? null;
-
-		if ( null === $rules ) {
+		if ( null === $required ) {
 			/* translators: %s: Comma-separated list of placements. */
 			return $this->refuse( sprintf( __( 'A promo placement must be one of: %s.', 'jetpack-premium-analytics-pkg' ), implode( ', ', self::PLACEMENTS ) ) );
 		}
 
-		foreach ( $rules['required'] as $field => $message ) {
+		foreach ( $required as $field => $message ) {
 			if ( '' === $promo->$field ) {
 				return $this->refuse( $message );
 			}
@@ -112,50 +78,14 @@ final class Promo_Registry {
 			return $this->refuse( __( 'A promo cta_url must be an http or https URL.', 'jetpack-premium-analytics-pkg' ) );
 		}
 
-		if ( null !== $rules['refuse_dismissal'] && $promo->dismissible ) {
-			return $this->refuse( $rules['refuse_dismissal'] );
-		}
-
-		if ( null !== $rules['refuse_own_module'] && null !== $promo->render_module ) {
-			return $this->refuse( $rules['refuse_own_module'] );
-		}
-
-		if ( '' === $promo->capability ) {
-			return $this->refuse( __( 'A promo capability cannot be empty. Leave it unset for manage_options.', 'jetpack-premium-analytics-pkg' ) );
-		}
-
-		if ( $promo->snooze_days < 0 ) {
-			return $this->refuse( __( 'A promo snooze_days cannot be negative.', 'jetpack-premium-analytics-pkg' ) );
-		}
-
-		if ( ! $promo->dismissible && isset( $args['snooze_days'] ) ) {
-			return $this->refuse( __( 'A promo that is not dismissible cannot have snooze_days.', 'jetpack-premium-analytics-pkg' ) );
-		}
-
 		$this->registered_promos[ $slug ] = $promo;
 
 		return $promo;
 	}
 
 	/**
-	 * Retrieves a registered promo.
-	 *
-	 * @internal
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param string $slug Promo identifier.
-	 * @return Promo|null The registered promo, or null when absent.
-	 */
-	public function get_registered( $slug ) {
-		$this->ensure_hydrated();
-
-		return $this->registered_promos[ $slug ] ?? null;
-	}
-
-	/**
-	 * Runs the gates once and answers from that result for the rest of the request. A registrant's
-	 * `is_available` rule may be expensive, and both the script data and the import map ask.
+	 * Runs the gates once and answers from that result for the rest of the request. A promo's
+	 * `is_available` rule may be expensive, and both the script data and the menu ask.
 	 *
 	 * @internal
 	 *
@@ -165,14 +95,6 @@ final class Promo_Registry {
 	 * @return Promo[] The gated promos.
 	 */
 	public function remember_available( callable $compute ) {
-		$this->ensure_hydrated();
-
-		// A read before the registry hydrates answers without the registrants hooked later, so it
-		// must not become the answer for the rest of the request.
-		if ( ! $this->hydrated ) {
-			return $compute();
-		}
-
 		if ( null === $this->available_promos ) {
 			$this->available_promos = $compute();
 		}
@@ -188,14 +110,11 @@ final class Promo_Registry {
 	 * @return Promo[] Map of `$slug => $promo` pairs.
 	 */
 	public function get_all_registered() {
-		$this->ensure_hydrated();
-
 		return $this->registered_promos;
 	}
 
 	/**
-	 * Checks if a promo is registered. Does not hydrate: register() relies on it, and a
-	 * registrant may run before the action fires.
+	 * Checks if a promo is registered.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -204,40 +123,6 @@ final class Promo_Registry {
 	 */
 	public function is_registered( $slug ) {
 		return isset( $this->registered_promos[ $slug ] );
-	}
-
-	/**
-	 * Fires the registration action once, on the first read after `init`.
-	 *
-	 * @return void
-	 */
-	private function ensure_hydrated() {
-		if ( $this->hydrated ) {
-			return;
-		}
-
-		// Latching this early would drop every registrant hooked later, including the ones still to
-		// run on `init` itself, so the read skips the action.
-		if ( ! did_action( 'init' ) || doing_action( 'init' ) ) {
-			$message = __( 'Promos are read after init. A read before it does not hydrate the registry and answers only what was registered directly.', 'jetpack-premium-analytics-pkg' );
-			_doing_it_wrong( __METHOD__, esc_html( $message ), 'jetpack-premium-analytics-$$next-version$$' );
-			return;
-		}
-
-		// Latched before the action so a registrant that reads the registry cannot re-enter.
-		$this->hydrated = true;
-
-		/**
-		 * Fires when the promo registry hydrates, on its first read after `init`.
-		 *
-		 * Register promos here rather than on `init`. A registrant that may run twice guards
-		 * with `is_registered()`.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param Promo_Registry $registry The registry being hydrated.
-		 */
-		do_action( self::REGISTER_ACTION, $this );
 	}
 
 	/**
@@ -256,26 +141,17 @@ final class Promo_Registry {
 	}
 
 	/**
-	 * What each placement requires and refuses, with the reason the registrant is given. A new
-	 * placement is one more entry here. Keyed by the members of `PLACEMENTS`.
+	 * The copy each placement cannot render without, with the reason. Keyed by `PLACEMENTS`.
 	 *
-	 * @return array<string, array> Rules per placement.
+	 * @return array<string, array<string, string>> Required fields per placement.
 	 */
-	private static function placement_rules() {
+	private static function required_fields() {
 		return array(
 			'options-menu' => array(
-				'required'          => array(
-					'cta_label' => __( 'An options-menu promo needs a cta_label. The label is the menu item.', 'jetpack-premium-analytics-pkg' ),
-				),
-				'refuse_dismissal'  => __( 'An options-menu promo cannot be dismissible. Pass dismissible as false.', 'jetpack-premium-analytics-pkg' ),
-				'refuse_own_module' => __( 'An options-menu promo is a menu item and cannot have a render module.', 'jetpack-premium-analytics-pkg' ),
+				'cta_label' => __( 'An options-menu promo needs a cta_label. The label is the menu item.', 'jetpack-premium-analytics-pkg' ),
 			),
 			'settings'     => array(
-				'required'          => array(
-					'title' => __( 'A promo card needs a title. The card is labelled by it.', 'jetpack-premium-analytics-pkg' ),
-				),
-				'refuse_dismissal'  => null,
-				'refuse_own_module' => null,
+				'title' => __( 'A promo card needs a title. The card is labelled by it.', 'jetpack-premium-analytics-pkg' ),
 			),
 		);
 	}

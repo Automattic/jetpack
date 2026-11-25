@@ -2,8 +2,8 @@
 /**
  * Promos: the registry helpers and the gates a registered promo passes before it shows.
  *
- * Internal to this package. The dashboard renders what is registered here; nothing outside the
- * package registers through it, so there is no versioned contract to hold.
+ * Internal to this package. The dashboard renders what is registered here, so there is no
+ * versioned contract to hold.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -15,9 +15,25 @@ use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 require_once __DIR__ . '/class-promo.php';
 require_once __DIR__ . '/class-promo-registry.php';
 
-const PROMO_PLACEMENTS = Promo_Registry::PLACEMENTS;
-
 const PROMO_FLAG = 'jetpack-stats-promos';
+
+/**
+ * Registers the promo flag, off by default.
+ *
+ * @since $$next-version$$
+ *
+ * @return void
+ */
+function register_promos_feature_flag() {
+	Feature_Flags::register(
+		PROMO_FLAG,
+		array(
+			'default'     => false,
+			'description' => 'Show the promotions the Stats v2 options menu and Settings page offer.',
+			'owner'       => 'jetpack-stats',
+		)
+	);
+}
 
 /**
  * Registers a promo.
@@ -47,7 +63,7 @@ function get_available_promos() {
 
 /**
  * Applies the gates to the registered promos. Call `get_available_promos()` instead, which keeps
- * the result for the rest of the request so no registrant's rule runs twice.
+ * the result for the rest of the request so no promo's rule runs twice.
  *
  * @since $$next-version$$
  *
@@ -102,24 +118,14 @@ function compute_available_promos() {
 }
 
 /**
- * Registers the promo flag, off by default, and the hooks that publish promos to the dashboard.
+ * Configures the promos. The flag registers earlier, at package boot.
  *
  * @since $$next-version$$
  *
  * @return void
  */
 function configure_promos() {
-	Feature_Flags::register(
-		PROMO_FLAG,
-		array(
-			'default'     => false,
-			'description' => 'Show promotions that other packages register into the Stats v2 options menu and Settings.',
-			'owner'       => 'jetpack-stats',
-		)
-	);
-
 	add_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_promos_script_data', 20 );
-	add_filter( 'jetpack-premium-analytics-wp-admin_boot_dependencies', __NAMESPACE__ . '\\add_promo_modules_to_boot_deps' );
 }
 
 /**
@@ -147,25 +153,4 @@ function inject_promos_script_data( array $data ): array {
 	);
 
 	return $data;
-}
-
-/**
- * Adds the available promos' render modules to the page import map as dynamic dependencies.
- *
- * @since $$next-version$$
- *
- * @param array $boot_dependencies Boot dependencies for the page.
- * @return array Updated boot dependencies.
- */
-function add_promo_modules_to_boot_deps( $boot_dependencies ) {
-	foreach ( get_available_promos() as $promo ) {
-		if ( ! empty( $promo->render_module ) ) {
-			$boot_dependencies[] = array(
-				'import' => 'dynamic',
-				'id'     => $promo->render_module,
-			);
-		}
-	}
-
-	return $boot_dependencies;
 }

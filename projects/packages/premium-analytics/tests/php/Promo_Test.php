@@ -71,7 +71,6 @@ class Promo_Test extends BaseTestCase {
 		$this->assertSame( 10, $promo->order );
 		$this->assertTrue( $promo->dismissible );
 		$this->assertSame( 90, $promo->snooze_days );
-		$this->assertNull( $promo->render_module );
 	}
 
 	/**
@@ -81,31 +80,29 @@ class Promo_Test extends BaseTestCase {
 		$promo = new Promo(
 			'acme/offer',
 			array(
-				'placement'     => 'settings',
-				'order'         => 5,
-				'title'         => 'Acme',
-				'description'   => 'Grow with Acme.',
-				'cta_label'     => 'Upgrade to Acme',
-				'cta_url'       => 'https://example.com/acme',
-				'dismissible'   => true,
-				'snooze_days'   => 30,
-				'render_module' => 'acme/promo',
-				'is_available'  => true,
+				'placement'    => 'settings',
+				'order'        => 5,
+				'title'        => 'Acme',
+				'description'  => 'Grow with Acme.',
+				'cta_label'    => 'Upgrade to Acme',
+				'cta_url'      => 'https://example.com/acme',
+				'dismissible'  => true,
+				'snooze_days'  => 30,
+				'is_available' => true,
 			)
 		);
 
 		$this->assertSame(
 			array(
-				'slug'          => 'acme/offer',
-				'placement'     => 'settings',
-				'order'         => 5,
-				'title'         => 'Acme',
-				'description'   => 'Grow with Acme.',
-				'cta_label'     => 'Upgrade to Acme',
-				'cta_url'       => 'https://example.com/acme',
-				'dismissible'   => true,
-				'snooze_days'   => 30,
-				'render_module' => 'acme/promo',
+				'slug'        => 'acme/offer',
+				'placement'   => 'settings',
+				'order'       => 5,
+				'title'       => 'Acme',
+				'description' => 'Grow with Acme.',
+				'cta_label'   => 'Upgrade to Acme',
+				'cta_url'     => 'https://example.com/acme',
+				'dismissible' => true,
+				'snooze_days' => 30,
 			),
 			$promo->to_array()
 		);

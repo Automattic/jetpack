@@ -1,6 +1,6 @@
 <?php
 /**
- * Promo Slot API: Promo class.
+ * Promos: Promo class.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 /**
- * Represents a promotional card another package registers into the dashboard.
+ * Represents a promotional card the dashboard offers.
  *
  * @since $$next-version$$
  */
@@ -87,14 +87,6 @@ final class Promo {
 	public $snooze_days = 90;
 
 	/**
-	 * Script module that renders the card; null for the default card.
-	 *
-	 * @since $$next-version$$
-	 * @var string|null
-	 */
-	public $render_module = null;
-
-	/**
 	 * Capability a user needs to be offered the promo. The Stats roles setting can let an editor or
 	 * an author open the dashboard, and an upgrade is not theirs to buy.
 	 *
@@ -155,16 +147,15 @@ final class Promo {
 	 */
 	public function to_array() {
 		return array(
-			'slug'          => $this->slug,
-			'placement'     => $this->placement,
-			'order'         => (int) $this->order,
-			'title'         => $this->title,
-			'description'   => $this->description,
-			'cta_label'     => $this->cta_label,
-			'cta_url'       => $this->cta_url,
-			'dismissible'   => $this->dismissible,
-			'snooze_days'   => $this->snooze_days,
-			'render_module' => $this->render_module,
+			'slug'        => $this->slug,
+			'placement'   => $this->placement,
+			'order'       => (int) $this->order,
+			'title'       => $this->title,
+			'description' => $this->description,
+			'cta_label'   => $this->cta_label,
+			'cta_url'     => $this->cta_url,
+			'dismissible' => $this->dismissible,
+			'snooze_days' => $this->snooze_days,
 		);
 	}
 
@@ -210,10 +201,6 @@ final class Promo {
 
 		if ( isset( $args['snooze_days'] ) ) {
 			$this->snooze_days = (int) $args['snooze_days'];
-		}
-
-		if ( isset( $args['render_module'] ) ) {
-			$this->render_module = (string) $args['render_module'];
 		}
 
 		if ( isset( $args['capability'] ) ) {
