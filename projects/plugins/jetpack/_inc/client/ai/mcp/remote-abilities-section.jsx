@@ -81,7 +81,7 @@ export function collectNamespaces( abilities, savedGroups, view, remoteOptIn ) {
 		if (
 			abilityPath &&
 			! publishedNames.has( rest ) &&
-			isRemoteAbilityExcludedFromBulk( rest, remoteOptIn )
+			isRemoteAbilityExcludedFromBulk( rest, savedGroups, remoteOptIn )
 		) {
 			// Keep individual grants editable if the site no longer publishes their catalog entries.
 			group.abilities.push( {
@@ -99,18 +99,19 @@ export function collectNamespaces( abilities, savedGroups, view, remoteOptIn ) {
  * Keys a remote namespace can change in bulk.
  *
  * @param {{keys: string[], abilityKeys: string[], abilities: Array}} group       - Namespace entry.
+ * @param {Record<string, boolean>}                                   savedGroups - Saved remote permissions.
  * @param {string[]}                                                  remoteOptIn - Opt-in ability names from the settings service.
  * @return {string[]} Allowlist keys.
  */
-function getRemoteBulkKeys( group, remoteOptIn ) {
+function getRemoteBulkKeys( group, savedGroups, remoteOptIn ) {
 	const individualKeys = group.abilityKeys.filter(
-		key => ! isRemoteAbilityExcludedFromBulk( key.split( ':' )[ 1 ], remoteOptIn )
+		key => ! isRemoteAbilityExcludedFromBulk( key.split( ':' )[ 1 ], savedGroups, remoteOptIn )
 	);
 	const publishedAbilities = group.abilities.filter( ability => ! ability.savedOnly );
 	const skipsAllPublishedAbilities =
 		publishedAbilities.length > 0 &&
 		publishedAbilities.every( ability =>
-			isRemoteAbilityExcludedFromBulk( ability.name, remoteOptIn )
+			isRemoteAbilityExcludedFromBulk( ability.name, savedGroups, remoteOptIn )
 		);
 	return skipsAllPublishedAbilities && individualKeys.length === 0
 		? []
@@ -128,7 +129,7 @@ function getRemoteBulkKeys( group, remoteOptIn ) {
  */
 export function collectRemoteKeys( abilities, savedGroups, view, remoteOptIn ) {
 	return [ ...collectNamespaces( abilities, savedGroups, view ).values() ].flatMap( group =>
-		getRemoteBulkKeys( group, remoteOptIn )
+		getRemoteBulkKeys( group, savedGroups, remoteOptIn )
 	);
 }
 
@@ -142,12 +143,12 @@ export function collectRemoteKeys( abilities, savedGroups, view, remoteOptIn ) {
  * @return {boolean} True when everything in the card is enabled.
  */
 export function isNamespaceAllEnabled( group, savedGroups, defaultEnabled, remoteOptIn ) {
-	const keys = getRemoteBulkKeys( group, remoteOptIn );
+	const keys = getRemoteBulkKeys( group, savedGroups, remoteOptIn );
 	return (
 		keys.every( key => ( savedGroups[ key ] ?? defaultEnabled ) === true ) &&
 		group.abilities.every(
 			ability =>
-				isRemoteAbilityExcludedFromBulk( ability.name, remoteOptIn ) ||
+				isRemoteAbilityExcludedFromBulk( ability.name, savedGroups, remoteOptIn ) ||
 				isRemoteAbilityEnabled(
 					savedGroups,
 					ability.name,
@@ -312,7 +313,7 @@ export default function RemoteAbilitiesSection( {
 						.map( ability => ability.name )
 				);
 				const bulkGroup = allNamespaces.get( namespace );
-				const intentKeys = getRemoteBulkKeys( bulkGroup, remoteOptIn );
+				const intentKeys = getRemoteBulkKeys( bulkGroup, savedGroups, remoteOptIn );
 				const allEnabled = isNamespaceAllEnabled(
 					bulkGroup,
 					savedGroups,

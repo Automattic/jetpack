@@ -157,12 +157,16 @@ export function isRemoteAbilityOptIn( name, remoteOptIn = [] ) {
 /**
  * Preserve the saved subscriber choice before WordPress.com starts enforcing individual opt-in.
  *
- * @param {string}   name          - Ability name.
- * @param {string[]} [remoteOptIn] - Opt-in ability names from the settings service.
+ * @param {string}                  name          - Ability name.
+ * @param {Record<string, boolean>} savedGroups   - Saved remote permissions.
+ * @param {string[]}                [remoteOptIn] - Opt-in ability names from the settings service.
  * @return {boolean} Whether bulk controls skip the individual setting.
  */
-export function isRemoteAbilityExcludedFromBulk( name, remoteOptIn ) {
-	return name === REMOTE_SUBSCRIBER_LIST || isRemoteAbilityOptIn( name, remoteOptIn );
+export function isRemoteAbilityExcludedFromBulk( name, savedGroups, remoteOptIn ) {
+	return (
+		isRemoteAbilityOptIn( name, remoteOptIn ) ||
+		( name === REMOTE_SUBSCRIBER_LIST && savedGroups[ `read:${ name }` ] !== undefined )
+	);
 }
 
 /**

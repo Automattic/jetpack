@@ -92,7 +92,7 @@ describe( 'RemoteAbilitiesSection', () => {
 		expect( screen.getByText( /can’t be loaded right now/ ) ).toBeInTheDocument();
 	} );
 
-	test( 'a subscriber list inherits namespace access until the server marks it opt-in', async () => {
+	test( 'an unsaved subscriber list follows namespace access before opt-in enforcement', async () => {
 		renderSection( {
 			view: 'read',
 			saved: { 'read:jetpack-stats': true },
@@ -109,6 +109,8 @@ describe( 'RemoteAbilitiesSection', () => {
 		await userEvent.click( screen.getByRole( 'button', { name: 'Show operations' } ) );
 		expect( screen.getByRole( 'switch', { name: 'List remote subscribers' } ) ).toBeChecked();
 		expect( screen.queryByText( 'Turn on individually' ) ).not.toBeInTheDocument();
+		await userEvent.click( screen.getByRole( 'switch', { name: 'Enable all' } ) );
+		expect( sentGroups() ).toEqual( { 'read:jetpack-stats': false } );
 	} );
 
 	test( 'can revoke a saved individual grant when the catalog cannot be loaded', async () => {
