@@ -59,6 +59,7 @@ import {
 	OnboardingTour,
 	onboardingTourSteps,
 	LockedSection,
+	ParselyUpgradeCard,
 	RefreshFailureNotice,
 	SectionNotice,
 	SectionSyncNotice,
@@ -650,6 +651,11 @@ function Dashboard(): JSX.Element {
 															<WidgetDashboard.Widgets className={ styles.widgets } />
 														</div>
 														{ isSectionLocked && <LockedSection section={ section.slug } /> }
+														<ParselyUpgradeCard
+															enabled={
+																! editMode && ! isSectionLocked && section.slug === 'traffic'
+															}
+														/>
 													</div>
 												</DashboardSectionProvider>
 											) : null }
