@@ -2253,7 +2253,7 @@ class Jetpack {
 	}
 
 	/**
-	 * Whether Jetpack SEO turns on Open Graph tags: SEO Tools runs, and the site is one SEO is offered on.
+	 * Whether Jetpack SEO turns on Open Graph tags: SEO Tools runs and prints its meta tags, on a site SEO is offered on.
 	 *
 	 * VIP is excluded so its existing SEO Tools activation doesn't start new output.
 	 *
@@ -2263,7 +2263,9 @@ class Jetpack {
 		return method_exists( Jetpack_SEO_Initializer::class, 'is_seo_tools_active' )
 			&& Jetpack_SEO_Initializer::is_available()
 			&& Jetpack_SEO_Initializer::is_seo_tools_active()
-			&& Jetpack_SEO_Tools::is_enabled();
+			&& Jetpack_SEO_Tools::is_enabled()
+			/** This filter is documented in modules/seo-tools/class-jetpack-seo.php */
+			&& apply_filters( 'jetpack_seo_meta_tags_enabled', true );
 	}
 
 	/**
