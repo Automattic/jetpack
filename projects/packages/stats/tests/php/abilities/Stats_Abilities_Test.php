@@ -250,13 +250,15 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			$this->assertSame( 'object', $schema['type'], "{$slug} input must remain an object schema." );
 			$this->assertArrayHasKey( 'default', $schema, "{$slug} must default missing tunnel input to an empty object." );
 			$this->assertSame( array(), $schema['default'], "{$slug} must default missing tunnel input to an empty object." );
+			$this->assertTrue( rest_validate_value_from_schema( $schema['default'], $schema, 'input' ), "{$slug} must accept its empty input default." );
 		}
 	}
 
-	public function test_every_input_schema_validates_an_unexpected_key_without_a_php_error(): void {
+	public function test_every_input_schema_rejects_unexpected_keys_and_avoids_empty_property_arrays(): void {
 		foreach ( Stats_Abilities::get_abilities() as $slug => $spec ) {
 			$result = rest_validate_value_from_schema( array( 'unexpected' => 1 ), $spec['input_schema'], 'input' );
 			$this->assertInstanceOf( \WP_Error::class, $result, "{$slug} must reject an unexpected key." );
+			$this->assertStringNotContainsString( '"properties":[]', wp_json_encode( $spec['input_schema'], JSON_UNESCAPED_SLASHES ), "{$slug} must not list properties as a JSON array." );
 		}
 	}
 
@@ -1386,9 +1388,14 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$requests = $this->filter_wpcom_stats(
 			array(
 				'get_video_details' => array(
-					'fields'       => array( 'period', 'plays' ),
-					'data'         => array( array( '2026-03-01', 141 ), array( '2026-04-01', 81 ) ),
-					'total'        => array( 'plays' => 222 ),
+					'fields'       => array( 'period', 'plays', 'impressions', 'watch_time', 'retention_rate' ),
+					'data'         => array( array( '2026-03-01', 141, 131, 0.6416666, 102.44 ), array( '2026-04-01', 81, 60, 0.25, null ) ),
+					'total'        => array(
+						'plays'          => 222,
+						'impressions'    => 191,
+						'watch_time'     => 0.8916666,
+						'retention_rate' => 219.3,
+					),
 					'pages_detail' => array(
 						array(
 							'url'     => 'https://example.com/launch',
@@ -1419,7 +1426,7 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			array(
 				$video_id,
 				array(
-					'statType' => 'plays',
+					'statType' => 'all',
 					'period'   => 'month',
 					'num'      => 2,
 					'date'     => '2026-04-23',
@@ -1428,11 +1435,23 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 			$requests['get_video_details']
 		);
 		$this->assertSame( 'Launch demo', $result['title'] );
-		$this->assertSame( 222, $result['total_plays'] );
 		$this->assertSame(
 			array(
-				'date'  => '2026-04-01',
-				'plays' => 81,
+				'plays'          => 222,
+				'impressions'    => 191,
+				'hours_watched'  => 0.8916666,
+				'retention_rate' => 219.3,
+			),
+			$result['total']
+		);
+		$this->assertSame( array( 102.4, null ), array_column( $result['series'], 'retention_rate' ) );
+		$this->assertSame(
+			array(
+				'date'           => '2026-04-01',
+				'plays'          => 81,
+				'impressions'    => 60,
+				'hours_watched'  => 0.25,
+				'retention_rate' => null,
 			),
 			$result['series'][1]
 		);
@@ -2598,6 +2617,137 @@ class Stats_Abilities_Test extends StatsBaseTestCase {
 		$this->assertSame( array( 'https://example.com/shop', 'Post title' ), array_column( $result['clicks']['by_link'], 'label' ) );
 		$this->assertNull( $result['opens']['by_device'] );
 		$this->assertSame( array( 'opens/device' ), $result['errors'] );
+		$this->assertNull( $result['timeline'] );
+	}
+
+	/**
+	 * The timeline window starts at the send, merges opens and clicks, and stops at the current bucket.
+	 *
+	 * @dataProvider provide_email_timelines
+	 *
+	 * @param string $sent      The post's publish date, as a strtotime() offset from now or a date.
+	 * @param string $window    The `timeline` input.
+	 * @param array  $args      The request WPCOM should get.
+	 * @param array  $data      The opens rows WPCOM answers; clicks answer the same rows halved.
+	 * @param array  $dates     The row dates the timeline should keep.
+	 */
+	#[DataProvider( 'provide_email_timelines' )]
+	public function test_get_email_detail_draws_a_timeline_from_the_send( string $sent, string $window, array $args, array $data, array $dates ): void {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Launch',
+				'post_status' => 'publish',
+				'post_date'   => wp_date( 'Y-m-d H:i:s', strtotime( $sent ) ),
+			)
+		);
+		$asked   = new \ArrayObject();
+		$stub    = $this->createStub( WPCOM_Stats::class );
+		$stub->method( 'get_email_breakdown' )->willReturn( array() );
+		$stub->method( 'get_email_timeline' )->willReturnCallback(
+			static function ( $post, $stat, $request ) use ( $asked, $data ) {
+				$asked[ $stat ] = $request;
+				$fields         = 3 === count( $data[0] ) ? array( 'date', 'hour', "{$stat}_count" ) : array( 'date', "{$stat}_count" );
+				$halve          = static function ( $row ) use ( $stat ) {
+					$row[ count( $row ) - 1 ] = 'opens' === $stat ? $row[ count( $row ) - 1 ] : intdiv( $row[ count( $row ) - 1 ], 2 );
+					return $row;
+				};
+				return array(
+					'timeline' => array(
+						'fields' => $fields,
+						'data'   => array_map( $halve, $data ),
+					),
+				);
+			}
+		);
+		add_filter(
+			'jetpack_stats_abilities_wpcom_stats',
+			static function () use ( $stub ) {
+				return $stub;
+			}
+		);
+
+		$result = Stats_Abilities::get_email_detail(
+			array(
+				'post_id'  => $post_id,
+				'timeline' => $window,
+			)
+		);
+
+		$this->assert_matches_output_schema( 'jetpack-stats/get-email-detail', $result );
+		$this->assertSame( array( $args, $args ), array( $asked['opens'], $asked['clicks'] ) );
+		$this->assertSame( $dates, array_column( $result['timeline']['rows'], 'date' ) );
+		$this->assertSame(
+			array(
+				'opens'  => 10,
+				'clicks' => 5,
+			),
+			array_intersect_key(
+				$result['timeline']['rows'][0],
+				array(
+					'opens'  => 0,
+					'clicks' => 0,
+				)
+			)
+		);
+		$this->assertArrayHasKey( 'email_timeline', $result['definitions'] );
+	}
+
+	/**
+	 * Timeline windows.
+	 *
+	 * @return array
+	 */
+	public static function provide_email_timelines(): array {
+		$today = wp_date( 'Y-m-d' );
+		$hours = array();
+		for ( $hour = 0; $hour < 41; $hour++ ) {
+			$hours[] = array( $hour < 24 ? '2026-10-23' : '2026-10-24', $hour % 24, $hour < 17 ? 0 : 10 );
+		}
+		return array(
+			'first day by the hour, from the send hour' => array(
+				'2026-10-23 17:15:00',
+				'first_24_hours',
+				array(
+					'period'   => 'hour',
+					'quantity' => 41,
+					'date'     => '2026-10-23',
+				),
+				$hours,
+				array_map(
+					static function ( $row ) {
+						return sprintf( '%s %02d:00', $row[0], $row[1] );
+					},
+					array_slice( $hours, 17 )
+				),
+			),
+			'a recent send stops at today'              => array(
+				'-1 day',
+				'first_7_days',
+				array(
+					'period'   => 'day',
+					'quantity' => 7,
+					'date'     => wp_date( 'Y-m-d', strtotime( '-1 day' ) ),
+				),
+				array_map(
+					static function ( $day ) {
+						return array( wp_date( 'Y-m-d', strtotime( "$day day" ) ), 10 );
+					},
+					range( -1, 5 )
+				),
+				array( wp_date( 'Y-m-d', strtotime( '-1 day' ) ), $today ),
+			),
+			'all time by the month'                     => array(
+				'first day of -14 months',
+				'all_time',
+				array(
+					'period'   => 'month',
+					'quantity' => 15,
+					'date'     => wp_date( 'Y-m-01', strtotime( 'first day of -14 months' ) ),
+				),
+				array( array( wp_date( 'Y-m-01', strtotime( 'first day of -14 months' ) ), 10 ) ),
+				array( wp_date( 'Y-m-01', strtotime( 'first day of -14 months' ) ) ),
+			),
+		);
 	}
 
 	public function test_get_post_detail_reports_one_post(): void {

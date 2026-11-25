@@ -24,6 +24,9 @@ export type ExternalLinkProps = {
 	 * Optional native title attribute, for the full text on hover.
 	 */
 	title?: string;
+
+	/** The id of an element that describes the link, e.g. a mark beside it. */
+	ariaDescribedBy?: string;
 };
 
 /**
@@ -39,9 +42,17 @@ export function ExternalLink( {
 	variant = 'unstyled',
 	className,
 	title,
+	ariaDescribedBy,
 }: ExternalLinkProps ): JSX.Element {
 	return (
-		<Link className={ className } href={ href } variant={ variant } openInNewTab title={ title }>
+		<Link
+			className={ className }
+			href={ href }
+			variant={ variant }
+			openInNewTab
+			title={ title }
+			aria-describedby={ ariaDescribedBy }
+		>
 			{ children }
 		</Link>
 	);

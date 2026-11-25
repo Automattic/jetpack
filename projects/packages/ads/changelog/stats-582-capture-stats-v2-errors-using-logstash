@@ -1,3 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Report this package's dashboard widget script origin so the Premium Analytics error reporter recognises its frames.

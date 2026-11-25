@@ -1,3 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Use a shared timestamp for IndexNow cooldown and retry scheduling.

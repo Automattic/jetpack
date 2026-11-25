@@ -43,7 +43,9 @@ describe( 'VerificationCard', () => {
 			/>
 		);
 
-		expect( screen.getByRole( 'checkbox', { name: /Enable site verification/ } ) ).toBeEnabled();
+		expect(
+			screen.getByRole( 'switch', { name: /Enable site verification/ } )
+		).not.toHaveAttribute( 'aria-disabled' );
 		expect( screen.getByRole( 'button', { name: /Verify with Google/ } ) ).toHaveAttribute(
 			'aria-disabled',
 			'true'
@@ -69,7 +71,7 @@ describe( 'VerificationCard', () => {
 		);
 
 		expect(
-			screen.queryByRole( 'checkbox', { name: /Enable site verification/ } )
+			screen.queryByRole( 'switch', { name: /Enable site verification/ } )
 		).not.toBeInTheDocument();
 		expect( screen.getByRole( 'textbox', { name: /Bing/ } ) ).toBeEnabled();
 	} );

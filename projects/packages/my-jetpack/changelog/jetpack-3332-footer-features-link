@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Remove the Features link from the footer, since the header already links to it.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix the Monetize page for WoA admins without a WordPress.com account, the Overview Ads card after switching ads, the PayPal path for owed earnings without a plan, the Stripe return notice, and a double save in the free tier dialog.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-JitmSlot: Take the JITM container back when the admin shell shows the slot's dashboard again.

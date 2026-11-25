@@ -492,7 +492,10 @@ class Jetpack_Sitemap_Librarian {
 	public function query_most_recent_posts( $num_posts ) {
 		global $wpdb;
 
-		$two_days_ago = gmdate( 'Y-m-d', strtotime( '-2 days' ) );
+		$now          = time();
+		$two_days_ago = gmdate( 'Y-m-d H:i:s', $now - 2 * DAY_IN_SECONDS );
+		// Keep an indexed local-date range that includes every valid timezone offset.
+		$local_limit = gmdate( 'Y-m-d H:i:s', $now - 3 * DAY_IN_SECONDS );
 
 		/**
 		 * Filter post types to be included in news sitemap.
@@ -523,10 +526,14 @@ class Jetpack_Sitemap_Librarian {
 					FROM $wpdb->posts
 					WHERE post_status='publish'
 						AND post_date >= '%s'
+						AND post_date_gmt > '%s'
+						AND post_date_gmt <= '%s'
 						AND post_type IN ($post_types_list)
-					ORDER BY post_date DESC
+					ORDER BY post_date_gmt DESC
 					LIMIT %d;",
+				$local_limit,
 				$two_days_ago,
+				gmdate( 'Y-m-d H:i:s', $now ),
 				$num_posts
 			)
 		);

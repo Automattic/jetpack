@@ -391,10 +391,12 @@ class Jetpack_Sitemap_Manager_Test extends WP_UnitTestCase {
 	public function test_sitemap_manager_flushes_news_sitemap_cache() {
 		// Set up a mock cache entry
 		set_transient( 'jetpack_news_sitemap_xml', 'test cache data' );
+		set_transient( 'jetpack_news_sitemap_xml_v2', 'test cache data' );
 
 		$this->manager->callback_action_flush_news_sitemap_cache();
 
 		$this->assertFalse( get_transient( 'jetpack_news_sitemap_xml' ) );
+		$this->assertFalse( get_transient( 'jetpack_news_sitemap_xml_v2' ) );
 	}
 
 	/**
@@ -406,9 +408,57 @@ class Jetpack_Sitemap_Manager_Test extends WP_UnitTestCase {
 	public function test_sitemap_manager_purges_all_data() {
 		// Set up mock data
 		set_transient( 'jetpack_news_sitemap_xml', 'test cache data' );
+		set_transient( 'jetpack_news_sitemap_xml_v2', 'test cache data' );
 
 		$this->manager->callback_action_purge_data();
 
 		$this->assertFalse( get_transient( 'jetpack_news_sitemap_xml' ) );
+		$this->assertFalse( get_transient( 'jetpack_news_sitemap_xml_v2' ) );
+	}
+
+	/** @dataProvider news_publication_changes */
+	#[DataProvider( 'news_publication_changes' )]
+	public function test_news_cache_tracks_included_publication_changes( $type, $before, $after, $flush, $included_types = null ) {
+		register_post_type( 'news_story', array( 'public' => true ) );
+		$types = static function ( $defaults ) use ( $included_types ) {
+			return $included_types ?? $defaults;
+		};
+		add_filter( 'jetpack_sitemap_news_sitemap_post_types', $types );
+		try {
+			$post = self::factory()->post->create(
+				array(
+					'post_type'   => $type,
+					'post_status' => $before,
+				)
+			);
+			set_transient( 'jetpack_news_sitemap_xml_v2', 'cached news' );
+			if ( 'delete' === $after ) {
+				wp_delete_post( $post, true );
+			} else {
+				wp_update_post(
+					array(
+						'ID'          => $post,
+						'post_status' => $after,
+						'post_title'  => 'Updated headline',
+					)
+				);
+			}
+			$this->assertSame( $flush ? false : 'cached news', get_transient( 'jetpack_news_sitemap_xml_v2' ) );
+		} finally {
+			remove_filter( 'jetpack_sitemap_news_sitemap_post_types', $types );
+			unregister_post_type( 'news_story' );
+		}
+	}
+
+	public static function news_publication_changes() {
+		return array(
+			'publish page'          => array( 'page', 'draft', 'publish', true ),
+			'delete published post' => array( 'post', 'publish', 'delete', true ),
+			'unpublish post'        => array( 'post', 'publish', 'draft', true ),
+			'update published post' => array( 'post', 'publish', 'publish', true ),
+			'publish included type' => array( 'news_story', 'draft', 'publish', true, array( 'news_story' ) ),
+			'publish excluded type' => array( 'news_story', 'draft', 'publish', false ),
+			'edit unpublished page' => array( 'page', 'draft', 'draft', false ),
+		);
 	}
 }

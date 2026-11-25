@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.41.0 - 2026-11-23
+### Changed
+- Admin bar: Let the browser reuse the views chart image for five minutes instead of fetching it on every page view. [#55208]
+- Load the Stats page faster by including the WordPress.com site details in the page instead of fetching them first. [#55211]
+
+### Removed
+- Settings: Stop offering the WordPress.com Reader post views setting on the Stats settings route. [#54987]
+
 ## 0.40.1 - 2026-11-16
 ### Changed
 - Update package dependencies. [#54703]

@@ -180,9 +180,9 @@ under `packages/data/src/api/`.
 Simple has no local proxy, notices, sync, or dashboard support routes — WPCOM serves the dashboard
 and reaches `public-api.wordpress.com` directly. The `wpcom` repo's
 `wp-content/mu-plugins/jetpack/wpcom-premium-analytics.php` boots the package via
-`Analytics::init_wpcom_simple()`, behind the site's own `jetpack_premium_analytics_enabled`
-opt-in or the `jetpack-premium-analytics` blog sticker, whichever says yes. Both answer the
-shared `jetpack_premium_analytics_enabled` filter, as they do on the other platforms.
+`Analytics::init_wpcom_simple()` when the shared `jetpack_premium_analytics_enabled` filter says
+yes, over the same default as the other platforms: the site's own opt-in, or classic Stats
+being retired.
 
 ### Route guards must use the shared site-readiness helpers
 

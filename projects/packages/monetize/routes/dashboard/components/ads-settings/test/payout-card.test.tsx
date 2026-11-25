@@ -77,7 +77,7 @@ describe( 'PayoutCard', () => {
 		mockedApiFetch.mockImplementationOnce( respond );
 		renderCard();
 
-		expect( screen.getByRole( 'heading', { name: 'Payouts' } ) ).toBeVisible();
+		expect( screen.getByRole( 'heading', { name: 'Payout details' } ) ).toBeVisible();
 		expect( screen.getByRole( 'textbox', { name: 'PayPal email address' } ) ).toBeDisabled();
 		await waitFor( () =>
 			expect( Boolean( screen.queryByText( 'Your payout details could not be loaded.' ) ) ).toBe(
@@ -88,7 +88,7 @@ describe( 'PayoutCard', () => {
 
 	it( 'saves a first address only with the terms agreed', async () => {
 		const user = userEvent.setup();
-		await renderLoaded( { paypal: '', tosSigned: false } );
+		await renderLoaded( { paypal: '', tosSigned: false }, false );
 		await user.type( screen.getByRole( 'textbox' ), 'a@example.com' );
 		const save = screen.getByRole( 'button', { name: 'Save' } );
 
@@ -145,16 +145,34 @@ describe( 'PayoutCard', () => {
 		).resolves.toBeVisible();
 	} );
 
-	it( 'keeps signed terms checked and locked', async () => {
-		await renderLoaded( { paypal: 'a@example.com', tosSigned: true } );
+	it.each( [
+		[ 'signed terms', true, false ],
+		[ 'terms agreed by turning ads on', false, true ],
+	] )( 'keeps %s checked and locked', async ( _label, tosSigned, adsActive ) => {
+		await renderLoaded( { paypal: 'a@example.com', tosSigned }, adsActive );
 
 		expect( screen.getByRole( 'checkbox' ) ).toBeChecked();
 		expect( screen.getByRole( 'checkbox' ) ).toHaveAttribute( 'aria-disabled', 'true' );
 	} );
 
-	it( 'saves the terms alone when there is no address yet', async () => {
+	it( 'records the terms ads agreed to with the next save', async () => {
 		const user = userEvent.setup();
 		await renderLoaded( { paypal: '', tosSigned: false } );
+		await user.type( screen.getByRole( 'textbox' ), 'a@example.com' );
+
+		mockedApiFetch.mockResolvedValueOnce( toWpcom( { paypal: 'a@example.com', tosSigned: true } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+
+		await waitFor( () =>
+			expect( mockedApiFetch ).toHaveBeenLastCalledWith(
+				expect.objectContaining( { data: { paypal: 'a@example.com', tos: 'signed' } } )
+			)
+		);
+	} );
+
+	it( 'saves the terms alone when there is no address yet', async () => {
+		const user = userEvent.setup();
+		await renderLoaded( { paypal: '', tosSigned: false }, false );
 
 		mockedApiFetch.mockResolvedValueOnce( toWpcom( { paypal: '', tosSigned: true } ) );
 		await user.click( screen.getByRole( 'checkbox' ) );

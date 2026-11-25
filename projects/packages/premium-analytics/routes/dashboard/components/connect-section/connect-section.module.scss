@@ -1,0 +1,10 @@
+.root {
+	max-inline-size: 480px;
+	margin-block-start: var(--wpds-dimension-gap-lg);
+	margin-inline: auto;
+	padding: var(--wpds-dimension-padding-2xl);
+}
+
+.description {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}

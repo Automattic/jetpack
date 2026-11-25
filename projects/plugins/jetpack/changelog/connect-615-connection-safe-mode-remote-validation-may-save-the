@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Safe Mode: Show the WordPress.com address correctly instead of reversed after Safe Mode checks the connection again.

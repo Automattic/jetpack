@@ -9,7 +9,7 @@ jest.mock( '@automattic/jetpack-connection/connection-from', () => ( {
 } ) );
 jest.mock( '@automattic/jetpack-connection/use-connection', () => ( {
 	__esModule: true,
-	default: () => mockUseConnection(),
+	default: ( options: unknown ) => mockUseConnection( options ),
 } ) );
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	isSimpleSite: () => mockIsSimpleSite(),
@@ -64,5 +64,27 @@ describe( 'ConnectionGate', () => {
 		);
 
 		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( /Offline Mode/ );
+	} );
+
+	it( 'brings the user back to the same tab after connecting', () => {
+		window.history.pushState(
+			{},
+			'',
+			'/wp-admin/admin.php?page=jetpack-monetize&p=%2F%3Ftab%3Dads'
+		);
+		mockIsSimpleSite.mockReturnValue( false );
+		mockUseConnection.mockReturnValue( { handleRegisterSite: jest.fn() } );
+
+		render(
+			<ConnectionGate>
+				<p>Ads</p>
+			</ConnectionGate>
+		);
+
+		expect( mockUseConnection ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				redirectUri: 'admin.php?page=jetpack-monetize&p=%2F%3Ftab%3Dads',
+			} )
+		);
 	} );
 } );

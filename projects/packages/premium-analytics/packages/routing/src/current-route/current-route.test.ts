@@ -1,5 +1,5 @@
 import { DASHBOARD_PAGE_SLUG } from '../dashboard-href';
-import { getCurrentRoutePath, onLocationChange } from './current-route';
+import { getCurrentRoutePath } from './current-route';
 
 const openUrl = ( search: string ): void => {
 	window.history.replaceState( null, '', search );
@@ -35,8 +35,30 @@ describe( 'getCurrentRoutePath', () => {
 } );
 
 describe( 'onLocationChange', () => {
+	let onLocationChange: ( listener: () => void ) => void;
+
+	beforeEach( async () => {
+		// Loaded again without its imports: a second copy of those evaluates Yjs twice, which logs an error.
+		jest.resetModules();
+		jest.doMock( '../dashboard-href', () => ( { DASHBOARD_PAGE_SLUG } ) );
+		( { onLocationChange } = await import( './current-route' ) );
+	} );
+
 	afterEach( () => {
 		delete ( window as { navigation?: unknown } ).navigation;
+
+		for ( const method of [ 'pushState', 'replaceState' ] ) {
+			Reflect.deleteProperty( window.history, method );
+		}
+	} );
+
+	it( 'leaves the history alone where the Navigation API tells of its writes', () => {
+		Object.defineProperty( window, 'navigation', { configurable: true, value: new EventTarget() } );
+
+		onLocationChange( jest.fn() );
+
+		// The two methods live on the prototype, so a wrap shows as a property of the history itself.
+		expect( Object.getOwnPropertyNames( window.history ) ).toEqual( [] );
 	} );
 
 	it( 'runs the listener when the URL changes', () => {
@@ -51,14 +73,22 @@ describe( 'onLocationChange', () => {
 		expect( listener ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	it.each< [ string, string ] >( [
-		[ 'the admin shell shows a page', 'jetpack-admin-shell:page-shown' ],
-		[ 'the user goes back or forward', 'popstate' ],
-	] )( 'runs the listener when %s', ( _case, type ) => {
+	it.each< [ string, () => void ] >( [
+		[
+			'the admin shell shows a page',
+			() => window.dispatchEvent( new Event( 'jetpack-admin-shell:page-shown' ) ),
+		],
+		[ 'the user goes back or forward', () => window.dispatchEvent( new Event( 'popstate' ) ) ],
+		[ 'a router opens a route', () => window.history.pushState( null, '', window.location.href ) ],
+		[
+			'a router rewrites the URL',
+			() => window.history.replaceState( null, '', window.location.href ),
+		],
+	] )( 'runs the listener when %s', ( _case, change ) => {
 		const listener = jest.fn();
 
 		onLocationChange( listener );
-		window.dispatchEvent( new Event( type ) );
+		change();
 
 		expect( listener ).toHaveBeenCalledTimes( 1 );
 	} );

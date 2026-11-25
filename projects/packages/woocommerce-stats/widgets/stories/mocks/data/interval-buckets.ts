@@ -121,6 +121,21 @@ export function dayIndexOf( dateText: string ): number {
 /** The day every fixture's trend grows from, shared so the reports stay consistent with each other. */
 export const ANCHOR_DAY = dayIndexOf( '2026-01-01' );
 
+export type DailyTrend = { base: number; growth: number; amplitude: number };
+
+/**
+ * A daily value that grows linearly from `ANCHOR_DAY` under a seasonal wobble. `growth` must outrun `amplitude` across the gap to the comparison window, or an earlier window reads higher and every comparison assertion inverts.
+ *
+ * @param {DailyTrend} trend - The trend's starting level, daily growth and seasonal amplitude.
+ * @return {Function} The value for an absolute day number.
+ */
+export const dailyTrend =
+	( { base, growth, amplitude }: DailyTrend ) =>
+	( dayIndex: number ) =>
+		Math.max( 1, base + growth * ( dayIndex - ANCHOR_DAY ) + amplitude * Math.sin( dayIndex / 8 ) );
+
+export const sessionsPerDay = dailyTrend( { base: 920, growth: 8, amplitude: 180 } );
+
 /**
  * How many days a set of buckets covers. Taken from the dates rather than the bucket
  * count, which only agree while the interval is a day.

@@ -28,7 +28,12 @@ declare global {
  * @param {JetpackFooterProps} props - Component properties.
  * @return {ReactNode} UnstyledJetpackFooter component.
  */
-const UnstyledJetpackFooter: FC< JetpackFooterProps > = ( { className, menu, ...otherProps } ) => {
+const UnstyledJetpackFooter: FC< JetpackFooterProps > = ( {
+	className,
+	menu,
+	showFeaturesLink = true,
+	...otherProps
+} ) => {
 	let items: JetpackFooterMenuItem[] = [];
 
 	const myJetpack = getScriptData()?.myJetpack;
@@ -37,7 +42,7 @@ const UnstyledJetpackFooter: FC< JetpackFooterProps > = ( { className, menu, ...
 
 	if ( myJetpack?.isAvailable === true && isShownByHost && ! window?.JetpackNetworkAdminData ) {
 		// My Jetpack shows the Features tab to admins only.
-		if ( currentUserCan( 'manage_options' ) ) {
+		if ( showFeaturesLink && currentUserCan( 'manage_options' ) ) {
 			items.push( {
 				label: __( 'Features', 'jetpack-components' ),
 				href: getAdminUrl( 'admin.php?page=my-jetpack#/features' ),

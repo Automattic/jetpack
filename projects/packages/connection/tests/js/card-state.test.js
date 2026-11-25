@@ -1,20 +1,11 @@
 const assert = require( 'node:assert/strict' );
 const { before, describe, it } = require( 'node:test' );
 
-let decorateAuthUrl,
-	getCardConnection,
-	getProtectedOwnerStatus,
-	withoutClearConfirmation,
-	withSkipPricing;
+let decorateAuthUrl, getCardConnection, getProtectedOwnerStatus, withSkipPricing;
 
 before( async () => {
-	( {
-		decorateAuthUrl,
-		getCardConnection,
-		getProtectedOwnerStatus,
-		withoutClearConfirmation,
-		withSkipPricing,
-	} = await import( '../../src/connectors/js/card-state.mjs' ) );
+	( { decorateAuthUrl, getCardConnection, getProtectedOwnerStatus, withSkipPricing } =
+		await import( '../../src/connectors/js/card-state.mjs' ) );
 } );
 
 const ownerUser = { id: 1, isMaster: true, wpcomUser: { display_name: 'Owner', login: 'owner' } };
@@ -200,17 +191,6 @@ describe( 'decorateAuthUrl', () => {
 
 	it( 'returns a URL it cannot parse unchanged', () => {
 		assert.equal( decorateAuthUrl( '/relative' ), '/relative' );
-	} );
-} );
-
-describe( 'withoutClearConfirmation', () => {
-	it( "drops the admin bar's clear-confirmation arguments and keeps the rest", () => {
-		assert.equal(
-			withoutClearConfirmation(
-				'https://example.com/wp-admin/options-connectors.php?connector=wordpress_com&jetpack_idc_clear_confirmation=1&_wpnonce=abc'
-			),
-			'https://example.com/wp-admin/options-connectors.php?connector=wordpress_com'
-		);
 	} );
 } );
 
