@@ -123,7 +123,7 @@ export function PromoCard( { promo }: PromoCardProps ) {
 				</Stack>
 			</Card.Header>
 			<Card.Content>
-				<Stack direction="column" gap="sm" align="flex-start">
+				<Stack direction="column" gap="md" align="flex-start">
 					<Text variant="body-md">{ promo.description }</Text>
 					<PromoCta
 						href={ promo.cta_url }
