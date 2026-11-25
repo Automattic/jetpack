@@ -21,7 +21,7 @@ import {
 import { __ } from '@wordpress/i18n';
 import { page as pageIcon, post as postIcon } from '@wordpress/icons';
 import { useSearch } from '@wordpress/route';
-import { useMemo, type JSX } from 'react';
+import { memo, useMemo, type JSX } from 'react';
 /**
  * Internal dependencies
  */
@@ -98,6 +98,18 @@ function PostTitle( { item, links }: PostTitleProps ): JSX.Element {
 	);
 }
 
+// DataViews re-renders every mounted row, each item a fresh copy, whenever a batch mounts; the
+// title link builds a router location per row, so skip it while what it shows is unchanged.
+const MemoizedPostTitle = memo(
+	PostTitle,
+	( previous, next ) =>
+		previous.links === next.links &&
+		previous.item.id === next.item.id &&
+		previous.item.label === next.item.label &&
+		previous.item.link === next.item.link &&
+		previous.item.type === next.item.type
+);
+
 /**
  * DataViews field config for the Posts & Pages records table.
  *
@@ -122,7 +134,7 @@ export function getPostsFields(
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => String( item.label ?? '' ),
-			render: ( { item } ) => <PostTitle item={ item } links={ titleLinks } />,
+			render: ( { item } ) => <MemoizedPostTitle item={ item } links={ titleLinks } />,
 		},
 		{
 			id: 'thumbnail',
