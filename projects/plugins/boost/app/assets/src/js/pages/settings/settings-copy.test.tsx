@@ -8,7 +8,6 @@ import MinifyCss from '$features/minify-css/minify-css';
 import MinifyJs from '$features/minify-js/minify-js';
 import PageCache from '$features/page-cache/page-cache';
 import RenderBlockingJs from '$features/render-blocking-js/render-blocking-js';
-import { ModuleSurfaceProvider } from '$features/module/surface';
 import type { ReactNode } from 'react';
 
 jest.mock( '$features/module/module', () => ( {
@@ -103,11 +102,7 @@ test.each( [
 			'Shows image size information as you browse, helping you spot images that may be too large.',
 	},
 ] )( '$title shows its title and description', ( { component: Component, title, description } ) => {
-	render(
-		<ModuleSurfaceProvider value="row">
-			<Component />
-		</ModuleSurfaceProvider>
-	);
+	render( <Component /> );
 	expect( screen.getByRole( 'heading', { name: title } ) ).toBeTruthy();
 	expect( screen.getByText( description ) ).toBeTruthy();
 } );

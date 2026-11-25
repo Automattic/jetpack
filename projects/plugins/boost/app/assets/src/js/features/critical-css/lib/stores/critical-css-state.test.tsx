@@ -2,7 +2,6 @@
 /* eslint-disable jest-dom/prefer-in-document, jest-dom/prefer-enabled-disabled */
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { DataSyncProvider, queryClient } from '@automattic/jetpack-react-data-sync-client';
-import { ModuleSurfaceProvider } from '$features/module/surface';
 import CriticalCssProvider from '../../critical-css-context/critical-css-context-provider';
 import CriticalCssMeta from '../../critical-css-meta/critical-css-meta';
 import { runLocalGenerator } from '../generate-critical-css';
@@ -257,13 +256,11 @@ describe( 'Regenerate reply', () => {
 // The dashboard as the modern Settings surface renders it, with the real store and data-sync client.
 function mountDashboard() {
 	return render(
-		<ModuleSurfaceProvider value="row">
-			<DataSyncProvider>
-				<CriticalCssProvider>
-					<CriticalCssMeta />
-				</CriticalCssProvider>
-			</DataSyncProvider>
-		</ModuleSurfaceProvider>
+		<DataSyncProvider>
+			<CriticalCssProvider>
+				<CriticalCssMeta />
+			</CriticalCssProvider>
+		</DataSyncProvider>
 	);
 }
 

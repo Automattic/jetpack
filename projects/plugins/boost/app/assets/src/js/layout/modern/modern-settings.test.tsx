@@ -7,18 +7,17 @@ jest.mock( '$lib/stores/premium-features', () => ( {
 	usePremiumFeatures: () => [],
 } ) );
 jest.mock( '../../pages/settings/settings', () => {
-	const { ModuleSurfaceProvider } = jest.requireActual( '$features/module/surface' );
 	const PremiumTooltip = jest.requireActual( '$features/premium-tooltip/premium-tooltip' ).default;
 	return {
 		__esModule: true,
 		default: ( { active = true }: { active?: boolean } ) => (
-			<ModuleSurfaceProvider value="row">
+			<>
 				<div data-testid="settings-active">{ String( active ) }</div>
 				<div>settings body</div>
 				<div data-testid="card">
 					<PremiumTooltip />
 				</div>
-			</ModuleSurfaceProvider>
+			</>
 		),
 	};
 } );

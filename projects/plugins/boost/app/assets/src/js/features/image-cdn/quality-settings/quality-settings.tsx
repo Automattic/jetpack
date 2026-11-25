@@ -4,7 +4,7 @@ import styles from './quality-settings.module.scss';
 import { IconTooltip } from '@automattic/jetpack-components';
 import QualityControl from '../quality-control/quality-control';
 import { useImageCdnQuality } from '../lib/stores';
-import { useTooltipLayer } from '$features/module/surface';
+import { tooltipLayer } from '$features/module/tooltip-layer';
 import { useMutationNotice } from '$features/ui/mutation-notice/mutation-notice';
 
 type QualitySettingsProps = {
@@ -104,7 +104,7 @@ const Header = () => (
 			title={ __( 'Image Quality', 'jetpack-boost' ) }
 			label={ __( 'How image quality works', 'jetpack-boost' ) }
 			iconSize={ 22 }
-			{ ...useTooltipLayer() }
+			{ ...tooltipLayer }
 		>
 			{ __(
 				'Select the quality for images served by the CDN. Choosing a lower quality will compress your images and load them faster. If you choose lossless, we will not compress your images.',
