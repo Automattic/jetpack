@@ -30,6 +30,20 @@ body.toplevel_page_jetpack-seo {
 	.jp-admin-page__page {
 		background-color: var(--jetpack-seo-page-bg-canvas);
 	}
+
+	// Extend the 16px switch to a 24px pointer target without resizing it.
+	[role="switch"] {
+		position: relative;
+
+		&::after {
+			content: "";
+			position: absolute;
+			inset-block-start: 50%;
+			inset-inline: 0;
+			block-size: var(--wpds-dimension-size-sm);
+			transform: translateY(-50%);
+		}
+	}
 }
 
 // The route content is rendered inside `Tabs.Root` (`.jetpack-seo-tabs`), so

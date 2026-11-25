@@ -52,10 +52,3 @@
 .jetpack-seo-geo__robots-link {
 	align-self: flex-start;
 }
-
-// The enhancer's switch needs a 24px target when its label wraps.
-.jetpack-seo-geo__enhancer-switch [role="switch"] {
-	display: flex;
-	align-items: center;
-	min-block-size: var(--wpds-dimension-size-sm);
-}

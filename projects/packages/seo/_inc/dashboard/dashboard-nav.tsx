@@ -52,10 +52,11 @@ const DashboardNav = ( { active, children }: { active: SeoTab; children: ReactNo
 		const focusAtMount = ownerDocument.activeElement;
 		if ( previousFocus ) {
 			const selectedTab = root.querySelector< HTMLElement >( '[role="tab"][aria-selected="true"]' );
+			// DataViews can focus its filter toggle while the Content route mounts.
 			if (
-				( selectedTab?.id === previousFocus &&
-					( focusAtMount === body || root.contains( focusAtMount ) ) ) ||
-				( isSeoTab( previousFocus ) && previousFocus !== active && focusAtMount === body )
+				( selectedTab?.id === previousFocus ||
+					( isSeoTab( previousFocus ) && previousFocus !== active ) ) &&
+				( focusAtMount === body || root.contains( focusAtMount ) )
 			) {
 				// Let the tabs register their keyboard order before moving focus.
 				focusFrame = requestAnimationFrame( () => {

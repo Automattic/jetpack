@@ -74,6 +74,25 @@ describe( 'DashboardNav', () => {
 		}
 	);
 
+	it.each( [
+		[ 'nothing has focus', false ],
+		[ 'a panel control took focus while mounting', true ],
+	] )(
+		'focuses the new tab after a keyboard action inside another panel when %s',
+		async ( _, stolen ) => {
+			document.body.dataset.jetpackSeoTabFocus = 'overview';
+			render(
+				<DashboardNav active="content">
+					{ /* eslint-disable-next-line jsx-a11y/no-autofocus -- Reproduce DataViews focusing a control on mount. */ }
+					{ stolen && <input aria-label="Filter" autoFocus /> }
+				</DashboardNav>
+			);
+
+			await waitFor( () => expect( screen.getByRole( 'tab', { name: 'Content' } ) ).toHaveFocus() );
+			expect( document.body.dataset.jetpackSeoTabFocus ).toBeUndefined();
+		}
+	);
+
 	it( 'associates every tab with its labeled panel and mounts content only in the active one', () => {
 		render(
 			<DashboardNav active="settings">
