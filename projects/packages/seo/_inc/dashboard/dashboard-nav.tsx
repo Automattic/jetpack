@@ -116,28 +116,27 @@ const DashboardNav = ( {
 			value={ active }
 			onValueChange={ onTabChange }
 		>
-			{ showTabs && (
-				<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
-					<Tabs.List variant="minimal" aria-label={ __( 'SEO sections', 'jetpack-seo' ) }>
-						<Tabs.Tab id="jetpack-seo-tab-overview" value="overview">
-							{ __( 'Overview', 'jetpack-seo' ) }
-						</Tabs.Tab>
-						<Tabs.Tab id="jetpack-seo-tab-content" value="content">
-							{ __( 'Content', 'jetpack-seo' ) }
-						</Tabs.Tab>
-						<Tabs.Tab id="jetpack-seo-tab-geo" value="geo">
-							{ _x(
-								'GEO',
-								'Generative Engine Optimization; the SEO dashboard tab label',
-								'jetpack-seo'
-							) }
-						</Tabs.Tab>
-						<Tabs.Tab id="jetpack-seo-tab-settings" value="settings">
-							{ __( 'Settings', 'jetpack-seo' ) }
-						</Tabs.Tab>
-					</Tabs.List>
-				</div>
-			) }
+			{ /* Hidden, not removed: the panels still need their tabs. */ }
+			<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal" hidden={ ! showTabs }>
+				<Tabs.List variant="minimal" aria-label={ __( 'SEO sections', 'jetpack-seo' ) }>
+					<Tabs.Tab id="jetpack-seo-tab-overview" value="overview">
+						{ __( 'Overview', 'jetpack-seo' ) }
+					</Tabs.Tab>
+					<Tabs.Tab id="jetpack-seo-tab-content" value="content">
+						{ __( 'Content', 'jetpack-seo' ) }
+					</Tabs.Tab>
+					<Tabs.Tab id="jetpack-seo-tab-geo" value="geo">
+						{ _x(
+							'GEO',
+							'Generative Engine Optimization; the SEO dashboard tab label',
+							'jetpack-seo'
+						) }
+					</Tabs.Tab>
+					<Tabs.Tab id="jetpack-seo-tab-settings" value="settings">
+						{ __( 'Settings', 'jetpack-seo' ) }
+					</Tabs.Tab>
+				</Tabs.List>
+			</div>
 			{ ( Object.keys( ROUTE_BY_TAB ) as SeoTab[] ).map( tab => (
 				<Tabs.Panel
 					key={ tab }
@@ -145,8 +144,6 @@ const DashboardNav = ( {
 					keepMounted
 					// Every panel starts with focusable content, so the panel is not a tab stop.
 					tabIndex={ -1 }
-					// Without the tab strip there are no tabs for a tabpanel to belong to.
-					{ ...( ! showTabs && { role: 'none' } ) }
 					className="jetpack-seo-tab-panel"
 				>
 					{ active === tab && children }

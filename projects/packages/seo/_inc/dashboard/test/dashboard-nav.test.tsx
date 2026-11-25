@@ -41,7 +41,6 @@ describe( 'DashboardNav', () => {
 		);
 
 		expect( screen.queryByRole( 'tab' ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'tabpanel' ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'content' ) ).toBeInTheDocument();
 	} );
 
