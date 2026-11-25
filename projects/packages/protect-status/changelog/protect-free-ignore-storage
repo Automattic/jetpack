@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add storage for ignored vulnerabilities, and leave fully ignored ones out of the vulnerability report.

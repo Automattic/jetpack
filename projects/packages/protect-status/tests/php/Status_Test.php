@@ -39,6 +39,7 @@ class Status_Test extends BaseTestCase {
 		unset( $_GET['page'] );
 		delete_option( Protect_Status::CHECKS_OPTION_NAME );
 		delete_option( 'jetpack_site_products' );
+		Ignored_Vulnerabilities::delete_option();
 	}
 
 	/**
@@ -421,6 +422,189 @@ class Status_Test extends BaseTestCase {
 
 		// Make sure this was not cached
 		$this->assertFalse( Protect_Status::get_from_options() );
+	}
+
+	/**
+	 * Fetch a fresh status from a sample report changed by the given callback.
+	 *
+	 * @param callable $change Receives the sample report and changes it in place.
+	 * @return Status_Model
+	 */
+	private function get_status_from_changed_report( callable $change ) {
+		$report = static::get_sample_api_response();
+		$change( $report );
+		$this->teardown_mock_data();
+		$filter = function () use ( $report ) {
+			return array(
+				'body'     => wp_json_encode( $report, JSON_UNESCAPED_SLASHES ),
+				'response' => array(
+					'code'    => 200,
+					'message' => '',
+				),
+			);
+		};
+		add_filter( 'pre_http_request', $filter );
+		add_filter( 'all_plugins', array( $this, 'return_sample_plugins' ) );
+		add_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
+		Protect_Status::$status = null;
+		$status                 = Protect_Status::get_status( true );
+		remove_filter( 'pre_http_request', $filter );
+		return $status;
+	}
+
+	/**
+	 * Ignore the first threat of the given extension type in the sample status.
+	 *
+	 * @param string $type Extension type.
+	 * @return Threat_Model The ignored threat.
+	 */
+	private function ignore_sample_threat( $type ) {
+		foreach ( Protect_Status::get_status()->threats as $threat ) {
+			if ( $threat->extension->type === $type ) {
+				$this->assertTrue( Ignored_Vulnerabilities::ignore( $threat ) );
+				Protect_Status::$status = null;
+				return $threat;
+			}
+		}
+		$this->fail( "No $type threat in the sample status." );
+	}
+
+	/**
+	 * Data provider for extension types with ignorable threats.
+	 *
+	 * @return array
+	 */
+	public static function provide_extension_types() {
+		return array(
+			'themes'  => array( 'themes', 'num_themes_threats', 'num_plugins_threats' ),
+			'plugins' => array( 'plugins', 'num_plugins_threats', 'num_themes_threats' ),
+		);
+	}
+
+	/**
+	 * Test a fully ignored threat is left out and the counts drop.
+	 *
+	 * @param string $type  Extension type.
+	 * @param string $count Count property for the type.
+	 * @param string $other Count property for the other type.
+	 * @dataProvider provide_extension_types
+	 */
+	#[DataProvider( 'provide_extension_types' )]
+	public function test_fully_ignored_threat_is_left_out_and_counts_drop( $type, $count, $other ) {
+		$this->mock_connection();
+		$before  = Protect_Status::get_status();
+		$ignored = $this->ignore_sample_threat( $type );
+
+		$after = Protect_Status::get_status();
+
+		$this->assertNotContains( $ignored->id, array_column( $after->threats, 'id' ) );
+		$this->assertCount( count( $before->threats ) - 1, $after->threats );
+		foreach ( $after->{$type} as $extension ) {
+			if ( $extension->slug === $ignored->extension->slug ) {
+				$this->assertSame( array(), $extension->threats );
+			}
+		}
+		$this->assertSame( $before->num_threats - 1, $after->num_threats );
+		$this->assertSame( $before->{$count} - 1, $after->{$count} );
+		$this->assertSame( $before->{$other}, $after->{$other} );
+	}
+
+	/**
+	 * Test a new vulnerability brings an ignored threat back.
+	 */
+	public function test_new_vulnerability_brings_an_ignored_threat_back() {
+		$this->mock_connection();
+		Protect_Status::get_status();
+		$this->ignore_sample_threat( 'themes' );
+
+		$status = $this->get_status_from_changed_report(
+			function ( $report ) {
+				$report->themes->{'theme-1'}->vulnerabilities[] = (object) array(
+					'id'    => 'test-vuln-new',
+					'title' => 'Test Vuln New',
+				);
+			}
+		);
+
+		$themes = array_values(
+			array_filter(
+				$status->threats,
+				function ( $threat ) {
+					return 'themes' === $threat->extension->type;
+				}
+			)
+		);
+		$this->assertCount( 1, $themes );
+		$this->assertCount( 2, $themes[0]->vulnerabilities );
+	}
+
+	/**
+	 * Test the ignore clears once the report no longer lists it.
+	 */
+	public function test_ignore_clears_once_the_report_no_longer_lists_it() {
+		$this->mock_connection();
+		Protect_Status::get_status();
+		$this->ignore_sample_threat( 'themes' );
+		$this->assertNotEmpty( Ignored_Vulnerabilities::get_all() );
+
+		$this->get_status_from_changed_report(
+			function ( $report ) {
+				$report->themes->{'theme-1'}->vulnerabilities = array();
+			}
+		);
+
+		$this->assertSame( array(), Ignored_Vulnerabilities::get_all() );
+	}
+
+	/**
+	 * Test the ignore survives until an updated extension is rechecked.
+	 */
+	public function test_ignore_survives_until_an_updated_extension_is_rechecked() {
+		$this->mock_connection();
+		Protect_Status::get_status();
+		$this->ignore_sample_threat( 'themes' );
+
+		$this->get_status_from_changed_report(
+			function ( $report ) {
+				$report->themes->{'theme-1'}->version         = '0.9.0';
+				$report->themes->{'theme-1'}->vulnerabilities = array();
+			}
+		);
+
+		$this->assertCount( 1, Ignored_Vulnerabilities::get_all() );
+	}
+
+	/**
+	 * Test an ignore is kept when its extension is missing from the installed list.
+	 */
+	public function test_ignore_is_kept_for_an_extension_missing_from_the_installed_list() {
+		$this->mock_connection();
+		Protect_Status::get_status();
+		$this->ignore_sample_threat( 'themes' );
+
+		remove_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
+		add_filter( 'jetpack_sync_get_themes_callable', '__return_empty_array' );
+		Protect_Status::$status = null;
+		Protect_Status::get_status();
+		remove_filter( 'jetpack_sync_get_themes_callable', '__return_empty_array' );
+
+		$this->assertCount( 1, Ignored_Vulnerabilities::get_all() );
+	}
+
+	/**
+	 * Test an ignored core threat is left out.
+	 */
+	public function test_ignored_core_threat_is_left_out() {
+		$this->mock_connection();
+		$before  = Protect_Status::get_status();
+		$ignored = $this->ignore_sample_threat( 'core' );
+
+		$after = Protect_Status::get_status();
+
+		$this->assertNotContains( $ignored->id, array_column( $after->threats, 'id' ) );
+		$this->assertSame( array(), $after->core->threats );
+		$this->assertSame( $before->num_threats - 1, $after->num_threats );
+		$this->assertSame( $before->num_themes_threats, $after->num_themes_threats );
 	}
 
 	/**

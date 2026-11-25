@@ -69,6 +69,15 @@ class Protect_Status extends Status {
 	const STATUS_DISABLED = 'disabled';
 
 	/**
+	 * Number of vulnerabilities hidden as ignored, per extension type, while normalizing a report.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var array<string, int>
+	 */
+	private static $hidden_counts = array();
+
+	/**
 	 * Gets the current status of the Jetpack Protect checks
 	 *
 	 * @param bool $refresh_from_wpcom Refresh the local plan and status cache from wpcom.
@@ -192,6 +201,12 @@ class Protect_Status extends Status {
 	 * @return Status_Model
 	 */
 	protected static function normalize_protect_report_data( $report_data ) {
+		self::$hidden_counts = array(
+			'themes'  => 0,
+			'plugins' => 0,
+			'core'    => 0,
+		);
+
 		$status              = new Status_Model();
 		$status->data_source = 'protect_report';
 
@@ -207,6 +222,19 @@ class Protect_Status extends Status {
 		self::normalize_extension_data( $status, $report_data, 'themes' );
 		self::normalize_extension_data( $status, $report_data, 'plugins' );
 		self::normalize_core_data( $status, $report_data );
+
+		// lower the counts by the vulnerabilities hidden as ignored
+		$hidden_themes  = self::$hidden_counts['themes'];
+		$hidden_plugins = self::$hidden_counts['plugins'];
+		if ( null !== $status->num_themes_threats ) {
+			$status->num_themes_threats = max( 0, $status->num_themes_threats - $hidden_themes );
+		}
+		if ( null !== $status->num_plugins_threats ) {
+			$status->num_plugins_threats = max( 0, $status->num_plugins_threats - $hidden_plugins );
+		}
+		if ( null !== $status->num_threats ) {
+			$status->num_threats = max( 0, $status->num_threats - $hidden_themes - $hidden_plugins - self::$hidden_counts['core'] );
+		}
 
 		// sort extensions by number of threats
 		$status->themes  = self::sort_threats( $status->themes );
@@ -282,7 +310,10 @@ class Protect_Status extends Status {
 			$extension->checked         = true;
 			$extension_threats[ $slug ] = $extension;
 
-			if ( is_array( $checked_extension->vulnerabilities ) && ! empty( $checked_extension->vulnerabilities ) ) {
+			$has_vulnerabilities = is_array( $checked_extension->vulnerabilities ) && ! empty( $checked_extension->vulnerabilities );
+			if ( ! $has_vulnerabilities ) {
+				Ignored_Vulnerabilities::prune( $extension_type, $slug, array() );
+			} else {
 				// normalize the vulnerabilities data
 				$vulnerabilities = array_map(
 					function ( $vulnerability ) {
@@ -290,6 +321,12 @@ class Protect_Status extends Status {
 					},
 					$checked_extension->vulnerabilities
 				);
+
+				Ignored_Vulnerabilities::prune( $extension_type, $slug, $vulnerabilities );
+				if ( Ignored_Vulnerabilities::is_ignored( $extension_type, $slug, $vulnerabilities ) ) {
+					self::$hidden_counts[ $extension_type ] += count( $vulnerabilities );
+					continue;
+				}
 
 				// convert the detected vulnerabilities into a vulnerable extension threat
 				$threat = Threat_Model::generate_from_extension_vulnerabilities( $extension, $vulnerabilities );
@@ -349,7 +386,10 @@ class Protect_Status extends Status {
 		$core->checked = true;
 
 		// Generate a threat from core vulnerabilities.
-		if ( is_array( $report_data->core->vulnerabilities ) && ! empty( $report_data->core->vulnerabilities ) ) {
+		$has_vulnerabilities = is_array( $report_data->core->vulnerabilities ) && ! empty( $report_data->core->vulnerabilities );
+		if ( ! $has_vulnerabilities ) {
+			Ignored_Vulnerabilities::prune( $core->type, $core->slug, array() );
+		} else {
 			// normalize the vulnerabilities data
 			$vulnerabilities = array_map(
 				function ( $vulnerability ) {
@@ -357,6 +397,13 @@ class Protect_Status extends Status {
 				},
 				$report_data->core->vulnerabilities
 			);
+
+			Ignored_Vulnerabilities::prune( $core->type, $core->slug, $vulnerabilities );
+			if ( Ignored_Vulnerabilities::is_ignored( $core->type, $core->slug, $vulnerabilities ) ) {
+				self::$hidden_counts['core'] += count( $vulnerabilities );
+				$status->core                 = $core;
+				return;
+			}
 
 			// convert the detected vulnerabilities into a vulnerable extension threat
 			$threat = Threat_Model::generate_from_extension_vulnerabilities( $core, $vulnerabilities );
