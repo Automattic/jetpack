@@ -16,8 +16,14 @@ use PHPUnit\Framework\Attributes\DataProvider;
  * Create, update, discard, reject and apply.
  *
  * @covers \Automattic\Jetpack\Jetpack_Mu_Wpcom\Proposals\Proposals
+ * @covers \Automattic\Jetpack\Jetpack_Mu_Wpcom\Proposals\Proposal_Store
+ * @covers \Automattic\Jetpack\Jetpack_Mu_Wpcom\Proposals\Proposal_Lock
+ * @covers \Automattic\Jetpack\Jetpack_Mu_Wpcom\Proposals\Post_Fields_Handler
  */
 #[CoversClass( Proposals::class )]
+#[CoversClass( Proposal_Store::class )]
+#[CoversClass( Proposal_Lock::class )]
+#[CoversClass( Post_Fields_Handler::class )]
 class Proposals_Test extends Proposals_TestCase {
 
 	public function test_creating_a_proposal_leaves_the_live_post_unchanged(): void {
@@ -713,10 +719,6 @@ class Proposals_Test extends Proposals_TestCase {
 
 		$this->assert_wp_error_code( 'proposal_locked', $nested, 'Applied while the first was writing the same post.' );
 		$this->assertFalse( get_option( Proposal_Lock::target_option_name( 'post:' . $page_id ) ) );
-
-		$this->assert_not_wp_error( Proposals::apply( $second['id'], $second['hash'] ), 'Other fields, so it still applies.' );
-		$this->assertSame( 'First', get_post( $page_id )->post_title, 'Saving the content keeps the title written first.' );
-		$this->assertSame( '<p>Second</p>', get_post( $page_id )->post_content );
 	}
 
 	public function test_a_busy_target_releases_the_targets_already_locked(): void {

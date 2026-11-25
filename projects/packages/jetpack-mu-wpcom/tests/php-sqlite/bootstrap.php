@@ -28,4 +28,6 @@ try {
 }
 require_once ABSPATH . 'wp-admin/includes/schema.php';
 populate_roles();
+// As Jetpack_Mu_Wpcom::load_features() does. The flag is off by default, so it adds no hooks.
+require_once __DIR__ . '/../../src/features/proposals/proposals.php';
 require_once __DIR__ . '/features/proposals/Proposals_TestCase.php';

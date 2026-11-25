@@ -9,8 +9,7 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom\Proposals\Post_Fields_Handler;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Proposals\Proposals;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Proposals\Proposals_Preview;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
+use PHPUnit\Framework\Attributes\CoversFunction;
 
 require_once __DIR__ . '/class-stub-option-handler.php';
 
@@ -19,9 +18,11 @@ require_once __DIR__ . '/class-stub-option-handler.php';
  *
  * @covers \Automattic\Jetpack\Jetpack_Mu_Wpcom\Proposals\Proposals_Preview
  * @covers \Automattic\Jetpack\Jetpack_Mu_Wpcom\Proposals\Post_Fields_Handler
+ * @covers ::jetpack_proposals_init
  */
 #[CoversClass( Post_Fields_Handler::class )]
 #[CoversClass( Proposals_Preview::class )]
+#[CoversFunction( 'jetpack_proposals_init' )]
 class Proposals_Preview_Test extends Proposals_TestCase {
 
 	/**
@@ -60,6 +61,7 @@ class Proposals_Preview_Test extends Proposals_TestCase {
 		$GLOBALS['wp_filter']    = $this->hooks_before; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$GLOBALS['wp_the_query'] = $GLOBALS['wp_query']; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$_SERVER['REQUEST_URI']  = $this->request_uri_before; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		$_GET                    = array(); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		parent::tearDown();
 	}
 
@@ -367,34 +369,18 @@ class Proposals_Preview_Test extends Proposals_TestCase {
 		$this->assertSame( array( 'i2', 'i3' ), array_column( $stub->preview_calls[0], 'id' ) );
 	}
 
-	/**
-	 * Loads the entry file, which declares a function, so it needs its own process.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_the_entry_file_adds_no_preview_hook_while_the_flag_is_off(): void {
 		remove_all_filters( 'jetpack_feature_flag_enabled_' . Proposals::FLAG );
 		$_GET[ Proposals::QUERY_VAR ] = wp_generate_uuid4(); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-		require dirname( __DIR__, 4 ) . '/src/features/proposals/proposals.php';
+		jetpack_proposals_init();
 
 		$this->assertFalse( has_action( 'parse_request', array( Proposals_Preview::class, 'boot' ) ) );
 		$this->assertFalse( has_filter( 'option_jetpack_sync_settings_post_types_blacklist', array( Proposals::class, 'exclude_from_sync' ) ) );
 	}
 
-	/**
-	 * Loads the entry file, as above.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_the_entry_file_boots_the_preview_only_for_proposal_requests(): void {
-		require dirname( __DIR__, 4 ) . '/src/features/proposals/proposals.php';
+		jetpack_proposals_init();
 		$this->assertFalse( has_action( 'parse_request', array( Proposals_Preview::class, 'boot' ) ), 'An ordinary request.' );
 		$this->assertNotFalse( has_filter( 'option_jetpack_sync_settings_post_types_blacklist', array( Proposals::class, 'exclude_from_sync' ) ) );
 
