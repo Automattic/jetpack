@@ -22,6 +22,8 @@ const respondToLastRequest = ( extra = {} ) => {
 		...extra,
 	} );
 	xhr.onload();
+	// The fill check runs after render() returns.
+	jest.advanceTimersByTime( 0 );
 };
 
 const loadScroller = () => {
@@ -50,6 +52,7 @@ const loadScroller = () => {
 };
 
 beforeAll( () => {
+	jest.useFakeTimers();
 	window.XMLHttpRequest = FakeXHR;
 	jest
 		.spyOn( Element.prototype, 'getBoundingClientRect' )
@@ -78,6 +81,16 @@ describe( 'Infinite Scroll in a viewport the first pages do not fill', () => {
 		contentBottom = 100;
 		window.infiniteScroll.scroller.refresh();
 		respondToLastRequest();
+		expect( sentRequests ).toHaveLength( 2 );
+	} );
+
+	test( 'does not start a second request while the fill request is in flight', () => {
+		loadScroller();
+		respondToLastRequest();
+		expect( sentRequests ).toHaveLength( 2 );
+
+		// Catches render() re-enabling refresh while the automatic request is still loading.
+		window.infiniteScroll.scroller.refresh();
 		expect( sentRequests ).toHaveLength( 2 );
 	} );
 } );

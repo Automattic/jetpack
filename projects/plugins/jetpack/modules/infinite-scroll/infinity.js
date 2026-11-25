@@ -85,8 +85,8 @@
 			}, 250 );
 
 			// Ensure that enough posts are loaded to fill the initial viewport, to compensate for short posts and large displays.
-			self.ensureFilledViewport();
 			this.body.addEventListener( 'is.post-load', self.checkViewportOnLoadBound );
+			self.ensureFilledViewport();
 		} else if ( type === 'click' ) {
 			if ( this.click_handle ) {
 				this.element.appendChild( this.handle );
@@ -762,7 +762,13 @@
 			return;
 		}
 
-		this.ensureFilledViewport();
+		// Wait until render() finishes, so its `ready = true` can't unlock a second request while ours is in flight.
+		var self = this;
+		setTimeout( function () {
+			if ( self.ready ) {
+				self.ensureFilledViewport();
+			}
+		}, 0 );
 	};
 
 	function fullscreenState() {
