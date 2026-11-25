@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
 import http from 'node:http';
 import path from 'node:path';
-import { test } from 'node:test';
+import { mock, test } from 'node:test';
 import { main } from './codevitals-digest.js';
 
 const SCRIPT = path.join( import.meta.dirname, 'codevitals-digest.js' );
@@ -12,7 +12,7 @@ const SCRIPT = path.join( import.meta.dirname, 'codevitals-digest.js' );
 // ---- mock CodeVitals read API ----
 
 const D = 864e5;
-const NOW = Date.now();
+const NOW = Date.parse( '2026-08-24T15:00:00Z' );
 // Injective for the short labels fixtures use: hex chars pass through (a rendered hash prefix
 // like "feedbeef" stays assertable), other chars become their two-digit char code, and an "f"
 // terminator lands before the zero padding so "c1" and "c10" stay distinct. A colliding label
@@ -205,6 +205,68 @@ const SCENARIOS = {
 			302: [ ...steady( 30, 5, 100 ), ...seq( 10, 4.9, 107 ) ],
 		},
 	} ),
+	scanWithStrayReadings: () => {
+		const placements = [
+			[ 'Inside later window', 25, 120 ],
+			[ 'First later reading', 21, 120 ],
+			[ 'Last later reading', 30, 120 ],
+			[ 'Inside earlier window', 16, 90 ],
+		];
+		return {
+			metrics: placements.map( ( [ name ], i ) => metricRow( 301 + i, name, `stray-${ i }` ) ),
+			series: Object.fromEntries(
+				placements.map( ( [ , index, value ], i ) => {
+					const values = [ ...Array( 20 ).fill( 100 ), ...Array( 20 ).fill( 108 ) ];
+					values[ index ] = value;
+					return [ 301 + i, flaggedSeries( values, [], 'stray' ) ];
+				} )
+			),
+		};
+	},
+	scanOnPaintGrid: () => {
+		const values = [ ...Array( 20 ).fill( 240 ), ...Array( 20 ).fill( 260 ) ];
+		values[ 12 ] = 244;
+		values[ 16 ] = 232;
+		values[ 24 ] = 268;
+		values[ 28 ] = 248;
+		return {
+			metrics: [
+				metricRow(
+					201,
+					'Dashboard LCP',
+					'wp-admin-dashboard-connection-sim-largestContentfulPaint'
+				),
+			],
+			series: { 201: flaggedSeries( values, [], 'grid' ) },
+		};
+	},
+	weeklyBatch: ( n = 19 ) => {
+		const first = pt( 7.5, 100, 'first', false );
+		const rows = [
+			first,
+			...steady( n, 1, 100 ),
+			{ ...first, measuredAt: iso( NOW - 0.5 * D ) },
+			pt( -0.1, 100, 'future', false ),
+		];
+		return { series: { 301: rows, 302: rows.slice( 1 ) } };
+	},
+	fullWeeklyBatch: () => SCENARIOS.weeklyBatch( 20 ),
+	measurementBreak: () => ( {
+		metrics: [ ...baseMetrics(), metricRow( 303, 'Step near the break', 'near-break' ) ],
+		series: {
+			301: [
+				...steady( 30, 15, 100 ),
+				pt( 14.625, 120, 'boundary', true, 20 ),
+				...steady( 29, 0.5, 120, 'later' ),
+			],
+			302: [ ...steady( 30, 15, 100 ), ...steady( 30, 0.5, 80, 'later' ) ],
+			303: [
+				...steady( 24, 15.6, 100 ),
+				...steady( 6, 15, 120, 'step' ),
+				...steady( 30, 0.5, 120, 'later' ),
+			],
+		},
+	} ),
 	scannedReverts: () => ( {
 		series: Object.fromEntries(
 			[ 6, 9 ].map( ( length, i ) => [
@@ -345,7 +407,13 @@ const SCENARIOS = {
 	scanPendingOverlap: () => ( {
 		series: {
 			301: flaggedSeries(
-				[ ...Array( 30 ).fill( 100 ), ...Array( 6 ).fill( 107 ), 128, ...Array( 9 ).fill( 107 ) ],
+				[
+					...Array( 30 ).fill( 100 ),
+					...Array( 6 ).fill( 107 ),
+					128,
+					125,
+					...Array( 8 ).fill( 107 ),
+				],
 				[ 36 ],
 				'pending'
 			),
@@ -630,6 +698,7 @@ const SCENARIOS = {
 		fixture.metrics = fixture.metrics.slice( 0, 3 );
 		fixture.metrics[ 0 ].key = 'k'.repeat( 4000 );
 		fixture.series = Object.fromEntries( Object.entries( fixture.series ).slice( 0, 3 ) );
+		fixture.series[ 403 ].push( ...steady( 5, 0, 150, 'longtail' ) );
 		return fixture;
 	},
 	mixedOlderRows: () => {
@@ -834,13 +903,14 @@ const SCENARIOS = {
 		series[ 506 ] = levelSeries( Array( 10 ).fill( 0 ), 100, Array( 10 ).fill( 100 ) );
 		return { metrics, series };
 	},
-	// The brief dip interrupts the scan's later comparison window.
+	// Two readings in the dip interrupt the scan's later comparison window.
 	relanded: () => ( {
 		series: {
 			301: [
 				...steady( 10, 6.0, 100 ),
 				...seq( 5, 5.9, 200, 'r' ),
 				pt( 5.4, 100, 'rrev', false ),
+				pt( 5.35, 100, 'rrev2', false ),
 				pt( 5.3, 200, 'feedbeefb', true, 100.0 ),
 				...seq( 10, 5.2, 200, 'rp' ),
 			],
@@ -1490,10 +1560,19 @@ const PROBE_PATH = '/__probe';
  * @param {string}  scenario         - Scenario name for buildScenario.
  * @param {object}  [opts]           - Options.
  * @param {boolean} [opts.discoFail] - Serve HTML from /metrics regardless of scenario.
+ * @param {number}  [opts.now]       - Shift fixture dates to this clock.
  * @return {Promise<object>} { url, requests, close }
  */
-function startMockApi( scenario, { discoFail = false } = {} ) {
+function startMockApi( scenario, { discoFail = false, now = NOW } = {} ) {
 	const { metrics, series, discoHtml, discoEmpty, downsampled } = buildScenario( scenario );
+	if ( now !== NOW ) {
+		for ( const [ id, rows ] of Object.entries( series ) ) {
+			series[ id ] = rows.map( row => ( {
+				...row,
+				measuredAt: iso( Date.parse( row.measuredAt ) + now - NOW ),
+			} ) );
+		}
+	}
 	const requests = [];
 	const server = http.createServer( ( req, res ) => {
 		const u = new URL( req.url, 'http://localhost' );
@@ -1581,16 +1660,21 @@ function startMockApi( scenario, { discoFail = false } = {} ) {
 
 // ---- in-process harness ----
 
-/** Run fn with console.log/error captured; returns { result, out, err }. */
-async function captureConsole( fn ) {
+/** Run fn with a fixed clock and console.log/error captured; returns { result, out, err }. */
+async function captureConsole( fn, now = NOW ) {
 	const out = [];
 	const err = [];
 	const orig = { log: console.log, error: console.error };
 	console.log = ( ...args ) => out.push( args.join( ' ' ) );
 	console.error = ( ...args ) => err.push( args.join( ' ' ) );
 	try {
-		const result = await fn();
-		return { result, out: out.join( '\n' ), err: err.join( '\n' ) };
+		const clock = mock.method( Date, 'now', () => now );
+		try {
+			const result = await fn();
+			return { result, out: out.join( '\n' ), err: err.join( '\n' ) };
+		} finally {
+			clock.mock.restore();
+		}
 	} finally {
 		console.log = orig.log;
 		console.error = orig.error;
@@ -1626,24 +1710,84 @@ function makeSlackMock( { slackFail = false } = {} ) {
  *
  * @param {string} scenario       - Scenario name.
  * @param {object} [envOverrides] - Env on top of { DRY_RUN: '1', CODEVITALS_EVOLUTION_URL }.
- * @param {object} [opts]         - { discoFail, slackFail }.
+ * @param {object} [opts]         - { discoFail, slackFail, now }.
  * @return {Promise<object>} { code, out, err, calls, requests }
  */
 async function runDigest( scenario, envOverrides = {}, opts = {} ) {
 	const api = await startMockApi( scenario, opts );
 	const { calls, MockWebClient } = makeSlackMock( opts );
 	try {
-		const { result, out, err } = await captureConsole( () =>
-			main( {
-				env: { DRY_RUN: '1', CODEVITALS_EVOLUTION_URL: api.url, ...envOverrides },
-				WebClientClass: MockWebClient,
-			} )
+		const { result, out, err } = await captureConsole(
+			() =>
+				main( {
+					env: { DRY_RUN: '1', CODEVITALS_EVOLUTION_URL: api.url, ...envOverrides },
+					WebClientClass: MockWebClient,
+				} ),
+			opts.now
 		);
 		return { code: result, out, err, calls, requests: api.requests };
 	} finally {
 		await api.close();
 	}
 }
+
+test( 'the scan tolerates one stray reading only inside the later window', async () => {
+	const result = await runDigest( 'scanWithStrayReadings' );
+	assert.match( result.out, /Inside later window\* median \+8\.0% \(100→108ms\)/ );
+	for ( const name of [ 'First later reading', 'Last later reading', 'Inside earlier window' ] ) {
+		assert.ok( ! result.out.includes( `${ name }* median` ), result.out );
+	}
+} );
+
+test( 'the scan uses the paint series measurement step as the held-level scale floor', async () => {
+	const result = await runDigest( 'scanOnPaintGrid' );
+	assert.match( result.out, /Dashboard LCP\* median \+8\.3% \(240→260ms\)/ );
+} );
+
+test( 'the digest warns below twenty distinct recently dated commits', async () => {
+	const thin = await runDigest( 'weeklyBatch' );
+	assert.equal( thin.code, 1, thin.out );
+	assert.match( thin.out, /THIN MEASUREMENT BATCH \(19 commits\)/ );
+	assert.doesNotMatch( thin.out, /white_check_mark/ );
+
+	const full = await runDigest( 'fullWeeklyBatch' );
+	assert.equal( full.code, 0, full.out );
+	assert.match( full.out, /Commits dated in the last 7 days: 20/ );
+	assert.doesNotMatch( full.out, /THIN MEASUREMENT BATCH/ );
+	for ( const env of [ { CODEVITALS_REPO: 'example/project' }, { CODEVITALS_BRANCH: 'stable' } ] ) {
+		const otherTarget = await runDigest( 'weeklyBatch', env );
+		assert.equal( otherTarget.code, 0, otherTarget.out );
+		assert.doesNotMatch( otherTarget.out, /Thin measurement batch|Commits dated/i );
+	}
+} );
+
+test( 'a measurement break skips cross-break windows and reports both levels without commits', async () => {
+	const result = await runDigest(
+		'measurementBreak',
+		{},
+		{ now: Date.parse( '2026-11-30T15:00:00Z' ) }
+	);
+	assert.equal( result.code, 0, result.err );
+	assert.match(
+		result.err,
+		/metric 301: windows skipped across a measurement break — 1 flag, 20 seed, 0 confirmation/
+	);
+	assert.match(
+		result.err,
+		/metric 303: windows skipped across a measurement break — 0 flag, 20 seed, 1 confirmation/
+	);
+	const { text, blocks } = JSON.parse( result.out );
+	assert.match( text, /0 sustained regression\(s\)/ );
+	assert.doesNotMatch( result.out, /\/commit\// );
+	const breakBlocks = blocks.filter( block => block.text?.text.startsWith( '*Measurement break' ) );
+	assert.equal( breakBlocks.length, 1, result.out );
+	assert.match( breakBlocks[ 0 ].text.text, /Alpha: TTFB\* 100→120ms \(\+20\.0%\)/ );
+	assert.match( breakBlocks[ 0 ].text.text, /Beta: LCP\* 100→80ms \(-20\.0%\)/ );
+	assert.match(
+		breakBlocks[ 0 ].text.text,
+		/Step near the break\* .* · 1 possible change across the break was not checked/
+	);
+} );
 
 test( 'incomplete page-weight data has a qualified headline', async () => {
 	for ( const scenario of [ 'pageWeightUnreadable', 'pageWeightStale' ] ) {
@@ -2364,8 +2508,15 @@ const CASES = [
 		sc: 'disco-html',
 		exit: 1,
 		out: [ 'Could not enumerate the tracked metrics', 'METRIC DISCOVERY FAILURE' ],
+		not: [ 'THIN MEASUREMENT BATCH', 'Commits dated in the last 7 days' ],
 	},
-	{ n: 'disco-empty-fails-loud', sc: 'disco-empty', exit: 1, out: [ 'METRIC DISCOVERY FAILURE' ] },
+	{
+		n: 'disco-empty-fails-loud',
+		sc: 'disco-empty',
+		exit: 1,
+		out: [ 'METRIC DISCOVERY FAILURE' ],
+		not: [ 'THIN MEASUREMENT BATCH', 'Commits dated in the last 7 days' ],
+	},
 	{
 		n: 'disco-html-override-keeps-reading-ids',
 		sc: 'disco-html',
@@ -2373,6 +2524,14 @@ const CASES = [
 		exit: 0,
 		out: [ 'across 2 tracked metrics' ],
 		err: [ 'metrics lookup failed' ],
+	},
+	{
+		n: 'disco-html-override-warns-on-thin-batch',
+		sc: 'weeklyBatch',
+		env: { METRIC_IDS: '301,302' },
+		discoFail: true,
+		exit: 1,
+		out: [ 'THIN MEASUREMENT BATCH (19 commits)', 'METRIC NAME LOOKUP FAILURE' ],
 	},
 	{
 		n: 'disco-html-override-label-fallback',
@@ -3026,6 +3185,7 @@ const CASES = [
 		sc: 'allfail',
 		exit: 1,
 		out: [ 'Could not read any metric data', 'DATA READ FAILURE' ],
+		not: [ 'THIN MEASUREMENT BATCH', 'Commits dated in the last 7 days' ],
 	},
 ];
 
@@ -3370,7 +3530,7 @@ test(
 		// Clean run against the mock: exit 0 with the green heartbeat. The child must run via
 		// async spawn — spawnSync would block this process's event loop, and with it the
 		// in-process mock server the child needs to reach.
-		const api = await startMockApi( 'clean' );
+		const api = await startMockApi( 'clean', { now: Date.now() } );
 		try {
 			const ok = await new Promise( resolve => {
 				const child = spawn( process.execPath, [ SCRIPT ], {
