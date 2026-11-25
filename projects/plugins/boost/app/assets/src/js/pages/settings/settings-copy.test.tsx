@@ -75,12 +75,9 @@ test.each( [
 	},
 	{
 		component: DeferFonts,
-		modernTitle: 'Defer Web Fonts',
-		legacyTitle: 'Defer Web Fonts',
-		modern:
+		title: 'Defer Web Fonts',
+		description:
 			'Loads web fonts after the main page content, showing a system font until they are ready.',
-		legacy:
-			'Load your theme’s web fonts after the rest of the page, so text and images appear sooner. Visitors briefly see a system font on their first visit while your fonts download.',
 	},
 	{
 		component: MinifyJs,
