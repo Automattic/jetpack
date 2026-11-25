@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Markdown block: Fit tables and code blocks to the width of a subscription email, so they no longer make it scroll sideways. Tables now span the full width with equal columns.

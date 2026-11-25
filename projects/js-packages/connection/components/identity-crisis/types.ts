@@ -21,9 +21,9 @@ export interface IdentityCrisisProps {
 	from?: string;
 	/** Host actions below the content, e.g. Disconnect on the Connectors card. Shown only to viewers who can resolve Safe Mode. */
 	hostActions?: ReactNode;
-	/** After an action succeeds; the host reloads, navigates or closes. Migrate fires before its done view shows. */
-	onActionSuccess: ( result: IdentityCrisisActionResult ) => void;
-	/** "Got it, thanks" on the migrate-done view; no button without it. */
+	/** After an action succeeds. Migrate fires before its done view shows. Defaults to `onIdentityCrisisActionSuccess`. */
+	onActionSuccess?: ( result: IdentityCrisisActionResult ) => void;
+	/** "Got it, thanks" on the migrate-done view. Defaults to reloading the page. */
 	onMigratedDone?: () => void;
 	/** Dismiss for viewers who cannot resolve Safe Mode; no button without it. */
 	onDismiss?: () => void;

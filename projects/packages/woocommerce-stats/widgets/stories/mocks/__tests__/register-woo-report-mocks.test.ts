@@ -5,6 +5,11 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+import { fetchReportProducts } from '../../../../src/reports/api/report-products-fetch';
+import {
+	BOOKINGS_FILTER,
+	PHYSICAL_PRODUCTS_FILTER,
+} from '../../../../src/reports/utils/product-filters';
 import { storyReportParams } from '../../story-report-params';
 import { registerWooReportMocks, setWooReportMockState } from '../register-woo-report-mocks';
 import type { APIFetchMiddleware } from '@wordpress/api-fetch';
@@ -23,10 +28,20 @@ registerWooReportMocks();
 type ReportRow = Record< string, string | null >;
 type OrdersResponse = { data: ReportRow[]; summary: ReportRow };
 type ProductsResponse = { data: ReportRow[]; summary: ReportRow };
+type VisitorsResponse = { data: ReportRow[]; summary: ReportRow };
 type ProductDetail = { id: number; permalink: string; images: { src: string; alt: string }[] };
 type SessionsResponse = {
 	data: { device_type: string | null; active_sessions: string | null }[];
 	summary: ReportRow;
+};
+
+type AttributionPeriod = { value: string | null; intervals: unknown[] };
+type AttributionSummaryResponse = {
+	data: { item: string; current_period: AttributionPeriod; previous_period: AttributionPeriod }[];
+};
+
+type AttributionByProductResponse = {
+	data: { item: string; value: string | null; intervals: unknown[] }[];
 };
 
 const ORDERS_NUMERIC_FIELDS = [
@@ -130,6 +145,20 @@ it.each( [
 	}
 );
 
+it( 'reports fewer bookings than orders for the same window', async () => {
+	const orders = await request< OrdersResponse >( PRIMARY_ORDERS );
+	const bookings = await request< OrdersResponse >(
+		reportPath( 'orders-by-product-type/by-date', {
+			...PRIMARY_WINDOW,
+			interval: STORY_PARAMS.interval,
+		} )
+	);
+
+	expect( Number( bookings.summary.orders_no ) ).toBeLessThan( Number( orders.summary.orders_no ) );
+	expect( Number( bookings.summary.orders_no ) ).toBeGreaterThan( 0 );
+	expect( bookings.data ).toHaveLength( orders.data.length );
+} );
+
 it( 'returns the report shape as strings', async () => {
 	// Every numeric field of `summary` is a string, as the live endpoint sends it:
 	// the sanitizers parse them, so a number here hides a parsing bug.
@@ -179,6 +208,33 @@ it( 'ranks the products differently in an earlier window', async () => {
 	);
 } );
 
+describe( 'products report filtered by product type', () => {
+	const BOOKING_TYPES = BOOKINGS_FILTER.value as string[];
+
+	it( 'returns only bookable products for the bookings filter', async () => {
+		const { data } = await fetchReportProducts( {
+			...PRIMARY_WINDOW,
+			limit: 5,
+			filters: [ BOOKINGS_FILTER ],
+		} );
+
+		expect( data ).not.toHaveLength( 0 );
+		data.forEach( row => expect( BOOKING_TYPES ).toContain( row.product_type ) );
+	} );
+
+	it( 'answers the physical filter exactly as it answers a request with no filter', async () => {
+		const unfiltered = await fetchReportProducts( { ...PRIMARY_WINDOW, limit: 5 } );
+		const physical = await fetchReportProducts( {
+			...PRIMARY_WINDOW,
+			limit: 5,
+			filters: [ PHYSICAL_PRODUCTS_FILTER ],
+		} );
+
+		expect( physical ).toEqual( unfiltered );
+		unfiltered.data.forEach( row => expect( BOOKING_TYPES ).not.toContain( row.product_type ) );
+	} );
+} );
+
 it( 'omits one requested product from the details response', async () => {
 	// The deleted-product case: fewer products back than ids asked for.
 	const products = await request< ProductDetail[] >(
@@ -218,6 +274,94 @@ it( 'states no sessions at all when every device row is zero', async () => {
 
 	expect( data.map( row => row.active_sessions ) ).toEqual( [ '0', '0', '0', '0' ] );
 	expect( summary.active_sessions ).toBe( '0' );
+} );
+
+const visitorsPath = ( reportWindow: ReportWindow ) =>
+	reportPath( 'sessions/by-date', { ...reportWindow, interval: STORY_PARAMS.interval } );
+
+const STAMP = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
+
+it( 'buckets the visitors report and keeps visitors below sessions', async () => {
+	const { data, summary } = await request< VisitorsResponse >( visitorsPath( PRIMARY_WINDOW ) );
+
+	expect( data ).toHaveLength( daysInWindow( PRIMARY_WINDOW ) );
+	expect( Number( summary.visitors ) ).toBeLessThan( Number( summary.active_sessions ) );
+	data.forEach( row => {
+		expect( typeof row.visitors ).toBe( 'string' );
+		expect( row.date_start ).toMatch( STAMP );
+		expect( row.date_end ).toMatch( STAMP );
+	} );
+	expect( typeof summary.active_sessions ).toBe( 'string' );
+	expect( summary.date_start ).toMatch( STAMP );
+	expect( summary.date_end ).toMatch( STAMP );
+} );
+
+it( 'serves fewer visitors for the comparison window', async () => {
+	const primary = await request< VisitorsResponse >( visitorsPath( PRIMARY_WINDOW ) );
+	const comparison = await request< VisitorsResponse >( visitorsPath( COMPARISON_WINDOW ) );
+
+	expect( Number( comparison.summary.visitors ) ).toBeLessThan(
+		Number( primary.summary.visitors )
+	);
+} );
+
+it( 'splits order attribution by device and fills both periods from the query', async () => {
+	const response = await request< AttributionSummaryResponse >(
+		reportPath( 'order-attribution/device/summary', {
+			...PRIMARY_WINDOW,
+			interval: STORY_PARAMS.interval,
+			view: 'device',
+			compare_from: COMPARISON_WINDOW.from,
+			compare_to: COMPARISON_WINDOW.to,
+		} )
+	);
+
+	expect( response.data.map( row => row.item ) ).toEqual( [ 'Mobile', 'Desktop', 'Tablet', '' ] );
+	response.data.forEach( row => {
+		expect( typeof row.current_period.value ).toBe( 'string' );
+		expect( Array.isArray( row.current_period.intervals ) ).toBe( true );
+		expect( Number( row.previous_period.value ) ).toBeLessThan(
+			Number( row.current_period.value )
+		);
+	} );
+} );
+
+it( 'gives a request whose comparison window equals its primary an identical previous period', async () => {
+	const response = await request< AttributionSummaryResponse >(
+		reportPath( 'order-attribution/device/summary', {
+			...PRIMARY_WINDOW,
+			interval: STORY_PARAMS.interval,
+			view: 'device',
+			compare_from: PRIMARY_WINDOW.from,
+			compare_to: PRIMARY_WINDOW.to,
+		} )
+	);
+
+	expect( response.data[ 0 ].previous_period.value ).toBe(
+		response.data[ 0 ].current_period.value
+	);
+} );
+
+it( 'answers the by-product attribution endpoint flat, one window at a time', async () => {
+	const primary = await request< AttributionByProductResponse >(
+		reportPath( 'order-attribution-by-product/device/summary', {
+			...PRIMARY_WINDOW,
+			interval: STORY_PARAMS.interval,
+			view: 'device',
+		} )
+	);
+	const comparison = await request< AttributionByProductResponse >(
+		reportPath( 'order-attribution-by-product/device/summary', {
+			...COMPARISON_WINDOW,
+			interval: STORY_PARAMS.interval,
+			view: 'device',
+		} )
+	);
+
+	expect( primary.data[ 0 ] ).not.toHaveProperty( 'current_period' );
+	expect( typeof primary.data[ 0 ].value ).toBe( 'string' );
+	expect( Array.isArray( primary.data[ 0 ].intervals ) ).toBe( true );
+	expect( Number( comparison.data[ 0 ].value ) ).toBeLessThan( Number( primary.data[ 0 ].value ) );
 } );
 
 it( 'falls through for a path it does not own', async () => {

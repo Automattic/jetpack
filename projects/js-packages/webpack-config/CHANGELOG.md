@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 5.0.1 - 2026-11-23
+### Fixed
+- Use the compilation's `webpack` instance in internal plugins, rather than requiring our own copy. This reduces the risk of duplicate classes and such with pnpm-style peer dependencies. [#54066]
+
 ## 5.0.0 - 2026-11-16
 ### Changed
 - Replace `TerserPlugin` and `CssMinimizerPlugin` with `MinimizerPlugin`, following corresponding changes to the upstream packages. [#54895]

@@ -20,3 +20,16 @@ export function formatSiteAddress( url?: string ): string {
 
 	return address.slice( 0, end );
 }
+
+/**
+ * Whether an address is an IP address rather than a domain.
+ *
+ * @param address - An address from `formatSiteAddress()`, e.g. `203.0.113.5:8080/blog`.
+ * @return True for an IPv4 address or a bracketed IPv6 address, with or without a port.
+ */
+export function isIpAddress( address: string ): boolean {
+	const host = address.split( '/' )[ 0 ];
+	return (
+		/^\d{1,3}(?:\.\d{1,3}){3}(?::\d+)?$/.test( host ) || /^\[[\da-f:.]+\](?::\d+)?$/i.test( host )
+	);
+}

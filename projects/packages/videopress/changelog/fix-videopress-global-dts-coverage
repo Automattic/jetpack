@@ -1,3 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Make the VideoPress global type a module so JS coverage can parse it.

@@ -32,6 +32,7 @@ import {
 	getTracksIdentity,
 	IdentityCrisis,
 	initializeTracksIdentity,
+	onIdentityCrisisActionSuccess,
 	ProtectedOwnerConfirmation,
 	ProtectedOwnerRelease,
 	TermsOfService,
@@ -64,7 +65,6 @@ import {
 	decorateAuthUrl,
 	getCardConnection,
 	getProtectedOwnerStatus,
-	withoutClearConfirmation,
 	withSkipPricing,
 } from './card-state.mjs';
 import { createRequestError, getConnectErrorDisplay } from './connect-error.mjs';
@@ -1532,11 +1532,10 @@ function SafeModeScreen() {
 		onActionSuccess: result => {
 			if ( result.action === 'start-fresh' ) {
 				window.location.href = withSkipPricing( result.connectUrl );
-			} else if ( result.action === 'confirm-safe-mode' ) {
-				window.location.href = withoutClearConfirmation( window.location.href );
+			} else {
+				onIdentityCrisisActionSuccess( result );
 			}
 		},
-		onMigratedDone: () => window.location.reload(),
 	} );
 }
 

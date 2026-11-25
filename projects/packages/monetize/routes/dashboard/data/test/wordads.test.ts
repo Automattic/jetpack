@@ -2,11 +2,15 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { createElement } from 'react';
 import { ADS_ACCOUNT_KEY } from '../ads-keys';
+import { showSuccessSnackbar } from '../notices';
+import { trackAdsEvent } from '../tracking';
 import { toAdsEarnings, useJoinWordAds } from '../wordads';
 import { wpcomFetch } from '../wpcom-fetch';
 import type { ReactNode } from 'react';
 
 jest.mock( '../wpcom-fetch', () => ( { wpcomFetch: jest.fn() } ) );
+jest.mock( '../notices' );
+jest.mock( '../tracking' );
 
 describe( 'toAdsEarnings', () => {
 	it( 'reads each kind of earnings, newest month first, with PHP’s empty `[]`', () => {
@@ -37,6 +41,8 @@ describe( 'toAdsEarnings', () => {
 } );
 
 describe( 'useJoinWordAds', () => {
+	beforeEach( () => jest.clearAllMocks() );
+
 	it.each( [
 		[ 'marks the site approved at once when WordPress.com approves it', true ],
 		[ 'fails, leaving the site unapproved, when WordPress.com does not', false ],
@@ -52,5 +58,7 @@ describe( 'useJoinWordAds', () => {
 
 		await waitFor( () => expect( result.current.isError ).toBe( ! approved ) );
 		expect( queryClient.getQueryData( ADS_ACCOUNT_KEY ) ).toEqual( { approved, active: false } );
+		expect( ( trackAdsEvent as jest.Mock ).mock.calls ).toEqual( approved ? [ [ 'join' ] ] : [] );
+		expect( showSuccessSnackbar ).toHaveBeenCalledTimes( approved ? 1 : 0 );
 	} );
 } );

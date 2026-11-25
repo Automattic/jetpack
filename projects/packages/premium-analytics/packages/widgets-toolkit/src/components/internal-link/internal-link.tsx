@@ -38,6 +38,9 @@ export type InternalLinkProps = {
 	title?: string;
 
 	ariaLabel?: string;
+
+	/** The id of an element that describes the link, e.g. a mark beside it. */
+	ariaDescribedBy?: string;
 };
 
 /**
@@ -55,6 +58,7 @@ export function InternalLink( {
 	className,
 	title,
 	ariaLabel,
+	ariaDescribedBy,
 }: InternalLinkProps ): JSX.Element {
 	// `UiLink` renders the router link so the anchor keeps the design system's
 	// unlayered guard, without which wp-admin repaints it blue.
@@ -64,6 +68,7 @@ export function InternalLink( {
 			variant={ variant }
 			title={ title }
 			aria-label={ ariaLabel }
+			aria-describedby={ ariaDescribedBy }
 			render={
 				// The router types these against a route tree it cannot resolve here.
 				<RouteLink

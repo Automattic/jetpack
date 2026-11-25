@@ -1112,7 +1112,7 @@ class Jetpack_Backup {
 	/**
 	 * Forget the cached storage figures, after anything that changes them.
 	 *
-	 * @since $$next-version$$
+	 * @since 5.3.0
 	 *
 	 * @return void
 	 */
@@ -1418,6 +1418,13 @@ class Jetpack_Backup {
 			array_merge(
 				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::SCRIPT_HANDLES,
 				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::MODULE_IDS
+			),
+			null,
+			array(
+				array(
+					'prefix' => 'jetpack_backup',
+					'slug'   => 'jetpack-backup-dashboard',
+				),
 			)
 		);
 	}

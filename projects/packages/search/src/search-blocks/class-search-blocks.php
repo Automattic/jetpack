@@ -769,7 +769,7 @@ class Search_Blocks {
 	 * Mirrors Automattic\Jetpack\Blocks::load_styles_only_where_blocks_render(), which says why. The search page renders
 	 * these blocks anyway, and a classic theme there can't hoist a late style, so it keeps them in the head.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.4.4
 	 */
 	public static function load_block_styles_only_where_rendered() {
 		if ( wp_should_load_block_assets_on_demand() || is_search() ) {

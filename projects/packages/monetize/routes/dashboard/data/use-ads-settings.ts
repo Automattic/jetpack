@@ -2,13 +2,18 @@ import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { useCallback, useState } from 'react';
-import { ADS_ACCOUNT_KEY, ADS_PAYOUT_KEY, ADS_SETTINGS_KEY } from './ads-keys';
+import { ADS_ACCOUNT_KEY, ADS_SETTINGS_KEY, WPCOM_ADS_SETTINGS_KEY } from './ads-keys';
 import { trackModuleToggle, trackSettingToggle } from './tracking';
-import { WPCOM_ADS_SETTINGS } from './use-wpcom-ads-settings';
+import {
+	WPCOM_ADS_SETTINGS,
+	fetchWpcomAdsSettings,
+	mergeWpcomAdsSettings,
+} from './use-wpcom-ads-settings';
 import { useAdsAccount } from './wordads';
 import { wpcomFetch } from './wpcom-fetch';
+import type { WpcomAdsSettings } from './use-wpcom-ads-settings';
 
-export const ADS_OPTIONS = [
+const ADS_OPTIONS = [
 	'enable_header_ad',
 	'wordads_second_belowpost',
 	'wordads_inline_enabled',
@@ -28,7 +33,7 @@ export type AdsOption = ( typeof ADS_OPTIONS )[ number ];
 /** Options only Simple has: WordPress.com's sidebar ad, and keeping ads from logged-in visitors. */
 export type SimpleOption = 'sidebar' | 'logged_out_only';
 
-export const TEXT_OPTIONS: readonly AdsOption[] = [
+const TEXT_OPTIONS: readonly AdsOption[] = [
 	'wordads_ccpa_privacy_policy_url',
 	'wordads_custom_adstxt',
 ];
@@ -50,15 +55,6 @@ const SIMPLE_DISPLAY_OPTIONS: Partial< Record< AdsOption | SimpleOption, string 
 	wordads_display_archive: 'display_archive',
 	sidebar: 'sidebar',
 };
-
-interface WpcomAdsSettings {
-	settings?: {
-		show_to_logged_in?: string;
-		display_options?: Record< string, boolean >;
-		ccpa_enabled?: boolean;
-		ccpa_privacy_policy_url?: string;
-	};
-}
 
 // Saves store `1`/`0`, and some reads return strings, so `"0"` must read as off.
 const toBoolean = ( stored: unknown ) =>
@@ -144,16 +140,24 @@ function toSimpleChange(
  * @return The query.
  */
 export function useStoredAdsValues( enabled = true ) {
-	return useQuery( {
+	const simple = isSimpleSite();
+	const site = useQuery( {
 		queryKey: ADS_SETTINGS_KEY,
 		queryFn: async () =>
-			isSimpleSite()
-				? parseSimpleValues( await wpcomFetch< WpcomAdsSettings >( WPCOM_ADS_SETTINGS ) )
-				: parseValues(
-						await apiFetch< Record< string, unknown > >( { path: '/jetpack/v4/settings' } )
-					),
-		enabled,
+			parseValues(
+				await apiFetch< Record< string, unknown > >( { path: '/jetpack/v4/settings' } )
+			),
+		enabled: enabled && ! simple,
 	} );
+	// The same query as the payout details, so Simple asks WordPress.com once.
+	const wpcom = useQuery( {
+		queryKey: WPCOM_ADS_SETTINGS_KEY,
+		queryFn: fetchWpcomAdsSettings,
+		select: parseSimpleValues,
+		enabled: enabled && simple,
+	} );
+
+	return simple ? wpcom : site;
 }
 
 /**
@@ -165,7 +169,7 @@ export function useStoredAdsValues( enabled = true ) {
  */
 export function useAdsActive(): { active: boolean | undefined; isError: boolean } {
 	const simple = isSimpleSite();
-	const account = useAdsAccount();
+	const account = useAdsAccount( simple );
 	const settings = useStoredAdsValues( ! simple );
 
 	return simple
@@ -211,8 +215,6 @@ export function useAdsSettings( onSaved?: () => void ) {
 						prev => prev && { ...prev, active: Boolean( value ) }
 					);
 					queryClient.invalidateQueries( { queryKey: ADS_ACCOUNT_KEY } );
-					// Turning ads on signs the terms on Simple.
-					queryClient.invalidateQueries( { queryKey: ADS_PAYOUT_KEY } );
 				}
 				onSaved?.();
 			} catch {
@@ -230,14 +232,14 @@ export function useAdsSettings( onSaved?: () => void ) {
 
 	const saveSimple = useCallback(
 		( key: AdsKey, value: boolean | string ) =>
-			save( key, value, () =>
-				wpcomFetch( {
-					...WPCOM_ADS_SETTINGS,
-					method: 'POST',
-					data: toSimpleChange( key, value, stored ),
-				} )
-			),
-		[ save, stored ]
+			save( key, value, async () => {
+				const change = toSimpleChange( key, value, stored );
+				await wpcomFetch( { ...WPCOM_ADS_SETTINGS, method: 'POST', data: change } );
+				queryClient.setQueryData< WpcomAdsSettings >( WPCOM_ADS_SETTINGS_KEY, prev =>
+					mergeWpcomAdsSettings( prev, change )
+				);
+			} ),
+		[ save, stored, queryClient ]
 	);
 
 	const setOption = useCallback(
@@ -274,7 +276,8 @@ export function useAdsSettings( onSaved?: () => void ) {
 
 	return {
 		values: stored && ( { ...stored, ...requested } as AdsValues ),
-		loadError: settings.isError || account.isError,
+		// The account is read only on Simple; elsewhere another tab's failed lookup may sit in the cache.
+		loadError: settings.isError || ( simple && account.isError ),
 		saveError,
 		saving: new Set< string >( Object.keys( requested ) ),
 		setOption,

@@ -47,7 +47,10 @@ export type SubscriberListItem = {
 export type SubscriberListProps = {
 	items?: SubscriberListItem[];
 	emptyStateText?: string;
-	/** Rows beyond `items`; null when unknown, so the "N more" footer counts only hidden rows. */
+	/**
+	 * Rows beyond `items`, shown with the rows hidden to fit as an "N more" footer.
+	 * Null when unknown, so the footer counts only hidden rows; omit it for no footer.
+	 */
 	moreCount?: number | null;
 	/**
 	 * Show only the whole rows that fit the available height, rather than letting the
@@ -72,7 +75,7 @@ const DEFAULT_AVATAR_URL =
 export function SubscriberList( {
 	items = [],
 	emptyStateText,
-	moreCount = 0,
+	moreCount,
 	fitRows = true,
 	className,
 }: SubscriberListProps ) {
@@ -85,6 +88,7 @@ export function SubscriberList( {
 
 	// Include fetched rows hidden by the fitting logic.
 	const hiddenCount = knownMoreCount + ( items.length - fittedCount );
+	const showFooter = moreCount !== undefined && hiddenCount > 0;
 
 	return (
 		<Stack
@@ -144,7 +148,7 @@ export function SubscriberList( {
 					);
 				} ) }
 			</div>
-			{ hiddenCount > 0 && (
+			{ showFooter && (
 				<Text className={ styles.more } data-roster-footer>
 					{ sprintf(
 						// translators: %d is the number of additional subscribers not shown.

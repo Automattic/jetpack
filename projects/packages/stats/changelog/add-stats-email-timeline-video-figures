@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Abilities: Chart one email's opens and clicks over time in `get-email-detail`, and add impressions, hours watched and retention to `get-video-stats`.

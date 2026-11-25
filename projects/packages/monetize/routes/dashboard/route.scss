@@ -26,3 +26,9 @@ body.jetpack_page_jetpack-monetize {
 .jp-monetize-loading {
 	padding-block: 48px;
 }
+
+// Matches the terms note under the Ads description on Jetpack's Settings card.
+.jp-monetize-ads__terms {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	font-style: italic;
+}
