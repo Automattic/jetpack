@@ -12,6 +12,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 use WP_Error;
 
@@ -441,6 +442,11 @@ abstract class Product {
 	public static function does_site_have_feature( $feature ) {
 		if ( ! $feature ) {
 			return false;
+		}
+
+		// Simple runs the API call in-process, which 404s for the v1.1 features route, so ask WordPress.com's own check.
+		if ( ( new Host() )->is_wpcom_simple() && function_exists( 'wpcom_site_has_feature' ) ) {
+			return \wpcom_site_has_feature( $feature );
 		}
 
 		$features = self::get_site_features_from_wpcom();

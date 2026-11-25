@@ -6,7 +6,6 @@ use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_Graph_History_Request;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Lazy_Entry;
-use Automattic\Jetpack_Boost\Admin\Admin;
 use Automattic\Jetpack_Boost\Lib\Connection;
 
 class Performance_History_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_Set {
@@ -43,7 +42,7 @@ class Performance_History_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 		$request = new Speed_Score_Graph_History_Request( $this->start_date, $this->end_date, array() );
 		$result  = $request->execute();
 
-		if ( is_wp_error( $result ) && $this->surface_errors && Admin::is_modernization_enabled() ) {
+		if ( is_wp_error( $result ) && $this->surface_errors ) {
 			throw new \RuntimeException( $result->get_error_message() );
 		}
 

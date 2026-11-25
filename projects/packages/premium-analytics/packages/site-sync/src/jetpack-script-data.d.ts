@@ -73,6 +73,8 @@ declare module '@automattic/jetpack-script-data' {
 			sections?: string[];
 			// Slugs of the tabs whose dates follow the plan's Stats limits. Absent with `sections`.
 			plan_date_limited_sections?: string[];
+			// Slugs of the tabs that open while the site has no Jetpack connection. Absent when there are none.
+			connectionless_sections?: string[];
 			// The locale's default date format, used when the site's own lacks a day, month or year.
 			default_date_format?: string;
 			// The WooCommerce store currency, set by the WooCommerce stats package; absent without WooCommerce.

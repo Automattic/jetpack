@@ -12,6 +12,8 @@ type Props = {
 	isConnecting: boolean;
 	/** Why the last connection attempt failed, if it did. */
 	errorMessage?: ReactNode;
+	/** The site is already connected; only the current user's account is missing. */
+	needsUserConnection?: boolean;
 };
 
 /**
@@ -21,13 +23,26 @@ type Props = {
  * stays behind it. Reuses the same `AdminPage` chrome as `DashboardLayout` so
  * the header and footer match the connected dashboard.
  *
- * @param props              - Component props.
- * @param props.onConnect    - Starts the connection flow.
- * @param props.isConnecting - Whether the connection flow is in progress.
- * @param props.errorMessage - Why the last connection attempt failed, if it did.
+ * @param props                     - Component props.
+ * @param props.onConnect           - Starts the connection flow.
+ * @param props.isConnecting        - Whether the connection flow is in progress.
+ * @param props.errorMessage        - Why the last connection attempt failed, if it did.
+ * @param props.needsUserConnection - Whether only the current user's account is missing.
  * @return The connect screen element.
  */
-export default function ConnectScreen( { onConnect, isConnecting, errorMessage }: Props ) {
+export default function ConnectScreen( {
+	onConnect,
+	isConnecting,
+	errorMessage,
+	needsUserConnection = false,
+}: Props ) {
+	let connectLabel: string = __( 'Connect', 'jetpack-videopress-pkg' );
+	if ( isConnecting ) {
+		connectLabel = __( 'Connecting…', 'jetpack-videopress-pkg' );
+	} else if ( needsUserConnection ) {
+		connectLabel = __( 'Connect your account', 'jetpack-videopress-pkg' );
+	}
+
 	return (
 		<AdminPage
 			title={ 'VideoPress' /* product name; not translated */ }
@@ -35,13 +50,20 @@ export default function ConnectScreen( { onConnect, isConnecting, errorMessage }
 		>
 			<Stack direction="column" gap="md" className="vp-connection-gate">
 				<Text variant="heading-2xl">
-					{ __( 'Connect to set up VideoPress', 'jetpack-videopress-pkg' ) }
+					{ needsUserConnection
+						? __( 'Connect your WordPress.com account', 'jetpack-videopress-pkg' )
+						: __( 'Connect to set up VideoPress', 'jetpack-videopress-pkg' ) }
 				</Text>
 				<Text>
-					{ __(
-						'VideoPress needs a connection to WordPress.com before you can upload and manage your videos.',
-						'jetpack-videopress-pkg'
-					) }
+					{ needsUserConnection
+						? __(
+								'This site is already connected to WordPress.com, but your account isn’t. Connect it to upload videos and edit their details.',
+								'jetpack-videopress-pkg'
+							)
+						: __(
+								'VideoPress needs a connection to WordPress.com before you can upload and manage your videos.',
+								'jetpack-videopress-pkg'
+							) }
 				</Text>
 				{ errorMessage && (
 					<Text className="vp-connection-gate__error" role="alert">
@@ -50,9 +72,7 @@ export default function ConnectScreen( { onConnect, isConnecting, errorMessage }
 				) }
 				<div>
 					<Button variant="solid" disabled={ isConnecting } onClick={ onConnect }>
-						{ isConnecting
-							? __( 'Connecting…', 'jetpack-videopress-pkg' )
-							: __( 'Connect', 'jetpack-videopress-pkg' ) }
+						{ connectLabel }
 					</Button>
 				</div>
 			</Stack>

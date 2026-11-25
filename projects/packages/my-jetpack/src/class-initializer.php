@@ -412,6 +412,8 @@ class Initializer {
 
 		self::$site_info = self::get_site_info();
 		add_filter( 'identity_crisis_container_id', array( static::class, 'get_idc_container_id' ) );
+		// The Safe Mode window shows the new screen itself.
+		add_filter( 'jetpack_identity_crisis_show_notice', '__return_false' );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
 	}
 
@@ -869,7 +871,14 @@ class Initializer {
 
 		WP_Build_Polyfills::register(
 			'my-jetpack',
-			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )
+			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS ),
+			null,
+			array(
+				array(
+					'prefix' => 'jetpack_my_jetpack',
+					'slug'   => self::WP_BUILD_PAGE_ID,
+				),
+			)
 		);
 	}
 
@@ -1585,7 +1594,7 @@ class Initializer {
 		Feature_Flags::register(
 			self::SETTINGS_CONSOLIDATION_FLAG,
 			array(
-				'default'     => false,
+				'default'     => true,
 				'description' => 'Move settings out of the Settings screen to their new homes: open small features\' settings in a panel from Configure in Features, remove or replace their Settings cards with pointers, and show settings in their new places.',
 				'owner'       => 'my-jetpack',
 			)

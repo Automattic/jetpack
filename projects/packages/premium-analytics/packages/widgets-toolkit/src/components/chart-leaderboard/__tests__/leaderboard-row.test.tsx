@@ -336,6 +336,34 @@ describe( 'buildLeaderboardRow', () => {
 		expect( screen.getByTitle( 'Hello' ) ).toContainElement( screen.getByRole( 'presentation' ) );
 	} );
 
+	it( 'opens the report page of the row post type', () => {
+		Object.defineProperty( window, 'JetpackScriptData', {
+			configurable: true,
+			value: {
+				premium_analytics: {
+					single_report_pages: [ { path: 'page', entity: { kind: 'postType', name: 'page' } } ],
+				},
+			},
+		} );
+
+		try {
+			const row = buildLeaderboardRow( {
+				label: 'About',
+				media: { kind: 'none' },
+				action: { kind: 'postLink', id: 7, postType: 'page', search: {} },
+			} );
+
+			render( row.label );
+
+			expect( screen.getByRole( 'link', { name: 'About' } ) ).toHaveAttribute(
+				'href',
+				expect.stringMatching( /^\/report\/page\/7/ )
+			);
+		} finally {
+			delete window.JetpackScriptData;
+		}
+	} );
+
 	it( 'adds a "View" action beside the title when a post row also has a public URL', () => {
 		const row = buildLeaderboardRow( {
 			label: 'Hello',
@@ -461,23 +489,31 @@ describe( 'buildLeaderboardRow', () => {
 		expect( title ).toHaveClass( 'rowLink' );
 	} );
 
-	it( 'draws the mark of an indicated row beside the title, outside its name', () => {
+	it.each( [
+		[ 'internal', { kind: 'postLink' as const, id: 5, href: null, search: {} }, '/report/post/5' ],
+		[
+			'external',
+			{ kind: 'postLink' as const, href: 'https://example.com/hello', search: {} },
+			'https://example.com/hello',
+		],
+	] )( 'describes the %s title link of an indicated row with its mark', ( _kind, action, href ) => {
 		render(
 			buildLeaderboardRow( {
 				label: 'Hello',
 				media: { kind: 'none' },
-				action: { kind: 'postLink', id: 5, href: null, search: {} },
+				action,
 				indicator: 'Published in this period',
 			} ).label
 		);
 
-		const title = screen.getByRole( 'link', { name: 'Hello' } );
-		const mark = screen.getByRole( 'img', { name: 'Published in this period' } );
-		// The mark moves the row chrome to a wrapper, as a "View" action does.
+		// An external link's name also carries the new-tab marker.
+		const title = screen.getByRole( 'link', { name: /^Hello/ } );
+		expect( title ).toHaveAttribute( 'href', href );
+		expect( title ).toHaveAccessibleDescription( 'Published in this period' );
+		// The mark moves the row chrome to a wrapper, as a "View" action does, and the wrapper draws it.
 		// eslint-disable-next-line testing-library/no-node-access -- The wrapper has no accessible query target.
-		const wrapper = mark.parentElement;
-		expect( wrapper ).toHaveClass( 'row' );
-		expect( wrapper ).toContainElement( title );
+		const wrapper = title.parentElement;
+		expect( wrapper ).toHaveClass( 'row', 'indicated' );
 		expect( title ).toHaveClass( 'titleLink' );
 	} );
 

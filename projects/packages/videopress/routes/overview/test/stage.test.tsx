@@ -5,6 +5,10 @@ import { stage as Stage } from '../stage';
 import type { FreeTierState } from '../../../src/dashboard/hooks/use-free-tier';
 import type { ReactNode } from 'react';
 
+jest.mock( '../../../src/dashboard/hooks/use-available-license-count', () => ( {
+	useAvailableLicenseCount: () => 0,
+} ) );
+
 jest.mock( '../../../src/dashboard/components/dashboard-layout', () => ( {
 	__esModule: true,
 	default: ( { children }: { children?: ReactNode } ) => <div>{ children }</div>,

@@ -8,6 +8,9 @@ inputs:
     default: 'none'
   node:
     description: "Override the Node version, or set 'false' to skip setting up Node and Pnpm."
+  pnpm-save-cache:
+    description: "save-cache value for pnpm/setup"
+    default: true
 runs:
   using: composite
   steps:
@@ -86,20 +89,18 @@ runs:
 
     - name: Setup pnpm
       if: steps.versions.outputs.node-version != 'false'
-      uses: pnpm/setup@703c52620218391530e48b9e8870d5c0082e1b9b # v2.1.0
+      uses: pnpm/setup@731dfb6463bbd11c11fd0ee11fe00ed0e36d48a1 # v3.2.0
       with:
         version: ${{ steps.versions.outputs.pnpm-version }}
         install: false
         cache: true
+        save-cache: ${{ inputs.pnpm-save-cache }}
         runtime: node@${{ steps.versions.outputs.node-version }}
 
     - name: Work around pnpm/setup bugs
       if: steps.versions.outputs.node-version != 'false'
       shell: bash
       run: |
-        # https://github.com/pnpm/setup/issues/51
-        [[ -f pnpm-lock.yaml ]] && git restore pnpm-lock.yaml
-
         # https://github.com/pnpm/setup/issues/83
         echo "::add-matcher::$GITHUB_ACTION_PATH/matchers/eslint-compact.jsonc"
         echo "::add-matcher::$GITHUB_ACTION_PATH/matchers/eslint-stylish.jsonc"

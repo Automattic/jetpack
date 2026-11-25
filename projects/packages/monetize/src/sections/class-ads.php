@@ -13,6 +13,7 @@ use Automattic\Jetpack\Monetize\Ads_Wpcom_Settings;
 use Automattic\Jetpack\Monetize\Dashboard;
 use Automattic\Jetpack\Monetize\Dashboard_Section;
 use Automattic\Jetpack\Monetize\WPCOM_Proxy;
+use Automattic\Jetpack\Status\Host;
 use WP_Error;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -44,7 +45,8 @@ class Ads implements Dashboard_Section {
 		return array(
 			'hasWordAds'     => Current_Plan::supports( 'wordads' ),
 			'canJoinWordAds' => self::can_join_wordads(),
-			'wpcomOutOfDate' => Ads_Wpcom_Settings::is_out_of_date(),
+			// Simple keeps its Ads settings on WordPress.com, so there is nothing to sync.
+			'wpcomOutOfDate' => ! ( new Host() )->is_wpcom_simple() && Ads_Wpcom_Settings::is_out_of_date(),
 		);
 	}
 
@@ -109,7 +111,7 @@ class Ads implements Dashboard_Section {
 		}
 
 		if ( ! ( new Connection_Manager() )->is_user_connected() ) {
-			return new WP_Error( 'rest_unauthorized', __( 'Connect your WordPress.com account first.', 'jetpack-monetize' ), array( 'status' => 403 ) );
+			return new WP_Error( 'rest_unauthorized', __( 'Connect your WordPress.com account first.', 'jetpack-monetize' ), array( 'status' => rest_authorization_required_code() ) );
 		}
 
 		return true;

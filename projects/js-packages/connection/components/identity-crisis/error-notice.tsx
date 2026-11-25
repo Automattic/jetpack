@@ -37,6 +37,16 @@ function getIdentityCrisisErrorMessage( cause: IdentityCrisisErrorCause ): strin
 				'You don’t have permission to do this. Ask a site administrator.',
 				'jetpack-connection-js'
 			);
+		case 'disconnected':
+			return __(
+				'Your site couldn’t be registered with WordPress.com again, so it is now disconnected. Try again to connect it, or connect it later in Settings › Connectors, under Jetpack Connection.',
+				'jetpack-connection-js'
+			);
+		case 'resolved':
+			return __(
+				'This site is no longer in Safe Mode, for example because it was resolved in another tab. Reload the page.',
+				'jetpack-connection-js'
+			);
 		case 'server':
 			return __(
 				'Your site’s server ran into a problem. Try again in a few minutes.',

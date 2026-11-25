@@ -2,12 +2,12 @@ import { __ } from '@wordpress/i18n';
 import { Button, Stack } from '@wordpress/ui';
 import styles from '../styles.module.scss';
 import SupportLink from '../support-link';
-import type { OptionCopy } from './copy';
+import type { ActionCopy } from './copy';
 import type { ReactNode } from 'react';
 
 interface StepActionsProps {
-	/** The selected answer's copy; the button stays disabled without one. */
-	selected: OptionCopy | null;
+	/** The button's copy: the selected answer's or the result's. The button stays disabled without one. */
+	action: ActionCopy | null;
 	/** An action is running, or the host is leaving after one. */
 	isBusy: boolean;
 	/** The last action failed. */
@@ -18,33 +18,33 @@ interface StepActionsProps {
 }
 
 /**
- * The step's button, Back, and the link to support.
+ * The step's button, Back, and a how-to link or the footer link to support.
  *
  * @param {StepActionsProps} props - Component props.
  * @return {ReactNode} The actions.
  */
 export default function StepActions( {
-	selected,
+	action,
 	isBusy,
 	hasError,
 	canGoBack,
 	onContinue,
 	onBack,
 }: StepActionsProps ): ReactNode {
-	let label = selected?.button ?? __( 'Continue', 'jetpack-connection-js' );
-	if ( isBusy && selected ) {
-		label = selected.busy ?? selected.button;
+	let label = action?.button ?? __( 'Continue', 'jetpack-connection-js' );
+	if ( isBusy && action ) {
+		label = action.busy ?? action.button;
 	} else if ( hasError ) {
 		label = __( 'Try again', 'jetpack-connection-js' );
 	}
 
 	return (
 		<Stack direction="column" gap="md">
-			<Stack direction="row" gap="sm" align="center" wrap="wrap">
+			<div className={ styles.actions }>
 				<Button
 					variant="solid"
 					onClick={ onContinue }
-					disabled={ ! selected || isBusy }
+					disabled={ ! action || isBusy }
 					loading={ isBusy }
 				>
 					{ label }
@@ -54,10 +54,13 @@ export default function StepActions( {
 						{ __( 'Back', 'jetpack-connection-js' ) }
 					</Button>
 				) }
-			</Stack>
-			<div className={ styles.footer }>
-				<SupportLink>{ __( 'Learn more about Safe Mode', 'jetpack-connection-js' ) }</SupportLink>
+				{ action?.link && <SupportLink>{ action.link }</SupportLink> }
 			</div>
+			{ ! action?.link && (
+				<div className={ styles.footer }>
+					<SupportLink>{ __( 'Learn more about Safe Mode', 'jetpack-connection-js' ) }</SupportLink>
+				</div>
+			) }
 		</Stack>
 	);
 }

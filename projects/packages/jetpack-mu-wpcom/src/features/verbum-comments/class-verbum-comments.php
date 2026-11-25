@@ -108,15 +108,8 @@ class Verbum_Comments {
 	 * Load the div where Verbum app is rendered.
 	 */
 	public function verbum_render_element() {
-		$color_scheme = get_blog_option( $this->blog_id, 'jetpack_comment_form_color_scheme' );
-		$comment_url  = $this->get_form_action();
-
-		if ( ! $color_scheme ) {
-			// Default to transparent because it is more adaptable than white or dark.
-			$color_scheme = 'transparent';
-		}
-
-		$verbum = '<div class="comment-form__verbum ' . $color_scheme . '"></div>' . $this->hidden_fields();
+		$comment_url = $this->get_form_action();
+		$verbum      = '<div class="comment-form__verbum ' . esc_attr( $this->get_color_scheme() ) . '"></div>' . $this->hidden_fields();
 
 		// If the blog requires login, Verbum need to be wrapped in a <form> to work.
 		// Verbum is given `mustLogIn` to handle the login flow.
@@ -126,6 +119,18 @@ class Verbum_Comments {
 		} else {
 			return $verbum;
 		}
+	}
+
+	/**
+	 * Get the comment form color scheme. The option is synced from Jetpack sites, so it is untrusted.
+	 *
+	 * @return string
+	 */
+	private function get_color_scheme() {
+		$color_scheme = get_blog_option( $this->blog_id, 'jetpack_comment_form_color_scheme' );
+
+		// Default to transparent because it is more adaptable than white or dark.
+		return in_array( $color_scheme, array( 'light', 'dark', 'transparent' ), true ) ? $color_scheme : 'transparent';
 	}
 
 	/**
@@ -206,7 +211,6 @@ class Verbum_Comments {
 		$css_mtime        = filemtime( ABSPATH . '/widgets.wp.com/verbum-block-editor/block-editor.css' );
 		$js_mtime         = filemtime( ABSPATH . '/widgets.wp.com/verbum-block-editor/block-editor.min.js' );
 		$vbe_cache_buster = max( $js_mtime, $css_mtime );
-		$color_scheme     = get_blog_option( $this->blog_id, 'jetpack_comment_form_color_scheme' );
 
 		// Only users with unfiltered_html get this signed nonce, the closest signed proxy for admin.
 		$retirement_notice_url = '';
@@ -301,7 +305,7 @@ class Verbum_Comments {
 					'isRTL'                              => is_rtl(),
 					'vbeCacheBuster'                     => $vbe_cache_buster,
 					'iframeUniqueId'                     => $iframe_unique_id,
-					'colorScheme'                        => $color_scheme,
+					'colorScheme'                        => $this->get_color_scheme(),
 					'retirementNoticeUrl'                => $retirement_notice_url,
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
@@ -344,7 +348,7 @@ class Verbum_Comments {
 				'logged_in_as'         => '',
 				'comment_notes_before' => '',
 				'comment_notes_after'  => '',
-				'title_reply'          => $title_reply,
+				'title_reply'          => esc_html( $title_reply ),
 				/* translators: % is the original posters name */
 				'title_reply_to'       => __( 'Leave a reply to %s', 'jetpack-mu-wpcom' ),
 				'cancel_reply_link'    => __( 'Cancel reply', 'jetpack-mu-wpcom' ),

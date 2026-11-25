@@ -556,8 +556,8 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
-	 * Any editor user loads the editor script data, so it has only the SDK host URL. The
-	 * client id comes with an admin's read of a payment.
+	 * Any editor user loads the editor script data, so it has only URLs. The client id
+	 * comes with an admin's read of a payment.
 	 *
 	 * @dataProvider provide_flag_states
 	 *
@@ -576,11 +576,17 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 					array(
 						'sdkHostUrl'          => PayPal_Payment_Buttons::get_sdk_host_url(),
 						'onboardingReturnUrl' => PayPal_Payment_Buttons::get_onboarding_return_url(),
+						'assetsUrl'           => PayPal_Payment_Buttons::get_assets_url(),
 					),
 					JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 				) . ';',
 			),
 			array_values( array_filter( (array) wp_scripts()->get_data( 'jp-paypal-payments-ncps-blocks', 'before' ) ) )
+		);
+		// The bundle appends `images/...` to the assets URL, so it must be the build dir, one level above the script's dir.
+		$this->assertSame(
+			PayPal_Payment_Buttons::get_assets_url() . 'paypal-payment-buttons/editor.js',
+			strtok( wp_scripts()->registered['jp-paypal-payments-ncps-blocks']->src, '?' )
 		);
 	}
 

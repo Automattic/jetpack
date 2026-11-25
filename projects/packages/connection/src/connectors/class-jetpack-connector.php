@@ -76,6 +76,7 @@ class Jetpack_Connector {
 		add_action( 'wp_connectors_init', array( static::class, 'register_connector' ), 20 );
 		add_action( 'admin_enqueue_scripts', array( static::class, 'enqueue_script_module' ) );
 		add_action( 'jetpack_client_authorize_error', array( static::class, 'store_auth_error' ) );
+		add_filter( 'jetpack_identity_crisis_show_notice', array( static::class, 'hide_safe_mode_notice' ) );
 	}
 
 	/**
@@ -113,18 +114,7 @@ class Jetpack_Connector {
 	 * @since 9.14.0 Loads the Tracks script when tracking is allowed.
 	 */
 	public static function enqueue_script_module() {
-		$screen = get_current_screen();
-
-		if ( ! $screen || ! static::is_connectors_screen( $screen ) ) {
-			return;
-		}
-
-		if ( ! class_exists( 'WP_Connector_Registry' ) ) {
-			return;
-		}
-
-		// The built files are missing in a checkout that hasn't run the build, or mid-deploy.
-		$asset = static::get_module_asset( __DIR__ . '/' . static::MODULE_FILE );
+		$asset = static::get_card_asset();
 		if ( null === $asset ) {
 			return;
 		}
@@ -374,6 +364,33 @@ class Jetpack_Connector {
 		$url      = $owner_id > 0 ? get_edit_user_link( $owner_id ) : '';
 
 		return '' !== $url ? $url : null;
+	}
+
+	/**
+	 * The card's asset data, when the current admin page shows the card.
+	 *
+	 * @return array|null Null off the Connectors page, on a WordPress without connector cards, or without the build.
+	 */
+	private static function get_card_asset() {
+		$screen = get_current_screen();
+		if ( ! $screen || ! static::is_connectors_screen( $screen ) || ! class_exists( 'WP_Connector_Registry' ) ) {
+			return null;
+		}
+
+		// The built files are missing in a checkout that hasn't run the build, or mid-deploy.
+		return static::get_module_asset( __DIR__ . '/' . static::MODULE_FILE );
+	}
+
+	/**
+	 * Hide the Safe Mode notice where the card shows, since the card shows the same screen.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $show Whether to show the notice.
+	 * @return bool
+	 */
+	public static function hide_safe_mode_notice( $show ) {
+		return null === static::get_card_asset() ? $show : false;
 	}
 
 	/**

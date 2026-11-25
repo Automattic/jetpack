@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Safe Mode: Keep a screen left open, for example in another tab, from disconnecting a site that is no longer in Safe Mode.

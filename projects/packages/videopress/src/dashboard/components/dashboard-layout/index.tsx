@@ -13,6 +13,7 @@ import { useUploadUnloadGuard } from '../../hooks/use-upload-unload-guard';
 import DashboardTabs, { TAB_PATHS, type DashboardTab } from '../dashboard-tabs';
 import OnboardingModal from '../onboarding-modal';
 import PageSubTitle from '../page-subtitle';
+import SitePrivacyNotice from '../site-privacy-notice';
 import './style.scss';
 import type { ReactNode } from 'react';
 
@@ -73,6 +74,8 @@ export default function DashboardLayout( { activeTab, children, actions, hideFoo
 			<Tabs.Root className="vp-dashboard-tabs" value={ activeTab } onValueChange={ onValueChange }>
 				<DashboardTabs />
 				<JitmSlot inset />
+				{ /* Settings shows the toggle itself. */ }
+				{ activeTab !== 'settings' && <SitePrivacyNotice /> }
 				{ TAB_VALUES.map( tab => (
 					<Tabs.Panel key={ tab } value={ tab }>
 						{ activeTab === tab ? children : null }
