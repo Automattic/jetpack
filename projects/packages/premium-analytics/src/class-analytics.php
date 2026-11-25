@@ -74,7 +74,7 @@ class Analytics {
 	 * notices, sync bootstrap, and the dashboard support routes itself.
 	 *
 	 * Hosts call this on every request once the flag is on, never only on admin ones: the
-	 * store-event tracker listens on the front end. {@see self::load_dashboard_surface()} is what
+	 * Jetpack Stats tracker listens on the front end. {@see self::load_dashboard_surface()} is what
 	 * keeps the admin-only work off those requests.
 	 *
 	 * @param array $options Optional configuration options.
@@ -239,9 +239,6 @@ class Analytics {
 		Capabilities::register();
 
 		AI_Traffic::register_feature_flag();
-
-		// Emit WooCommerce store events into the Woo pipeline (ClickHouse + proxy).
-		WooCommerce_Analytics_Tracker::configure();
 
 		// CSV report export pipeline (WOOA7S-1581): hooks rest_api_init, so it must
 		// register on all requests. Self-gates on WooCommerce + Jetpack connection.

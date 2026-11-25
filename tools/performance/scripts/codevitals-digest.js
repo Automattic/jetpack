@@ -45,12 +45,22 @@ const PAGE_WEIGHT_KEYS = new Set(
 const TIMING_CAVEAT = 'Timings: warm reload, test site with default data, simulated connection.';
 const LEVEL_WINDOW = 10;
 const SCAN_BEFORE_WINDOW = 8;
+const MIN_WEEKLY_COMMITS = 20;
 const METRIC_POLICIES = [
+	{ id: '201', key: metricKey( 'jetpackConnected', 'lcp' ), measurementStep: 4 },
 	{ id: '203', key: metricKey( 'jetpackConnected', 'fcp' ), exclude: true }, // Duplicates Dashboard LCP.
+	{ id: '204', key: metricKey( 'formsResponses', 'lcp' ), measurementStep: 4 },
+	{ id: '206', key: metricKey( 'formsResponses', 'fcp' ), measurementStep: 4 },
+	{ id: '211', key: metricKey( 'myJetpack', 'lcp' ), measurementStep: 4 },
 	// My Jetpack TTFB and FCP vary more between commits. Remove these factors once more loads lower their noise.
 	{ id: '212', key: metricKey( 'myJetpack', 'ttfb' ), noiseFactor: 2 },
-	{ id: '213', key: metricKey( 'myJetpack', 'fcp' ), noiseFactor: 2 },
+	{ id: '213', key: metricKey( 'myJetpack', 'fcp' ), noiseFactor: 2, measurementStep: 4 },
 ];
+// Mark commit-time boundaries when Jetpack trunk measurements resume under a different setup.
+const MEASUREMENT_BREAKS = [ Date.parse( '2026-11-16T00:00:00Z' ) ];
+const spansMeasurementBreak = ( mark, before, after, t ) =>
+	( before[ 0 ]?.t ?? t ) < mark && ( after.at( -1 )?.t ?? t ) >= mark;
+
 const isNumericId = id => /^[0-9]+$/.test( id );
 const robustScale = ( values, level ) =>
 	Math.max( 1.4826 * median( values.map( value => Math.abs( value - level ) ) ), 0.002 * level );
@@ -93,11 +103,23 @@ const estimateChangePoint = ( rows, position, pre, post ) => {
 	return changeIndex;
 };
 
-const isHeldLevel = ( values, level ) => {
+const isHeldLevel = ( values, level, measurementStep = 0, allowInteriorStray = false ) => {
 	// Use adjacent differences so one jump does not widen the tolerance for a mixed window.
 	const differences = values.slice( 1 ).map( ( value, i ) => Math.abs( value - values[ i ] ) );
-	const scale = Math.max( ( 1.4826 * median( differences ) ) / Math.SQRT2, 0.002 * level );
-	return values.every( value => Math.abs( value - level ) <= 3 * scale );
+	const scale = Math.max(
+		( 1.4826 * median( differences ) ) / Math.SQRT2,
+		0.002 * level,
+		measurementStep
+	);
+	const outsideBand = value => Math.abs( value - level ) > 3 * scale;
+	const stray = values.findIndex( outsideBand );
+	return (
+		stray === -1 ||
+		( allowInteriorStray &&
+			stray > 0 &&
+			stray < values.length - 1 &&
+			! values.slice( stray + 1 ).some( outsideBand ) )
+	);
 };
 
 const fmt = v => ( Number.isInteger( v ) ? String( v ) : Number( v ).toFixed( 1 ) );
@@ -262,6 +284,13 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 	// batch whose commits predate the window, or a pending flag orphaned by a skipped batch, must
 	// not fall out unjudged.
 	const detectMs = 2 * windowMs;
+	const isJetpackTrunk = isJetpackRepo && BRANCH === 'trunk';
+	const marks = isJetpackTrunk ? MEASUREMENT_BREAKS : [];
+	const breakLevels = new Map(
+		marks.filter( mark => mark >= now - detectMs && mark <= now ).map( mark => [ mark, new Map() ] )
+	);
+	const firstSeenByCommit = new Map();
+	const weekStart = now - 7 * 864e5;
 	const SKEW_MS = 864e5; // clock-skew allowance; a further-future measuredAt is malformed data, and one such point would pin the staleness clock into the future
 	const commitLink = h => `<https://github.com/${ repoPath }/commit/${ h }|${ h.slice( 0, 8 ) }>`;
 	// The repo's public metrics page — the anonymous CodeVitals route (`/repos/:owner/:repo` is
@@ -348,7 +377,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 	let agedOutFlags = 0; // flags older than even the 2x look-back — designed silent exit (see below), but the count must not vanish entirely
 
 	for ( const id of discoveryFailed ? [] : metricIds ) {
-		const { noiseFactor } = metricPolicy( id ) ?? {};
+		const { noiseFactor, measurementStep } = metricPolicy( id ) ?? {};
 		const meta = metaById.get( id ) || {};
 		const series = {
 			id,
@@ -568,6 +597,22 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				}`
 			);
 		newestByMetric.set( id, newest );
+		if ( isJetpackTrunk ) {
+			for ( const { t, p } of pts ) {
+				const hash = p.hash.toLowerCase();
+				if ( t <= now && t < ( firstSeenByCommit.get( hash ) ?? Infinity ) )
+					firstSeenByCommit.set( hash, t );
+			}
+		}
+		for ( const [ mark, levels ] of breakLevels ) {
+			const split = pts.findIndex( row => row.t >= mark );
+			if ( split < LEVEL_WINDOW || pts.length - split < LEVEL_WINDOW ) continue;
+			levels.set( id, {
+				unit: series.unit,
+				pre: median( pts.slice( split - LEVEL_WINDOW, split ).map( row => row.v ) ),
+				post: median( pts.slice( split, split + LEVEL_WINDOW ).map( row => row.v ) ),
+			} );
+		}
 		// The kept rows in SERVE order: the id tie-sort above may have moved equal-time rows,
 		// and every flag's windows below are built around its position in the response.
 		const byServe = [ ...pts ].sort( ( a, b ) => a.p.sIdx - b.p.sIdx );
@@ -599,6 +644,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 		const reportedHashes = new Set();
 		const sustained = [];
 		const metricPending = [];
+		let flagsAcrossBreak = 0;
 		for ( const ev of events ) {
 			const { self, t, p, v, flagV, flagFrom, fIdxs, sibs } = ev;
 			if ( now - t > detectMs ) {
@@ -617,13 +663,19 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 			const serverFrom = Number( p.serverFrom );
 			const serverValid = Number.isFinite( serverFrom ) && serverFrom > 0;
 			const reRun = ! self || fIdxs !== undefined;
-			const wins = ( fIdxs ?? [ p.sIdx ] ).map( s => {
+			const wins = [];
+			for ( const [ index, s ] of ( fIdxs ?? [ p.sIdx ] ).entries() ) {
 				const later = [];
 				const prior = [];
 				for ( const r of byServe )
 					if ( r.p.hash.toLowerCase() !== evHash ) ( r.p.sIdx > s ? later : prior ).push( r );
 				const preRows = prior.slice( -LEVEL_WINDOW );
 				const postRows = later.slice( 0, LEVEL_WINDOW );
+				const flagTime = sibs?.[ index ].t ?? t;
+				if ( marks.some( mark => spansMeasurementBreak( mark, preRows, postRows, flagTime ) ) ) {
+					flagsAcrossBreak++;
+					continue;
+				}
 				const preValues = preRows.map( r => r.v );
 				const postValues = postRows.map( r => r.v );
 				const pre = median( preValues );
@@ -646,7 +698,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 					.filter( r => r.p.sIdx >= s )
 					.slice( 0, LEVEL_WINDOW )
 					.map( r => r.v );
-				return {
+				wins.push( {
 					s,
 					pre,
 					post,
@@ -657,8 +709,9 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 					verdict,
 					score: levelScore( preValues, localPost, pre ),
 					position: byServe.filter( r => r.p.sIdx < s ).length,
-				};
-			} );
+				} );
+			}
+			if ( wins.length === 0 ) continue;
 			const reporting = wins.filter( w => w.verdict === 'report' );
 			// A tied deciding window renders the worst percent, then the newest sibling.
 			const sibOf = w => ( sibs ? sibs[ fIdxs.indexOf( w.s ) ] : ev );
@@ -754,9 +807,21 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 		let waitingScans = 0;
 		let rejectedScans = 0;
 		let repeatedScans = 0;
+		let seedsAcrossBreak = 0;
+		let confirmationsAcrossBreak = 0;
 		for ( let seed = LEVEL_WINDOW; seed < byServe.length - LEVEL_WINDOW; seed++ ) {
-			const seedBefore = byServe.slice( seed - LEVEL_WINDOW, seed ).map( row => row.v );
-			const seedAfter = byServe.slice( seed + 1, seed + LEVEL_WINDOW + 1 ).map( row => row.v );
+			const seedPreRows = byServe.slice( seed - LEVEL_WINDOW, seed );
+			const seedPostRows = byServe.slice( seed + 1, seed + LEVEL_WINDOW + 1 );
+			if (
+				marks.some( mark =>
+					spansMeasurementBreak( mark, seedPreRows, seedPostRows, byServe[ seed ].t )
+				)
+			) {
+				seedsAcrossBreak++;
+				continue;
+			}
+			const seedBefore = seedPreRows.map( row => row.v );
+			const seedAfter = seedPostRows.map( row => row.v );
 			if ( ! hasLevelRise( seedBefore, seedAfter, noiseFactor ) ) continue;
 			const position = estimateChangePoint(
 				byServe,
@@ -773,13 +838,28 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				continue;
 			}
 			const before = byServe.slice( Math.max( 0, position - SCAN_BEFORE_WINDOW ), position );
+			const after = byServe.slice( position + 1, position + LEVEL_WINDOW + 1 );
+			const crossedMarks = marks.filter( mark => spansMeasurementBreak( mark, before, after, t ) );
+			if ( crossedMarks.length > 0 ) {
+				confirmationsAcrossBreak++;
+				for ( const mark of crossedMarks ) {
+					const levels = breakLevels.get( mark );
+					if ( ! levels ) continue;
+					const result = levels.get( id ) ?? {};
+					result.skippedConfirmations = ( result.skippedConfirmations ?? 0 ) + 1;
+					levels.set( id, result );
+				}
+				continue;
+			}
 			const preValues = before.map( row => row.v );
 			const pre = median( preValues );
-			if ( before.length !== SCAN_BEFORE_WINDOW || ! isHeldLevel( preValues, pre ) ) {
+			if (
+				before.length !== SCAN_BEFORE_WINDOW ||
+				! isHeldLevel( preValues, pre, measurementStep )
+			) {
 				rejectedScans++;
 				continue;
 			}
-			const after = byServe.slice( position + 1, position + LEVEL_WINDOW + 1 );
 			if ( after.length !== LEVEL_WINDOW ) {
 				waitingScans++;
 				continue;
@@ -788,7 +868,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 			const post = median( postValues );
 			if (
 				! hasLevelRise( preValues, postValues, noiseFactor ) ||
-				! isHeldLevel( postValues, post )
+				! isHeldLevel( postValues, post, measurementStep, true )
 			) {
 				rejectedScans++;
 				continue;
@@ -842,6 +922,10 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 			console.error(
 				`metric ${ id }: scan windows skipped — ${ agedScans } outside the look-back, ${ coveredScans } covered by flags, ${ waitingScans } waiting for later readings, ${ rejectedScans } rejected, ${ repeatedScans } repeated`
 			);
+		if ( flagsAcrossBreak || seedsAcrossBreak || confirmationsAcrossBreak )
+			console.error(
+				`metric ${ id }: windows skipped across a measurement break — ${ flagsAcrossBreak } flag, ${ seedsAcrossBreak } seed, ${ confirmationsAcrossBreak } confirmation`
+			);
 
 		for ( const group of groups ) {
 			const complete = group.filter( entry => entry.pre !== undefined );
@@ -885,6 +969,10 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 	confirmed.sort( ( a, b ) => b.t - a.t ); // newest first, so the MAX_LINES cut drops the oldest, never the latest
 
 	const allFailed = ! discoveryFailed && failedIds.length === metricIds.length;
+	const recentCommits = [ ...firstSeenByCommit.values() ].filter( t => t >= weekStart ).length;
+	const weeklyBatchReadable = isJetpackTrunk && ! discoveryFailed && failedIds.length === 0;
+	const thinBatch = weeklyBatchReadable && recentCommits < MIN_WEEKLY_COMMITS;
+	const batchCount = `Commits dated in the last 7 days: ${ recentCommits }.`;
 	// Staleness is PER METRIC: one fresh metric must not mask a silently-dead sibling. A
 	// recreated or stalled metric serves HTTP 200 with zero points, exactly the failure mode this
 	// digest exists to catch. A metric CREATED inside the threshold is warming up, not stale
@@ -962,6 +1050,18 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 		const pct = pctStr( r.pct );
 		return `${ pct || 'Change' } (single pair${ pct ? '' : '; percentage unavailable' }) within the comparison window ${ commitLink( r.rangeStart ) } to ${ commitLink( r.rangeEnd ) }; flag observed at ${ commitLink( r.hash ) }${ r.reRun ? ' (flag from a re-run)' : '' }${ r.late ? ' (late)' : '' }`;
 	};
+	const dashboardContext = [
+		mrkdwn( `📈 <${ dashboardUrl }|Open the ${ esc( repoTitle ) } CodeVitals dashboard>` ),
+	];
+	if ( weeklyBatchReadable ) {
+		dashboardContext.push(
+			mrkdwn(
+				thinBatch
+					? `:warning: *Thin measurement batch.* ${ batchCount } Expected at least ${ MIN_WEEKLY_COMMITS }.`
+					: batchCount
+			)
+		);
+	}
 	const blocks = [
 		{
 			type: 'header',
@@ -972,9 +1072,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 		// regressions there are no commit or chart links to follow.
 		{
 			type: 'context',
-			elements: [
-				mrkdwn( `📈 <${ dashboardUrl }|Open the ${ esc( repoTitle ) } CodeVitals dashboard>` ),
-			],
+			elements: dashboardContext,
 		},
 	];
 
@@ -1002,6 +1100,26 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 		);
 	} else {
 		const readable = metricIds.length - failedIds.length;
+		for ( const [ mark, levels ] of breakLevels ) {
+			const lines = metricIds.map( id => {
+				const r = levels.get( id );
+				const pct = r?.pre > 0 ? medianPct( r ) : null;
+				const level =
+					r?.pre === undefined
+						? '— comparison unavailable'
+						: `${ fmt( r.pre ) }→${ fmt( r.post ) }${ esc( clip( r.unit ) ) }${ pct ? ` (${ pct })` : '' }`;
+				const skipped = r?.skippedConfirmations;
+				const note = skipped
+					? ` · ${ skipped } possible ${ skipped === 1 ? 'change across the break was' : 'changes across the break were' } not checked`
+					: '';
+				return `• *${ label( id ) }* ${ level }${ note }`;
+			} );
+			blocks.push(
+				section(
+					`*Measurement break (${ new Date( mark ).toISOString().slice( 0, 10 ) } UTC)* — median levels before and after the break, with no commit attribution.\n${ lines.join( '\n' ) }`
+				)
+			);
+		}
 		if ( failedIds.length > 0 ) {
 			blocks.push(
 				section(
@@ -1072,6 +1190,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				badPoints.size > 0 ||
 				invalidBaselines.size > 0 ||
 				staleInfo.length > 0 ||
+				thinBatch ||
 				droppedIds > 0;
 			blocks.push(
 				section(
@@ -1079,7 +1198,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 						? `:grey_question: No sustained regressions among the data that could be read (${ readable } tracked metric${
 								readable === 1 ? '' : 's'
 							}) — but the signal is degraded this week, see above.`
-						: `:white_check_mark: No sustained metric regressions in the last ${ WINDOW_DAYS } days across ${ readable } tracked metric${
+						: `${ breakLevels.size > 0 ? '' : ':white_check_mark: ' }No sustained metric regressions in the last ${ WINDOW_DAYS } days across ${ readable } tracked metric${
 								readable === 1 ? '' : 's'
 							}.`
 				)
@@ -1221,10 +1340,16 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 	// blocks, so the regressions themselves are named here too (bounded).
 	const summaryParts = [];
 	const diagnosticSummary = [];
+	if ( thinBatch ) {
+		summaryParts.push(
+			`THIN MEASUREMENT BATCH (${ recentCommits } commit${ recentCommits === 1 ? '' : 's' })`
+		);
+	}
 	if ( namesUnavailable ) summaryParts.push( 'METRIC NAME LOOKUP FAILURE' );
 	if ( discoveryFailed ) summaryParts.push( 'METRIC DISCOVERY FAILURE' );
 	else if ( allFailed ) summaryParts.push( 'DATA READ FAILURE' );
 	else {
+		if ( breakLevels.size > 0 ) summaryParts.push( 'MEASUREMENT BREAK' );
 		// Notifications name page-weight changes first, including older confirmed changes.
 		const summaryName = r =>
 			`${ esc( clip( r.name ) ) } median ${ medianPct( r ) }${ r.fromScan ? '' : ` (single-pair ${ pctStr( r.pct ) || 'percentage unavailable' })` }`;
@@ -1294,7 +1419,8 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 		droppedIds > 0 ||
 		badPoints.size > 0 ||
 		invalidBaselines.size > 0 ||
-		staleInfo.length > 0
+		staleInfo.length > 0 ||
+		thinBatch
 	)
 		exitCode = 1;
 

@@ -5,6 +5,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { createElement } from 'react';
 import { ADS_ACCOUNT_KEY, ADS_SETTINGS_KEY } from '../ads-keys';
 import { useAdsSettings } from '../use-ads-settings';
+import { usePayout } from '../use-wpcom-ads-settings';
 import type { ReactNode } from 'react';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
@@ -58,7 +59,7 @@ async function renderSimpleLoaded() {
 	const queryClient = new QueryClient();
 	const wrapper = ( { children }: { children: ReactNode } ) =>
 		createElement( QueryClientProvider, { client: queryClient }, children );
-	const view = renderHook( () => useAdsSettings(), { wrapper } );
+	const view = renderHook( () => ( { ...useAdsSettings(), payout: usePayout() } ), { wrapper } );
 	await waitFor( () => expect( view.result.current.values ).toBeDefined() );
 	return view;
 }
@@ -189,6 +190,19 @@ describe( 'useAdsSettings', () => {
 			wordads_ccpa_enabled: true,
 			wordads_cmp_enabled: false,
 		} );
+	} );
+
+	it( 'asks WordPress.com once on Simple, and turning ads on shows the terms signed', async () => {
+		const { result } = await renderSimpleLoaded();
+		const reads = () =>
+			mockedApiFetch.mock.calls.filter(
+				( [ { path, method } ] ) => path.includes( 'wordads/settings' ) && method === 'GET'
+			).length;
+
+		await act( () => result.current.setModuleActive( true ) );
+
+		expect( reads() ).toBe( 1 );
+		expect( result.current.payout.data?.tosSigned ).toBe( true );
 	} );
 
 	it.each( [

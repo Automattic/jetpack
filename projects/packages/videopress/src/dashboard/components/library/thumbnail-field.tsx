@@ -109,26 +109,18 @@ export default function ThumbnailField( { item }: Props ) {
 			) : null }
 
 			{ type === 'local' && upload.status === 'idle' ? (
-				<>
-					<Stack
-						direction="column"
-						align="center"
-						justify="center"
-						className="vp-library__placeholder"
-					>
-						<Text>{ __( 'Local video', 'jetpack-videopress-pkg' ) }</Text>
-					</Stack>
-					<Stack
-						direction="row"
-						align="center"
-						justify="center"
-						className="vp-library__hover-action"
-					>
-						<Button variant="outline" size="compact" onClick={ () => promoteLocal( id ) }>
-							{ __( 'Upload to VideoPress', 'jetpack-videopress-pkg' ) }
-						</Button>
-					</Stack>
-				</>
+				<Stack
+					direction="column"
+					gap="sm"
+					align="center"
+					justify="center"
+					className="vp-library__placeholder"
+				>
+					<Text>{ __( 'Local video', 'jetpack-videopress-pkg' ) }</Text>
+					<Button variant="outline" size="compact" onClick={ () => promoteLocal( id ) }>
+						{ __( 'Upload to VideoPress', 'jetpack-videopress-pkg' ) }
+					</Button>
+				</Stack>
 			) : null }
 
 			{ upload.status === 'uploading' || upload.status === 'promoting' ? (

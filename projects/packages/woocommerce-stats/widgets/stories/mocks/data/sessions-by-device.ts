@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { ANCHOR_DAY, bucketsForWindow, windowDays } from './interval-buckets';
+import { bucketsForWindow, sessionsPerDay, windowDays } from './interval-buckets';
 
 /** How far the report's own session count sits above the sum of its device rows. */
 const SUMMARY_UPLIFT_SHARE = 0.07;
@@ -13,9 +13,6 @@ const DEVICES = [
 	// The live report sends a row with no device for sessions it could not classify.
 	{ device_type: null, share: 0.04, phase: 3.3 },
 ];
-
-const sessionsPerDay = ( dayIndex: number ) =>
-	Math.max( 1, 920 + 0.9 * ( dayIndex - ANCHOR_DAY ) + 180 * Math.sin( dayIndex / 8 ) );
 
 /**
  * The sessions-by-device report of a window: one row per device category, plus one for the

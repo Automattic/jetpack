@@ -97,7 +97,13 @@ function resolveRowAction(
 	onDrillDown?: ( row: TopPostRow ) => void
 ): LeaderboardRowActionWithTrailing {
 	if ( ! row.children?.length ) {
-		return { kind: 'postLink', id: row.postId, href: row.href, search: detailSearch };
+		return {
+			kind: 'postLink',
+			id: row.postId,
+			href: row.href,
+			postType: row.type,
+			search: detailSearch,
+		};
 	}
 
 	if ( ! onDrillDown ) {

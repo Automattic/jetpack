@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { isPostDetailAvailable } from '@jetpack-premium-analytics/data';
+import { getPostReportKind, isPostDetailAvailable } from '@jetpack-premium-analytics/data';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 /**
  * Internal dependencies
@@ -36,6 +36,12 @@ export type PostTitleLinkProps = {
 	 * Post or page ID. Links to the internal detail route when the reader can open it.
 	 */
 	id?: number | string;
+
+	/**
+	 * Post type of the row. A type with a report page of its own links there; the rest
+	 * link to the post page.
+	 */
+	postType?: string;
 
 	label: string;
 
@@ -79,8 +85,8 @@ export type PostTitleLinkProps = {
  * link, or plain text.
  *
  * Rows with a post ID, read by someone who can open post details, stay inside
- * the app: they navigate to `/report/post/{postId}` through the router, so the
- * dashboard does not reload. They carry no outbound
+ * the app: they navigate to `/report/{kind}/{postId}` through the router, the page
+ * of the row's post type, so the dashboard does not reload. They carry no outbound
  * marker — it marks a destination outside the app, and the detail page holds the
  * link out to the live post. Such a row still passes its public URL along in
  * `POST_URL_SEARCH_PARAM`, because the detail page cannot resolve a permalink
@@ -92,6 +98,7 @@ export type PostTitleLinkProps = {
  */
 export function PostTitleLink( {
 	id,
+	postType,
 	label,
 	link,
 	search,
@@ -113,7 +120,7 @@ export function PostTitleLink( {
 				title={ title }
 				ariaDescribedBy={ ariaDescribedBy }
 				to="/report/$kind/$id"
-				params={ { kind: 'post', id: String( postId ) } }
+				params={ { kind: getPostReportKind( postType ), id: String( postId ) } }
 				search={ href ? { ...search, [ POST_URL_SEARCH_PARAM ]: href } : search }
 			>
 				{ content }

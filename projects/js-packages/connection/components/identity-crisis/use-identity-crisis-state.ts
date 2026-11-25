@@ -29,7 +29,7 @@ function isIdentityCrisisState( value: unknown ): value is IdentityCrisisState {
 }
 
 /**
- * The Safe Mode state and the connected plugins, from the connection store's initial state.
+ * The Safe Mode state and the connected plugins, from the connection store.
  *
  * @return The state.
  */

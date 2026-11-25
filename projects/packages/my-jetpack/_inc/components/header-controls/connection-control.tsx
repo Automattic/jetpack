@@ -161,11 +161,16 @@ const ConnectionControl: FC< ConnectionControlProps > = ( { trackingContext } ) 
 				<Popover.Trigger
 					ref={ triggerRef }
 					className={ styles.trigger }
-					aria-label={ sprintf(
-						/* translators: %s is the connection state, e.g. "Connected" or "Not connected". */
-						__( 'Connection: %s', 'jetpack-my-jetpack' ),
-						badgeLabel
-					) }
+					aria-label={
+						// An error's title already names Jetpack Connection.
+						state.id === 'error'
+							? badgeLabel
+							: sprintf(
+									/* translators: %s is the connection state, e.g. "Connected" or "Not connected". */
+									__( 'Jetpack Connection: %s', 'jetpack-my-jetpack' ),
+									badgeLabel
+								)
+					}
 				>
 					<img
 						src={ isUserConnected && avatar ? avatar : emptyAvatar }
@@ -183,7 +188,7 @@ const ConnectionControl: FC< ConnectionControlProps > = ( { trackingContext } ) 
 					<Stack direction="column" gap="lg" className={ styles.content }>
 						<Stack direction="column" gap="sm" align="start">
 							<Text variant="heading-md" render={ <Popover.Title /> }>
-								{ __( 'Connection', 'jetpack-my-jetpack' ) }
+								{ __( 'Jetpack Connection', 'jetpack-my-jetpack' ) }
 							</Text>
 							<ConnectionStatus
 								status={ state.status }

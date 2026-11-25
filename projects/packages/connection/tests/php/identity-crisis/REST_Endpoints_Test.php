@@ -7,6 +7,7 @@ use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authent
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Identity_Crisis;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -97,6 +98,7 @@ class REST_Endpoints_Test extends TestCase {
 
 		Connection_Rest_Authentication::init()->reset_saved_auth_state();
 		$this->reset_connection_status();
+		Status_Cache::clear();
 
 		// Static on Manager, so a `from` would otherwise reach every later registration in the run.
 		$extra_params = new \ReflectionProperty( Manager::class, 'extra_register_params' );
@@ -108,6 +110,7 @@ class REST_Endpoints_Test extends TestCase {
 		$this->register_body = null;
 
 		remove_all_filters( 'jetpack_idc_authorization_url' );
+		remove_all_filters( 'jetpack_is_in_safe_mode' );
 	}
 
 	/**
@@ -252,12 +255,66 @@ class REST_Endpoints_Test extends TestCase {
 	}
 
 	/**
-	 * A failed registration must come back as an error, or the screens would follow a URL that isn't one.
+	 * A failed registration comes back as an error that says the site is now disconnected, keeping its own code.
+	 *
+	 * @dataProvider provide_registration_failures
+	 *
+	 * @param string $register      Name of this class's `pre_http_request` callback that answers the registration request.
+	 * @param string $expected_code Error code the endpoint returns.
 	 */
-	public function test_start_fresh_registration_failure() {
-		$response = $this->dispatch_start_fresh( array( $this, 'fail_register_request' ) );
+	#[DataProvider( 'provide_registration_failures' )]
+	public function test_start_fresh_registration_failure( $register, $expected_code ) {
+		$response = $this->dispatch_start_fresh( array( $this, $register ) );
 
 		$this->assertTrue( $response->is_error() );
+		$this->assertSame( $expected_code, $response->get_data()['code'] );
+		$this->assertTrue( $response->get_data()['data']['disconnected'] );
+	}
+
+	/**
+	 * A connected site starts fresh only while in Safe Mode, so a screen left open, e.g. in another tab, can't disconnect it.
+	 *
+	 * @dataProvider provide_connected_safe_mode_states
+	 *
+	 * @param bool     $in_safe_mode    Whether the site is in Safe Mode.
+	 * @param int      $expected_status HTTP status the endpoint returns.
+	 * @param int|null $expected_code   Error code the endpoint returns, or null on success.
+	 */
+	#[DataProvider( 'provide_connected_safe_mode_states' )]
+	public function test_start_fresh_on_a_connected_site( $in_safe_mode, $expected_status, $expected_code ) {
+		Jetpack_Options::update_option( 'blog_token', 'new.blogtoken' );
+		Jetpack_Options::update_option( 'id', 42 );
+		$this->reset_connection_status();
+		add_filter( 'jetpack_is_in_safe_mode', $in_safe_mode ? '__return_true' : '__return_false' );
+
+		$response = $this->dispatch_start_fresh( array( $this, 'intercept_register_request' ) );
+
+		$this->assertSame( $expected_status, $response->get_status() );
+		$this->assertSame( $expected_code, $response->get_data()['code'] ?? null );
+	}
+
+	/**
+	 * Whether a connected site is in Safe Mode, and what start-fresh returns.
+	 *
+	 * @return array
+	 */
+	public static function provide_connected_safe_mode_states() {
+		return array(
+			'in Safe Mode'     => array( true, 200, null ),
+			'not in Safe Mode' => array( false, 409, 'start_fresh_not_in_safe_mode' ),
+		);
+	}
+
+	/**
+	 * Registration failures whose error data is empty, or the HTTP code rather than an array.
+	 *
+	 * @return array
+	 */
+	public static function provide_registration_failures() {
+		return array(
+			'request failed'      => array( 'fail_register_request', 'register_http_request_failed' ),
+			'WordPress.com error' => array( 'reject_register_request', 'site_inaccessible' ),
+		);
 	}
 
 	/**
@@ -409,6 +466,30 @@ class REST_Endpoints_Test extends TestCase {
 		}
 
 		return new WP_Error( 'http_request_failed', 'Connection timed out.' );
+	}
+
+	/**
+	 * Answer the `jetpack.register` request to WordPress.com with an error.
+	 *
+	 * @param bool|array $response The existing response.
+	 * @param array      $args     The request arguments.
+	 * @param string     $url      The request URL.
+	 *
+	 * @return bool|array
+	 */
+	public function reject_register_request( $response, $args, $url ) {
+		if ( ! str_contains( $url, 'jetpack.register' ) ) {
+			return $response;
+		}
+
+		return array(
+			'headers'  => new CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
+			'body'     => wp_json_encode( array( 'error' => 'site_inaccessible' ), JSON_UNESCAPED_SLASHES ),
+			'response' => array(
+				'code'    => 400,
+				'message' => 'Bad Request',
+			),
+		);
 	}
 
 	/**

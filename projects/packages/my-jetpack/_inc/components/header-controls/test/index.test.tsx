@@ -96,7 +96,7 @@ const setPageState = ( myJetpackFlags: Record< string, boolean > = {} ) => {
 };
 
 const openControl = async () => {
-	await userEvent.click( screen.getByRole( 'button', { name: /^Connection:/ } ) );
+	await userEvent.click( screen.getByRole( 'button', { name: /^Jetpack Connection:/ } ) );
 	return screen.findByRole( 'dialog' );
 };
 
@@ -132,7 +132,7 @@ describe( 'getHeaderControls', () => {
 		setPageState( { headerControls: true } );
 		render( <>{ getHeaderControls() }</> );
 
-		expect( screen.getByRole( 'button', { name: /^Connection:/ } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: /^Jetpack Connection:/ } ) ).toBeInTheDocument();
 		expect( mockUseConnectionErrorNotice ).toHaveBeenCalledWith(
 			expect.objectContaining( { trackingContext: 'my-jetpack' } )
 		);
@@ -154,29 +154,47 @@ describe( 'HeaderControls', () => {
 	} );
 
 	it.each( [
-		[ 'connected', 'Site and account connected', 'Connected' ],
-		[ 'site-connected', 'Site connected', 'Connected' ],
-		[ 'user-not-connected', 'Site connected', 'Not connected' ],
-		[ 'owner-missing', 'Site connected', 'Not connected' ],
-		[ 'site-not-connected', 'Site not connected', 'Site not connected' ],
-		[ 'error', 'The connection is broken', 'The connection is broken' ],
-		[ 'offline', 'Offline Mode', 'Offline Mode' ],
-	] as const )( 'names its button after the badge when %s', async ( id, label, badge ) => {
+		[ 'connected', 'Site and account connected', 'Connected', 'Jetpack Connection: Connected' ],
+		[ 'site-connected', 'Site connected', 'Connected', 'Jetpack Connection: Connected' ],
+		[
+			'user-not-connected',
+			'Site connected',
+			'Not connected',
+			'Jetpack Connection: Not connected',
+		],
+		[ 'owner-missing', 'Site connected', 'Not connected', 'Jetpack Connection: Not connected' ],
+		[
+			'site-not-connected',
+			'Site not connected',
+			'Site not connected',
+			'Jetpack Connection: Site not connected',
+		],
+		[
+			'error',
+			'Jetpack Connection error: Your account (connection owner)',
+			'Jetpack Connection error: Your account (connection owner)',
+			'Jetpack Connection error: Your account (connection owner)',
+		],
+		[ 'offline', 'Offline Mode', 'Offline Mode', 'Jetpack Connection: Offline Mode' ],
+	] as const )( 'names its button after the badge when %s', async ( id, label, badge, name ) => {
 		mockUseConnectionState.mockReturnValue( stateWith( { id, label } ) );
 		render( <HeaderControls trackingContext="my-jetpack" /> );
 
-		const dialog = await openControl();
+		await userEvent.click( screen.getByRole( 'button', { name } ) );
+		const dialog = await screen.findByRole( 'dialog' );
 
-		expect( screen.getByRole( 'button', { name: `Connection: ${ badge }` } ) ).toBeInTheDocument();
 		expect( dialog ).toHaveAccessibleDescription( badge );
 	} );
 
 	it.each( [
-		[ 'a click', () => userEvent.click( screen.getByRole( 'button', { name: /^Connection:/ } ) ) ],
+		[
+			'a click',
+			() => userEvent.click( screen.getByRole( 'button', { name: /^Jetpack Connection:/ } ) ),
+		],
 		[
 			'the keyboard',
 			() => {
-				screen.getByRole( 'button', { name: /^Connection:/ } ).focus();
+				screen.getByRole( 'button', { name: /^Jetpack Connection:/ } ).focus();
 				return userEvent.keyboard( '{Enter}' );
 			},
 		],
@@ -187,7 +205,7 @@ describe( 'HeaderControls', () => {
 		render( <HeaderControls trackingContext="my-jetpack" /> );
 
 		await open();
-		const dialog = await screen.findByRole( 'dialog', { name: 'Connection' } );
+		const dialog = await screen.findByRole( 'dialog', { name: 'Jetpack Connection' } );
 
 		await waitFor( () => expect( dialog ).toHaveFocus() );
 		expect( dialog ).toHaveAccessibleDescription( 'Not connected' );
@@ -328,7 +346,7 @@ describe( 'HeaderControls', () => {
 		await userEvent.click( await screen.findByRole( 'button', { name: 'Close dialog' } ) );
 
 		await waitFor( () =>
-			expect( screen.getByRole( 'button', { name: /^Connection:/ } ) ).toHaveFocus()
+			expect( screen.getByRole( 'button', { name: /^Jetpack Connection:/ } ) ).toHaveFocus()
 		);
 	} );
 
@@ -632,7 +650,7 @@ describe( 'header controls script', () => {
 		rtlRender( <>{ getHeaderControlsSlot( 'boost' ) }</> );
 
 		await expect(
-			screen.findByRole( 'button', { name: /^Connection:/ } )
+			screen.findByRole( 'button', { name: /^Jetpack Connection:/ } )
 		).resolves.toBeInTheDocument();
 		expect( mockUseConnectionErrorNotice ).toHaveBeenCalledWith(
 			expect.objectContaining( { trackingContext: 'boost' } )

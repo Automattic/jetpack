@@ -46,7 +46,7 @@ export default function FreeTierDialog( {
 			{
 				onSuccess: () => {
 					trackPaymentsEvent( 'free_tier_update', { hide_free_tier: hidden } );
-					showSuccessSnackbar( __( 'Free plan updated.', 'jetpack-monetize' ) );
+					showSuccessSnackbar( __( 'Free tier updated.', 'jetpack-monetize' ) );
 					onClose();
 				},
 			}

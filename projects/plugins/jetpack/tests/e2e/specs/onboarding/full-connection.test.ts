@@ -62,8 +62,13 @@ test( 'Full connection - Site and User', async ( { page, requestUtils, admin } )
 	} );
 
 	await test.step( 'Verify site and user connection', async () => {
-		await page.getByRole( 'button', { name: 'Connection: Connected', exact: true } ).click();
-		const connectionPopover = page.getByRole( 'dialog', { name: 'Connection', exact: true } );
+		await page
+			.getByRole( 'button', { name: 'Jetpack Connection: Connected', exact: true } )
+			.click();
+		const connectionPopover = page.getByRole( 'dialog', {
+			name: 'Jetpack Connection',
+			exact: true,
+		} );
 
 		await expect( connectionPopover.getByText( 'Connected', { exact: true } ), {
 			message: 'Should show the connected badge.',

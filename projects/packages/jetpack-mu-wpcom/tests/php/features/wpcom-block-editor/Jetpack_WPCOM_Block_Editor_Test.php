@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Block_Editor\Jetpack_WPCOM_Block_Editor;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Class Jetpack_WPCOM_Block_Editor.
@@ -128,6 +129,36 @@ class Jetpack_WPCOM_Block_Editor_Test extends \WorDBless\BaseTestCase {
 				'wp-primitives',
 				'wp-url',
 			)
+		);
+	}
+
+	/**
+	 * Tests that justified paragraphs get the justify class on render.
+	 *
+	 * @param array  $attrs    Block attributes.
+	 * @param string $content  Rendered block content.
+	 * @param string $expected Expected content.
+	 *
+	 * @dataProvider provide_justify_paragraphs
+	 */
+	#[DataProvider( 'provide_justify_paragraphs' )]
+	public function test_add_justify_class( $attrs, $content, $expected ) {
+		$block = array( 'attrs' => $attrs );
+		$this->assertSame( $expected, Jetpack_WPCOM_Block_Editor::init()->add_justify_class( $content, $block ) );
+	}
+
+	/**
+	 * Data provider for test_add_justify_class.
+	 *
+	 * @return array
+	 */
+	public static function provide_justify_paragraphs() {
+		$justify = array( 'style' => array( 'typography' => array( 'textAlign' => 'justify' ) ) );
+
+		return array(
+			'justify without class' => array( $justify, '<p>Text</p>', '<p class="has-text-align-justify">Text</p>' ),
+			'justify with class'    => array( $justify, '<p class="has-text-align-justify">Text</p>', '<p class="has-text-align-justify">Text</p>' ),
+			'center'                => array( array( 'style' => array( 'typography' => array( 'textAlign' => 'center' ) ) ), '<p>Text</p>', '<p>Text</p>' ),
 		);
 	}
 

@@ -93,6 +93,29 @@ const addTotals = ( left: OrderTotals, right: OrderTotals ): OrderTotals => ( {
 	paidNet: left.paidNet + right.paidNet,
 } );
 
+const scaleCount = ( value: number, share: number ) =>
+	value > 0 ? Math.max( 1, Math.round( value * share ) ) : 0;
+
+/**
+ * A bucket's totals as a subset of the store's volume. Per-order averages are ratios of these
+ * figures, so they keep their value and a bucket with no orders stays empty.
+ *
+ * @param {OrderTotals} totals - The store's totals.
+ * @param {number}      share  - The subset's share of the store's volume.
+ * @return {OrderTotals} The scaled totals.
+ */
+const scaleTotals = ( totals: OrderTotals, share: number ): OrderTotals => ( {
+	orders: scaleCount( totals.orders, share ),
+	items: Math.round( totals.items * share ),
+	gross: totals.gross * share,
+	refunds: totals.refunds * share,
+	coupons: totals.coupons * share,
+	net: totals.net * share,
+	cogs: totals.cogs * share,
+	paidOrders: Math.round( totals.paidOrders * share ),
+	paidNet: totals.paidNet * share,
+} );
+
 /**
  * One row of the orders report, in the string-valued shape the live endpoint sends.
  *
@@ -131,16 +154,26 @@ function toRawRow( totals: OrderTotals, bounds: Record< string, string > ) {
  * the window alone, plus one bucket with no orders once the window is long enough to hold one.
  * Only the shipped story windows read lower in the comparison period; an arbitrary pair does not.
  *
- * @param {URLSearchParams} query - The request's query params (`from`, `to`, `interval`).
+ * @param {URLSearchParams} query           - The request's query params (`from`, `to`, `interval`).
+ * @param {object}          [options]       - Report options.
+ * @param {number}          [options.share] - Share of the store's volume the report covers. Defaults to 1.
  * @return {unknown} The raw report response.
  */
-export function buildOrdersByDateResponse( query: URLSearchParams ): unknown {
+export function buildOrdersByDateResponse(
+	query: URLSearchParams,
+	{ share = 1 }: { share?: number } = {}
+): unknown {
 	const buckets = bucketsForWindow( query );
 	const hasEmptyBucket = buckets.length >= MIN_BUCKETS_WITH_EMPTY;
 	const emptyBucket = Math.floor( buckets.length * EMPTY_BUCKET_SHARE );
-	const totals = buckets.map( ( bucket, index ) =>
-		hasEmptyBucket && index === emptyBucket ? NO_ORDERS : totalsFor( bucket )
-	);
+	const totals = buckets.map( ( bucket, index ) => {
+		if ( hasEmptyBucket && index === emptyBucket ) {
+			return NO_ORDERS;
+		}
+		const bucketTotals = totalsFor( bucket );
+
+		return share === 1 ? bucketTotals : scaleTotals( bucketTotals, share );
+	} );
 
 	return {
 		data: buckets.map( ( bucket, index ) =>
