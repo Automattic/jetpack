@@ -685,14 +685,18 @@ class Protect extends Hybrid_Product {
 	 * @return int|null Null when Protect is too old to tell, or has no stored status yet.
 	 */
 	private static function get_critical_threat_count() {
-		if ( ! method_exists( Dashboard_Threats::class, 'get_scanned_at' ) ) {
+		if ( ! method_exists( Dashboard_Threats::class, 'without_resolved' ) ) {
 			return null;
 		}
 		$status = Protect_Status::get_cached_status();
 		if ( null === $status ) {
 			return null;
 		}
-		$open = Dashboard_Threats::without_resolved( $status->threats, Dashboard_Threats::get_scanned_at( $status ) );
+		// Protect 0.5 has no get_scanned_at(), and its get_cached() passes last_checked instead.
+		$scanned_at = method_exists( Dashboard_Threats::class, 'get_scanned_at' )
+			? Dashboard_Threats::get_scanned_at( $status )
+			: ( $status->last_checked ?? null );
+		$open       = Dashboard_Threats::without_resolved( $status->threats, $scanned_at );
 		return count(
 			array_filter(
 				$open,
