@@ -1,11 +1,14 @@
 import { Meta, Source, Story } from '@storybook/addon-docs/blocks';
 import dedent from 'ts-dedent';
-import Text, { BOX_MODEL_VALUES, H2, H3, Title } from '../index.tsx';
+import Text, { BOX_MODEL_VALUES, H3, Title } from '../index.tsx';
 import * as Stories from './index.stories';
 
 <Meta of={Stories} />
 
 # Text
+
+> **Deprecated:** Prefer `Text` from [`@wordpress/ui`](https://www.npmjs.com/package/@wordpress/ui) for new code. It covers the same need with `heading-*` and `body-*` variants. `Text`, `H3` and `Title` here are kept for existing usage.
+
 Set of React jetpack-components intended to facilitate when dealing with rendering text content.
 
 ## &lt;Text /&gt;
@@ -143,12 +146,9 @@ The text itself that will be rendered.
 
 # Text based components
 
-## &lt;H2 /&gt;
-Text shorthand to render a `heading-medium` text, applying proper spacing.
-
-[▶️ Story](.?path=/story/js-packages-components-text-heading--headline-h-2)
-
 ## &lt;H3 /&gt;
+> **Deprecated:** Use `Text` from `@wordpress/ui` with a `heading-*` variant instead.
+
 Text shorthand to render a `heading-small` text, applying proper spacing.
 
 [▶️ Story](.?path=/story/js-packages-components-text-heading--headline-h-3)
@@ -171,6 +171,8 @@ Text shorthand to render a `heading-small` text, applying proper spacing.
 />
 
 ## &lt;Title /&gt;
+> **Deprecated:** Use `Text` from `@wordpress/ui` with a `heading-*` variant instead.
+
 Text shorthand to render a `body` text, applying proper spacing.
 
 ### Props

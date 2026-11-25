@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Products\Backup;
 use Automattic\Jetpack\My_Jetpack\Products\Videopress;
@@ -50,6 +51,7 @@ class Menu_Visibility_Test extends TestCase {
 		Sample_Gated_Product::$held_off            = false;
 		Sample_Gated_Product::$installed           = true;
 		Admin_Menu::set_visibility_resolver( null );
+		Constants::clear_single_constant( 'IS_WPCOM' );
 		$this->reset_admin_menu();
 		$this->reset_resolved_gates();
 		$this->uninstall_backup_mock_plugin();
@@ -137,6 +139,34 @@ class Menu_Visibility_Test extends TestCase {
 		Sample_Gated_Product::$active = false;
 
 		$this->assertFalse( Menu_Visibility::resolve( array( 'product' => 'stats' ) ) );
+	}
+
+	/**
+	 * Whether a product is held off, keyed to what Simple should resolve.
+	 *
+	 * @return array
+	 */
+	public static function provide_simple_hold_states() {
+		return array(
+			'not held off' => array( false, true ),
+			'held off'     => array( true, false ),
+		);
+	}
+
+	/**
+	 * Simple runs Jetpack outside the plugin list, so only a hold can keep its product off.
+	 *
+	 * @param bool $held_off Whether something holds the product off.
+	 * @param bool $expected The resolved gate.
+	 * @dataProvider provide_simple_hold_states
+	 */
+	#[DataProvider( 'provide_simple_hold_states' )]
+	public function test_simple_product_resolves_from_its_hold_alone( $held_off, $expected ) {
+		Constants::set_constant( 'IS_WPCOM', true );
+		Sample_Gated_Product::$active   = false;
+		Sample_Gated_Product::$held_off = $held_off;
+
+		$this->assertSame( $expected, Menu_Visibility::resolve( array( 'product' => 'stats' ) ) );
 	}
 
 	/**

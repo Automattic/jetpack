@@ -69,9 +69,13 @@
 
 			return this.template( options );
 		},
-		edit: function ( data ) {
+		edit: function ( data, update ) {
 			var shortcode_data = wp.shortcode.next( this.shortcode_string, data ),
 				named = shortcode_data.shortcode.attrs.named,
+				// Attributes the dialog doesn't show, such as `h`, so saving keeps them.
+				otherNamed = Object.fromEntries(
+					Object.entries( named ).filter( ( [ k ] ) => ! ( k in this.defaults ) )
+				),
 				editor = tinyMCE.activeEditor,
 				renderer = this,
 				oldRenderFormItem = tinyMCE.ui.FormItem.prototype.renderHtml;
@@ -224,10 +228,14 @@
 						tag: renderer.shortcode_string,
 						type: 'single',
 						attrs: {
-							named: Object.fromEntries(
-								Object.entries( e.data ).filter( ( [ k ] ) => k in renderer.defaults )
+							named: Object.assign(
+								{},
+								otherNamed,
+								Object.fromEntries(
+									Object.entries( e.data ).filter( ( [ k ] ) => k in renderer.defaults )
+								)
 							),
-							numeric: [ e.data.guid ],
+							numeric: shortcode_data.shortcode.attrs.numeric,
 						},
 					};
 
@@ -243,7 +251,8 @@
 						}
 					}
 
-					editor.insertContent( wp.shortcode.string( args ) );
+					// Replace this view in place; inserting at the cursor duplicated the video.
+					update( wp.shortcode.string( args ) );
 				},
 				onopen: function ( e ) {
 					var prefix = 'mce-videopress-field-';

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-VideoPress: Stop legacy VideoPress video blocks from marking templates and posts as changed every time the editor loads.

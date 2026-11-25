@@ -9,6 +9,7 @@ export type SiteState = {
 	timezone?: string;
 	tier?: 'free' | 'legacy-basic';
 	rememberedPreset?: 'last-30-days' | 'year-to-date';
+	classicStatsRetired?: boolean;
 };
 
 export type HistoryWrites = { push: number; replace: number };
@@ -44,16 +45,21 @@ export const routeParam = ( url: URL, name: string ) =>
  * Puts the site in one dashboard state from scratch, so no spec depends on the one before it.
  *
  * @param testUtils - e2e-commons test utilities.
- * @param state     - Opt-in option, the modules that gate sections, the site timezone (UTC by default), a forced Stats tier and the remembered preset.
+ * @param state     - Opt-in option, the modules that gate sections, the site timezone (UTC by default), a forced Stats tier, the remembered preset and the classic Stats retirement flag (on by default).
  */
 export async function setSiteState( testUtils: TestUtils, state: SiteState ) {
-	const { rememberedPreset, ...rest } = state;
+	const { rememberedPreset, classicStatsRetired = true, ...rest } = state;
 	// Do not reorder: the helper's plan refresh reads the mocked plan.
 	await testUtils.setMockPlanData( state.wordads ? 'jetpack_complete' : 'jetpack_free' );
 	await testUtils.requestUtils.rest( {
 		method: 'POST',
 		path: '/e2e-premium-analytics/v1/site-state',
-		data: { ...rest, timezone: state.timezone ?? 'UTC', remembered_preset: rememberedPreset },
+		data: {
+			...rest,
+			timezone: state.timezone ?? 'UTC',
+			remembered_preset: rememberedPreset,
+			classic_stats_retired: classicStatsRetired,
+		},
 	} );
 }
 

@@ -34,8 +34,8 @@ export type FormatMetricValueOptions = {
 
 	/**
 	 * Use compact notation with K/M suffixes above 999: one decimal while the
-	 * mantissa has two digits (1.2K, 54.3K), none from three (234K). Locales
-	 * that group by 10⁴ (ja, zh, ko) keep ICU's own units, so the digit count differs.
+	 * figure before the locale's unit has two digits (1.2K, 54.3K, 9.5L), none
+	 * from three (234K).
 	 * @default false
 	 */
 	useMultipliers?: boolean;
@@ -56,17 +56,19 @@ export type FormatMetricValueOptions = {
 const COMPACT_THRESHOLD = 1000;
 
 /**
- * Fraction digits for compact notation: one decimal until the mantissa
- * reaches three digits. Assumes thousands grouping; ICU's 10⁴ units (ja, zh,
- * ko) pick a different exponent.
+ * Fraction digits for compact notation: one decimal until the figure before
+ * the unit reaches three digits, counted in the locale's own unit (lakh, 万).
  */
 function compactFractionDigits(
 	absoluteValue: number
 ): Pick< Intl.NumberFormatOptions, 'minimumFractionDigits' | 'maximumFractionDigits' > {
-	const mantissa = absoluteValue / 1000 ** Math.floor( Math.log10( absoluteValue ) / 3 );
-	// Rounded first so 99.95K rolls over to 100K instead of printing 100.0K.
-	const maximumFractionDigits = Math.round( mantissa * 10 ) / 10 < 100 ? 1 : 0;
-	return { minimumFractionDigits: 0, maximumFractionDigits };
+	// Exactly one fraction digit, so every other digit is the integer part; the
+	// rounding also rolls 99.95K over to 100K before the count.
+	const probe = formatNumberCompact( absoluteValue, {
+		numberFormatOptions: { minimumFractionDigits: 1, maximumFractionDigits: 1 },
+	} );
+	const integerDigits = probe.replace( /\D/g, '' ).length - 1;
+	return { minimumFractionDigits: 0, maximumFractionDigits: integerDigits < 3 ? 1 : 0 };
 }
 
 /**

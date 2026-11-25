@@ -10,6 +10,7 @@ import { withModuleSettingsFormHelpers } from 'components/module-settings/with-m
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
+import { searchFindsPrivacy } from 'lib/settings-consolidation';
 import { getSettings } from 'state/settings';
 import { fetchTrackingSettings, updateTrackingSettings } from 'state/tracking/actions';
 import {
@@ -56,25 +57,7 @@ class Privacy extends Component {
 		active: false,
 	};
 
-	isPrivacyFound = () => {
-		if ( this.props.searchTerm ) {
-			return (
-				[
-					_x( 'privacy', 'Search term.', 'jetpack' ),
-					_x( 'tracks', 'Search term.', 'jetpack' ),
-					_x( 'data', 'Search term.', 'jetpack' ),
-					_x( 'gdpr', 'Search term.', 'jetpack' ),
-					_x( 'tos', 'Search term.', 'jetpack' ),
-					_x( 'terms of service', 'Search term.', 'jetpack' ),
-				]
-					.join( ' ' )
-					.toLowerCase()
-					.indexOf( this.props.searchTerm.toLowerCase() ) > -1
-			);
-		}
-
-		return true;
-	};
+	isPrivacyFound = () => ! this.props.searchTerm || searchFindsPrivacy( this.props.searchTerm );
 
 	togglePrivacy = () => {
 		const current = this.props.trackingSettings.tracks_opt_out;

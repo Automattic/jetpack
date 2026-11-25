@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add `trackWhatsNew()`, which records in Tracks what users do with the What's new surface.

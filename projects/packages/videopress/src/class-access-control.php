@@ -149,8 +149,9 @@ class Access_Control {
 		$restriction_details = $this->default_video_restriction_details( $default_auth );
 		// Logged-out visitors never have read_post, so a public post admits them on its status alone.
 		// Neither check knows about post passwords, which the page enforces for everyone.
+		$password_required   = post_password_required( $post_to_check );
 		$post_admits_visitor = ( $default_auth || is_post_publicly_viewable( $post_to_check ) )
-			&& ! post_password_required( $post_to_check );
+			&& ! $password_required;
 
 		if ( $this->jetpack_memberships_available() ) {
 			$post_access_level = \Jetpack_Memberships::get_post_access_level( $embedded_post_id );
@@ -162,6 +163,8 @@ class Access_Control {
 				$post_admits_visitor               = $post_admits_visitor && $memberships_can_view_post;
 			}
 		}
+
+		$restriction_details['can_access'] = $restriction_details['can_access'] && ! $password_required;
 
 		return $this->check_block_level_access(
 			$restriction_details,

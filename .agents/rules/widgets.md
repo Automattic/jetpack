@@ -103,4 +103,17 @@ follows. So the outer component defaults the attribute
 its body supports (`<ReportScopeProvider offersComparison={ false }>` for a report with
 no comparison). `projects/packages/ads/widgets/wordads-chart-tabs/` is the reference.
 
+## Stories
+
+Every registered widget has a Storybook story under `widgets/<widget-name>/stories/`. A new widget ships with one, and a change to a widget that has none adds one.
+
+- A `Default` close-up of the current period, and a story mounting the real `WidgetDashboard` through the package's shared helper. A close-up alone never exercises a host that supplies comparison dates, where a widget can crash or invent deltas.
+- `WithComparison`, where the widget's data hook populates comparison rows. Params carrying `compare_*` do not qualify on their own: the module has to have comparison data to show.
+- One story per forced state the widget reaches: loading, empty, and each error it renders differently. Keep those off the shared autodocs page, since the override is keyed by path and would otherwise drag their siblings into the same state.
+- Register the package's mock layer at module level. A widget that fetches with no mock registered renders its error state, which a reviewer cannot tell from a real failure.
+- Mocks answer the window the request asks for, never a request counter. A comparison request that returns a copy of the primary period renders convincingly and proves nothing.
+- Every story mounts in headless chromium on CI, so it has to render with no store, no site and no network. A fixture image is an inline SVG data URI, never a fetched URL.
+
+Each package's story title, mock registration and dashboard helper are in its own `widgets/AGENTS.md`.
+
 <!-- TODO: link to the canonical widget API declaration (contract types). -->

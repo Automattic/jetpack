@@ -7,7 +7,6 @@ import type { ReactNode } from 'react';
 
 type CardPageProps = {
 	children: ReactNode;
-	showActivateLicense?: boolean;
 	showBackButton?: boolean;
 	sidebarItem?: ReactNode;
 	footerNote?: ReactNode;
@@ -15,13 +14,12 @@ type CardPageProps = {
 
 const CardPage = ( {
 	children,
-	showActivateLicense = true,
 	showBackButton = true,
 	footerNote,
 	sidebarItem,
 }: CardPageProps ) => {
 	return (
-		<BoostAdminPage showActivateLicense={ showActivateLicense }>
+		<BoostAdminPage>
 			<div id="jb-dashboard" className="jb-dashboard">
 				<div className={ styles.body }>
 					<div className={ 'jb-container jb-container--fixed mt-2' }>

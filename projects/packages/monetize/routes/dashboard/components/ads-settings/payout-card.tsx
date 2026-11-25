@@ -3,6 +3,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Card, CheckboxControl, InputControl, Link, Notice, Stack } from '@wordpress/ui';
 import { useCallback, useState } from 'react';
+import { showSuccessSnackbar } from '../../data/notices';
 import { trackPayoutSave } from '../../data/tracking';
 import { usePayout, useSavePayout } from '../../data/use-wpcom-ads-settings';
 import type { WpcomApiError } from '../../data/wpcom-request';
@@ -56,20 +57,24 @@ export function PayoutCard( { adsActive }: { adsActive: boolean } ) {
 	const stored = payout.data;
 	const address = paypal ?? stored?.paypal ?? '';
 	const tosSigned = Boolean( stored?.tosSigned );
+	// Turning ads on agrees to the terms, so an unrecorded agreement is sent with the next save.
+	const tosAgreed = tosSigned || adsActive;
+	const signsTos = agreed || ( adsActive && ! tosSigned );
 
 	const onPaypalChange = useCallback( ( next: unknown ) => setPaypal( String( next ?? '' ) ), [] );
 	const onSave = useCallback( () => {
 		save.mutate(
-			{ paypal: address, tos: agreed },
+			{ paypal: address, tos: signsTos, adsOff: ! adsActive },
 			{
 				onSuccess: () => {
-					trackPayoutSave( agreed );
+					trackPayoutSave( signsTos );
+					showSuccessSnackbar( __( 'Payout settings saved.', 'jetpack-monetize' ) );
 					setPaypal( undefined );
 					setAgreed( false );
 				},
 			}
 		);
-	}, [ save, address, agreed ] );
+	}, [ save, address, signsTos, adsActive ] );
 
 	// The card shows from the start, its fields disabled until WordPress.com answers.
 	const isReady = Boolean( stored );
@@ -77,12 +82,12 @@ export function PayoutCard( { adsActive }: { adsActive: boolean } ) {
 	const canSave =
 		isReady &&
 		( ( address !== '' && address !== stored?.paypal ) || agreed ) &&
-		( tosSigned || agreed );
+		( tosAgreed || agreed );
 
 	return (
 		<Card.Root>
 			<Card.Header>
-				<Card.Title render={ <h2 /> }>{ __( 'Payouts', 'jetpack-monetize' ) }</Card.Title>
+				<Card.Title render={ <h2 /> }>{ __( 'Payout details', 'jetpack-monetize' ) }</Card.Title>
 			</Card.Header>
 			<Card.Content>
 				<Stack direction="column" gap="lg" aria-busy={ payout.isPending }>
@@ -124,9 +129,9 @@ export function PayoutCard( { adsActive }: { adsActive: boolean } ) {
 									'jetpack-monetize'
 								) }
 								details={ <TermsLinks /> }
-								checked={ tosSigned || agreed }
-								// Signed terms can't be withdrawn.
-								disabled={ isDisabled || tosSigned }
+								checked={ tosAgreed || agreed }
+								// Agreed terms can't be withdrawn.
+								disabled={ isDisabled || tosAgreed }
 								onCheckedChange={ setAgreed }
 							/>
 						) }

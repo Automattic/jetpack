@@ -22,7 +22,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.12.0';
+	const PACKAGE_VERSION = '0.13.0';
 
 	/**
 	 * Key under `window.JetpackScriptData` the React app reads its state from
@@ -163,6 +163,7 @@ class Initializer {
 		Indexnow::init();
 
 		Indexnow_Client::init();
+		add_action( 'rest_api_init', array( Data_Sharing::class, 'register_routes' ) );
 
 		// Sitemap, verification and canonical URL settings work without SEO Tools. Register
 		// after init-time conflict filters and before core builds its settings route.

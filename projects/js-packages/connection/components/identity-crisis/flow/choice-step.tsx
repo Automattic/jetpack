@@ -4,11 +4,11 @@ import { useCallback, useId } from 'react';
 import styles from '../styles.module.scss';
 import { getOptionCopy, getStepTitle } from './copy';
 import type { CopyContext } from './copy';
-import type { Option, OptionId, StepId } from './steps';
+import type { ChoiceStepId, Option, OptionId } from './steps';
 import type { ReactNode, Ref } from 'react';
 
 interface ChoiceStepProps {
-	step: StepId;
+	step: ChoiceStepId;
 	options: Option[];
 	pick: OptionId | null;
 	copy: CopyContext;

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+VideoPress: Keep the "pixels" and "seconds" units in the Classic editor's shortcode settings dialog from overlapping their fields.

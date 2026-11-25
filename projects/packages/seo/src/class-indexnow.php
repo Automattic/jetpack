@@ -87,7 +87,7 @@ class Indexnow {
 		if ( ! apply_filters( 'jetpack_seo_indexnow_can_notify', true ) || Seo_Tools::is_disabled() ) {
 			return 'provider';
 		}
-		if ( get_option( Indexnow_Client::ENABLED_OPTION, false ) && get_option( Indexnow_Client::SCOPE_OPTION, '' ) !== Indexnow_Client::scope() ) {
+		if ( get_option( Indexnow_Client::ENABLED_OPTION, false ) && ! Indexnow_Client::matches_scope( get_option( Indexnow_Client::SCOPE_OPTION, '' ) ) ) {
 			return 'address_changed';
 		}
 		return '';
@@ -112,12 +112,12 @@ class Indexnow {
 			}
 		} else {
 			$key = Indexnow_Client::key();
-			if ( get_option( Indexnow_Client::SCOPE_OPTION, '' ) !== Indexnow_Client::scope() ) {
+			if ( ! Indexnow_Client::matches_scope( get_option( Indexnow_Client::SCOPE_OPTION, '' ) ) ) {
 				delete_option( Indexnow_Queue::STATUS_OPTION );
 				delete_option( Indexnow_Queue::ACCEPTED_OPTION );
 			}
 			update_option( Indexnow_Client::SCOPE_OPTION, Indexnow_Client::scope(), false );
-			if ( get_option( Indexnow_Client::KEY_OPTION, '' ) !== $key || get_option( Indexnow_Client::SCOPE_OPTION, '' ) !== Indexnow_Client::scope() ) {
+			if ( get_option( Indexnow_Client::KEY_OPTION, '' ) !== $key || ! Indexnow_Client::matches_scope( get_option( Indexnow_Client::SCOPE_OPTION, '' ) ) ) {
 				return new WP_Error( 'jetpack_seo_indexnow_save_failed', __( 'The search engine notification setting could not be saved. Please try again.', 'jetpack-seo' ), array( 'status' => 500 ) );
 			}
 			update_option( Indexnow_Client::ENABLED_OPTION, true, false );

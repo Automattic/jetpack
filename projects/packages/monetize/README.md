@@ -8,7 +8,7 @@ The page is a `@wordpress/build` route in `routes/dashboard`, rendered under the
 \Automattic\Jetpack\Monetize\Dashboard::init();
 ```
 
-On the WordPress.com platform, `init()` adds no sidebar item, because jetpack-mu-wpcom builds the Jetpack menu there and decides where Jetpack › Monetize leads. The Jetpack plugin doesn't offer the `monetize` module there either. A Simple host that wants this page calls `init()` to load the build, then `Dashboard::add_wp_admin_submenu()` from its own Jetpack menu builder, which runs late.
+WoA loads the page from the `monetize` module and adds its sidebar item, as a self-hosted site does, so admins who aren't WordPress.com users can reach it too. Simple has no modules to load, so jetpack-mu-wpcom calls `init()` there itself, and `init()` adds no sidebar item there: jetpack-mu-wpcom builds the Jetpack menu and calls `Dashboard::add_wp_admin_submenu()` once the page is loaded. That call does nothing where the item already exists.
 
 The dashboard is behind the `jetpack-monetize-dashboard` feature flag while it is built. Hosts register it with `Dashboard::register_feature_flag()` and check it with `Dashboard::is_enabled()`.
 

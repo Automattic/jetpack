@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Link required checkbox, radio, rating and image choice groups to their error message for screen readers.

@@ -1,5 +1,5 @@
 import { SETTINGS_SLOT_ID, SUBPAGE_SLOT_ID } from '../../../../_inc/runtime-contract';
-import { LEGACY_ROOT_ID, MODERN_ROOT_ID } from '$lib/modern/mode';
+import { MODERN_ROOT_ID } from '$lib/modern/mode';
 
 const mockRender = jest.fn();
 const mockCreateRoot = jest.fn( ( _container: HTMLElement ) => ( { render: mockRender } ) );
@@ -7,7 +7,6 @@ const mockCreateRoot = jest.fn( ( _container: HTMLElement ) => ( { render: mockR
 jest.mock( '@wordpress/element', () => ( {
 	createRoot: ( container: HTMLElement ) => mockCreateRoot( container ),
 } ) );
-jest.mock( './main', () => ( { __esModule: true, default: () => null } ) );
 jest.mock( '$layout/modern/modern-app', () => ( { __esModule: true, default: () => null } ) );
 
 const addRoot = ( id: string ) => {
@@ -33,15 +32,6 @@ describe( 'dashboard boot', () => {
 		document.body.innerHTML = '';
 		mockCreateRoot.mockClear();
 		mockRender.mockClear();
-	} );
-
-	it( 'mounts the legacy dashboard into the root PHP renders for it', async () => {
-		const legacyRoot = addRoot( LEGACY_ROOT_ID );
-
-		await boot();
-
-		expect( mockCreateRoot ).toHaveBeenCalledTimes( 1 );
-		expect( mockCreateRoot ).toHaveBeenCalledWith( legacyRoot );
 	} );
 
 	it( 'waits for the chassis when the admin shell runs the bundle before mounting it', async () => {

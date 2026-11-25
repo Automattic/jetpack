@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Admin shell: Refetch the dashboard's data when the shell shows it again after five minutes hidden.

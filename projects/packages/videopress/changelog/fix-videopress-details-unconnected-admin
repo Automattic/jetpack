@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Tell an administrator whose own WordPress.com account is not connected that only their account is missing, instead of asking them to set up VideoPress.

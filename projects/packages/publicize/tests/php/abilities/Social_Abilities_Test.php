@@ -93,6 +93,9 @@ class Social_Abilities_Test extends BaseTestCase {
 		if ( ! function_exists( 'wp_register_ability' ) ) {
 			$this->markTestSkipped( 'Abilities API not available.' );
 		}
+		// The package's own plugins_loaded wiring already hooked these while the test environment loaded.
+		remove_action( 'wp_abilities_api_categories_init', array( Social_Abilities::class, 'register_category' ) );
+		remove_action( 'wp_abilities_api_init', array( Social_Abilities::class, 'register_abilities' ) );
 		add_filter( 'jetpack_social_abilities_should_load', '__return_true' );
 		global $wp_current_filter;
 		$wp_current_filter[] = 'wp_abilities_api_init';
@@ -122,6 +125,17 @@ class Social_Abilities_Test extends BaseTestCase {
 		}
 		$this->assertFalse( $abilities['jetpack-social/share-post']['meta']['annotations']['idempotent'] );
 		$this->assertTrue( $abilities['jetpack-social/share-post']['meta']['annotations']['openWorldHint'] );
+	}
+
+	public function test_every_ability_opts_into_mcp_as_public_tool(): void {
+		foreach ( Social_Abilities::get_abilities() as $slug => $spec ) {
+			$this->assertArrayHasKey( 'public', $spec['meta'], "{$slug} must declare meta.public." );
+			$this->assertTrue( $spec['meta']['public'], "{$slug} must be marked public." );
+			$this->assertTrue( $spec['meta']['show_in_rest'], "{$slug} must be exposed through the Abilities REST API." );
+			$this->assertArrayHasKey( 'mcp', $spec['meta'], "{$slug} must publish meta.mcp." );
+			$this->assertTrue( $spec['meta']['mcp']['public'], "{$slug} must opt into MCP." );
+			$this->assertSame( 'tool', $spec['meta']['mcp']['type'], "{$slug} must be exposed as an MCP tool." );
+		}
 	}
 
 	public function test_descriptions_avoid_words_the_mcp_compliance_check_rejects(): void {

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Feed: Make podcast apps pick up a new episode once its audio file is attached, instead of serving their cached feed.
