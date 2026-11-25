@@ -15,10 +15,6 @@ const errorClass = ( name: string ) =>
 	};
 const clientErrors = {
 	FetchNetworkError: errorClass( 'FetchNetworkError' ),
-	JsonParseError: errorClass( 'JsonParseError' ),
-	JsonParseAfterRedirectError: errorClass( 'JsonParseAfterRedirectError' ),
-	Api404Error: errorClass( 'Api404Error' ),
-	Api404AfterRedirectError: errorClass( 'Api404AfterRedirectError' ),
 };
 jest.unstable_mockModule( '@automattic/jetpack-api', () => ( {
 	__esModule: true,
@@ -229,23 +225,13 @@ describe( 'useIdentityCrisisActions', () => {
 
 describe( 'getIdentityCrisisErrorCause and getIdentityCrisisErrorCode', () => {
 	it.each( [
+		// One shared row: the rest is covered by `getSiteRequestFailureCause()`'s own test.
 		[ new clientErrors.FetchNetworkError(), 'offline', 'FetchNetworkError' ],
-		[ new clientErrors.JsonParseError(), 'output', 'JsonParseError' ],
-		[ new clientErrors.JsonParseAfterRedirectError(), 'output', 'JsonParseAfterRedirectError' ],
-		[ new clientErrors.Api404Error(), 'blocked', 'Api404Error' ],
-		[ apiError( 'rest_disabled', 403 ), 'blocked', 'rest_disabled' ],
-		[ apiError( 'rest_cookie_invalid_nonce', 403 ), 'session', 'rest_cookie_invalid_nonce' ],
 		[
 			apiError( 'invalid_user_permission_identity_crisis', 403 ),
 			'permission',
 			'invalid_user_permission_identity_crisis',
 		],
-		[
-			apiError( 'invalid_user_permission_identity_crisis', 401 ),
-			'session',
-			'invalid_user_permission_identity_crisis',
-		],
-		[ apiError( 'some_plugin_error', 403 ), 'permission', 'some_plugin_error' ],
 		[ apiError( 'error', 500 ), 'server', 'error' ],
 		[ apiError( 'start_fresh_not_in_safe_mode', 409 ), 'resolved', 'start_fresh_not_in_safe_mode' ],
 		[

@@ -299,9 +299,7 @@ describe( 'Wizard start screen', () => {
 		mockConnection.connectError = error;
 		refresh();
 
-		expect(
-			screen.getByText( /The connection request got an unexpected response/ )
-		).toBeInTheDocument();
+		expect( screen.getByText( /Your site sent an unexpected response/ ) ).toBeInTheDocument();
 		expect( screen.getByText( 'We could not connect this site.' ) ).toBeInTheDocument();
 		expect( getStarted() ).not.toHaveAttribute( 'aria-disabled', 'true' );
 

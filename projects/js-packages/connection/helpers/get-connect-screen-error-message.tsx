@@ -1,6 +1,10 @@
 import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import {
+	getSiteRequestFailureCause,
+	getSiteRequestFailureMessage,
+} from './get-site-request-failure';
 import type { RegistrationError } from '../components/use-connection/types';
 import type { ReactNode } from 'react';
 
@@ -270,6 +274,12 @@ export const getConnectScreenErrorMessage = (
 		return siteHttpErrorMessage( Number( siteHttpStatus[ 1 ] ), siteUrl );
 	}
 
+	// The site's own REST request failed before WordPress.com was contacted.
+	const siteFailure = getSiteRequestFailureCause( errorCode );
+	if ( siteFailure ) {
+		return getSiteRequestFailureMessage( siteFailure );
+	}
+
 	// Explicit error code takes precedence over the offline mode.
 	switch ( errorCode ) {
 		// WordPress.com rejected the registration.
@@ -362,32 +372,7 @@ export const getConnectScreenErrorMessage = (
 				'jetpack-connection-js'
 			);
 
-		// The site's own REST request failed before WordPress.com was contacted.
-		// The Safe Mode screen reads these the same way (`getIdentityCrisisErrorCause()`); keep the two in step.
-		case 'JsonParseError':
-		case 'JsonParseAfterRedirectError':
-			return __(
-				'The connection request got an unexpected response. Another plugin or a PHP error may be adding extra output; your site’s error log, or temporarily deactivating other plugins, can show which.',
-				'jetpack-connection-js'
-			);
-		case 'Api404Error':
-		case 'Api404AfterRedirectError':
-			return __(
-				'Your site’s REST API couldn’t be reached. A security plugin or server rule may be blocking it.',
-				'jetpack-connection-js'
-			);
-		case 'FetchNetworkError':
-			return __(
-				'Your browser couldn’t complete the request to your site. A firewall, CDN or redirect may be interfering. Reload the page and try again.',
-				'jetpack-connection-js'
-			);
-		case 'rest_cookie_invalid_nonce':
-			return __( 'Your session expired. Reload the page and try again.', 'jetpack-connection-js' );
-		case 'internal_server_error':
-			return __(
-				'A critical error stopped the connection. Your site’s error log has the details.',
-				'jetpack-connection-js'
-			);
+		// The connect endpoint's own permission check.
 		case 'invalid_user_permission_jetpack_connect':
 			return __(
 				'Only site administrators can connect this site. Ask an administrator to connect it.',

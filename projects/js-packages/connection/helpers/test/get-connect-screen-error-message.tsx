@@ -6,6 +6,7 @@ import {
 	getRegistrationErrorDisplay,
 	getRegistrationErrorSummary,
 } from '../get-connect-screen-error-message';
+import { getSiteRequestFailureMessage } from '../get-site-request-failure';
 
 describe( 'getConnectScreenErrorMessage', () => {
 	it( 'maps private network error codes to a message', () => {
@@ -149,19 +150,15 @@ describe( 'getConnectScreenErrorMessage', () => {
 		);
 	} );
 
-	it( 'maps failures of the site’s own REST request to a message', () => {
-		expect( getConnectScreenErrorMessage( 'JsonParseError' ) ).toContain( 'unexpected response' );
-		expect( getConnectScreenErrorMessage( 'Api404Error' ) ).toContain(
-			'REST API couldn’t be reached'
-		);
-		expect( getConnectScreenErrorMessage( 'FetchNetworkError' ) ).toContain(
-			'Your browser couldn’t complete'
-		);
-		expect( getConnectScreenErrorMessage( 'rest_cookie_invalid_nonce' ) ).toContain(
-			'session expired'
-		);
-		expect( getConnectScreenErrorMessage( 'internal_server_error' ) ).toContain( 'critical error' );
-	} );
+	it.each( [
+		[ 'JsonParseError', 'output' ],
+		[ 'internal_server_error', 'server' ],
+	] as const )(
+		'gives %s, a failure of the site’s own REST request, the shared %s message',
+		( code, cause ) => {
+			expect( getConnectScreenErrorMessage( code ) ).toBe( getSiteRequestFailureMessage( cause ) );
+		}
+	);
 
 	it( 'returns undefined for unknown error codes', () => {
 		expect( getConnectScreenErrorMessage( 'some_unknown_code' ) ).toBeUndefined();
