@@ -15,7 +15,9 @@ import {
 	getRemoteAbilityGroupKey,
 	getRemoteAbilityKey,
 	getSiteRemoteGroups,
+	hasSavedSubscriberChoiceBeforeOptIn,
 	isRemoteAbilityEnabled,
+	isRemoteAbilityExcludedFromBulk,
 	isRemoteAbilityOptIn,
 } from './utils';
 
@@ -79,7 +81,7 @@ export function collectNamespaces( abilities, savedGroups, view, remoteOptIn ) {
 		if (
 			abilityPath &&
 			! publishedNames.has( rest ) &&
-			isRemoteAbilityOptIn( rest, remoteOptIn )
+			isRemoteAbilityExcludedFromBulk( rest, remoteOptIn )
 		) {
 			// Keep individual grants editable if the site no longer publishes their catalog entries.
 			group.abilities.push( {
@@ -102,13 +104,15 @@ export function collectNamespaces( abilities, savedGroups, view, remoteOptIn ) {
  */
 function getRemoteBulkKeys( group, remoteOptIn ) {
 	const individualKeys = group.abilityKeys.filter(
-		key => ! isRemoteAbilityOptIn( key.split( ':' )[ 1 ], remoteOptIn )
+		key => ! isRemoteAbilityExcludedFromBulk( key.split( ':' )[ 1 ], remoteOptIn )
 	);
 	const publishedAbilities = group.abilities.filter( ability => ! ability.savedOnly );
-	const hasOnlyOptInAbilities =
+	const skipsAllPublishedAbilities =
 		publishedAbilities.length > 0 &&
-		publishedAbilities.every( ability => isRemoteAbilityOptIn( ability.name, remoteOptIn ) );
-	return hasOnlyOptInAbilities && individualKeys.length === 0
+		publishedAbilities.every( ability =>
+			isRemoteAbilityExcludedFromBulk( ability.name, remoteOptIn )
+		);
+	return skipsAllPublishedAbilities && individualKeys.length === 0
 		? []
 		: [ ...group.keys, ...individualKeys ];
 }
@@ -143,7 +147,7 @@ export function isNamespaceAllEnabled( group, savedGroups, defaultEnabled, remot
 		keys.every( key => ( savedGroups[ key ] ?? defaultEnabled ) === true ) &&
 		group.abilities.every(
 			ability =>
-				isRemoteAbilityOptIn( ability.name, remoteOptIn ) ||
+				isRemoteAbilityExcludedFromBulk( ability.name, remoteOptIn ) ||
 				isRemoteAbilityEnabled(
 					savedGroups,
 					ability.name,
@@ -325,7 +329,12 @@ export default function RemoteAbilitiesSection( {
 						id={ getGroupDomId( `remote-${ namespace }` ) }
 						label={ formatNamespace( namespace ) }
 						allEnabled={ allEnabled }
-						bulkDescription={ getBulkToggleDescription( optInCount ) }
+						bulkDescription={ getBulkToggleDescription(
+							optInCount,
+							view === 'read' &&
+								namespace === 'jetpack-stats' &&
+								hasSavedSubscriberChoiceBeforeOptIn( savedGroups, remoteOptIn )
+						) }
 						isSaving={ intentKeys.some( isSavingKey ) }
 						forceOpen={ searchText !== '' }
 						anchorToolId={

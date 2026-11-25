@@ -259,51 +259,65 @@ describe.each( [
 
 describe( 'page-level Enable all', () => {
 	test.each( [
-		{ scope: 'page', toggleIndex: 0, individual: true },
-		{ scope: 'namespace', toggleIndex: 2, individual: undefined },
-	] )( '$scope skips the saved subscriber choice', async ( { toggleIndex, individual } ) => {
-		const abilities = [
-			[ 'get-subscribers', 'List remote subscribers' ],
-			[ 'get-views', 'Get views' ],
-		].map( ( [ name, label ] ) => ( {
-			name: `jetpack-stats/${ name }`,
-			label,
-			meta: { annotations: { readonly: true } },
-		} ) );
-		render(
-			<McpRead
-				mcpAbilities={ {
-					account: { ordinary: { title: 'Ordinary tool', enabled: true, readonly: true } },
-					remote_abilities_requiring_opt_in: [ 'jetpack-stats/get-subscribers' ],
-					sites: [
-						{
-							blog_id: 1,
-							site_level_enabled: true,
-							remote_groups: {
-								'read:jetpack-stats': true,
-								...( individual && { 'read:jetpack-stats/get-subscribers': individual } ),
+		{ scope: 'page', toggleIndex: 0, individual: true, enforced: true },
+		{ scope: 'namespace', toggleIndex: 2, individual: undefined, enforced: true },
+		{ scope: 'page before enforcement', toggleIndex: 0, individual: true, enforced: false },
+		{ scope: 'namespace before enforcement', toggleIndex: 2, individual: false, enforced: false },
+	] )(
+		'$scope skips the saved subscriber choice',
+		async ( { toggleIndex, individual, enforced } ) => {
+			const abilities = [
+				[ 'get-subscribers', 'List remote subscribers' ],
+				[ 'get-views', 'Get views' ],
+			].map( ( [ name, label ] ) => ( {
+				name: `jetpack-stats/${ name }`,
+				label,
+				meta: { annotations: { readonly: true } },
+			} ) );
+			render(
+				<McpRead
+					mcpAbilities={ {
+						account: { ordinary: { title: 'Ordinary tool', enabled: true, readonly: true } },
+						remote_abilities_requiring_opt_in: enforced
+							? [ 'jetpack-stats/get-subscribers' ]
+							: undefined,
+						sites: [
+							{
+								blog_id: 1,
+								site_level_enabled: true,
+								remote_groups: {
+									'read:jetpack-stats': true,
+									...( individual !== undefined && {
+										'read:jetpack-stats/get-subscribers': individual,
+									} ),
+								},
 							},
-						},
-					],
-				} }
-				blogId={ 1 }
-				savingToolIds={ new Set() }
-				onUpdate={ onUpdate }
-				remoteAbilities={ { abilities, isLoading: false, isError: false } }
-			/>
-		);
-		for ( const expand of screen.getAllByRole( 'button', { name: 'Show operations' } ) ) {
-			await userEvent.click( expand );
+						],
+					} }
+					blogId={ 1 }
+					savingToolIds={ new Set() }
+					onUpdate={ onUpdate }
+					remoteAbilities={ { abilities, isLoading: false, isError: false } }
+				/>
+			);
+			for ( const expand of screen.getAllByRole( 'button', { name: 'Show operations' } ) ) {
+				await userEvent.click( expand );
+			}
+			expect(
+				screen.getByRole( 'switch', {
+					name: 'List remote subscribers',
+					checked: Boolean( individual ),
+				} )
+			).toBeInTheDocument();
+			expect(
+				screen.queryAllByText( 'Keeps the saved choice for the Stats subscriber list.' )
+			).toHaveLength( enforced ? 0 : 2 );
+			await userEvent.click(
+				screen.getAllByRole( 'switch', { name: 'Enable all' } )[ toggleIndex ]
+			);
+			expect( sentGroups() ).toEqual( { 'read:jetpack-stats': false } );
 		}
-		expect(
-			screen.getByRole( 'switch', {
-				name: 'List remote subscribers',
-				checked: Boolean( individual ),
-			} )
-		).toBeInTheDocument();
-		await userEvent.click( screen.getAllByRole( 'switch', { name: 'Enable all' } )[ toggleIndex ] );
-		expect( sentGroups() ).toEqual( { 'read:jetpack-stats': false } );
-	} );
+	);
 
 	test.each( [
 		[ 'read', McpRead, true, { 'read:akismet': false } ],

@@ -6,15 +6,10 @@
  * Individual tool toggles are collapsed behind a per-group chevron.
  */
 
-import {
-	Card,
-	CardBody,
-	SearchControl,
-	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
+import { SearchControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
+import { Card, Stack, Text } from '@wordpress/ui';
 import { getGroupDomId } from './anchors';
 import { isWriteTool } from './categories';
 import { getOrdinaryTools, getOverridesToMatch } from './group-intents';
@@ -37,6 +32,7 @@ import {
 	getSiteLevelEnabled,
 	getSiteMcpAbilities,
 	getSiteRemoteGroups,
+	hasSavedSubscriberChoiceBeforeOptIn,
 	isRemoteAbilityOptIn,
 	mergeSiteMcpAbilities,
 } from './utils';
@@ -197,7 +193,8 @@ export default function McpRead( {
 				allEnabled={ pageAllEnabled }
 				isDisabled={ isSavingAny || ! hasBulkTools }
 				bulkDescription={ getBulkToggleDescription(
-					readTools.length - ordinaryTools.length + remoteOptInCount
+					readTools.length - ordinaryTools.length + remoteOptInCount,
+					hasSavedSubscriberChoiceBeforeOptIn( savedRemoteGroups, remoteOptIn )
 				) }
 				onEnableAll={ handlePageToggle }
 			>
@@ -237,15 +234,15 @@ export default function McpRead( {
 					) }
 				</Stack>
 			) : (
-				<Card>
-					<CardBody>
-						<Text variant="muted">
+				<Card.Root>
+					<Card.Content>
+						<Text className="jetpack-ai-mcp__muted">
 							{ isSearching
 								? __( 'No tools match your search.', 'jetpack' )
 								: __( 'No read tools available.', 'jetpack' ) }
 						</Text>
-					</CardBody>
-				</Card>
+					</Card.Content>
+				</Card.Root>
 			) }
 
 			{ remoteAbilities && (

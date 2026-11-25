@@ -5,28 +5,39 @@
  * Provides helpers for reading and merging MCP ability data from user settings.
  */
 
-import { _n, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
+import { isWriteTool } from './categories';
 import { getOrdinaryTools, requiresOptIn } from './group-intents';
+
+const REMOTE_SUBSCRIBER_LIST = 'jetpack-stats/get-subscribers';
 
 /**
  * Describe which tools the bulk switch leaves untouched.
  *
- * @param {number} count - Number of tools that require individual approval.
+ * @param {number}  count                - Number of tools that require individual approval.
+ * @param {boolean} keepSubscriberChoice - Whether the bulk switch preserves a saved subscriber choice before opt-in is enforced.
  * @return {string|undefined} Switch description, if any tools are skipped.
  */
-export function getBulkToggleDescription( count ) {
+export function getBulkToggleDescription( count, keepSubscriberChoice = false ) {
+	const descriptions = [];
 	if ( count > 0 ) {
-		return sprintf(
-			/* translators: %d: number of MCP tools that require individual approval. */
-			_n(
-				'Skips %d locked tool. Turn it on or off individually.',
-				'Skips %d locked tools. Turn them on or off individually.',
-				count,
-				'jetpack'
-			),
-			count
+		descriptions.push(
+			sprintf(
+				/* translators: %d: number of MCP tools that require individual approval. */
+				_n(
+					'Skips %d locked tool. Turn it on or off individually.',
+					'Skips %d locked tools. Turn them on or off individually.',
+					count,
+					'jetpack'
+				),
+				count
+			)
 		);
 	}
+	if ( keepSubscriberChoice ) {
+		descriptions.push( __( 'Keeps the saved choice for the Stats subscriber list.', 'jetpack' ) );
+	}
+	return descriptions.join( ' ' ) || undefined;
 }
 
 /**
@@ -144,6 +155,31 @@ export function isRemoteAbilityOptIn( name, remoteOptIn = [] ) {
 }
 
 /**
+ * Preserve the saved subscriber choice before WordPress.com starts enforcing individual opt-in.
+ *
+ * @param {string}   name          - Ability name.
+ * @param {string[]} [remoteOptIn] - Opt-in ability names from the settings service.
+ * @return {boolean} Whether bulk controls skip the individual setting.
+ */
+export function isRemoteAbilityExcludedFromBulk( name, remoteOptIn ) {
+	return name === REMOTE_SUBSCRIBER_LIST || isRemoteAbilityOptIn( name, remoteOptIn );
+}
+
+/**
+ * Whether a saved remote subscriber choice needs a separate bulk switch explanation.
+ *
+ * @param {Record<string, boolean>} savedGroups   - Saved remote permissions.
+ * @param {string[]}                [remoteOptIn] - Opt-in ability names from the settings service.
+ * @return {boolean} Whether the subscriber choice is saved and opt-in is not yet enforced.
+ */
+export function hasSavedSubscriberChoiceBeforeOptIn( savedGroups, remoteOptIn ) {
+	return (
+		savedGroups[ `read:${ REMOTE_SUBSCRIBER_LIST }` ] !== undefined &&
+		! isRemoteAbilityOptIn( REMOTE_SUBSCRIBER_LIST, remoteOptIn )
+	);
+}
+
+/**
  * Whether a remote ability is enabled: the ability-level key when saved, else the group
  * key, else the default.
  *
@@ -194,7 +230,7 @@ export function mergeSiteMcpAbilities( accountAbilities, siteAbilities, defaultE
 	return Object.fromEntries(
 		Object.entries( accountAbilities ).map( ( [ toolId, tool ] ) => {
 			const fallbackEnabled =
-				tool.readonly && ! requiresOptIn( tool )
+				! isWriteTool( toolId, tool ) && ! requiresOptIn( tool )
 					? ( defaultEnabled ?? tool.enabled )
 					: tool.enabled;
 			return [
