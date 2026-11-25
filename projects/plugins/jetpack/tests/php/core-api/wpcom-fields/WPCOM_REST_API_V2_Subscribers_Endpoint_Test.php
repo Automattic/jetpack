@@ -204,11 +204,11 @@ class WPCOM_REST_API_V2_Subscribers_Endpoint_Test extends Jetpack_REST_TestCase 
 
 		try {
 			$this->assertSame( 0, Jetpack_Subscriptions_Widget::fetch_subscriber_count() );
-			$this->assertSame( 0, Jetpack_Subscriptions_Widget::fetch_subscriber_count() );
 			$combined = $this->server->dispatch( new WP_REST_Request( WP_REST_Server::READABLE, '/wpcom/v2/subscribers/count' ) );
 			$split    = $this->server->dispatch( new WP_REST_Request( WP_REST_Server::READABLE, '/wpcom/v2/subscribers/counts' ) );
 			$this->assertSame( array( 'count' => 0 ), $combined->get_data() );
 			$this->assertSame( 0, $split->get_data()['counts']['total_subscribers'] );
+			$this->assertSame( 0, Jetpack_Subscriptions_Widget::fetch_subscriber_count() );
 			$this->assertSame( 1, $requests );
 			$this->assertSame( 5 * MINUTE_IN_SECONDS, $expiry );
 			$this->assertSame( 'failed', get_transient( $cache_key )['status'] );
