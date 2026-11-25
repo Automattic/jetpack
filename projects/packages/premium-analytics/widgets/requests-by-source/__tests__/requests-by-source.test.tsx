@@ -65,10 +65,10 @@ describe( 'RequestsBySource', () => {
 	} );
 
 	it.each( [
-		[ 'a single day', '2026-11-01', 'day', { granularity: 'hour', bucket: undefined } ],
-		[ 'a week', '2026-11-07', 'day', { granularity: 'day', bucket: undefined } ],
-		[ '90 days', '2027-01-29', 'week', { granularity: 'day', bucket: 'week' } ],
-		[ 'a year', '2027-10-31', 'month', { granularity: 'day', bucket: 'month' } ],
+		[ 'a single day', '2026-11-01', 'day', { period: 'hour' } ],
+		[ 'a week', '2026-11-07', 'day', { period: 'day' } ],
+		[ '90 days', '2027-01-29', 'week', { period: 'week' } ],
+		[ 'a year', '2027-10-31', 'month', { period: 'month' } ],
 	] as const )( 'asks for %s by the page interval', ( _, to, interval, params ) => {
 		mockUseStatsEdgeBotRequests.mockReturnValue(
 			requestsResult( { human: 1, ai: 0, other: 0, blocked: 0 } )

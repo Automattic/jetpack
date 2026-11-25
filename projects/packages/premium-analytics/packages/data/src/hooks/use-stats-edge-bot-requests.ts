@@ -9,7 +9,6 @@ import type { StatsEdgeBotRequestsParams } from '../queries/stats-edge-bot-reque
 import type { StatsReportParams } from '../queries/stats-query';
 
 export { isEdgeBotRequestsRangeTooLong } from '../queries/stats-edge-bot-requests-query';
-export type { StatsEdgeBotRequestsGranularity } from '../queries/stats-edge-bot-requests-query';
 
 export function useStatsEdgeBotRequests(
 	params: StatsEdgeBotRequestsParams,

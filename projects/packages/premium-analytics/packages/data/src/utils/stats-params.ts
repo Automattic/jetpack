@@ -202,13 +202,14 @@ export function reportParamsToStatsQueryParams(
 }
 
 export function statsQueryParamsToApiParams( params: StatsQueryParams = {} ): StatsProxyParams {
-	// window_start/window_end/timezone are sanitizer-only (see StatsQueryParamFields);
+	// window_start/window_end/timezone/bucket are sanitizer-only (see StatsQueryParamFields);
 	// stripped here so a stray one can't leak into a request URL.
 	const { end_date: endDate, ...apiParams } = params;
 
 	delete apiParams.window_start;
 	delete apiParams.window_end;
 	delete apiParams.timezone;
+	delete apiParams.bucket;
 
 	return {
 		...apiParams,

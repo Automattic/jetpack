@@ -1446,7 +1446,7 @@ describe( 'Stats query factories', () => {
 			from: '2026-11-01T00:00:00+08:00',
 			to: '2026-11-07T23:59:59+08:00',
 			interval: 'day',
-			granularity,
+			period: granularity,
 		} );
 
 		expect( query.queryKey[ 3 ] ).toBe( 'stats/ua-queries' );
@@ -1464,7 +1464,7 @@ describe( 'Stats query factories', () => {
 			from: '2026-11-01',
 			to: '2026-11-01',
 			interval: 'hour',
-			granularity: 'hour',
+			period: 'hour',
 			timezone: 'Asia/Taipei',
 		} );
 
@@ -1474,23 +1474,19 @@ describe( 'Stats query factories', () => {
 		} );
 	} );
 
-	it.each( [
-		[ 'day', 'month', { template: 'edge-bot-requests', granularity: 'day' }, { bucket: 'month' } ],
-		[ 'hour', 'month', { template: 'edge-bot-requests', granularity: 'hour' }, {} ],
-	] as const )(
-		'hands a %s request with a %s bucket to the sanitizer only when the days can fold',
-		( granularity, bucket, apiParams, sanitizerParams ) => {
+	it.each( [ 'week', 'month' ] as const )(
+		'asks for days and hands the %s bucket to the sanitizer',
+		period => {
 			const query = statsEdgeBotRequestsQuery( {
 				from: '2026-11-01',
 				to: '2026-11-07',
 				interval: 'day',
-				granularity,
-				bucket,
+				period,
 			} );
 
-			expect( query.queryKey[ 5 ] ).toMatchObject( apiParams );
+			expect( query.queryKey[ 5 ] ).toMatchObject( { granularity: 'day', table: 'rollup' } );
 			expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'bucket' );
-			expect( query.queryKey[ 8 ] ).toMatchObject( sanitizerParams );
+			expect( query.queryKey[ 8 ] ).toEqual( { bucket: period } );
 		}
 	);
 

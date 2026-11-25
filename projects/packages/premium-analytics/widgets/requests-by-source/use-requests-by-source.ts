@@ -53,14 +53,7 @@ export default function useRequestsBySource( reportParams: ReportParams ) {
 		getDaysBetweenInclusive( reportParams.from, reportParams.to ) <= HOURLY_MAX_DAYS
 			? 'hour'
 			: defaultPeriodForInterval( reportParams.interval, STATS_CHART_BUCKET_PERIODS );
-	const params = useMemo(
-		() => ( {
-			...reportParams,
-			granularity: period === 'hour' ? ( 'hour' as const ) : ( 'day' as const ),
-			bucket: period === 'week' || period === 'month' ? period : undefined,
-		} ),
-		[ reportParams, period ]
-	);
+	const params = useMemo( () => ( { ...reportParams, period } ), [ reportParams, period ] );
 	const isRangeTooLong = isEdgeBotRequestsRangeTooLong( params );
 	const { primary, timezone, isLoading, isFetching, isError, error, refetch } =
 		useStatsEdgeBotRequests( params );

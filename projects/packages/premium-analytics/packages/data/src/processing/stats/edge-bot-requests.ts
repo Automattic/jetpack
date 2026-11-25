@@ -143,10 +143,9 @@ export function sanitizeStatsEdgeBotRequestsResponse(
 		}
 	}
 
-	const bucket = hourly ? undefined : query?.bucket;
-	const days = [ ...byStart.values() ];
+	const buckets = [ ...byStart.values() ];
 
-	return { summary, data: bucket ? foldDays( days, bucket ) : days };
+	return { summary, data: query?.bucket ? foldDays( buckets, query.bucket ) : buckets };
 }
 
 /** Sum the days of each calendar week or month; a bucket the window cuts keeps only its days. */

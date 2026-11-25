@@ -131,7 +131,6 @@ export { useStatsDevices } from './use-stats-devices';
 export {
 	isEdgeBotRequestsRangeTooLong,
 	useStatsEdgeBotRequests,
-	type StatsEdgeBotRequestsGranularity,
 } from './use-stats-edge-bot-requests';
 export {
 	useStatsAppSiteHasNeverPublishedPost,
