@@ -326,6 +326,7 @@ describe( 'BarChart stacked layout', () => {
 		expect( previousBar().height / desktop.height ).toBeCloseTo( 500 / 100 );
 		expect( fills().slice( 0, 5 ) ).toEqual( plainFills );
 		expect( new Set( fills().slice( 5 ) ).size ).toBe( 1 );
+		expect( plainFills ).not.toContain( fills()[ 5 ] );
 	} );
 
 	it( 'lists the comparison total after the stack total, named by the legend comparison item', async () => {
