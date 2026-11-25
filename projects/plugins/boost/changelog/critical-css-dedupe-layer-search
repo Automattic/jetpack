@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Critical CSS: Speed up local generation for deeply nested stylesheets without cascade layers.

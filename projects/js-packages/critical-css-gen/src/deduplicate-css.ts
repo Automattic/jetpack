@@ -240,6 +240,13 @@ export function deduplicateCss( css: string ): string {
 	joinAdjacentGroups( ast.children );
 	registerLayers( ast.children, 0, 0, true );
 	prune( ast.children, 0 );
-	positionRegistrations( ast.children );
+	if (
+		csstree.find(
+			ast,
+			node => node.type === 'Atrule' && nameOf( node ) === 'layer' && ! node.block
+		)
+	) {
+		positionRegistrations( ast.children );
+	}
 	return csstree.generate( ast );
 }
