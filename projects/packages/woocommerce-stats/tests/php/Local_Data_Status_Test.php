@@ -44,10 +44,10 @@ class Local_Data_Status_Test extends BaseTestCase {
 		require_once __DIR__ . '/mocks/woocommerce-analytics-mock.php';
 		$status = new Local_Data_Status();
 
-		$this->assertFalse( $status->is_analytics_off() );
+		$this->assertTrue( $status->is_analytics_enabled() );
 
 		$GLOBALS['woocommerce_stats_mock_analytics_off'] = true;
-		$this->assertTrue( $status->is_analytics_off() );
+		$this->assertFalse( $status->is_analytics_enabled() );
 	}
 
 	/**

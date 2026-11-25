@@ -3,6 +3,7 @@
  * Tests for the WooCommerce registrants of the Premium Analytics dashboard.
  *
  * @package automattic/jetpack-woocommerce-stats
+ * @phan-file-suppress PhanAccessClassConstantInternal -- Internal to this package, not to its sub-namespace.
  */
 
 namespace Automattic\Jetpack\WooCommerceStats;
@@ -36,8 +37,6 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 
 	/**
 	 * Reset the dashboard registries and the hooks between tests.
-	 *
-	 * @phan-suppress PhanAccessClassConstantInternal -- Internal to this package, not to its sub-namespace.
 	 */
 	public function tear_down() {
 		remove_action( Analytics_Dashboard::REGISTER_SECTIONS_ACTION, array( Analytics_Dashboard::class, 'register_section' ), 20 );
@@ -243,8 +242,6 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	 * @param string $providers  The provider setting.
 	 * @param bool   $woocommerce Whether WooCommerce is active.
 	 * @param bool   $runs_without_connection Whether the tab runs without the connection.
-	 *
-	 * @phan-suppress PhanAccessClassConstantInternal -- Internal to this package, not to its sub-namespace.
 	 */
 	#[DataProvider( 'provide_connection_and_setting' )]
 	public function test_runs_without_the_connection_only_when_disconnected_and_set_to_local( $connected, $providers, $woocommerce, $runs_without_connection ) {
@@ -269,7 +266,6 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
-	 * @phan-suppress PhanAccessClassConstantInternal -- Internal to this package, not to its sub-namespace.
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
@@ -293,7 +289,6 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 * @dataProvider provide_import_statuses
-	 * @phan-suppress PhanAccessClassConstantInternal -- Internal to this package, not to its sub-namespace.
 	 *
 	 * @param array    $import     What core's import status route answers.
 	 * @param string[] $present    Phrases the notice must carry.

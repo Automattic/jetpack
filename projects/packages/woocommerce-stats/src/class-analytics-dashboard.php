@@ -259,7 +259,7 @@ class Analytics_Dashboard {
 		$data_status = new Local_Data_Status();
 		$messages    = array();
 
-		if ( $data_status->is_analytics_off() ) {
+		if ( ! $data_status->is_analytics_enabled() ) {
 			$messages[] = __( 'WooCommerce Analytics is off, so this tab can’t read your store’s orders. Turn it on in WooCommerce › Settings › Advanced › Features.', 'jetpack-woocommerce-stats-pkg' );
 		} else {
 			$import = $data_status->get_import_status();

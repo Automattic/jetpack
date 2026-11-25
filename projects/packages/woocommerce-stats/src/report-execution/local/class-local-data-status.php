@@ -24,12 +24,12 @@ class Local_Data_Status {
 	const IMPORT_STATUS_ROUTE = '/wc-analytics/imports/status';
 
 	/**
-	 * Whether WooCommerce Analytics is off, so no local report can be served.
+	 * Whether WooCommerce Analytics is on; while it is off, no local report can be served.
 	 *
 	 * @return bool
 	 */
-	public function is_analytics_off() {
-		return true !== ( new Local_Report_Provider() )->check_ready();
+	public function is_analytics_enabled() {
+		return true === ( new Local_Report_Provider() )->check_ready();
 	}
 
 	/**
