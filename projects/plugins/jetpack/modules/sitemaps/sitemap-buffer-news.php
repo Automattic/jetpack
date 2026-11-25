@@ -38,11 +38,12 @@ class Jetpack_Sitemap_Buffer_News extends Jetpack_Sitemap_Buffer {
 			$this->doc->createComment( 'Jetpack_Sitemap_Buffer_News' )
 		);
 
-		foreach ( Jetpack_Sitemap_Stylist::sitemap_stylesheet_urls() as $url ) {
-			$this->doc->appendChild(
-				$this->doc->createProcessingInstruction( 'xml-stylesheet', 'type="text/css" href="' . esc_xml( $url ) . '"' )
-			);
-		}
+		$this->doc->appendChild(
+			$this->doc->createProcessingInstruction(
+				'xml-stylesheet',
+				'type="text/xsl" href="' . $this->finder->construct_sitemap_url( 'news-sitemap.xsl' ) . '"'
+			)
+		);
 	}
 
 	/**
