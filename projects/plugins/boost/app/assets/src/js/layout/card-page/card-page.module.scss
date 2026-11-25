@@ -2,11 +2,6 @@
 @use "$css/main/mixins";
 @use "$css/main/common";
 
-.page {
-
-	@include mixins.page-frame;
-}
-
 .card {
 	background: #fff url(\$images/color-shift.svg) no-repeat top right;
 	border: 1px solid #dcdcde;

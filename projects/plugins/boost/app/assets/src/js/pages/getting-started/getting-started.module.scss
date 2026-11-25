@@ -1,11 +1,3 @@
-@use "$css/main/mixins";
-
-.page {
-
-	@include mixins.page-frame;
-	background-color: #fff;
-}
-
 .pricing-table {
 	isolation: isolate;
 }
