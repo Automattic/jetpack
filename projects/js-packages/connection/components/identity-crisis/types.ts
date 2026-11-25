@@ -39,6 +39,8 @@ export interface IdentityCrisisLayoutProps {
 	children: ReactNode;
 	/** Actions the host adds below the content, such as Disconnect on the Connectors card. */
 	hostActions?: ReactNode;
+	/** An action is running, so the host's buttons are disabled. Defaults to false. */
+	isBusy?: boolean;
 }
 
 export interface IdentityCrisisMigratedProps {

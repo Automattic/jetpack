@@ -1520,9 +1520,11 @@ function DisconnectSite() {
 /**
  * The new Safe Mode screen, behind the `connection-idc-screen` flag. It replaces IDCPanel and reads the shared state.
  *
+ * @param {object}   props            - Component props.
+ * @param {Function} props.onMigrated - Called once a migrate succeeds.
  * @return {object} React element.
  */
-function SafeModeScreen() {
+function SafeModeScreen( { onMigrated } ) {
 	return createElement( IdentityCrisis, {
 		context: 'connectors',
 		showHeader: false,
@@ -1532,9 +1534,12 @@ function SafeModeScreen() {
 		onActionSuccess: result => {
 			if ( result.action === 'start-fresh' ) {
 				window.location.href = withSkipPricing( result.connectUrl );
-			} else {
-				onIdentityCrisisActionSuccess( result );
+				return;
 			}
+			if ( result.action === 'migrate' ) {
+				onMigrated();
+			}
+			onIdentityCrisisActionSuccess( result );
 		},
 	} );
 }
@@ -1821,6 +1826,8 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 	const connectorName = name || label;
 	const connectorLogo = logo || icon || CONNECTOR_LOGO;
 	const [ isExpanded, setIsExpanded ] = useState( isLinkedTo );
+	const [ hasBeenExpanded, setHasBeenExpanded ] = useState( isLinkedTo );
+	const isMigrated = useRef( false );
 	const {
 		isConnected,
 		isRegistered: isSiteRegistered,
@@ -1945,10 +1952,22 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 			variant: 'secondary',
 			size: 'compact',
 			onClick: () => {
+				// After a migrate, the page says Safe Mode until it reloads.
+				if ( isMigrated.current ) {
+					if ( isExpanded && isLinkedTo ) {
+						// Keep the card closed after the reload.
+						const url = new URL( window.location.href );
+						url.searchParams.delete( 'connector' );
+						window.history.replaceState( window.history.state, '', url );
+					}
+					window.location.reload();
+					return;
+				}
 				if ( ! isExpanded ) {
 					track( CONNECTION_EVENTS?.cardActionClick, { action: 'details_open' } );
 				}
 				setIsExpanded( ! isExpanded );
+				setHasBeenExpanded( true );
 			},
 			'aria-expanded': isExpanded,
 		};
@@ -1967,15 +1986,24 @@ function JetpackConnectorCard( { name, label, description, logo, icon } ) {
 			createElement( Button, toggleProps, toggleLabel )
 		);
 
-		if ( isExpanded ) {
+		// Close only hides the new screen: unmounting it would lose track of an action still running.
+		const keepsSafeModeScreen = isInSafeMode && useNewSafeModeScreen && hasBeenExpanded;
+		if ( isExpanded || keepsSafeModeScreen ) {
 			const needsUserConnection = ! viewer;
+			const safeModeContent = useNewSafeModeScreen
+				? createElement( SafeModeScreen, {
+						onMigrated: () => {
+							isMigrated.current = true;
+						},
+					} )
+				: createElement( IDCPanel );
 			expandedContent = createElement(
 				'div',
-				{ className: 'jetpack-connector__expanded' },
+				{ className: 'jetpack-connector__expanded', hidden: ! isExpanded },
 				// While in Safe Mode, the identity-crisis resolution options
 				// replace the standard connection details.
 				isInSafeMode
-					? createElement( useNewSafeModeScreen ? SafeModeScreen : IDCPanel )
+					? safeModeContent
 					: createElement( ExpandedDetails, {
 							isConnecting: needsUserConnection ? isConnecting : false,
 							onConnect: needsUserConnection ? handleConnect : null,

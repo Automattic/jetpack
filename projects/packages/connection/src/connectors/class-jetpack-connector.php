@@ -194,6 +194,7 @@ class Jetpack_Connector {
 	 * @since 8.2.0
 	 * @since 9.13.0 Shared connection state moved to the jetpack-connection store.
 	 * @since 9.14.0 Adds `connectorsUrl`; sends `connectedUsersUrl` whenever there are account rows, including while the owner's token is broken.
+	 * @since $$next-version$$ Leaves out `pluginLogos` in Safe Mode.
 	 *
 	 * @param array $data Existing script module data.
 	 * @return array Filtered script module data.
@@ -210,9 +211,13 @@ class Jetpack_Connector {
 		$data['connectorDescription'] = __( 'Enhanced functionality for Jetpack and WooCommerce with WordPress.com cloud services.', 'jetpack-connection' );
 		$data['connectorLogoUrl']     = static::get_connector_logo_url();
 
-		$connected_plugins   = $manager->get_connected_plugins();
-		$connected_plugins   = is_array( $connected_plugins ) ? $connected_plugins : array();
-		$data['pluginLogos'] = static::get_plugin_logos( array_keys( $connected_plugins ) );
+		$connected_plugins = $manager->get_connected_plugins();
+		$connected_plugins = is_array( $connected_plugins ) ? $connected_plugins : array();
+
+		// In Safe Mode the card lists no plugins, and the Safe Mode screen gets the logos from Initial_State.
+		if ( ! ( new Status() )->in_safe_mode() ) {
+			$data['pluginLogos'] = static::get_plugin_logos( array_keys( $connected_plugins ) );
+		}
 
 		if ( $is_registered ) {
 			$data['siteDetails'] = array(
@@ -488,10 +493,20 @@ class Jetpack_Connector {
 	}
 
 	/**
-	 * Map connected plugin slugs to their logo URLs.
+	 * Get the connected plugins' logo URLs, for the shared Safe Mode screen.
 	 *
-	 * The plugin list itself comes from the jetpack-connection store; logos stay here because
-	 * third parties add them through a PHP filter.
+	 * @since $$next-version$$
+	 *
+	 * @return array<string,string> Logo URL by slug, for plugins that have one.
+	 */
+	public static function get_connected_plugin_logos() {
+		$plugins = ( new Manager() )->get_connected_plugins();
+
+		return static::get_plugin_logos( is_array( $plugins ) ? array_keys( $plugins ) : array() );
+	}
+
+	/**
+	 * Map connected plugin slugs to their logo URLs.
 	 *
 	 * @since 9.13.0
 	 *
@@ -630,11 +645,12 @@ class Jetpack_Connector {
 
 		/**
 		 * Filters a map of plugin slugs to custom logo URLs for the
-		 * Settings → Connectors card.
+		 * Settings → Connectors card and the Safe Mode screen.
 		 *
 		 * Add entries as `$slug => $url` pairs. URLs must point to an
 		 * SVG file (`.svg` extension required); non-SVG values are
-		 * silently ignored and the generic fallback icon is shown.
+		 * silently ignored: the card shows its generic fallback icon,
+		 * and the Safe Mode screen shows the plugin's name only.
 		 *
 		 * Example:
 		 *

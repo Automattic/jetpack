@@ -2,6 +2,7 @@ import { createRoot } from '@wordpress/element';
 import { act } from 'react';
 
 let mockIdentityCrisis = null;
+let mockSelectors = null;
 let mockScreenProps = null;
 const mockNewScreen = props => {
 	mockScreenProps = props;
@@ -14,7 +15,7 @@ const sharedScript = {
 };
 
 jest.mock( '@wordpress/data', () => ( {
-	select: () => ( { getIdentityCrisis: () => mockIdentityCrisis } ),
+	select: () => mockSelectors ?? { getIdentityCrisis: () => mockIdentityCrisis },
 } ) );
 jest.mock( '@automattic/jetpack-idc', () => ( { IDCScreen: () => 'Safe Mode choices' } ) );
 jest.mock( '@wordpress/element', () => {
@@ -63,6 +64,7 @@ describe( 'Safe Mode screen', () => {
 		delete window.JP_IDENTITY_CRISIS__INITIAL_STATE;
 		delete window.JetpackConnection;
 		mockIdentityCrisis = null;
+		mockSelectors = null;
 		mockScreenProps = null;
 		jest.clearAllMocks();
 	} );
@@ -161,6 +163,15 @@ describe( 'Safe Mode screen', () => {
 		act( () => onLoad() );
 
 		expect( container ).toHaveTextContent( expected );
+	} );
+
+	it( 'shows the old screen when an older store, without the selector, is registered', () => {
+		mockSelectors = {};
+		const container = addElement( 'jp-identity-crisis-container' );
+
+		act( () => onLoad() );
+
+		expect( container ).toHaveTextContent( 'Safe Mode choices' );
 	} );
 
 	describe( 'with the new screen', () => {

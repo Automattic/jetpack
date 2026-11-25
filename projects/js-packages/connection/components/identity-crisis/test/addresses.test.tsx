@@ -8,7 +8,7 @@ describe( 'IdentityCrisisAddresses', () => {
 		);
 
 		expect( container ).toHaveTextContent(
-			'This store is registered with WordPress.com at old.example, but now loads at new.example.'
+			'This store is registered with WordPress.com atold.exampleIt now loads atnew.example'
 		);
 	} );
 

@@ -87,6 +87,8 @@ export type IdentityCrisisState =
 			possibleDynamicSiteUrlDetected: boolean;
 			/** Jetpack mark, combined with the marks of the other plugin families that use the connection. */
 			logoUrl: string;
+			/** Logo URL by connected plugin slug, for plugins that have one. Absent from a server that predates it. */
+			pluginLogos?: Partial< Record< string, string > >;
 	  } );
 
 export type ConnectionScriptData = {

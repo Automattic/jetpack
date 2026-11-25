@@ -582,27 +582,14 @@ function getAddressFactLines( c: CopyContext ): FactLine[] {
  * @return The lines.
  */
 export function getGuideFactLines( c: CopyContext, isDevelopmentSite: boolean ): FactLine[] {
-	let marking: string;
-	if ( isDevelopmentSite ) {
-		marking = c.isStore
-			? _x(
-					'WordPress marks this as a staging store.',
-					'WooCommerce store',
-					'jetpack-connection-js'
-				)
-			: __( 'WordPress marks this as a staging site.', 'jetpack-connection-js' );
-	} else {
-		marking = c.isStore
-			? _x(
-					'WordPress does not mark this as a staging or development store.',
-					'WooCommerce store',
-					'jetpack-connection-js'
-				)
-			: __(
-					'WordPress does not mark this as a staging or development site.',
-					'jetpack-connection-js'
-				);
-	}
+	// Always "site", also on a store: WordPress marks the installation.
+	const marking = isDevelopmentSite
+		? __( 'WordPress marks this as a staging site.', 'jetpack-connection-js' )
+		: _x(
+				'WordPress does not mark this as a staging or development site.',
+				'Environment type',
+				'jetpack-connection-js'
+			);
 	return [ { key: 'isDevelopmentSite', text: marking }, ...getAddressFactLines( c ) ];
 }
 
@@ -914,18 +901,11 @@ export function getPausedText( c: CopyContext ): string {
  */
 export function getStagingNote( c: CopyContext ): ReactNode {
 	return fill(
-		c.isStore
-			? /* translators: <z />: the address WordPress.com has on record. */
-				_x(
-					'WordPress marks this as a staging store, so it is treated as a copy of <z />.',
-					'WooCommerce store',
-					'jetpack-connection-js'
-				)
-			: /* translators: <z />: the address WordPress.com has on record. */
-				__(
-					'WordPress marks this as a staging site, so it is treated as a copy of <z />.',
-					'jetpack-connection-js'
-				),
+		/* translators: <z />: the address WordPress.com has on record. */
+		__(
+			'WordPress marks this as a staging site, so it is treated as a copy of <z />.',
+			'jetpack-connection-js'
+		),
 		c
 	);
 }
