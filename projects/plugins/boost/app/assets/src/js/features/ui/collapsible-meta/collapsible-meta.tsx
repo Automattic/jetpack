@@ -13,7 +13,6 @@ type CollapsibleMetaProps = {
 	exceptions?: string[];
 	countExceptions?: boolean;
 	header?: ReactNode;
-	summary?: ReactNode;
 	toggleText?: string;
 	headerText?: string;
 	compactHeader?: boolean;

@@ -11,7 +11,6 @@ const meta: Meta< typeof CollapsibleMeta > = {
 		headerText: { control: 'text' },
 		toggleText: { control: 'text' },
 		header: { control: 'text' },
-		summary: { control: 'text' },
 	},
 	decorators: [
 		Story => (
@@ -24,7 +23,6 @@ const meta: Meta< typeof CollapsibleMeta > = {
 
 const defaultValues = {
 	header: 'Something to show in the header',
-	summary: 'Something to show in the summary',
 	toggleText: 'Edit',
 	extraButtons: <button>Extra Button</button>,
 	headerText: 'Header Text',
