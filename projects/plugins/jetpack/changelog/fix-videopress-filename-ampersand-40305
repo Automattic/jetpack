@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+VideoPress: stop HTML-escaping uploaded video filenames used as default titles so characters like `&` do not render as `&amp;`.
