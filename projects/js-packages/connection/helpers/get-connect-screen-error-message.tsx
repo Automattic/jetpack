@@ -32,6 +32,23 @@ export const getRegistrationErrorCode = (
 	return typeof registrationError.name === 'string' ? registrationError.name : undefined;
 };
 
+/**
+ * The HTTP status the site's REST API sent with a registration error.
+ *
+ * Only site-side errors carry one: WordPress.com's registration errors reach the browser with their status as bare `data`.
+ *
+ * @param {RegistrationError|false} registrationError - The `registrationError` from `useConnection()`.
+ * @return {number|undefined} The status, or undefined when the error has none.
+ */
+export const getRegistrationErrorStatus = (
+	registrationError?: RegistrationError | false
+): number | undefined => {
+	const data: unknown = registrationError ? registrationError.response?.data : undefined;
+	const status: unknown =
+		typeof data === 'object' && data !== null ? ( data as { status?: unknown } ).status : undefined;
+	return typeof status === 'number' ? status : undefined;
+};
+
 // Matches the PHP helper.
 const DESCRIPTION_MAX_LENGTH = 400;
 
@@ -117,7 +134,8 @@ export const getRegistrationErrorDisplay = (
 	isOfflineMode?: boolean
 ): RegistrationErrorDisplay => {
 	const code = getRegistrationErrorCode( registrationError );
-	const message = getConnectScreenErrorMessage( code, isOfflineMode );
+	const status = getRegistrationErrorStatus( registrationError );
+	const message = getConnectScreenErrorMessage( code, isOfflineMode, undefined, status );
 	const description = getRegistrationErrorDescription( registrationError );
 
 	if ( ! message ) {
@@ -131,7 +149,12 @@ export const getRegistrationErrorDisplay = (
 	}
 	if ( code && /^site_inaccessible_\d{3}$/.test( code ) ) {
 		return {
-			message: getConnectScreenErrorMessage( code, isOfflineMode, getSiteUrl( description ) ),
+			message: getConnectScreenErrorMessage(
+				code,
+				isOfflineMode,
+				getSiteUrl( description ),
+				status
+			),
 		};
 	}
 	return { message };
@@ -257,12 +280,14 @@ const siteHttpErrorMessage = ( status: number, siteUrl?: string ): string => {
  * @param {string}  errorCode     - The connection error code, see `getRegistrationErrorCode()`.
  * @param {boolean} isOfflineMode - Whether the site is in offline mode.
  * @param {string}  siteUrl       - For `site_inaccessible_{status}`: the URL WordPress.com tried, when known.
+ * @param {number}  status        - The HTTP status the site's REST API sent, see `getRegistrationErrorStatus()`.
  * @return {import('react').ReactNode} The error message, or undefined if there isn't one.
  */
 export const getConnectScreenErrorMessage = (
 	errorCode?: string,
 	isOfflineMode?: boolean,
-	siteUrl?: string
+	siteUrl?: string,
+	status?: number
 ): ReactNode => {
 	// Offline mode takes away the connect capability, so this error means offline mode, not a missing role.
 	if ( isOfflineMode && errorCode === 'invalid_user_permission_jetpack_connect' ) {
@@ -272,13 +297,6 @@ export const getConnectScreenErrorMessage = (
 	const siteHttpStatus = errorCode?.match( /^site_inaccessible_(\d{3})$/ );
 	if ( siteHttpStatus ) {
 		return siteHttpErrorMessage( Number( siteHttpStatus[ 1 ] ), siteUrl );
-	}
-
-	// The site's own REST request failed before WordPress.com was contacted.
-	// No status: its 401/403 rules would override `invalid_user_permission_jetpack_connect` below.
-	const siteFailure = getSiteRequestFailureCause( errorCode );
-	if ( siteFailure ) {
-		return getSiteRequestFailureMessage( siteFailure );
 	}
 
 	// Explicit error code takes precedence over the offline mode.
@@ -373,8 +391,11 @@ export const getConnectScreenErrorMessage = (
 				'jetpack-connection-js'
 			);
 
-		// The connect endpoint's own permission check.
+		// The connect endpoint's own permission check; a 401 means nobody is logged in, e.g. an expired session.
 		case 'invalid_user_permission_jetpack_connect':
+			if ( status === 401 ) {
+				return getSiteRequestFailureMessage( 'session' );
+			}
 			return __(
 				'Only site administrators can connect this site. Ask an administrator to connect it.',
 				'jetpack-connection-js'
@@ -402,6 +423,12 @@ export const getConnectScreenErrorMessage = (
 				'WordPress.com returned an unexpected response when registering your site. Please try again in a minute.',
 				'jetpack-connection-js'
 			);
+	}
+
+	// Checked after the codes above, so the 401/403 rules can't override them.
+	const siteFailure = getSiteRequestFailureCause( errorCode, status );
+	if ( siteFailure ) {
+		return getSiteRequestFailureMessage( siteFailure );
 	}
 
 	if ( isOfflineMode ) {

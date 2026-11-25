@@ -40,6 +40,8 @@ jest.mock( '@automattic/jetpack-connection', () => ( {
 		.getRegistrationErrorSummary,
 	getRegistrationErrorCode: jest.requireActual( '@automattic/jetpack-connection' )
 		.getRegistrationErrorCode,
+	getRegistrationErrorStatus: jest.requireActual( '@automattic/jetpack-connection' )
+		.getRegistrationErrorStatus,
 	getConnectScreenErrorMessage: jest.requireActual( '@automattic/jetpack-connection' )
 		.getConnectScreenErrorMessage,
 } ) );

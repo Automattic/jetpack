@@ -4,6 +4,7 @@ import {
 	useConnection,
 	getConnectScreenErrorMessage,
 	getRegistrationErrorCode,
+	getRegistrationErrorStatus,
 	getRegistrationErrorSummary,
 } from '@automattic/jetpack-connection';
 import { __, _x } from '@wordpress/i18n';
@@ -66,7 +67,12 @@ export function StartStep( { titleId, title, description }: StartStepProps ) {
 		: null;
 	const hasMappedMessage = Boolean(
 		connectError &&
-		getConnectScreenErrorMessage( getRegistrationErrorCode( connectError ), isOfflineMode )
+		getConnectScreenErrorMessage(
+			getRegistrationErrorCode( connectError ),
+			isOfflineMode,
+			undefined,
+			getRegistrationErrorStatus( connectError )
+		)
 	);
 
 	// Named once: the terms sentence has to say the same words as the button it is about.

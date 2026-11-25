@@ -81,6 +81,7 @@ export {
 	getRegistrationErrorCode,
 	getRegistrationErrorDescription,
 	getRegistrationErrorDisplay,
+	getRegistrationErrorStatus,
 	getRegistrationErrorSummary,
 } from './helpers/get-connect-screen-error-message';
 

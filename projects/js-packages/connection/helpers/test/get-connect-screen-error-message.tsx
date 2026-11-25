@@ -243,6 +243,23 @@ describe( 'getRegistrationErrorDisplay', () => {
 	const display = ( code: string, message: string ) =>
 		getRegistrationErrorDisplay( { response: { code, message } } );
 
+	it.each( [
+		[ 'rest_forbidden', 401, getSiteRequestFailureMessage( 'session' ) ],
+		[ 'rest_forbidden', 403, getSiteRequestFailureMessage( 'permission' ) ],
+		[ 'invalid_user_permission_jetpack_connect', 401, getSiteRequestFailureMessage( 'session' ) ],
+		[
+			'invalid_user_permission_jetpack_connect',
+			403,
+			getConnectScreenErrorMessage( 'invalid_user_permission_jetpack_connect' ),
+		],
+		// The screen's own codes come before the shared 401/403 rules.
+		[ 'fail_domain_forbidden', 403, getConnectScreenErrorMessage( 'fail_domain_forbidden' ) ],
+	] as const )( 'reads %s with HTTP %d by its status too', ( code, status, message ) => {
+		expect(
+			getRegistrationErrorDisplay( { response: { code, message: '', data: { status } } } ).message
+		).toBe( message );
+	} );
+
 	it( 'shows only our copy for a mapped code', () => {
 		expect(
 			display( 'request_cancelled', 'Your site has been generating too many attempts.' )
