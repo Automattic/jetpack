@@ -9,6 +9,7 @@ namespace Automattic\Jetpack_Boost\Tests\Modules\Optimizations\Defer_Fonts;
 
 use Automattic\Jetpack_Boost\Modules\Optimizations\Defer_Fonts\Defer_Fonts;
 use Automattic\Jetpack_Boost\Tests\Base_TestCase;
+use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -69,6 +70,13 @@ class Defer_Fonts_Test extends Base_TestCase {
 		$this->assertStringContainsString( 'setTimeout(add,wait)', $script, 'A slow embed must not hold the fonts back past the cap.' );
 		$this->assertStringEndsWith( ',' . Defer_Fonts::LOAD_WAIT_MS . ');', $script );
 		$this->assertStringContainsString( 'if(done){return}', $script, 'The fonts must be added once, whichever of load and the cap comes first.' );
+		$this->assertStringContainsString( 'requestAnimationFrame(function(){d.fonts.ready', $script, 'fonts.ready can resolve before the new fonts are pending, saving the hash too early.' );
+	}
+
+	public function test_load_wait_can_be_filtered() {
+		Filters\expectApplied( 'jetpack_boost_defer_fonts_load_wait' )->once()->with( Defer_Fonts::LOAD_WAIT_MS )->andReturn( '5000' );
+
+		$this->assertStringEndsWith( ',5000);', Defer_Fonts::get_loader_script( '' ) );
 	}
 
 	/**
@@ -120,6 +128,7 @@ class Defer_Fonts_Test extends Base_TestCase {
 			'script-src-elem wins over script-src' => array( array( "Content-Security-Policy: script-src 'unsafe-inline'; script-src-elem 'self'" ), $tag, true ),
 			'policy without script directives'     => array( array( 'Content-Security-Policy: img-src *' ), $tag, false ),
 			'any one blocking policy is enough'    => array( array( "Content-Security-Policy: script-src 'unsafe-inline'", "Content-Security-Policy: default-src 'self'" ), $tag, true ),
+			'comma-joined policies in one header'  => array( array( "Content-Security-Policy: default-src 'self', script-src 'unsafe-inline'" ), $tag, true ),
 		);
 	}
 }

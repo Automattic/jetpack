@@ -170,14 +170,18 @@ class Defer_Fonts implements Feature, Changes_Output_On_Activation, Changes_Outp
 	public static function csp_blocks_inline_script( array $headers, $tag ) {
 		$nonce = preg_match( '/\snonce=["\']([^"\']+)["\']/', $tag, $match ) ? $match[1] : null;
 
+		$policies = array();
 		foreach ( $headers as $header ) {
 			// Report-Only policies don't block, and don't match: their header name continues past "Policy".
-			if ( ! preg_match( '/^content-security-policy\s*:(.*)$/i', $header, $policy ) ) {
-				continue;
+			if ( preg_match( '/^content-security-policy\s*:(.*)$/i', $header, $value ) ) {
+				// One header can carry several comma-joined policies, and each is enforced.
+				$policies = array_merge( $policies, explode( ',', $value[1] ) );
 			}
+		}
 
+		foreach ( $policies as $policy ) {
 			$directives = array();
-			foreach ( explode( ';', $policy[1] ) as $directive ) {
+			foreach ( explode( ';', $policy ) as $directive ) {
 				$parts = preg_split( '/\s+/', trim( $directive ), -1, PREG_SPLIT_NO_EMPTY );
 				$name  = strtolower( (string) array_shift( $parts ) );
 				if ( '' !== $name && ! isset( $directives[ $name ] ) ) {
@@ -302,7 +306,16 @@ class Defer_Fonts implements Feature, Changes_Output_On_Activation, Changes_Outp
 			$encode( $css ),
 			$encode( self::STORAGE_KEY . '-' . get_current_blog_id() ),
 			$encode( substr( md5( $css ), 0, 12 ) ),
-			self::LOAD_WAIT_MS
+			/**
+			 * Filters how long Defer Web Fonts waits for `load` before adding the fonts anyway.
+			 *
+			 * Raise it when a slow LCP image would otherwise share bandwidth with the fonts.
+			 *
+			 * @since $$next-version$$
+			 *
+			 * @param int $wait Milliseconds to wait. Default 3000.
+			 */
+			max( 0, (int) apply_filters( 'jetpack_boost_defer_fonts_load_wait', self::LOAD_WAIT_MS ) )
 		);
 	}
 }
