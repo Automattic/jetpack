@@ -1,4 +1,4 @@
-import { getScriptData, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { useStatsAppPlanUsage } from '@jetpack-premium-analytics/data';
 import {
 	Button,
@@ -103,20 +103,7 @@ function UsageMeter( { limit, usage = 0, daysToReset }: UsageMeterProps ): JSX.E
  * @return The card, or nothing when the plan has no limit to meter.
  */
 export function PlanUsageCard(): JSX.Element | null {
-	// WordPress.com sites have no views limit, so there is nothing to ask for or meter.
-	const isEligible = ! isWpcomPlatformSite();
-	const { data, isLoading, isError, refetch } = useStatsAppPlanUsage( { enabled: isEligible } );
-	const trackEvent = useTrackEvent();
-	const upgradeLink = useStatsUpgradeLinkProps( 'jetpack-premium-analytics' );
-	const retry = useCallback( () => refetch(), [ refetch ] );
-	const trackUpgrade = useCallback(
-		() => trackEvent( 'jetpack_premium_analytics_plan_upgrade_click' ),
-		[ trackEvent ]
-	);
-
-	if ( ! isEligible ) {
-		return null;
-	}
+	const { data, isLoading, isError, refetch } = useStatsAppPlanUsage();
 
 	// Legacy plans and no plan report a null limit, and a zero limit gives nothing to meter against either.
 	const limit =
@@ -126,6 +113,14 @@ export function PlanUsageCard(): JSX.Element | null {
 	// them as a temporary measure (Automattic/wp-calypso#107396), keyed on the site's VIP flag rather than this host guess.
 	const isVip = getScriptData()?.site?.host === 'vip';
 	const overLimitMessage = getOverLimitMessage( isVip ? null : data?.over_limit_months );
+
+	const trackEvent = useTrackEvent();
+	const upgradeLink = useStatsUpgradeLinkProps( 'jetpack-premium-analytics' );
+	const retry = useCallback( () => refetch(), [ refetch ] );
+	const trackUpgrade = useCallback(
+		() => trackEvent( 'jetpack_premium_analytics_plan_upgrade_click' ),
+		[ trackEvent ]
+	);
 
 	let content: JSX.Element;
 	if ( isLoading ) {

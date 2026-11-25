@@ -102,17 +102,6 @@ describe( 'PlanUsageCard', () => {
 		);
 	} );
 
-	it( 'renders nothing and asks for no usage on a WordPress.com site', () => {
-		window.JetpackScriptData = {
-			site: { ...SITE, is_wpcom_platform: true },
-		} as typeof window.JetpackScriptData;
-
-		const { container } = renderCard();
-
-		expect( container ).toBeEmptyDOMElement();
-		expect( mockApiFetch ).not.toHaveBeenCalled();
-	} );
-
 	it.each( [
 		[ 2, "You've surpassed your limit for two consecutive periods already." ],
 		[ 1, "You've surpassed your limit the past month." ],
