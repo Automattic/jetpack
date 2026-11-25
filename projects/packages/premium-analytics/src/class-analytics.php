@@ -394,7 +394,7 @@ class Analytics {
 		require_once __DIR__ . '/parsely-prompts.php';
 		configure_parsely_prompts();
 
-		// The promo slot other packages register into, for the dashboard, the menu and Settings.
+		// The promo slot other packages register into, for the options menu and Settings.
 		require_once __DIR__ . '/promos.php';
 		configure_promos();
 

@@ -105,7 +105,7 @@ function StatsSettingsContent(): JSX.Element {
 					</Card.Content>
 				</Card.Root>
 			) }
-			{ promo && <PromoCard promo={ promo } /> }
+			{ promo && <PromoCard key={ promo.slug } promo={ promo } /> }
 		</Stack>
 	);
 }
