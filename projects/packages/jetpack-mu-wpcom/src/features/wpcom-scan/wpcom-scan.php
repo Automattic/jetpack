@@ -60,16 +60,6 @@ class WPCOM_Scan extends WPCOM_Hosting_Feature_Page {
 	const ENABLE_ACTION = 'wpcom_enable_protect_dashboard';
 
 	/**
-	 * The `enable_failed` reason when the site is not connected to WordPress.com, which the module requires.
-	 */
-	const ENABLE_ERROR_CONNECTION = 'connection';
-
-	/**
-	 * The `enable_failed` reason for any other refusal.
-	 */
-	const ENABLE_ERROR_UNKNOWN = 'unknown';
-
-	/**
 	 * Also claim the slug on a WoA site whose plan includes Scan but whose Protect dashboard is off,
 	 * so a link into it gets a way to turn it back on rather than core's access error.
 	 *
@@ -84,16 +74,12 @@ class WPCOM_Scan extends WPCOM_Hosting_Feature_Page {
 	}
 
 	/**
-	 * Whether the Jetpack plugin offers the Protect dashboard here, but it is turned off.
+	 * Only a plan that includes Scan gets the Protect dashboard, which is unavailable beside the standalone Protect plugin.
 	 *
 	 * @return bool
 	 */
-	public static function is_dashboard_module_off() {
-		$modules = new Modules();
-
-		// Unavailable beside the standalone Protect plugin, which serves the slug itself.
-		return ! $modules->is_active( self::DASHBOARD_MODULE )
-			&& in_array( self::DASHBOARD_MODULE, $modules->get_available(), true );
+	public static function offers_enable() {
+		return self::has_feature() && parent::offers_enable();
 	}
 
 	/**
@@ -103,7 +89,7 @@ class WPCOM_Scan extends WPCOM_Hosting_Feature_Page {
 	 * @return string One of the STATE_* constants.
 	 */
 	public static function get_state( $blog_id ) {
-		if ( self::is_atomic() && self::has_feature() && self::is_dashboard_module_off() ) {
+		if ( self::offers_enable() ) {
 			return self::is_awaiting_connection() ? self::STATE_IN_PROGRESS : self::STATE_ENABLE;
 		}
 
@@ -122,7 +108,7 @@ class WPCOM_Scan extends WPCOM_Hosting_Feature_Page {
 	}
 
 	/**
-	 * The resolved prompt, plus the link that turns the Protect dashboard on.
+	 * The resolved prompt, plus whether it waits for the connection.
 	 *
 	 * @return array
 	 */
@@ -133,88 +119,7 @@ class WPCOM_Scan extends WPCOM_Hosting_Feature_Page {
 			$state['awaitingConnection'] = true;
 		}
 
-		if ( self::STATE_ENABLE === $state['state'] ) {
-			$state['enableUrl'] = add_query_arg(
-				array(
-					'action'   => self::ENABLE_ACTION,
-					'_wpnonce' => wp_create_nonce( self::ENABLE_ACTION ),
-				),
-				admin_url( 'admin-post.php' )
-			);
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only flag set by handle_enable()'s redirect.
-			$error                = isset( $_GET['enable_failed'] ) ? sanitize_key( wp_unslash( $_GET['enable_failed'] ) ) : '';
-			$state['enableError'] = in_array( $error, array( self::ENABLE_ERROR_CONNECTION, self::ENABLE_ERROR_UNKNOWN ), true ) ? $error : null;
-		}
-
 		return $state;
-	}
-
-	/**
-	 * Register the page, keeping its entry out of the sidebar while it only offers to turn the dashboard back on.
-	 *
-	 * Turning the module off hides the dashboard on purpose, so the entry goes as on self-hosted while links still land.
-	 *
-	 * @return void
-	 */
-	public static function register_page() {
-		global $submenu;
-
-		parent::register_page();
-
-		if ( ! self::owns_page() || self::STATE_ENABLE !== self::get_state( get_current_blog_id() ) ) {
-			return;
-		}
-
-		// For Calypso's sidebar, whose REST request never reaches admin_head.
-		foreach ( $submenu[ self::PARENT_SLUG ] ?? array() as $i => $item ) {
-			if ( self::MENU_SLUG === ( $item[2] ?? null ) ) {
-				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-				$submenu[ self::PARENT_SLUG ][ $i ][4] = trim( ( $item[4] ?? '' ) . ' hide-if-js' );
-			}
-		}
-
-		add_action( 'admin_head', array( self::class, 'remove_menu_entry' ) );
-	}
-
-	/**
-	 * Take the entry out of wp-admin's sidebar, after core's access check and page title have read it.
-	 *
-	 * Removed rather than left hidden: My Jetpack refreshes the sidebar by link, so a hidden entry sharing the
-	 * dashboard's link would keep whichever state was on screen when the module is switched.
-	 *
-	 * @return void
-	 */
-	public static function remove_menu_entry() {
-		remove_submenu_page( self::PARENT_SLUG, self::MENU_SLUG );
-	}
-
-	/**
-	 * Turn the Protect dashboard on, then return to its page, which it now serves.
-	 *
-	 * @return never
-	 */
-	public static function handle_enable() {
-		check_admin_referer( self::ENABLE_ACTION );
-
-		if ( ! current_user_can( 'jetpack_activate_modules' ) ) {
-			wp_die( esc_html__( 'Sorry, you are not allowed to turn on Protect.', 'jetpack-mu-wpcom' ), '', 403 );
-		}
-
-		$url = self::get_page_url();
-
-		if ( self::is_atomic() && self::has_feature() && self::is_dashboard_module_off() ) {
-			$modules = new Modules();
-			$modules->activate( self::DASHBOARD_MODULE, false, false );
-
-			// Read back: activate() returns true even when its write to the saved list is filtered away.
-			if ( ! $modules->is_active( self::DASHBOARD_MODULE ) ) {
-				$error = ( new Connection_Manager() )->is_connected() ? self::ENABLE_ERROR_UNKNOWN : self::ENABLE_ERROR_CONNECTION;
-				$url   = add_query_arg( 'enable_failed', $error, $url );
-			}
-		}
-
-		wp_safe_redirect( $url );
-		exit( 0 );
 	}
 
 	/**

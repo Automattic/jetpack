@@ -8,7 +8,7 @@ import {
 	UpgradeScreen,
 } from './screens.tsx';
 import { getInitialState } from './state.ts';
-import type { FeatureConfig } from './types.ts';
+import type { BaseFeatureConfig, FeatureConfig } from './types.ts';
 import './style.scss';
 
 /**
@@ -21,8 +21,10 @@ import './style.scss';
  * @param props.config - The feature's copy, imagery and Tracks IDs.
  * @return The rendered page.
  */
-export function HostingFeaturePage( { config }: { config: FeatureConfig } ) {
+export function HostingFeaturePage( { config }: { config: BaseFeatureConfig | FeatureConfig } ) {
 	const initialState = getInitialState();
+	// The other screens read the plan prompts' copy, which a feature without a plan has none of.
+	const isPlanFeature = 'upgrade' in config;
 
 	return (
 		<FeatureContext.Provider value={ config }>
@@ -34,9 +36,14 @@ export function HostingFeaturePage( { config }: { config: FeatureConfig } ) {
 			>
 				<div className="wpcom-hosting-feature__body">
 					<div className="wpcom-hosting-feature__stage">
-						{ initialState.state === 'in_progress' && <InProgressScreen state={ initialState } /> }
-						{ initialState.state === 'activate' && <ActivateScreen state={ initialState } /> }
-						{ initialState.state === 'upgrade' &&
+						{ isPlanFeature && initialState.state === 'in_progress' && (
+							<InProgressScreen state={ initialState } />
+						) }
+						{ isPlanFeature && initialState.state === 'activate' && (
+							<ActivateScreen state={ initialState } />
+						) }
+						{ isPlanFeature &&
+							initialState.state === 'upgrade' &&
 							( initialState.checkoutPending ? (
 								<CheckoutPendingScreen state={ initialState } />
 							) : (

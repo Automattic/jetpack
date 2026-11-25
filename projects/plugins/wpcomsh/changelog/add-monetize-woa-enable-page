@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Monetize: Offer to turn Monetize back on when a link opens its page while it is off, instead of showing an access error.

@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { Card, Link, Notice, Stack, Text } from '@wordpress/ui';
 import { findFirstBlockingError, findHoldingErrors } from './eligibility.ts';
-import { useFeature } from './feature-context.ts';
+import { usePlanFeature } from './feature-context.ts';
 import { ViewTracker } from './tracks.ts';
 import type { TransferError } from './types.ts';
 import type { ReactNode } from 'react';
@@ -36,7 +36,7 @@ function LearnMore( { supportUrl }: { supportUrl: string } ): ReactNode {
  * @return The rendered errors.
  */
 export function ErrorContentInfo( { errors }: { errors: TransferError[] } ) {
-	const { modal } = useFeature();
+	const { modal } = usePlanFeature();
 	const blocking = findFirstBlockingError( errors );
 	const holds = findHoldingErrors( errors );
 

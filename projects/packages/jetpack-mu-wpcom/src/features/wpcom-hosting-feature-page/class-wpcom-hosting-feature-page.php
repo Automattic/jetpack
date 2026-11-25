@@ -8,7 +8,9 @@
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Modules;
 
 require_once __DIR__ . '/../../common/class-wpcom-wp-build-page.php';
 
@@ -33,6 +35,26 @@ abstract class WPCOM_Hosting_Feature_Page extends WPCOM_WP_Build_Page {
 	 * Name of the `WPCOM_Features` constant the site's plan must include.
 	 */
 	const FEATURE = '';
+
+	/**
+	 * The Jetpack plugin module that serves MENU_SLUG on WoA, for a page that offers to turn it back on.
+	 */
+	const DASHBOARD_MODULE = '';
+
+	/**
+	 * The admin-post action, and nonce action, that turns DASHBOARD_MODULE back on.
+	 */
+	const ENABLE_ACTION = '';
+
+	/**
+	 * The `enable_failed` reason when the site is not connected to WordPress.com, which the module requires.
+	 */
+	const ENABLE_ERROR_CONNECTION = 'connection';
+
+	/**
+	 * The `enable_failed` reason for any other refusal.
+	 */
+	const ENABLE_ERROR_UNKNOWN = 'unknown';
 
 	/**
 	 * Calypso flow that initiates the transfer, reports progress and returns here.
@@ -139,7 +161,7 @@ abstract class WPCOM_Hosting_Feature_Page extends WPCOM_WP_Build_Page {
 	 */
 	public static function init() {
 		// Registered even when the page steps aside, so a poll still in flight learns the feature arrived.
-		if ( self::is_atomic() ) {
+		if ( self::is_atomic() && '' !== static::FEATURE ) {
 			add_action( 'rest_api_init', array( static::class, 'register_rest_routes' ) );
 		}
 
@@ -230,6 +252,100 @@ abstract class WPCOM_Hosting_Feature_Page extends WPCOM_WP_Build_Page {
 	}
 
 	/**
+	 * Whether the Jetpack plugin offers DASHBOARD_MODULE here, but it is turned off.
+	 *
+	 * @return bool
+	 */
+	public static function is_dashboard_module_off() {
+		if ( '' === static::DASHBOARD_MODULE ) {
+			return false;
+		}
+
+		$modules = new Modules();
+
+		return ! $modules->is_active( static::DASHBOARD_MODULE )
+			&& in_array( static::DASHBOARD_MODULE, $modules->get_available(), true );
+	}
+
+	/**
+	 * Whether the page offers to turn DASHBOARD_MODULE back on, which only a WoA site can.
+	 *
+	 * @return bool
+	 */
+	public static function offers_enable() {
+		return self::is_atomic() && static::is_dashboard_module_off();
+	}
+
+	/**
+	 * Register the page, keeping its entry out of the sidebar while it only offers to turn the dashboard back on.
+	 *
+	 * Turning the module off hides the dashboard on purpose, so the entry goes as on self-hosted while links still land.
+	 *
+	 * @return void
+	 */
+	public static function register_page() {
+		global $submenu;
+
+		parent::register_page();
+
+		if ( ! static::owns_page() || ! static::offers_enable() || self::STATE_ENABLE !== static::get_state( get_current_blog_id() ) ) {
+			return;
+		}
+
+		// For Calypso's sidebar, whose REST request never reaches admin_head.
+		foreach ( $submenu[ static::PARENT_SLUG ] ?? array() as $i => $item ) {
+			if ( static::MENU_SLUG === ( $item[2] ?? null ) ) {
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				$submenu[ static::PARENT_SLUG ][ $i ][4] = trim( ( $item[4] ?? '' ) . ' hide-if-js' );
+			}
+		}
+
+		add_action( 'admin_head', array( static::class, 'remove_menu_entry' ) );
+	}
+
+	/**
+	 * Take the entry out of wp-admin's sidebar, after core's access check and page title have read it.
+	 *
+	 * Removed rather than left hidden: My Jetpack refreshes the sidebar by link, so a hidden entry sharing the
+	 * dashboard's link would keep whichever state was on screen when the module is switched.
+	 *
+	 * @return void
+	 */
+	public static function remove_menu_entry() {
+		remove_submenu_page( static::PARENT_SLUG, static::MENU_SLUG );
+	}
+
+	/**
+	 * Turn DASHBOARD_MODULE on, then return to its page, which it now serves.
+	 *
+	 * @return never
+	 */
+	public static function handle_enable() {
+		check_admin_referer( static::ENABLE_ACTION );
+
+		if ( ! current_user_can( 'jetpack_activate_modules' ) ) {
+			/* translators: %s is a product name, such as Protect. */
+			wp_die( esc_html( sprintf( __( 'Sorry, you are not allowed to turn on %s.', 'jetpack-mu-wpcom' ), static::get_menu_title() ) ), '', 403 );
+		}
+
+		$url = static::get_page_url();
+
+		if ( static::offers_enable() ) {
+			$modules = new Modules();
+			$modules->activate( static::DASHBOARD_MODULE, false, false );
+
+			// Read back: activate() returns true even when its write to the saved list is filtered away.
+			if ( ! $modules->is_active( static::DASHBOARD_MODULE ) ) {
+				$error = ( new Connection_Manager() )->is_connected() ? self::ENABLE_ERROR_UNKNOWN : self::ENABLE_ERROR_CONNECTION;
+				$url   = add_query_arg( 'enable_failed', $error, $url );
+			}
+		}
+
+		wp_safe_redirect( $url );
+		exit( 0 );
+	}
+
+	/**
 	 * The page title.
 	 *
 	 * @return string
@@ -284,6 +400,19 @@ abstract class WPCOM_Hosting_Feature_Page extends WPCOM_WP_Build_Page {
 
 		if ( $initial_state['checkoutPending'] ) {
 			$initial_state['featureStatusPath'] = '/wpcom/v2' . static::get_rest_route();
+		}
+
+		if ( self::STATE_ENABLE === $state ) {
+			$initial_state['enableUrl'] = add_query_arg(
+				array(
+					'action'   => static::ENABLE_ACTION,
+					'_wpnonce' => wp_create_nonce( static::ENABLE_ACTION ),
+				),
+				admin_url( 'admin-post.php' )
+			);
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only flag set by handle_enable()'s redirect.
+			$error                        = isset( $_GET['enable_failed'] ) ? sanitize_key( wp_unslash( $_GET['enable_failed'] ) ) : '';
+			$initial_state['enableError'] = in_array( $error, array( self::ENABLE_ERROR_CONNECTION, self::ENABLE_ERROR_UNKNOWN ), true ) ? $error : null;
 		}
 
 		return $initial_state;

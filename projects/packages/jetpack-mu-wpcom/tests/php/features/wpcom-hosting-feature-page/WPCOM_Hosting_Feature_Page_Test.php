@@ -11,6 +11,7 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Backup;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Feature_Upgrades;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Hosting_Feature_Page;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Monetize;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Scan;
 use Brain\Monkey\Functions;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -19,6 +20,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-backup/wpcom-backup.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-scan/wpcom-scan.php';
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-monetize/wpcom-monetize.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-admin-menu/wpcom-admin-menu.php';
 
 /**
@@ -344,48 +346,52 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * On WoA, Protect's entry leaves the sidebar only while the page offers to turn a disabled dashboard back on.
+	 * On WoA, a page's entry leaves the sidebar only while the page offers to turn a disabled dashboard back on.
 	 *
+	 * @param string   $page          Page class.
 	 * @param string[] $plan_features The plan's features.
 	 * @param bool     $hidden        Whether the entry is hidden.
 	 *
-	 * @dataProvider provide_protect_entry_states
+	 * @dataProvider provide_entry_states
 	 */
-	#[DataProvider( 'provide_protect_entry_states' )]
-	public function test_protect_entry_hides_only_on_the_enable_prompt( $plan_features, $hidden ) {
+	#[DataProvider( 'provide_entry_states' )]
+	public function test_entry_hides_only_on_the_enable_prompt( $page, $plan_features, $hidden ) {
 		global $submenu;
 
 		$this->set_up_admin_menu();
 		$this->set_up_protect_dashboard( true, false );
+		$this->set_up_monetize_dashboard( true, false );
 		$this->grant_feature( ...$plan_features );
-		$GLOBALS['pagenow']     = 'admin.php';
-		$GLOBALS['plugin_page'] = WPCOM_Scan::MENU_SLUG;
-		$_GET['page']           = WPCOM_Scan::MENU_SLUG;
+		$GLOBALS['plugin_page'] = $page::MENU_SLUG;
+		$_GET['page']           = $page::MENU_SLUG;
 
-		WPCOM_Scan::register_page();
+		$page::register_page();
 
-		$item = current( wp_list_filter( $submenu['jetpack'], array( 2 => WPCOM_Scan::MENU_SLUG ) ) );
+		$item = current( wp_list_filter( $submenu['jetpack'], array( 2 => $page::MENU_SLUG ) ) );
 		$this->assertSame( $hidden, str_contains( $item[4] ?? '', 'hide-if-js' ) );
 		// Core's access check runs before admin_head, so a link into the page must still land.
 		$this->assertTrue( user_can_access_admin_page() );
 
 		// Run directly rather than through admin_head, which would fire other features' callbacks in this suite.
-		$this->assertSame( $hidden, false !== has_action( 'admin_head', array( WPCOM_Scan::class, 'remove_menu_entry' ) ) );
+		$this->assertSame( $hidden, false !== has_action( 'admin_head', array( $page, 'remove_menu_entry' ) ) );
 		if ( $hidden ) {
-			WPCOM_Scan::remove_menu_entry();
-			$this->assertEmpty( wp_list_filter( $submenu['jetpack'], array( 2 => WPCOM_Scan::MENU_SLUG ) ) );
+			$page::remove_menu_entry();
+			$this->assertEmpty( wp_list_filter( $submenu['jetpack'], array( 2 => $page::MENU_SLUG ) ) );
 		}
 	}
 
 	/**
-	 * Data provider for test_protect_entry_hides_only_on_the_enable_prompt.
+	 * Data provider for test_entry_hides_only_on_the_enable_prompt.
 	 *
 	 * @return array
 	 */
-	public static function provide_protect_entry_states() {
+	public static function provide_entry_states() {
 		return array(
-			'enable prompt'  => array( array( \WPCOM_Features::SCAN_SELF_SERVE ), true ),
-			'upgrade prompt' => array( array(), false ),
+			'Protect, enable prompt'  => array( WPCOM_Scan::class, array( \WPCOM_Features::SCAN_SELF_SERVE ), true ),
+			'Protect, upgrade prompt' => array( WPCOM_Scan::class, array(), false ),
+			'Monetize'                => array( WPCOM_Monetize::class, array(), true ),
+			// No dashboard module to turn back on.
+			'Backup, upgrade prompt'  => array( WPCOM_Backup::class, array(), false ),
 		);
 	}
 
@@ -486,6 +492,94 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Monetize needs no plan, so its page claims the slug only to offer turning a WoA site's module back on.
+	 *
+	 * @param bool   $atomic    Whether the site is on WoA.
+	 * @param bool   $available Whether the Jetpack plugin offers the module.
+	 * @param bool   $active    Whether the module is on.
+	 * @param string $page      The requested admin page.
+	 * @param bool   $registers Whether the page claims the slug.
+	 *
+	 * @dataProvider provide_monetize_dashboard_states
+	 */
+	#[DataProvider( 'provide_monetize_dashboard_states' )]
+	public function test_monetize_page_offers_only_to_turn_the_dashboard_on( $atomic, $available, $active, $page, $registers ) {
+		$this->set_up_monetize_dashboard( $available, $active );
+		Constants::set_constant( 'IS_ATOMIC', $atomic );
+		$_GET['page'] = $page;
+
+		$this->assertSame( $registers, WPCOM_Monetize::should_register() );
+		if ( $registers ) {
+			$state = WPCOM_Monetize::get_initial_state();
+			$this->assertSame( WPCOM_Monetize::STATE_ENABLE, $state['state'] );
+			$this->assertStringContainsString( 'admin-post.php?action=' . WPCOM_Monetize::ENABLE_ACTION, $state['enableUrl'] );
+		}
+	}
+
+	/**
+	 * Data provider for test_monetize_page_offers_only_to_turn_the_dashboard_on.
+	 *
+	 * @return array
+	 */
+	public static function provide_monetize_dashboard_states() {
+		return array(
+			'module off'            => array( true, true, false, 'jetpack-monetize', true ),
+			'module on'             => array( true, true, true, 'jetpack-monetize', false ),
+			// As while the Monetize feature flag is off.
+			'module unavailable'    => array( true, false, false, 'jetpack-monetize', false ),
+			// Simple loads the dashboard itself.
+			'on Simple'             => array( false, true, false, 'jetpack-monetize', false ),
+			'on another admin page' => array( true, true, false, 'jetpack', false ),
+		);
+	}
+
+	/**
+	 * Turning Monetize on activates its own module, not another page's.
+	 */
+	public function test_turning_on_monetize_activates_its_module() {
+		$this->set_up_admin_menu();
+		$this->set_up_monetize_dashboard( true, false );
+		add_filter( 'user_has_cap', fn( $caps ) => array_merge( $caps, array( 'jetpack_activate_modules' => true ) ) );
+		$_REQUEST['_wpnonce'] = wp_create_nonce( WPCOM_Monetize::ENABLE_ACTION );
+		add_filter(
+			'wp_redirect',
+			/** @return never */
+			static function ( $location ) {
+				throw new \RuntimeException( $location );
+			}
+		);
+
+		$exit = null;
+		try {
+			WPCOM_Monetize::handle_enable();
+		} catch ( \RuntimeException $e ) {
+			$exit = $e->getMessage();
+		}
+
+		$this->assertSame( WPCOM_Monetize::get_page_url(), $exit );
+		$this->assertSame( array( 'monetize' ), array_values( (array) \Jetpack_Options::get_option( 'active_modules' ) ) );
+	}
+
+	/**
+	 * Put a WoA request for the Monetize page on a connected site with the Monetize module in the given state.
+	 *
+	 * @param bool $available Whether the Jetpack plugin offers the module.
+	 * @param bool $active    Whether the module is on.
+	 * @return void
+	 */
+	private function set_up_monetize_dashboard( $available, $active ) {
+		Constants::set_constant( 'IS_ATOMIC', true );
+		$GLOBALS['current_screen'] = \WP_Screen::get( 'dashboard' );
+		$GLOBALS['pagenow']        = 'admin.php';
+		$_GET['page']              = WPCOM_Monetize::MENU_SLUG;
+		if ( $available ) {
+			add_filter( 'jetpack_get_available_standalone_modules', fn( $modules ) => array_merge( $modules, array( 'monetize' ) ) );
+		}
+		\Jetpack_Options::update_option( 'active_modules', $active ? array( 'monetize' ) : array() );
+		$this->set_connected( true );
+	}
+
+	/**
 	 * Put a WoA admin request on a connected site whose plan includes Scan, with the Protect dashboard module in the given state.
 	 *
 	 * @param bool $available Whether the Jetpack plugin offers the module.
@@ -550,9 +644,19 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_pinned_slugs() {
 		return array(
-			'Backup'  => array( WPCOM_Backup::class, 'jetpack-backup' ),
-			'Protect' => array( WPCOM_Scan::class, 'jetpack-protect' ),
+			'Backup'   => array( WPCOM_Backup::class, 'jetpack-backup' ),
+			'Protect'  => array( WPCOM_Scan::class, 'jetpack-protect' ),
+			'Monetize' => array( WPCOM_Monetize::class, 'jetpack-monetize' ),
 		);
+	}
+
+	/**
+	 * Every page with a wp-build route, including those that need no plan.
+	 *
+	 * @return array
+	 */
+	public static function provide_wp_build_pages() {
+		return array_merge( self::provide_pages(), array( 'Monetize' => array( WPCOM_Monetize::class ) ) );
 	}
 
 	/**
@@ -1096,6 +1200,7 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 		remove_all_filters( WPCOM_Backup::MODERNIZATION_FILTER );
 		WPCOM_Backup::reset();
 		WPCOM_Scan::reset();
+		WPCOM_Monetize::reset();
 		\Brain\Monkey\tearDown();
 
 		parent::tear_down();
@@ -1143,9 +1248,9 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	 *
 	 * @param string $page Page class.
 	 *
-	 * @dataProvider provide_pages
+	 * @dataProvider provide_wp_build_pages
 	 */
-	#[DataProvider( 'provide_pages' )]
+	#[DataProvider( 'provide_wp_build_pages' )]
 	public function test_route_declares_the_wp_build_page( $page ) {
 		$route = (array) json_decode(
 			(string) file_get_contents(
@@ -1330,9 +1435,9 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 	 *
 	 * @param string $page Page class.
 	 *
-	 * @dataProvider provide_pages
+	 * @dataProvider provide_wp_build_pages
 	 */
-	#[DataProvider( 'provide_pages' )]
+	#[DataProvider( 'provide_wp_build_pages' )]
 	public function test_wp_build_page_is_declared_in_the_package_manifest( $page ) {
 		$manifest = (array) json_decode(
 			(string) file_get_contents(
