@@ -1,7 +1,7 @@
 import { getSettings as getDateSettings } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, mobile } from '@wordpress/icons';
-import { Badge, Stack, Text } from '@wordpress/ui';
+import { Badge, Button, Stack, Text } from '@wordpress/ui';
 import { useProcessingProgress } from '../../hooks/use-processing-progress';
 import { formatBytes, formatDuration } from '../../utils/format';
 import ThumbnailField from './thumbnail-field';
@@ -93,7 +93,8 @@ const privacyLabel = ( privacy: LibraryItem[ 'privacy' ] ): string => {
 };
 
 const TitleCell = ( { item }: { item: LibraryItem } ) => {
-	const { upload, type, isProcessing, guid, isPrivate } = item;
+	const { promoteLocal } = useUploadActions();
+	const { id, upload, type, isProcessing, guid, isPrivate } = item;
 	const processingProgress = useProcessingProgress(
 		guid,
 		isPrivate,
@@ -157,6 +158,11 @@ const TitleCell = ( { item }: { item: LibraryItem } ) => {
 		<Stack direction="row" gap="sm" align="center" className="vp-library__title-cell">
 			<TitleText item={ item } />
 			<Badge intent={ pill.intent }>{ pill.label }</Badge>
+			{ type === 'local' && upload.status === 'idle' ? (
+				<Button variant="outline" size="compact" onClick={ () => promoteLocal( id ) }>
+					{ __( 'Upload to VideoPress', 'jetpack-videopress-pkg' ) }
+				</Button>
+			) : null }
 		</Stack>
 	);
 };

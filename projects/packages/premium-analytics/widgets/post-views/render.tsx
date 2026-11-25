@@ -111,6 +111,7 @@ function PostViewsInner( { chartType }: PostViewsInnerProps ) {
 					metrics={ metricTabs }
 					dataFormat={ HEADLINE_COUNT_FORMAT }
 					chartType={ chartType }
+					tickResolution={ period }
 					chartTitle={ getPostTypeCopy( postType ).views }
 					empty={ <ChartEmptyState /> }
 					hideSingleMetricLabel

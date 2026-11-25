@@ -23,7 +23,7 @@ use Jetpack_Tracks_Client;
  */
 class Settings {
 
-	const PACKAGE_VERSION = '0.19.0';
+	const PACKAGE_VERSION = '0.19.1';
 
 	const ADMIN_PAGE_SLUG = 'jetpack-newsletter';
 
@@ -656,6 +656,13 @@ class Settings {
 			array_merge(
 				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::SCRIPT_HANDLES,
 				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::MODULE_IDS
+			),
+			null,
+			array(
+				array(
+					'prefix' => 'jetpack_newsletter',
+					'slug'   => 'jetpack-newsletter-dashboard',
+				),
 			)
 		);
 	}

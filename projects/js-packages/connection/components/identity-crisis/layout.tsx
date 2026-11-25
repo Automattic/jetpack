@@ -15,6 +15,7 @@ import type { ReactNode } from 'react';
 export default function IdentityCrisisLayout( {
 	logoUrl,
 	showHeader = true,
+	heading,
 	children,
 	hostActions,
 }: IdentityCrisisLayoutProps ): ReactNode {
@@ -30,14 +31,16 @@ export default function IdentityCrisisLayout( {
 		<section
 			{ ...( showHeader
 				? { 'aria-labelledby': headingId }
-				: { 'aria-label': __( 'Jetpack Connection Safe Mode', 'jetpack-connection-js' ) } ) }
+				: {
+						'aria-label': heading ?? __( 'Jetpack Connection Safe Mode', 'jetpack-connection-js' ),
+					} ) }
 		>
 			<Stack direction="column" gap="lg">
 				{ showHeader && (
 					<Stack direction="row" gap="sm" align="center">
 						{ logo }
 						<Text variant="heading-lg" render={ <h2 id={ headingId } /> }>
-							{ __( 'Jetpack Connection is in Safe Mode', 'jetpack-connection-js' ) }
+							{ heading ?? __( 'Jetpack Connection is in Safe Mode', 'jetpack-connection-js' ) }
 						</Text>
 					</Stack>
 				) }

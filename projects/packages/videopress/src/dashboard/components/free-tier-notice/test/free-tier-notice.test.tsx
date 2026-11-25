@@ -3,6 +3,8 @@ import useProductCheckoutWorkflow from '@automattic/jetpack-connection/hooks/use
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import FreeTierNotice, { FREE_TIER_AT_LIMIT_MESSAGE } from '..';
+import { mockApiFetch } from '../../../test-utils/mock-api-fetch';
+import { createTestWrapper } from '../../../test-utils/query-client-wrapper';
 
 jest.mock( '@automattic/jetpack-analytics', () => ( {
 	__esModule: true,
@@ -10,6 +12,11 @@ jest.mock( '@automattic/jetpack-analytics', () => ( {
 		initialize: jest.fn(),
 		tracks: { recordEvent: jest.fn() },
 	},
+} ) );
+
+jest.mock( '@wordpress/api-fetch', () => ( {
+	__esModule: true,
+	default: jest.fn(),
 } ) );
 
 jest.mock( '@automattic/jetpack-connection/hooks/use-product-checkout-workflow', () => ( {
@@ -27,6 +34,12 @@ const setInitialState = ( state: unknown ) => {
 		state;
 };
 
+const setScriptData = () => {
+	( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+		site: { admin_url: 'https://example.com/wp-admin/' },
+	};
+};
+
 const DEFAULT_STATE = {
 	product: { slug: 'jetpack_videopress' },
 	siteData: { adminUrl: 'https://example.com/wp-admin/' },
@@ -40,10 +53,14 @@ describe( 'FreeTierNotice', () => {
 		setInitialState( DEFAULT_STATE );
 		mockRun = jest.fn();
 		mockedCheckoutWorkflow.mockReturnValue( { run: mockRun } );
+		setScriptData();
+		mockApiFetch( () => ( { detached: 0 } ) );
 	} );
 
 	it( 'records the notice and its current video count when rendered', async () => {
-		render( <FreeTierNotice location="library_at_limit" videoCount={ 1 } /> );
+		render( <FreeTierNotice location="library_at_limit" videoCount={ 1 } />, {
+			wrapper: createTestWrapper(),
+		} );
 		await Promise.resolve();
 		expect( screen.getByRole( 'link', { name: 'Upgrade' } ) ).toBeInTheDocument();
 		expect( mockedAnalytics.tracks.recordEvent ).toHaveBeenCalledWith(
@@ -57,7 +74,7 @@ describe( 'FreeTierNotice', () => {
 	} );
 
 	it( 'drives the shared checkout workflow with the VideoPress product and redirect', () => {
-		render( <FreeTierNotice location="overview" /> );
+		render( <FreeTierNotice location="overview" />, { wrapper: createTestWrapper() } );
 
 		expect( mockedCheckoutWorkflow ).toHaveBeenCalledWith( {
 			productSlug: 'jetpack_videopress',
@@ -70,7 +87,7 @@ describe( 'FreeTierNotice', () => {
 	} );
 
 	it( 'renders the free-plan copy by default', () => {
-		render( <FreeTierNotice location="overview" /> );
+		render( <FreeTierNotice location="overview" />, { wrapper: createTestWrapper() } );
 
 		expect(
 			screen.getByText(
@@ -80,7 +97,9 @@ describe( 'FreeTierNotice', () => {
 	} );
 
 	it( 'renders the provided message instead of the default copy', () => {
-		render( <FreeTierNotice location="library_at_limit" message={ FREE_TIER_AT_LIMIT_MESSAGE } /> );
+		render( <FreeTierNotice location="library_at_limit" message={ FREE_TIER_AT_LIMIT_MESSAGE } />, {
+			wrapper: createTestWrapper(),
+		} );
 
 		expect(
 			screen.getByText( 'You’ve reached the free plan’s 1-video limit. Upgrade to upload more.' )
@@ -92,7 +111,9 @@ describe( 'FreeTierNotice', () => {
 		'records the %s notice location and starts checkout on click',
 		async location => {
 			const user = userEvent.setup();
-			const { rerender } = render( <FreeTierNotice location={ location } /> );
+			const { rerender } = render( <FreeTierNotice location={ location } />, {
+				wrapper: createTestWrapper(),
+			} );
 			rerender( <FreeTierNotice location={ location } /> );
 			await Promise.resolve();
 			expect( mockedAnalytics.tracks.recordEvent ).toHaveBeenCalledTimes( 1 );
@@ -112,4 +133,17 @@ describe( 'FreeTierNotice', () => {
 			expect( mockRun ).toHaveBeenCalledTimes( 1 );
 		}
 	);
+
+	it( 'offers an unattached license next to the upgrade', async () => {
+		mockApiFetch( () => ( { detached: 1 } ) );
+		render( <FreeTierNotice location="overview" />, { wrapper: createTestWrapper() } );
+
+		await expect(
+			screen.findByRole( 'link', { name: 'Activate license' } )
+		).resolves.toHaveAttribute(
+			'href',
+			'https://example.com/wp-admin/admin.php?page=my-jetpack#/add-license'
+		);
+		expect( screen.getByRole( 'link', { name: 'Upgrade' } ) ).toBeInTheDocument();
+	} );
 } );

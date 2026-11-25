@@ -82,6 +82,7 @@ describe( 'Main routes that leave Settings once settings move out', () => {
 		[ '/discussion', 'admin.php?page=my-jetpack&p=%2Ffeatures%3Fconfigure%3Dcomments' ],
 		[ '/traffic', 'admin.php?page=my-jetpack#/features' ],
 		[ '/settings', 'admin.php?page=my-jetpack#/features' ],
+		[ '/privacy', 'profile.php#jetpack-privacy' ],
 	] )( 'sends %s to %s with the settings flag on and no tab left', ( route, destination ) => {
 		isSettingsConsolidationEnabled.mockReturnValue( true );
 		renderAt( route, false, { remainingTabs: [] } );
@@ -99,6 +100,7 @@ describe( 'Main routes that leave Settings once settings move out', () => {
 		'/discussion',
 		'/traffic',
 		'/settings',
+		'/privacy',
 	] )( 'keeps %s on Settings with the settings flag off', route => {
 		renderAt( route, false );
 
@@ -118,7 +120,6 @@ describe( 'Main routes that leave Settings once settings move out', () => {
 		[ '/traffic', 'while the Traffic tab is left', [ 'traffic' ], '' ],
 		[ '/settings', 'while a tab is left', [ 'security' ], '' ],
 		[ '/settings', 'for a search', [], '?term=sso' ],
-		[ '/privacy', 'with no tab left', [], '' ],
 	] )( 'keeps %s on Settings %s', ( pathname, _when, remainingTabs, search ) => {
 		isSettingsConsolidationEnabled.mockReturnValue( true );
 		renderAt( pathname, false, { remainingTabs, location: { pathname, search } } );

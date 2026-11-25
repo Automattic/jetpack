@@ -23,6 +23,20 @@ class WPCOM_Feature_Upgrades {
 	);
 
 	/**
+	 * The plan feature the upgrade flow filters on, for My Jetpack features without a hosting page.
+	 *
+	 * The flow reads Calypso's plan definitions, so a value must be a feature Calypso lists for exactly the plans that grant it.
+	 *
+	 * @var array<string, string>
+	 */
+	const PLAN_FEATURES = array(
+		'monetize' => self::MONETIZE_PLAN_FEATURE,
+		// Calypso lists no podcasting feature, and every plan above Personal grants it, so the flow offers them all.
+		'podcast'  => '',
+		'social'   => 'republicize',
+	);
+
+	/**
 	 * The slug the Monetize page's upgrade links pass to `jetpack_feature_upgrade`.
 	 *
 	 * @var string
@@ -53,7 +67,7 @@ class WPCOM_Feature_Upgrades {
 	);
 
 	/**
-	 * Send a feature's upgrade to the WordPress.com plans; a site that has it keeps Jetpack's own manage link.
+	 * Send a feature's upgrade to the WordPress.com plans that include it; a site that has it keeps Jetpack's own manage link.
 	 *
 	 * @param array  $upgrade          Where the upgrade goes: `path`, `name`, `back_url`, and optionally `url`.
 	 * @param string $slug             The My Jetpack feature slug.
@@ -61,17 +75,31 @@ class WPCOM_Feature_Upgrades {
 	 * @return array
 	 */
 	public static function filter_feature_upgrade( $upgrade, $slug, $site_has_feature ) {
-		if ( $site_has_feature || ! isset( self::PAGES[ $slug ] ) ) {
+		if ( $site_has_feature ) {
 			return $upgrade;
 		}
 
-		$page = self::PAGES[ $slug ];
+		$back_url = (string) ( $upgrade['back_url'] ?? '' );
 
-		return array(
-			'path' => '',
-			'name' => 'WordPress.com Business', // Product name, do not translate.
-			'url'  => $page::get_plan_upgrade_url( (string) ( $upgrade['back_url'] ?? '' ) ),
-		);
+		if ( isset( self::PAGES[ $slug ] ) ) {
+			$page = self::PAGES[ $slug ];
+
+			return array(
+				'path' => '',
+				'name' => 'WordPress.com Business', // Product name, do not translate.
+				'url'  => $page::get_plan_upgrade_url( $back_url ),
+			);
+		}
+
+		if ( isset( self::PLAN_FEATURES[ $slug ] ) ) {
+			return array(
+				'path' => '',
+				'name' => 'WordPress.com', // Product name, do not translate.
+				'url'  => self::get_plan_upgrade_url( self::PLAN_FEATURES[ $slug ], $back_url, admin_url( 'admin.php?page=my-jetpack' ) ),
+			);
+		}
+
+		return $upgrade;
 	}
 
 	/**
@@ -94,20 +122,35 @@ class WPCOM_Feature_Upgrades {
 			return array( 'url' => '' ) + $upgrade;
 		}
 
-		$back = rawurlencode( (string) ( $upgrade['back_url'] ?? admin_url( 'admin.php?page=jetpack-monetize' ) ) );
-
 		return array(
 			'path' => '',
 			'name' => 'WordPress.com', // Product name, do not translate.
-			'url'  => add_query_arg(
+			'url'  => self::get_plan_upgrade_url( self::MONETIZE_PLAN_FEATURE, (string) ( $upgrade['back_url'] ?? '' ), admin_url( 'admin.php?page=jetpack-monetize' ) ),
+		);
+	}
+
+	/**
+	 * WordPress.com's plan upgrade flow, which comes back to the page the link was on after checkout or Back.
+	 *
+	 * @param string $feature  The plan feature to filter plans on, as Calypso names it; '' offers every higher plan.
+	 * @param string $back_url The page the link is on.
+	 * @param string $fallback Where to come back to when `$back_url` is empty or off this site.
+	 * @return string
+	 */
+	private static function get_plan_upgrade_url( $feature, $back_url, $fallback ) {
+		$back = '' === $back_url ? '' : wp_validate_redirect( $back_url, '' );
+		$back = rawurlencode( $back ? $back : $fallback );
+
+		return add_query_arg(
+			array_filter(
 				array(
 					'siteSlug'    => rawurlencode( wpcom_get_site_slug() ),
-					'feature'     => self::MONETIZE_PLAN_FEATURE,
+					'feature'     => $feature,
 					'back_to'     => $back,
 					'redirect_to' => $back,
-				),
-				'https://wordpress.com/setup/plan-upgrade'
+				)
 			),
+			'https://wordpress.com/setup/plan-upgrade'
 		);
 	}
 

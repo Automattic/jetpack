@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Site Accelerator: Fix the product status and activation, which pointed to a module that does not exist.

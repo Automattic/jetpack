@@ -352,6 +352,11 @@ export class Main extends Component {
 				}
 			// Falls through.
 			case '/privacy':
+				// The Profile page's Privacy section (Jetpack_Privacy_Settings_Home) takes over from the card.
+				if ( '/privacy' === route && isSettingsConsolidationEnabled() ) {
+					window.location.replace( getAdminUrl( 'profile.php#jetpack-privacy' ) );
+					break;
+				}
 				pageComponent = (
 					<SearchableSettings
 						siteAdminUrl={ this.props.siteAdminUrl }

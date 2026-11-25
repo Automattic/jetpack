@@ -25,6 +25,7 @@ import useActivatePlugins from '../../data/products/use-activate-plugins';
 import useActivateSearchFreeProduct from '../../data/products/use-activate-search-free-product';
 import useBundleOffer from '../../data/products/use-bundle-offer';
 import useProduct from '../../data/products/use-product';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import { tierPricePerMonth } from '../../data/utils/prepare-product-data';
 import useAnalytics from '../../hooks/use-analytics';
 import { useGoBack } from '../../hooks/use-go-back';
@@ -33,6 +34,7 @@ import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { productsFrom } from '../../utils/connect-url';
 import { getMyJetpackRouteUrl } from '../../utils/route-href';
+import CantInstallPluginNotice, { isPluginInstallBlocked } from '../cant-install-plugin-notice';
 import GoBackLink from '../go-back-link';
 import { getFeatureCheckoutReturnUrl } from '../my-jetpack-tab-panel/utils';
 import ProductDetailCard from '../product-detail-card';
@@ -128,6 +130,10 @@ export default function PricingInterstitial( { slug } ) {
 
 	// Disable all buttons when any action is in progress or data is loading.
 	const buttonsDisabled = Boolean( loadingButton ) || isProductLoading || isActivatingSearchFree;
+	const cantInstallPlugin = isPluginInstallBlocked(
+		detail?.status,
+		getMyJetpackWindowInitialState( 'fileSystemWriteAccess' )
+	);
 
 	// Handle tiered pricing like trunk does - check for tiers.upgraded first
 	const productPricing = useMemo( () => {
@@ -458,6 +464,14 @@ export default function PricingInterstitial( { slug } ) {
 				horizontalSpacing={ 3 }
 				horizontalGap={ 2 }
 			>
+				{ cantInstallPlugin && (
+					<Col>
+						<CantInstallPluginNotice
+							productName={ detail.title }
+							pluginSlug={ detail.pluginSlug }
+						/>
+					</Col>
+				) }
 				<Col>
 					<PricingTable
 						title={ config.title }
@@ -481,7 +495,7 @@ export default function PricingInterstitial( { slug } ) {
 										variant="outline"
 										onClick={ handleFreeActivation }
 										loading={ loadingButton === 'free' }
-										disabled={ buttonsDisabled }
+										disabled={ buttonsDisabled || cantInstallPlugin }
 									>
 										{ config.tiers.free.cta }
 									</Button>
@@ -517,7 +531,7 @@ export default function PricingInterstitial( { slug } ) {
 									className={ styles[ 'tier-cta' ] }
 									onClick={ handleGetProduct }
 									loading={ loadingButton === 'paid' }
-									disabled={ buttonsDisabled }
+									disabled={ buttonsDisabled || cantInstallPlugin }
 								>
 									{ config.tiers.paid.cta }
 								</Button>

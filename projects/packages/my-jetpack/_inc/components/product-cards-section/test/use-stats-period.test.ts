@@ -19,7 +19,7 @@ describe( 'useStatsPeriod', () => {
 		act( () => result.current.setDays( days ) );
 
 		expect( getStatsPeriodVisitsOptions( result.current ) ).toMatchObject( {
-			quantity: days,
+			quantity: days * 2 + 1,
 			date: VISITS_OPTIONS.date,
 		} );
 
@@ -33,16 +33,16 @@ describe( 'useStatsPeriod', () => {
 
 	it( 'remembers the period per user and reopens on the latest window', () => {
 		const { result, unmount } = renderHook( () => useStatsPeriod() );
-		act( () => result.current.setDays( 30 ) );
+		act( () => result.current.setDays( 7 ) );
 		act( () => result.current.goToPrevious() );
 		unmount();
 
 		expect( renderHook( () => useStatsPeriod() ).result.current ).toMatchObject( {
-			days: 30,
+			days: 7,
 			offset: 0,
 		} );
 
 		window.JP_CONNECTION_INITIAL_STATE.userConnectionData.currentUser.id = 2;
-		expect( renderHook( () => useStatsPeriod() ).result.current.days ).toBe( 7 );
+		expect( renderHook( () => useStatsPeriod() ).result.current.days ).toBe( 30 );
 	} );
 } );

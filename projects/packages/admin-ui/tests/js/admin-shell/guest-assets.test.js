@@ -32,6 +32,19 @@ describe( 'applyGuestAssets', () => {
 		expect( added.keptGlobals ).toEqual( [ 'jetpackShellTestConfig' ] );
 	} );
 
+	it( 'skips the scripts and styles the page lists as printed, since concatenation leaves them no id', async () => {
+		document.head.innerHTML =
+			'<script type="application/json" id="jetpack-page-handles">{"scripts":["wp-hooks"],"styles":["buttons"]}</script>';
+		respondWith(
+			'<link rel="stylesheet" id="buttons-css" href="/buttons.css" /><script src="/hooks.js" id="wp-hooks-js"></script>'
+		);
+
+		const added = await applyGuestAssets( '/wp-admin/admin-ajax.php', 'jetpack-forms' );
+
+		expect( added ).toMatchObject( { scripts: 0, styles: 0, skipped: 2 } );
+		document.head.innerHTML = '';
+	} );
+
 	it( 'skips an inline script the page already ran, even without an id', async () => {
 		const text = 'window.jetpackShellTestRuns = ( window.jetpackShellTestRuns || 0 ) + 1;';
 		const script = document.createElement( 'script' );

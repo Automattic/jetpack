@@ -69,6 +69,12 @@ describe( 'PlanDialog', () => {
 		expect( screen.queryByText( /existing subscribers/ ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'shows an edited plan’s currency when the account no longer offers it', () => {
+		openDialog( { product: product( { id: 3, currency: 'GBP' } ) } );
+
+		expect( screen.getByRole( 'combobox', { name: 'Currency' } ) ).toHaveTextContent( 'GBP' );
+	} );
+
 	it( 'leaves a cleared price blank and asks for the minimum', async () => {
 		openDialog( null );
 		const amount = screen.getByRole( 'spinbutton', { name: 'Amount' } );

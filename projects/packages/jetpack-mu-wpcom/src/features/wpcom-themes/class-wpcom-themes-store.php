@@ -91,7 +91,12 @@ class WPCom_Themes_Store {
 	 * @return array<string, array>|null Null when the store could not be read, which is not cached.
 	 */
 	private function fetch_products(): ?array {
-		$response = $this->request( '/products' );
+		/** This filter is documented in src/features/wpcom-plugins/class-marketplace-catalog.php */
+		$response = apply_filters( 'wpcom_marketplace_store_products', null );
+
+		if ( ! is_array( $response ) ) {
+			$response = $this->request( '/products' );
+		}
 
 		if ( null === $response ) {
 			return null;

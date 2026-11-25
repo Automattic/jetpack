@@ -204,7 +204,7 @@ class Site_Accelerator extends Module_Product {
 	/**
 	 * Checks whether either CDN module is on, as the Jetpack Settings toggle shows it.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.19.0
 	 *
 	 * @return bool
 	 */
@@ -215,7 +215,7 @@ class Site_Accelerator extends Module_Product {
 	/**
 	 * Turns on the Image CDN, then the Asset CDN on a best-effort basis, like the Jetpack Settings toggle.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.19.0
 	 *
 	 * @param bool|WP_Error $plugin_activation Is the result of the top level activation actions.
 	 * @return bool|WP_Error
@@ -233,7 +233,7 @@ class Site_Accelerator extends Module_Product {
 	/**
 	 * Turns off both CDN modules.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.19.0
 	 *
 	 * @return bool|WP_Error WP_Error when a host keeps a module on.
 	 */

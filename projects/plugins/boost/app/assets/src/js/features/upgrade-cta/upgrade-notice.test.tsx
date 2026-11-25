@@ -20,7 +20,7 @@ jest.mock( 'jetpackConfig', () => ( { consumer_slug: 'jetpack-boost' } ), { virt
 beforeEach( () => {
 	jest.clearAllMocks();
 	Object.assign( globalThis, {
-		Jetpack_Boost: { site: { online: true, myJetpack: true, addLicense: true, host: 'other' } },
+		Jetpack_Boost: { site: { online: true, myJetpack: true, host: 'other' } },
 	} );
 } );
 

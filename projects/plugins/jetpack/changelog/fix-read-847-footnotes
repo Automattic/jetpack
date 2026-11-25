@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-JSON API: Fix missing footnotes and other blocks that require post context in rendered posts.

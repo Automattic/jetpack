@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status\Host;
 use WP_Error;
 
 /**
@@ -215,6 +216,11 @@ class Menu_Visibility {
 
 		if ( ! $product_class ) {
 			return null;
+		}
+
+		// Simple runs Jetpack from mu-plugins, outside the plugin list is_activated() reads, and keeps every module on.
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return ! $product_class::is_held_off();
 		}
 
 		return (bool) $product_class::is_activated();

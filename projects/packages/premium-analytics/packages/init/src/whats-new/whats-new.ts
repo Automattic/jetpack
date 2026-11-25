@@ -81,7 +81,10 @@ export function showWhatsNew(): void {
 	}
 
 	import( '@automattic/jetpack-announcements' )
-		.then( ( { mountWhatsNew } ) => {
+		.then( ( { mountWhatsNew, trackWhatsNew } ) => {
+			// An older copy of the module, which another plugin may load, has no tracking.
+			trackWhatsNew?.();
+
 			let subscribed = '';
 			let unmount = (): void => undefined;
 

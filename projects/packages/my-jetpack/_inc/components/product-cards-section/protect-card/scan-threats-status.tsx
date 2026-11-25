@@ -25,11 +25,12 @@ export const ScanAndThreatStatus: FC< ScanAndThreatStatusProps > = ( { data } ) 
 	const {
 		plugins,
 		themes,
-		num_threats: numThreats = 0,
+		threats = [],
 		last_scan_failed: lastScanFailed = false,
 		last_checked: lastChecked = null,
 		status: scanStatus,
 	} = data?.scanData || {};
+	const numThreats = threats.length;
 
 	const criticalScanThreatCount = useMemo( () => {
 		const { core, database, files, num_plugins_threats, num_themes_threats } = data?.scanData || {};

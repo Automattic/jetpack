@@ -1134,6 +1134,52 @@ class The_Neverending_Home_Page {
 	}
 
 	/**
+	 * Fire wp_footer, discarding its output except the duotone SVG filters the rendered blocks use.
+	 *
+	 * Block CSS points at these filters with `url(#id)`, so the page needs them alongside the posts.
+	 *
+	 * @since 16.5
+	 *
+	 * @return string SVG markup, or an empty string.
+	 */
+	public static function do_footer_and_get_duotone_svgs() {
+		$svgs    = '';
+		$swapped = array();
+
+		// The Gutenberg plugin replaces core's class with its own.
+		foreach ( array( 'WP_Duotone', 'WP_Duotone_Gutenberg' ) as $class ) {
+			$callback = array( $class, 'output_footer_assets' );
+			$priority = has_action( 'wp_footer', $callback );
+			if ( false === $priority ) {
+				continue;
+			}
+
+			$capture = static function () use ( $callback, &$svgs ) {
+				ob_start();
+				call_user_func( $callback );
+				$svgs .= ob_get_clean();
+			};
+			remove_action( 'wp_footer', $callback, $priority );
+			add_action( 'wp_footer', $capture, $priority );
+			$swapped[] = array( $callback, $capture, $priority );
+		}
+
+		$level = ob_get_level();
+		ob_start();
+		wp_footer();
+		while ( ob_get_level() > $level ) {
+			ob_end_clean();
+		}
+
+		foreach ( $swapped as list( $callback, $capture, $priority ) ) {
+			remove_action( 'wp_footer', $capture, $priority );
+			add_action( 'wp_footer', $callback, $priority );
+		}
+
+		return trim( $svgs );
+	}
+
+	/**
 	 * Get the theme.json styles of core blocks whose stylesheets are in the given handles.
 	 *
 	 * Core adds these to `global-styles` only for core blocks rendered in the same request.
@@ -1613,17 +1659,17 @@ class The_Neverending_Home_Page {
 				$results['html'] = '<div class="' . esc_attr( $wrapper_classes ) . '" id="infinite-view-' . $page . '" data-page-num="' . $page . '" role="region" aria-label="' . esc_attr( $aria_label ) . '">' . $results['html'] . '</div>';
 			}
 
-			// Fire wp_footer to ensure that all necessary scripts are enqueued. Output isn't used, but scripts are extracted in self::action_wp_footer.
-			ob_start();
-			wp_footer();
-			while ( ob_get_length() ) {
-				ob_end_clean();
-			}
+			// Fire wp_footer so scripts are enqueued (extracted in self::action_wp_footer); only the duotone SVG filters are kept.
+			$svg_filters = self::do_footer_and_get_duotone_svgs();
 
 			if ( 'success' === $results['type'] ) {
 				global $currentday;
 				$results['lastbatch']  = self::is_last_batch();
 				$results['currentday'] = $currentday;
+
+				if ( '' !== $svg_filters ) {
+					$results['svg_filters'] = $svg_filters;
+				}
 			}
 
 			// Loop through posts to capture sharing data for new posts loaded via Infinite Scroll

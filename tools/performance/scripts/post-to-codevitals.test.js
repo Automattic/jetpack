@@ -40,6 +40,7 @@ import {
 	pairedCommitTimestampMs,
 	postToCodeVitals,
 	redactToken,
+	REGISTERED_CODEVITALS_KEYS,
 	resolveDedupEnabled,
 	resolvePostTimestamp,
 	VALIDATION_FAILED_EXIT_CODE,
@@ -49,7 +50,7 @@ import {
 	resolveCommitTimestampEnv,
 	shouldFailBuildOnPostError,
 } from './run-performance-tests.js';
-import { SANITY_RANGES, SCENARIOS } from './scenarios.js';
+import { DASHBOARD_DELTA_METRICS, SANITY_RANGES, SCENARIOS } from './scenarios.js';
 
 const SCRIPTS_DIR = path.dirname( fileURLToPath( import.meta.url ) );
 const LCP_KEY = 'wp-admin-dashboard-connection-sim-largestContentfulPaint';
@@ -469,6 +470,19 @@ test( 'every posted keyed metric declares a type with a matching sanity range', 
 				`metric "${ label }" type "${ type }" needs a SANITY_RANGES row`
 			);
 		}
+	}
+} );
+
+test( 'every expected registered key is posted by a scenario or Dashboard delta', () => {
+	const scenarioKeys = SCENARIOS.filter( scenario => scenario.postToCodeVitals ).flatMap(
+		scenario => extractScenarioMetrics( scenario, {} ).map( ( { key } ) => key )
+	);
+	const postedKeys = new Set( [
+		...scenarioKeys,
+		...DASHBOARD_DELTA_METRICS.map( ( { codevitalsKey } ) => codevitalsKey ),
+	] );
+	for ( const key of REGISTERED_CODEVITALS_KEYS ) {
+		assert.ok( postedKeys.has( key ), `No scenario or Dashboard delta posts "${ key }"` );
 	}
 } );
 
@@ -1368,35 +1382,110 @@ test( 'a required measurement with no summary fails closed, not a TypeError cras
 
 // --- live POST branch (fetch stubbed; never touches the network) ---
 
-test( 'a successful post logs the keys sent and any integer row count returned', async t => {
+test( 'a post rejects an invalid receipt count', async t => {
 	const file = writeResults( 120 );
-	for ( const [ body, expectedLogs ] of [
-		[ { count: 3 }, [ 'Sent 6 keys. CodeVitals stored 3.' ] ],
-		[ { count: 6 }, [ 'Sent 6 keys. CodeVitals stored 6.' ] ],
-		[ { count: 0 }, [ 'Sent 6 keys. CodeVitals stored 0.' ] ],
-		[ { count: '3' }, [] ],
-		[ null, [] ],
-		[ {}, [] ],
+	for ( const [ label, body, received ] of [
+		[ 'null response', null, 'null' ],
+		[ 'missing count', {}, 'no count' ],
+		[ 'string count', { count: '3' }, 'a string count' ],
+		[ 'count below expected', { count: 2 }, '2' ],
+		[ 'zero count', { count: 0 }, '0' ],
+		[ 'negative count', { count: -1 }, '-1' ],
 	] ) {
-		const fetch = t.mock.method( global, 'fetch', async () => ( {
-			ok: true,
-			json: async () => body,
-		} ) );
-		const logs = [];
-		const result = await silenced( () => {
-			console.log = message => logs.push( message );
-			return postToCodeVitals( file, {
-				codeVitalsUrl: 'https://codevitals.test',
-				codeVitalsToken: 'tok',
-			} );
+		await t.test( label, async subtest => {
+			subtest.mock.method( global, 'fetch', async () => ( {
+				ok: true,
+				json: async () => body,
+			} ) );
+			await assert.rejects(
+				silenced( () =>
+					postToCodeVitals( file, {
+						codeVitalsUrl: 'https://codevitals.test',
+						codeVitalsToken: 'tok',
+					} )
+				),
+				{
+					message:
+						`CodeVitals receipt expected 3 stored rows, received ${ received }. ` +
+						'The post was sent and rows may already be stored. Check the series before re-running.',
+				}
+			);
 		} );
-		assert.equal( result.posted, true );
-		assert.deepEqual(
-			logs.filter( message => message.startsWith( 'Sent' ) ),
-			expectedLogs
-		);
-		fetch.mock.restore();
 	}
+} );
+
+test( 'a receipt above the expected count succeeds with a warning', async t => {
+	const file = writeResults( 120 );
+	t.mock.method( global, 'fetch', async () => ( {
+		ok: true,
+		json: async () => ( { count: 6 } ),
+	} ) );
+	const warnings = [];
+	const result = await silenced( () => {
+		console.warn = message => warnings.push( message );
+		return postToCodeVitals( file, {
+			codeVitalsUrl: 'https://codevitals.test',
+			codeVitalsToken: 'tok',
+		} );
+	} );
+	assert.equal( result.posted, true );
+	assert.deepEqual(
+		warnings.filter( message => message.startsWith( 'Warning: CodeVitals receipt' ) ),
+		[
+			'Warning: CodeVitals receipt expected 3 stored rows, received 6. ' +
+				'REGISTERED_CODEVITALS_KEYS may be missing a key registered on CodeVitals.',
+		]
+	);
+} );
+
+test( 'a live run with no registered keys fails before posting', async t => {
+	const file = writeResults( 120 );
+	const results = JSON.parse( fs.readFileSync( file, 'utf8' ) );
+	results.measurements = { jetpackSettings: { summary: formsSummary() } };
+	fs.writeFileSync( file, JSON.stringify( results ) );
+	const fetch = t.mock.method( global, 'fetch', async () => {
+		throw new Error( 'Unexpected fetch for results with no registered keys' );
+	} );
+	await assert.rejects(
+		silenced( () =>
+			postToCodeVitals( file, { codeVitalsUrl: 'https://codevitals.test', codeVitalsToken: 'tok' } )
+		),
+		{
+			name: 'ValidationError',
+			message:
+				'No measured keys are in REGISTERED_CODEVITALS_KEYS. No post was sent to CodeVitals.',
+		}
+	);
+	assert.equal( fetch.mock.callCount(), 0 );
+} );
+
+test( 'a receipt counts only the registered keys measured when an optional scenario fails', async t => {
+	const file = writeResults( 120, { forms: {}, myJetpack: {} } );
+	const results = JSON.parse( fs.readFileSync( file, 'utf8' ) );
+	results.measurements.myJetpack = { error: 'All iterations failed' };
+	fs.writeFileSync( file, JSON.stringify( results ) );
+	let count = 7;
+	t.mock.method( global, 'fetch', async () => ( { ok: true, json: async () => ( { count } ) } ) );
+	const config = { codeVitalsUrl: 'https://codevitals.test', codeVitalsToken: 'tok' };
+	const logs = [];
+	const result = await silenced( () => {
+		console.log = message => logs.push( message );
+		return postToCodeVitals( file, config );
+	} );
+	assert.equal( result.posted, true );
+	assert.ok( logs.includes( 'Sent 14 keys. CodeVitals stored 7.' ) );
+
+	count = 11;
+	const warnings = [];
+	const above = await silenced( () => {
+		console.warn = message => warnings.push( message );
+		return postToCodeVitals( file, config );
+	} );
+	assert.equal( above.posted, true );
+	assert.equal(
+		warnings.filter( message => message.includes( 'expected 7 stored rows, received 11' ) ).length,
+		1
+	);
 } );
 
 test( 'a live POST carries Dashboard deltas and the existing absolutes together', async () => {
@@ -1411,7 +1500,7 @@ test( 'a live POST carries Dashboard deltas and the existing absolutes together'
 		postCount++;
 		sentUrl = u;
 		sentInit = init;
-		return { ok: true, status: 200, json: async () => ( { ok: true } ), text: async () => '' };
+		return { ok: true, status: 200, json: async () => ( { count: 3 } ), text: async () => '' };
 	};
 	try {
 		const result = await silenced( () =>
@@ -1474,7 +1563,7 @@ test( 'Dashboard TBT below its sample floor skips only its delta and still posts
 	let sentMetrics;
 	global.fetch = async ( _, init ) => {
 		sentMetrics = JSON.parse( init.body ).metrics;
-		return { ok: true, json: async () => ( { ok: true } ) };
+		return { ok: true, json: async () => ( { count: 11 } ) };
 	};
 	const warnings = [];
 	try {
@@ -2780,7 +2869,7 @@ function dedupFetchStub( {
 			};
 		}
 		calls.post++;
-		return { ok: true, status: 200, json: async () => ( { ok: true } ), text: async () => '' };
+		return { ok: true, status: 200, json: async () => ( { count: 3 } ), text: async () => '' };
 	};
 	return { fetchImpl, calls };
 }

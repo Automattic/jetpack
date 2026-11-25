@@ -186,31 +186,6 @@ export async function createTestPosts( testPostTitles: string[] ): Promise< void
 }
 
 /**
- * Set the test-only modern dashboard filter.
- * @param enabled - Whether to enable the modern dashboard.
- */
-export async function setDashboardModernization( enabled: boolean ) {
-	await executeWpCommand( 'plugin activate e2e-dashboard-modernization' );
-	// update_option() never creates a missing option with a false value, so store '0' instead.
-	await executeWpCommand( [
-		'option',
-		'update',
-		'e2e_boost_dashboard_modernization',
-		enabled ? '1' : '0',
-	] );
-}
-
-/**
- * Restore the default (modern) dashboard and remove the test option.
- */
-export async function resetDashboardModernization() {
-	await executeWpCommand( [
-		'eval',
-		"if ( is_plugin_active( 'e2e-dashboard-modernization.php' ) ) { deactivate_plugins( 'e2e-dashboard-modernization.php' ); } delete_option( 'e2e_boost_dashboard_modernization' );",
-	] );
-}
-
-/**
  * Configure the targeted dashboard message fixture.
  * @param enabled - Whether to inject the message.
  */
@@ -240,7 +215,6 @@ export async function resetDashboardJitm() {
  */
 export async function resetEnvironment() {
 	logger.debug( 'Resetting Jetpack Boost' );
-	await resetDashboardModernization();
 	await resetDashboardJitm();
 	await executeWpCommand( 'plugin activate jetpack-boost' );
 	await disconnect();

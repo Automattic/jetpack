@@ -169,7 +169,7 @@ class Attachment_Handler {
 	/**
 	 * Replaces the REST API's generic "cannot be deleted" error with the reason a VideoPress delete was blocked.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.63.1
 	 *
 	 * @param mixed $response Result of the endpoint callback.
 	 * @return mixed
@@ -389,7 +389,7 @@ class Attachment_Handler {
 	 * Replaces the Media Library list view's single-request bulk delete with per-item requests
 	 * when VideoPress videos are selected, since each one waits on WordPress.com.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.63.1
 	 *
 	 * @return void
 	 */
