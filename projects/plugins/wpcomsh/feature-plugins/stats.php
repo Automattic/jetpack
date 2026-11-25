@@ -45,3 +45,20 @@ function wpcomsh_retire_classic_stats( $enabled, $name ) {
 	return method_exists( 'Automattic\Jetpack\PremiumAnalytics\Analytics', 'register_replayed_admin_menu' ) ? true : $enabled;
 }
 add_filter( 'jetpack_feature_flag_enabled', 'wpcomsh_retire_classic_stats', 5, 2 );
+
+/**
+ * Offers the Upgrade to Parse.ly prompts, so eligible Atomic sites see them.
+ *
+ * Needs no guard against an older Jetpack, unlike the retirement above: with no promo registered the slot
+ * offers nothing, so this can ship before the Jetpack carrying the prompts reaches the platform.
+ *
+ * At file scope, and priority 5, for the reasons given above.
+ *
+ * @param bool   $enabled Whether the flag is enabled.
+ * @param string $name    Feature flag name.
+ * @return bool
+ */
+function wpcomsh_offer_parsely_prompts( $enabled, $name ) {
+	return 'jetpack-stats-parsely-prompts' === $name ? true : $enabled;
+}
+add_filter( 'jetpack_feature_flag_enabled', 'wpcomsh_offer_parsely_prompts', 5, 2 );

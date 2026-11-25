@@ -12,12 +12,15 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 /**
  * @covers ::wpcomsh_retire_classic_stats
+ * @covers ::wpcomsh_offer_parsely_prompts
  */
 #[CoversFunction( 'wpcomsh_retire_classic_stats' )]
+#[CoversFunction( 'wpcomsh_offer_parsely_prompts' )]
 class StatsTest extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	const RETIRED_FLAG = 'jetpack-stats-classic-page-retired';
+	const PARSELY_FLAG = 'jetpack-stats-parsely-prompts';
 	const STATS_V2     = 'Automattic\\Jetpack\\PremiumAnalytics\\Analytics';
 
 	public function test_classic_stats_stays_until_jetpack_lists_stats_v2_in_calypsos_menu() {
@@ -72,6 +75,29 @@ class StatsTest extends WP_UnitTestCase {
 		);
 
 		$this->assertFalse( Feature_Flags::is_enabled( self::RETIRED_FLAG ) );
+	}
+
+	public function test_atomic_offers_the_parsely_prompts() {
+		$this->assertTrue( Feature_Flags::is_enabled( self::PARSELY_FLAG ) );
+	}
+
+	public function test_offering_the_prompts_leaves_other_flags_alone() {
+		$this->assertFalse( wpcomsh_offer_parsely_prompts( false, 'some-other-flag' ) );
+		$this->assertTrue( wpcomsh_offer_parsely_prompts( true, 'some-other-flag' ) );
+	}
+
+	public function test_a_per_site_override_still_withholds_the_prompts() {
+		// The a8c Feature Flags screen answers the same filter at the default priority.
+		add_filter(
+			'jetpack_feature_flag_enabled',
+			static function ( $enabled, $name ) {
+				return self::PARSELY_FLAG === $name ? false : $enabled;
+			},
+			10,
+			2
+		);
+
+		$this->assertFalse( Feature_Flags::is_enabled( self::PARSELY_FLAG ) );
 	}
 
 	/**
