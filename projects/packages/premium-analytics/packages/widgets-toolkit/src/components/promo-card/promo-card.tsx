@@ -21,7 +21,6 @@ import {
  * Internal dependencies
  */
 import { usePromoDismissal, useTrackEvent } from '../../hooks';
-import styles from './promo-card.module.scss';
 import { PromoCta } from './promo-cta';
 import type { PromoRenderProps } from './types';
 import type { Promo, PromoPlacement } from '@jetpack-premium-analytics/data';
@@ -160,27 +159,27 @@ export function PromoCard( { promo, resolveModule = importModule }: PromoCardPro
 	return (
 		<Card.Root
 			ref={ cardRef }
-			className={ styles.card }
 			role="complementary"
 			aria-labelledby={ titleId }
 			data-testid="promo-card"
 		>
+			{ /* Keep this the card's first child: Card.Root gives a later one different padding. */ }
 			<Card.Header>
-				<Card.Title id={ titleId } render={ <h3 /> }>
-					{ promo.title }
-				</Card.Title>
-				{ /* Inside the header, so it stays the card's first child and keeps its spacing. */ }
-				{ dismissible && (
-					<IconButton
-						className={ styles.close }
-						icon={ close }
-						label={ __( 'Dismiss', 'jetpack-premium-analytics-pkg' ) }
-						variant="minimal"
-						tone="neutral"
-						size="small"
-						onClick={ handleDismiss }
-					/>
-				) }
+				<Stack direction="row" justify="space-between" align="center" gap="md">
+					<Card.Title id={ titleId } render={ <h3 /> }>
+						{ promo.title }
+					</Card.Title>
+					{ dismissible && (
+						<IconButton
+							icon={ close }
+							label={ __( 'Dismiss', 'jetpack-premium-analytics-pkg' ) }
+							variant="minimal"
+							tone="neutral"
+							size="small"
+							onClick={ handleDismiss }
+						/>
+					) }
+				</Stack>
 			</Card.Header>
 			<Card.Content>
 				{ Module ? (
