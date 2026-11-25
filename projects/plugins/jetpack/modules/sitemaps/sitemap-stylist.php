@@ -31,18 +31,48 @@ class Jetpack_Sitemap_Stylist {
 			// Hosted generators can have a fixed version, so version the asset independently.
 			$asset_version = md5_file( __DIR__ . '/sitemap.css' );
 		}
-		$home_url   = home_url( '/' );
-		$layout_url = plugins_url( 'sitemap.css', __FILE__ );
-		if ( ( new Host() )->is_wpcom_simple() ) {
-			// On Simple, static plugin files are served from the domain root even when the site has a path.
-			$site_path  = untrailingslashit( (string) wp_parse_url( $home_url, PHP_URL_PATH ) );
-			$layout_url = preg_replace( '~^((?:https?:)?//[^/?#]+)?' . preg_quote( $site_path, '~' ) . '(/wp-content/mu-plugins/)~', '$1$2', $layout_url );
-		}
-		$urls = array(
-			add_query_arg( 'ver', $asset_version, $layout_url ),
+		$home_url = home_url( '/' );
+		$urls     = array(
+			add_query_arg( 'ver', $asset_version, self::layout_stylesheet_url( plugins_url( 'sitemap.css', __FILE__ ), $home_url ) ),
 			add_query_arg( 'jetpack-sitemap', 'sitemap-labels.css', $home_url ),
 		);
 		return preg_replace( '/^https?:/', '', $urls );
+	}
+
+	/**
+	 * Resolve local Simple MU-plugin assets independently of the site's content path.
+	 *
+	 * @since $$next-version$$
+	 * @param string $layout_url Plugin asset URL.
+	 * @param string $home_url   Canonical site home URL.
+	 * @return string
+	 */
+	private static function layout_stylesheet_url( $layout_url, $home_url ) {
+		if ( ! ( new Host() )->is_wpcom_simple() ) {
+			return $layout_url;
+		}
+
+		$asset    = wp_parse_url( $layout_url );
+		$is_local = ! isset( $asset['host'] );
+		foreach ( array( $home_url, site_url( '/' ) ) as $local_url ) {
+			$local = wp_parse_url( $local_url );
+			if ( isset( $asset['host'], $local['host'] ) && 0 === strcasecmp( $asset['host'], $local['host'] ) && ( $asset['port'] ?? null ) === ( $local['port'] ?? null ) ) {
+				$is_local = true;
+			}
+		}
+		if ( ! $is_local ) {
+			return $layout_url;
+		}
+
+		$site_path = untrailingslashit( (string) wp_parse_url( $home_url, PHP_URL_PATH ) );
+		$path      = preg_replace( '~^' . preg_quote( $site_path, '~' ) . '(?=/wp-content/mu-plugins/)~', '', wp_make_link_relative( $layout_url ) );
+		if ( 0 !== strpos( $path, '/wp-content/mu-plugins/' ) ) {
+			return $layout_url;
+		}
+
+		// Canonicalize before Simple rewrites stored sitemap hrefs from the alias to the site's home path.
+		$origin = preg_replace( '~^(https?://[^/?#]+).*~', '$1', $home_url );
+		return $origin . $path;
 	}
 
 	/**
