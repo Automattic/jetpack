@@ -2,7 +2,6 @@
 /* eslint-disable jest-dom/prefer-in-document, jest-dom/prefer-to-have-text-content */
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { DataSyncError, useDataSyncAction } from '@automattic/jetpack-react-data-sync-client';
-import { ModuleSurfaceProvider } from '$features/module/surface';
 import CriticalCssProvider from './critical-css-context-provider';
 import CriticalCssMeta from '../critical-css-meta/critical-css-meta';
 import { runLocalGenerator } from '../lib/generate-critical-css';
@@ -211,24 +210,7 @@ describe( 'Local Critical CSS generator failures', () => {
 	} );
 } );
 
-test( 'waits for Generate before starting initial generation on the modern surface', () => {
-	jest.clearAllMocks();
-	mockCssState = { status: 'not_generated', providers: [] };
-	render(
-		<ModuleSurfaceProvider value="row">
-			<CriticalCssProvider>
-				<CriticalCssMeta />
-			</CriticalCssProvider>
-		</ModuleSurfaceProvider>
-	);
-	expect( mockRegenerate ).not.toHaveBeenCalled();
-	expect( screen.queryByRole( 'progressbar' ) ).toBeNull();
-	// eslint-disable-next-line testing-library/prefer-user-event -- This project does not provide user-event.
-	fireEvent.click( screen.getByRole( 'button', { name: 'Generate' } ) );
-	expect( mockRegenerate ).toHaveBeenCalledTimes( 1 );
-} );
-
-test( 'starts initial generation automatically on the legacy surface', () => {
+test( 'waits for Generate before starting initial generation', () => {
 	jest.clearAllMocks();
 	mockCssState = { status: 'not_generated', providers: [] };
 	render(
@@ -236,6 +218,9 @@ test( 'starts initial generation automatically on the legacy surface', () => {
 			<CriticalCssMeta />
 		</CriticalCssProvider>
 	);
-	expect( screen.queryByRole( 'button', { name: 'Generate' } ) ).toBeNull();
+	expect( mockRegenerate ).not.toHaveBeenCalled();
+	expect( screen.queryByRole( 'progressbar' ) ).toBeNull();
+	// eslint-disable-next-line testing-library/prefer-user-event -- This project does not provide user-event.
+	fireEvent.click( screen.getByRole( 'button', { name: 'Generate' } ) );
 	expect( mockRegenerate ).toHaveBeenCalledTimes( 1 );
 } );

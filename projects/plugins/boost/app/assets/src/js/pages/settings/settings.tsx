@@ -83,7 +83,7 @@ const Group = ( {
 };
 
 const Settings = ( { active = true }: { active?: boolean } ) => {
-	const summary = useCornerstoneSummary( false );
+	const summary = useCornerstoneSummary();
 	const section = useRef< HTMLDivElement >( null );
 	const visit = useSettingsVisit( active );
 	useSettingsExposure( section, { visit } );

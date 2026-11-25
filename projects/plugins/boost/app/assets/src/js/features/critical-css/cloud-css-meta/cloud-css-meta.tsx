@@ -1,5 +1,4 @@
 import { __ } from '@wordpress/i18n';
-import { useModuleSurface } from '$features/module/surface';
 import { Text } from '@wordpress/ui';
 import Status from '../status/status';
 import { useCriticalCssState } from '../lib/stores/critical-css-state';
@@ -7,11 +6,10 @@ import { isFatalError } from '../lib/critical-css-errors';
 import styles from './cloud-css-meta.module.scss';
 
 export default function CloudCssMetaProps() {
-	const isModern = useModuleSurface() === 'row';
 	const [ cssState ] = useCriticalCssState();
 	const showFatalError = isFatalError( cssState );
 
-	if ( isModern && ! showFatalError ) {
+	if ( ! showFatalError ) {
 		return (
 			<Text variant="body-sm" render={ <p /> } className={ styles.well }>
 				{ __(

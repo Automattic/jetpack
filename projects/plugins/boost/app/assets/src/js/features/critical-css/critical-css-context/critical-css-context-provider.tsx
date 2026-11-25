@@ -6,7 +6,6 @@ import {
 	useProxyNonce,
 	useSetProviderCssAction,
 	useSetProviderErrorsAction,
-	useRegenerateCriticalCssAction,
 } from '../lib/stores/critical-css-state';
 import { describeRefusedReply } from '../lib/describe-refused-reply';
 import { runLocalGenerator } from '../lib/generate-critical-css';
@@ -109,9 +108,8 @@ const COMPLETION_HOLD_MS = 750;
 
 /**
  * For Critical CSS UI: Actually run the local generator and return its status.
- * @param autoStart - Whether to start generation automatically when CSS has not been generated.
  */
-export function useLocalCriticalCssGenerator( autoStart = true ) {
+export function useLocalCriticalCssGenerator() {
 	// Local Generator status context.
 	const {
 		isGenerating,
@@ -126,7 +124,6 @@ export function useLocalCriticalCssGenerator( autoStart = true ) {
 	const [ cssState, setCssState ] = useCriticalCssState();
 	const setProviderCssAction = useSetProviderCssAction();
 	const setProviderErrorsAction = useSetProviderErrorsAction();
-	const generateCriticalCssAction = useRegenerateCriticalCssAction();
 
 	// Proxy nonce - reqiured config for the generator.
 	const proxyNonce = useProxyNonce();
@@ -209,9 +206,6 @@ export function useLocalCriticalCssGenerator( autoStart = true ) {
 						abortController.abort();
 					}
 				};
-			} else if ( autoStart && cssState.status === 'not_generated' ) {
-				// If there is no css generated, request that the generator start.
-				generateCriticalCssAction.mutate();
 			}
 		},
 
@@ -219,7 +213,7 @@ export function useLocalCriticalCssGenerator( autoStart = true ) {
 		// This effect triggers an actual process that is costly to start and stop, so we don't want to start/stop it
 		// every time an object ref like `cssState` is changed for a trivial reason.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[ cssState.status, cssState.providers.length, cssState.created, autoStart ]
+		[ cssState.status, cssState.providers.length, cssState.created ]
 	);
 
 	// Always calculate progress so it reflects the true state even after

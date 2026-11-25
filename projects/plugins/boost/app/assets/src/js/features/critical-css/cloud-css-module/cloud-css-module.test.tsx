@@ -1,6 +1,5 @@
 /* eslint-disable testing-library/prefer-user-event -- This project does not provide user-event. */
 import { fireEvent, render, screen } from '@testing-library/react';
-import { ModuleSurfaceProvider } from '$features/module/surface';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import CloudCssModule from './cloud-css-module';
 import type { ReactNode } from 'react';
@@ -23,11 +22,7 @@ jest.mock( '$features/critical-css/lib/stores/critical-css-state', () => ( {
 jest.mock( '$lib/utils/analytics', () => ( { recordBoostEvent: jest.fn() } ) );
 
 test( 'regenerates Critical CSS on enable and records the documentation link click', () => {
-	render(
-		<ModuleSurfaceProvider value="row">
-			<CloudCssModule />
-		</ModuleSurfaceProvider>
-	);
+	render( <CloudCssModule /> );
 
 	fireEvent.click( screen.getByRole( 'button', { name: 'Enable' } ) );
 	fireEvent.click( screen.getByRole( 'link', { name: /Critical CSS/ } ) );

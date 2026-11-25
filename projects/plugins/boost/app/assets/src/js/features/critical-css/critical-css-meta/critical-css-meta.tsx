@@ -1,6 +1,5 @@
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
-import { useModuleSurface } from '$features/module/surface';
 import ModernCriticalCssStatus from './modern-critical-css-status';
 import RefusedRegenerateNotice from './refused-regenerate-notice';
 import Status from '../status/status';
@@ -16,10 +15,9 @@ import { isFatalError } from '../lib/critical-css-errors';
  * Settings page when the feature is enabled.
  */
 export default function CriticalCssMeta() {
-	const isModern = useModuleSurface() === 'row';
 	const [ cssState ] = useCriticalCssState();
 	const [ { data: regenerateReason } ] = useRegenerationReason();
-	const { isGenerating, progress, stoppedRun } = useLocalCriticalCssGenerator( ! isModern );
+	const { isGenerating, progress, stoppedRun } = useLocalCriticalCssGenerator();
 	const showFatalError = isFatalError( cssState );
 
 	if ( stoppedRun?.sessionExpired ) {
@@ -49,7 +47,7 @@ export default function CriticalCssMeta() {
 		);
 	}
 
-	if ( isModern && ! showFatalError ) {
+	if ( ! showFatalError ) {
 		return (
 			<>
 				<RefusedRegenerateNotice />
