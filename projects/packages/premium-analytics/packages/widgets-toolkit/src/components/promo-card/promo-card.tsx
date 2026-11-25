@@ -165,21 +165,22 @@ export function PromoCard( { promo, resolveModule = importModule }: PromoCardPro
 			aria-labelledby={ titleId }
 			data-testid="promo-card"
 		>
-			{ dismissible && (
-				<IconButton
-					className={ styles.close }
-					icon={ close }
-					label={ __( 'Dismiss', 'jetpack-premium-analytics-pkg' ) }
-					variant="minimal"
-					tone="neutral"
-					size="small"
-					onClick={ handleDismiss }
-				/>
-			) }
 			<Card.Header>
 				<Card.Title id={ titleId } render={ <h3 /> }>
 					{ promo.title }
 				</Card.Title>
+				{ /* Inside the header, so it stays the card's first child and keeps its spacing. */ }
+				{ dismissible && (
+					<IconButton
+						className={ styles.close }
+						icon={ close }
+						label={ __( 'Dismiss', 'jetpack-premium-analytics-pkg' ) }
+						variant="minimal"
+						tone="neutral"
+						size="small"
+						onClick={ handleDismiss }
+					/>
+				) }
 			</Card.Header>
 			<Card.Content>
 				{ Module ? (
