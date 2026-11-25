@@ -20,4 +20,4 @@ export { BASE_BAND_PADDING_INNER } from './use-bar-chart-options';
 export { isBarRendered } from './value-domain';
 export { BandHighlight } from './band-highlight';
 export { BandTooltip } from './band-tooltip';
-export { COMPARISON_SLOT } from './overlap-bars';
+export { COMPARISON_SLOT, isComparisonSeries } from './overlap-bars';

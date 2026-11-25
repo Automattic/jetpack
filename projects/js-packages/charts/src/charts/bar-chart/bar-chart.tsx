@@ -45,6 +45,7 @@ import {
 	COMPARISON_TICK_GAP_FACTOR,
 	BASE_BAND_PADDING_INNER,
 	COMPARISON_SLOT,
+	isComparisonSeries,
 	isBarRendered,
 	SlotTooltipMembers,
 	useBarStops,
@@ -587,9 +588,20 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		[ chartOptions.tooltip, comparisonEntries ]
 	);
 
+	// A stack patterns its primaries by their place among the primaries, as it colors them, and its total next.
+	const patternTypes = useMemo( () => {
+		const primaries = dataSorted.filter( series => ! isComparisonSeries( series ) );
+		return dataSorted.map( ( series, index ) => {
+			if ( ! isStacked ) {
+				return index;
+			}
+			return isComparisonSeries( series ) ? primaries.length : primaries.indexOf( series );
+		} );
+	}, [ dataSorted, isStacked ] );
+
 	const renderPattern = useCallback(
 		( index: number, color: string ) => {
-			const patternType = index % 4;
+			const patternType = ( patternTypes[ index ] ?? index ) % 4;
 			const id = getPatternId( chartId, index );
 			const commonProps = {
 				id,
@@ -620,7 +632,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 					return <PatternHexagons key={ id } { ...commonProps } size={ 8 } height={ 3 } />;
 			}
 		},
-		[ chartId ]
+		[ chartId, patternTypes ]
 	);
 
 	const createPatternBorderStyle = useCallback(

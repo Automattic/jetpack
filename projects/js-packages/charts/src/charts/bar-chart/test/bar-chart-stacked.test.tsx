@@ -450,7 +450,26 @@ describe( 'BarChart stacked layout', () => {
 	} );
 
 	it.each( [
-		[ 'every comparison', WITH_PREVIOUS, WITH_PREVIOUS.slice( 3 ), false ],
+		[ 'one comparison', WITH_PREVIOUS.slice( 3, 4 ) ],
+		[ 'every comparison', WITH_PREVIOUS.slice( 3 ) ],
+	] )(
+		'keeps %s hidden on its own in the total, which a stack offers no control to show again',
+		( _case, hidden ) => {
+			renderStacked( {
+				data: WITH_PREVIOUS,
+				showLegend: true,
+				legend: { comparisonItem: 'Prev. 7 days' },
+				defaultHiddenSeries: hidden.map( series => series.label ),
+			} );
+
+			expect( previousBar().height / barIn( WITH_PREVIOUS, 'Desktop' ).height ).toBeCloseTo(
+				500 / 100
+			);
+			expect( screen.getByText( 'Prev. 7 days' ) ).toBeInTheDocument();
+		}
+	);
+
+	it.each( [
 		[ 'every primary', WITH_PREVIOUS, DATA, false ],
 		[
 			'the primary of the only comparison',
@@ -458,7 +477,6 @@ describe( 'BarChart stacked layout', () => {
 			DATA.slice( 0, 1 ),
 			false,
 		],
-		[ 'only the first comparison', WITH_PREVIOUS, WITH_PREVIOUS.slice( 3, 4 ), true ],
 	] )(
 		'lists the comparison item only while the total is drawn, hiding %s',
 		( _case, data, hidden, listed ) => {
@@ -472,6 +490,31 @@ describe( 'BarChart stacked layout', () => {
 			expect( screen.queryByText( 'Prev. 7 days' ) !== null ).toBe( listed );
 		}
 	);
+
+	it( 'patterns each stacked series by its place among the primaries, as it colors them', () => {
+		const desktop: SeriesData = { label: 'Desktop', data: [ day( 'Mon', 100 ) ] };
+		const mobile: SeriesData = { label: 'Mobile', data: [ day( 'Mon', 60 ) ] };
+		const previous = ( series: SeriesData ): SeriesData => ( {
+			...series,
+			label: `${ series.label } (prev)`,
+			options: { type: 'comparison' },
+		} );
+		const mobilePattern = ( data: SeriesData[] ) => {
+			const { unmount } = renderStacked( { data, withPatterns: true } );
+			const id =
+				barRects()[ 1 ]
+					.getAttribute( 'fill' )
+					?.match( /url\(#(.+)\)/ )?.[ 1 ] ?? '';
+			// eslint-disable-next-line testing-library/no-node-access -- visx patterns carry no test id.
+			const markup = document.getElementById( id )?.innerHTML;
+			unmount();
+			return markup;
+		};
+
+		expect( mobilePattern( [ desktop, previous( desktop ), mobile, previous( mobile ) ] ) ).toBe(
+			mobilePattern( [ desktop, mobile, previous( desktop ), previous( mobile ) ] )
+		);
+	} );
 
 	it( 'ignores legend.comparisonSeriesItems, and says so', () => {
 		const warn = jest.spyOn( console, 'warn' ).mockImplementation( () => {} );
