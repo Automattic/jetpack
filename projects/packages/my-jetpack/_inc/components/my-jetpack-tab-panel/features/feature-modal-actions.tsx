@@ -195,7 +195,7 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 					state={ state }
 					origin="modal"
 					buttonRef={ connectRef }
-					disabled={ Boolean( state.isSwitching ) }
+					disabled={ state.isSwitching }
 				/>
 			) : null }
 
