@@ -32,9 +32,13 @@ jest.mock( '@jetpack-premium-analytics/externals', () => ( {
 		children,
 		...props
 	}: ComponentProps< 'a' > & { variant: string; openInNewTab?: boolean } ) => (
-		<a data-variant={ variant } target={ openInNewTab ? '_blank' : undefined } { ...props }>
+		<a
+			data-variant={ variant }
+			data-opens-in-new-tab={ openInNewTab ? 'true' : undefined }
+			target={ openInNewTab ? '_blank' : undefined }
+			{ ...props }
+		>
 			{ children }
-			{ openInNewTab && <img alt="(opens in a new tab)" /> }
 		</a>
 	),
 } ) );
@@ -127,11 +131,9 @@ describe( 'PromoCard', () => {
 
 		expect( screen.getByText( 'Grow with Acme' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Reach more readers.' ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'link', { name: /Try Acme/ } ) ).toHaveAttribute(
-			'href',
-			'https://example.com/acme'
-		);
-		expect( screen.getByRole( 'img', { name: '(opens in a new tab)' } ) ).toBeInTheDocument();
+		const link = screen.getByRole( 'link', { name: /Try Acme/ } );
+		expect( link ).toHaveAttribute( 'href', 'https://example.com/acme' );
+		expect( link ).toHaveAttribute( 'data-opens-in-new-tab', 'true' );
 	} );
 
 	it( 'renders a filled call to action by default', () => {

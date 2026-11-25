@@ -23,7 +23,7 @@ final class Promo_Registry {
 	const PLACEMENTS = array( 'options-menu', 'settings' );
 
 	/**
-	 * Call-to-action styles a promo may use: filled or outlined.
+	 * Call-to-action variants a promo may use.
 	 *
 	 * @since $$next-version$$
 	 * @var string[]

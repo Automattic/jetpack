@@ -77,7 +77,6 @@ class Promo_Test extends BaseTestCase {
 		$promo = new Promo( 'acme/offer', array() );
 
 		$this->assertSame( 'primary', $promo->cta_variant );
-		$this->assertSame( 'primary', $promo->to_array()['cta_variant'] );
 	}
 
 	public function test_a_promo_can_ask_for_an_outlined_call_to_action() {

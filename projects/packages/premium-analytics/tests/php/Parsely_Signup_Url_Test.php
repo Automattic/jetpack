@@ -64,13 +64,29 @@ class Parsely_Signup_Url_Test extends BaseTestCase {
 		);
 	}
 
-	public function test_a_site_name_that_needs_encoding_is_encoded() {
-		update_option( 'blogname', 'Smith & Co' );
-		update_option( 'home', 'https://smith.example' );
+	public function test_a_site_whose_name_is_only_whitespace_is_sent_without_a_name() {
+		update_option( 'blogname', '   ' );
+		update_option( 'home', 'https://newsupermedia.com' );
 
 		$this->assertSame(
-			'https://dash.parsely.com/self-serve?utm_source=jetpack&publisher_name=Smith%20%26%20Co&site_domain=smith.example',
+			'https://dash.parsely.com/self-serve?utm_source=jetpack&site_domain=newsupermedia.com',
 			parsely_signup_url()
 		);
+	}
+
+	public function test_a_site_name_that_needs_encoding_is_encoded() {
+		update_option( 'home', 'https://smith.example' );
+
+		foreach ( array(
+			'Smith & Co'   => 'Smith%20%26%20Co',
+			"O'Brien & Co" => 'O%27Brien%20%26%20Co',
+		) as $name => $encoded ) {
+			update_option( 'blogname', $name );
+
+			$this->assertSame(
+				'https://dash.parsely.com/self-serve?utm_source=jetpack&publisher_name=' . $encoded . '&site_domain=smith.example',
+				parsely_signup_url()
+			);
+		}
 	}
 }

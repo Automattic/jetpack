@@ -13,6 +13,11 @@ export type PromoCtaProps = {
 	trackClick: () => void;
 };
 
+const BUTTON_VARIANTS: Record< PromoCtaVariant, 'solid' | 'outline' > = {
+	primary: 'solid',
+	secondary: 'outline',
+};
+
 /**
  * The call to action of a promo: a button-styled link that opens in a new tab.
  * Plain text when `href` is not http(s), so a bad URL cannot ship a `javascript:` link.
@@ -39,7 +44,7 @@ export function PromoCta( {
 	return (
 		<ButtonLink
 			href={ safeHref }
-			variant={ variant === 'primary' ? 'solid' : 'outline' }
+			variant={ BUTTON_VARIANTS[ variant ] }
 			openInNewTab
 			onClick={ trackClick }
 		>

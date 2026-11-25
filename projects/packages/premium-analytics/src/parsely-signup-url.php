@@ -20,7 +20,7 @@ function parsely_signup_url() {
 	$args = array_filter(
 		array(
 			'utm_source'     => 'jetpack',
-			'publisher_name' => wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ),
+			'publisher_name' => trim( wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ) ),
 			'site_domain'    => wp_parse_url( home_url(), PHP_URL_HOST ),
 		),
 		static fn( $value ) => is_string( $value ) && '' !== $value

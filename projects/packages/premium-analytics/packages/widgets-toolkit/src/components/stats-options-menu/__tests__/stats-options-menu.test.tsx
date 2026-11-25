@@ -49,9 +49,9 @@ const PROMO: Promo = {
 	description: 'Reach more readers.',
 	cta_label: 'Try Acme',
 	cta_url: 'https://example.com/acme',
+	cta_variant: 'primary',
 	dismissible: false,
 	snooze_days: 0,
-	cta_variant: 'primary',
 };
 
 // What the settings route echoes once the opt-in is off.

@@ -22,9 +22,9 @@ const makePromo = ( overrides: Partial< Promo > = {} ): Promo => ( {
 	description: 'An offer.',
 	cta_label: 'Get it',
 	cta_url: 'https://example.com',
+	cta_variant: 'primary',
 	dismissible: true,
 	snooze_days: 90,
-	cta_variant: 'primary',
 	...overrides,
 } );
 
