@@ -442,7 +442,7 @@ class Jetpack_WPCOM_Block_Editor {
 	 * Adds the has-text-align-justify class to paragraphs saved with a justify text alignment.
 	 *
 	 * Core's text-align support serializes no class for justify, so the saved markup loses it.
-	 * Becomes a no-op once https://github.com/WordPress/gutenberg/pull/80264 ships; remove it then.
+	 * https://github.com/WordPress/gutenberg/pull/80264 fixes new saves only; posts saved before it still need this.
 	 *
 	 * @param string $block_content The block content.
 	 * @param array  $block         The parsed block.
