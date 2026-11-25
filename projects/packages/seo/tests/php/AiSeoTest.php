@@ -23,6 +23,7 @@ class AiSeoTest extends SeoTestCase {
 		delete_option( 'ai_seo_enhancer_enabled' );
 		remove_all_filters( 'ai_seo_enhancer_enabled' );
 		remove_all_filters( 'jetpack_active_modules' );
+		add_filter( 'jetpack_active_modules', 'jetpack_seo_test_switch_on', 1000 );
 		remove_all_filters( 'jetpack_disable_seo_tools' );
 
 		self::reset_plan();

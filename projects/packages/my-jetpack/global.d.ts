@@ -532,6 +532,8 @@ type MainFeature = {
 	name: string;
 	description: string;
 	long_description: string;
+	// Comma-separated keywords the Features search also matches.
+	search_terms?: string;
 	icon: string;
 	manage_url: string;
 	essential: boolean;

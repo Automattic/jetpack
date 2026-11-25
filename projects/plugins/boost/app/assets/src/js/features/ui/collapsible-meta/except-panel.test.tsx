@@ -3,6 +3,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import RenderBlockingJsMeta from '$features/render-blocking-js/render-blocking-js-meta';
+import DeferFontsMeta from '$features/defer-fonts/defer-fonts-meta';
 import MinifyMeta from '$features/minify-meta/minify-meta';
 import PageCacheMeta from '$features/page-cache/meta/meta';
 
@@ -37,11 +38,24 @@ const consumers = [
 		name: 'Defer JS',
 		component: <RenderBlockingJsMeta />,
 		count: false,
+		label: 'Add URLs or patterns separated with a comma:',
+		help: "JavaScript won't be deferred on these pages.",
+	},
+	{
+		name: 'Defer Web Fonts',
+		component: <DeferFontsMeta />,
+		count: false,
+		label: 'Add font family names separated with a comma:',
+		help: 'Fonts whose family name starts with one of these load right away instead of after the page.',
 	},
 	...( [ 'js', 'css' ] as const ).map( type => ( {
 		name: `Concatenate ${ type }`,
 		component: <MinifyMeta datasyncKey={ `minify_${ type }_excludes` } placeholder="Handles" />,
 		count: false,
+		label: 'Add handles separated with a comma:',
+		help: `${
+			type === 'js' ? 'Scripts' : 'Styles'
+		} listed here will be excluded from concatenation and minification. They continue loading separately.`,
 	} ) ),
 	{ name: 'Page Cache', component: <PageCacheMeta />, count: true },
 ];
@@ -133,20 +147,12 @@ it( 'keeps the Page Cache textarea section inside its styling body and panel', (
 	).toBe( true );
 } );
 
-it.each( consumers.filter( consumer => ! consumer.count ) )(
+it.each( consumers.filter( consumer => consumer.label ) )(
 	'$name labels its field and explains the exceptions',
-	( { name, component } ) => {
-		const label =
-			name === 'Defer JS'
-				? 'Add URLs or patterns separated with a comma:'
-				: 'Add handles separated with a comma:';
-		const help =
-			name === 'Defer JS'
-				? "JavaScript won't be deferred on these pages."
-				: `${ name.endsWith( 'js' ) ? 'Scripts' : 'Styles' } listed here will be excluded from concatenation and minification. They continue loading separately.`;
+	( { component, label, help } ) => {
 		render( component );
 		fireEvent.click( screen.getByRole( 'button', { name: 'Except None' } ) );
 		expect( screen.getByRole( 'textbox', { name: label } ) ).toBeTruthy();
-		expect( screen.getByText( help, { exact: false } ) ).toBeTruthy();
+		expect( screen.getByText( help!, { exact: false } ) ).toBeTruthy();
 	}
 );

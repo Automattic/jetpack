@@ -1,0 +1,31 @@
+{
+	"name": "ai-traffic/requests-by-source",
+	"icon": "jpa/people",
+	"title": "Requests by source",
+	"description": "See how many requests came from people, AI bots and other bots, and how many were blocked.",
+	"help": {
+		"content": "Every request your site received, split by who made it. These are requests, not views, so totals include bots and will be higher than the views in your Traffic tab."
+	},
+	"category": "traffic",
+	"presentation": "framed",
+	"attributes": [
+		{
+			"id": "chartType",
+			"type": "jpa/toggle-group",
+			"label": "Chart type",
+			"relevance": "high",
+			"elements": [
+				{
+					"value": "area",
+					"label": "Area chart",
+					"icon": "jpa/chart-line"
+				},
+				{
+					"value": "bar",
+					"label": "Bar chart",
+					"icon": "jpa/chart-bar"
+				}
+			]
+		}
+	]
+}

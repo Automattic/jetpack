@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { useCallback } from 'react';
 import type { SettingsResponse } from '../../../data/settings-types';
 import type { SettingsForm } from '../../../data/use-settings';
 import type { ReactElement, ReactNode } from 'react';
@@ -49,11 +50,57 @@ const IndexnowSettings = jest.fn< ( props: Record< string, unknown > ) => ReactE
 	<div>notification settings</div>
 ) );
 jest.unstable_mockModule( '../indexnow-settings', () => ( { default: IndexnowSettings } ) );
+const SeoToolsCard = ( {
+	active,
+	onChange,
+	disabled,
+}: {
+	active: boolean;
+	onChange: ( next: boolean ) => void;
+	disabled: boolean;
+} ) => {
+	const flip = useCallback( () => onChange( ! active ), [ active, onChange ] );
+	return (
+		<button
+			data-testid="seo-tools-switch"
+			data-active={ String( active ) }
+			disabled={ disabled }
+			onClick={ flip }
+		/>
+	);
+};
+jest.unstable_mockModule( '../seo-tools-card', () => ( { default: SeoToolsCard } ) );
+jest.unstable_mockModule( '../seo-tools-off-notice', () => ( {
+	default: ( { onTurnOn, disabled }: { onTurnOn: () => void; disabled: boolean } ) => (
+		<button data-testid="seo-tools-off" disabled={ disabled } onClick={ onTurnOn } />
+	),
+} ) );
+
+let routeForm: SettingsForm;
+let routeSeoToolsActive = false;
+jest.unstable_mockModule( '../../../dashboard/dashboard-page', () => ( {
+	default: ( { children, showTabs }: { children: ReactNode; showTabs?: boolean } ) => (
+		<div data-testid="page" data-show-tabs={ String( showTabs ?? true ) }>
+			{ children }
+		</div>
+	),
+} ) );
+jest.unstable_mockModule( '../../../data/is-seo-tools-active', () => ( {
+	default: () => routeSeoToolsActive,
+	useSeoToolsActive: () => routeSeoToolsActive,
+} ) );
+jest.unstable_mockModule( '../../../data/use-ensure-tab-data', () => ( {
+	default: () => ( { status: 'ready' } ),
+} ) );
+jest.unstable_mockModule( '../../../data/use-settings', () => ( {
+	useSettingsForm: () => routeForm,
+} ) );
 
 const sharingFetch = jest.fn< ( options: unknown ) => Promise< unknown > >();
 jest.unstable_mockModule( '@wordpress/api-fetch', () => ( { default: sharingFetch } ) );
 
 const { default: SettingsScreen } = await import( '../index' );
+const { stage: SettingsStage } = await import( '../../../../routes/settings/stage' );
 
 const EMPTY_VERIFICATION = {
 	google: '',
@@ -78,6 +125,7 @@ const buildForm = ( overrides: Partial< SettingsResponse > = {} ): SettingsForm 
 		title_separator: '-',
 		title_formats_editable: true,
 		verification_tools_active: true,
+		seo_tools_active: false,
 		verification: { ...EMPTY_VERIFICATION },
 		search_engines_visible: false,
 		site_is_private: false,
@@ -705,6 +753,105 @@ describe( 'Notification settings inside Site visibility', () => {
 		act( () => onSavingChange( false ) );
 		expect( indexing ).not.toHaveAttribute( 'aria-disabled' );
 		expect( sitemap ).not.toHaveAttribute( 'aria-disabled' );
+	} );
+} );
+
+describe( 'Settings and the SEO tools switch', () => {
+	afterEach( () => {
+		delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
+		routeSeoToolsActive = false;
+	} );
+
+	it.each( [ false, true ] )(
+		'keeps the module-independent settings when SEO tools active is %s',
+		async active => {
+			routeSeoToolsActive = active;
+			routeForm = buildForm( { search_engines_visible: true } );
+			render( <SettingsStage /> );
+
+			expect(
+				screen.getByRole( 'switch', { name: 'Generate an XML sitemap' } )
+			).toBeInTheDocument();
+			expect( screen.getByText( 'google field' ) ).toBeInTheDocument();
+			// eslint-disable-next-line testing-library/prefer-user-event -- Existing disclosure-test convention.
+			fireEvent.click( screen.getByRole( 'button', { name: 'Canonical URLs' } ) );
+			await expect(
+				screen.findByRole( 'switch', { name: 'Add canonical URLs to archive pages' } )
+			).resolves.toBeInTheDocument();
+			expect( screen.queryByTestId( 'schema' ) !== null ).toBe( active );
+			expect( screen.queryByText( 'title structure' ) !== null ).toBe( active );
+			expect( routeForm.commit ).not.toHaveBeenCalled();
+		}
+	);
+
+	it( 'drops the tabs, tops Settings with the off notice and ends it with the switch while SEO tools are off', () => {
+		routeForm = buildForm();
+		render( <SettingsStage /> );
+
+		expect( screen.getByTestId( 'page' ) ).toHaveAttribute( 'data-show-tabs', 'false' );
+		const notice = screen.getByTestId( 'seo-tools-off' );
+		const googleField = screen.getByText( 'google field' );
+		const toggle = screen.getByTestId( 'seo-tools-switch' );
+		expect( notice.compareDocumentPosition( googleField ) ).toBe(
+			Node.DOCUMENT_POSITION_FOLLOWING
+		);
+		expect( googleField.compareDocumentPosition( toggle ) ).toBe(
+			Node.DOCUMENT_POSITION_FOLLOWING
+		);
+		expect( toggle ).toHaveAttribute( 'data-active', 'false' );
+	} );
+
+	it( 'hides the tabs as soon as SEO tools are being turned off', () => {
+		routeSeoToolsActive = true;
+		routeForm = buildForm( { seo_tools_active: false } );
+		render( <SettingsStage /> );
+
+		expect( screen.getByTestId( 'page' ) ).toHaveAttribute( 'data-show-tabs', 'false' );
+	} );
+
+	it.each( [
+		[ 'Settings switch', 'seo-tools-switch', true ],
+		[ '"Turn on SEO tools" notice button', 'seo-tools-off', false ],
+	] )(
+		'the %s waits for another setting to save, then saves through the form',
+		( _control, testId, active ) => {
+			routeSeoToolsActive = active;
+			routeForm = { ...buildForm( { seo_tools_active: active } ), isSaving: true };
+			const { rerender } = render( <SettingsStage /> );
+
+			expect( screen.getByTestId( testId ) ).toBeDisabled();
+
+			routeForm = { ...routeForm, isSaving: false };
+			rerender( <SettingsStage /> );
+			// eslint-disable-next-line testing-library/prefer-user-event -- fireEvent keeps this off the @testing-library/user-event devDep.
+			fireEvent.click( screen.getByTestId( testId ) );
+
+			expect( routeForm.commit ).toHaveBeenCalledWith( { seo_tools_active: ! active } );
+		}
+	);
+
+	it( 'keeps the tabs and ends Settings with the switch while SEO tools are on', () => {
+		routeSeoToolsActive = true;
+		routeForm = buildForm( { seo_tools_active: true } );
+		render( <SettingsStage /> );
+
+		expect( screen.getByTestId( 'page' ) ).toHaveAttribute( 'data-show-tabs', 'true' );
+		expect(
+			screen
+				.getByText( 'social previews' )
+				.compareDocumentPosition( screen.getByTestId( 'seo-tools-switch' ) )
+		).toBe( Node.DOCUMENT_POSITION_FOLLOWING );
+		expect( screen.getByTestId( 'seo-tools-switch' ) ).toHaveAttribute( 'data-active', 'true' );
+		expect( screen.queryByTestId( 'seo-tools-off' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'leaves the switch out on WordPress.com Simple, which runs SEO tools on every site', () => {
+		( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData = {
+			site: { host: 'wpcom' },
+		};
+		render( <SettingsScreen form={ buildForm() } /> );
+
+		expect( screen.queryByTestId( 'seo-tools-switch' ) ).not.toBeInTheDocument();
 	} );
 } );
 

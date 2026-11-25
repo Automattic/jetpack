@@ -55,6 +55,18 @@ describe( 'PostLikesWidget', () => {
 		);
 	} );
 
+	it( 'links each liker to their WordPress.com Reader profile', async () => {
+		mockApiFetch.mockResolvedValue( {
+			found: 1,
+			likes: [ { ID: 12, name: 'Ada Lovelace', login: 'adalovelace' } ],
+		} );
+
+		renderWidget( 779 );
+
+		const link = await screen.findByRole( 'link', { name: /Ada Lovelace/ } );
+		expect( link ).toHaveAttribute( 'href', 'https://wordpress.com/reader/users/adalovelace' );
+	} );
+
 	it( 'uses a neutral error state when likes cannot be loaded', async () => {
 		mockApiFetch.mockRejectedValue( { status: 403 } );
 
