@@ -1,0 +1,54 @@
+// One round frame for every avatar: the initial (or a glyph) underneath, the
+// site icon and the photo stacked on top. A hairline ring keeps the circle
+// visible on a white card.
+.jetpack-send-avatar {
+	position: relative;
+	display: inline-flex;
+	flex: none;
+	align-items: center;
+	justify-content: center;
+	inline-size: var(--wpds-dimension-size-sm);
+	block-size: var(--wpds-dimension-size-sm);
+	overflow: hidden;
+	border-radius: 50%;
+	background: var(--wpds-color-background-surface-neutral-weak);
+	box-shadow: inset 0 0 0 var(--wpds-border-width-xs) var(--wpds-color-stroke-surface-neutral);
+	color: var(--wpds-color-foreground-content-neutral);
+	font-size: var(--wpds-typography-font-size-sm);
+	font-weight: var(--wpds-typography-font-weight-emphasis);
+	line-height: var(--wpds-typography-line-height-xs);
+
+	> svg {
+		inline-size: 100%;
+		block-size: 100%;
+		fill: currentColor;
+	}
+
+	> img {
+		position: absolute;
+		inset: 0;
+		inline-size: 100%;
+		max-inline-size: none;
+		block-size: 100%;
+		object-fit: cover;
+	}
+}
+
+.jetpack-send-avatar--md {
+	inline-size: var(--wpds-dimension-size-md);
+	block-size: var(--wpds-dimension-size-md);
+	font-size: var(--wpds-typography-font-size-md);
+	line-height: var(--wpds-typography-line-height-sm);
+}
+
+.jetpack-send-avatar--lg {
+	inline-size: var(--wpds-dimension-size-lg);
+	block-size: var(--wpds-dimension-size-lg);
+	font-size: var(--wpds-typography-font-size-xl);
+	line-height: var(--wpds-typography-line-height-md);
+}
+
+// A site icon with see-through edges still hides the initial below it.
+.jetpack-send-avatar__fallback {
+	background: var(--wpds-color-background-surface-neutral);
+}

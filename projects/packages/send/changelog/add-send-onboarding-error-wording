@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Explain emails that couldn't be sent in plain words: say when the problem is on our side and link to support, and only point to the domain's records when they are the cause. Keep Cloudflare one-click setup working when Cloudflare Email Routing manages the domain's sender list.

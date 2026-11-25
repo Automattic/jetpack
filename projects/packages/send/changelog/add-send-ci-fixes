@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Fix lint, PHP 7.4/8.0 test and PHP compatibility failures in code not yet released.
+
+
