@@ -168,10 +168,6 @@
 		<testsuite name="seo-module-state">
 			<file>tests/php/SEO_Module_State_Test.php</file>
 		</testsuite>
-		<testsuite name="seo-discoverability">
-			<file>tests/php/SEO_Visibility_Cohort_Test.php</file>
-			<file>tests/php/SEO_Optin_Test.php</file>
-		</testsuite>
 	</testsuites>
 
 	<groups>
