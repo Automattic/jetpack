@@ -1,8 +1,7 @@
-import { useModuleSurface } from '$features/module/surface';
 import { useEffect, useState } from 'react';
 import SaveButton from '$features/ui/save-button/save-button';
 import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { z } from 'zod';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import styles from '$features/render-blocking-js/render-blocking-js-meta.module.scss';
@@ -12,7 +11,6 @@ import { useNotices } from '$features/notice/context';
 const datasyncKey = 'defer_fonts_excludes';
 
 const DeferFontsMeta = () => {
-	const isRow = useModuleSurface() === 'row';
 	const noticeId = `defer-fonts-meta-${ datasyncKey }`;
 	const htmlId = `jb-defer-fonts-meta-${ datasyncKey }`;
 	const { setNotice } = useNotices();
@@ -47,25 +45,14 @@ const DeferFontsMeta = () => {
 		);
 	}
 
-	const summary =
-		values.length > 0
-			? /* translators: %s is the list of font families that are not deferred. */
-				sprintf( __( 'Except: %s', 'jetpack-boost' ), serverValue )
-			: __( 'No exceptions.', 'jetpack-boost' );
-
 	return (
 		<div className={ styles.wrapper } data-testid={ `meta-${ datasyncKey }` }>
 			<CollapsibleMeta
-				exceptions={ isRow ? values : undefined }
-				headerText={ summary }
-				toggleText={ __( 'Exclude icon fonts', 'jetpack-boost' ) }
+				exceptions={ values }
 				tracksEvent="defer_fonts_excludes_panel_toggle"
 				onToggleHandler={ isExpanded => ! isExpanded && setInputValue( serverValue ) }
 			>
-				<div className={ styles.section } data-except-content={ isRow || undefined }>
-					{ ! isRow && (
-						<div className={ styles.title }>{ __( 'Exceptions', 'jetpack-boost' ) }</div>
-					) }
+				<div className={ styles.section } data-except-content>
 					<div className={ styles[ 'manage-excludes' ] }>
 						<label className={ styles[ 'sub-header' ] } htmlFor={ htmlId }>
 							{ __( 'Add font family names separated with a comma:', 'jetpack-boost' ) }
