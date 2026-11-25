@@ -133,6 +133,18 @@ export function getRemoteAbilityKey( name, annotations = {} ) {
 }
 
 /**
+ * Check whether a remote ability needs individual opt-in.
+ *
+ * @param {string}   name          - Ability name.
+ * @param {string[]} [remoteOptIn] - Opt-in ability names from the settings service.
+ * @return {boolean} Whether the ability requires opt-in.
+ */
+export function isRemoteAbilityOptIn( name, remoteOptIn = [] ) {
+	// The settings client ships before the server returns this field.
+	return name === 'jetpack-stats/get-subscribers' || remoteOptIn.includes( name );
+}
+
+/**
  * Whether a remote ability is enabled: the ability-level key when saved, else the group
  * key, else the default.
  *
@@ -140,18 +152,22 @@ export function getRemoteAbilityKey( name, annotations = {} ) {
  * @param {string}                  name             - Ability name.
  * @param {object}                  [annotations]    - Published annotations.
  * @param {boolean}                 [defaultEnabled] - State when neither key is saved.
+ * @param {string[]}                [remoteOptIn]    - Opt-in ability names from the settings service.
  * @return {boolean} True when enabled.
  */
 export function isRemoteAbilityEnabled(
 	savedGroups,
 	name,
 	annotations = {},
-	defaultEnabled = false
+	defaultEnabled = false,
+	remoteOptIn = []
 ) {
+	const individual = savedGroups[ getRemoteAbilityKey( name, annotations ) ];
+	if ( isRemoteAbilityOptIn( name, remoteOptIn ) ) {
+		return individual === true;
+	}
 	return (
-		savedGroups[ getRemoteAbilityKey( name, annotations ) ] ??
-		savedGroups[ getRemoteAbilityGroupKey( name, annotations ) ] ??
-		defaultEnabled
+		individual ?? savedGroups[ getRemoteAbilityGroupKey( name, annotations ) ] ?? defaultEnabled
 	);
 }
 

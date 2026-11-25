@@ -134,10 +134,17 @@ describe( 'McpHub badges', () => {
 describe( 'remote_groups settings payload', () => {
 	test( 'is read from user_overrides and sent back on update', () => {
 		const response = normalizeWpcomMcpSettings(
-			{ has_mcp_plan: true, user_overrides: { remote_groups: { 'read:akismet': true } } },
+			{
+				has_mcp_plan: true,
+				remote_abilities_requiring_opt_in: [ 'example/individual' ],
+				user_overrides: { remote_groups: { 'read:akismet': true } },
+			},
 			1
 		);
 		expect( response.mcp_abilities.sites[ 0 ].remote_groups ).toEqual( { 'read:akismet': true } );
+		expect( response.mcp_abilities.remote_abilities_requiring_opt_in ).toEqual( [
+			'example/individual',
+		] );
 		expect(
 			prepareWpcomMcpUpdate( { sites: [ { remote_groups: { 'read:akismet': false } } ] } )
 		).toEqual( { remote_groups: { 'read:akismet': false } } );
@@ -216,6 +223,52 @@ describe.each( [
 } );
 
 describe( 'page-level Enable all', () => {
+	test.each( [
+		{ scope: 'page', toggleIndex: 0, individual: true },
+		{ scope: 'namespace', toggleIndex: 2, individual: undefined },
+	] )( '$scope skips the saved subscriber choice', async ( { toggleIndex, individual } ) => {
+		const abilities = [
+			[ 'get-subscribers', 'List remote subscribers' ],
+			[ 'get-views', 'Get views' ],
+		].map( ( [ name, label ] ) => ( {
+			name: `jetpack-stats/${ name }`,
+			label,
+			meta: { annotations: { readonly: true } },
+		} ) );
+		render(
+			<McpRead
+				mcpAbilities={ {
+					account: { ordinary: { title: 'Ordinary tool', enabled: true, readonly: true } },
+					sites: [
+						{
+							blog_id: 1,
+							site_level_enabled: true,
+							remote_groups: {
+								'read:jetpack-stats': true,
+								...( individual && { 'read:jetpack-stats/get-subscribers': individual } ),
+							},
+						},
+					],
+				} }
+				blogId={ 1 }
+				savingToolIds={ new Set() }
+				onUpdate={ onUpdate }
+				remoteAbilities={ { abilities, isLoading: false, isError: false } }
+			/>
+		);
+		for ( const expand of screen.getAllByRole( 'button', { name: 'Show operations' } ) ) {
+			await userEvent.click( expand );
+		}
+		expect(
+			screen.getByRole( 'switch', {
+				name: 'List remote subscribers',
+				checked: Boolean( individual ),
+			} )
+		).toBeInTheDocument();
+		await userEvent.click( screen.getAllByRole( 'switch', { name: 'Enable all' } )[ toggleIndex ] );
+		expect( sentGroups() ).toEqual( { 'read:jetpack-stats': false } );
+	} );
+
 	test.each( [
 		[ 'read', McpRead, true, { 'read:akismet': false } ],
 		[ 'write', McpWrite, false, { 'write:akismet': false, 'destructive:akismet': false } ],

@@ -186,7 +186,8 @@ export default function McpHub( {
 					savedRemoteGroups,
 					ability.name,
 					annotations,
-					remoteDefaults[ category ]
+					remoteDefaults[ category ],
+					mcpAbilities?.remote_abilities_requiring_opt_in
 				),
 			},
 		] );

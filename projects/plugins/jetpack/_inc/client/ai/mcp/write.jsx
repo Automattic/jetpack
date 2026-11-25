@@ -32,10 +32,12 @@ import {
 	getBulkToggleDescription,
 	getGroupDescriptors,
 	getRemoteAbilitiesDefaultEnabled,
+	getRemoteAbilityCategory,
 	getSiteContextToolIds,
 	getSiteLevelEnabled,
 	getSiteMcpAbilities,
 	getSiteRemoteGroups,
+	isRemoteAbilityOptIn,
 	mergeSiteMcpAbilities,
 } from './utils';
 
@@ -112,12 +114,29 @@ export default function McpWrite( {
 	const remoteDefaultEnabled = getRemoteAbilitiesDefaultEnabled( writeTools );
 	const publishedAbilities = remoteAbilities?.abilities ?? [];
 	const savedRemoteGroups = getSiteRemoteGroups( mcpAbilities, blogId );
-	const remoteKeys = collectRemoteKeys( publishedAbilities, savedRemoteGroups, 'write' );
+	const remoteOptIn = mcpAbilities?.remote_abilities_requiring_opt_in;
+	const remoteKeys = collectRemoteKeys(
+		publishedAbilities,
+		savedRemoteGroups,
+		'write',
+		remoteOptIn
+	);
+	const remoteOptInCount = publishedAbilities.filter(
+		ability =>
+			getRemoteAbilityCategory( ability.name, ability.meta?.annotations ) === 'write' &&
+			isRemoteAbilityOptIn( ability.name, remoteOptIn )
+	).length;
 	const hasBulkTools = ordinaryTools.length > 0 || ( remoteAbilities && remoteKeys.length > 0 );
 	const pageAllEnabled =
 		hasBulkTools &&
 		( ordinaryTools.length === 0 || remoteDefaultEnabled ) &&
-		areRemoteGroupsEnabled( publishedAbilities, savedRemoteGroups, 'write', remoteDefaultEnabled );
+		areRemoteGroupsEnabled(
+			publishedAbilities,
+			savedRemoteGroups,
+			'write',
+			remoteDefaultEnabled,
+			remoteOptIn
+		);
 	const isSavingAny =
 		writeTools.some( ( [ id ] ) => savingToolIds.has( id ) ) ||
 		remoteKeys.some( key => savingToolIds.has( key ) );
@@ -177,7 +196,9 @@ export default function McpWrite( {
 			<McpToolbar
 				allEnabled={ pageAllEnabled }
 				isDisabled={ isSavingAny || ! hasBulkTools }
-				bulkDescription={ getBulkToggleDescription( writeTools.length - ordinaryTools.length ) }
+				bulkDescription={ getBulkToggleDescription(
+					writeTools.length - ordinaryTools.length + remoteOptInCount
+				) }
 				onEnableAll={ handlePageToggle }
 			>
 				<SearchControl

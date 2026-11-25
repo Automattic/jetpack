@@ -214,9 +214,9 @@ class WPCOM_REST_API_V2_Endpoint_MCP_Settings extends WP_REST_Controller {
 			array(
 				'has_mcp_access' => true,
 				'mcp_abilities'  => array(
-					'account'                    => $account_abilities,
-					'site'                       => $site_abilities,
-					'sites'                      => array(
+					'account'                           => $account_abilities,
+					'site'                              => $site_abilities,
+					'sites'                             => array(
 						array(
 							'blog_id'            => (int) $blog_id,
 							'site_level_enabled' => $site_level_enabled,
@@ -224,8 +224,9 @@ class WPCOM_REST_API_V2_Endpoint_MCP_Settings extends WP_REST_Controller {
 							'remote_groups'      => (object) $remote_groups,
 						),
 					),
-					'site_level_enabled_default' => $site_level_enabled_default,
-					'groups'                     => $groups,
+					'site_level_enabled_default'        => $site_level_enabled_default,
+					'groups'                            => $groups,
+					'remote_abilities_requiring_opt_in' => $body['remote_abilities_requiring_opt_in'] ?? array(),
 				),
 			)
 		);
