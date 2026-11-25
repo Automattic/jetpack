@@ -296,8 +296,10 @@ class Post_Fields_Handler implements Proposal_Handler {
 	 */
 	public function conflicts( array $item ): array {
 		$post_id = (int) $item['target']['post_id'];
-		$post    = get_post( $post_id );
-		$change  = $item['change'];
+		// This request may have cached the post before another apply wrote it.
+		clean_post_cache( $post_id );
+		$post   = get_post( $post_id );
+		$change = $item['change'];
 
 		if ( ! $post || 'publish' !== $post->post_status || $item['target']['post_type'] !== $post->post_type ) {
 			return array( self::conflict( $post_id, 'The post is no longer published.' ) );

@@ -727,6 +727,49 @@ class Proposals_Test extends Proposals_TestCase {
 		$this->assertFalse( get_option( Proposal_Lock::target_option_name( 'post:' . $page_id ) ) );
 	}
 
+	public function test_apply_checks_conflicts_against_writes_this_request_has_not_seen(): void {
+		global $wpdb;
+		$page_id  = $this->create_post();
+		$proposal = $this->create_proposal(
+			array(
+				array(
+					'post_id' => $page_id,
+					'title'   => 'Proposed',
+				),
+			)
+		);
+		get_post( $page_id );
+		// Another request's apply, which leaves this request's cached post as it was.
+		$wpdb->update( $wpdb->posts, array( 'post_content' => '<p>Written elsewhere</p>' ), array( 'ID' => $page_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+
+		$this->assert_wp_error_code( 'proposal_stale', Proposals::apply( $proposal['id'], $proposal['hash'] ) );
+		$this->assertSame( 'Pricing', get_post( $page_id )->post_title );
+	}
+
+	public function test_review_records_keep_backslashes(): void {
+		$applied = $this->create_proposal(
+			array(
+				array(
+					'post_id' => $this->create_post(),
+					'title'   => 'C:\\Temp',
+				),
+			)
+		);
+		$this->assert_not_wp_error( Proposals::apply( $applied['id'], $applied['hash'] ) );
+		$this->assertStringContainsString( 'C:\\Temp', serialize( $this->stored( $applied['id'] )['review']['descriptions'] ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+
+		$rejected = $this->create_proposal(
+			array(
+				array(
+					'post_id' => $this->create_post(),
+					'title'   => 'Proposed',
+				),
+			)
+		);
+		$this->assert_not_wp_error( Proposals::reject( $rejected['id'], $rejected['hash'], 'Keep C:\\Temp' ) );
+		$this->assertSame( 'Keep C:\\Temp', $this->stored( $rejected['id'] )['review']['note'] );
+	}
+
 	public function test_a_busy_target_releases_the_targets_already_locked(): void {
 		$free_id  = $this->create_post();
 		$busy_id  = $this->create_post( array( 'post_title' => 'Other' ) );

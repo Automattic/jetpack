@@ -340,11 +340,7 @@ class Proposals {
 					return $result;
 				}
 
-				update_post_meta(
-					$proposal_id,
-					Proposal_Store::REVIEW_META,
-					self::review_record( 'rejected', $hash, $context ) + array( 'note' => sanitize_textarea_field( $note ) )
-				);
+				self::write_review( $proposal_id, self::review_record( 'rejected', $hash, $context ) + array( 'note' => sanitize_textarea_field( $note ) ) );
 				return true;
 			}
 		);
@@ -430,7 +426,7 @@ class Proposals {
 		}
 
 		// Overwritten once every item is written, so a record left in this state means the apply stopped partway.
-		update_post_meta( $proposal_id, Proposal_Store::REVIEW_META, self::review_record( 'applying', $hash, $context ) );
+		self::write_review( $proposal_id, self::review_record( 'applying', $hash, $context ) );
 
 		$handlers = self::handlers();
 		$results  = array();
@@ -456,9 +452,8 @@ class Proposals {
 			// The applying record stays, so the proposal reads as an apply that stopped partway.
 			return new WP_Error( 'proposal_not_saved', 'The changes were written to the live site, but the proposal could not be marked as applied. Tell the person the changes are live, and do not apply it again.', array( 'results' => $results ) );
 		}
-		update_post_meta(
+		self::write_review(
 			$proposal_id,
-			Proposal_Store::REVIEW_META,
 			self::review_record( 'applied', $hash, $context ) + array(
 				'results'      => $results,
 				'descriptions' => $descriptions,
@@ -768,6 +763,16 @@ class Proposals {
 			}
 		}
 		return $record;
+	}
+
+	/**
+	 * Save a review record. Meta writes unslash, so it is slashed first to keep the notes and descriptions as written.
+	 *
+	 * @param int   $proposal_id Proposal ID.
+	 * @param array $record      Review record.
+	 */
+	private static function write_review( int $proposal_id, array $record ): void {
+		update_post_meta( $proposal_id, Proposal_Store::REVIEW_META, wp_slash( $record ) );
 	}
 
 	/**
