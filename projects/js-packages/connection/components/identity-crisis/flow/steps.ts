@@ -230,7 +230,7 @@ export type FlowAction =
 	/** Returns to an earlier step, by its place in `history`. */
 	| { type: 'back-to'; index: number }
 	| { type: 'restart'; ctx: FlowContext }
-	| { type: 'open-guide'; ctx: FlowContext }
+	| { type: 'open-guide' }
 	| { type: 'answer'; answer: GuideAnswerId }
 	| { type: 'later' };
 
@@ -301,12 +301,14 @@ export function flowReducer( state: FlowState, action: FlowAction ): FlowState {
 		case 'restart':
 			return getInitialFlowState( action.ctx );
 		case 'open-guide':
-			// Back from the first guide question returns to the first screen.
+			if ( state.entry === 'guide' ) {
+				return state;
+			}
 			return {
 				entry: 'guide',
 				step: 'open_address',
 				pick: null,
-				history: [ leave( getInitialFlowState( action.ctx ), null ) ],
+				history: [ ...state.history, leave( state, null ) ],
 			};
 		case 'answer': {
 			if ( ! isGuideStep( state.step ) ) {
@@ -340,6 +342,7 @@ export function flowReducer( state: FlowState, action: FlowAction ): FlowState {
 
 /**
  * The answers so far, joined by `>`, for the `jetpack_idc_*` events' `path`.
+ * The guide starts over, so its path leaves out the answers given before it.
  *
  * @param state - The flow state.
  * @param ctx   - The flow context.
@@ -353,7 +356,7 @@ export function getPath( state: FlowState, ctx: FlowContext ): string {
 		parts.push( 'detected_copy' );
 	}
 	for ( const entry of state.history ) {
-		if ( entry.answer ) {
+		if ( entry.entry === state.entry && entry.answer ) {
 			parts.push( entry.answer );
 		}
 	}

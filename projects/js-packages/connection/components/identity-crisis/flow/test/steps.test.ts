@@ -91,7 +91,7 @@ function guide(
 ): FlowState {
 	let state = answers.reduce(
 		( current, id ) => flowReducer( current, { type: 'answer', answer: id } ),
-		flowReducer( getInitialFlowState( flowCtx ), { type: 'open-guide', ctx: flowCtx } )
+		flowReducer( getInitialFlowState( flowCtx ), { type: 'open-guide' } )
 	);
 	for ( const option of picks ) {
 		state = flowReducer( flowReducer( state, { type: 'next' } ), { type: 'pick', option } );
@@ -155,7 +155,7 @@ describe( 'Safe Mode step-by-step guide', () => {
 	it( 'Back undoes one step at a time, back to the first screen', () => {
 		const visited: FlowState[] = [ getInitialFlowState( ctx ) ];
 		const changes = [
-			{ type: 'open-guide', ctx },
+			{ type: 'open-guide' },
 			{ type: 'answer', answer: 'loads' },
 			{ type: 'answer', answer: 'separate' },
 			{ type: 'answer', answer: 'other_address' },
@@ -171,6 +171,27 @@ describe( 'Safe Mode step-by-step guide', () => {
 			expect( state ).toEqual( expected );
 		}
 	} );
+
+	it.each( [
+		[ 'the first question', false, [ 'old' ] ],
+		[ 'a follow-up question', false, [ 'original', 'fresh' ] ],
+		[ 'the staging first screen', true, [ 'fresh' ] ],
+	] as const )(
+		'opened from %s, starts a new path and Back restores the pick',
+		( _, isDevelopmentSite, picks ) => {
+			const flowCtx = { ...ctx, isDevelopmentSite };
+			const before = answer( flowCtx, [ ...picks ] );
+			const opened = flowReducer( before, { type: 'open-guide' } );
+			const answered = flowReducer( opened, { type: 'answer', answer: 'loads' } );
+
+			expect( opened ).toMatchObject( { entry: 'guide', step: 'open_address', pick: null } );
+			expect( getPath( answered, flowCtx ) ).toBe( 'guide>loads' );
+			expect( getGuideTrail( answered ) ).toEqual( [
+				{ index: before.history.length + 1, answer: 'loads' },
+			] );
+			expect( flowReducer( opened, { type: 'back' } ) ).toEqual( before );
+		}
+	);
 
 	it( '"Stay in Safe Mode for now" leaves the path as it is, and Back returns to the question', () => {
 		const question = guide( ctx, [ 'loads' ] );

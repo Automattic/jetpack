@@ -471,7 +471,7 @@ describe( 'IdentityCrisis', () => {
 		expect( onActionSuccess ).toHaveBeenCalledWith( { action: 'confirm-safe-mode' } );
 	} );
 
-	it( 'opens the guide from the staging note, and Back returns to the first screen', async () => {
+	it( 'opens the guide from the staging note, and Back returns to the first screen as it was', async () => {
 		const user = userEvent.setup();
 		storeState = { state: { ...resolvable, isDevelopmentSite: true }, plugins: jetpack };
 		render( <IdentityCrisis context="notice" onActionSuccess={ jest.fn() } /> );
@@ -480,6 +480,7 @@ describe( 'IdentityCrisis', () => {
 			screen.queryByRole( 'button', { name: 'Work it out step by step' } )
 		).not.toBeInTheDocument();
 
+		await user.click( screen.getByRole( 'radio', { name: 'Give it its own connection' } ) );
 		await user.click(
 			screen.getByRole( 'button', { name: 'Not a copy? Work it out step by step' } )
 		);
@@ -492,7 +493,20 @@ describe( 'IdentityCrisis', () => {
 
 		await user.click( screen.getByRole( 'button', { name: 'Back to the first screen' } ) );
 
-		expect( screen.getByRole( 'radio', { name: 'Keep it in Safe Mode' } ) ).toBeChecked();
+		expect( screen.getByRole( 'radio', { name: 'Give it its own connection' } ) ).toBeChecked();
+	} );
+
+	it( 'opens the guide from a follow-up question, and Back returns to it as it was', async () => {
+		const user = userEvent.setup();
+		render( <IdentityCrisis context="notice" onActionSuccess={ jest.fn() } /> );
+
+		await user.click( screen.getByRole( 'radio', { name: 'The original site' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Next' } ) );
+		await user.click( screen.getByRole( 'radio', { name: 'Give it its own connection' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Work it out step by step' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Back' } ) );
+
+		expect( screen.getByRole( 'radio', { name: 'Give it its own connection' } ) ).toBeChecked();
 	} );
 
 	it( 'gives an admin who cannot check a message to send, and copies it', async () => {

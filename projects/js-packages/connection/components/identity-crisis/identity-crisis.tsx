@@ -282,6 +282,7 @@ function IdentityCrisisResolver( {
 				openUrl={ getSiteUrl( state.wpcomHomeUrl ) }
 				trail={ trail }
 				onAnswer={ flow.answer }
+				isBackToStart={ flow.state.history.length === 1 }
 				onBack={ flow.back }
 				headingRef={ headingRef }
 			/>

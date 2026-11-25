@@ -66,6 +66,8 @@ interface GuideStepProps {
 	/** The answers so far, shown below Back. */
 	trail: ReactNode;
 	onAnswer: ( answer: GuideAnswerId ) => void;
+	/** Back leads to the first screen, and says so. */
+	isBackToStart: boolean;
 	onBack: () => void;
 	/** Receives the question, which takes focus when the step changes. */
 	headingRef: Ref< HTMLHeadingElement >;
@@ -84,6 +86,7 @@ export default function GuideStep( {
 	openUrl,
 	trail,
 	onAnswer,
+	isBackToStart,
 	onBack,
 	headingRef,
 }: GuideStepProps ): ReactNode {
@@ -96,7 +99,7 @@ export default function GuideStep( {
 			<div>
 				<Button variant="minimal" size="compact" onClick={ onBack }>
 					<Button.Icon icon={ isRTL() ? chevronRight : chevronLeft } />
-					{ isFirst ? text.backToStart : getBackText() }
+					{ isBackToStart ? text.backToStart : getBackText() }
 				</Button>
 			</div>
 			{ trail }

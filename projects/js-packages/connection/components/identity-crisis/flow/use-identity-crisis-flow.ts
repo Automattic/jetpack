@@ -51,7 +51,7 @@ export default function useIdentityCrisisFlow(
 		back: useCallback( () => change( { type: 'back' } ), [ change ] ),
 		backTo: useCallback( index => change( { type: 'back-to', index } ), [ change ] ),
 		restart: useCallback( () => change( { type: 'restart', ctx } ), [ change, ctx ] ),
-		openGuide: useCallback( () => change( { type: 'open-guide', ctx } ), [ change, ctx ] ),
+		openGuide: useCallback( () => change( { type: 'open-guide' } ), [ change ] ),
 		answer: useCallback( answer => change( { type: 'answer', answer } ), [ change ] ),
 		later: useCallback( () => change( { type: 'later' } ), [ change ] ),
 	};
