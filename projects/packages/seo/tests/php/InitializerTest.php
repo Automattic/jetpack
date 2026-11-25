@@ -63,7 +63,7 @@ class InitializerTest extends TestCase {
 			$this->assertFalse( Initializer::is_optin_available() );
 
 			update_option( Initializer::VISIBILITY_OPTION, '1' );
-			foreach ( array( 'rest_api_init', 'admin_menu', 'jetpack_deactivate_module_sitemaps', 'redirect_canonical', 'old_slug_redirect_url' ) as $hook ) {
+			foreach ( array( 'rest_api_init', 'admin_menu', 'jetpack_deactivate_module_sitemaps', 'redirect_canonical', 'old_slug_redirect_url', 'jetpack_get_available_modules' ) as $hook ) {
 				unset( $GLOBALS['wp_filter'][ $hook ] );
 			}
 			Initializer::init();
@@ -73,6 +73,17 @@ class InitializerTest extends TestCase {
 			$this->assertFalse( has_action( 'jetpack_deactivate_module_sitemaps', array( Initializer::class, 'flag_sitemap_user_disabled' ) ) );
 			$this->assertFalse( has_filter( 'redirect_canonical', array( Llms_Txt::class, 'preserve_llms_txt_request' ) ) );
 			$this->assertFalse( has_filter( 'old_slug_redirect_url', array( Llms_Txt::class, 'preserve_llms_txt_request' ) ) );
+			// No SEO switch in Jetpack's module list, where it would turn nothing on.
+			$this->assertSame(
+				array( 'stats' => '1.0' ),
+				apply_filters(
+					'jetpack_get_available_modules',
+					array(
+						'stats'                       => '1.0',
+						Initializer::DASHBOARD_MODULE => '16.5',
+					)
+				)
+			);
 		} finally {
 			Constants::clear_single_constant( 'WPCOM_IS_VIP_ENV' );
 			$GLOBALS['wp_filter'] = $hooks; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
@@ -86,14 +97,14 @@ class InitializerTest extends TestCase {
 	}
 
 	/**
-	 * Migration preserves saved preferences and module-dependent editing routes.
+	 * An old discoverability value cannot block independent settings or activate modules.
 	 *
 	 * @dataProvider migration_states
 	 * @param string|null $visibility Saved discoverability value.
 	 * @param bool        $seo_active Whether SEO Tools was already active.
 	 */
 	#[DataProvider( 'migration_states' )]
-	public function test_migration_preserves_module_gates_and_saved_choices( $visibility, $seo_active ) {
+	public function test_migration_registers_independent_settings_without_activating_seo( $visibility, $seo_active ) {
 		$hooks            = array_map(
 			static function ( $hook ) {
 				return clone $hook;
@@ -130,8 +141,8 @@ class InitializerTest extends TestCase {
 		}
 		try {
 			Initializer::init();
-			$this->assertSame( $seo_active ? 5 : false, has_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ) ) );
-			$this->assertSame( $seo_active ? 10 : false, has_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) ) );
+			$this->assertSame( 5, has_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ) ) );
+			$this->assertSame( 10, has_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) ) );
 			$this->assertNotFalse( has_action( 'admin_menu', array( Admin_Page::class, 'maybe_load_wp_build' ) ) );
 			$this->assertSame( $visibility, get_option( Initializer::VISIBILITY_OPTION, null ) );
 			$this->assertSame( $modules, get_option( 'jetpack_active_modules' ) );
@@ -153,6 +164,73 @@ class InitializerTest extends TestCase {
 			}
 			$initialized->setValue( null, $was_initialized );
 		}
+	}
+
+	/**
+	 * Turning the SEO switch off pauses the SEO modules without changing their saved states, except on VIP.
+	 *
+	 * @dataProvider provide_dashboard_states
+	 * @param bool $switch_on Whether the SEO switch is on.
+	 * @param bool $vip       Whether the site is on VIP, which has no SEO page.
+	 * @param bool $paused    Whether the SEO modules should be held off.
+	 */
+	#[DataProvider( 'provide_dashboard_states' )]
+	public function test_seo_switch_pauses_the_seo_modules( $switch_on, $vip, $paused ) {
+		$hooks       = array_map(
+			static function ( $hook ) {
+				return clone $hook;
+			},
+			$GLOBALS['wp_filter']
+		);
+		$previous    = get_option( 'jetpack_active_modules', null );
+		$saved       = $switch_on ? array( 'seo-tools', 'sitemaps', Initializer::DASHBOARD_MODULE ) : array( 'seo-tools', 'sitemaps' );
+		$initialized = new \ReflectionProperty( Initializer::class, 'initialized' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$initialized->setAccessible( true );
+		}
+		$was_initialized = $initialized->getValue();
+		$initialized->setValue( null, false );
+		add_filter(
+			'jetpack_get_available_standalone_modules',
+			static function ( $modules ) {
+				return array_merge( (array) $modules, array( 'seo-tools', 'sitemaps', Initializer::DASHBOARD_MODULE ) );
+			}
+		);
+		update_option( 'jetpack_active_modules', $saved );
+		remove_filter( 'jetpack_active_modules', 'jetpack_seo_test_switch_on', 1000 );
+		if ( $vip ) {
+			Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
+		}
+		remove_action( 'admin_menu', array( Admin_Page::class, 'add_menu_item' ) );
+		remove_action( 'wp_head', array( Schema_Builder::class, 'emit' ) );
+
+		try {
+			Initializer::init();
+
+			$this->assertSame( $paused ? Initializer::SEO_MODULES : array(), Initializer::get_paused_modules() );
+			$this->assertSame( ! $paused, Initializer::is_seo_tools_active() );
+			$this->assertSame( ! $paused && ! $vip, false !== has_action( 'admin_menu', array( Admin_Page::class, 'add_menu_item' ) ) );
+			$this->assertSame( ! $paused && ! $vip, false !== has_action( 'wp_head', array( Schema_Builder::class, 'emit' ) ) );
+			$this->assertSame( $saved, get_option( 'jetpack_active_modules' ) );
+		} finally {
+			Constants::clear_single_constant( 'WPCOM_IS_VIP_ENV' );
+			$GLOBALS['wp_filter'] = $hooks; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			if ( null === $previous ) {
+				delete_option( 'jetpack_active_modules' );
+			} else {
+				update_option( 'jetpack_active_modules', $previous );
+			}
+			$initialized->setValue( null, $was_initialized );
+		}
+	}
+
+	/** @return array Whether the SEO switch is on and the site is on VIP; then whether the modules pause. */
+	public static function provide_dashboard_states() {
+		return array(
+			'switch on'              => array( true, false, false ),
+			'switch off'             => array( false, false, true ),
+			'switch off, but on VIP' => array( false, true, false ),
+		);
 	}
 
 	/** @return array Saved state combinations from existing installs. */

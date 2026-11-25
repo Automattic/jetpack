@@ -169,8 +169,9 @@ class Dashboard_Data {
 	 * `manage_options` capability, so it works on every platform with one code path.
 	 *
 	 * Only settings registered with `show_in_rest` round-trip through that
-	 * endpoint, and it silently ignores keys that aren't registered. These routes
-	 * follow the same SEO Tools activation gate as the dashboard's editors.
+	 * endpoint, and it silently ignores keys that aren't registered. Independent
+	 * settings must stay registered while SEO Tools is off; the dashboard hides the
+	 * SEO-dependent editors until that module is active.
 	 *
 	 * Hooked on `rest_api_init`, not earlier: which option the front page description is
 	 * stored in depends on `jetpack_disable_seo_tools`, and a conflicting SEO plugin can
@@ -783,6 +784,7 @@ class Dashboard_Data {
 			'sitemap_active'            => 'sitemaps',
 			'canonical_active'          => 'canonical-urls',
 			'verification_tools_active' => 'verification-tools',
+			'seo_tools_active'          => 'seo-tools',
 		);
 	}
 
@@ -968,8 +970,8 @@ class Dashboard_Data {
 	 *
 	 * Read-only bootstrap only. Writes go to core's `/wp/v2/settings` for every field
 	 * backed by an option alone ({@see self::register_rest_settings()}), and to the
-	 * package's own routes for the three settings whose write switches a Jetpack module
-	 * — sitemap, canonical URLs and site verification ({@see self::module_settings()})
+	 * package's own routes for the settings whose write switches a Jetpack module
+	 * — sitemap, canonical URLs, site verification and SEO tools ({@see self::module_settings()})
 	 * — and for the nested Schema container; bootstrapping them all here keeps the
 	 * Settings UI hydrated without a second request.
 	 *
@@ -1038,6 +1040,7 @@ class Dashboard_Data {
 			'front_page_description'     => (string) $front_page_desc,
 			'has_legacy_front_page_meta' => $has_legacy_front_page_meta,
 			'verification_tools_active'  => $modules->is_active( 'verification-tools' ),
+			'seo_tools_active'           => $modules->is_active( 'seo-tools' ),
 			'verification'               => array(
 				'google'    => isset( $codes['google'] ) ? (string) $codes['google'] : '',
 				'bing'      => isset( $codes['bing'] ) ? (string) $codes['bing'] : '',

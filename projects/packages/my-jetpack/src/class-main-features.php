@@ -57,6 +57,11 @@ class Main_Features {
 	const MINIMUM_OFFLINE_FEATURES_VERSION = '6.15.0';
 
 	/**
+	 * The Jetpack module behind the SEO card. Must match `Initializer::DASHBOARD_MODULE` in the SEO package.
+	 */
+	const SEO_MODULE = 'seo-dashboard';
+
+	/**
 	 * The bundles the Features tab offers as filter pills. Must match `GROUPS` in use-feature-filter.ts.
 	 */
 	private const FILTER_GROUPS = array( 'security', 'growth' );
@@ -478,6 +483,28 @@ class Main_Features {
 				),
 				'plans'            => array( 'pro', 'complete' ),
 				'paid_product'     => __( 'Jetpack Search', 'jetpack-my-jetpack' ),
+			),
+			'seo'               => array(
+				'info_url'         => 'https://jetpack.com/support/seo-tools/',
+				'docs_url'         => 'https://jetpack.com/support/seo-tools/',
+				'name'             => __( 'SEO', 'jetpack-my-jetpack' ),
+				'description'      => __( 'Control how your site appears in search results, social shares, and AI tools.', 'jetpack-my-jetpack' ),
+				'long_description' => __( 'Manage your sitemap, search engine verification, titles and descriptions, social previews, structured data, and AI crawler access from one page.', 'jetpack-my-jetpack' ),
+				'icon'             => 'seo',
+				'admin_page'       => 'jetpack-seo',
+				// Switches the SEO page and the Search engines modules together; each module keeps its own state.
+				'module'           => self::SEO_MODULE,
+				'free_highlights'  => array(
+					__( 'Sitemap, site verification, and canonical URLs', 'jetpack-my-jetpack' ),
+					__( 'Custom titles, meta descriptions, and social previews', 'jetpack-my-jetpack' ),
+					__( 'Structured data, llms.txt, and AI crawler controls', 'jetpack-my-jetpack' ),
+				),
+				'delivery'         => array(
+					'jetpack' => true,
+					'plugin'  => '',
+					'free'    => true,
+				),
+				'plans'            => array(),
 			),
 			'social'            => array(
 				'info_url'         => 'https://jetpack.com/social/',
@@ -1179,6 +1206,11 @@ class Main_Features {
 				continue;
 			}
 
+			// Drop the SEO card where SEO isn't offered (no seo-dashboard module, or VIP); every other card carries on.
+			if ( 'seo' === $slug && ! self::is_seo_offered() ) {
+				continue;
+			}
+
 			$delivery = $definition['delivery'] ?? array();
 			$plugin   = $delivery['plugin'] ?? '';
 			// Any feature neither Jetpack nor a plugin delivers on this site has no card, such as one whose module is behind a flag.
@@ -1245,6 +1277,21 @@ class Main_Features {
 		);
 
 		return $features;
+	}
+
+	/**
+	 * Whether the Jetpack plugin offers the SEO card's module, and this host the SEO page it switches.
+	 *
+	 * @return bool
+	 */
+	private static function is_seo_offered() {
+		if ( ! in_array( self::SEO_MODULE, (array) ( new \Automattic\Jetpack\Modules() )->get_available(), true ) ) {
+			return false;
+		}
+
+		$seo_initializer = 'Automattic\Jetpack\SEO\Initializer';
+		// @phan-suppress-next-line PhanUndeclaredClassReference -- optional SEO package, guarded by method_exists.
+		return ! method_exists( $seo_initializer, 'is_available' ) || $seo_initializer::is_available();
 	}
 
 	/**
