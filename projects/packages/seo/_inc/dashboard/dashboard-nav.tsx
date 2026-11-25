@@ -32,10 +32,19 @@ const isSeoTab = ( value: string | null ): value is SeoTab =>
  *
  * @param props          - Component props.
  * @param props.active   - The tab for the currently rendered route.
+ * @param props.showTabs - Whether to show the tab strip (default true).
  * @param props.children - The route's content, rendered inside `Tabs.Root`.
  * @return The dashboard tab navigation wrapping the route content.
  */
-const DashboardNav = ( { active, children }: { active: SeoTab; children: ReactNode } ) => {
+const DashboardNav = ( {
+	active,
+	showTabs = true,
+	children,
+}: {
+	active: SeoTab;
+	showTabs?: boolean;
+	children: ReactNode;
+} ) => {
 	const navigate = useNavigate();
 
 	const onTabChange = useCallback(
@@ -49,20 +58,22 @@ const DashboardNav = ( { active, children }: { active: SeoTab; children: ReactNo
 
 	return (
 		<Tabs.Root className="jetpack-seo-tabs" value={ active } onValueChange={ onTabChange }>
-			<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
-				<Tabs.List variant="minimal">
-					<Tabs.Tab value="overview">{ __( 'Overview', 'jetpack-seo' ) }</Tabs.Tab>
-					<Tabs.Tab value="content">{ __( 'Content', 'jetpack-seo' ) }</Tabs.Tab>
-					<Tabs.Tab value="geo">
-						{ _x(
-							'GEO',
-							'Generative Engine Optimization; the SEO dashboard tab label',
-							'jetpack-seo'
-						) }
-					</Tabs.Tab>
-					<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-seo' ) }</Tabs.Tab>
-				</Tabs.List>
-			</div>
+			{ showTabs && (
+				<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
+					<Tabs.List variant="minimal">
+						<Tabs.Tab value="overview">{ __( 'Overview', 'jetpack-seo' ) }</Tabs.Tab>
+						<Tabs.Tab value="content">{ __( 'Content', 'jetpack-seo' ) }</Tabs.Tab>
+						<Tabs.Tab value="geo">
+							{ _x(
+								'GEO',
+								'Generative Engine Optimization; the SEO dashboard tab label',
+								'jetpack-seo'
+							) }
+						</Tabs.Tab>
+						<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-seo' ) }</Tabs.Tab>
+					</Tabs.List>
+				</div>
+			) }
 			{ children }
 		</Tabs.Root>
 	);

@@ -20,9 +20,6 @@ jest.unstable_mockModule( '../../../_inc/components/dashboard-load-error', () =>
 jest.unstable_mockModule( '../../../_inc/components/dashboard-skeleton', () => ( {
 	default: () => null,
 } ) );
-jest.unstable_mockModule( '../../../_inc/components/seo-disabled-stage', () => ( {
-	default: () => null,
-} ) );
 jest.unstable_mockModule( '../../../_inc/dashboard/dashboard-page', () => ( {
 	default: ( { children }: { children: React.ReactNode } ) => children,
 } ) );
@@ -33,9 +30,6 @@ jest.unstable_mockModule( '../../../_inc/data/get-preloaded', () => ( {
 } ) );
 jest.unstable_mockModule( '../../../_inc/data/get-overview', () => ( {
 	default: jest.fn(),
-} ) );
-jest.unstable_mockModule( '../../../_inc/data/is-seo-tools-active', () => ( {
-	default: () => true,
 } ) );
 jest.unstable_mockModule( '../../../_inc/data/settings-store', () => ( {
 	settingsStore: 'settings',

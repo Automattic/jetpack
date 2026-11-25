@@ -14,7 +14,11 @@ export {
 	type SeriesStyle,
 	type TooltipExtraSeries,
 } from './chart-comparative-line';
-export { StackedAreaChart, type StackedAreaChartProps } from './chart-stacked-area';
+export {
+	StackedAreaChart,
+	type StackedAreaChartProps,
+	type StackedAreaSeries,
+} from './chart-stacked-area';
 export {
 	ComparativeBarChart,
 	type ComparativeBarChartProps,
