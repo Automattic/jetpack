@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+VideoPress: Split `useBlockAttributes` into separate `useSelect` calls to avoid returning new object references in the site editor.
