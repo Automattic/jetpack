@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Features: Disable Connect in a feature's details while the feature is being deactivated.

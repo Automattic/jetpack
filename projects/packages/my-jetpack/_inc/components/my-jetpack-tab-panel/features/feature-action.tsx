@@ -331,6 +331,7 @@ type ConnectButtonProps = {
 	state: FeatureState;
 	origin: FeatureActionOrigin;
 	buttonRef?: Ref< HTMLButtonElement >;
+	disabled?: boolean;
 };
 
 /**
@@ -340,9 +341,10 @@ type ConnectButtonProps = {
  * @param {FeatureState}       props.state     - Live state for the feature.
  * @param {string}             props.origin    - Which control this is.
  * @param {Ref}                props.buttonRef - Ref to the button, for a caller that moves focus to it.
+ * @param {boolean}            props.disabled  - Whether the button is disabled. It stays focusable, so keyboard focus is not lost.
  * @return The rendered component.
  */
-export function ConnectButton( { state, origin, buttonRef }: ConnectButtonProps ) {
+export function ConnectButton( { state, origin, buttonRef, disabled }: ConnectButtonProps ) {
 	const connectAccount = useAccountConnection();
 	const onClick = useCallback(
 		() => connectAccount( state, origin, 'connect' ),
@@ -354,6 +356,7 @@ export function ConnectButton( { state, origin, buttonRef }: ConnectButtonProps 
 			ref={ buttonRef }
 			variant="outline"
 			size="compact"
+			disabled={ disabled }
 			onClick={ onClick }
 			aria-label={ sprintf(
 				/* translators: %s is the feature name. */
