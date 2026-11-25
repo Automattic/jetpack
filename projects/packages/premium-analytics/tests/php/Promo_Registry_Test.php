@@ -242,11 +242,48 @@ class Promo_Registry_Test extends BaseTestCase {
 			array(
 				'placement'   => 'options-menu',
 				'cta_label'   => 'Try Acme',
+				'cta_url'     => 'https://example.com/acme',
 				'dismissible' => false,
 			)
 		);
 
 		$this->assertInstanceOf( Promo::class, $promo );
+	}
+
+	/**
+	 * @param mixed $cta_url A cta_url the dashboard cannot link to.
+	 * @dataProvider provide_unlinkable_cta_urls
+	 */
+	#[DataProvider( 'provide_unlinkable_cta_urls' )]
+	public function test_register_refuses_a_cta_label_the_dashboard_cannot_link( $cta_url ) {
+		$registry = new Promo_Registry();
+
+		$args = array(
+			'placement' => 'options-menu',
+			'cta_label' => 'Try Acme',
+		);
+
+		if ( null !== $cta_url ) {
+			$args['cta_url'] = $cta_url;
+		}
+
+		$this->capture_doing_it_wrong();
+
+		$this->assertFalse( $registry->register( 'acme/offer', $args ) );
+		$this->assertFalse( $registry->is_registered( 'acme/offer' ) );
+		$this->assertSame( array( Promo_Registry::class . '::register' ), $this->doing_it_wrong );
+	}
+
+	public static function provide_unlinkable_cta_urls() {
+		return array(
+			'absent'          => array( null ),
+			'empty'           => array( '' ),
+			'no scheme'       => array( 'example.com/acme' ),
+			'javascript'      => array( 'javascript:alert(1)' ), // phpcs:ignore Generic.Strings.UnnecessaryStringConcat.Found
+			'data'            => array( 'data:text/html,<p>hi</p>' ),
+			'site relative'   => array( '/acme' ),
+			'protocol scheme' => array( '//example.com/acme' ),
+		);
 	}
 
 	public function test_the_registration_action_fires_once_on_the_first_read_after_init() {
@@ -317,5 +354,45 @@ class Promo_Registry_Test extends BaseTestCase {
 
 		$this->assertFalse( $called );
 		$this->assertSame( array( Promo_Registry::class . '::ensure_hydrated' ), $this->doing_it_wrong );
+	}
+
+	public function test_a_read_before_init_does_not_become_the_answer_for_the_request() {
+		global $wp_actions;
+		$init_runs = $wp_actions['init'] ?? null;
+		unset( $wp_actions['init'] );
+		$this->capture_doing_it_wrong();
+
+		$registry = new Promo_Registry();
+		$computed = 0;
+		$compute  = function () use ( &$computed ) {
+			++$computed;
+			return array();
+		};
+
+		try {
+			$registry->remember_available( $compute );
+		} finally {
+			if ( null !== $init_runs ) {
+				$wp_actions['init'] = $init_runs;
+			}
+		}
+
+		$promo = $registry->register(
+			'acme/offer',
+			array(
+				'placement' => 'settings',
+				'title'     => 'Grow with Acme',
+			)
+		);
+
+		$this->assertSame(
+			array( $promo ),
+			$registry->remember_available(
+				function () use ( $promo ) {
+					return array( $promo );
+				}
+			)
+		);
+		$this->assertSame( 1, $computed );
 	}
 }

@@ -108,6 +108,12 @@ final class Promo_Registry {
 			return $this->refuse( __( 'An options-menu promo needs a cta_label. The label is the menu item.', 'jetpack-premium-analytics-pkg' ) );
 		}
 
+		// The client links through `safeHttpUrl`, which allows http(s) only. A menu promo it rejects
+		// renders as nothing while still taking the one item the menu offers, hiding any other.
+		if ( '' !== $promo->cta_label && ! $this->is_linkable( $promo->cta_url ) ) {
+			return $this->refuse( __( 'A promo cta_url must be an http or https URL.', 'jetpack-premium-analytics-pkg' ) );
+		}
+
 		if ( 'options-menu' === $promo->placement && $promo->dismissible ) {
 			return $this->refuse( __( 'An options-menu promo cannot be dismissible. Pass dismissible as false.', 'jetpack-premium-analytics-pkg' ) );
 		}
@@ -132,6 +138,8 @@ final class Promo_Registry {
 	/**
 	 * Retrieves a registered promo.
 	 *
+	 * @internal
+	 *
 	 * @since $$next-version$$
 	 *
 	 * @param string $slug Promo identifier.
@@ -147,12 +155,22 @@ final class Promo_Registry {
 	 * Runs the gates once and answers from that result for the rest of the request. A registrant's
 	 * `is_available` rule may be expensive, and both the script data and the import map ask.
 	 *
+	 * @internal
+	 *
 	 * @since $$next-version$$
 	 *
 	 * @param callable $compute Applies the gates to the registered promos.
 	 * @return Promo[] The gated promos.
 	 */
 	public function remember_available( callable $compute ) {
+		$this->ensure_hydrated();
+
+		// A read before the registry hydrates answers without the registrants hooked later, so it
+		// must not become the answer for the rest of the request.
+		if ( ! $this->hydrated ) {
+			return $compute();
+		}
+
 		if ( null === $this->available_promos ) {
 			$this->available_promos = $compute();
 		}
@@ -232,6 +250,18 @@ final class Promo_Registry {
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	 * Whether a CTA URL is one the dashboard will link to.
+	 *
+	 * @param string $url The CTA URL.
+	 * @return bool
+	 */
+	private function is_linkable( $url ) {
+		$scheme = wp_parse_url( $url, PHP_URL_SCHEME );
+
+		return is_string( $scheme ) && in_array( strtolower( $scheme ), array( 'http', 'https' ), true );
 	}
 
 	/**

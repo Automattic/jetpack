@@ -3,7 +3,7 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { DASHBOARD_PREFERENCES_SCOPE, type Promo } from '@jetpack-premium-analytics/data';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { dispatch } from '@wordpress/data';
 import { store as preferencesStore } from '@wordpress/preferences';
@@ -28,6 +28,46 @@ jest.mock(
 const recordEvent = jest.mocked( jetpackAnalytics.tracks.recordEvent );
 
 const DAY = 86400000;
+
+const observed: { element: Element; callback: IntersectionObserverCallback }[] = [];
+
+class TestIntersectionObserver {
+	callback: IntersectionObserverCallback;
+
+	constructor( callback: IntersectionObserverCallback ) {
+		this.callback = callback;
+	}
+
+	observe( element: Element ) {
+		observed.push( { element, callback: this.callback } );
+	}
+
+	disconnect() {
+		for ( let index = observed.length - 1; index >= 0; index-- ) {
+			if ( observed[ index ].callback === this.callback ) {
+				observed.splice( index, 1 );
+			}
+		}
+	}
+
+	unobserve() {}
+
+	takeRecords(): IntersectionObserverEntry[] {
+		return [];
+	}
+}
+
+const scrollIntoView = () =>
+	act( () => {
+		observed
+			.slice()
+			.forEach( ( { element, callback } ) =>
+				callback(
+					[ { target: element, isIntersecting: true } as IntersectionObserverEntry ],
+					{} as IntersectionObserver
+				)
+			);
+	} );
 
 const makePromo = ( overrides: Partial< Promo > = {} ): Promo => ( {
 	slug: 'acme/offer',
@@ -70,6 +110,9 @@ const resolving = ( component: ComponentType< PromoRenderProps > ) => () =>
 describe( 'PromoCard', () => {
 	beforeEach( () => {
 		jest.useFakeTimers();
+		observed.length = 0;
+		window.IntersectionObserver =
+			TestIntersectionObserver as unknown as typeof window.IntersectionObserver;
 		resetPromoDismissalForTesting();
 		resetPromoViewsForTesting();
 		recordEvent.mockClear();
@@ -107,10 +150,25 @@ describe( 'PromoCard', () => {
 		expect( recordEvent ).not.toHaveBeenCalled();
 	} );
 
+	it( 'records no view until the card is scrolled into view', () => {
+		render( <PromoCard promo={ makePromo() } /> );
+
+		expect( recordEvent ).not.toHaveBeenCalled();
+
+		scrollIntoView();
+
+		expect( recordEvent ).toHaveBeenCalledWith( 'jetpack_premium_analytics_promo_view', {
+			slug: 'acme/offer',
+			placement: 'settings',
+		} );
+	} );
+
 	it( 'fires the view event once per page load for a placement', () => {
 		const { unmount } = render( <PromoCard promo={ makePromo() } /> );
+		scrollIntoView();
 		unmount();
 		render( <PromoCard promo={ makePromo() } /> );
+		scrollIntoView();
 
 		expect( recordEvent ).toHaveBeenCalledTimes( 1 );
 		expect( recordEvent ).toHaveBeenCalledWith( 'jetpack_premium_analytics_promo_view', {

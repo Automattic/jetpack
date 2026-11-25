@@ -11,6 +11,7 @@ import {
 	useCallback,
 	useEffect,
 	useMemo,
+	useRef,
 	type ComponentType,
 	type JSX,
 	type ReactNode,
@@ -89,12 +90,33 @@ export function PromoCard( { promo, resolveModule = importModule }: PromoCardPro
 	const { isDismissed, willBeFinal, dismiss } = usePromoDismissal( promo );
 	const trackEvent = useTrackEvent();
 
+	const cardRef = useRef< HTMLElement >( null );
+
+	// On its first intersection, not on mount: the Settings card is the last thing on the page, so a
+	// view recorded on load would report an impression to the registrant that nobody had.
 	useEffect( () => {
-		if ( isDismissed || viewedPlacements.has( placement ) ) {
+		const card = cardRef.current;
+
+		if ( isDismissed || ! card || viewedPlacements.has( placement ) ) {
 			return;
 		}
-		viewedPlacements.add( placement );
-		trackEvent( 'jetpack_premium_analytics_promo_view', { slug, placement } );
+
+		const observer = new IntersectionObserver( entries => {
+			if ( ! entries.some( entry => entry.isIntersecting ) ) {
+				return;
+			}
+
+			observer.disconnect();
+
+			if ( ! viewedPlacements.has( placement ) ) {
+				viewedPlacements.add( placement );
+				trackEvent( 'jetpack_premium_analytics_promo_view', { slug, placement } );
+			}
+		} );
+
+		observer.observe( card );
+
+		return () => observer.disconnect();
 	}, [ isDismissed, placement, slug, trackEvent ] );
 
 	const trackClick = useCallback(
@@ -124,7 +146,12 @@ export function PromoCard( { promo, resolveModule = importModule }: PromoCardPro
 	const fallback = <DataOnlyContent promo={ promo } trackClick={ trackClick } />;
 
 	return (
-		<aside className={ styles.card } aria-label={ promo.title } data-testid="promo-card">
+		<aside
+			ref={ cardRef }
+			className={ styles.card }
+			aria-label={ promo.title }
+			data-testid="promo-card"
+		>
 			{ dismissible && (
 				<IconButton
 					className={ styles.close }
