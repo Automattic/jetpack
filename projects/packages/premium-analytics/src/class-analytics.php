@@ -246,6 +246,10 @@ class Analytics {
 
 		self::register_script_data();
 
+		// Registered here, not with the rest of the prompts: a flag must be discoverable through
+		// Feature_Flags::all() on every request, not only the ones that render the dashboard.
+		Parsely_Prompts::register_feature_flag();
+
 		// Stats links elsewhere (post list table, admin bar, action bar) open this dashboard.
 		Stats_Links::register();
 
@@ -385,6 +389,10 @@ class Analytics {
 		// The plan's locked Stats features, for the client's locked states.
 		require_once __DIR__ . '/stats-plan-gates.php';
 		configure_stats_plan_gates();
+
+		// Whether this site and user see the Upgrade to Parse.ly prompts.
+		require_once __DIR__ . '/parsely-prompts.php';
+		configure_parsely_prompts();
 
 		// The purchase a Stats checkout returned with, for the thank-you notice.
 		require_once __DIR__ . '/purchase-success.php';
