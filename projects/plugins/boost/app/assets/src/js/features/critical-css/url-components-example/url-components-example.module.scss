@@ -18,12 +18,6 @@
 		line-height: 12px;
 		margin-bottom: 4px;
 		font-weight: 400;
-
-		// TODO(BOOST-702): remove with the legacy dashboard.
-		:global(.jb-dashboard) & {
-			font-size: 10px;
-			color: #808080;
-		}
 	}
 
 	.arrows {
