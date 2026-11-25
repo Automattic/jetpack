@@ -442,10 +442,27 @@ class Parsely_Prompts_Test extends BaseTestCase {
 	public static function provide_unusable_usage_payloads() {
 		return array(
 			'empty'              => array( array() ),
-			'views null'         => array( array( 'billable_monthly_views' => null ) ),
-			'views not a number' => array( array( 'billable_monthly_views' => '150000 views' ) ),
-			'views an array'     => array( array( 'billable_monthly_views' => array( 150000 ) ) ),
+			'views null'         => array( array( 'recent_usages' => array( array( 'views_count' => null ) ) ) ),
+			'views not a number' => array( array( 'recent_usages' => array( array( 'views_count' => '150000 views' ) ) ) ),
+			'views an array'     => array( array( 'recent_usages' => array( array( 'views_count' => array( 150000 ) ) ) ) ),
+			'a month not a row'  => array( array( 'recent_usages' => array( 'not a month' ) ) ),
 		);
+	}
+
+	/**
+	 * An unreadable month is skipped, not fatal to the set: the remaining months still decide.
+	 */
+	public function test_an_unreadable_month_does_not_discard_the_months_beside_it() {
+		$this->answer_stats_usage_with(
+			array(
+				'recent_usages' => array(
+					array( 'views_count' => 'not a number' ),
+					array( 'views_count' => 150000 ),
+				),
+			)
+		);
+
+		$this->assertTrue( offers_parsely_prompts() );
 	}
 
 	public function test_the_filter_overrides_the_computed_answer() {
