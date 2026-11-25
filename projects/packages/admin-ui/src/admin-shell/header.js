@@ -31,6 +31,7 @@ export function configureHeaders( prefix, members = {} ) {
 			.forEach( key => area.removeItem( key ) );
 	try {
 		// Earlier releases saved headers in localStorage, where nothing would clear them.
+		// @todo Remove after 2027-02-25, once browsers that ran those releases have loaded this one.
 		drop( localStorage );
 		// This tab's headers from another site, release or login.
 		drop( sessionStorage, prefix );
