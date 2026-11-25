@@ -3,6 +3,7 @@
  */
 import { toBucketStamp } from '@jetpack-premium-analytics/datetime';
 import { safeParseFloat } from '../../utils/parsing';
+import { getStatsChartBucketKey } from './chart-buckets';
 import { coerceStatsArray, coerceStatsRecord } from './utils';
 import type { StatsSanitizerParams } from '../../utils/stats-params';
 
@@ -73,7 +74,8 @@ function bucketBounds( key: string, hourly: boolean, zone?: string ) {
  * A bucket that has not started yet is left out: it has no count to show.
  *
  * An hourly request covers whole UTC days around the reader's window, so its hours
- * are cut back to `window_start` and `window_end`.
+ * are cut back to `window_start` and `window_end`. Days fold into the calendar
+ * weeks or months `bucket` names.
  *
  * @param response - The endpoint's rows.
  * @param query    - The request params, the trim window and the report's timezone.
@@ -141,5 +143,30 @@ export function sanitizeStatsEdgeBotRequestsResponse(
 		}
 	}
 
-	return { summary, data: [ ...byStart.values() ] };
+	const bucket = hourly ? undefined : query?.bucket;
+	const days = [ ...byStart.values() ];
+
+	return { summary, data: bucket ? foldDays( days, bucket ) : days };
+}
+
+/** Sum the days of each calendar week or month; a bucket the window cuts keeps only its days. */
+function foldDays(
+	days: StatsEdgeBotRequestsDataPoint[],
+	bucket: 'week' | 'month'
+): StatsEdgeBotRequestsDataPoint[] {
+	const byKey = new Map< string, StatsEdgeBotRequestsDataPoint >();
+	for ( const day of days ) {
+		const key = getStatsChartBucketKey( day.date_start.slice( 0, 10 ), bucket );
+		const seen = byKey.get( key );
+		if ( ! seen ) {
+			byKey.set( key, { ...day } );
+			continue;
+		}
+		seen.date_end = day.date_end;
+		for ( const source of EDGE_REQUEST_SOURCES ) {
+			seen[ source ] += day[ source ];
+		}
+	}
+
+	return [ ...byKey.values() ];
 }

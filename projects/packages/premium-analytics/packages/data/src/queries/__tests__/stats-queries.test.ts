@@ -1475,6 +1475,26 @@ describe( 'Stats query factories', () => {
 	} );
 
 	it.each( [
+		[ 'day', 'month', { template: 'edge-bot-requests', granularity: 'day' }, { bucket: 'month' } ],
+		[ 'hour', 'month', { template: 'edge-bot-requests', granularity: 'hour' }, {} ],
+	] as const )(
+		'hands a %s request with a %s bucket to the sanitizer only when the days can fold',
+		( granularity, bucket, apiParams, sanitizerParams ) => {
+			const query = statsEdgeBotRequestsQuery( {
+				from: '2026-11-01',
+				to: '2026-11-07',
+				interval: 'day',
+				granularity,
+				bucket,
+			} );
+
+			expect( query.queryKey[ 5 ] ).toMatchObject( apiParams );
+			expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'bucket' );
+			expect( query.queryKey[ 8 ] ).toMatchObject( sanitizerParams );
+		}
+	);
+
+	it.each( [
 		[ 'a year', '2025-11-08', true ],
 		[ 'more than the rollup table serves', '2023-11-08', false ],
 	] )( 'sends an edge request for %s: %s', ( _, from, enabled ) => {

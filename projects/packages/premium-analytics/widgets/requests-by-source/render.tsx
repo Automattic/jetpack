@@ -45,7 +45,7 @@ function RequestsBySourceInner( { chartType }: { chartType: RequestsBySourceChar
 	const { reportParams } = useWidgetRootContext();
 	const {
 		sources,
-		granularity,
+		period,
 		isLoading,
 		isFetching,
 		isError,
@@ -121,7 +121,7 @@ function RequestsBySourceInner( { chartType }: { chartType: RequestsBySourceChar
 							series={ series }
 							layout="stacked"
 							dataFormat={ HEADLINE_COUNT_FORMAT }
-							tickResolution={ granularity }
+							tickResolution={ period }
 							showLegend={ false }
 						/>
 					) : (
@@ -129,7 +129,7 @@ function RequestsBySourceInner( { chartType }: { chartType: RequestsBySourceChar
 							className={ styles.chart }
 							series={ series }
 							dataFormat={ HEADLINE_COUNT_FORMAT }
-							tickResolution={ granularity }
+							tickResolution={ period }
 						/>
 					) }
 				</div>

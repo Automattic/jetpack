@@ -65,18 +65,19 @@ describe( 'RequestsBySource', () => {
 	} );
 
 	it.each( [
-		[ 'a single day', 'hour', '2026-11-01' ],
-		[ 'a week', 'day', '2026-11-07' ],
-	] )( 'asks for %s by the %s', ( _, granularity, to ) => {
+		[ 'a single day', '2026-11-01', 'day', { granularity: 'hour', bucket: undefined } ],
+		[ 'a week', '2026-11-07', 'day', { granularity: 'day', bucket: undefined } ],
+		[ '90 days', '2027-01-29', 'week', { granularity: 'day', bucket: 'week' } ],
+		[ 'a year', '2027-10-31', 'month', { granularity: 'day', bucket: 'month' } ],
+	] as const )( 'asks for %s by the page interval', ( _, to, interval, params ) => {
 		mockUseStatsEdgeBotRequests.mockReturnValue(
 			requestsResult( { human: 1, ai: 0, other: 0, blocked: 0 } )
 		);
 
-		renderWidget( { from: '2026-11-01', to, interval: 'day' } );
+		renderWidget( { from: '2026-11-01', to, interval } );
 
-		expect( mockUseStatsEdgeBotRequests ).toHaveBeenLastCalledWith(
-			expect.objectContaining( { granularity } )
-		);
+		const [ lastParams ] = mockUseStatsEdgeBotRequests.mock.lastCall ?? [];
+		expect( lastParams ).toMatchObject( params );
 	} );
 
 	it( 'shows the shared empty state rather than an empty chart', () => {

@@ -120,6 +120,35 @@ describe( 'sanitizeStatsEdgeBotRequestsResponse', () => {
 	} );
 
 	it.each( [
+		[
+			'week',
+			[
+				{ date_start: '2026-11-01T00:00:00', date_end: '2026-11-01T23:59:59', human: 1 },
+				{ date_start: '2026-11-02T00:00:00', date_end: '2026-11-08T23:59:59', human: 2 },
+				{ date_start: '2026-11-09T00:00:00', date_end: '2026-11-09T23:59:59', human: 4 },
+			],
+		],
+		[
+			'month',
+			[ { date_start: '2026-11-01T00:00:00', date_end: '2026-11-09T23:59:59', human: 7 } ],
+		],
+	] as const )( 'folds the days into calendar %ss cut to the window', ( bucket, expected ) => {
+		const report = sanitizeStatsEdgeBotRequestsResponse(
+			[
+				{ ts: '2026-11-01 00:00:00', human_requests: 1 },
+				{ ts: '2026-11-08 00:00:00', human_requests: 2 },
+				{ ts: '2026-11-09 00:00:00', human_requests: 4 },
+			],
+			{ start: '2026-11-01', end: '2026-11-10', granularity: 'day', bucket }
+		);
+
+		expect( report.summary.human ).toBe( 7 );
+		expect(
+			report.data.map( ( { date_start, date_end, human } ) => ( { date_start, date_end, human } ) )
+		).toEqual( expected );
+	} );
+
+	it.each( [
 		[ 'day', '2026-11-05', [ '2026-11-01T00:00:00', '2026-11-03T00:00:00' ] ],
 		[ 'hour', '2026-11-04', [ '2026-11-03T00:00:00', '2026-11-03T17:00:00' ] ],
 	] as const )( 'leaves out the %ss that have not started', ( granularity, end, expected ) => {

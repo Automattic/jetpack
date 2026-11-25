@@ -3,12 +3,14 @@
  */
 import {
 	EDGE_REQUEST_SOURCES,
+	STATS_CHART_BUCKET_PERIODS,
+	defaultPeriodForInterval,
 	getDaysBetweenInclusive,
 	isEdgeBotRequestsRangeTooLong,
 	useStatsEdgeBotRequests,
 	type EdgeRequestSource,
 	type ReportParams,
-	type StatsEdgeBotRequestsGranularity,
+	type StatsChartBucketPeriod,
 } from '@jetpack-premium-analytics/data';
 import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
 import { __ } from '@wordpress/i18n';
@@ -46,13 +48,18 @@ function sourceLabels(): Record< EdgeRequestSource, string > {
  * @return The sources, the bucket size drawn and the request's state.
  */
 export default function useRequestsBySource( reportParams: ReportParams ) {
-	const granularity: StatsEdgeBotRequestsGranularity =
+	// The AI tab has no interval control, so the range and the page's interval pick the bucket.
+	const period: 'hour' | StatsChartBucketPeriod =
 		getDaysBetweenInclusive( reportParams.from, reportParams.to ) <= HOURLY_MAX_DAYS
 			? 'hour'
-			: 'day';
+			: defaultPeriodForInterval( reportParams.interval, STATS_CHART_BUCKET_PERIODS );
 	const params = useMemo(
-		() => ( { ...reportParams, granularity } ),
-		[ reportParams, granularity ]
+		() => ( {
+			...reportParams,
+			granularity: period === 'hour' ? ( 'hour' as const ) : ( 'day' as const ),
+			bucket: period === 'week' || period === 'month' ? period : undefined,
+		} ),
+		[ reportParams, period ]
 	);
 	const isRangeTooLong = isEdgeBotRequestsRangeTooLong( params );
 	const { primary, timezone, isLoading, isFetching, isError, error, refetch } =
@@ -94,7 +101,7 @@ export default function useRequestsBySource( reportParams: ReportParams ) {
 
 	return {
 		sources,
-		granularity,
+		period,
 		isLoading,
 		isFetching,
 		// Placeholder rows from the previous window outlive a failed refetch.

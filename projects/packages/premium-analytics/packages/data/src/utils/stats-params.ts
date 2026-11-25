@@ -38,6 +38,8 @@ export type StatsQueryParamFields = {
 	// Sanitizer-only, and stripped alongside the trim window: the zone the
 	// report is normalized in, resolved once by `statsProxyQuery`.
 	timezone?: string;
+	// Sanitizer-only: the calendar bucket the edge's daily rows fold into.
+	bucket?: 'week' | 'month';
 };
 
 export type StatsQueryParams = StatsProxyParams & StatsQueryParamFields;

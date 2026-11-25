@@ -11,9 +11,13 @@ import type { ReportParams } from '../utils/search';
 
 export type StatsEdgeBotRequestsGranularity = 'hour' | 'day';
 
+/** A bucket coarser than the endpoint's days, folded from them after the request. */
+export type StatsEdgeBotRequestsBucket = 'week' | 'month';
+
 export type StatsEdgeBotRequestsParams = ReportParams &
 	ReportTimeZoneParams & {
 		granularity?: StatsEdgeBotRequestsGranularity;
+		bucket?: StatsEdgeBotRequestsBucket;
 	};
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
@@ -87,6 +91,7 @@ export const statsEdgeBotRequestsQuery = (
 	params: StatsEdgeBotRequestsParams
 ): StatsReportQueryOptions< 'edgeBotRequests' > => {
 	const granularity = params.granularity ?? 'day';
+	const bucket = granularity === 'day' ? params.bucket : undefined;
 	const bounds = requestWindow( { ...params, granularity } );
 
 	return statsProxyQuery( {
@@ -107,7 +112,7 @@ export const statsEdgeBotRequestsQuery = (
 						window_start: new Date( bounds.from ).toISOString(),
 						window_end: new Date( bounds.to ).toISOString(),
 					}
-				: undefined,
+				: bucket && { bucket },
 		sanitizer: 'edgeBotRequests',
 		enabled: !! bounds && ! isEdgeBotRequestsRangeTooLong( { ...params, granularity } ),
 		windowEnd: params.to || null,

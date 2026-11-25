@@ -4,7 +4,7 @@
 	"title": "Requests by source",
 	"description": "See how many requests came from people, AI bots and other bots, and how many were blocked.",
 	"help": {
-		"content": "Every request served to your site, split by who made it: people, AI bots, and other bots, plus the requests we blocked. These are requests, not views, so the totals will not match your Traffic summary. Views only count visitors whose browsers run JavaScript and do not block the Stats pixel. Requests count everything that reaches your site, bots included."
+		"content": "Every request your site received, split by who made it. These are requests, not views, so totals include bots and will be higher than the views in your Traffic tab."
 	},
 	"category": "traffic",
 	"presentation": "framed",
