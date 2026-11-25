@@ -1,17 +1,37 @@
 import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { formatSiteAddress } from '../../helpers/format-site-address';
+import { formatSiteAddress, getSiteUrl } from '../../helpers/format-site-address';
 import { hasJetpackPlugin, hasWooPlugin } from '../../helpers/site-words';
 import useIdentityCrisisActions from '../../hooks/use-identity-crisis-actions';
 import IdentityCrisisAddresses from './addresses';
 import IdentityCrisisErrorNotice from './error-notice';
 import ChoiceStep from './flow/choice-step';
-import { getConfirmedNote, getOptionCopy, getResultCopy, getStagingNote } from './flow/copy';
+import {
+	getConclusionCopy,
+	getConfirmedNote,
+	getGuideFactLines,
+	getOptionCopy,
+	getResultCopy,
+	getStagingGuideText,
+	getStagingNote,
+} from './flow/copy';
+import GuideStep from './flow/guide-step';
+import GuideTrail from './flow/guide-trail';
 import Intro from './flow/intro';
 import ResultStep from './flow/result-step';
 import StepActions from './flow/step-actions';
-import { getOptions, getPath, getResultAction, isChoiceStep } from './flow/steps';
+import StepFooter from './flow/step-footer';
+import {
+	getGuideTrail,
+	getOptions,
+	getPath,
+	getResultAction,
+	isConcluded,
+	isGuideStep,
+	isResultStep,
+} from './flow/steps';
+import TextButton from './flow/text-button';
 import useIdentityCrisisFlow from './flow/use-identity-crisis-flow';
 import IdentityCrisisLayout from './layout';
 import IdentityCrisisMigrated from './migrated';
@@ -43,7 +63,7 @@ const DISCONNECTED_ERROR: IdentityCrisisError = { action: 'start-fresh', cause: 
 const RESOLVED_ERROR: IdentityCrisisError = { action: 'start-fresh', cause: 'resolved' };
 
 /**
- * The questions that lead to a Safe Mode action, then the migrate-done view.
+ * The questions, or the step-by-step guide, that lead to a Safe Mode action, then the migrate-done view.
  *
  * @param {ResolverProps} props - Component props.
  * @return {ReactNode} The view.
@@ -93,7 +113,7 @@ function IdentityCrisisResolver( {
 		previousFinalView.current = finalView;
 	}, [ finalView ] );
 
-	// Focus the new question or result when the step changes, but not on the first render.
+	// Focus the new question, statement or result when the step changes, but not on the first render.
 	const legendRef = useRef< HTMLDivElement >( null );
 	const headingRef = useRef< HTMLHeadingElement >( null );
 	const stepKey = `${ flow.state.step }:${ flow.state.history.length }`;
@@ -142,7 +162,7 @@ function IdentityCrisisResolver( {
 
 	const step = flow.state.step;
 	const onContinue = useCallback( async () => {
-		if ( ! isChoiceStep( step ) ) {
+		if ( isResultStep( step ) ) {
 			await runAction( getResultAction( step ) );
 			return;
 		}
@@ -232,9 +252,51 @@ function IdentityCrisisResolver( {
 		);
 	}
 
+	const trail = (
+		<GuideTrail
+			items={ getGuideTrail( flow.state ) }
+			copy={ copy }
+			disabled={ isBusy }
+			onBackTo={ flow.backTo }
+		/>
+	);
+	const isStagingHome = flow.isFirstView && ctx.isDevelopmentSite;
+	const footer = (
+		<StepFooter
+			entry={ flow.state.entry }
+			offerGuide={ ! isStagingHome }
+			disabled={ isBusy }
+			onOpenGuide={ flow.openGuide }
+			onLater={ flow.later }
+		/>
+	);
+
 	let stepView: ReactNode;
 	let actionCopy: ActionCopy | null;
-	if ( isChoiceStep( step ) ) {
+	if ( isGuideStep( step ) ) {
+		stepView = (
+			<GuideStep
+				step={ step }
+				copy={ copy }
+				facts={ getGuideFactLines( copy, ctx.isDevelopmentSite ) }
+				openUrl={ getSiteUrl( state.wpcomHomeUrl ) }
+				trail={ trail }
+				onAnswer={ flow.answer }
+				isBackToStart={ flow.state.history.length === 1 }
+				onBack={ flow.back }
+				headingRef={ headingRef }
+			/>
+		);
+		actionCopy = null;
+	} else if ( isResultStep( step ) ) {
+		const result = getResultCopy( step, copy );
+		stepView = <ResultStep result={ result } copy={ copy } headingRef={ headingRef } />;
+		actionCopy = result;
+	} else if ( isConcluded( flow.state ) && flow.selected ) {
+		const conclusion = getConclusionCopy( flow.selected.id, copy );
+		stepView = <ResultStep result={ conclusion } copy={ copy } headingRef={ headingRef } />;
+		actionCopy = conclusion;
+	} else {
 		stepView = (
 			<ChoiceStep
 				step={ step }
@@ -247,10 +309,6 @@ function IdentityCrisisResolver( {
 			/>
 		);
 		actionCopy = flow.selected ? getOptionCopy( flow.selected.id, copy ) : null;
-	} else {
-		const result = getResultCopy( step, copy );
-		stepView = <ResultStep copy={ result } headingRef={ headingRef } />;
-		actionCopy = result;
 	}
 
 	return (
@@ -261,10 +319,17 @@ function IdentityCrisisResolver( {
 		>
 			{ addresses }
 			{ flow.isFirstView && <Intro copy={ copy } plugins={ plugins } /> }
-			{ flow.isFirstView && ctx.isDevelopmentSite && (
-				<Text variant="body-md" render={ <p /> } className={ styles.note }>
-					{ getStagingNote( copy ) }
-				</Text>
+			{ isStagingHome && (
+				<Stack direction="column" gap="xs" className={ styles.note }>
+					<Text variant="body-md" render={ <p /> }>
+						{ getStagingNote( copy ) }
+					</Text>
+					<span>
+						<TextButton onClick={ flow.openGuide } disabled={ isBusy }>
+							{ getStagingGuideText() }
+						</TextButton>
+					</span>
+				</Stack>
 			) }
 			{ flow.isFirstView && state.isSafeModeConfirmed && (
 				<Text variant="body-md" render={ <p /> } className={ styles.note }>
@@ -272,16 +337,25 @@ function IdentityCrisisResolver( {
 				</Text>
 			) }
 			<Stack direction="column" gap="md">
+				{ ! isGuideStep( step ) && trail }
 				{ stepView }
-				<IdentityCrisisErrorNotice error={ actions.error } />
-				<StepActions
-					action={ actionCopy }
-					isBusy={ isBusy }
-					hasError={ actions.error !== null }
-					canGoBack={ flow.state.history.length > 0 }
-					onContinue={ onContinue }
-					onBack={ flow.back }
-				/>
+				{ isGuideStep( step ) ? (
+					footer
+				) : (
+					<>
+						<IdentityCrisisErrorNotice error={ actions.error } />
+						<StepActions
+							action={ actionCopy }
+							isBusy={ isBusy }
+							hasError={ actions.error !== null }
+							canGoBack={ flow.state.history.length > 0 }
+							onContinue={ onContinue }
+							onBack={ flow.back }
+							// A result ends the path, so it offers no way into or out of the guide.
+							footer={ isResultStep( step ) ? null : footer }
+						/>
+					</>
+				) }
 			</Stack>
 		</IdentityCrisisLayout>
 	);

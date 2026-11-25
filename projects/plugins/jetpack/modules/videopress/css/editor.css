@@ -40,8 +40,10 @@
 	content: "\f147";
 }
 
+/* border-box: wp-admin's input padding pushed the input under its unit. */
 div[class*="mce-videopress-field"] input[type="number"] {
-	width: 70px !important;
+	box-sizing: border-box;
+	width: 88px !important;
 	left: 120px !important;
 }
 
@@ -53,6 +55,9 @@ div[class*="mce-videopress-field"] input[type="number"] {
 
 .mce-videopress-field-unit {
 	position: absolute;
-	left: 210px;
-	top: 5px;
+	left: 216px;
+	top: 0;
+	bottom: 0;
+	display: flex;
+	align-items: center;
 }
