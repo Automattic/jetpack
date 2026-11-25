@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\WooCommerceStats;
 
 use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
+use Automattic\Jetpack\Status\Host;
 use function Automattic\Jetpack\PremiumAnalytics\get_dashboard_default_widget_instance;
 use function Automattic\Jetpack\PremiumAnalytics\register_dashboard_section;
 use function Automattic\Jetpack\PremiumAnalytics\register_widget_types_from_manifest;
@@ -112,6 +113,11 @@ class Analytics_Dashboard {
 		self::ORDERS_OVER_TIME_TYPE,
 		self::VISITORS_OVER_TIME_TYPE,
 	);
+
+	/**
+	 * Filter through which availability of the WooCommerce Stats dashboard surface is resolved.
+	 */
+	const ENABLED_FILTER = 'jetpack_woocommerce_stats_enabled';
 
 	/**
 	 * Filter through which WooCommerce detection is resolved, for hosts and tests without the plugin.
@@ -264,7 +270,7 @@ class Analytics_Dashboard {
 	 * @return void
 	 */
 	public static function enqueue_store_performance_bookings() {
-		if ( ! self::is_bookings_plugin_active() || ! self::supports_widget_contract() || ! self::is_woocommerce_available() || ! self::current_user_can_view_store_reports() ) {
+		if ( ! self::is_enabled() || ! self::is_bookings_plugin_active() || ! self::supports_widget_contract() || ! self::is_woocommerce_available() || ! self::current_user_can_view_store_reports() ) {
 			return;
 		}
 
@@ -317,7 +323,7 @@ class Analytics_Dashboard {
 	public static function register_widget_types( $registry ) {
 		add_filter( 'jetpack_premium_analytics_error_reporting_script_origins', array( __CLASS__, 'add_error_reporting_origin' ) );
 
-		if ( ! self::supports_widget_contract() || ! self::is_woocommerce_available() || ! self::current_user_can_view_store_reports() ) {
+		if ( ! self::is_enabled() || ! self::supports_widget_contract() || ! self::is_woocommerce_available() || ! self::current_user_can_view_store_reports() ) {
 			return;
 		}
 
@@ -357,13 +363,35 @@ class Analytics_Dashboard {
 	}
 
 	/**
-	 * Whether the WooCommerce tab is available: WooCommerce is active and the reader may see store
-	 * reports.
+	 * Whether the WooCommerce Stats dashboard surface is enabled on this site.
+	 *
+	 * Disabled on self-hosted sites until the 30-day history limit and WooCommerce Stats billing ship.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_enabled() {
+		$is_enabled = ( new Host() )->is_wpcom_platform();
+
+		/**
+		 * Filters whether the WooCommerce Stats dashboard surface is enabled.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $is_enabled Whether WooCommerce Stats is enabled on this site.
+		 */
+		return (bool) apply_filters( self::ENABLED_FILTER, $is_enabled );
+	}
+
+	/**
+	 * Whether the WooCommerce tab is available: enabled on this site, WooCommerce is active, and
+	 * the reader may see store reports.
 	 *
 	 * @return bool
 	 */
 	public static function is_section_available() {
-		return self::is_woocommerce_available() && self::current_user_can_view_store_reports();
+		return self::is_enabled() && self::is_woocommerce_available() && self::current_user_can_view_store_reports();
 	}
 
 	/**

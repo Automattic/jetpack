@@ -1433,12 +1433,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/woocommerce-stats",
-                "reference": "d4b9d99dae53ad8410ab19f5c57a2bcdbfa24119"
+                "reference": "4e29e14e99a9fa7ee2d6bb57344bede36467d7de"
             },
             "require": {
                 "automattic/jetpack-config": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-premium-analytics": "@dev",
+                "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-sync": "@dev",
                 "automattic/woocommerce-analytics": "^0.18",
                 "php": ">=7.4"

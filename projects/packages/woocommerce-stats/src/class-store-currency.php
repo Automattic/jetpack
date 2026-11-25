@@ -32,7 +32,7 @@ class Store_Currency {
 	 * @return array The script data, unchanged without WooCommerce.
 	 */
 	public static function add_script_data( $data ) {
-		if ( ! is_array( $data ) || ! function_exists( 'get_woocommerce_currency' ) || ! function_exists( 'get_woocommerce_currency_symbol' ) || ! function_exists( 'wc_get_price_decimals' ) ) {
+		if ( ! Analytics_Dashboard::is_enabled() || ! is_array( $data ) || ! function_exists( 'get_woocommerce_currency' ) || ! function_exists( 'get_woocommerce_currency_symbol' ) || ! function_exists( 'wc_get_price_decimals' ) ) {
 			return $data;
 		}
 

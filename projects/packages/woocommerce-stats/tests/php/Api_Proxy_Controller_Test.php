@@ -72,6 +72,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		add_action( 'rest_api_init', array( Api_Proxy_Controller::class, 'init' ) );
 		do_action( 'rest_api_init' );
 		add_action( Report_Registry::REGISTER_ACTION, array( Default_Reports::class, 'register' ) );
+		add_filter( Analytics_Dashboard::ENABLED_FILTER, '__return_true' );
 
 		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 		\Jetpack_Options::update_option( 'id', 4242 );
@@ -92,6 +93,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		remove_filter( 'pre_http_request', array( $this, 'answer_as_wordpress_com' ) );
 		remove_action( 'rest_api_init', array( Api_Proxy_Controller::class, 'init' ) );
 		remove_all_actions( Report_Registry::REGISTER_ACTION );
+		remove_all_filters( Analytics_Dashboard::ENABLED_FILTER );
 
 		\Jetpack_Options::delete_option( 'blog_token' );
 		\Jetpack_Options::delete_option( 'id' );
@@ -150,6 +152,13 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 			'shop manager'  => array( 'subscriber', 'view_woocommerce_reports', 200 ),
 			'administrator' => array( 'administrator', null, 200 ),
 		);
+	}
+
+	public function test_refuses_requests_when_woocommerce_stats_is_disabled() {
+		remove_all_filters( Analytics_Dashboard::ENABLED_FILTER );
+
+		$this->assertSame( 403, $this->get_report()->get_status() );
+		$this->assertSame( array(), $this->requests );
 	}
 
 	/**

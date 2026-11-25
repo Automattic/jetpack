@@ -85,6 +85,7 @@ class Local_Report_Test extends BaseTestCase {
 		add_action( 'rest_api_init', array( $this, 'register_core_route' ) );
 		do_action( 'rest_api_init' );
 		add_action( Report_Registry::REGISTER_ACTION, array( Default_Reports::class, 'register' ) );
+		add_filter( Analytics_Dashboard::ENABLED_FILTER, '__return_true' );
 		add_filter( Analytics_Dashboard::WOOCOMMERCE_AVAILABLE_FILTER, '__return_true' );
 
 		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
