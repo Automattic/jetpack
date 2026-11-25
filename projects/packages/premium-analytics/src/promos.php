@@ -66,7 +66,9 @@ function compute_available_promos() {
 	$promos = array_filter(
 		Promo_Registry::get_instance()->get_all_registered(),
 		static function ( Promo $promo ) {
-			return $promo->is_available();
+			// The Stats roles setting can let an editor or an author open the dashboard, and an
+			// upgrade is not theirs to buy.
+			return current_user_can( $promo->capability ) && $promo->is_available();
 		}
 	);
 

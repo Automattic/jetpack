@@ -93,19 +93,17 @@ final class Promo_Registry {
 		}
 
 		$promo = new Promo( $slug, $args );
+		$rules = self::placement_rules()[ $promo->placement ] ?? null;
 
-		if ( ! in_array( $promo->placement, self::PLACEMENTS, true ) ) {
+		if ( null === $rules ) {
 			/* translators: %s: Comma-separated list of placements. */
 			return $this->refuse( sprintf( __( 'A promo placement must be one of: %s.', 'jetpack-premium-analytics-pkg' ), implode( ', ', self::PLACEMENTS ) ) );
 		}
 
-		// A card is labelled by its title; a menu item is labelled by its cta_label below.
-		if ( 'options-menu' !== $promo->placement && '' === $promo->title ) {
-			return $this->refuse( __( 'A promo card needs a title. The card is labelled by it.', 'jetpack-premium-analytics-pkg' ) );
-		}
-
-		if ( 'options-menu' === $promo->placement && '' === $promo->cta_label ) {
-			return $this->refuse( __( 'An options-menu promo needs a cta_label. The label is the menu item.', 'jetpack-premium-analytics-pkg' ) );
+		foreach ( $rules['required'] as $field => $message ) {
+			if ( '' === $promo->$field ) {
+				return $this->refuse( $message );
+			}
 		}
 
 		// The client links through `safeHttpUrl`, which allows http(s) only. A menu promo it rejects
@@ -114,12 +112,16 @@ final class Promo_Registry {
 			return $this->refuse( __( 'A promo cta_url must be an http or https URL.', 'jetpack-premium-analytics-pkg' ) );
 		}
 
-		if ( 'options-menu' === $promo->placement && $promo->dismissible ) {
-			return $this->refuse( __( 'An options-menu promo cannot be dismissible. Pass dismissible as false.', 'jetpack-premium-analytics-pkg' ) );
+		if ( null !== $rules['refuse_dismissal'] && $promo->dismissible ) {
+			return $this->refuse( $rules['refuse_dismissal'] );
 		}
 
-		if ( 'options-menu' === $promo->placement && null !== $promo->render_module ) {
-			return $this->refuse( __( 'An options-menu promo is a menu item and cannot have a render module.', 'jetpack-premium-analytics-pkg' ) );
+		if ( null !== $rules['refuse_own_module'] && null !== $promo->render_module ) {
+			return $this->refuse( $rules['refuse_own_module'] );
+		}
+
+		if ( '' === $promo->capability ) {
+			return $this->refuse( __( 'A promo capability cannot be empty. Leave it unset for manage_options.', 'jetpack-premium-analytics-pkg' ) );
 		}
 
 		if ( $promo->snooze_days < 0 ) {
@@ -214,8 +216,9 @@ final class Promo_Registry {
 			return;
 		}
 
-		// Latching this early would drop every registrant hooked later, so the read skips the action.
-		if ( ! did_action( 'init' ) ) {
+		// Latching this early would drop every registrant hooked later, including the ones still to
+		// run on `init` itself, so the read skips the action.
+		if ( ! did_action( 'init' ) || doing_action( 'init' ) ) {
 			$message = __( 'Promos are read after init. A read before it does not hydrate the registry and answers only what was registered directly.', 'jetpack-premium-analytics-pkg' );
 			_doing_it_wrong( __METHOD__, esc_html( $message ), 'jetpack-premium-analytics-$$next-version$$' );
 			return;
@@ -250,6 +253,31 @@ final class Promo_Registry {
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	 * What each placement requires and refuses, with the reason the registrant is given. A new
+	 * placement is one more entry here. Keyed by the members of `PLACEMENTS`.
+	 *
+	 * @return array<string, array> Rules per placement.
+	 */
+	private static function placement_rules() {
+		return array(
+			'options-menu' => array(
+				'required'          => array(
+					'cta_label' => __( 'An options-menu promo needs a cta_label. The label is the menu item.', 'jetpack-premium-analytics-pkg' ),
+				),
+				'refuse_dismissal'  => __( 'An options-menu promo cannot be dismissible. Pass dismissible as false.', 'jetpack-premium-analytics-pkg' ),
+				'refuse_own_module' => __( 'An options-menu promo is a menu item and cannot have a render module.', 'jetpack-premium-analytics-pkg' ),
+			),
+			'settings'     => array(
+				'required'          => array(
+					'title' => __( 'A promo card needs a title. The card is labelled by it.', 'jetpack-premium-analytics-pkg' ),
+				),
+				'refuse_dismissal'  => null,
+				'refuse_own_module' => null,
+			),
+		);
 	}
 
 	/**

@@ -28,9 +28,27 @@ require_once dirname( __DIR__, 2 ) . '/src/promos.php';
 class Promos_Test extends BaseTestCase {
 
 	/**
+	 * Promos are offered to a user who can act on them, so these run as an administrator.
+	 */
+	public function set_up() {
+		parent::set_up();
+
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'promo-admin',
+					'user_pass'  => 'password',
+					'role'       => 'administrator',
+				)
+			)
+		);
+	}
+
+	/**
 	 * Drop the flag, the filters, the registrants and the registry they hydrated.
 	 */
 	public function tear_down() {
+		wp_set_current_user( 0 );
 		unset( $_GET['page'], $GLOBALS['current_screen'] );
 		remove_all_filters( 'jetpack_admin_js_script_data' );
 		remove_all_filters( 'jetpack-premium-analytics-wp-admin_boot_dependencies' );
@@ -86,6 +104,51 @@ class Promos_Test extends BaseTestCase {
 			},
 			get_available_promos()
 		);
+	}
+
+	public function test_a_user_without_the_capability_is_offered_nothing() {
+		$this->register_fixture_promos(
+			array(
+				'slug'         => 'acme/offer',
+				'placement'    => 'settings',
+				'is_available' => true,
+			)
+		);
+
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'promo-editor',
+					'user_pass'  => 'password',
+					'role'       => 'editor',
+				)
+			)
+		);
+
+		$this->assertSame( array(), get_available_promos() );
+	}
+
+	public function test_a_promo_can_ask_for_a_capability_of_its_own() {
+		$this->register_fixture_promos(
+			array(
+				'slug'         => 'acme/offer',
+				'placement'    => 'settings',
+				'capability'   => 'edit_posts',
+				'is_available' => true,
+			)
+		);
+
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'promo-editor',
+					'user_pass'  => 'password',
+					'role'       => 'editor',
+				)
+			)
+		);
+
+		$this->assertSame( array( 'acme/offer' ), $this->available_slugs() );
 	}
 
 	public function test_no_promos_while_the_flag_is_off() {

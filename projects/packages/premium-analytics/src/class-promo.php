@@ -95,6 +95,15 @@ final class Promo {
 	public $render_module = null;
 
 	/**
+	 * Capability a user needs to be offered the promo. The Stats roles setting can let an editor or
+	 * an author open the dashboard, and an upgrade is not theirs to buy.
+	 *
+	 * @since $$next-version$$
+	 * @var string
+	 */
+	public $capability = 'manage_options';
+
+	/**
 	 * Availability flag or callback; null when the registration declared none.
 	 *
 	 * @var bool|callable|null
@@ -178,20 +187,21 @@ final class Promo {
 			$this->order = (int) $args['order'];
 		}
 
+		// Trimmed: whitespace alone would satisfy the required-field checks and render as an empty card.
 		if ( isset( $args['title'] ) ) {
-			$this->title = (string) $args['title'];
+			$this->title = trim( (string) $args['title'] );
 		}
 
 		if ( isset( $args['description'] ) ) {
-			$this->description = (string) $args['description'];
+			$this->description = trim( (string) $args['description'] );
 		}
 
 		if ( isset( $args['cta_label'] ) ) {
-			$this->cta_label = (string) $args['cta_label'];
+			$this->cta_label = trim( (string) $args['cta_label'] );
 		}
 
 		if ( isset( $args['cta_url'] ) ) {
-			$this->cta_url = (string) $args['cta_url'];
+			$this->cta_url = trim( (string) $args['cta_url'] );
 		}
 
 		if ( isset( $args['dismissible'] ) ) {
@@ -204,6 +214,10 @@ final class Promo {
 
 		if ( isset( $args['render_module'] ) ) {
 			$this->render_module = (string) $args['render_module'];
+		}
+
+		if ( isset( $args['capability'] ) ) {
+			$this->capability = trim( (string) $args['capability'] );
 		}
 
 		if ( array_key_exists( 'is_available', $args ) ) {
