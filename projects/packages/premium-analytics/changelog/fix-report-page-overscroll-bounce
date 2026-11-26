@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stop the pinned report header from jumping when a trackpad scroll overshoots the end of a report.
