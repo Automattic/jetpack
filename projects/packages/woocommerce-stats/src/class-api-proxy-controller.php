@@ -71,12 +71,55 @@ class Api_Proxy_Controller {
 	private const FORWARDED_HEADERS = array( 'x-wp-total', 'x-wp-totalpages' );
 
 	/**
-	 * Register the proxy route. Called on `rest_api_init`.
+	 * Path prefix of the dashboard package's proxy routes, whose `analytics` group serves store reports too.
+	 */
+	private const DASHBOARD_PROXY_PREFIX = '/jetpack-premium-analytics/v1/proxy/';
+
+	/**
+	 * Route of the dashboard package's CSV export of store reports.
+	 */
+	private const DASHBOARD_CSV_EXPORT_ROUTE = '/jetpack-premium-analytics/v1/reports/csv-export';
+
+	/**
+	 * Register the proxy route and the refusal of the dashboard package's store report routes. Called on `rest_api_init`.
 	 *
 	 * @return void
 	 */
 	public static function init() {
 		( new self() )->register_routes();
+		add_filter( 'rest_request_before_callbacks', array( __CLASS__, 'refuse_dashboard_store_reports' ), 10, 3 );
+	}
+
+	/**
+	 * Refuse the store reports the dashboard package serves itself while WooCommerce Stats is off:
+	 * the `analytics` group of its proxy and its CSV export, until both move to this package.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param mixed           $response Result so far: null, or the error that already stops the request.
+	 * @param array           $handler  Route handler matched to the request.
+	 * @param WP_REST_Request $request  Request object.
+	 * @return mixed The result so far, or the error a reader without the capability gets.
+	 */
+	public static function refuse_dashboard_store_reports( $response, $handler, $request ) {
+		if ( ! $request instanceof WP_REST_Request || Analytics_Dashboard::is_enabled() ) {
+			return $response;
+		}
+
+		$route    = strtolower( $request->get_route() );
+		$endpoint = $request->get_param( 'endpoint' );
+		// Read as the dashboard's proxy reads it, so a query-string `endpoint` cannot name another group.
+		$is_store_group = is_string( $endpoint ) && 'analytics' === strtolower( explode( '/', $endpoint )[0] );
+
+		if ( self::DASHBOARD_CSV_EXPORT_ROUTE !== $route && ! ( $is_store_group && str_starts_with( $route, self::DASHBOARD_PROXY_PREFIX ) ) ) {
+			return $response;
+		}
+
+		return new WP_Error(
+			'rest_forbidden',
+			__( 'Sorry, you are not allowed to do that.', 'jetpack-woocommerce-stats-pkg' ),
+			array( 'status' => rest_authorization_required_code() )
+		);
 	}
 
 	/**
