@@ -380,9 +380,42 @@ pluginTester( {
 		{
 			title: 'requireI18nSource: ignores a member call on an inline object',
 			setup,
-			// rolldown inlines a single-use `const cache = { __: … }` binding.
 			code: `x = { __: ( key ) => key.toUpperCase() }.__( 'key' );`,
 			output: `x = {\n\t__: key => key.toUpperCase(),\n}.__('key');`,
+			snapshot: false,
+			pluginOptions: {
+				textdomain: 'new-domain',
+				requireI18nSource: true,
+			},
+		},
+		{
+			title:
+				'requireI18nSource: ignores a member call on an inline object holding a non-i18n member',
+			setup,
+			code: `const cache = new Map();\nx = { __: cache.__ }.__( 'key' );`,
+			output: `const cache = new Map();\nx = {\n\t__: cache.__,\n}.__('key');`,
+			snapshot: false,
+			pluginOptions: {
+				textdomain: 'new-domain',
+				requireI18nSource: true,
+			},
+		},
+		{
+			title: 'requireI18nSource: stamps a member call on an inline object with a spread',
+			setup,
+			code: `x = { ...other }.__( 'key' );`,
+			output: `x = {\n\t...other,\n}.__('key', 'new-domain');`,
+			snapshot: false,
+			pluginOptions: {
+				textdomain: 'new-domain',
+				requireI18nSource: true,
+			},
+		},
+		{
+			title: 'requireI18nSource: stamps a member call on an inline object wrapping i18n',
+			setup,
+			code: `x = { __: wp.i18n.__ }.__( 'key' );`,
+			output: `x = {\n\t__: wp.i18n.__,\n}.__('key', 'new-domain');`,
 			snapshot: false,
 			pluginOptions: {
 				textdomain: 'new-domain',
