@@ -106,7 +106,7 @@ class Jetpack_AI_Page {
 		if (
 			( new Host() )->is_wpcom_simple()
 			|| ! file_exists( JETPACK__PLUGIN_DIR . 'build/build.php' )
-			|| ! $this->should_add_page()
+			|| ! $this->should_add_menu()
 		) {
 			return $members;
 		}
@@ -146,7 +146,7 @@ class Jetpack_AI_Page {
 	 *
 	 * @return bool
 	 */
-	private function should_add_page() {
+	private function should_add_menu() {
 		$is_offline_mode = ( new Status() )->is_offline_mode();
 
 		if ( ! current_user_can( 'manage_options' ) && ( $is_offline_mode || ! Jetpack::is_connection_ready() ) ) {
@@ -165,7 +165,7 @@ class Jetpack_AI_Page {
 	 * request-wide Jetpack_Admin_Page compatibility stub.
 	 */
 	public function add_actions() {
-		if ( ! $this->should_add_page() ) {
+		if ( ! $this->should_add_menu() ) {
 			return;
 		}
 
