@@ -338,4 +338,17 @@ class WPCOM_My_Jetpack_Test extends \WorDBless\BaseTestCase {
 		global $submenu;
 		return $submenu['jetpack'] ?? array();
 	}
+
+	/**
+	 * The shell loads a guest over admin-ajax, where the Jetpack menu get_tools() lists is never built
+	 * unless the member asks for it, leaving only Stats.
+	 */
+	public function test_admin_shell_builds_the_menu_the_tools_are_read_from() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$member = WPCOM_My_Jetpack::add_admin_shell_member( array() )[ WPCOM_My_Jetpack::MENU_SLUG ] ?? null;
+
+		$this->assertIsArray( $member );
+		$this->assertTrue( $member['admin_menu'] );
+	}
 }

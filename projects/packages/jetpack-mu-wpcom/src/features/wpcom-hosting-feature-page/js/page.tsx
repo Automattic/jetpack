@@ -22,7 +22,7 @@ import './style.scss';
  * @return The rendered page.
  */
 export function HostingFeaturePage( { config }: { config: FeatureConfig } ) {
-	const initialState = getInitialState();
+	const initialState = getInitialState( config.page );
 
 	return (
 		<FeatureContext.Provider value={ config }>

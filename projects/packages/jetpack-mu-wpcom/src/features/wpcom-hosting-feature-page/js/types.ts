@@ -78,6 +78,8 @@ export type InitialState = {
 export type FeatureConfig = {
 	/** Product name for the page heading. Not translated. */
 	productName: string;
+	/** The wp-build page, as in routes/<route>/package.json. */
+	page: string;
 	subTitle: string;
 	icon: ComponentProps< typeof Icon >[ 'icon' ];
 	/** Callout illustration URL. */
@@ -137,5 +139,6 @@ export type FeatureConfig = {
 declare global {
 	interface Window {
 		wpcomHostingFeatureInitialState?: InitialState;
+		wpcomHostingFeatureInitialStates?: Record< string, InitialState >;
 	}
 }

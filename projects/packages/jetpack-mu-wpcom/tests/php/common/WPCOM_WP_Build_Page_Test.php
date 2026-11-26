@@ -76,8 +76,9 @@ class WPCOM_WP_Build_Page_Test extends \WorDBless\BaseTestCase {
 			$_GET['page']
 		);
 		remove_all_actions( 'admin_menu', Test_WP_Build_Page::REGISTER_PRIORITY );
-		Test_WP_Build_Page::$build_dir     = null;
-		Test_WP_Build_Page::$initial_state = array( 'enabled' => true );
+		Test_WP_Build_Page::$build_dir         = null;
+		Test_WP_Build_Page::$initial_state     = array( 'enabled' => true );
+		Test_WP_Build_Page::$joins_admin_shell = true;
 		Test_WP_Build_Page::reset();
 		WPCOM_Backup::reset();
 
@@ -313,5 +314,59 @@ class WPCOM_WP_Build_Page_Test extends \WorDBless\BaseTestCase {
 		Test_WP_Build_Page::register_page();
 
 		$this->assertNull( $this->printed_initial_state() );
+	}
+
+	/**
+	 * Admin_Shell drops a member missing a required key, and builds its routes getter from the prefix and page.
+	 */
+	public function test_page_joins_the_admin_shell_as_a_member_it_can_load() {
+		$member = Test_WP_Build_Page::add_admin_shell_member( array() )[ Test_WP_Build_Page::MENU_SLUG ] ?? null;
+
+		$this->assertIsArray( $member );
+		$this->assertSame( 'jetpack_mu_wpcom', $member['build_prefix'] );
+		$this->assertSame( Test_WP_Build_Page::WP_BUILD_PAGE, $member['build_page'] );
+		$this->assertSame( 'Test Page', $member['title'] );
+		$this->assertSame( Test_WP_Build_Page::CAPABILITY, $member['capability'] );
+		$this->assertIsCallable( $member['load'] );
+		$this->assertIsCallable( $member['data'] );
+	}
+
+	public function test_a_package_that_serves_the_slug_keeps_its_membership() {
+		$theirs = array( Test_WP_Build_Page::MENU_SLUG => array( 'build_page' => 'theirs' ) );
+
+		$this->assertSame( $theirs, Test_WP_Build_Page::add_admin_shell_member( $theirs ) );
+	}
+
+	public function test_page_stays_out_of_the_admin_shell_off_simple() {
+		Test_WP_Build_Page::$joins_admin_shell = false;
+
+		$this->assertSame( array(), Test_WP_Build_Page::add_admin_shell_member( array() ) );
+	}
+
+	/**
+	 * The shell's guest endpoint prints `data` rather than the page's own prerequisites script.
+	 */
+	public function test_guest_data_carries_the_initial_state_but_not_the_jetpack_config() {
+		$this->set_up_admin_menu();
+
+		$data = Test_WP_Build_Page::get_admin_shell_guest_data();
+
+		$this->assertStringContainsString( 'window.' . Test_WP_Build_Page::INITIAL_STATE_VAR . ' = {"enabled":true};', $data );
+		$this->assertStringNotContainsString( 'jetpackConfig', $data );
+	}
+
+	public function test_guest_data_is_withheld_from_users_who_cannot_open_the_page() {
+		$this->set_up_admin_menu();
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'wpcom_wp_build_page_guest_subscriber',
+					'user_pass'  => 'password',
+					'role'       => 'subscriber',
+				)
+			)
+		);
+
+		$this->assertSame( '', Test_WP_Build_Page::get_admin_shell_guest_data() );
 	}
 }

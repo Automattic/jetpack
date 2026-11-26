@@ -23,8 +23,13 @@ const FALLBACK: InitialState = {
 /**
  * Read the state PHP localized onto the page.
  *
+ * @param page - The wp-build page, whose own state wins: the admin shell can hold Backup and Scan in one document.
  * @return The initial state, or a safe fallback if the global is absent.
  */
-export function getInitialState(): InitialState {
-	return window.wpcomHostingFeatureInitialState ?? FALLBACK;
+export function getInitialState( page?: string ): InitialState {
+	return (
+		( page ? window.wpcomHostingFeatureInitialStates?.[ page ] : undefined ) ??
+		window.wpcomHostingFeatureInitialState ??
+		FALLBACK
+	);
 }

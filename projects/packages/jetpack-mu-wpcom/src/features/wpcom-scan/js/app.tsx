@@ -13,6 +13,7 @@ import type { FeatureConfig } from '../../wpcom-hosting-feature-page/js/types.ts
 function getScanConfig(): FeatureConfig {
 	return {
 		productName: 'Protect', // Product name; do not translate.
+		page: 'wpcom-scan',
 		subTitle: __(
 			'Find and fix vulnerabilities and suspicious files on your site.',
 			'jetpack-mu-wpcom'

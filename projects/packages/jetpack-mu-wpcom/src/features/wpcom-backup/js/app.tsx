@@ -25,6 +25,7 @@ function RevertedTransferDownload( { state }: { state: InitialState } ) {
 function getBackupConfig(): FeatureConfig {
 	return {
 		productName: 'VaultPress Backup', // Product name; do not translate.
+		page: 'wpcom-backup',
 		subTitle: __( 'Save changes and restore quickly with one-click recovery.', 'jetpack-mu-wpcom' ),
 		icon: backup,
 		illustration: backupsCalloutIllustration,

@@ -15,6 +15,20 @@ function localize( state?: InitialState ) {
 	globals.window = { wpcomHostingFeatureInitialState: state };
 }
 
+const UPGRADE_STATE: InitialState = {
+	state: 'upgrade',
+	domain: '',
+	isEligible: true,
+	errors: [],
+	warnings: [],
+	upgradeUrl: 'https://wordpress.com/plans/',
+	activateUrl: 'https://wordpress.com/setup/transferring-hosted-site',
+	supportUrl: 'https://wordpress.com/help/contact',
+	hasRevertedTransfer: false,
+	transferFailed: false,
+	checkoutPending: false,
+};
+
 describe( 'getInitialState', () => {
 	afterEach( () => {
 		delete globals.window;
@@ -38,6 +52,18 @@ describe( 'getInitialState', () => {
 		localize( state );
 
 		assert.deepEqual( getInitialState(), state );
+	} );
+
+	it( "reads its own page's state when the admin shell holds Backup and Scan in one document", () => {
+		const scan = { ...UPGRADE_STATE, domain: 'scan.example' };
+		const backup = { ...UPGRADE_STATE, domain: 'backup.example' };
+		// Scan loaded last, so the shared global is Scan's.
+		globals.window = {
+			wpcomHostingFeatureInitialState: scan,
+			wpcomHostingFeatureInitialStates: { 'wpcom-backup': backup, 'wpcom-scan': scan },
+		};
+
+		assert.equal( getInitialState( 'wpcom-backup' ).domain, 'backup.example' );
 	} );
 
 	it( 'falls back to the upgrade prompt when the global is missing', () => {

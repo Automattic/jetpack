@@ -1071,7 +1071,9 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 
 		foreach ( (array) wp_scripts()->get_data( $handle, 'before' ) as $script ) {
 			if ( is_string( $script ) && str_starts_with( $script, $prefix ) ) {
-				return json_decode( substr( $script, strlen( $prefix ), -1 ), true );
+				// The first line sets the state; the next files it under the page's name.
+				$line = strtok( $script, "\n" );
+				return json_decode( substr( $line, strlen( $prefix ), -1 ), true );
 			}
 		}
 

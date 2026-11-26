@@ -147,6 +147,26 @@ abstract class WPCOM_Hosting_Feature_Page extends WPCOM_WP_Build_Page {
 	}
 
 	/**
+	 * Also file the state under the page's name: Backup and Scan share INITIAL_STATE_VAR, and the
+	 * admin shell can hold both in one document.
+	 *
+	 * @return string
+	 */
+	public static function get_initial_state_script() {
+		$state = wp_json_encode( static::get_initial_state(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES );
+		if ( false === $state ) {
+			return '';
+		}
+
+		return sprintf(
+			'window.%1$s = %2$s;' . "\n" . 'window.%1$ss = Object.assign( window.%1$ss || {}, { [ %3$s ]: window.%1$s } );',
+			static::INITIAL_STATE_VAR,
+			$state,
+			wp_json_encode( static::WP_BUILD_PAGE, JSON_HEX_TAG | JSON_HEX_AMP )
+		);
+	}
+
+	/**
 	 * The route reporting whether the plan includes FEATURE yet, relative to `wpcom/v2`.
 	 *
 	 * @return string
