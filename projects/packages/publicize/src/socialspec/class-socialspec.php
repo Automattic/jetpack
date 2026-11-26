@@ -81,7 +81,7 @@ class Socialspec {
 	/**
 	 * The requested file name in /.well-known/, from the request path.
 	 *
-	 * Not a rewrite rule: WordPress.com Simple sites have none, and a package has no activation to flush them on.
+	 * Not a rewrite rule: existing sites would only get it after a flush, and a package has no activation to flush on.
 	 *
 	 * @return string|null Null if /.well-known/ is not requested.
 	 */
