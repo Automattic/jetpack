@@ -187,7 +187,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	public static function data_dashboard_store_routes() {
 		return array(
 			'the analytics group of the proxy' => array( 'GET', '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports/orders/by-date', array() ),
-			'a route in another letter case'   => array( 'GET', '/Jetpack-Premium-Analytics/v1/Proxy/v2/analytics/reports/orders/by-date', array() ),
+			'a route in another letter case'   => array( 'GET', '/Jetpack-Premium-Analytics/v1/Proxy/v2/Analytics/reports/orders/by-date', array() ),
 			'a query-string endpoint'          => array( 'GET', '/jetpack-premium-analytics/v1/proxy/v2/stats/visits', array( 'endpoint' => 'analytics/reports/orders/by-date' ) ),
 			'the CSV export'                   => array( 'POST', '/jetpack-premium-analytics/v1/reports/csv-export', array() ),
 		);
