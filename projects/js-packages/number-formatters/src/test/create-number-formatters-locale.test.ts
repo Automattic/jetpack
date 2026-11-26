@@ -52,6 +52,14 @@ describe( 'createNumberFormatters() - locale resolution/fallback', () => {
 		).toBe( expected );
 	} );
 
+	it( 'keeps a variant such as POSIX as given, so its conventions apply and forceLatin can still follow', () => {
+		const numberFormatters = createNumberFormatters();
+		numberFormatters.setLocale( 'en-US-posix' );
+
+		// POSIX groups nothing; the canonical `en-US-u-va-posix` would have fallen back to `en`.
+		expect( numberFormatters.formatNumber( 1234567.5, { decimals: 1 } ) ).toBe( '1234567.5' );
+	} );
+
 	it( 'resolves a locale given to setLocale() the same way', () => {
 		const numberFormatters = createNumberFormatters();
 		numberFormatters.setLocale( 'zh_TW' );

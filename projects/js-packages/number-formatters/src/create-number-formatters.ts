@@ -191,9 +191,11 @@ function toSupportedLocale( locale: string ): string | undefined {
 	let tag: string | undefined;
 
 	while ( parts.length && tag === undefined ) {
-		try {
-			const [ candidate ] = Intl.getCanonicalLocales( parts.join( '-' ) );
+		const candidate = parts.join( '-' );
 
+		try {
+			// The tag itself, not Intl's canonical form: canonicalizing turns `en-US-posix` into
+			// `en-US-u-va-posix`, which the `-u-nu-latn` suffix for `forceLatin` cannot follow.
 			if ( Intl.NumberFormat.supportedLocalesOf( candidate ).length ) {
 				tag = candidate;
 			}
