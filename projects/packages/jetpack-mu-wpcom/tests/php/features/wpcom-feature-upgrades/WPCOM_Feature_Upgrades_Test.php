@@ -55,28 +55,43 @@ class WPCOM_Feature_Upgrades_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * @dataProvider provide_sites_without_purchases
+	 * A site that can't buy a plan gets no upgrade for what WordPress.com routes, and Jetpack's own for the rest.
 	 *
-	 * @param string $option The option that marks the site.
+	 * @dataProvider provide_upgrades_on_sites_without_purchases
+	 *
+	 * @param string      $option   The option that marks the site.
+	 * @param string      $filter   The filter method under test.
+	 * @param string      $slug     The feature slug.
+	 * @param string|null $expected The upgrade's `url`, or null when the upgrade is left as given.
 	 */
-	#[DataProvider( 'provide_sites_without_purchases' )]
-	public function test_monetize_upgrade_offers_nothing_where_the_site_cannot_buy( $option ) {
+	#[DataProvider( 'provide_upgrades_on_sites_without_purchases' )]
+	public function test_upgrade_offers_nothing_where_the_site_cannot_buy( $option, $filter, $slug, $expected ) {
 		update_option( $option, 1 );
 
-		$upgrade = WPCOM_Feature_Upgrades::filter_monetize_upgrade( array( 'name' => 'Jetpack Creator' ), WPCOM_Feature_Upgrades::MONETIZE_SLUG );
+		$upgrade = WPCOM_Feature_Upgrades::$filter(
+			array(
+				'path' => '/add-' . $slug,
+				'name' => 'Jetpack',
+			),
+			$slug,
+			false
+		);
 
-		$this->assertSame( '', $upgrade['url'] );
+		$this->assertSame( $expected, $upgrade['url'] ?? null );
 	}
 
 	/**
-	 * Data provider for test_monetize_upgrade_offers_nothing_where_the_site_cannot_buy.
+	 * Data provider for test_upgrade_offers_nothing_where_the_site_cannot_buy.
 	 *
 	 * @return array[]
 	 */
-	public static function provide_sites_without_purchases() {
+	public static function provide_upgrades_on_sites_without_purchases() {
 		return array(
-			'staging site' => array( 'wpcom_is_staging_site' ),
-			'agency site'  => array( 'is_fully_managed_agency_site' ),
+			'Monetize page, staging site' => array( 'wpcom_is_staging_site', 'filter_monetize_upgrade', WPCOM_Feature_Upgrades::MONETIZE_SLUG, '' ),
+			'Monetize page, agency site'  => array( 'is_fully_managed_agency_site', 'filter_monetize_upgrade', WPCOM_Feature_Upgrades::MONETIZE_SLUG, '' ),
+			'Backup, staging site'        => array( 'wpcom_is_staging_site', 'filter_feature_upgrade', 'backup', '' ),
+			'Social, agency site'         => array( 'is_fully_managed_agency_site', 'filter_feature_upgrade', 'social', '' ),
+			'Boost, staging site'         => array( 'wpcom_is_staging_site', 'filter_feature_upgrade', 'boost', null ),
 		);
 	}
 

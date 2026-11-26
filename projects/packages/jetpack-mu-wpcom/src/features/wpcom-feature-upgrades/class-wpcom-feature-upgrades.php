@@ -69,14 +69,20 @@ class WPCOM_Feature_Upgrades {
 	/**
 	 * Send a feature's upgrade to the WordPress.com plans that include it; a site that has it keeps Jetpack's own manage link.
 	 *
+	 * A site that can't buy a plan gets an empty `url`, which offers nothing.
+	 *
 	 * @param array  $upgrade          Where the upgrade goes: `path`, `name`, `back_url`, and optionally `url`.
 	 * @param string $slug             The My Jetpack feature slug.
 	 * @param bool   $site_has_feature Whether the site already has the feature.
 	 * @return array
 	 */
 	public static function filter_feature_upgrade( $upgrade, $slug, $site_has_feature ) {
-		if ( $site_has_feature ) {
+		if ( $site_has_feature || ( ! isset( self::PAGES[ $slug ] ) && ! isset( self::PLAN_FEATURES[ $slug ] ) ) ) {
 			return $upgrade;
+		}
+
+		if ( ! self::can_buy_plans() ) {
+			return array( 'url' => '' ) + $upgrade;
 		}
 
 		$back_url = (string) ( $upgrade['back_url'] ?? '' );
@@ -91,21 +97,17 @@ class WPCOM_Feature_Upgrades {
 			);
 		}
 
-		if ( isset( self::PLAN_FEATURES[ $slug ] ) ) {
-			return array(
-				'path' => '',
-				'name' => 'WordPress.com', // Product name, do not translate.
-				'url'  => self::get_plan_upgrade_url( self::PLAN_FEATURES[ $slug ], $back_url, admin_url( 'admin.php?page=my-jetpack' ) ),
-			);
-		}
-
-		return $upgrade;
+		return array(
+			'path' => '',
+			'name' => 'WordPress.com', // Product name, do not translate.
+			'url'  => self::get_plan_upgrade_url( self::PLAN_FEATURES[ $slug ], $back_url, admin_url( 'admin.php?page=my-jetpack' ) ),
+		);
 	}
 
 	/**
 	 * Send the Monetize page's upgrade links to the WordPress.com plans with ads, which come back to the page.
 	 *
-	 * Staging and fully managed agency sites can't buy a plan, so they get no upgrade link, as in filter_plan_urls().
+	 * A site that can't buy a plan gets no upgrade link, as in filter_plan_urls().
 	 *
 	 * @since $$next-version$$
 	 *
@@ -118,7 +120,7 @@ class WPCOM_Feature_Upgrades {
 			return $upgrade;
 		}
 
-		if ( get_option( 'wpcom_is_staging_site' ) || is_fully_managed_agency_site() ) {
+		if ( ! self::can_buy_plans() ) {
 			return array( 'url' => '' ) + $upgrade;
 		}
 
@@ -164,7 +166,7 @@ class WPCOM_Feature_Upgrades {
 		$urls = (array) $urls;
 
 		// As the Simple My Jetpack page and the Upgrades and Purchases menus do, offer these sites no plan links.
-		if ( get_option( 'wpcom_is_staging_site' ) || is_fully_managed_agency_site() ) {
+		if ( ! self::can_buy_plans() ) {
 			$urls['purchase'] = false;
 			$urls['manage']   = false;
 
@@ -188,6 +190,15 @@ class WPCOM_Feature_Upgrades {
 		$urls['manage']   = 'https://wordpress.com/purchases/subscriptions/' . $site_slug;
 
 		return $urls;
+	}
+
+	/**
+	 * Whether the site can buy a plan: staging and fully managed agency sites can't.
+	 *
+	 * @return bool
+	 */
+	private static function can_buy_plans() {
+		return ! get_option( 'wpcom_is_staging_site' ) && ! is_fully_managed_agency_site();
 	}
 
 	/**
