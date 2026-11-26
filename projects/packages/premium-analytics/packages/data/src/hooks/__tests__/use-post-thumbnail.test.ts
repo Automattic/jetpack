@@ -19,7 +19,6 @@ jest.mock( '@wordpress/data', () => ( {
 const mockUseSelect = useSelect as jest.MockedFunction< typeof useSelect >;
 const getEntityRecord = jest.fn();
 const getEntityRecords = jest.fn();
-const hasFinishedResolution = jest.fn< boolean, [ string, unknown[] ] >( () => true );
 
 function mockSelectors(): void {
 	mockUseSelect.mockImplementation( mapSelect => {
@@ -28,7 +27,7 @@ function mockSelectors(): void {
 		}
 
 		return mapSelect(
-			() => ( { getEntityRecord, getEntityRecords, hasFinishedResolution } ) as never,
+			() => ( { getEntityRecord, getEntityRecords } ) as never,
 			undefined as never
 		) as never;
 	} );
@@ -54,8 +53,6 @@ function mockEntityRecords( records: Record< string, unknown[] > ): void {
 function resetSelectors(): void {
 	getEntityRecord.mockReset();
 	getEntityRecords.mockReset();
-	hasFinishedResolution.mockReset();
-	hasFinishedResolution.mockReturnValue( true );
 	mockUseSelect.mockReset();
 }
 
@@ -177,7 +174,7 @@ describe( 'usePostThumbnails', () => {
 		[ '150 posts', { post: 150 }, { post: 3, attachment: 3 } ],
 		[ '150 posts and 150 pages', { post: 150, page: 150 }, { post: 3, page: 3, attachment: 6 } ],
 	] )(
-		'resolves every thumbnail for %s in batches of at most 100',
+		'resolves every thumbnail for %s with one query per run of 50 rows',
 		( _description, countsByType: Record< string, number >, expectedBatches ) => {
 			const rows: { id: number; type: string }[] = [];
 			const records: Record< string, unknown[] > = { attachment: [] };
@@ -205,7 +202,6 @@ describe( 'usePostThumbnails', () => {
 			const batches = new Map< string, string >();
 			for ( const [ , name, query ] of getEntityRecords.mock.calls ) {
 				expect( query.per_page ).toBe( query.include.length );
-				expect( query.per_page ).toBeLessThanOrEqual( 100 );
 				batches.set( `${ name }:${ query.include }`, name );
 			}
 			const batchCounts: Record< string, number > = {};

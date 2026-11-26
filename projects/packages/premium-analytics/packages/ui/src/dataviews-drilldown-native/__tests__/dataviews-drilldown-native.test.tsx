@@ -238,7 +238,7 @@ describe( 'DataViewsDrilldownNative paging', () => {
 	beforeEach( mockRowLayout );
 	afterEach( () => jest.restoreAllMocks() );
 
-	it( 'lists every row on one page with no page size menu', async () => {
+	it( 'offers no pager or page size menu', async () => {
 		render(
 			<DataViewsDrilldownNative< Row >
 				data={ flatRows( 25 ) }

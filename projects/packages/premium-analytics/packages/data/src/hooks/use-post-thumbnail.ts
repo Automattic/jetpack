@@ -96,9 +96,10 @@ export function usePostThumbnail(
 }
 
 /**
- * Resolve featured-image thumbnails for the post rows a table shows.
+ * Resolve featured-image thumbnails for the rows a table has mounted, keeping the URLs already
+ * resolved while new queries load.
  *
- * @param rows - Post rows after filtering and sorting.
+ * @param rows - The mounted post rows, in display order.
  * @return Thumbnail URLs keyed by post ID.
  */
 export function usePostThumbnails( rows: PostThumbnailSource[] ): PostThumbnailUrls {
@@ -119,7 +120,12 @@ export function usePostThumbnails( rows: PostThumbnailSource[] ): PostThumbnailU
 					continue;
 				}
 
-				grouped.set( row.type, [ ...( grouped.get( row.type ) ?? [] ), id ] );
+				const ids = grouped.get( row.type );
+				if ( ids ) {
+					ids.push( id );
+				} else {
+					grouped.set( row.type, [ id ] );
+				}
 			}
 
 			// Sorted, so a run whose rows trade places keeps its query.
