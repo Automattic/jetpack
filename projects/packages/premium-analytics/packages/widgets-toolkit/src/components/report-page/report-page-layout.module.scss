@@ -10,8 +10,9 @@ $report-page-sections-max-inline-size: 1440px;
 	flex: 1 1 auto;
 	min-block-size: 0;
 	overflow-y: auto;
-	// Keeps a trackpad fling past the mounted rows from bouncing the page.
-	overscroll-behavior-y: contain;
+	// Keeps a trackpad fling past the mounted rows from bouncing the pinned
+	// header; `contain` still lets the container itself bounce.
+	overscroll-behavior-y: none;
 	timeline-scope: --section-header-pin;
 	// Content scrolled into view stops below the pinned band rather than under it.
 	scroll-padding-block-start: calc(var(--report-pinned-header-size, 0px) + var(--wpds-dimension-gap-lg));
