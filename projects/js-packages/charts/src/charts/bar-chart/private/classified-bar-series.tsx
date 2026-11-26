@@ -16,12 +16,20 @@ type Props = Pick<
 	dataKey: string;
 	data: DataPointDate[];
 	colorAccessor: ( datum: DataPointDate ) => string;
+	/** The bars' opacity, or undefined for full strength. */
+	opacity?: number;
 	barClassName: NonNullable< BarChartProps[ 'barClassName' ] >;
 	primaryKeys: string[];
 	groupPadding: number;
 };
 
-const ClassifiedBarSeries = ( { barClassName, primaryKeys, groupPadding, ...props }: Props ) => {
+const ClassifiedBarSeries = ( {
+	barClassName,
+	primaryKeys,
+	groupPadding,
+	opacity,
+	...props
+}: Props ) => {
 	const { xScale, yScale, horizontal } = useContext( DataContext );
 	const bandScale = ( horizontal ? yScale : xScale ) as BandScale | undefined;
 	const valueScale = horizontal ? xScale : yScale;
@@ -65,6 +73,7 @@ const ClassifiedBarSeries = ( { barClassName, primaryKeys, groupPadding, ...prop
 					width={ horizontal ? Math.abs( value - baseline ) : groupScale.bandwidth() }
 					height={ horizontal ? groupScale.bandwidth() : Math.abs( value - baseline ) }
 					fill={ color }
+					opacity={ opacity }
 				/>
 			);
 		},
@@ -77,6 +86,7 @@ const ClassifiedBarSeries = ( { barClassName, primaryKeys, groupPadding, ...prop
 			props.xAccessor,
 			props.yAccessor,
 			barClassName,
+			opacity,
 		]
 	);
 	return <GlyphSeries { ...props } renderGlyph={ renderGlyph } />;

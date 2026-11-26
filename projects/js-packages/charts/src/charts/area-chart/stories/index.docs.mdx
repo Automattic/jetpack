@@ -99,6 +99,22 @@ Zoom behaviour:
 - Areas are clipped to the plot area whenever `zoomable` is set, keeping the zoom-out animation within the axes.
 - `zoomable` chains with your own `onPointerDown`/`onPointerMove`/`onPointerUp` handlers rather than replacing them.
 
+## Emphasized Series
+
+Set `emphasizedSeries` to the label of a series to bring it out: every other area dims to `DIMMED_SERIES_OPACITY` (0.2, exported by the package), its stroke included. Drive it from your own control, such as a total or legend item the reader hovers or presses, and pass `null` to let the emphasis go. A label no series carries dims nothing and warns in development.
+
+<Canvas of={ AreaChartStories.EmphasizedSeries } />
+
+<Source
+	language="jsx"
+	code={ `<AreaChart
+		data={ data }
+		emphasizedSeries={ pressedSeries ?? null }
+	/>` }
+/>
+
+The fade honors `prefers-reduced-motion`. Dimmed series keep their tooltips and keyboard navigation, so an emphasis never hides data.
+
 ## Error Handling
 
 The chart gracefully handles common edge cases:

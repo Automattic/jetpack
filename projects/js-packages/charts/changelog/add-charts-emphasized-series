@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Area and bar charts: Add `emphasizedSeries` to bring one series out and dim the others, comparison bars included.

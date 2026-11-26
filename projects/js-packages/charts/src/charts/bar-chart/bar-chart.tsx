@@ -27,6 +27,7 @@ import { useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
 import { formatReading, isInvalidReading } from '../private/readings';
+import { useSeriesEmphasis } from '../private/series-emphasis';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { getTickDecimals, hasOnlyWholeNumbers, TickDecimals } from '../private/tick-decimals';
 import { useCompactWhenShort } from '../private/use-compact-when-short';
@@ -134,6 +135,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	withBandHighlight = false,
 	onBandHighlightChange,
 	defaultHiddenSeries,
+	emphasizedSeries,
 	animation,
 	children,
 	gap = 'md',
@@ -443,6 +445,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			? { xScale: chartOptions.xScale, yScale: tighten( chartOptions.yScale ) }
 			: { xScale: tighten( chartOptions.xScale ), yScale: chartOptions.yScale };
 	}, [ comparisonEntries.length, chartOptions.xScale, chartOptions.yScale, horizontal ] );
+
+	const getSeriesOpacity = useSeriesEmphasis( data, emphasizedSeries );
 
 	const getBarBackground = useCallback(
 		( index: number ) => ( datum: DataPointDate ) =>
@@ -871,6 +875,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 											}
 											getElementStyles={ getElementStyles }
 											resolveFill={ resolveComparisonFill }
+											getSeriesOpacity={ getSeriesOpacity }
 										/>
 
 										<BarLayer
@@ -880,6 +885,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 											primaryEntries={ primaryEntries }
 											primaryKeys={ primaryKeys }
 											getBarBackground={ getBarBackground }
+											getSeriesOpacity={ getSeriesOpacity }
 											barClassName={ barClassName }
 											groupPadding={ groupPadding }
 											horizontal={ horizontal }

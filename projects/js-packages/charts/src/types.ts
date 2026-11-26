@@ -742,6 +742,16 @@ export interface CompactWhenShortProps {
 	compactWhenShort?: boolean;
 }
 
+export interface SeriesEmphasisProps {
+	/**
+	 * Label of the primary series to bring out. Every other series dims to
+	 * `DIMMED_SERIES_OPACITY`, comparison series along with the primary series they shadow.
+	 * Null leaves every series at full strength, as does a label no series carries, which
+	 * warns in development. Pass null rather than nothing while the emphasis can come and go.
+	 */
+	emphasizedSeries?: string | null;
+}
+
 /**
  * Base properties shared across all chart components
  */

@@ -18,6 +18,8 @@ type Props = Pick<
 	dataKey: string;
 	data: DataPointDate[];
 	colorAccessor: ( datum: DataPointDate ) => string;
+	/** The bars' opacity, or undefined for full strength. */
+	opacity?: number;
 	barClassName?: BarChartProps[ 'barClassName' ];
 	/** The slots of a category, in the order the band lays them out. */
 	slotKeys: string[];
@@ -65,6 +67,7 @@ function getStackEnd(
 
 const StackedBarSeries = ( {
 	barClassName,
+	opacity,
 	slotKeys,
 	slotKey,
 	groupPadding,
@@ -118,6 +121,7 @@ const StackedBarSeries = ( {
 					data-stack-end={ getStackEnd( stack, dataKey, segment, datum, !! horizontal, clamp ) }
 					className={ clsx( 'visx-bar', barClassName?.( datum ) ) }
 					fill={ color }
+					opacity={ opacity }
 				/>
 			);
 		},
@@ -133,6 +137,7 @@ const StackedBarSeries = ( {
 			xAccessor,
 			yAccessor,
 			barClassName,
+			opacity,
 		]
 	);
 	// BandTooltip owns pointer selection, as for slotted bars.

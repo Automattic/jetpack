@@ -16,6 +16,14 @@
 	svg {
 		overflow: visible;
 	}
+
+	// `emphasizedSeries` fades the other series in and out.
+	@media (prefers-reduced-motion: no-preference) {
+
+		path {
+			transition: opacity var(--wpds-motion-duration-md) var(--wpds-motion-easing-subtle);
+		}
+	}
 }
 
 @keyframes rise {

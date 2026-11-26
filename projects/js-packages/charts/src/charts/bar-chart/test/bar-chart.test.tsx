@@ -3791,4 +3791,111 @@ describe( 'BarChart', () => {
 			expect( screen.queryByTestId( 'chart-tooltip-3' ) ).not.toBeInTheDocument();
 		} );
 	} );
+	describe( 'emphasizedSeries', () => {
+		const data: SeriesData[] = [
+			{
+				label: 'Views',
+				group: 'views',
+				data: [
+					{ label: 'Jan', value: 100 },
+					{ label: 'Feb', value: 120 },
+				],
+			},
+			{
+				label: 'Visitors',
+				group: 'visitors',
+				data: [
+					{ label: 'Jan', value: 60 },
+					{ label: 'Feb', value: 70 },
+				],
+			},
+			{
+				label: 'Views last year',
+				group: 'views',
+				options: { type: 'comparison' as const },
+				data: [
+					{ label: 'Jan', value: 80 },
+					{ label: 'Feb', value: 140 },
+				],
+			},
+		];
+		// eslint-disable-next-line testing-library/no-node-access -- visx renders the bars and takes no test id.
+		const allBars = () => Array.from( document.querySelectorAll( '.visx-bar' ) );
+		const shadows = () => screen.queryAllByTestId( /^bar-chart-comparison-\d+-\d+$/ );
+		const opacityOf = ( element: Element ) => element.getAttribute( 'opacity' );
+
+		it.each( [ [ 'grouped' ], [ 'overlap' ], [ 'stacked' ] ] as const )(
+			'keeps the emphasized series at full strength and dims the rest, shadows included, in the %s layout',
+			layout => {
+				render(
+					<GlobalChartsProvider>
+						<BarChart
+							data={ data }
+							layout={ layout }
+							emphasizedSeries="Visitors"
+							width={ 400 }
+							height={ 300 }
+						/>
+					</GlobalChartsProvider>
+				);
+
+				const bars = allBars();
+				const full = bars.filter( bar => opacityOf( bar ) === null );
+				const dimmed = [ ...bars.filter( bar => ! full.includes( bar ) ), ...shadows() ];
+				// Visitors' two bars, in one color; Views, its shadow or the comparison total dim.
+				expect( full ).toHaveLength( 2 );
+				expect( new Set( full.map( bar => bar.getAttribute( 'fill' ) ) ).size ).toBe( 1 );
+				expect( dimmed.length ).toBeGreaterThanOrEqual( 4 );
+				expect( dimmed.map( opacityOf ) ).toEqual( dimmed.map( () => '0.2' ) );
+			}
+		);
+
+		it( 'dims nothing for null, and for a label no series carries, which warns once', () => {
+			const warn = jest.spyOn( console, 'warn' ).mockImplementation( () => {} );
+			try {
+				const { rerender } = render(
+					<GlobalChartsProvider>
+						<BarChart data={ data } emphasizedSeries={ null } width={ 400 } height={ 300 } />
+					</GlobalChartsProvider>
+				);
+				expect( allBars().map( opacityOf ) ).toEqual( [ null, null, null, null ] );
+				expect( warn ).not.toHaveBeenCalled();
+
+				rerender(
+					<GlobalChartsProvider>
+						<BarChart data={ data } emphasizedSeries="Sessions" width={ 400 } height={ 300 } />
+					</GlobalChartsProvider>
+				);
+				rerender(
+					<GlobalChartsProvider>
+						<BarChart data={ data } emphasizedSeries="Sessions" width={ 401 } height={ 300 } />
+					</GlobalChartsProvider>
+				);
+				expect( allBars().map( opacityOf ) ).toEqual( [ null, null, null, null ] );
+				expect( warn ).toHaveBeenCalledTimes( 1 );
+				expect( warn.mock.calls[ 0 ][ 0 ] ).toContain( 'emphasizedSeries "Sessions"' );
+			} finally {
+				warn.mockRestore();
+			}
+		} );
+
+		it( 'keeps the grouped bars mounted while the emphasis comes and goes', () => {
+			const { rerender } = render(
+				<GlobalChartsProvider>
+					<BarChart data={ data } emphasizedSeries={ null } width={ 400 } height={ 300 } />
+				</GlobalChartsProvider>
+			);
+			const [ firstBar ] = allBars();
+
+			rerender(
+				<GlobalChartsProvider>
+					<BarChart data={ data } emphasizedSeries="Views" width={ 400 } height={ 300 } />
+				</GlobalChartsProvider>
+			);
+
+			expect( allBars()[ 0 ] ).toBe( firstBar );
+			expect( opacityOf( firstBar ) ).toBeNull();
+			expect( opacityOf( allBars()[ 2 ] ) ).toBe( '0.2' );
+		} );
+	} );
 } );

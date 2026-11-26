@@ -30,6 +30,7 @@ export { Sparkline, SparklineUnresponsive } from './charts/sparkline';
 export { BaseTooltip, TooltipBox } from './components/tooltip';
 export { Legend, useChartLegendItems } from './components/legend';
 export { TrendIndicator } from './components/trend-indicator';
+export { DIMMED_SERIES_OPACITY } from './charts/private/series-emphasis';
 
 // Compositions
 
@@ -76,6 +77,7 @@ export type {
 	SeriesChartLegendConfig,
 	ComparisonItemLabel,
 	SeriesVisibilityProps,
+	SeriesEmphasisProps,
 	BaseChartProps,
 	GoogleDataTableColumn,
 	GoogleDataTableRow,

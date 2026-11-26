@@ -6,6 +6,7 @@ import { DEFAULT_COMPARISON_WIDTH_FACTOR } from './comparison-constants';
 import type { BandScale } from './band-scale';
 import type { ElementStyles, GetElementStylesParams } from '../../../providers';
 import type { DataPointDate, SeriesData } from '../../../types';
+import type { GetSeriesOpacity } from '../../private/series-emphasis';
 import type { FC, ReactNode } from 'react';
 
 /*
@@ -39,6 +40,8 @@ export const ComparisonBars: FC< {
 	getElementStyles: ( params: GetElementStylesParams ) => ElementStyles;
 	/** Resolves a comparison bar's fill: its pattern when patterns are on, else its datum's or its series' color. */
 	resolveFill: ( entry: ComparisonSeriesEntry, datum: DataPointDate ) => string;
+	/** Reads the opacity of the primary series a shadow belongs to, under `emphasizedSeries`. */
+	getSeriesOpacity?: GetSeriesOpacity;
 } > = ( {
 	comparisonEntries,
 	primaryKeys,
@@ -48,6 +51,7 @@ export const ComparisonBars: FC< {
 	yAccessor,
 	getElementStyles,
 	resolveFill,
+	getSeriesOpacity,
 } ) => {
 	const context = useContext( DataContext );
 	const xScale = context?.xScale as AnyScale | undefined;
@@ -86,6 +90,7 @@ export const ComparisonBars: FC< {
 
 		const { barStyles } = getElementStyles( { data: series, index } );
 		const widthFactor = barStyles?.widthFactor ?? DEFAULT_COMPARISON_WIDTH_FACTOR;
+		const opacity = getSeriesOpacity?.( primaryKey ) ?? barStyles?.opacity;
 		// The shadow is `widthFactor` × the (narrowed) primary slot. bar-chart.tsx narrows the
 		// primary bars by widening the group padding so this ratio holds with real geometry.
 
@@ -125,7 +130,7 @@ export const ComparisonBars: FC< {
 					width={ rect.width }
 					height={ rect.height }
 					fill={ resolveFill( entry, datum ) }
-					opacity={ barStyles?.opacity }
+					opacity={ opacity }
 				/>
 			);
 		} );

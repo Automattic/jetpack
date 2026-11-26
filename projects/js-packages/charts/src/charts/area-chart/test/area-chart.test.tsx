@@ -1088,4 +1088,33 @@ describe( 'AreaChart', () => {
 			'chart-tooltip-1'
 		);
 	} );
+	describe( 'emphasizedSeries', () => {
+		it.each( [
+			[ 'stacked areas', {}, 1 ],
+			[ 'overlapping areas and their lines', { stacked: false, withStroke: true }, 2 ],
+		] )(
+			'dims the other series and leaves the emphasized one at full strength, for %s',
+			( _case, props, dimmedPaths ) => {
+				renderWithProvider( { ...props, emphasizedSeries: 'Series A' } );
+
+				expect( screen.getByTestId( 'area-chart-series-0' ) ).not.toHaveAttribute( 'opacity' );
+				expect( screen.getByTestId( 'area-chart-series-1' ) ).toHaveAttribute( 'opacity', '0.2' );
+				// eslint-disable-next-line testing-library/no-node-access -- the line shares no test id with its area.
+				expect( document.querySelectorAll( 'path[opacity="0.2"]' ) ).toHaveLength( dimmedPaths );
+			}
+		);
+
+		it( 'dims nothing for a label no series carries, and warns in development', () => {
+			const warn = jest.spyOn( console, 'warn' ).mockImplementation( () => {} );
+			try {
+				renderWithProvider( { emphasizedSeries: 'Series C' } );
+
+				// eslint-disable-next-line testing-library/no-node-access -- see above.
+				expect( document.querySelectorAll( 'path[opacity]' ) ).toHaveLength( 0 );
+				expect( warn ).toHaveBeenCalledTimes( 1 );
+			} finally {
+				warn.mockRestore();
+			}
+		} );
+	} );
 } );

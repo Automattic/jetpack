@@ -576,6 +576,21 @@ export const WithDefaultHiddenSeries: Story = {
 	},
 };
 
+export const EmphasizedSeries: Story = {
+	args: {
+		...Default.args,
+		emphasizedSeries: 'United States',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'United States keeps its full color while the other series dim. Pass the label of the series the reader picked, and null to let it go.',
+			},
+		},
+	},
+};
+
 // Story demonstrating composition API
 export const WithCompositionLegend: Story = {
 	render: args => {

@@ -35,6 +35,7 @@ import { renderDefaultTooltip } from '../line-chart';
 import { useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext, type ChartInstanceRef } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
+import { useSeriesEmphasis } from '../private/series-emphasis';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { hasOnlyWholeNumbers, TickDecimals } from '../private/tick-decimals';
 import { getCurveType } from '../private/time-axis';
@@ -80,6 +81,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 			zoomable = false,
 			rescaleYOnVisibilityChange = true,
 			defaultHiddenSeries,
+			emphasizedSeries,
 			children,
 			gridVisibility,
 			gap = 'md',
@@ -95,6 +97,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 		const theme = useXYChartTheme( data );
 		const chartId = useChartId( providedChartId );
 		const hiddenSeries = useDefaultHiddenSeries( chartId, defaultHiddenSeries );
+		const getSeriesOpacity = useSeriesEmphasis( data, emphasizedSeries );
 		const isSeriesVisible = useCallback(
 			( seriesLabel: string ) => ! hiddenSeries.has( seriesLabel ),
 			[ hiddenSeries ]
@@ -394,6 +397,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 			isVisible,
 		}: ( typeof seriesWithVisibility )[ number ] ) => {
 			const { color, lineStyles } = getElementStyles( { data: seriesData, index } );
+			const opacity = getSeriesOpacity?.( seriesData.label );
 			return (
 				<AnimatedAreaSeries
 					key={ seriesData?.label || index }
@@ -403,8 +407,9 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 					yAccessor={ isVisible ? accessors.yAccessor : zeroYAccessor }
 					fill={ color }
 					fillOpacity={ resolvedFillOpacity }
+					opacity={ opacity }
 					{ ...( stacked ? {} : { renderLine: resolvedWithStroke, curve } ) }
-					lineProps={ { stroke: color, ...lineStyles } }
+					lineProps={ { stroke: color, ...lineStyles, opacity } }
 					data-testid={ `area-chart-series-${ index }` }
 				/>
 			);

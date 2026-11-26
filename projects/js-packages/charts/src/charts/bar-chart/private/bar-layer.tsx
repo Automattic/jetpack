@@ -9,6 +9,7 @@ import type { ValueScale } from './comparison-bars-geometry';
 import type { SelectedBar } from './selected-bar-ring';
 import type { BarSlots } from './use-bar-slots';
 import type { DataPointDate, SeriesData } from '../../../types';
+import type { GetSeriesOpacity } from '../../private/series-emphasis';
 import type { BarChartProps } from '../types';
 import type { AxisScale } from '@visx/axis';
 import type { SeriesProps } from '@visx/xychart';
@@ -26,10 +27,14 @@ type Props = Accessors & {
 	primaryEntries: { series: SeriesData; index: number }[];
 	primaryKeys: string[];
 	getBarBackground: ( index: number ) => ( datum: DataPointDate ) => string;
+	/** Reads a series' opacity under `emphasizedSeries`; undefined while the prop is omitted. */
+	getSeriesOpacity: GetSeriesOpacity | undefined;
 	barClassName: BarChartProps[ 'barClassName' ];
 	groupPadding: number;
 	horizontal: boolean;
 };
+
+const noBarClass = () => undefined;
 
 /**
  * Wraps the stacked bars so the entrance animation grows them from the zero line.
@@ -70,6 +75,7 @@ const StackedBarGroup: FC< { horizontal: boolean; children: ReactNode } > = ( {
  * @param props.primaryEntries   - The visible primary series, for a grouped layout.
  * @param props.primaryKeys      - Their labels, in group order.
  * @param props.getBarBackground - Reads a series' bar fill.
+ * @param props.getSeriesOpacity - Reads a series' opacity, or undefined for full strength.
  * @param props.barClassName     - Adds classes to a bar.
  * @param props.groupPadding     - The padding between the bars of a category.
  * @param props.horizontal       - Whether the bars run horizontally.
@@ -84,6 +90,7 @@ export const BarLayer: FC< Props > = ( {
 	primaryEntries,
 	primaryKeys,
 	getBarBackground,
+	getSeriesOpacity,
 	barClassName,
 	groupPadding,
 	horizontal,
@@ -102,6 +109,7 @@ export const BarLayer: FC< Props > = ( {
 						xAccessor={ xAccessor }
 						yAccessor={ yAccessor }
 						colorAccessor={ getBarBackground( index ) }
+						opacity={ getSeriesOpacity?.( series.label ) }
 						barClassName={ barClassName }
 						slotKeys={ barSlots.slotKeys }
 						slotKey={ barSlots.slotOf( series.label ) }
@@ -122,6 +130,7 @@ export const BarLayer: FC< Props > = ( {
 						xAccessor={ xAccessor }
 						yAccessor={ yAccessor }
 						colorAccessor={ getBarBackground( index ) }
+						opacity={ getSeriesOpacity?.( series.label ) }
 						barClassName={ barClassName }
 						slotKeys={ barSlots.slotKeys }
 						slotKey={ barSlots.slotOf( series.label ) }
@@ -131,7 +140,8 @@ export const BarLayer: FC< Props > = ( {
 				) ) }
 			</g>
 		);
-	} else if ( barClassName ) {
+	} else if ( barClassName || getSeriesOpacity ) {
+		// visx's own bars take no per-series opacity, so an emphasis draws them here too.
 		bars = (
 			<g className="visx-bar-group">
 				{ primaryEntries.map( ( { series, index } ) => (
@@ -142,7 +152,8 @@ export const BarLayer: FC< Props > = ( {
 						xAccessor={ xAccessor }
 						yAccessor={ yAccessor }
 						colorAccessor={ getBarBackground( index ) }
-						barClassName={ barClassName }
+						opacity={ getSeriesOpacity?.( series.label ) }
+						barClassName={ barClassName ?? noBarClass }
 						primaryKeys={ primaryKeys }
 						groupPadding={ groupPadding }
 					/>

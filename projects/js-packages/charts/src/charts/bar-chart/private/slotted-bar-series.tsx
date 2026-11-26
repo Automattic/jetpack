@@ -16,6 +16,8 @@ type Props = Pick<
 	dataKey: string;
 	data: DataPointDate[];
 	colorAccessor: ( datum: DataPointDate ) => string;
+	/** The bars' opacity, or undefined for full strength. */
+	opacity?: number;
 	barClassName?: BarChartProps[ 'barClassName' ];
 	/** The slots of a category, in the order the band lays them out. */
 	slotKeys: string[];
@@ -28,6 +30,7 @@ type Props = Pick<
 
 const SlottedBarSeries = ( {
 	barClassName,
+	opacity,
 	slotKeys,
 	slotKey,
 	thickness,
@@ -62,6 +65,7 @@ const SlottedBarSeries = ( {
 					{ ...rect }
 					className={ clsx( 'visx-bar', barClassName?.( datum ) ) }
 					fill={ color }
+					opacity={ opacity }
 				/>
 			);
 		},
@@ -75,6 +79,7 @@ const SlottedBarSeries = ( {
 			props.xAccessor,
 			props.yAccessor,
 			barClassName,
+			opacity,
 		]
 	);
 	// BandTooltip owns pointer selection: these handlers subscribe after it and would rank bars by their tops, not their slots.
