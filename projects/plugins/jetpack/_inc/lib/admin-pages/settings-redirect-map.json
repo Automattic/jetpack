@@ -1,6 +1,6 @@
 {
 	"description": "Where each Jetpack Settings hash route and ?term= search goes once the Settings screen retires. Nothing reads it yet: the redirect document that page=jetpack-settings and the page=jetpack forwarder (Jetpack_React_Page) will print resolves these rules in PHP, since the server never sees the hash. It applies only while Initializer::is_settings_consolidation_enabled() is true. The Network Admin jetpack-settings page is out of scope. It is production-excluded in .gitattributes; the PR that first reads it must remove that exclusion.",
-	"matching": "`everySource` runs before any route or term rule. A term matches its decoded value, case-insensitively, before its route; an unmatched term falls back to its route. On page=jetpack-settings, an empty hash (the bare menu link) or an unknown route gets the /settings rules, as main.jsx does. On page=jetpack, an unknown route never reaches these rules: the forwarder (Jetpack_React_Page::get_legacy_route_redirects()) sends it to My Jetpack for admins and to Settings for everyone else, as it does today, so #/my-plan, #/dashboard and #/stats keep landing on My Jetpack. In each list, the first rule whose `when` all hold wins, and a rule without `when` is the default. A rule with `pending` keeps the source on Settings until each marker clears: `D<n>` is an open decision, `JETPACK-<n>` an issue that must land, `flag:<name>` a feature flag that must retire, `error-notice-home` a page that shows the Jetpack::state( 'error' ) notice where My Jetpack doesn't (to users who can't open it, offline, and during onboarding), and `monetize-page` a Monetize page that shows the Ads settings (its flag on and the `monetize` module active), without which the Ads settings stay on Settings. A `destination` next to `pending` is where the source goes once it clears. A settings panel destination (`configure=`) waits on the issue that gives the panel that module's settings, since until then the panel's fallback links back here through configure_url. Destinations are relative to wp-admin. My Jetpack `#/` links work on every My Jetpack version, since its router rewrites them to `?p=`.",
+	"matching": "`everySource` runs before any route or term rule. A term matches its decoded value, case-insensitively, before its route; an unmatched term falls back to its route. On page=jetpack-settings, an empty hash (the bare menu link) or an unknown route gets the /settings rules, as main.jsx does. On page=jetpack, an unknown route never reaches these rules: the forwarder (Jetpack_React_Page::get_legacy_route_redirects()) sends it to My Jetpack for admins and to Settings for everyone else, as it does today, so #/my-plan, #/dashboard and #/stats keep landing on My Jetpack. In each list, the first rule whose `when` all hold wins, and a rule without `when` is the default. A rule with `pending` keeps the source on Settings until each marker clears: `D<n>` is an open decision, `JETPACK-<n>` an issue that must land, `flag:<name>` a feature flag that must retire, `error-notice-home` a page that shows the Jetpack::state( 'error' ) notice where My Jetpack doesn't (to users who can't open it, offline, and during onboarding), and `monetize-page` a Monetize page that shows the Ads settings (its flag on and the `monetize` module active), without which the Ads settings stay on Settings. `protect-page` is a Protect page that shows the security settings on Atomic sites where Jetpack's Protect page does not load (Personal and Premium, where WordPress.com shows a Protect upsell instead), without which those settings stay on Settings. A `destination` next to `pending` is where the source goes once it clears. A settings panel destination (`configure=`) waits on the issue that gives the panel that module's settings, since until then the panel's fallback links back here through configure_url. Destinations are relative to wp-admin. My Jetpack `#/` links work on every My Jetpack version, since its router rewrites them to `?p=`.",
 	"decisions": {
 		"D7": "Where Google Analytics settings go on Atomic sites where the settings panel does not offer them (googleAnalyticsPanel is false).",
 		"D9": "Where users who cannot manage modules find Publicize and their own account connection, since Features needs manage_options. Post by Email stays on their Profile page.",
@@ -84,6 +84,7 @@
 					"destination": "admin.php?page=jetpack-protect&p=%2F%3Ftab%3Dsettings",
 					"alreadyRedirects": true
 				},
+				{ "when": { "host": "atomic", "protectPage": false }, "pending": [ "protect-page" ] },
 				{ "destination": "admin.php?page=my-jetpack#/features?feature=protect-dashboard" }
 			],
 			"outsideRepo": [ "wpcom: Jetpack onboarding emails", "wpcom: help search key" ]
@@ -175,6 +176,11 @@
 			"source": "/reader",
 			"rules": [
 				{ "when": { "canManageModules": false }, "pending": [ "D9" ] },
+				{
+					"when": { "host": "atomic" },
+					"destination": "admin.php?page=my-jetpack#/features",
+					"note": "wpcomsh keeps the Reader module on on WoA, so its Features row has no control, and JETPACK-3940 hides that row, after which a search finds nothing."
+				},
 				{
 					"destination": "admin.php?page=my-jetpack#/features?search=reader",
 					"alreadyRedirects": true
@@ -462,6 +468,7 @@
 					"when": { "protectPage": true },
 					"destination": "admin.php?page=jetpack-protect&p=%2F%3Ftab%3Dsettings%26section%3Dfirewall"
 				},
+				{ "when": { "host": "atomic", "protectPage": false }, "pending": [ "protect-page" ] },
 				{ "destination": "admin.php?page=my-jetpack#/features?feature=protect-dashboard" }
 			]
 		},
@@ -472,6 +479,7 @@
 					"when": { "protectPage": true },
 					"destination": "admin.php?page=jetpack-protect&p=%2F%3Ftab%3Dsettings%26section%3DloginProtection"
 				},
+				{ "when": { "host": "atomic", "protectPage": false }, "pending": [ "protect-page" ] },
 				{ "destination": "admin.php?page=my-jetpack#/features?feature=protect-dashboard" }
 			],
 			"outsideRepo": [ "wpcom: Jetpack report emails, 'Start blocking attacks' button" ]
@@ -483,6 +491,7 @@
 					"when": { "protectPage": true },
 					"destination": "admin.php?page=jetpack-protect&p=%2F%3Ftab%3Dsettings%26section%3DloginProtection"
 				},
+				{ "when": { "host": "atomic", "protectPage": false }, "pending": [ "protect-page" ] },
 				{ "destination": "admin.php?page=my-jetpack#/features?feature=protect-dashboard" }
 			]
 		},
@@ -493,6 +502,7 @@
 					"when": { "protectPage": true },
 					"destination": "admin.php?page=jetpack-protect&p=%2F%3Ftab%3Dsettings%26section%3DloginProtection"
 				},
+				{ "when": { "host": "atomic", "protectPage": false }, "pending": [ "protect-page" ] },
 				{ "destination": "admin.php?page=my-jetpack#/features?feature=protect-dashboard" }
 			]
 		},
@@ -503,6 +513,7 @@
 					"when": { "protectPage": true },
 					"destination": "admin.php?page=jetpack-protect&p=%2F%3Ftab%3Dsettings%26section%3Dmonitor"
 				},
+				{ "when": { "host": "atomic", "protectPage": false }, "pending": [ "protect-page" ] },
 				{ "destination": "admin.php?page=my-jetpack#/features?feature=protect-dashboard" }
 			],
 			"outsideRepo": [ "wpcom: Jetpack report emails, 'Enable Monitor' button" ]
