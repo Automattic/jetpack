@@ -65,7 +65,7 @@ class Following implements Document {
 		$opml .= '<opml version="2.0">' . "\n";
 		$opml .= "\t<head>\n";
 		/* translators: %s: Site title. */
-		$opml .= "\t\t<title>" . self::escape( sprintf( __( '%s Follows', 'jetpack-publicize-pkg' ), self::decode( get_bloginfo( 'name' ) ) ) ) . "</title>\n";
+		$opml .= "\t\t<title>" . self::escape( sprintf( __( '%s: Recommended feeds', 'jetpack-publicize-pkg' ), self::decode( get_bloginfo( 'name' ) ) ) ) . "</title>\n";
 		$opml .= "\t\t<ownerId>" . self::escape( home_url( '/' ) ) . "</ownerId>\n";
 		$opml .= "\t\t<docs>http://opml.org/spec2.opml</docs>\n";
 		$opml .= "\t</head>\n";
