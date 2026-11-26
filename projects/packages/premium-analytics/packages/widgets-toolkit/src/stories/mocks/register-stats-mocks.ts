@@ -1209,6 +1209,20 @@ function buildStatsLocationViewsResponse(
 	};
 }
 
+/** One row per URL, as the `top-ai-urls` template answers: paths, and not only pages. */
+const MOCK_TOP_AI_URLS = [
+	[ '/', 9120 ],
+	[ '/robots.txt', 7480 ],
+	[ '/2026/11/how-we-rebuilt-our-search/', 5310 ],
+	[ '/pricing/', 4275 ],
+	[ '/2026/10/a-field-guide-to-ai-crawlers/', 3960 ],
+	[ '/docs/getting-started/', 2840 ],
+	[ '/sitemap.xml', 2105 ],
+	[ '/about/', 1490 ],
+	[ '/2026/09/caf%C3%A9-culture-in-lisbon/', 980 ],
+	[ '/contact/', 455 ],
+].map( ( [ url, ai_requests ] ) => ( { url, ai_requests: String( ai_requests ) } ) );
+
 /** One row per bot, as the `ai-providers-with-drill` template answers, counts as strings. */
 const MOCK_AI_PROVIDERS = [
 	[ 'OpenAI', 'GPTBot', 'AI Crawler', 18420 ],
@@ -1311,6 +1325,10 @@ export function getStatsMock( path: string ): unknown | null {
 		}
 
 		return { top_utm_values: {}, top_posts: {} };
+	}
+
+	if ( subPath === '/ua-queries' && query.get( 'template' ) === 'top-ai-urls' ) {
+		return MOCK_TOP_AI_URLS;
 	}
 
 	if ( subPath === '/ua-queries' && query.get( 'template' ) === 'ai-providers-with-drill' ) {

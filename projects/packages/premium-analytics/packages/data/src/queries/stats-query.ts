@@ -35,6 +35,7 @@ import {
 	sanitizeStatsSiteResponse,
 	sanitizeStatsSubscribersCountsResponse,
 	sanitizeStatsSubscribersResponse,
+	sanitizeStatsTopAiUrlsResponse,
 	sanitizeStatsTopAuthorsResponse,
 	sanitizeStatsTopPostsResponse,
 	sanitizeStatsUtmResponse,
@@ -75,6 +76,7 @@ type StatsReportQuerySettings = {
 const statsSanitizers = {
 	passthrough: sanitizeStatsPassthroughResponse,
 	aiProviders: sanitizeStatsAiProvidersResponse,
+	topAiUrls: sanitizeStatsTopAiUrlsResponse,
 	author: sanitizeStatsAuthorResponse,
 	post: sanitizeStatsPostResponse,
 	postComments: sanitizeStatsPostCommentsResponse,
