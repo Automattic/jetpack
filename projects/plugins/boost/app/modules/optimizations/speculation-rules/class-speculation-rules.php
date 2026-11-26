@@ -59,41 +59,18 @@ class Speculation_Rules implements Feature, Changes_Output_On_Activation, Optimi
 			return;
 		}
 
-		$home_url         = wp_parse_url( home_url() );
-		$origin           = $home_url['scheme'] . '://' . $home_url['host'];
-		$port             = $home_url['port'] ?? null;
+		$home_url = wp_parse_url( home_url() );
+		$origin   = $home_url['scheme'] . '://' . $home_url['host'];
+		if ( isset( $home_url['port'] ) ) {
+			$origin .= ':' . $home_url['port'];
+		}
+
 		$cornerstone_urls = array_map(
-			function ( $url ) use ( $home_url, $origin, $port ) {
-				if ( null === $port ) {
-					return trailingslashit( str_replace( $origin, '', $url ) );
-				}
-
-				$parts = wp_parse_url( $url );
-				if ( false === $parts ) {
-					return null;
-				}
-
-				if ( ( $parts['scheme'] ?? null ) !== $home_url['scheme']
-					|| ( $parts['host'] ?? null ) !== $home_url['host']
-					|| ( $parts['port'] ?? null ) !== $port
-					|| isset( $parts['user'] )
-					|| isset( $parts['pass'] )
-				) {
-					return trailingslashit( $url );
-				}
-
-				// Add the trailing slash after any query or fragment, as on sites without a port.
-				return trailingslashit( ( $parts['path'] ?? '' ) . strpbrk( $url, '?#' ) );
+			function ( $url ) use ( $origin ) {
+				return trailingslashit( str_replace( $origin, '', $url ) );
 			},
 			$cornerstone_urls
 		);
-
-		if ( null !== $port ) {
-			$cornerstone_urls = array_values( array_filter( $cornerstone_urls, 'is_string' ) );
-			if ( empty( $cornerstone_urls ) ) {
-				return;
-			}
-		}
 
 		// Add prerender rule for cornerstone pages with moderate eagerness
 		$speculation_rules->add_rule(
