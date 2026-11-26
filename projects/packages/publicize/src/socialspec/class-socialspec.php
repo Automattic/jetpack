@@ -116,15 +116,16 @@ class Socialspec {
 	}
 
 	/**
-	 * Lets HEAD requests for a document reach serve(), WordPress exits before the template otherwise.
+	 * Answers HEAD requests for a document: WordPress exits before the template, so serve() would not run.
 	 *
 	 * @param bool $exit Whether to exit without loading the template.
 	 * @return bool
 	 */
 	public static function exit_on_http_head( $exit ) {
-		$document = self::get_document();
+		// Exits if there is a document to serve.
+		self::serve( '' );
 
-		return $document && null !== $document->get_content() ? false : $exit;
+		return $exit;
 	}
 
 	/**
