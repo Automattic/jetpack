@@ -21,6 +21,7 @@ class PostSchemaNodeTest extends TestCase {
 
 	protected function tearDown(): void {
 		remove_all_filters( 'get_post_metadata' );
+		remove_all_filters( 'jetpack_seo_default_schema_type' );
 		parent::tearDown();
 	}
 
@@ -90,6 +91,24 @@ class PostSchemaNodeTest extends TestCase {
 		$this->assertSame( '', $this->invoke( 'default_schema_for_post', $this->make_post( array( 'post_type' => 'page' ) ) ) );
 		$this->assertSame( '', $this->invoke( 'default_schema_for_post', $this->make_post( array( 'post_type' => 'attachment' ) ) ) );
 		$this->assertSame( '', $this->invoke( 'default_schema_for_post', $this->make_post( array( 'post_type' => 'product' ) ) ) );
+	}
+
+	/**
+	 * The default-type filter lets a custom post type default to Article, and
+	 * any other value falls back to none.
+	 */
+	public function test_default_schema_type_filter() {
+		$filter = static function ( $type, $post ) {
+			if ( 'book' === $post->post_type ) {
+				return 'article';
+			}
+			return 'page' === $post->post_type ? 'faq' : $type;
+		};
+		add_filter( 'jetpack_seo_default_schema_type', $filter, 10, 2 );
+
+		$this->assertSame( 'Article', Post_Schema_Node::build( $this->make_post( array( 'post_type' => 'book' ) ) )['@type'] );
+		$this->assertNull( Post_Schema_Node::build( $this->make_post( array( 'post_type' => 'page' ) ) ) );
+		$this->assertSame( 'Article', Post_Schema_Node::build( $this->make_post() )['@type'] );
 	}
 
 	/**
@@ -189,18 +208,25 @@ class PostSchemaNodeTest extends TestCase {
 	}
 
 	/**
-	 * FAQPage answers are built from a `core/details` block's inner blocks only,
-	 * so the question (the `<summary>`) is not duplicated into the answer text.
+	 * An explicit FAQ wins over the Article default and excludes the Details summary from the answer.
 	 */
 	public function test_faq_answer_excludes_the_question() {
 		$this->set_faq_schema_type();
+		add_filter( 'jetpack_seo_default_schema_type', static fn() => 'article' );
 
 		$content  = '<!-- wp:details -->';
 		$content .= '<details class="wp-block-details"><summary>What is <strong>SEO</strong> &amp; AEO?</summary>';
 		$content .= '<!-- wp:paragraph --><p>Search engine optimization &amp; answer engine optimization.</p><!-- /wp:paragraph -->';
 		$content .= '</details><!-- /wp:details -->';
 
-		$node = Post_Schema_Node::build( $this->make_post( array( 'post_content' => $content ) ) );
+		$node = Post_Schema_Node::build(
+			$this->make_post(
+				array(
+					'post_type'    => 'book',
+					'post_content' => $content,
+				)
+			)
+		);
 
 		$this->assertIsArray( $node );
 		$this->assertSame( 'FAQPage', $node['@type'] );

@@ -7,17 +7,13 @@ import {
 	type StatsChartBucketPeriod,
 	type StatsPostDay,
 } from '@jetpack-premium-analytics/data';
-import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
-import { toDay } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useMemo } from '@wordpress/element';
 import {
-	addDays,
-	eachDayOfInterval,
-	eachMonthOfInterval,
-	eachWeekOfInterval,
-	format,
-	parseISO,
-} from 'date-fns';
+	getRangeBuckets,
+	parseSiteDateTime,
+	type RangeBucket,
+} from '@jetpack-premium-analytics/datetime';
+import { toDayRange } from '@jetpack-premium-analytics/widgets-toolkit';
+import { useMemo } from '@wordpress/element';
 
 /**
  * One chart point: the first and last day of the bucket that fall in the range,
@@ -45,80 +41,11 @@ export interface PostViewsState {
 }
 
 /**
- * A date-only window sliced from the dashboard report params.
- */
-type DayWindow = {
-	from: string;
-	to: string;
-};
-
-/**
- * One calendar bucket: its calendar start, which keys the totals, and the portion
- * that falls inside the selected date window, which the chart draws.
- */
-type BucketWindow = {
-	date: string;
-	from: string;
-	to: string;
-};
-
-/**
- * Extract a `YYYY-MM-DD` window from ISO report params, or undefined when
- * either bound is missing/malformed. The endpoint's day keys are date-only,
- * so comparing date prefixes keeps the slice timezone-stable.
- */
-export function toDayWindow( from?: string, to?: string ): DayWindow | undefined {
-	const fromDay = toDay( from );
-	const toBound = toDay( to );
-
-	if ( ! fromDay || ! toBound ) {
-		return undefined;
-	}
-
-	return { from: fromDay, to: toBound };
-}
-
-/**
- * Build the range's calendar buckets, oldest first. Each bucket keeps its
- * calendar start as the totals key while clipping its days to the selected range.
- */
-function calendarBucketWindows(
-	dayWindow: DayWindow,
-	period: StatsChartBucketPeriod
-): BucketWindow[] {
-	// The URL is user-editable, so an inverted range must not reach
-	// `eachDayOfInterval()` (it throws).
-	if ( dayWindow.from > dayWindow.to ) {
-		return [];
-	}
-
-	const interval = { start: parseISO( dayWindow.from ), end: parseISO( dayWindow.to ) };
-	let bucketStarts = eachDayOfInterval( interval );
-	if ( period === 'week' ) {
-		bucketStarts = eachWeekOfInterval( interval, { weekStartsOn: 1 } );
-	} else if ( period === 'month' ) {
-		bucketStarts = eachMonthOfInterval( interval );
-	}
-
-	return bucketStarts.map( ( start, index ) => {
-		const date = format( start, 'yyyy-MM-dd' );
-		const nextDate = bucketStarts[ index + 1 ];
-		const end = nextDate ? format( addDays( nextDate, -1 ), 'yyyy-MM-dd' ) : dayWindow.to;
-
-		return {
-			date,
-			from: date < dayWindow.from ? dayWindow.from : date,
-			to: end > dayWindow.to ? dayWindow.to : end,
-		};
-	} );
-}
-
-/**
  * Sum the post's daily view history into zero-filled buckets — missing days are
  * genuine zeroes, not gaps. Bucketed client-side since the endpoint's `weeks`
  * field only covers a fixed recent window.
  */
-function bucketDays( days: StatsPostDay[], buckets: BucketWindow[] ): PostViewsPoint[] {
+function bucketDays( days: StatsPostDay[], buckets: RangeBucket[] ): PostViewsPoint[] {
 	const totals = new Map< string, number >( buckets.map( bucket => [ bucket.date, 0 ] ) );
 
 	for ( const day of days ) {
@@ -159,8 +86,8 @@ export default function usePostViews(
 
 	const current = useMemo( () => {
 		const days = data?.data ?? [];
-		const dayWindow = toDayWindow( reportParams.from, reportParams.to );
-		const buckets = dayWindow ? calendarBucketWindows( dayWindow, period ) : [];
+		const range = toDayRange( reportParams.from, reportParams.to );
+		const buckets = range ? getRangeBuckets( range, period ) : [];
 
 		return bucketDays( days, buckets );
 	}, [ data, period, reportParams.from, reportParams.to ] );

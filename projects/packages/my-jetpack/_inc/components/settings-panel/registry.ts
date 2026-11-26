@@ -5,7 +5,6 @@ import { InfiniteScrollSettings } from './infinite-scroll';
 import { MarkdownSettings } from './markdown';
 import { PostByEmailSettings } from './post-by-email';
 import { RelatedPostsSettings } from './related-posts';
-import { SeoSettings } from './seo';
 import type { MyJetpackModule } from '../../types';
 import type { ComponentType } from 'react';
 
@@ -29,8 +28,6 @@ export const moduleSettings: Record< string, ComponentType< ModuleSettingsProps 
 	markdown: MarkdownSettings,
 	'post-by-email': PostByEmailSettings,
 	'related-posts': RelatedPostsSettings,
-	'seo-tools': SeoSettings,
-	'verification-tools': SeoSettings,
 };
 
 /**

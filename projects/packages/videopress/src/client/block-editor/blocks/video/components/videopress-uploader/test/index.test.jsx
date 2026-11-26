@@ -16,6 +16,7 @@ let mockPostId = 42;
 const mockMediaPlaceholder = jest.fn( ( { children } ) => <div>{ children }</div> );
 const mockUploadError = jest.fn( () => null );
 const mockUploadProgress = jest.fn( () => null );
+const mockLockSaving = jest.fn();
 const mockRecordingFile = new File( [ 'recorded video' ], 'recording.mp4', { type: 'video/mp4' } );
 
 jest.mock( '../../../../../../components/video-recording', () => ( {
@@ -72,6 +73,10 @@ jest.mock( '../../../../../../hooks/use-resumable-uploader', () => options => {
 		error: null,
 	};
 } );
+jest.mock(
+	'../../../../../../hooks/use-lock-saving-while-uploading',
+	() => isUploading => mockLockSaving( isUploading )
+);
 jest.mock( '../../../../../../hooks/use-uploader', () => ( {
 	uploadFromLibrary: ( ...args ) => mockUploadFromLibrary( ...args ),
 } ) );
@@ -172,6 +177,18 @@ describe( 'VideoPressUploader — direct uploads', () => {
 			expect( lastProps( mockUploadProgress ).uploadedVideoData ).toEqual( media );
 		}
 	);
+
+	it( 'holds saving while the upload runs and releases it when the upload fails', async () => {
+		mockUploadHandler.mockImplementation( () => {} );
+		renderUploader();
+		expect( mockLockSaving ).toHaveBeenLastCalledWith( false );
+
+		await act( async () => lastProps( mockMediaPlaceholder ).onSelect( file ) );
+		expect( mockLockSaving ).toHaveBeenLastCalledWith( true );
+
+		await act( async () => lastProps( mockResumableUploader ).onError( new Error( 'Network' ) ) );
+		expect( mockLockSaving ).toHaveBeenLastCalledWith( false );
+	} );
 
 	it.each( [
 		{ code: 'rest_cannot_edit', data: { status: 403 } },

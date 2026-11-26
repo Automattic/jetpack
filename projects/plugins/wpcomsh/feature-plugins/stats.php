@@ -45,3 +45,18 @@ function wpcomsh_retire_classic_stats( $enabled, $name ) {
 	return method_exists( 'Automattic\Jetpack\PremiumAnalytics\Analytics', 'register_replayed_admin_menu' ) ? true : $enabled;
 }
 add_filter( 'jetpack_feature_flag_enabled', 'wpcomsh_retire_classic_stats', 5, 2 );
+
+/**
+ * Turns on WooCommerce Analytics proxy tracking while Stats v2 runs.
+ *
+ * Asked when the filter is read rather than at file scope, because Jetpack loads after wpcomsh.
+ *
+ * @param bool $enabled Whether proxy tracking is enabled.
+ * @return bool
+ */
+function wpcomsh_enable_woocommerce_analytics_proxy_tracking( $enabled ) {
+	$analytics = 'Automattic\Jetpack\PremiumAnalytics\Analytics';
+
+	return $enabled || ( is_callable( array( $analytics, 'is_initialized' ) ) && $analytics::is_initialized() );
+}
+add_filter( 'woocommerce_analytics_experimental_proxy_tracking_enabled', 'wpcomsh_enable_woocommerce_analytics_proxy_tracking' );

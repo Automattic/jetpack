@@ -1,4 +1,4 @@
-import { getScriptData } from '@automattic/jetpack-script-data';
+import { getScriptData, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import {
 	AnalyticsQueryClientProvider,
 	useStatsAppPlanUsage,
@@ -11,6 +11,7 @@ import {
 	Text,
 	VisuallyHidden,
 } from '@jetpack-premium-analytics/externals';
+import { PromoCard, usePromoSlot } from '@jetpack-premium-analytics/widgets-toolkit';
 import { createInterpolateElement, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { ConsentCard } from '../consent-card';
@@ -43,7 +44,11 @@ export function StatsSettingsPanel(): JSX.Element {
  * @return The Settings page content.
  */
 function StatsSettingsContent(): JSX.Element {
-	const { isLoading: isLoadingPlanUsage, failureCount } = useStatsAppPlanUsage();
+	// WordPress.com sites have no views limit, so there is no usage to wait for or meter.
+	const hasViewsLimit = ! isWpcomPlatformSite();
+	const { isLoading: isLoadingPlanUsage, failureCount } = useStatsAppPlanUsage( {
+		enabled: hasViewsLimit,
+	} );
 	// Latched: the card refetches a failed usage on mount, which must not swap the page back and unmount it.
 	const [ isHolding, setHolding ] = useState( isLoadingPlanUsage );
 	// After a failed attempt, the card shows the retries rather than the whole page waiting them out.
@@ -58,6 +63,7 @@ function StatsSettingsContent(): JSX.Element {
 		return () => clearTimeout( timer );
 	}, [ isHolding ] );
 
+	const promo = usePromoSlot( 'settings' );
 	const statsSettings = getScriptData()?.premium_analytics?.stats_settings;
 	const featuresUrl = statsSettings?.features_url;
 	const featuresScreen = statsSettings?.features_screen;
@@ -76,7 +82,7 @@ function StatsSettingsContent(): JSX.Element {
 
 	return (
 		<Stack direction="column" gap="xl" className={ styles.root }>
-			<PlanUsageCard />
+			{ hasViewsLimit && <PlanUsageCard /> }
 			<SettingsForm />
 			<WhatsNewCard />
 			<ConsentCard />
@@ -103,6 +109,7 @@ function StatsSettingsContent(): JSX.Element {
 					</Card.Content>
 				</Card.Root>
 			) }
+			{ promo && <PromoCard key={ promo.slug } promo={ promo } /> }
 		</Stack>
 	);
 }

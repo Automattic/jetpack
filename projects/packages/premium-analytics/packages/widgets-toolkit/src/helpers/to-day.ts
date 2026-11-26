@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { parseISO } from 'date-fns';
+import type { DayRange } from '@jetpack-premium-analytics/datetime';
 
 /**
  * Extract a calendar-valid `YYYY-MM-DD` day from an ISO report param. Params
@@ -18,4 +19,18 @@ export function toDay( value?: string ): string | undefined {
 	return day && /^\d{4}-\d{2}-\d{2}$/.test( day ) && ! Number.isNaN( parseISO( day ).getTime() )
 		? day
 		: undefined;
+}
+
+/**
+ * The day range of a pair of ISO report params.
+ *
+ * @param from - The range's first instant.
+ * @param to   - The range's last instant.
+ * @return Both days, or undefined when either is missing or invalid.
+ */
+export function toDayRange( from?: string, to?: string ): DayRange | undefined {
+	const first = toDay( from );
+	const last = toDay( to );
+
+	return first && last ? { from: first, to: last } : undefined;
 }

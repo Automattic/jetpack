@@ -38,4 +38,19 @@ describe( 'ActivationScreenError', () => {
 			screen.getAllByText( 'This license is already active on your site.' ).length
 		).toBeGreaterThan( 0 );
 	} );
+
+	it.each( [
+		[ '[jetpack_pro_lower_limits]', /includes more than Jetpack Pro.*or contact us\.$/ ],
+		[ '[jetpack_pro_other_owner]', /belongs to another WordPress\.com account/ ],
+		[ '[product_incompatibility]', /active Jetpack plan of equal or higher value/ ],
+	] )( 'shows translated copy, not the server text, for %s', ( errorType, expected ) => {
+		render(
+			<ActivationScreenError
+				licenseError={ `Jetpack: ${ errorType } Server reason.` }
+				errorType={ errorType }
+			/>
+		);
+		expect( screen.getAllByText( expected ).length ).toBeGreaterThan( 0 );
+		expect( screen.queryByText( /Server reason/ ) ).not.toBeInTheDocument();
+	} );
 } );
