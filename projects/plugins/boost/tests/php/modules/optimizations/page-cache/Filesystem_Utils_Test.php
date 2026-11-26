@@ -418,7 +418,7 @@ class Filesystem_Utils_Test extends TestCase {
 		}
 	}
 
-	public function test_version_change_clears_home_host_cache_after_key_migration() {
+	public function test_each_version_change_clears_the_home_host_cache() {
 		Functions\when( 'delete_site_option' )->justReturn( true );
 		Functions\when( 'get_site_option' )->justReturn( JETPACK_BOOST_MINIFY_CACHE_RULES_VERSION );
 		Functions\when( 'jetpack_boost_ds_get' )->justReturn( false );
@@ -426,6 +426,7 @@ class Filesystem_Utils_Test extends TestCase {
 		Functions\when( 'home_url' )->justReturn( 'https://example.com:8080' );
 		Functions\when( 'wp_parse_url' )->alias( 'parse_url' );
 		$options = array(
+			// Keep the old flag set so this fails if the purge becomes a one-time migration again.
 			'jetpack_boost_page_cache_uri_keys' => 1,
 			'jetpack_boost_status_page-cache'   => true,
 		);
@@ -466,6 +467,10 @@ class Filesystem_Utils_Test extends TestCase {
 		$storage->write( '/', array(), 'new' );
 		$plugin->schedule_version_change();
 		$this->assertSame( 'new', $storage->read( '/', array() ) );
+
+		$plugin->handle_version_change();
+		$this->assertFalse( $storage->read( '/', array() ) );
+		$this->assertSame( 'other', $other->read( '/', array() ) );
 	}
 
 	public function test_targeted_path_purge_preserves_unrelated_pages_with_repeated_leading_slashes() {

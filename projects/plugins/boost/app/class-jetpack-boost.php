@@ -209,6 +209,12 @@ class Jetpack_Boost {
 			jetpack_boost_minify_activation();
 		}
 
+		$page_cache = new Module( new Page_Cache() );
+		if ( $page_cache->is_enabled() ) {
+			// A one-off preload from the purge can mask a missing recurring event.
+			( new Cache_Preload() )->schedule_cornerstone_cronjob();
+		}
+
 		$home_url  = home_url();
 		$home_host = wp_parse_url( $home_url, PHP_URL_HOST );
 		if ( is_string( $home_host ) ) {
@@ -217,12 +223,6 @@ class Jetpack_Boost {
 				$home_host .= ':' . $home_port;
 			}
 			( new Boost_Cache( new File_Storage( strtolower( $home_host ) ) ) )->delete_recursive( $home_url );
-		}
-
-		$page_cache = new Module( new Page_Cache() );
-		if ( $page_cache->is_enabled() ) {
-			// Schedule the cronjob to preload the cache for Cornerstone Pages.
-			( new Cache_Preload() )->schedule_cornerstone_cronjob();
 		}
 
 		// Setup a cleanup job
