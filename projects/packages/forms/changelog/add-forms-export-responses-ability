@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Abilities: Add jetpack-forms/export-responses, which returns a 15-minute link that downloads responses as CSV.

@@ -234,6 +234,7 @@ class Contact_Form_Plugin {
 			add_action( 'wp_ajax_feedback_export', array( $this, 'download_feedback_as_csv' ) );
 			add_action( 'wp_ajax_create_new_form', array( $this, 'create_new_form' ) );
 			add_action( 'wp_ajax_grunion_export_to_gdrive', array( $this, 'export_to_gdrive' ) );
+			Response_Export_Link::init();
 		}
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		// Priority 1000: after Dashboard::add_admin_submenu() (999) registers the Forms submenu,
@@ -3378,12 +3379,24 @@ class Contact_Form_Plugin {
 	 * @return int[]
 	 */
 	public function get_export_feedback_ids( $filters = array() ) {
+		return array_map( 'intval', $this->query_export_feedback( $filters, 'ids' ) );
+	}
+
+	/**
+	 * Runs the export's response query.
+	 *
+	 * @param array  $filters See get_export_feedback_ids().
+	 * @param string $fields  WP_Query fields: 'ids' or 'id=>parent'.
+	 *
+	 * @return array Response IDs, or parent post IDs keyed by response for 'id=>parent'.
+	 */
+	private function query_export_feedback( $filters, $fields ) {
 		$args = array(
 			'posts_per_page'   => -1,
 			'post_type'        => Feedback::POST_TYPE,
 			'post_status'      => array( 'publish', 'draft' ),
 			'order'            => 'ASC',
-			'fields'           => 'ids',
+			'fields'           => $fields,
 			'suppress_filters' => false,
 			'date_query'       => array(),
 		);
@@ -3448,7 +3461,7 @@ class Contact_Form_Plugin {
 			}
 		}
 
-		return array_map( 'intval', $feedbacks );
+		return $feedbacks;
 	}
 
 	/**
@@ -3462,26 +3475,37 @@ class Contact_Form_Plugin {
 			return;
 		}
 
-		$export = $this->prepare_export( $request['ids'], $request['include_test_responses'] );
+		$form_id = ! empty( $post_data['post'] ) && $post_data['post'] !== 'all' ? (int) $post_data['post'] : 0;
+		if ( $this->stream_export_csv( $request['ids'], $request['include_test_responses'], $form_id ) ) {
+			exit( 0 );
+		}
+	}
+
+	/**
+	 * Sends responses to the browser as a CSV file download.
+	 *
+	 * Does no permission checks; callers must.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int[] $feedback_ids           Feedback IDs to export.
+	 * @param bool  $include_test_responses Whether to include responses submitted from form preview.
+	 * @param int   $form_id                The post the form lives on, used to name the file. 0 for all forms.
+	 *
+	 * @return int Number of responses sent. Sends nothing when no response qualifies.
+	 */
+	public function stream_export_csv( $feedback_ids, $include_test_responses, $form_id = 0 ) {
+		$export = $this->prepare_export( $feedback_ids, $include_test_responses );
 		$rows   = $this->get_prepared_export_rows( $export );
 		if ( ! $rows->valid() ) {
-			return;
+			return 0;
 		}
 
-		// Check if we want to download all the feedbacks or just a certain contact form
-		if ( ! empty( $post_data['post'] ) && $post_data['post'] !== 'all' ) {
-			$filename = sprintf(
-				'%s - %s.csv',
-				Util::get_export_filename( get_the_title( (int) $post_data['post'] ) ),
-				gmdate( 'Y-m-d H:i' )
-			);
-		} else {
-			$filename = sprintf(
-				'%s - %s.csv',
-				Util::get_export_filename(),
-				gmdate( 'Y-m-d H:i' )
-			);
-		}
+		$filename = sprintf(
+			'%s - %s.csv',
+			$form_id ? Util::get_export_filename( get_the_title( $form_id ) ) : Util::get_export_filename(),
+			gmdate( 'Y-m-d H:i' )
+		);
 
 		// Forces the download of the CSV instead of echoing
 		header( 'Content-Disposition: attachment; filename=' . $filename );
@@ -3492,11 +3516,34 @@ class Contact_Form_Plugin {
 		header( 'X-Jetpack-Forms-Export-Count: ' . count( $export['ids'] ) );
 
 		$output = fopen( 'php://output', 'w' );
-		$this->write_export_csv( $output, $rows );
+		$count  = $this->write_export_csv( $output, $rows );
 		fclose( $output ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 
 		$this->record_tracks_event( 'forms_export_responses', array( 'format' => 'csv' ) );
-		exit( 0 );
+		return $count;
+	}
+
+	/**
+	 * Counts the responses an export covers and lists the forms they came from, with one query.
+	 *
+	 * The count includes test responses from form preview, since telling them apart means
+	 * loading every response; the export leaves them out unless asked.
+	 *
+	 * Does no permission checks; callers must.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $filters See get_export_feedback_ids().
+	 *
+	 * @return array{count: int, form_ids: int[]} Form IDs are the posts the forms live on, in order of first response.
+	 */
+	public function get_export_summary( $filters = array() ) {
+		$parents = array_map( 'intval', $this->query_export_feedback( $filters, 'id=>parent' ) );
+
+		return array(
+			'count'    => count( $parents ),
+			'form_ids' => array_values( array_unique( array_filter( $parents ) ) ),
+		);
 	}
 
 	/**
