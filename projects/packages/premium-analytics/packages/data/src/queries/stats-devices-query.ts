@@ -9,8 +9,20 @@ import {
 	type StatsReportQueryOptions,
 } from './stats-query';
 import type { StatsProxyParams } from '../api';
+import type { StatsPeriod } from '../utils/stats-params';
 
 export type StatsDeviceProperty = 'screensize' | 'browser' | 'platform' | 'client_type';
+
+/** The buckets the endpoint's `unit` mode accepts; it has no hourly data. */
+export const STATS_DEVICES_PERIODS = [
+	'day',
+	'week',
+	'month',
+	'quarter',
+	'year',
+] as const satisfies readonly StatsPeriod[];
+
+export type StatsDevicesPeriod = ( typeof STATS_DEVICES_PERIODS )[ number ];
 
 export type StatsDevicesParams = StatsReportParams & { deviceProperty?: StatsDeviceProperty };
 

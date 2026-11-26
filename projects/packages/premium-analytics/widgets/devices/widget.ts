@@ -7,19 +7,10 @@ import {
 	type ChartIntervalFieldAttributes,
 } from '@jetpack-premium-analytics/fields';
 import { createElement, type ComponentType } from 'react';
-import type { StatsPeriod } from '@jetpack-premium-analytics/data';
+import { STATS_DEVICES_PERIODS, type StatsDevicesPeriod } from '@jetpack-premium-analytics/data';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
-/** The bucket sizes the bar chart draws; the devices endpoint has no hourly data. */
-export const DEVICES_PERIODS = [
-	'day',
-	'week',
-	'month',
-	'quarter',
-	'year',
-] as const satisfies readonly StatsPeriod[];
-
-export type DevicesChartGranularity = ( typeof DEVICES_PERIODS )[ number ];
+export type DevicesChartGranularity = StatsDevicesPeriod;
 
 /** The share of each device over the range, or its views in each bucket of the range. */
 export type DevicesChartType = 'half-ring' | 'bar';
@@ -40,7 +31,7 @@ export default {
 	attributes: [
 		{
 			...intervalField,
-			elements: chartIntervalElements( DEVICES_PERIODS ),
+			elements: chartIntervalElements( STATS_DEVICES_PERIODS ),
 			// The semi-circle reads the whole range, so only the bars have a bucket to pick.
 			Edit: ( props: IntervalEditProps ) =>
 				props.data.chartType === 'bar' ? createElement( IntervalEdit, props ) : null,

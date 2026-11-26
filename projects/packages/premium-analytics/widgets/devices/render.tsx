@@ -2,7 +2,11 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { chartInterval, useScopeLockedIntervals } from '@jetpack-premium-analytics/data';
+import {
+	STATS_DEVICES_PERIODS,
+	chartInterval,
+	useScopeLockedIntervals,
+} from '@jetpack-premium-analytics/data';
 import {
 	BarChartSkeleton,
 	ComparativeBarChart,
@@ -30,7 +34,6 @@ import { useNoViewsEmptyState } from '../use-no-views-empty-state';
 import { usePreviousPeriodShown } from '../use-previous-period-shown';
 import useDeviceViews, { type DeviceView } from './use-device-views';
 import useDeviceViewsOverTime from './use-device-views-over-time';
-import { DEVICES_PERIODS } from './widget';
 import type { DevicesAttributes, DevicesChartGranularity } from './widget';
 /**
  * Types
@@ -146,7 +149,11 @@ function DevicesBarChart( { interval }: { interval?: DevicesChartGranularity } )
 	const [ previousPeriodShown, setPreviousPeriodShown ] = usePreviousPeriodShown(
 		'devicesChartPreviousPeriod'
 	);
-	const period = chartInterval( { ...reportParams, interval }, DEVICES_PERIODS, lockedIntervals );
+	const period = chartInterval(
+		{ ...reportParams, interval },
+		STATS_DEVICES_PERIODS,
+		lockedIntervals
+	);
 	const {
 		devices,
 		isLoading,
