@@ -8,8 +8,8 @@ import styles from './styles.module.scss';
 const RANGE = 9;
 
 /**
- * A site being run, on the step that asks what the site is for: a restore
- * finishing, one post going to eight networks, and somebody else in the room.
+ * A site being run, on the step that asks what the site is for: a newsletter
+ * sending, one post going to eight networks, and somebody else in the room.
  *
  * `dangerouslySetInnerHTML` because the markup is a build-time constant from this
  * repository and nothing user-supplied reaches it. See `everywhere-art.ts`.
