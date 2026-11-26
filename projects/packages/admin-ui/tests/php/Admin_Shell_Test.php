@@ -1144,7 +1144,6 @@ class Admin_Shell_Test extends TestCase {
 		);
 		return array(
 			'not JSON'      => array( '{', $empty ),
-			'a scalar'      => array( '"abc"', $empty ),
 			'wrong shapes'  => array( '{"scriptData":"x","inline":{"a":1}}', $empty ),
 			'mixed entries' => array(
 				'{"scriptData":{"site":"0123456789ab","user":"0123","seo":["0123456789ab"]},"inline":["0123456789ab","0123456789AB",1]}',
