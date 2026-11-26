@@ -531,14 +531,14 @@ class Forms_Abilities extends Registrar {
 	private static function spec_export_responses(): array {
 		return array(
 			'label'               => __( 'Export form responses', 'jetpack-forms' ),
-			'description'         => __( 'Export form responses as a CSV file, with the same columns as the Export button in Jetpack Forms. Returns how many responses match, the forms they came from, and a download link for the user to open. The link works for 15 minutes and only in the signed-in browser of the user who asked, so it is useless to anyone else. Leaves out spam, trash and form preview test responses unless asked. Returns count 0 and no link when nothing matches. To read responses instead of downloading them, use jetpack-forms/get-responses; to find form IDs, use jetpack-forms/list-forms.', 'jetpack-forms' ),
+			'description'         => __( 'Export form responses as a CSV file, with the same columns as the Export button in Jetpack Forms. Returns how many responses match, the forms they came from, and a download link for the user to open. The link works for 15 minutes and only in the signed-in browser of the user who asked, so it is useless to anyone else. Leaves out spam, trash and form preview test responses unless asked. Returns count 0 and no link when nothing matches.', 'jetpack-forms' ),
 			'input_schema'        => array(
 				'type'                 => 'object',
 				'default'              => array(),
 				'properties'           => array(
 					'form_id'                => array(
 						'type'        => 'integer',
-						'description' => __( 'Only export responses to this form, by its ID from jetpack-forms/list-forms. For older forms saved inside a post or page, use that post or page ID. Leave out to export every form.', 'jetpack-forms' ),
+						'description' => __( 'Only export responses to this form, by its ID. For older forms saved inside a post or page, use that post or page ID. Leave out to export every form.', 'jetpack-forms' ),
 						'minimum'     => 1,
 					),
 					'status'                 => array(
