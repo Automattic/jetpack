@@ -493,9 +493,9 @@ const { state, actions } = store( NAMESPACE, {
 
 		get getErrorList() {
 			const errors = [];
-			if ( state.isFormEmpty ) {
-				return errors;
-			}
+			// Don't bail out when the whole form is empty: every required field is then invalid,
+			// and the summary must still link to each of them. `showErrors` already keeps the list
+			// empty until the visitor has tried to submit.
 			const context = getContext();
 			if ( context.showErrors ) {
 				Object.values( context.fields ).forEach( field => {

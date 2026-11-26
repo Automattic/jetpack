@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: List every invalid field in the error summary when a form is submitted completely empty.
