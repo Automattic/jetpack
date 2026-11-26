@@ -50,6 +50,12 @@ const PERCENTAGE_DATA_FORMAT = {
 const NO_VIEWS = () =>
 	__( 'You don’t have devices recorded yet.', 'jetpack-premium-analytics-pkg' );
 
+const RETRY_DESCRIPTION = () =>
+	__(
+		"We couldn't load device data. Please try again in a moment.",
+		'jetpack-premium-analytics-pkg'
+	);
+
 const DEVICE_COLUMNS: CsvColumn< DeviceView >[] = [
 	{
 		label: __( 'Screen size', 'jetpack-premium-analytics-pkg' ),
@@ -118,13 +124,7 @@ function DevicesInner() {
 				hasComparison,
 				refetch,
 			} }
-			error={ describeError( error, {
-				retryDescription: __(
-					"We couldn't load device data. Please try again in a moment.",
-					'jetpack-premium-analytics-pkg'
-				),
-				onRetry: refetch,
-			} ) }
+			error={ describeError( error, { retryDescription: RETRY_DESCRIPTION(), onRetry: refetch } ) }
 			empty={ emptyState.empty }
 			format={ PERCENTAGE_DATA_FORMAT }
 			variant="half-ring"
@@ -134,7 +134,7 @@ function DevicesInner() {
 }
 
 /**
- * Views by screen size in each bucket of the range, stacked, with the previous period's total beside each stack.
+ * Views by screen size in each bucket of the range, stacked; the legend can add the previous period's total beside each stack.
  *
  * @param props          - Component props.
  * @param props.interval - The saved bucket size, if any.
@@ -152,6 +152,7 @@ function DevicesBarChart( { interval }: { interval?: DevicesChartGranularity } )
 		isLoading,
 		isFetching,
 		isError,
+		error,
 		csvIsError,
 		csvIsPlaceholderData,
 		timezone,
@@ -210,19 +211,9 @@ function DevicesBarChart( { interval }: { interval?: DevicesChartGranularity } )
 			isLoading={ emptyState.isLoading }
 			isFetching={ isFetching }
 			isError={ isError }
-			error={ {
-				description: __(
-					"We couldn't load device data. Please try again in a moment.",
-					'jetpack-premium-analytics-pkg'
-				),
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
-			} }
+			error={ describeError( error, { retryDescription: RETRY_DESCRIPTION(), onRetry: refetch } ) }
 			isEmpty={ isEmpty }
-			empty={
-				emptyState.empty ?? {
-					description: __( 'No device views in this period.', 'jetpack-premium-analytics-pkg' ),
-				}
-			}
+			empty={ emptyState.empty }
 			renderLoading={ <BarChartSkeleton /> }
 		>
 			<ComparativeBarChart

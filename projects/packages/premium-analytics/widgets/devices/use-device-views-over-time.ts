@@ -23,6 +23,7 @@ interface DeviceViewsOverTimeState {
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
+	error: unknown;
 	csvIsError: boolean;
 	csvIsPlaceholderData: boolean;
 	timezone: string;
@@ -90,12 +91,15 @@ export default function useDeviceViewsOverTime(
 		[ primary, comparison, hasComparison, timezone, periodStarts ]
 	);
 
+	// A failed background refetch of the same range keeps its bars.
+	const showError = report.isError && ! primary?.data?.length;
+
 	return {
 		devices,
 		isLoading: report.isLoading,
 		isFetching: report.isFetching,
-		// A failed background refetch of the same range keeps its bars.
-		isError: report.isError && ! primary?.data?.length,
+		isError: showError,
+		error: showError ? report.error : null,
 		csvIsError: report.primary.isError,
 		csvIsPlaceholderData: report.primary.isPlaceholderData,
 		timezone,

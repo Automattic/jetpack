@@ -6,6 +6,7 @@ import {
 	useStatsDevicesPeriods,
 	useStatsSite,
 } from '@jetpack-premium-analytics/data';
+import { screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
@@ -53,7 +54,11 @@ function devicesResult( rows: unknown[], overrides: Record< string, unknown > = 
 	} as unknown as ReturnType< typeof useStatsDevices >;
 }
 
-function devicesPeriodsResult( primary: Record< string, unknown >, comparison = {} ) {
+function devicesPeriodsResult(
+	primary: Record< string, unknown >,
+	comparison = {},
+	overrides: Record< string, unknown > = {}
+) {
 	return {
 		primary: { data: primary, isError: false, isPlaceholderData: false },
 		comparison: { data: comparison },
@@ -63,7 +68,9 @@ function devicesPeriodsResult( primary: Record< string, unknown >, comparison = 
 		isLoading: false,
 		isFetching: false,
 		isError: false,
+		error: null,
 		refetch: jest.fn(),
+		...overrides,
 	} as unknown as ReturnType< typeof useStatsDevicesPeriods >;
 }
 
@@ -191,5 +198,24 @@ describe( 'DevicesWidget bar chart CSV download', () => {
 		const { declaredAction } = renderWidget( { chartType: 'bar' } );
 
 		expect( declaredAction( 'download-csv' ) ).toBeUndefined();
+	} );
+
+	it.each( [
+		[
+			'offers no Retry for a permission-gated 403',
+			{ status: 403, code: 'rest_forbidden' },
+			false,
+		],
+		[ 'offers Retry for a failure that can heal', { status: 403, code: 'no_connection' }, true ],
+	] )( '%s', ( _case, error, retry ) => {
+		jest
+			.mocked( useStatsDevicesPeriods )
+			.mockReturnValue(
+				devicesPeriodsResult( { summary: { ...RANGE }, data: [] }, {}, { isError: true, error } )
+			);
+
+		renderWidget( { chartType: 'bar' } );
+
+		expect( Boolean( screen.queryByRole( 'button', { name: 'Retry' } ) ) ).toBe( retry );
 	} );
 } );
