@@ -109,7 +109,7 @@ const OverviewSections: FC< { className?: string } > = ( { className = '' } ) =>
 					{ showStats && (
 						<OverviewSection
 							icon={ trendingUp }
-							title={ __( 'How is your site growing?', 'jetpack-my-jetpack' ) }
+							title={ __( 'How much traffic is my site getting?', 'jetpack-my-jetpack' ) }
 							headerEnd={ isStatsActive && <StatsPeriodControl period={ statsPeriod } /> }
 						>
 							<StatsOverviewItem admin={ admin } period={ statsPeriod } />
