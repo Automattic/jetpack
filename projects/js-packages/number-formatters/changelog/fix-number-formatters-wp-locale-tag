@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Format numbers in the full WordPress locale rather than its language alone, so a Traditional Chinese site reads 萬 instead of 万 and regional conventions such as en_GB or pt_PT apply.
