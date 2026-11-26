@@ -29,7 +29,12 @@ While the flag is off, `get()` and `get_by_uuid()` return null, the `current_use
 
 ## What a proposal can change
 
-This release has one handler, `post_fields`. A proposal can change up to 20 existing published posts or pages. For each post it can change the title, content, excerpt, slug, featured image, categories, tags and the meta keys in `Post_Fields_Handler::META_ALLOWLIST`, which includes Jetpack's SEO keys.
+This release has one handler, `post_fields`. A proposal can change up to 20 existing published posts or pages. For each post it can change:
+- the title, content, excerpt, slug and featured image
+- the terms of any taxonomy of the post type with an editing UI in the REST API, except post formats. Each taxonomy needs its `assign_terms` capability. `categories` and `tags` are shorthand for `terms.category` and `terms.post_tag`
+- the meta keys in `Post_Fields_Handler::meta_fields()`: Jetpack's SEO and sharing keys and the page template. `jetpack_proposals_post_meta` adds text or flag keys, which need `edit_post_meta`; it cannot add `_thumbnail_id` or the feature's own keys
+
+Removing a taxonomy or meta key makes stored proposals that use it invalid.
 
 Other types (templates, navigation, global styles, settings) are each a new class implementing `Proposal_Handler`, registered through the `jetpack_proposals_handlers` filter. A type that creates content will need a way to refer to it from other items; none exists yet.
 
@@ -44,7 +49,7 @@ Other types (templates, navigation, global styles, settings) are each a new clas
 | `discard( $id )` | |
 | `apply( $id, $hash, $context )` | The hash must be the version the person approved. `$context` takes `client` and `agent` names, which are recorded |
 | `reject( $id, $hash, $note, $context )` | Records the person's note for the agent |
-| `current_user_can_manage()`, `current_user_can_review()` | Manage: the author, or `edit_others_posts`. `update()` and `discard()` enforce it. Review: every handler agrees, for `post_fields` `edit_post` on every post. `apply()` and `reject()` enforce it |
+| `current_user_can_manage()`, `current_user_can_review()` | Manage: the author, or `edit_others_posts`. `update()` and `discard()` enforce it. Review: every handler agrees, for `post_fields` `edit_post` on every post, plus `assign_terms` for each taxonomy and `edit_post_meta` for each filter-added meta key it changes. `apply()` and `reject()` enforce it |
 | `to_response( $proposal, $warnings )` | The shape agents see, including `hash`, `preview_url`, `items` (each with its `target`, `preview_url` and a description of the change), `conflicts`, `applied` and `apply_stopped` |
 
 Error codes all start `proposal_`. PHP and REST callers branch on them, so keep them stable. MCP clients receive only the message, so each message says what happened, whether anything changed, and what to do next.

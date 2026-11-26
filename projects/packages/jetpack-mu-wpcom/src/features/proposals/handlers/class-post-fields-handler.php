@@ -11,7 +11,7 @@ use WP_Error;
 use WP_Post;
 
 /**
- * Title, content, excerpt, slug, featured image, categories, tags and allowlisted meta.
+ * Title, content, excerpt, slug, featured image, terms and allowlisted meta.
  *
  * The preview overlays proposed values while the page renders. No copy of the post is made.
  */
@@ -24,22 +24,41 @@ class Post_Fields_Handler implements Proposal_Handler {
 	/** Post fields a proposal can change. */
 	const FIELDS = array( 'post_title', 'post_content', 'post_excerpt', 'post_name' );
 
-	/** Request key => taxonomy. */
-	const TAXONOMIES = array(
+	/** Request key => taxonomy, kept beside the generic terms key. */
+	const TAXONOMY_ALIASES = array(
 		'categories' => 'category',
 		'tags'       => 'post_tag',
 	);
 
-	/** Meta key => value kind. */
-	const META_ALLOWLIST = array(
-		'advanced_seo_description' => 'text',
-		'jetpack_seo_html_title'   => 'text',
-		'jetpack_seo_noindex'      => 'bool',
-		'_wp_page_template'        => 'template',
+	/** Meta key => kind and label. Kinds: text, bool, and template for the page template only. */
+	const META_FIELDS = array(
+		'advanced_seo_description' => array(
+			'kind'  => 'text',
+			'label' => 'SEO description',
+		),
+		'jetpack_seo_html_title'   => array(
+			'kind'  => 'text',
+			'label' => 'SEO title',
+		),
+		'jetpack_seo_noindex'      => array(
+			'kind'  => 'bool',
+			'label' => 'Hide from search engines',
+		),
+		'sharing_disabled'         => array(
+			'kind'  => 'bool',
+			'label' => 'Hide sharing buttons',
+		),
+		'_wp_page_template'        => array(
+			'kind'  => 'template',
+			'label' => 'Template',
+		),
 	);
 
 	/** Most of a content diff an agent is sent. */
 	const MAX_DIFF_BYTES = 4096;
+
+	/** Request keys build() accepts. */
+	const REQUEST_KEYS = array( 'post_id', 'title', 'content', 'excerpt', 'slug', 'featured_media', 'categories', 'tags', 'terms', 'meta' );
 
 	/**
 	 * Previewed items keyed by post ID, sanitized again for rendering.
@@ -49,10 +68,61 @@ class Post_Fields_Handler implements Proposal_Handler {
 	private $previewed = array();
 
 	/**
+	 * Taxonomies a proposal can set for a post type: those with an editing UI in the REST API.
+	 *
+	 * @param string $post_type Post type.
+	 * @return string[]
+	 */
+	public static function taxonomies( string $post_type ): array {
+		$names = array();
+		foreach ( get_object_taxonomies( $post_type, 'objects' ) as $taxonomy ) {
+			if ( $taxonomy->show_ui && $taxonomy->show_in_rest && 'post_format' !== $taxonomy->name ) {
+				$names[] = $taxonomy->name;
+			}
+		}
+		return $names;
+	}
+
+	/**
+	 * Meta keys a proposal can change, with their kind and label.
+	 *
+	 * @return array<string, array{kind: string, label: string}>
+	 */
+	public static function meta_fields(): array {
+		/**
+		 * Filters the post meta keys proposals can change. Added keys need a kind, text or bool, and a label.
+		 *
+		 * Text values are stored with sanitize_text_field(), and bool values as '1' or deleted.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array<string, array{kind: string, label: string}> $fields Meta key => kind and label.
+		 */
+		$fields = (array) apply_filters( 'jetpack_proposals_post_meta', self::META_FIELDS );
+
+		$valid = array();
+		foreach ( $fields as $key => $field ) {
+			$kind = is_array( $field ) ? ( $field['kind'] ?? null ) : null;
+			if ( ! is_string( $key ) || '' === $key || '_thumbnail_id' === $key || str_starts_with( $key, '_jetpack_proposal' ) || ! is_string( $field['label'] ?? null ) ) {
+				continue;
+			}
+			// Only the page template is checked against the theme, whatever kind a filter gives it.
+			$kind = '_wp_page_template' === $key ? 'template' : $kind;
+			if ( ( 'template' === $kind && '_wp_page_template' === $key ) || in_array( $kind, array( 'text', 'bool' ), true ) ) {
+				$valid[ $key ] = array(
+					'kind'  => $kind,
+					'label' => $field['label'],
+				);
+			}
+		}
+		return $valid;
+	}
+
+	/**
 	 * {@inheritDoc}
 	 *
 	 * The request takes post_id plus any of: title, content, excerpt, slug, featured_media,
-	 * categories, tags, meta.
+	 * categories, tags, terms, meta.
 	 *
 	 * @param array $request The agent's request for this item.
 	 */
@@ -69,7 +139,7 @@ class Post_Fields_Handler implements Proposal_Handler {
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
 			return new WP_Error( 'proposal_forbidden', sprintf( 'You cannot edit post %d.', $post_id ) );
 		}
-		$unknown = array_diff( array_keys( $request ), array( 'post_id', 'title', 'content', 'excerpt', 'slug', 'featured_media', 'categories', 'tags', 'meta' ) );
+		$unknown = array_diff( array_keys( $request ), self::REQUEST_KEYS );
 		if ( $unknown ) {
 			return new WP_Error( 'proposal_invalid_item', sprintf( 'Post changes cannot include %s.', implode( ', ', $unknown ) ) );
 		}
@@ -82,10 +152,9 @@ class Post_Fields_Handler implements Proposal_Handler {
 		if ( isset( $request['featured_media'] ) && ! self::is_id( $request['featured_media'] ) ) {
 			return new WP_Error( 'proposal_invalid_media', sprintf( 'The featured_media for post %d must be an attachment ID, or 0 to remove the image.', $post_id ) );
 		}
-		foreach ( array_keys( self::TAXONOMIES ) as $input_key ) {
-			if ( isset( $request[ $input_key ] ) && ( ! is_array( $request[ $input_key ] ) || array_filter( $request[ $input_key ], static fn( $id ) => ! self::is_id( $id ) ) ) ) {
-				return new WP_Error( 'proposal_invalid_terms', sprintf( 'The %s for post %d must be a list of term IDs.', $input_key, $post_id ) );
-			}
+		$requested_terms = self::requested_terms( $request, $post );
+		if ( $requested_terms instanceof WP_Error ) {
+			return $requested_terms;
 		}
 
 		$change = array( 'fields' => array() );
@@ -169,19 +238,7 @@ class Post_Fields_Handler implements Proposal_Handler {
 			}
 		}
 
-		foreach ( self::TAXONOMIES as $input_key => $taxonomy ) {
-			if ( ! isset( $request[ $input_key ] ) ) {
-				continue;
-			}
-			if ( ! is_object_in_taxonomy( $post->post_type, $taxonomy ) ) {
-				return new WP_Error( 'proposal_invalid_terms', sprintf( 'Post %d does not support %s.', $post->ID, $input_key ) );
-			}
-			$term_ids = self::normalize_ids( $request[ $input_key ] );
-			foreach ( $term_ids as $term_id ) {
-				if ( ! term_exists( $term_id, $taxonomy ) ) {
-					return new WP_Error( 'proposal_invalid_terms', sprintf( 'Term %d is not in %s.', $term_id, $input_key ) );
-				}
-			}
+		foreach ( $requested_terms as $taxonomy => $term_ids ) {
 			$current = self::get_term_ids( (int) $post->ID, $taxonomy );
 			if ( $term_ids !== $current ) {
 				$change['terms'][ $taxonomy ] = array(
@@ -191,10 +248,14 @@ class Post_Fields_Handler implements Proposal_Handler {
 			}
 		}
 
+		$meta_fields = self::meta_fields();
 		foreach ( (array) ( $request['meta'] ?? array() ) as $key => $value ) {
 			$key = (string) $key;
-			if ( ! isset( self::META_ALLOWLIST[ $key ] ) ) {
-				return new WP_Error( 'proposal_invalid_meta', sprintf( 'The %s field cannot be proposed. Allowed: %s.', $key, implode( ', ', array_keys( self::META_ALLOWLIST ) ) ) );
+			if ( ! isset( $meta_fields[ $key ] ) ) {
+				return new WP_Error( 'proposal_invalid_meta', sprintf( 'The %s field cannot be proposed. Allowed: %s.', $key, implode( ', ', array_keys( $meta_fields ) ) ) );
+			}
+			if ( ! self::can_edit_meta( (int) $post->ID, $key ) ) {
+				return new WP_Error( 'proposal_forbidden', sprintf( 'You cannot change %s on post %d.', $key, $post->ID ) );
 			}
 			$sanitized = self::sanitize_meta_value( $key, $value, $post );
 			if ( is_wp_error( $sanitized ) ) {
@@ -215,6 +276,75 @@ class Post_Fields_Handler implements Proposal_Handler {
 
 		$item['change'] = $change;
 		return $item;
+	}
+
+	/**
+	 * The requested term IDs by taxonomy, from categories, tags and terms, checked against the post.
+	 *
+	 * @param array   $request The agent's request.
+	 * @param WP_Post $post    Post.
+	 * @return array<string, int[]>|WP_Error
+	 */
+	private static function requested_terms( array $request, WP_Post $post ) {
+		if ( isset( $request['terms'] ) && ( ! is_array( $request['terms'] ) || array_filter( array_keys( $request['terms'] ), 'is_int' ) ) ) {
+			return new WP_Error( 'proposal_invalid_terms', sprintf( 'The terms for post %d must map each taxonomy to a list of term IDs.', $post->ID ) );
+		}
+		$requested = array();
+		$sent_as   = array();
+		foreach ( self::TAXONOMY_ALIASES as $input_key => $taxonomy ) {
+			if ( isset( $request[ $input_key ] ) ) {
+				if ( isset( $request['terms'][ $taxonomy ] ) ) {
+					return new WP_Error( 'proposal_invalid_terms', sprintf( 'Give the %s for post %d once, in %s or in terms.', $taxonomy, $post->ID, $input_key ) );
+				}
+				$requested[ $taxonomy ] = $request[ $input_key ];
+				$sent_as[ $taxonomy ]   = $input_key;
+			}
+		}
+		$requested += (array) ( $request['terms'] ?? array() );
+
+		$allowed = self::taxonomies( $post->post_type );
+		$terms   = array();
+		foreach ( $requested as $taxonomy => $ids ) {
+			$taxonomy = (string) $taxonomy;
+			$name     = $sent_as[ $taxonomy ] ?? $taxonomy;
+			if ( ! in_array( $taxonomy, $allowed, true ) ) {
+				return new WP_Error( 'proposal_invalid_terms', sprintf( 'Post %d does not support %s. Allowed taxonomies: %s.', $post->ID, $name, $allowed ? implode( ', ', $allowed ) : 'none' ) );
+			}
+			if ( ! is_array( $ids ) || array_filter( $ids, static fn( $id ) => ! self::is_id( $id ) ) ) {
+				return new WP_Error( 'proposal_invalid_terms', sprintf( 'The %s for post %d must be a list of term IDs.', $name, $post->ID ) );
+			}
+			if ( ! self::can_assign_terms( $taxonomy ) ) {
+				return new WP_Error( 'proposal_forbidden', sprintf( 'You cannot assign %s.', $taxonomy ) );
+			}
+			$terms[ $taxonomy ] = self::normalize_ids( $ids );
+			foreach ( $terms[ $taxonomy ] as $term_id ) {
+				if ( ! term_exists( $term_id, $taxonomy ) ) {
+					return new WP_Error( 'proposal_invalid_terms', sprintf( 'Term %d is not in %s.', $term_id, $name ) );
+				}
+			}
+		}
+		return $terms;
+	}
+
+	/**
+	 * Whether the current user may assign terms of a taxonomy.
+	 *
+	 * @param string $taxonomy Taxonomy.
+	 */
+	private static function can_assign_terms( string $taxonomy ): bool {
+		$object = get_taxonomy( $taxonomy );
+		return $object && current_user_can( $object->cap->assign_terms );
+	}
+
+	/**
+	 * Whether the current user may change a meta key. Keys a filter adds need edit_post_meta, which
+	 * runs their register_meta() auth callback; the built-in keys are covered by edit_post.
+	 *
+	 * @param int    $post_id Post ID.
+	 * @param string $key     Meta key.
+	 */
+	private static function can_edit_meta( int $post_id, string $key ): bool {
+		return isset( self::META_FIELDS[ $key ] ) || current_user_can( 'edit_post_meta', $post_id, $key );
 	}
 
 	/**
@@ -247,17 +377,23 @@ class Post_Fields_Handler implements Proposal_Handler {
 			if ( ! in_array( $field, self::FIELDS, true ) || ! is_array( $field_change ) || array_diff( array_keys( $field_change ), array( 'from', 'to' ) ) || ! is_string( $field_change['to'] ?? null ) || ( isset( $field_change['from'] ) && ! is_string( $field_change['from'] ) ) ) {
 				return false;
 			}
+			// Content stores no "from"; every other field needs one for its conflict check.
+			if ( 'post_content' !== $field && ! isset( $field_change['from'] ) ) {
+				return false;
+			}
 		}
 		if ( isset( $change['featured_media'] ) && ( ! is_int( $change['featured_media']['from'] ?? null ) || ! is_int( $change['featured_media']['to'] ?? null ) || $change['featured_media']['to'] < 0 ) ) {
 			return false;
 		}
+		$taxonomies = self::taxonomies( (string) $target['post_type'] );
 		foreach ( (array) ( $change['terms'] ?? array() ) as $taxonomy => $term_change ) {
-			if ( ! in_array( $taxonomy, self::TAXONOMIES, true ) || ! is_array( $term_change['from'] ?? null ) || ! is_array( $term_change['to'] ?? null ) || array_filter( $term_change['to'], static fn( $id ) => ! is_int( $id ) ) ) {
+			if ( ! in_array( $taxonomy, $taxonomies, true ) || ! is_array( $term_change['from'] ?? null ) || ! is_array( $term_change['to'] ?? null ) || array_filter( $term_change['to'], static fn( $id ) => ! is_int( $id ) ) ) {
 				return false;
 			}
 		}
+		$meta_fields = self::meta_fields();
 		foreach ( (array) ( $change['meta'] ?? array() ) as $key => $meta_change ) {
-			$kind = self::META_ALLOWLIST[ $key ] ?? null;
+			$kind = $meta_fields[ $key ]['kind'] ?? null;
 			if ( ! $kind || ! is_array( $meta_change ) || ! array_key_exists( 'from', $meta_change ) || ! array_key_exists( 'to', $meta_change ) || ( 'bool' === $kind ? ! is_bool( $meta_change['to'] ) : ! is_string( $meta_change['to'] ) ) ) {
 				return false;
 			}
@@ -283,7 +419,20 @@ class Post_Fields_Handler implements Proposal_Handler {
 	 * @param array $item Stored item.
 	 */
 	public function can_review( array $item ): bool {
-		return current_user_can( 'edit_post', (int) $item['target']['post_id'] );
+		if ( ! current_user_can( 'edit_post', (int) $item['target']['post_id'] ) ) {
+			return false;
+		}
+		foreach ( array_keys( $item['change']['terms'] ?? array() ) as $taxonomy ) {
+			if ( ! self::can_assign_terms( (string) $taxonomy ) ) {
+				return false;
+			}
+		}
+		foreach ( array_keys( $item['change']['meta'] ?? array() ) as $key ) {
+			if ( ! self::can_edit_meta( (int) $item['target']['post_id'], (string) $key ) ) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**
@@ -434,7 +583,7 @@ class Post_Fields_Handler implements Proposal_Handler {
 
 		foreach ( $change['meta'] ?? array() as $key => $meta_change ) {
 			// The theme's templates may have changed since the proposal was made.
-			if ( 'template' === self::META_ALLOWLIST[ $key ] && '' !== $meta_change['to'] && ! isset( wp_get_theme()->get_page_templates( get_post( $post_id ) )[ $meta_change['to'] ] ) ) {
+			if ( '_wp_page_template' === $key && '' !== $meta_change['to'] && ! isset( wp_get_theme()->get_page_templates( get_post( $post_id ) )[ $meta_change['to'] ] ) ) {
 				$failed[] = $key;
 				continue;
 			}
@@ -514,23 +663,19 @@ class Post_Fields_Handler implements Proposal_Handler {
 			);
 		}
 
-		$meta_labels = array(
-			'advanced_seo_description' => 'SEO description',
-			'jetpack_seo_html_title'   => 'SEO title',
-			'jetpack_seo_noindex'      => 'Hide from search engines',
-			'_wp_page_template'        => 'Template',
-		);
+		$meta_fields = self::meta_fields();
 		foreach ( $change['meta'] ?? array() as $key => $meta_change ) {
-			if ( 'bool' === self::META_ALLOWLIST[ $key ] ) {
+			$label = $meta_fields[ $key ]['label'] ?? $key;
+			if ( is_bool( $meta_change['to'] ) ) {
 				$entries[] = array(
-					'label' => $meta_labels[ $key ],
+					'label' => $label,
 					'kind'  => 'flag',
 					'from'  => (bool) $meta_change['from'],
 					'to'    => (bool) $meta_change['to'],
 				);
 				continue;
 			}
-			$entries[] = self::text_entry( $meta_labels[ $key ], self::meta_text( $key, $meta_change['from'] ), self::meta_text( $key, $meta_change['to'] ) );
+			$entries[] = self::text_entry( $label, self::meta_text( $key, $meta_change['from'] ), self::meta_text( $key, $meta_change['to'] ) );
 		}
 
 		return $entries;
@@ -623,7 +768,7 @@ class Post_Fields_Handler implements Proposal_Handler {
 	}
 
 	/**
-	 * Overlay categories and tags.
+	 * Overlay proposed terms.
 	 *
 	 * @param mixed  $terms    Terms.
 	 * @param int    $post_id  Post ID.
@@ -679,7 +824,7 @@ class Post_Fields_Handler implements Proposal_Handler {
 	 */
 	public static function get_meta_value( int $post_id, string $key ) {
 		$value = get_post_meta( $post_id, $key, true );
-		if ( 'bool' === self::META_ALLOWLIST[ $key ] ) {
+		if ( 'bool' === ( self::meta_fields()[ $key ]['kind'] ?? null ) ) {
 			return (bool) $value;
 		}
 		$value = (string) $value;
@@ -725,7 +870,7 @@ class Post_Fields_Handler implements Proposal_Handler {
 	 * @return string|bool|WP_Error
 	 */
 	private static function sanitize_meta_value( string $key, $value, WP_Post $post ) {
-		switch ( self::META_ALLOWLIST[ $key ] ) {
+		switch ( self::meta_fields()[ $key ]['kind'] ) {
 			case 'bool':
 				return (bool) rest_sanitize_boolean( $value );
 
