@@ -46,7 +46,7 @@ class Unavailable_Blocks {
 	/**
 	 * Manifest blocks that a plan or site setting can also keep unregistered.
 	 */
-	const CONDITIONAL_BLOCKS = array( 'jetpack/cookie-consent', 'jetpack/voice-to-content', 'jetpack/wordads' );
+	const CONDITIONAL_BLOCKS = array( 'jetpack/voice-to-content', 'jetpack/wordads' );
 
 	/**
 	 * Hook into the block editor.

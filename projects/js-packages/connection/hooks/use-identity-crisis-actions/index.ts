@@ -1,6 +1,8 @@
 import restApi from '@automattic/jetpack-api';
+import { dispatch } from '@wordpress/data';
 import { useCallback, useRef, useState } from 'react';
 import { isHttpUrl } from '../../helpers/is-http-url';
+import STORE_ID from '../../state/store-id';
 import { getIdentityCrisisErrorCause, getIdentityCrisisErrorCode } from './get-error-cause';
 import type {
 	IdentityCrisisAction,
@@ -26,6 +28,8 @@ export default function useIdentityCrisisActions( {
 	const [ busyAction, setBusyAction ] = useState< IdentityCrisisAction | null >( null );
 	const [ error, setError ] = useState< IdentityCrisisError | null >( null );
 	const [ isMigrated, setIsMigrated ] = useState( false );
+	const [ isDisconnected, setIsDisconnected ] = useState( false );
+	const [ isResolved, setIsResolved ] = useState( false );
 	// State updates on the next render, so a second call in the same tick would still see it unset.
 	const busyRef = useRef< IdentityCrisisAction | null >( null );
 
@@ -47,11 +51,19 @@ export default function useIdentityCrisisActions( {
 			try {
 				return { response: await request() };
 			} catch ( caught ) {
-				setError( {
-					action,
-					cause: getIdentityCrisisErrorCause( caught ),
-					code: getIdentityCrisisErrorCode( caught ),
-				} );
+				const cause = getIdentityCrisisErrorCause( caught );
+				// Optional: an older copy of the store, or none, may be registered.
+				const store = dispatch( STORE_ID ) as
+					| { setIdentityCrisisDisconnected?: () => void; setIdentityCrisisResolved?: () => void }
+					| undefined;
+				if ( cause === 'disconnected' ) {
+					setIsDisconnected( true );
+					store?.setIdentityCrisisDisconnected?.();
+				} else if ( cause === 'resolved' ) {
+					setIsResolved( true );
+					store?.setIdentityCrisisResolved?.();
+				}
+				setError( { action, cause, code: getIdentityCrisisErrorCode( caught ) } );
 				setBusy( null );
 				return null;
 			}
@@ -91,5 +103,15 @@ export default function useIdentityCrisisActions( {
 
 	const clearError = useCallback( () => setError( null ), [] );
 
-	return { migrate, startFresh, confirmSafeMode, clearError, busyAction, error, isMigrated };
+	return {
+		migrate,
+		startFresh,
+		confirmSafeMode,
+		clearError,
+		busyAction,
+		error,
+		isMigrated,
+		isDisconnected,
+		isResolved,
+	};
 }

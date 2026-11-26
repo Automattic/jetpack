@@ -6,6 +6,7 @@ import CornerstonePagesCard from '$features/cornerstone-pages/cornerstone-pages-
 import CloudCssModule from '$features/critical-css/cloud-css-module/cloud-css-module';
 import CloudCssUpgradeNotice from '$features/critical-css/cloud-css-upgrade-notice';
 import CriticalCssModule from '$features/critical-css/critical-css-module/critical-css-module';
+import DeferFonts from '$features/defer-fonts/defer-fonts';
 import ImageCdn from '$features/image-cdn/image-cdn';
 import ImageGuide from '$features/image-guide/image-guide';
 import LcpModule from '$features/lcp/lcp';
@@ -83,7 +84,7 @@ const Group = ( {
 };
 
 const Settings = ( { active = true }: { active?: boolean } ) => {
-	const summary = useCornerstoneSummary( false );
+	const summary = useCornerstoneSummary();
 	const section = useRef< HTMLDivElement >( null );
 	const visit = useSettingsVisit( active );
 	useSettingsExposure( section, { visit } );
@@ -120,6 +121,7 @@ const Settings = ( { active = true }: { active?: boolean } ) => {
 					<CloudCssModule />
 					<PageCacheModule />
 					<RenderBlockingJs />
+					<DeferFonts />
 				</Group>
 				<Group
 					group="code_optimization"

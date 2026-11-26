@@ -11,6 +11,10 @@ import type { ReactNode } from 'react';
 // file imports hook modules BEFORE the test-utils helper: jest.mock calls
 // in this file are hoisted above all imports, so the hook modules resolve the
 // mocked module instead of capturing the real one first.
+jest.mock( '../../../src/dashboard/hooks/use-available-license-count', () => ( {
+	useAvailableLicenseCount: () => 0,
+} ) );
+
 jest.mock( '@wordpress/api-fetch', () => ( {
 	__esModule: true,
 	default: jest.fn(),

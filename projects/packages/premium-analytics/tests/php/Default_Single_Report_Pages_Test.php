@@ -123,10 +123,16 @@ class Default_Single_Report_Pages_Test extends BaseTestCase {
 		$this->assertSame( get_post_type_object( 'page' )->labels->singular_name, $record['label'] );
 		$this->assertSame( 'post_id', $record['scope_param'] );
 		$this->assertSame( 'posts', $record['reports_page'] );
-		$this->assertSame( 'jetpack-premium-analytics/page-detail', $record['preferences_scope'] );
 		$this->assertSame( 'jpa/page', $record['icon'] );
 		$this->assertSame( array( 'post-traffic' ), array_column( $record['sections'], 'slug' ) );
 		$this->assertSame( 'Page traffic', $record['sections'][0]['label'] );
+
+		// One saved arrangement for both reports: the same preference, the same cards by uuid.
+		$this->assertSame( $post['preferences_scope'], $record['preferences_scope'] );
+		$this->assertSame(
+			array_column( $post['sections'][0]['default_layout'], 'uuid' ),
+			array_column( $record['sections'][0]['default_layout'], 'uuid' )
+		);
 
 		$types = array_column( $post['sections'][0]['default_layout'], 'type' );
 		$this->assertSame(

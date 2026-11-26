@@ -58,7 +58,7 @@ export type ReportActionsOptions = {
 	label?: string;
 	// Where the dashboard places the link; `high` (the footer's text action) by default.
 	relevance?: 'high' | 'medium' | 'low';
-	// The linked report's CSV download, offered once the rows settle; none for no download.
+	// The linked report's CSV download, offered once there are rows for the current range; none for no download.
 	csv?: {
 		// The report's exporter, or the id of a report the dashboard exports.
 		exporter?: any;

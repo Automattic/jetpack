@@ -1,5 +1,15 @@
 import { __, sprintf } from '@wordpress/i18n';
-import { AlertDialog, Badge, Button, ButtonLink, Card, Notice, Stack, Text } from '@wordpress/ui';
+import {
+	AlertDialog,
+	Badge,
+	Button,
+	ButtonLink,
+	Card,
+	Notice,
+	Spinner,
+	Stack,
+	Text,
+} from '@wordpress/ui';
 import { useCallback, useState } from 'react';
 import {
 	useDisconnectStripe,
@@ -16,12 +26,13 @@ import { CommissionFees } from '../overview/earnings-card';
  * @return The card.
  */
 export default function StripeCard() {
-	const { data: status, isError, error } = useStripeStatus();
+	const { data: status, isError, error, isFetching, refetch } = useStripeStatus();
 	const { data: earnings } = useMembershipsEarnings();
 	const disconnect = useDisconnectStripe();
 	const [ confirming, setConfirming ] = useState( false );
 
 	const onConnectClick = useCallback( () => trackPaymentsEvent( 'stripe_connect_click' ), [] );
+	const retry = useCallback( () => refetch(), [ refetch ] );
 	const onConfirmDisconnect = useCallback( async () => {
 		try {
 			await disconnect.mutateAsync();
@@ -48,10 +59,19 @@ export default function StripeCard() {
 							'jetpack-monetize'
 						) }
 				</Notice.Description>
+				<Notice.Actions>
+					<Notice.ActionButton onClick={ retry } loading={ isFetching } disabled={ isFetching }>
+						{ __( 'Try again', 'jetpack-monetize' ) }
+					</Notice.ActionButton>
+				</Notice.Actions>
 			</Notice.Root>
 		);
 	} else if ( ! status ) {
-		content = <Text>{ __( 'Loading…', 'jetpack-monetize' ) }</Text>;
+		content = (
+			<Stack direction="row" justify="center" className="jp-monetize-loading">
+				<Spinner />
+			</Stack>
+		);
 	} else if ( status.isConnected ) {
 		content = (
 			<Stack direction="row" gap="md" align="center" justify="space-between" wrap="wrap">
@@ -99,10 +119,14 @@ export default function StripeCard() {
 						) }
 					</Text>
 				) }
-				{ status.connectUrl && (
+				{ status.connectUrl ? (
 					<ButtonLink variant="solid" href={ status.connectUrl } onClick={ onConnectClick }>
 						{ __( 'Connect Stripe', 'jetpack-monetize' ) }
 					</ButtonLink>
+				) : (
+					<Text variant="body-sm">
+						{ __( 'Ask a site administrator to connect Stripe.', 'jetpack-monetize' ) }
+					</Text>
 				) }
 			</Stack>
 		);

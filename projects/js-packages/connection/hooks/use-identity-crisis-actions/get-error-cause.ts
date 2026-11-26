@@ -39,6 +39,11 @@ export function getIdentityCrisisErrorCause( error: unknown ): IdentityCrisisErr
 	const data = isObject( body ) ? body.data : undefined;
 	const status = isObject( data ) && typeof data.status === 'number' ? data.status : null;
 
+	// start-fresh sets `disconnected` when its registration failed.
+	if ( isObject( data ) && data.disconnected === true ) {
+		return 'disconnected';
+	}
+
 	// WordPress sends 401 when the request has no logged-in user, whatever the error code.
 	if ( status === 401 ) {
 		return 'session';
@@ -55,6 +60,9 @@ export function getIdentityCrisisErrorCause( error: unknown ): IdentityCrisisErr
 		case 'invalid_user_permission_identity_crisis':
 		case 'rest_forbidden':
 			return 'permission';
+		// Safe Mode was resolved since the screen loaded, e.g. in another tab.
+		case 'start_fresh_not_in_safe_mode':
+			return 'resolved';
 	}
 
 	if ( status === 403 ) {

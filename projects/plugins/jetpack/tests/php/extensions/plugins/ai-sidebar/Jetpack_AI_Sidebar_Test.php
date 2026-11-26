@@ -1668,8 +1668,8 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		add_filter(
 			'jetpack_active_modules',
 			static function ( $modules ) {
-				$modules   = is_array( $modules ) ? $modules : array();
-				$modules[] = 'seo-tools';
+				$modules = is_array( $modules ) ? $modules : array();
+				$modules = array_merge( $modules, array( 'seo-tools', 'seo-dashboard' ) );
 				return array_values( array_unique( $modules ) );
 			}
 		);

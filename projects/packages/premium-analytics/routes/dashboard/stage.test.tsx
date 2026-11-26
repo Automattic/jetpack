@@ -1143,6 +1143,17 @@ describe( 'Dashboard sync notice', () => {
 		expect( mockSyncOptions?.enabled ).toBe( false );
 	} );
 
+	it( 'neither watches the sync nor waits on it while the site is disconnected', () => {
+		mockSection( { requires_sync: true } );
+		mockIsConnected = false;
+		mockConnectionless = [ 'insights' ];
+
+		render( <Dashboard /> );
+
+		expect( mockSyncOptions?.enabled ).toBe( false );
+		expect( screen.queryByText( /syncing/ ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'leaves a section that does not depend on the sync unannotated', () => {
 		mockSection();
 

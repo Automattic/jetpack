@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { GlobalChartsProvider } from '../../../../providers';
-import { useChartLegendItems } from '../use-chart-legend-items';
+import { getComparisonItemLabel, useChartLegendItems } from '../use-chart-legend-items';
 import type { DataPointPercentageCalculated, DataPointDate, SeriesData } from '../../../../types';
 import type { ReactNode } from 'react';
 
@@ -620,5 +620,15 @@ describe( 'useChartLegendItems', () => {
 				expect( result.current[ 1 ].seriesLabels ).toEqual( [ 'Two' ] );
 			} );
 		} );
+	} );
+} );
+
+describe( 'getComparisonItemLabel', () => {
+	it.each( [
+		[ 'Prev. 7 days', 'Prev. 7 days' ],
+		[ true, 'Comparison period' ],
+		[ '', 'Comparison period' ],
+	] )( 'names a comparisonItem of %p %p', ( comparisonItem, label ) => {
+		expect( getComparisonItemLabel( comparisonItem ) ).toBe( label );
 	} );
 } );

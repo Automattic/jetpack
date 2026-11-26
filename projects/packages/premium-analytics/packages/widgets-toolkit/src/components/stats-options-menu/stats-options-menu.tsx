@@ -4,6 +4,7 @@
 import { currentUserCan, getScriptData } from '@automattic/jetpack-script-data';
 import { getSectionOrder } from '@jetpack-premium-analytics/data';
 import { Icon, IconButton, Menu } from '@jetpack-premium-analytics/externals';
+import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { __ } from '@wordpress/i18n';
 import {
 	cancelCircleFilled,
@@ -14,11 +15,12 @@ import {
 	pencil,
 } from '@wordpress/icons';
 import { Link as RouteLink, useLinkProps } from '@wordpress/route';
-import { useCallback, useState } from 'react';
+import { Fragment, useCallback, useState, type ReactNode } from 'react';
 /**
  * Internal dependencies
  */
 import { useDashboardSection } from '../../hooks/use-dashboard-origin-search';
+import { usePromoSlot } from '../../hooks/use-promo-slot';
 import { useReportNavigationSearch } from '../../hooks/use-report-navigation-search';
 import { useTrackEvent } from '../../hooks/use-track-event';
 import { ArrangeTabsDialog, type ArrangeableTabs } from './arrange-tabs-dialog';
@@ -72,6 +74,8 @@ function SettingsMenuItem( { disabled }: { disabled: boolean } ) {
 	);
 }
 
+type MenuGroup = { id: string; items: ReactNode[] };
+
 type StatsOptionsMenuProps = {
 	/*
 	 * Enters customize mode; Customize is on offer only when given.
@@ -88,6 +92,11 @@ type StatsOptionsMenuProps = {
 	 * without it Settings is disabled and feedback is left out.
 	 */
 	isSiteConnected?: boolean;
+
+	/*
+	 * Whether a promo registered for the options menu is on offer.
+	 */
+	withPromo?: boolean;
 };
 
 /**
@@ -105,6 +114,7 @@ export function StatsOptionsMenu( {
 	onCustomize,
 	tabs,
 	isSiteConnected = true,
+	withPromo = true,
 }: StatsOptionsMenuProps ) {
 	const trackEvent = useTrackEvent();
 	const section = useDashboardSection();
@@ -140,13 +150,107 @@ export function StatsOptionsMenu( {
 	}, [ section, tabs, trackEvent ] );
 	const closeArrangeTabs = useCallback( () => setIsArrangingTabs( false ), [] );
 
-	if ( ! onCustomize && ! canArrangeTabs && ! hasSettings && ! canGiveFeedback && ! canSwitchOff ) {
+	const slotPromo = usePromoSlot( 'options-menu' );
+	const promo = withPromo ? slotPromo : null;
+	// The label is the menu item: without one the item would be a focusable link with no name.
+	const promoHref = promo?.cta_label ? safeHttpUrl( promo.cta_url ) : null;
+	const trackPromoClick = useCallback( () => {
+		if ( promo ) {
+			trackEvent( 'jetpack_premium_analytics_promo_click', {
+				slug: promo.slug,
+				placement: promo.placement,
+				label: 'cta',
+			} );
+		}
+	}, [ promo, trackEvent ] );
+	const trackPromoView = useCallback(
+		( isOpen: boolean ) => {
+			if ( isOpen && promo && promoHref ) {
+				trackEvent( 'jetpack_premium_analytics_promo_view', {
+					slug: promo.slug,
+					placement: promo.placement,
+				} );
+			}
+		},
+		[ promo, promoHref, trackEvent ]
+	);
+
+	const groups: MenuGroup[] = [
+		{
+			id: 'layout',
+			items: [
+				onCustomize && (
+					<Menu.Item key="customize" prefix={ <Icon icon={ pencil } /> } onClick={ onCustomize }>
+						<Menu.ItemLabel>{ __( 'Customize', 'jetpack-premium-analytics-pkg' ) }</Menu.ItemLabel>
+					</Menu.Item>
+				),
+				canArrangeTabs && (
+					<Menu.Item
+						key="arrange-tabs"
+						prefix={ <Icon icon={ chevronUpDown } /> }
+						onClick={ openArrangeTabs }
+					>
+						<Menu.ItemLabel>
+							{ __( 'Arrange tabs', 'jetpack-premium-analytics-pkg' ) }
+						</Menu.ItemLabel>
+					</Menu.Item>
+				),
+			],
+		},
+		{
+			id: 'settings',
+			items: [ hasSettings && <SettingsMenuItem key="settings" disabled={ ! isSiteConnected } /> ],
+		},
+		{
+			id: 'promo',
+			items: [
+				promoHref && promo && (
+					<Menu.LinkItem
+						key={ promo.slug }
+						href={ promoHref }
+						target="_blank"
+						rel="noopener noreferrer"
+						onClick={ trackPromoClick }
+					>
+						<Menu.ItemLabel>{ promo.cta_label }</Menu.ItemLabel>
+					</Menu.LinkItem>
+				),
+			],
+		},
+		{
+			id: 'exit',
+			items: [
+				canGiveFeedback && (
+					<Menu.Item key="feedback" prefix={ <Icon icon={ comment } /> } onClick={ openFeedback }>
+						<Menu.ItemLabel>
+							{ __( 'Any feedback?', 'jetpack-premium-analytics-pkg' ) }
+						</Menu.ItemLabel>
+					</Menu.Item>
+				),
+				canSwitchOff && (
+					<Menu.Item
+						key="switch-off"
+						prefix={ <Icon icon={ cancelCircleFilled } /> }
+						onClick={ openSwitchOff }
+					>
+						<Menu.ItemLabel>
+							{ __( 'Switch off the preview', 'jetpack-premium-analytics-pkg' ) }
+						</Menu.ItemLabel>
+					</Menu.Item>
+				),
+			],
+		},
+	]
+		.map( group => ( { ...group, items: group.items.filter( Boolean ) } ) )
+		.filter( group => group.items.length > 0 );
+
+	if ( groups.length === 0 ) {
 		return null;
 	}
 
 	return (
 		<>
-			<Menu.Root>
+			<Menu.Root onOpenChange={ trackPromoView }>
 				<Menu.Trigger
 					render={
 						<IconButton
@@ -159,38 +263,12 @@ export function StatsOptionsMenu( {
 					}
 				/>
 				<Menu.Popup positioner={ <Menu.Positioner align="end" /> }>
-					{ onCustomize && (
-						<Menu.Item prefix={ <Icon icon={ pencil } /> } onClick={ onCustomize }>
-							<Menu.ItemLabel>
-								{ __( 'Customize', 'jetpack-premium-analytics-pkg' ) }
-							</Menu.ItemLabel>
-						</Menu.Item>
-					) }
-					{ canArrangeTabs && (
-						<Menu.Item prefix={ <Icon icon={ chevronUpDown } /> } onClick={ openArrangeTabs }>
-							<Menu.ItemLabel>
-								{ __( 'Arrange tabs', 'jetpack-premium-analytics-pkg' ) }
-							</Menu.ItemLabel>
-						</Menu.Item>
-					) }
-					{ ( onCustomize || canArrangeTabs ) && hasSettings && <Menu.Separator /> }
-					{ hasSettings && <SettingsMenuItem disabled={ ! isSiteConnected } /> }
-					{ ( onCustomize || canArrangeTabs || hasSettings ) &&
-						( canGiveFeedback || canSwitchOff ) && <Menu.Separator /> }
-					{ canGiveFeedback && (
-						<Menu.Item prefix={ <Icon icon={ comment } /> } onClick={ openFeedback }>
-							<Menu.ItemLabel>
-								{ __( 'Any feedback?', 'jetpack-premium-analytics-pkg' ) }
-							</Menu.ItemLabel>
-						</Menu.Item>
-					) }
-					{ canSwitchOff && (
-						<Menu.Item prefix={ <Icon icon={ cancelCircleFilled } /> } onClick={ openSwitchOff }>
-							<Menu.ItemLabel>
-								{ __( 'Switch off the preview', 'jetpack-premium-analytics-pkg' ) }
-							</Menu.ItemLabel>
-						</Menu.Item>
-					) }
+					{ groups.map( ( group, index ) => (
+						<Fragment key={ group.id }>
+							{ index > 0 && <Menu.Separator /> }
+							{ group.items }
+						</Fragment>
+					) ) }
 				</Menu.Popup>
 			</Menu.Root>
 			{ isFeedbackOpen && <FeedbackModal source="menu" onClose={ closeFeedback } /> }

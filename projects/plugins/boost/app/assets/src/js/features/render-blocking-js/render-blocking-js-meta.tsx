@@ -1,9 +1,8 @@
-import { useModuleSurface } from '$features/module/surface';
 import { useEffect, useState } from 'react';
 import SaveButton from '$features/ui/save-button/save-button';
 import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { createInterpolateElement } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { z } from 'zod';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import styles from './render-blocking-js-meta.module.scss';
@@ -35,27 +34,6 @@ const useExcludesQuery = ( onSuccess?: ( newState: string[] ) => void ) => {
 };
 
 const RenderBlockingJsMeta = () => {
-	const legacyLabel = __( 'Exclude URL patterns:', 'jetpack-boost' );
-	const modernLabel = __( 'Add URLs or patterns separated with a comma:', 'jetpack-boost' );
-	const legacyPlaceholder = __(
-		'Comma-separated list of URL patterns to exclude, e.g.: checkout, gallery/(.*)',
-		'jetpack-boost'
-	);
-	const modernPlaceholder = __( 'e.g. checkout, gallery/(.*)', 'jetpack-boost' );
-	const legacyHelp = __(
-		'JavaScript will not be deferred on pages matching these URL patterns. Use a comma (,) to separate the patterns. Use (.*) to address multiple URLs under a given path.',
-		'jetpack-boost'
-	);
-	const modernHelp = __( "JavaScript won't be deferred on these pages.", 'jetpack-boost' );
-	const legacyScriptHelp = __(
-		'To keep a single script in place on every page instead, add the <code>data-jetpack-boost="ignore"</code> attribute to its script tag.',
-		'jetpack-boost'
-	);
-	const modernScriptHelp = __(
-		'Need to exclude a specific script instead? Add <code>data-jetpack-boost="ignore"</code> to its script tag.',
-		'jetpack-boost'
-	);
-	const isRow = useModuleSurface() === 'row';
 	const noticeId = `render-blocking-js-meta-${ datasyncKey }`;
 
 	const [ values, updateValues ] = useExcludesQuery( newState => {
@@ -105,28 +83,16 @@ const RenderBlockingJsMeta = () => {
 
 	const htmlId = `jb-render-blocking-js-meta-${ datasyncKey }`;
 
-	// Be explicit about this because the optimizer breaks the linter otherwise.
-	let summary;
-	if ( values.length > 0 ) {
-		/* Translators: %s refers to the list of excluded items. */
-		summary = sprintf( __( 'Except: %s', 'jetpack-boost' ), values.join( ', ' ) );
-	}
-
-	if ( values.length === 0 ) {
-		summary = __( 'No exceptions.', 'jetpack-boost' );
-	}
-
 	const content = (
-		<div className={ styles.section } data-except-content={ isRow || undefined }>
-			{ ! isRow && <div className={ styles.title }>{ __( 'Exceptions', 'jetpack-boost' ) }</div> }
+		<div className={ styles.section } data-except-content>
 			<div className={ styles[ 'manage-excludes' ] }>
 				<label className={ styles[ 'sub-header' ] } htmlFor={ htmlId }>
-					{ isRow ? modernLabel : legacyLabel }
+					{ __( 'Add URLs or patterns separated with a comma:', 'jetpack-boost' ) }
 				</label>
 				<input
 					type="text"
 					value={ inputValue }
-					placeholder={ isRow ? modernPlaceholder : legacyPlaceholder }
+					placeholder={ __( 'e.g. checkout, gallery/(.*)', 'jetpack-boost' ) }
 					id={ htmlId }
 					onChange={ e => setInputValue( e.target.value ) }
 					onKeyDown={ e => {
@@ -136,11 +102,15 @@ const RenderBlockingJsMeta = () => {
 					} }
 				/>
 				<div className={ styles.description }>
-					{ isRow ? modernHelp : legacyHelp }
+					{ __( "JavaScript won't be deferred on these pages.", 'jetpack-boost' ) }
 					<br />
-					{ createInterpolateElement( isRow ? modernScriptHelp : legacyScriptHelp, {
-						code: <code />,
-					} ) }
+					{ createInterpolateElement(
+						__(
+							'Need to exclude a specific script instead? Add <code>data-jetpack-boost="ignore"</code> to its script tag.',
+							'jetpack-boost'
+						),
+						{ code: <code /> }
+					) }
 				</div>
 				<SaveButton
 					disabled={ serverValue === inputValue }
@@ -154,9 +124,7 @@ const RenderBlockingJsMeta = () => {
 	return (
 		<div className={ styles.wrapper } data-testid={ `meta-${ datasyncKey }` }>
 			<CollapsibleMeta
-				exceptions={ isRow ? values : undefined }
-				headerText={ summary }
-				toggleText={ __( 'Exclude URL patterns', 'jetpack-boost' ) }
+				exceptions={ values }
 				tracksEvent="defer_js_excludes_panel_toggle"
 				onToggleHandler={ onToggleHandler }
 			>

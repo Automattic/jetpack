@@ -178,6 +178,17 @@ describe( 'FeaturesContent', () => {
 		}
 	} );
 
+	it( 'finds a feature by its own search terms', () => {
+		mockStates = [
+			{
+				...activeStats,
+				feature: { ...activeStats.feature, search_terms: 'Sitemaps, open graph' },
+			} as FeatureState,
+		];
+		renderAt( '/features?search=open%20graph' );
+		expect( screen.getByText( 'grid card' ) ).toBeInTheDocument();
+	} );
+
 	it.each( [
 		'module_tag=Writing',
 		'search=artificial%20intelligence',

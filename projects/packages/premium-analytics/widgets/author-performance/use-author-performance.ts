@@ -6,14 +6,17 @@ import {
 	type ReportParams,
 	type StatsChartBucketPeriod,
 } from '@jetpack-premium-analytics/data';
-import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
+import { clipBucketToRange, parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
+import { toDayRange } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 
 /**
- * One chart point: a bucket-start date and the author's views in the bucket.
+ * One chart point: the first and last day of the bucket that fall in the range,
+ * and the author's views in it.
  */
 export type AuthorPerformancePoint = {
 	date: Date;
+	endDate?: Date;
 	value: number;
 };
 
@@ -55,15 +58,23 @@ export default function useAuthorPerformance(
 		params
 	);
 
-	const current = useMemo(
-		() =>
-			( data?.data ?? [] ).flatMap( point => {
-				const date = parseSiteDateTime( point.period );
+	const current = useMemo( () => {
+		const range = toDayRange( reportParams.from, reportParams.to );
 
-				return date ? [ { date, value: point.views } ] : [];
-			} ),
-		[ data ]
-	);
+		return ( data?.data ?? [] ).flatMap( point => {
+			const start = parseSiteDateTime( point.period );
+			if ( ! start ) {
+				return [];
+			}
+
+			const bounds = range && clipBucketToRange( point.period, period, range );
+			const date = parseSiteDateTime( bounds?.from ) ?? start;
+			const endDate = parseSiteDateTime( bounds?.to );
+			const value = point.views;
+
+			return [ endDate ? { date, endDate, value } : { date, value } ];
+		} );
+	}, [ data, period, reportParams.from, reportParams.to ] );
 
 	return {
 		current,

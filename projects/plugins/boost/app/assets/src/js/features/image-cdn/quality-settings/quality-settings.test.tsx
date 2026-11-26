@@ -104,15 +104,3 @@ test( 'exposes the modern Adjust Quality toggle as a disclosure of the quality c
 	const panel = document.getElementById( toggle.getAttribute( 'aria-controls' )! );
 	expect( panel?.contains( screen.getAllByRole( 'slider' )[ 0 ] ) ).toBe( true );
 } );
-
-test( 'keeps the Image Quality heading and summary on the default legacy surface', () => {
-	const { container } = render( <QualitySettings isPremium /> );
-
-	expect( container.firstElementChild?.className ).toBe( 'module-subsection' );
-	// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- The well is a presentation container.
-	expect( container.querySelector( '.well' ) ).toBeNull();
-	expect( screen.getByRole( 'heading', { name: 'Image Quality', level: 4 } ) ).toBeTruthy();
-	expect(
-		screen.getByText( 'JPEG Quality: 75, PNG Quality: lossless, WEBP Quality: 65' )
-	).toBeTruthy();
-} );

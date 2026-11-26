@@ -203,6 +203,22 @@ describe( 'useReportActions', () => {
 			expect( mockSaveCsv ).toHaveBeenCalledWith( filename, '"Date","Views"\n"2026-03-01","3"' );
 		} );
 
+		const REVALIDATING = { ...ROWS_SETTLED, isFetching: true };
+
+		it.each( [
+			[ "the linked report's", { exporter, rowCount: 3, status: REVALIDATING } ],
+			[
+				'the loaded rows',
+				{ rows: ROWS, columns, filenamePrefix: 'things', hasDateRange: true, status: REVALIDATING },
+			],
+		] )( 'keeps %s download while unchanged params revalidate', ( _, csv ) => {
+			const { wrapper, declaredActions } = setUp();
+
+			renderHook( () => useReportActions( { csv } ), { wrapper } );
+
+			expect( declaredActions().map( action => action.id ) ).toEqual( [ 'download-csv' ] );
+		} );
+
 		it( 'offers no download while the rows are a previous range kept as placeholder', () => {
 			const { wrapper, declaredActions } = setUp();
 

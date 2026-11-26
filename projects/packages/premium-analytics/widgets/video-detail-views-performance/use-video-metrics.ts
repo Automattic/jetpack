@@ -7,34 +7,32 @@ import {
 	type StatsChartBucketPeriod,
 	type StatsSingleVideoDataPoint,
 } from '@jetpack-premium-analytics/data';
-import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
+import {
+	getRangeBuckets,
+	resolveBucketStamp,
+	type RangeBucket,
+} from '@jetpack-premium-analytics/datetime';
 import {
 	HEADLINE_COUNT_FORMAT,
 	HOURS_DATA_FORMAT,
-	toDay,
+	toDayRange,
 	type CountLabel,
 	type DataFormat,
 	type MetricTab,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __, _n } from '@wordpress/i18n';
-import {
-	addDays,
-	eachDayOfInterval,
-	eachMonthOfInterval,
-	eachWeekOfInterval,
-	format,
-	parseISO,
-} from 'date-fns';
 /**
  * Internal dependencies
  */
 
 /**
- * One chart point: a bucket-start date and the metric's value for the bucket.
+ * One chart point: the first and last day of the bucket that fall in the range,
+ * and the metric's value for it.
  */
 export type VideoMetricPoint = {
 	date: Date;
+	endDate?: Date;
 	value: number;
 };
 
@@ -63,83 +61,13 @@ const RATE_FORMAT: DataFormat = {
 };
 
 /**
- * A date-only window sliced from the dashboard report params.
- */
-type DayWindow = {
-	from: string;
-	to: string;
-};
-
-/**
- * One calendar bucket, including its visible label and the portion that falls
- * inside the selected date window.
- */
-type BucketWindow = {
-	date: string;
-	from: string;
-	to: string;
-};
-
-/**
- * Extracts a `YYYY-MM-DD` window from ISO report params, or undefined when a
- * bound is missing/malformed — `toDay` rejects invalid days before they'd
- * reach `parseISO()`/`each*OfInterval()`, which throw on them.
- */
-function toDayWindow( from?: string, to?: string ): DayWindow | undefined {
-	const fromDay = toDay( from );
-	const toDayBound = toDay( to );
-
-	if ( ! fromDay || ! toDayBound ) {
-		return undefined;
-	}
-
-	return { from: fromDay, to: toDayBound };
-}
-
-/**
- * Build a range's calendar buckets. Each bucket keeps the calendar label used
- * by the chart while clipping its data bounds to the selected range. Same
- * approach as the Post views widget's bucketing.
- */
-function calendarBucketWindows(
-	dayWindow: DayWindow,
-	period: StatsChartBucketPeriod
-): BucketWindow[] {
-	// The URL is user-editable, so an inverted range must not reach
-	// `eachDayOfInterval()` (it throws).
-	if ( dayWindow.from > dayWindow.to ) {
-		return [];
-	}
-
-	const interval = { start: parseISO( dayWindow.from ), end: parseISO( dayWindow.to ) };
-	let bucketStarts = eachDayOfInterval( interval );
-	if ( period === 'week' ) {
-		bucketStarts = eachWeekOfInterval( interval, { weekStartsOn: 1 } );
-	} else if ( period === 'month' ) {
-		bucketStarts = eachMonthOfInterval( interval );
-	}
-
-	return bucketStarts.map( ( start, index ) => {
-		const date = format( start, 'yyyy-MM-dd' );
-		const nextDate = bucketStarts[ index + 1 ];
-		const end = nextDate ? format( addDays( nextDate, -1 ), 'yyyy-MM-dd' ) : dayWindow.to;
-
-		return {
-			date,
-			from: date < dayWindow.from ? dayWindow.from : date,
-			to: end > dayWindow.to ? dayWindow.to : end,
-		};
-	} );
-}
-
-/**
  * Sums a daily series into zero-filled bucket totals. The endpoint returns a
  * contiguous daily array for the window, so this only sums returned days and
  * zero-fills what's missing.
  */
 function bucketTotals(
 	points: StatsSingleVideoDataPoint[],
-	buckets: BucketWindow[]
+	buckets: RangeBucket[]
 ): Map< string, number > {
 	const totals = new Map< string, number >( buckets.map( bucket => [ bucket.date, 0 ] ) );
 
@@ -158,14 +86,17 @@ function bucketTotals(
  * Turns bucket totals into chart points.
  */
 function toBucketPoints(
-	buckets: BucketWindow[],
+	buckets: RangeBucket[],
 	totals: Map< string, number >,
 	zone: string
 ): VideoMetricPoint[] {
 	return buckets.flatMap( bucket => {
-		const date = resolveBucketStamp( bucket.date, zone );
+		// The clipped bounds, so the tooltip names a month the range cuts by its days.
+		const date = resolveBucketStamp( bucket.from, zone );
+		const endDate = resolveBucketStamp( bucket.to, zone );
+		const value = totals.get( bucket.date ) ?? 0;
 
-		return date ? [ { date, value: totals.get( bucket.date ) ?? 0 } ] : [];
+		return date ? [ endDate ? { date, endDate, value } : { date, value } ] : [];
 	} );
 }
 
@@ -177,7 +108,7 @@ function toBucketPoints(
 function playWeightedRetention(
 	rates: StatsSingleVideoDataPoint[],
 	plays: StatsSingleVideoDataPoint[],
-	buckets: BucketWindow[]
+	buckets: RangeBucket[]
 ): Map< string, number > {
 	const playsByDay = new Map< string, number >(
 		plays.map( point => [ point.period.slice( 0, 10 ), point.value ] )
@@ -210,7 +141,7 @@ export default function useVideoMetrics(
 	period: StatsChartBucketPeriod
 ): VideoMetricsState {
 	const primaryWindow = useMemo(
-		() => toDayWindow( reportParams.from, reportParams.to ),
+		() => toDayRange( reportParams.from, reportParams.to ),
 		[ reportParams.from, reportParams.to ]
 	);
 	const { data, timezone, isLoading, isFetching, isError, isPlaceholderData, error, refetch } =
@@ -221,7 +152,7 @@ export default function useVideoMetrics(
 		);
 
 	const metrics = useMemo< MetricTab[] >( () => {
-		const buckets = primaryWindow ? calendarBucketWindows( primaryWindow, period ) : [];
+		const buckets = primaryWindow ? getRangeBuckets( primaryWindow, period ) : [];
 		// The leading tuple column doubles as the plays series, so Views renders
 		// even from a response without named `fields`.
 		const playsSeries = data?.series?.plays ?? data?.data ?? [];

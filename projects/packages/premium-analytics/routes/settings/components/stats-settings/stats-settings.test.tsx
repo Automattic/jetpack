@@ -1,24 +1,38 @@
 import { act, render, screen } from '@testing-library/react';
+import { resetPromoDismissalForTesting } from '../../../../packages/widgets-toolkit/src/hooks/use-promo-slot';
 import { StatsSettingsPanel } from './stats-settings';
 
 const mockUsePlanUsage = jest.fn();
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
-	useStatsAppPlanUsage: () => mockUsePlanUsage(),
+	useStatsAppPlanUsage: ( options: unknown ) => mockUsePlanUsage( options ),
+} ) );
+
+jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
+	PromoCard: ( { promo }: { promo: { slug: string } } ) => (
+		<div data-testid="promo-card">{ promo.slug }</div>
+	),
 } ) );
 
 jest.mock( '../consent-card', () => ( { ConsentCard: () => null } ) );
-jest.mock( '../plan-usage-card', () => ( { PlanUsageCard: () => null } ) );
+jest.mock( '../plan-usage-card', () => ( {
+	PlanUsageCard: () => <div data-testid="plan-usage-card" />,
+} ) );
 jest.mock( '../settings-form', () => ( {
 	SettingsForm: () => <div data-testid="settings-form" />,
 } ) );
 
 const setScriptData = (
 	featuresUrl: string | null,
-	featuresScreen: 'features' | 'modules' | null = null
+	featuresScreen: 'features' | 'modules' | null = null,
+	promos: Array< Record< string, unknown > > = [],
+	isWpcomPlatform = false
 ) => {
 	window.JetpackScriptData = {
+		site: { is_wpcom_platform: isWpcomPlatform },
 		premium_analytics: {
+			promos,
 			stats_settings: {
 				roles: [],
 				features_url: featuresUrl,
@@ -28,9 +42,23 @@ const setScriptData = (
 	} as typeof window.JetpackScriptData;
 };
 
+const settingsPromo = {
+	slug: 'upgrade',
+	placement: 'settings',
+	target: null,
+	order: 0,
+	title: 'Upgrade',
+	description: '',
+	cta_label: 'Go',
+	cta_url: 'https://example.com',
+	dismissible: true,
+	snooze_days: 7,
+};
+
 describe( 'StatsSettingsPanel', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		resetPromoDismissalForTesting();
 		mockUsePlanUsage.mockReturnValue( { isLoading: false } );
 		setScriptData( null );
 	} );
@@ -58,6 +86,37 @@ describe( 'StatsSettingsPanel', () => {
 			expect( screen.getByRole( 'link', { name } ) ).toHaveAttribute( 'href', url );
 		}
 	);
+
+	it( 'renders the settings promo after the Activation card', () => {
+		setScriptData( 'admin.php?page=my-jetpack#/features', 'features', [ settingsPromo ] );
+
+		render( <StatsSettingsPanel /> );
+
+		const activation = screen.getByText( 'Activation' );
+		const promoCard = screen.getByTestId( 'promo-card' );
+		expect( promoCard ).toHaveTextContent( 'upgrade' );
+		expect( activation.compareDocumentPosition( promoCard ) ).toBe(
+			Node.DOCUMENT_POSITION_FOLLOWING
+		);
+	} );
+
+	it( 'renders no settings promo when none is registered for the placement', () => {
+		setScriptData( null, null, [ { ...settingsPromo, placement: 'options-menu' } ] );
+
+		render( <StatsSettingsPanel /> );
+
+		expect( screen.queryByTestId( 'promo-card' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'leaves out the plan usage card and asks for no usage on a WordPress.com site', () => {
+		setScriptData( null, null, [], true );
+
+		render( <StatsSettingsPanel /> );
+
+		expect( screen.queryByTestId( 'plan-usage-card' ) ).not.toBeInTheDocument();
+		expect( screen.getByTestId( 'settings-form' ) ).toBeInTheDocument();
+		expect( mockUsePlanUsage ).toHaveBeenCalledWith( { enabled: false } );
+	} );
 
 	it( 'draws no card while the plan usage loads, so the page does not shift when it arrives', () => {
 		mockUsePlanUsage.mockReturnValue( { isLoading: true } );

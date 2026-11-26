@@ -63,7 +63,7 @@ export default function CancelDialog( {
 		subscription.email || subscription.name || __( 'This subscriber', 'jetpack-monetize' );
 	const description = oneTime
 		? sprintf(
-				/* translators: %1$s: the subscriber's email address. %2$s: the plan's name. */
+				/* translators: %1$s: the subscriber's email address, or their name when there is none. %2$s: the plan's name. */
 				__(
 					'%1$s will no longer have access to anything the “%2$s” plan grants. The payment will not be refunded.',
 					'jetpack-monetize'
@@ -72,7 +72,7 @@ export default function CancelDialog( {
 				subscription.planTitle
 			)
 		: sprintf(
-				/* translators: %1$s: the subscriber's email address. %2$s: the plan's name. */
+				/* translators: %1$s: the subscriber's email address, or their name when there is none. %2$s: the plan's name. */
 				__(
 					'%1$s will no longer have access to anything the “%2$s” plan grants. Payments already made will not be refunded, and no future payments will be taken.',
 					'jetpack-monetize'

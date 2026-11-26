@@ -305,7 +305,7 @@ request; components reading the record (e.g. `useSiteHomeUrl`) must handle
 ensureCoreSettingsReady().catch( () => {} );
 ```
 
-**Returns:** `Promise<void>` - Resolves when settings are loaded, rejects on failure
+**Returns:** `Promise<void>` - Resolves when settings are loaded, rejects on failure. The next call after a failure sends a new request.
 
 **Features:**
 

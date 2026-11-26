@@ -7,6 +7,7 @@ use Automattic\Jetpack_Boost\Contracts\Sub_Feature;
 use Automattic\Jetpack_Boost\Modules\Image_Guide\Image_Guide;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Critical_CSS;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Defer_Fonts\Defer_Fonts;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Image_CDN\Image_CDN;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Image_CDN\Liar;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Image_CDN\Quality_Settings;
@@ -32,6 +33,7 @@ class Features_Index {
 		Minify_JS::class,
 		Minify_CSS::class,
 		Render_Blocking_JS::class,
+		Defer_Fonts::class,
 		Image_Guide::class,
 		Image_CDN::class,
 		Performance_History::class,

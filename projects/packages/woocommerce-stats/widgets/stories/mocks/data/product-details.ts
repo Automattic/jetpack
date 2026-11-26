@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { PRODUCT_CATALOGUE } from './products';
+import { BOOKABLE_CATALOGUE, PRODUCT_CATALOGUE } from './products';
 
 /**
  * A product thumbnail, as an inline SVG rather than a fetched image, so the stories render the
@@ -41,7 +41,9 @@ export function buildProductDetailsResponse( include: string | undefined ): unkn
 	return ids
 		.filter( ( _, index ) => index !== deleted )
 		.map( id => {
-			const product = PRODUCT_CATALOGUE.find( candidate => candidate.id === id );
+			const product = [ ...PRODUCT_CATALOGUE, ...BOOKABLE_CATALOGUE ].find(
+				candidate => candidate.id === id
+			);
 
 			return {
 				id,

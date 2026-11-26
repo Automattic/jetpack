@@ -6,6 +6,7 @@ import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
+import { mockRowLayout, scrollRowsToEnd } from '../../../../../../tests/js/row-batches-test-utils';
 import { ReportDrilldownTable } from '../report-drilldown-table';
 import { ReportRecordsTable } from '../report-records-table';
 import type { Field, View } from '@jetpack-premium-analytics/externals';
@@ -142,16 +143,38 @@ function numberedRows( count: number ): NumberedRow[] {
 }
 
 describe( 'ReportRecordsTable paging', () => {
-	it( 'lists every row on one page with no page size menu', async () => {
+	beforeEach( mockRowLayout );
+	afterEach( () => jest.restoreAllMocks() );
+
+	it( 'reports only the rows it has mounted', async () => {
+		const onMountedRows = jest.fn();
+		render(
+			<ReportRecordsTable< Row >
+				data={ longReport() }
+				fields={ fields }
+				getItemId={ item => item.id }
+				initialView={ INITIAL_VIEW }
+				onChangePageItems={ onMountedRows }
+			/>
+		);
+		expect( onMountedRows ).toHaveBeenLastCalledWith( longReport().slice( 0, 50 ) );
+
+		scrollRowsToEnd();
+
+		await waitFor( () =>
+			expect( onMountedRows ).toHaveBeenLastCalledWith( longReport().slice( 0, 100 ) )
+		);
+	} );
+
+	it( 'offers no pager or page size menu', async () => {
 		render(
 			<ReportRecordsTable< NumberedRow >
-				data={ numberedRows( 25 ) }
+				data={ numberedRows( 120 ) }
 				fields={ NUMBERED_FIELDS }
 				getItemId={ item => item.id }
 			/>
 		);
 
-		expect( screen.getByText( 'Row 25' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: /next page/i } ) ).not.toBeInTheDocument();
 
 		await userEvent.setup().click( screen.getByRole( 'button', { name: 'View options' } ) );
@@ -267,5 +290,82 @@ describe( 'ReportRecordsTable with no rows', () => {
 
 		await expect( screen.findByText( 'No results' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'heading', { name: 'No data found' } ) ).not.toBeInTheDocument();
+	} );
+} );
+
+/** A long report: `Row 1`…`Row n`, views falling from the first row down. */
+function longReport( count = 120 ): Row[] {
+	return Array.from( { length: count }, ( _, index ) => ( {
+		id: `row-${ index + 1 }`,
+		label: `Row ${ index + 1 }`,
+		country: 'IN',
+		views: 1000 - index,
+	} ) );
+}
+
+describe.each( TABLES )( '%s with a long report', ( _name, table ) => {
+	beforeEach( mockRowLayout );
+	afterEach( () => jest.restoreAllMocks() );
+
+	it( 'mounts one batch, then the next as the table scrolls', async () => {
+		render( table( longReport() ) );
+
+		expect( screen.getByText( 'Row 50' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Row 51' ) ).not.toBeInTheDocument();
+
+		scrollRowsToEnd();
+
+		await expect( screen.findByText( 'Row 100' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Row 101' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'starts over from the first batch of a new sort order', async () => {
+		render( table( longReport() ) );
+		scrollRowsToEnd();
+		await expect( screen.findByText( 'Row 100' ) ).resolves.toBeInTheDocument();
+
+		const user = userEvent.setup();
+		await user.click( screen.getByRole( 'button', { name: /^Views/ } ) );
+		await user.click( await screen.findByRole( 'menuitemradio', { name: /Sort ascending/i } ) );
+
+		await expect( screen.findByText( 'Row 120' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Row 70' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'starts over from the first batch of a new search', async () => {
+		render( table( longReport() ) );
+		scrollRowsToEnd();
+		await expect( screen.findByText( 'Row 100' ) ).resolves.toBeInTheDocument();
+
+		const user = userEvent.setup();
+		await user.type( screen.getByRole( 'searchbox' ), 'Row' );
+		await waitFor( () => expect( screen.queryByText( 'Row 1' ) ).not.toBeInTheDocument() );
+		await user.clear( screen.getByRole( 'searchbox' ) );
+
+		await expect( screen.findByText( 'Row 50' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Row 51' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'keeps the mounted rows through a background refetch', async () => {
+		const { rerender } = render( table( longReport() ) );
+		scrollRowsToEnd();
+		await expect( screen.findByText( 'Row 100' ) ).resolves.toBeInTheDocument();
+
+		rerender( table( longReport(), { isFetching: true } ) );
+		rerender( table( longReport() ) );
+
+		expect( screen.getByText( 'Row 100' ) ).toBeInTheDocument();
+	} );
+
+	it( 'holds the next batch while the rows on screen revalidate', () => {
+		const { rerender } = render( table( longReport() ) );
+		rerender( table( longReport(), { isFetching: true } ) );
+
+		scrollRowsToEnd();
+		expect( screen.queryByText( 'Row 51' ) ).not.toBeInTheDocument();
+
+		rerender( table( longReport() ) );
+		expect( screen.getByText( 'Row 100' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Row 101' ) ).not.toBeInTheDocument();
 	} );
 } );

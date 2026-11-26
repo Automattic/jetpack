@@ -9,16 +9,22 @@ import apiFetch from '@wordpress/api-fetch';
 // failure can originate in Premium Analytics source with nothing in this package to say so.
 import { resetForcedStateQueries } from '../../../../premium-analytics/packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import {
+	buildOrderAttributionByProductDeviceResponse,
+	buildOrderAttributionDeviceResponse,
 	buildOrdersByDateResponse,
 	buildProductDetailsResponse,
 	buildProductsResponse,
 	buildSessionsByDeviceResponse,
+	buildVisitorsByDateResponse,
 } from './data';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 
 const REPORTS_PATH = '/jetpack/v4/woocommerce-stats/proxy/v2/analytics/reports/';
 const WC_REST_PATH = '/wc/v3/';
 const WC_PRODUCTS_PATH = `${ WC_REST_PATH }products`;
+
+/** The bookings subset's share of the store's order volume. */
+const BOOKINGS_SHARE = 0.28;
 
 export type WooReportMockState = 'error' | 'error-retryable' | 'loading' | 'empty';
 
@@ -83,11 +89,19 @@ const wooReportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOp
 		const query = queryOf( requestPath );
 
 		switch ( requestPath.slice( REPORTS_PATH.length ).split( '?' )[ 0 ] ) {
+			case 'order-attribution-by-product/device/summary':
+				return buildOrderAttributionByProductDeviceResponse( query );
+			case 'order-attribution/device/summary':
+				return buildOrderAttributionDeviceResponse( query );
 			case 'orders/by-date':
-			case 'orders-by-product-type/by-date':
 				return buildOrdersByDateResponse( query );
+			// Assumes the bookings product_type filter, the only caller; it does not read the filter it is given.
+			case 'orders-by-product-type/by-date':
+				return buildOrdersByDateResponse( query, { share: BOOKINGS_SHARE } );
 			case 'products':
 				return buildProductsResponse( query );
+			case 'sessions/by-date':
+				return buildVisitorsByDateResponse( query );
 			case 'sessions/by-device':
 				return buildSessionsByDeviceResponse( query );
 		}

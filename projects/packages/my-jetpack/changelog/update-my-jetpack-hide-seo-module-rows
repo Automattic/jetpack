@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Features: Remove the separate SEO Tools, Sitemaps, Canonical URLs, and Site Verification switches where the SEO card is shown. Each one stays in Jetpack › SEO › Settings.
