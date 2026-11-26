@@ -32,7 +32,23 @@ class Socialspec {
 			)
 		);
 
-		add_action( 'parse_request', array( __CLASS__, 'parse_request' ) );
+		// Last, after redirect_canonical() and the access gates other plugins run on the template hooks.
+		add_filter( 'template_include', array( __CLASS__, 'serve' ), PHP_INT_MAX );
+		add_filter( 'exit_on_http_head', array( __CLASS__, 'exit_on_http_head' ) );
+
+		// Apps read the feed next to the documents, so the core feeds get CORS too.
+		foreach ( array( 'rdf', 'rss', 'rss2', 'atom' ) as $feed ) {
+			add_action( "do_feed_{$feed}", array( __CLASS__, 'send_cors_header' ), 1 );
+		}
+	}
+
+	/**
+	 * Allows browser apps on other origins to read the response.
+	 */
+	public static function send_cors_header() {
+		if ( self::is_enabled() && ! headers_sent() ) {
+			header( 'Access-Control-Allow-Origin: *' );
+		}
 	}
 
 	/**
@@ -74,20 +90,53 @@ class Socialspec {
 	}
 
 	/**
-	 * Serves the requested document before the main query runs.
+	 * The requested document, if this site publishes it.
+	 *
+	 * @return Document|null
 	 */
-	public static function parse_request() {
-		$name     = self::get_requested_name();
-		$document = null !== $name && self::is_enabled() ? ( self::get_documents()[ $name ] ?? null ) : null;
+	public static function get_document() {
+		$name = self::get_requested_name();
 
-		if ( ! $document ) {
-			return;
+		if ( null === $name || ! self::is_enabled() ) {
+			return null;
 		}
 
-		// This runs before the template gates of private and unlaunched sites.
+		// Checked here too: Coming Soon replaces the template instead of ending the request.
 		$status = new Status();
 		if ( $status->is_private_site() || $status->is_coming_soon() ) {
-			return;
+			return null;
+		}
+
+		return self::get_documents()[ $name ] ?? null;
+	}
+
+	/**
+	 * Lets HEAD requests for a document reach serve(), WordPress exits before the template otherwise.
+	 *
+	 * @param bool $exit Whether to exit without loading the template.
+	 * @return bool
+	 */
+	public static function exit_on_http_head( $exit ) {
+		return self::get_document() ? false : $exit;
+	}
+
+	/**
+	 * Serves the requested document in place of the 404 template.
+	 *
+	 * @param string $template Template to load.
+	 * @return string
+	 */
+	public static function serve( $template ) {
+		$document = self::get_document();
+		$content  = $document ? $document->get_content() : null;
+
+		if ( null === $content ) {
+			return $template;
+		}
+
+		// WordPress has answered the unknown path with a 404 that must not be cached.
+		foreach ( array_keys( wp_get_nocache_headers() ) as $header ) {
+			header_remove( $header );
 		}
 
 		header( 'Access-Control-Allow-Origin: *' );
@@ -102,14 +151,11 @@ class Socialspec {
 		}
 
 		if ( 'GET' !== $method && 'HEAD' !== $method ) {
+			status_header( 405 );
 			header( 'Allow: GET, HEAD, OPTIONS' );
-			self::send_error( 405, 'Method Not Allowed' );
-		}
-
-		$content = $document->get_content();
-
-		if ( null === $content ) {
-			self::send_error( 404, 'Not Found' );
+			header( 'Content-Type: text/plain; charset=' . get_bloginfo( 'charset' ) );
+			echo 'Method Not Allowed';
+			exit( 0 );
 		}
 
 		status_header( 200 );
@@ -121,20 +167,6 @@ class Socialspec {
 			echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by the document for its format.
 		}
 
-		exit( 0 );
-	}
-
-	/**
-	 * Sends a plain text error and exits.
-	 *
-	 * @param int    $status  The HTTP status code.
-	 * @param string $message The error message.
-	 * @return never
-	 */
-	private static function send_error( $status, $message ) {
-		status_header( $status );
-		header( 'Content-Type: text/plain; charset=' . get_bloginfo( 'charset' ) );
-		echo esc_html( $message );
 		exit( 0 );
 	}
 }

@@ -33,7 +33,7 @@ Social Plugin (or Jetpack Plugin)
 
 1. Consumer plugin calls `Config::ensure('publicize')` during `plugins_loaded`
 2. `Publicize_Setup::configure()` registers the `jetpack_feature_publicize_enabled` hook
-3. `Publicize_Setup::pre_initialization()` always loads assets and admin page (regardless of feature state)
+3. `Publicize_Setup::pre_initialization()` always loads assets, the admin page and the SocialSpec router (regardless of feature state)
 4. `Publicize_Setup::on_jetpack_feature_publicize_enabled()` initializes REST controllers, SIG, and UI
 
 ### WPCOM Simple vs Jetpack Sites
@@ -78,6 +78,10 @@ Auto-generates share images from post content. Key classes:
 - `Settings` / `Post_Settings` — Global and per-post SIG configuration
 - `Templates` — Image template definitions
 - `REST_Settings_Controller` / `REST_Token_Controller` — API endpoints
+
+### SocialSpec (`src/socialspec/`)
+
+Publishes the [SocialSpec](https://socialspec.org/) documents at `/.well-known/`, behind the `social-socialspec` feature flag. `Socialspec` routes the request and serves a `Document` (`Contact`, `Following`) in place of the 404 template; the following list is filled through the `jetpack_social_following` filter.
 
 ### Jetpack Social Settings (`src/jetpack-social-settings/`)
 

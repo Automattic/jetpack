@@ -1,4 +1,4 @@
 Significance: patch
 Type: other
 
-Blogroll: List the blogroll of the /blogroll page in the SocialSpec following list, behind a feature flag.
+Blogroll: Add the /blogroll page's feeds to the SocialSpec following list, which is behind a feature flag.

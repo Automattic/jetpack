@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-SocialSpec: Publish a contact card and a following list at /.well-known/, behind a feature flag.
+SocialSpec: Add a feature flag for publishing a contact card and a following list at /.well-known/, and for CORS headers on the feeds.

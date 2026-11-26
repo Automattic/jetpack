@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Publicize\Socialspec\Socialspec;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -96,7 +97,9 @@ class Publicize_Setup {
 		/**
 		 * The SocialSpec documents are public and do not depend on Publicize being enabled.
 		 */
-		Socialspec\Socialspec::init();
+		if ( class_exists( Socialspec::class ) ) {
+			Socialspec::init();
+		}
 
 		if ( ! $is_wpcom_simple ) {
 			/**

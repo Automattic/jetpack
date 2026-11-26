@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Publicize\Socialspec;
 
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
@@ -36,17 +37,12 @@ class Socialspec_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Forget the request, the flag and the filters between tests.
+	 * Forget the request, the flag and the cached site status between tests.
 	 */
 	public function tear_down() {
-		remove_all_filters( 'pre_option_blog_charset' );
 		unset( $_SERVER['REQUEST_URI'] );
-		remove_all_filters( 'jetpack_feature_flag_enabled_' . Socialspec::FEATURE_FLAG );
-		remove_all_filters( 'jetpack_social_following' );
-		remove_all_filters( 'home_url' );
-		remove_all_filters( 'pre_option_blogname' );
-		remove_all_filters( 'pre_option_blogdescription' );
 		Feature_Flags::reset();
+		Status_Cache::clear();
 		parent::tear_down();
 	}
 
@@ -59,6 +55,31 @@ class Socialspec_Test extends BaseTestCase {
 
 		add_filter( 'jetpack_feature_flag_enabled_' . Socialspec::FEATURE_FLAG, '__return_true' );
 		$this->assertTrue( Socialspec::is_enabled() );
+	}
+
+	/**
+	 * Every document is published only with the flag on, and never on a private or unlaunched site.
+	 */
+	public function test_get_document() {
+		Socialspec::init();
+
+		foreach ( array_keys( Socialspec::get_documents() ) as $name ) {
+			$_SERVER['REQUEST_URI'] = '/.well-known/' . $name;
+			$this->assertNull( Socialspec::get_document(), $name );
+
+			add_filter( 'jetpack_feature_flag_enabled_' . Socialspec::FEATURE_FLAG, '__return_true' );
+			$this->assertInstanceOf( Document::class, Socialspec::get_document(), $name );
+
+			foreach ( array( 'jetpack_is_private_site', 'jetpack_is_coming_soon' ) as $gate ) {
+				Status_Cache::clear();
+				add_filter( $gate, '__return_true' );
+				$this->assertNull( Socialspec::get_document(), "$name, $gate" );
+				remove_filter( $gate, '__return_true' );
+			}
+
+			Status_Cache::clear();
+			remove_filter( 'jetpack_feature_flag_enabled_' . Socialspec::FEATURE_FLAG, '__return_true' );
+		}
 	}
 
 	/**
