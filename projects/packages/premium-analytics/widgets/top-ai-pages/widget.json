@@ -1,6 +1,6 @@
 {
 	"name": "ai-traffic/top-ai-pages",
-	"icon": "jpa/pages",
+	"icon": "jpa/page",
 	"title": "Top pages by AI bot requests",
 	"description": "The pages AI bots requested the most.",
 	"help": {

@@ -41,7 +41,7 @@ function TopAiPagesInner() {
 	const rows = useMemo( () => buildPageRows( urls ?? [], homeUrl ), [ urls, homeUrl ] );
 	const columns = useMemo(
 		() => ( {
-			label: __( 'Page', 'jetpack-premium-analytics-pkg' ),
+			label: __( 'Pages', 'jetpack-premium-analytics-pkg' ),
 			metric: 'requests' as const,
 		} ),
 		[]
