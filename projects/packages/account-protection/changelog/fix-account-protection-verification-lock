@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Login verification: Accept the correct verification code on sites whose database cannot store the verification lock, and show a distinct message while another code is being checked.
