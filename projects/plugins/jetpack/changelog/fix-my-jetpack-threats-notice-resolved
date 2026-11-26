@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+My Jetpack: Stop showing the "Scan found threats" notice once the site has fixed every threat, before the next scan.
