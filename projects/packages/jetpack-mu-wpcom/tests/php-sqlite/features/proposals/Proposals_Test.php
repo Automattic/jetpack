@@ -194,6 +194,15 @@ class Proposals_Test extends Proposals_TestCase {
 					),
 				),
 			),
+			'terms the post type lacks'      => array(
+				'proposal_invalid_terms',
+				static fn( int $page_id ) => array(
+					array(
+						'post_id' => $page_id,
+						'terms'   => array( 'category' => array( 1 ) ),
+					),
+				),
+			),
 		);
 	}
 
@@ -249,6 +258,130 @@ class Proposals_Test extends Proposals_TestCase {
 		$this->assertSame( 'applied', $this->stored( $proposal['id'] )['status'] );
 
 		wp_delete_term( $category_id, 'category' );
+	}
+
+	public function test_apply_sets_terms_of_any_taxonomy_and_sharing_meta(): void {
+		register_taxonomy( 'proposals_genre', 'post', array( 'show_in_rest' => true ) );
+		try {
+			$post_id  = $this->create_post( array( 'post_type' => 'post' ) );
+			$genre_id = (int) wp_insert_term( 'Mystery', 'proposals_genre' )['term_id'];
+			$proposal = $this->create_proposal(
+				array(
+					array(
+						'post_id' => $post_id,
+						'terms'   => array( 'proposals_genre' => array( $genre_id ) ),
+						'meta'    => array( 'sharing_disabled' => true ),
+					),
+				)
+			);
+
+			$result = Proposals::apply( $proposal['id'], $proposal['hash'] );
+
+			$this->assert_not_wp_error( $result );
+			$this->assertSame( array(), array_column( $result['results'], 'error' ) );
+			$this->assertSame( array( $genre_id ), Post_Fields_Handler::get_term_ids( $post_id, 'proposals_genre' ) );
+			$this->assertSame( '1', get_post_meta( $post_id, 'sharing_disabled', true ) );
+		} finally {
+			unregister_taxonomy( 'proposals_genre' );
+		}
+	}
+
+	public function test_protected_taxonomies_and_meta_need_their_capabilities(): void {
+		register_taxonomy(
+			'proposals_featured',
+			'post',
+			array(
+				'show_in_rest' => true,
+				'capabilities' => array( 'assign_terms' => 'manage_options' ),
+			)
+		);
+		register_post_meta(
+			'post',
+			'proposals_rating',
+			array(
+				'type'          => 'string',
+				'single'        => true,
+				'auth_callback' => static fn() => current_user_can( 'manage_options' ),
+			)
+		);
+		add_filter(
+			'jetpack_proposals_post_meta',
+			static fn( $fields ) => $fields + array(
+				'proposals_rating' => array(
+					'kind'  => 'text',
+					'label' => 'Rating',
+				),
+			)
+		);
+		try {
+			$term_id   = (int) wp_insert_term( 'Featured', 'proposals_featured' )['term_id'];
+			$author_id = $this->user( 'author' );
+			$post_id   = $this->create_post(
+				array(
+					'post_type'   => 'post',
+					'post_author' => $author_id,
+				)
+			);
+			$requests  = array(
+				'terms' => array( 'terms' => array( 'proposals_featured' => array( $term_id ) ) ),
+				'meta'  => array( 'meta' => array( 'proposals_rating' => 'Five' ) ),
+			);
+			$by_admin  = array_map( fn( $request ) => $this->create_proposal( array( array( 'post_id' => $post_id ) + $request ) ), $requests );
+			wp_set_current_user( $author_id );
+
+			foreach ( $requests as $name => $request ) {
+				$this->assertFalse( Proposals::current_user_can_review( $by_admin[ $name ] ), "The author can edit the post but not apply the $name." );
+				$this->assert_wp_error_code( 'proposal_forbidden', Proposals::create( 'Refused', array( array( 'post_id' => $post_id ) + $request ) ) );
+			}
+		} finally {
+			remove_all_filters( 'jetpack_proposals_post_meta' );
+			unregister_post_meta( 'post', 'proposals_rating' );
+			unregister_taxonomy( 'proposals_featured' );
+		}
+	}
+
+	public function test_the_meta_filter_adds_text_and_flag_keys_only(): void {
+		add_filter(
+			'jetpack_proposals_post_meta',
+			static fn( $fields ) => $fields + array(
+				'proposals_subtitle' => array(
+					'kind'  => 'text',
+					'label' => 'Subtitle',
+				),
+				'_thumbnail_id'      => array(
+					'kind'  => 'text',
+					'label' => 'Bypasses featured_media',
+				),
+				'proposals_markup'   => array(
+					'kind'  => 'html',
+					'label' => 'Unsanitized',
+				),
+				'proposals_layout'   => array(
+					'kind'  => 'template',
+					'label' => 'Not checked against the theme on apply',
+				),
+			),
+			20
+		);
+		add_filter(
+			'jetpack_proposals_post_meta',
+			static function ( $fields ) {
+				$fields['_wp_page_template']['kind'] = 'text';
+				return $fields;
+			},
+			30
+		);
+		try {
+			$fields = Post_Fields_Handler::meta_fields();
+		} finally {
+			remove_all_filters( 'jetpack_proposals_post_meta' );
+		}
+
+		$this->assertSame( 'Subtitle', $fields['proposals_subtitle']['label'] );
+		$this->assertArrayNotHasKey( '_thumbnail_id', $fields );
+		$this->assertArrayNotHasKey( 'proposals_markup', $fields );
+		$this->assertArrayNotHasKey( 'proposals_layout', $fields );
+		$this->assertSame( 'template', $fields['_wp_page_template']['kind'], 'The page template must stay checked against the theme.' );
 	}
 
 	public function test_applying_text_fields_creates_a_revision_credited_to_the_person_applying(): void {
@@ -508,6 +641,12 @@ class Proposals_Test extends Proposals_TestCase {
 			'meta without from'    => array(
 				static function ( array $items ): array {
 					$items[0]['change']['meta']['jetpack_seo_noindex'] = array( 'to' => true );
+					return $items;
+				},
+			),
+			'title without from'   => array(
+				static function ( array $items ): array {
+					$items[0]['change']['fields']['post_title'] = array( 'to' => 'Skips the conflict check' );
 					return $items;
 				},
 			),
