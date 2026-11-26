@@ -256,7 +256,11 @@ function TagsInner( { termType }: TagsInnerProps ) {
  * (several tags/categories sharing a post) drill down to their individual members.
  */
 export default function Tags( { attributes = {} }: TagsWidgetProps ) {
-	const termType = attributes.termType === 'all' ? undefined : attributes.termType;
+	// Any other saved value falls back to both, as the toggle shows it.
+	const termType =
+		attributes.termType === 'tag' || attributes.termType === 'category'
+			? attributes.termType
+			: undefined;
 
 	return (
 		<WidgetRoot attributes={ attributes }>

@@ -10,7 +10,7 @@ import { file as categoryGlyph, tag } from '@wordpress/icons';
  */
 import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
 import { captureCsvDownloads } from '../../test-utils';
-import TagsWidget from '../render';
+import TagsWidget, { type TagsAttributes } from '../render';
 import type { ReactElement } from 'react';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
@@ -150,10 +150,18 @@ describe( 'TagsWidget', () => {
 	} );
 
 	// Calypso sends no query, so Jetpack Stats gets the endpoint's default of 10.
-	it.each( [ undefined, 'all' ] as const )(
+	// `tags` stands in for a saved view the toggle does not offer.
+	it.each( [ undefined, 'all', 'tags' ] )(
 		'asks for the row count Jetpack Stats gets by default, over the dashboard window (view: %s)',
 		async termType => {
-			render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams(), termType } } /> );
+			render(
+				<TagsWidget
+					attributes={ {
+						reportParams: getDefaultQueryParams(),
+						termType: termType as TagsAttributes[ 'termType' ],
+					} }
+				/>
+			);
 
 			await expect( screen.findByText( 'Recipes' ) ).resolves.toBeInTheDocument();
 
