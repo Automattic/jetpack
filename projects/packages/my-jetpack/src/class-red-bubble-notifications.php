@@ -475,7 +475,7 @@ class Red_Bubble_Notifications {
 	 *
 	 * The cached alerts include the dismissed ones; see remove_dismissed_alerts().
 	 *
-	 * @param bool $bypass_cache Deprecated since $$next-version$$. Recomputes the alerts when true.
+	 * @param bool $bypass_cache Deprecated. Recomputes the alerts when true.
 	 * @return array
 	 */
 	public static function get_red_bubble_alerts( bool $bypass_cache = false ) {
