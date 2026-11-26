@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix the Homepage row in Posts & Pages staying without a link after the site settings failed to load once.
