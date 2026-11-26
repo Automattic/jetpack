@@ -2,16 +2,28 @@
  * overflow would clip the outbound marker along with the title. */
 :global(.dataviews-title-field) .link {
 	display: inline-flex;
-	align-items: center;
+	align-items: flex-start;
 	min-inline-size: 0;
 	max-inline-size: 100%;
-	overflow: hidden;
-	white-space: nowrap;
+	white-space: normal;
 }
 
+/* The padding puts a wrapped title's first line where DataViews centers a
+ * one-line title, level with the other columns' values. */
+.link,
+:not(.link) > .text {
+	padding-block: calc((var(--wpds-dimension-size-md) - 1lh) / 2);
+}
+
+/* Keeps the outbound marker on the first line of a title that wraps. */
+.link > * {
+	line-height: inherit;
+}
+
+/* Also used without the link, where nothing else lifts DataViews' single
+ * line. */
 .text {
 	min-inline-size: 0;
-	overflow: hidden;
-	white-space: nowrap;
-	text-overflow: ellipsis;
+	white-space: normal;
+	overflow-wrap: anywhere;
 }

@@ -70,13 +70,11 @@ export function getReferrerFields(): Field< ReferrerRecord >[] {
 			getValue: ( { item } ) => item.label,
 			render: ( { item } ) => {
 				const safeUrl = safeHttpUrl( item.link );
-				// Only the group row sits in the clipped title cell, so only it
-				// carries the truncation; a leaf keeps the wrapping it had.
 				const isGroup = !! item.hasChildren;
 				const label = (
-					<Stack render={ <span /> } direction="row" gap="sm" align="center">
+					<Stack render={ <span /> } direction="row" gap="sm" align="start">
 						<ReferrerFavicon icon={ item.icon } />
-						<span className={ isGroup ? styles.label : undefined }>{ item.label }</span>
+						<span>{ item.label }</span>
 					</Stack>
 				);
 
