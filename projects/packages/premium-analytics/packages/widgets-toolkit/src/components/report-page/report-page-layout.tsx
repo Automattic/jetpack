@@ -4,8 +4,9 @@
 import { MENU_SURFACE_PRESETS_WITH_ALL_TIME } from '@jetpack-premium-analytics/datetime';
 import { JetpackFooter } from '@jetpack-premium-analytics/externals';
 import { DateFiltersPanel, SectionHeader } from '@jetpack-premium-analytics/ui';
+import { useResizeObserver } from '@wordpress/compose';
 import clsx from 'clsx';
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useRef } from 'react';
 /**
  * Internal dependencies
  */
@@ -72,10 +73,19 @@ export function ReportPageLayout( {
 	tabs,
 	children,
 }: ReportPageLayoutProps ) {
+	const rootRef = useRef< HTMLDivElement >( null );
+	// Set on the element, not through state, since the band resizes on every frame it condenses.
+	const pinnedHeaderRef = useResizeObserver< HTMLDivElement >( ( [ entry ] ) => {
+		rootRef.current?.style.setProperty(
+			'--report-pinned-header-size',
+			`${ ( entry.target as HTMLElement ).offsetHeight }px`
+		);
+	} );
+
 	return (
-		<div className={ styles.root }>
+		<div ref={ rootRef } className={ styles.root }>
 			{ tabs }
-			<SectionHeader title={ title } pinned>
+			<SectionHeader ref={ pinnedHeaderRef } title={ title } pinned>
 				{ dateFilters ? (
 					<DateFiltersPanel { ...dateFilters } { ...( withAllTime ? ALL_TIME_MENU : {} ) } />
 				) : null }

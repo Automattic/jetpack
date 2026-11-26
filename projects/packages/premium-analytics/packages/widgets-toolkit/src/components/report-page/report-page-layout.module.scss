@@ -11,6 +11,8 @@ $report-page-sections-max-inline-size: 1440px;
 	min-block-size: 0;
 	overflow-y: auto;
 	timeline-scope: --section-header-pin;
+	// Content scrolled into view stops below the pinned band rather than under it.
+	scroll-padding-block-start: calc(var(--report-pinned-header-size, 0px) + var(--wpds-dimension-gap-lg));
 
 	// A scroll container's flex items would otherwise shrink to fit it,
 	// collapsing the header's empty pin marker and the sections under it.
