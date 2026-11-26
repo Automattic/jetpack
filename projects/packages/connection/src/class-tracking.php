@@ -198,10 +198,10 @@ class Tracking {
 	/**
 	 * Record an event in Tracks - this is the preferred way to record events from PHP.
 	 *
-	 * @param mixed  $user                   username, user_id, or WP_User object.
-	 * @param string $event_name             The name of the event.
-	 * @param array  $properties             Custom properties to send with the event.
-	 * @param int    $event_timestamp_millis The time in millis since 1970-01-01 00:00:00 when the event occurred.
+	 * @param mixed     $user                   username, user_id, or WP_User object.
+	 * @param string    $event_name             The name of the event.
+	 * @param array     $properties             Custom properties to send with the event.
+	 * @param int|false $event_timestamp_millis The time in millis since 1970-01-01 00:00:00 when the event occurred.
 	 *
 	 * @return bool true for success | \WP_Error if the event pixel could not be fired
 	 */
@@ -247,10 +247,10 @@ class Tracking {
 	 * Procedurally build a Tracks Event Object.
 	 * NOTE: Use this only when the simpler Automattic\Jetpack\Tracking->jetpack_tracks_record_event() function won't work for you.
 	 *
-	 * @param \WP_User $user                   WP_User object.
-	 * @param string   $event_name             The name of the event.
-	 * @param array    $properties             Custom properties to send with the event.
-	 * @param int      $event_timestamp_millis The time in millis since 1970-01-01 00:00:00 when the event occurred.
+	 * @param \WP_User  $user                   WP_User object.
+	 * @param string    $event_name             The name of the event.
+	 * @param array     $properties             Custom properties to send with the event.
+	 * @param int|false $event_timestamp_millis The time in millis since 1970-01-01 00:00:00 when the event occurred.
 	 *
 	 * @return \Jetpack_Tracks_Event|\WP_Error
 	 */

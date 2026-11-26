@@ -21,25 +21,25 @@ use WP_Http;
  */
 class Tus_Client {
 
-	/** @const string Tus protocol version. */
+	/** @var string Tus protocol version. */
 	const TUS_PROTOCOL_VERSION = '1.0.0';
 
-	/** @const string Upload type partial. */
+	/** @var string Upload type partial. */
 	const UPLOAD_TYPE_PARTIAL = 'partial';
 
-	/** @const string Upload type final. */
+	/** @var string Upload type final. */
 	const UPLOAD_TYPE_FINAL = 'final';
 
-	/** @const string Name separator for partial upload. */
+	/** @var string Name separator for partial upload. */
 	const PARTIAL_UPLOAD_NAME_SEPARATOR = '_';
 
-	/** @const string Upload type normal. */
+	/** @var string Upload type normal. */
 	const UPLOAD_TYPE_NORMAL = 'normal';
 
-	/** @const string Header Content Type */
+	/** @var string Header Content Type */
 	const HEADER_CONTENT_TYPE = 'application/offset+octet-stream';
 
-	/** @const string Base API Uri */
+	/** @var string Base API Uri */
 	const BASE_API_URL = 'https://public-api.wordpress.com/rest/v1.1/video-uploads/%d';
 
 	/** @var Tus_Abstract_Cache */

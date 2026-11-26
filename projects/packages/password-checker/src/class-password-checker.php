@@ -210,7 +210,7 @@ class Password_Checker {
 	/**
 	 * Returns an array of tests that need to be run on password strings.
 	 *
-	 * @param array $sections only return specific sections with the passed keys, defaults to all.
+	 * @param string|string[]|false $sections only return specific sections with the passed keys, defaults to all.
 	 *
 	 * @return array test descriptions.
 	 */

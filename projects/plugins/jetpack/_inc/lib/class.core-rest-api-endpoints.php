@@ -1364,7 +1364,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @uses Jetpack::disconnect();
 	 * @since 4.3.0
 	 *
-	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * @param WP_REST_Request|array $request The request sent to the WP REST API.
 	 *
 	 * @return string|WP_Error A raw URL if the connection URL could be built; error message otherwise.
 	 */

@@ -429,8 +429,8 @@ class Users extends Module {
 	 *
 	 * @access public
 	 *
-	 * @param int $deleted_user_id    ID of the deleted user.
-	 * @param int $reassigned_user_id ID of the user the deleted user's posts are reassigned to (if any).
+	 * @param int        $deleted_user_id    ID of the deleted user.
+	 * @param int|string $reassigned_user_id ID of the user the deleted user's posts are reassigned to (if any).
 	 */
 	public function deleted_user_handler( $deleted_user_id, $reassigned_user_id = '' ) {
 		$is_multisite = is_multisite();

@@ -533,10 +533,10 @@ class Jetpack_Subscriptions {
 	 *
 	 * Send a synchronous XML-RPC subscribe to blog posts or subscribe to post comments request.
 	 *
-	 * @param string $email being subscribed.
-	 * @param array  $post_ids (optional) defaults to 0 for blog posts only: array of post IDs to subscribe to blog's posts.
-	 * @param bool   $async    (optional) Should the subscription be performed asynchronously?  Defaults to true.
-	 * @param array  $extra_data Additional data passed to the `jetpack.subscribeToSite` call.
+	 * @param string    $email being subscribed.
+	 * @param array|int $post_ids (optional) defaults to 0 for blog posts only: array of post IDs to subscribe to blog's posts.
+	 * @param bool      $async    (optional) Should the subscription be performed asynchronously?  Defaults to true.
+	 * @param array     $extra_data Additional data passed to the `jetpack.subscribeToSite` call.
 	 *
 	 * @return true|WP_Error true on success
 	 *  invalid_email   : not a valid email address

@@ -59,7 +59,7 @@ class Social extends Hybrid_Product {
 	/**
 	 * The filename (id) of the plugin associated with this product.
 	 *
-	 * @var string
+	 * @var string[]
 	 */
 	public static $plugin_filename = array(
 		'jetpack-social/jetpack-social.php',

@@ -19,7 +19,7 @@ class Jetpack_Boost_Modules {
 	/**
 	 * Holds the singleton instance of the class
 	 *
-	 * @var Jetpack_Boost_Modules
+	 * @var Jetpack_Boost_Modules|false
 	 */
 	private static $instance = false;
 

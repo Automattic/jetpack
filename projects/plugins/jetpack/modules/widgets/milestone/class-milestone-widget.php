@@ -25,7 +25,7 @@ class Milestone_Widget extends WP_Widget {
 	/**
 	 * Available time units sorted in descending order.
 	 *
-	 * @var Array
+	 * @var array
 	 */
 	protected $available_units = array(
 		'years',

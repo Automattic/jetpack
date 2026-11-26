@@ -34,7 +34,7 @@ class Boost extends Product {
 	/**
 	 * The filename (id) of the plugin associated with this product.
 	 *
-	 * @var string
+	 * @var string[]
 	 */
 	public static $plugin_filename = array(
 		'jetpack-boost/jetpack-boost.php',
@@ -65,7 +65,7 @@ class Boost extends Product {
 	/**
 	 * Whether this product requires a user connection
 	 *
-	 * @var string
+	 * @var bool
 	 */
 	public static $requires_user_connection = false;
 

@@ -235,6 +235,8 @@ function make_phan_config( $dir, $options = array() ) {
 					// Ignore any `wordpress`, `jetpack_vendor`, `vendor`, and `node_modules` inside `vendor` and `jetpack_vendor`.
 					// Most of these are probably from our intra-monorepo symlinks.
 					'(?:jetpack_)?vendor/.*/(?:wordpress|(?:jetpack_)?vendor|node_modules)/',
+					// Build output of monorepo packages is gitignored, so CI never sees it.
+					'(?:jetpack_)?vendor/automattic/jetpack-[^/]+/build/',
 					// Yoast/phpunit-polyfills triggers a lot of PhanRedefinedXXX errors.
 					// Avoid that by excluding the versions of the files for PHPUnit < 9.6
 					'vendor/yoast/phpunit-polyfills/src/Polyfills/(?!.*_Empty).*\.php',

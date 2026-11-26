@@ -20,7 +20,7 @@ class CoreCalls {
 	 * triggers a repository code scan for WordPress Core function
 	 * calls.
 	 *
-	 * @param Composer\Script\Event $event a script call event.
+	 * @param Event $event a script call event.
 	 */
 	public static function callback( Event $event ) {
 		$arguments = $event->getArguments();

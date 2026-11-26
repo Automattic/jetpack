@@ -54,9 +54,9 @@ class WPCOM_JSON_API_List_Post_Type_Taxonomies_Endpoint extends WPCOM_JSON_API_E
 	/**
 	 * API callback.
 	 *
-	 * @param string $path - the path.
-	 * @param string $blog_id - the blog ID.
-	 * @param string $post_type - the post type.
+	 * @param string     $path - the path.
+	 * @param string|int $blog_id - the blog ID.
+	 * @param string     $post_type - the post type.
 	 */
 	public function callback( $path = '', $blog_id = 0, $post_type = 'post' ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );

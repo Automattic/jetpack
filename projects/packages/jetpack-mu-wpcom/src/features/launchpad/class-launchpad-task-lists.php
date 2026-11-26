@@ -65,7 +65,7 @@ class Launchpad_Task_Lists {
 	/**
 	 * Register a new Launchpad Task List
 	 *
-	 * @param Task_List $task_list Task List definition.
+	 * @param Task_List|array $task_list Task List definition.
 	 *
 	 * @return bool True if successfully registered, false if not.
 	 */
@@ -86,7 +86,7 @@ class Launchpad_Task_Lists {
 	/**
 	 * Register a new Launchpad Task
 	 *
-	 * @param Task $task Task definition.
+	 * @param Task|array $task Task definition.
 	 *
 	 * @return bool True if successful, false if not.
 	 */

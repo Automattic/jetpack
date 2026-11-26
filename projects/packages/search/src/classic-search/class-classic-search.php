@@ -1495,7 +1495,7 @@ class Classic_Search {
 	 *
 	 * @since 5.0.0
 	 *
-	 * @param WP_Query $query The optional original WP_Query to use for determining which filters are active. Defaults to the main query.
+	 * @param WP_Query|null $query The optional original WP_Query to use for determining which filters are active. Defaults to the main query.
 	 *
 	 * @return array Array of filters applied and info about them.
 	 */

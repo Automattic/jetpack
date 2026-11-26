@@ -274,10 +274,10 @@ class Manager {
 	 * @since 1.25.0 Deprecate $is_active param.
 	 * @since 2.8.4 Deprecate $request_params param.
 	 *
-	 * @param array|null            $deprecated Deprecated. Not used.
-	 * @param bool                  $has_connected_owner Whether the site has a connected owner.
-	 * @param bool                  $is_signed whether the signature check has been successful.
-	 * @param Jetpack_XMLRPC_Server $xmlrpc_server (optional) an instance of the server to use instead of instantiating a new one.
+	 * @param array|null                 $deprecated Deprecated. Not used.
+	 * @param bool                       $has_connected_owner Whether the site has a connected owner.
+	 * @param bool                       $is_signed whether the signature check has been successful.
+	 * @param Jetpack_XMLRPC_Server|null $xmlrpc_server (optional) an instance of the server to use instead of instantiating a new one.
 	 */
 	public function setup_xmlrpc_handlers(
 		$deprecated,
@@ -941,7 +941,7 @@ class Manager {
 	 * Returns true if the user with the specified identifier is connected to
 	 * WordPress.com.
 	 *
-	 * @param int $user_id the user identifier. Default is the current user.
+	 * @param int|false $user_id the user identifier. Default is the current user.
 	 * @return bool Boolean is the user connected?
 	 */
 	public function is_user_connected( $user_id = false ) {

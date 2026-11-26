@@ -10,15 +10,15 @@
 return [
     // # Issue statistics:
     // PhanPluginMixedKeyNoKey : 50+ occurrences
-    // PhanUndeclaredStaticMethod : 20+ occurrences
+    // PhanUndeclaredStaticMethod : 30+ occurrences
     // PhanUndeclaredClassMethod : 6 occurrences
     // PhanTypeMismatchArgumentNullable : 5 occurrences
     // PhanUndeclaredConstant : 5 occurrences
     // PhanTypeMismatchArgument : 4 occurrences
     // PhanTypeArraySuspiciousNullable : 3 occurrences
+    // PhanDeprecatedProperty : 2 occurrences
     // PhanContextNotObject : 1 occurrence
     // PhanDeprecatedFunction : 1 occurrence
-    // PhanDeprecatedProperty : 1 occurrence
     // PhanPluginUseReturnValueInternalKnown : 1 occurrence
     // PhanTypeObjectUnsetDeclaredProperty : 1 occurrence
     // PhanUndeclaredClassConstant : 1 occurrence

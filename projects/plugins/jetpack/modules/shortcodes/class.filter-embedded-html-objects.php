@@ -42,7 +42,7 @@ class Filter_Embedded_HTML_Objects {
 	/**
 	 * HTML element being processed.
 	 *
-	 * @var string
+	 * @var string|false
 	 */
 	public static $current_element = false;
 	/**

@@ -67,8 +67,8 @@ class WPCOM_JSON_API_List_Media_v1_2_Endpoint extends WPCOM_JSON_API_List_Media_
 	/**
 	 * API callback.
 	 *
-	 * @param string $path - the path.
-	 * @param string $blog_id - the blog ID.
+	 * @param string     $path - the path.
+	 * @param string|int $blog_id - the blog ID.
 	 */
 	public function callback( $path = '', $blog_id = 0 ) {
 		$response = parent::callback( $path, $blog_id );

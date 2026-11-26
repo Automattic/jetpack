@@ -846,7 +846,7 @@ class Admin_Menu {
 	/**
 	 * Gets the URL for the first item under the Jetpack top level menu
 	 *
-	 * @param string $fallback If Jetpack menu is not there or no children is found, return this fallback instead. Default to admin_url().
+	 * @param string|false $fallback If Jetpack menu is not there or no children is found, return this fallback instead. Default to admin_url().
 	 * @return string
 	 */
 	public static function get_top_level_menu_item_url( $fallback = false ) {

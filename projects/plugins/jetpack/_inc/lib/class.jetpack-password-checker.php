@@ -14,56 +14,56 @@ class Jetpack_Password_Checker {
 	 * Minimum entropy bits a password should contain. 36 bits of entropy is considered
 	 * to be a reasonable password, 28 stands for a weak one.
 	 *
-	 * @const Integer
+	 * @var int
 	 */
 	const MINIMUM_BITS = 28;
 
 	/**
 	 * Currently tested password.
 	 *
-	 * @var String
+	 * @var string
 	 */
 	public $password = '';
 
 	/**
 	 * Test results array.
 	 *
-	 * @var Array
+	 * @var array|string
 	 */
 	public $test_results = '';
 
 	/**
 	 * Current password score.
 	 *
-	 * @var Integer
+	 * @var int
 	 */
 	public $score = 0;
 
 	/**
 	 * Current multiplier affecting the score.
 	 *
-	 * @var Integer
+	 * @var int
 	 */
 	public $multiplier = 4;
 
 	/**
 	 * A common password disallow list, which on match will immediately disqualify the password.
 	 *
-	 * @var Array
+	 * @var array
 	 */
 	public $common_passwords = array();
 
 	/**
 	 * Minimum password length setting.
 	 *
-	 * @var Integer
+	 * @var int
 	 */
 	public $min_password_length = 6;
 
 	/**
 	 * User defined strings that passwords need to be tested for a match against.
 	 *
-	 * @var Array
+	 * @var array
 	 */
 	private $user_strings_to_test = array();
 
@@ -123,8 +123,8 @@ class Jetpack_Password_Checker {
 	/**
 	 * Run tests against a password.
 	 *
-	 * @param String  $password      the tested string.
-	 * @param Boolean $required_only only test against required conditions, defaults to false.
+	 * @param string $password      the tested string.
+	 * @param bool   $required_only only test against required conditions, defaults to false.
 	 * @return array $results an array containing failed and passed test results.
 	 */
 	public function test( $password, $required_only = false ) {
@@ -169,8 +169,8 @@ class Jetpack_Password_Checker {
 	/**
 	 * Run the tests using the currently set up object values.
 	 *
-	 * @param array   $tests tests to run.
-	 * @param Boolean $required_only whether to run only required tests.
+	 * @param array $tests tests to run.
+	 * @param bool  $required_only whether to run only required tests.
 	 * @return array test results.
 	 */
 	protected function run_tests( $tests, $required_only = false ) {
@@ -213,7 +213,7 @@ class Jetpack_Password_Checker {
 	/**
 	 * Returns a list of tests that need to be run on password strings.
 	 *
-	 * @param array $sections only return specific sections with the passed keys, defaults to all.
+	 * @param string|string[]|false $sections only return specific sections with the passed keys, defaults to all.
 	 * @return array test descriptions.
 	 */
 	protected function list_tests( $sections = false ) {
@@ -376,7 +376,7 @@ class Jetpack_Password_Checker {
 	/**
 	 * Compare the password for matches with known user data.
 	 *
-	 * @param String $password the string to be tested.
+	 * @param string $password the string to be tested.
 	 * @param array  $strings_to_test known user data.
 	 * @return Boolean does the test pass?
 	 */
@@ -425,9 +425,9 @@ class Jetpack_Password_Checker {
 	 * that both the full string and its constituents and any variants thereof
 	 * can be tested against the password.
 	 *
-	 * @param String $string the string to be broken down.
-	 * @param String $explode_delimiter delimiter.
-	 * @return NULL|Array array of fragments, or NULL on empty string.
+	 * @param string $string the string to be broken down.
+	 * @param string $explode_delimiter delimiter.
+	 * @return array|null array of fragments, or null on empty string.
 	 */
 	protected function add_user_strings_to_test( $string, $explode_delimiter = ' ' ) {
 
@@ -457,8 +457,8 @@ class Jetpack_Password_Checker {
 	/**
 	 * Return a character set size that is used in the string.
 	 *
-	 * @param String $password the password.
-	 * @return Integer number of different character sets in use.
+	 * @param string $password the password.
+	 * @return int number of different character sets in use.
 	 */
 	protected function get_charset_size( $password ) {
 		$size = 0;
@@ -499,8 +499,8 @@ class Jetpack_Password_Checker {
 	/**
 	 * Shorthand for getting a character index.
 	 *
-	 * @param String $char character.
-	 * @return Integer the character code.
+	 * @param string $char character.
+	 * @return int the character code.
 	 */
 	protected function get_char_index( $char ) {
 		$char = strtolower( $char[0] );
@@ -525,7 +525,7 @@ class Jetpack_Password_Checker {
 	 * i.e.: the probablity of U following Q is ~0.84. If our password contains this pair of characters,
 	 * the u char will only add ( 0.16^2 * charset_score ) to our total of entropy bits.
 	 *
-	 * @param String $password the password.
+	 * @param string $password the password.
 	 */
 	protected function calculate_entropy_bits( $password ) {
 		$bits          = 0;
@@ -552,7 +552,7 @@ class Jetpack_Password_Checker {
 	 * A frequency table of character pairs, starting with  '  ' then  ' a', ' b' [...] , 'a ', 'aa' etc.
 	 *
 	 * @see http://rumkin.com/tools/password/passchk.php
-	 * @var Array
+	 * @var array
 	 */
 	public $frequency_table = array(
 		0.23653710453418866,

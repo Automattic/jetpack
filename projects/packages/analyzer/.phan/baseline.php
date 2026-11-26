@@ -17,7 +17,6 @@ return [
     // PhanUndeclaredMethod : 6 occurrences
     // PhanTypeArraySuspiciousNullable : 5 occurrences
     // PhanUndeclaredTypeParameter : 4 occurrences
-    // PhanTypeMismatchDeclaredParam : 2 occurrences
     // PhanUndeclaredClassStaticProperty : 2 occurrences
     // PhanPluginUseReturnValueInternalKnown : 1 occurrence
     // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
@@ -26,8 +25,8 @@ return [
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'data/example-external.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredClassStaticProperty', 'PhanUndeclaredFunction'],
-        'scripts/core-calls.php' => ['PhanTypeMismatchDeclaredParam', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter'],
-        'scripts/core-definitions.php' => ['PhanTypeMismatchDeclaredParam', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter'],
+        'scripts/core-calls.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter'],
+        'scripts/core-definitions.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredTypeParameter'],
         'scripts/example.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'scripts/jetpack-svn.php' => ['PhanTypeArraySuspiciousNullable'],
         'src/Differences/class-class-const-missing.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal'],

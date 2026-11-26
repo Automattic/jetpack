@@ -677,7 +677,7 @@ class Sharing_Service_Total {
 	/**
 	 * Sharing service ID.
 	 *
-	 * @var int
+	 * @var string
 	 */
 	public $id = '';
 
@@ -698,15 +698,15 @@ class Sharing_Service_Total {
 	/**
 	 * Total number of shares for this service.
 	 *
-	 * @var string
+	 * @var int
 	 */
 	public $total = 0;
 
 	/**
 	 * Constructor.
 	 *
-	 * @param int $id      Service ID.
-	 * @param int $total   Total shares.
+	 * @param string $id      Service ID.
+	 * @param int    $total   Total shares.
 	 */
 	public function __construct( $id, $total ) {
 		$services      = new Sharing_Service();

@@ -16,7 +16,7 @@ class Jetpack_Heartbeat {
 	 * Holds the singleton instance of this class
 	 *
 	 * @since 2.3.3
-	 * @var Jetpack_Heartbeat
+	 * @var Jetpack_Heartbeat|false
 	 */
 	private static $instance = false;
 
@@ -24,7 +24,7 @@ class Jetpack_Heartbeat {
 	 * Holds the singleton instance of the proxied class
 	 *
 	 * @since 8.9.0
-	 * @var Automattic\Jetpack\Heartbeat
+	 * @var Automattic\Jetpack\Heartbeat|false
 	 */
 	private static $proxied_instance = false;
 

@@ -63,8 +63,8 @@ class WPCOM_JSON_API_List_Post_Types_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**
 	 * API callback.
 	 *
-	 * @param string $path - the path.
-	 * @param string $blog_id - the blog ID.
+	 * @param string     $path - the path.
+	 * @param string|int $blog_id - the blog ID.
 	 */
 	public function callback( $path = '', $blog_id = 0 ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
