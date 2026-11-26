@@ -638,7 +638,11 @@ class Client {
 			$validated_args            = self::validate_args_for_wpcom_json_api_request( $request['path'], $version, $args, $base );
 			$validated_args['blog_id'] = (int) \Jetpack_Options::get_option( 'id' );
 
-			$result = self::sign_remote_request( $validated_args );
+			try {
+				$result = self::sign_remote_request( $validated_args );
+			} catch ( \Exception $e ) {
+				$result = new WP_Error( 'http_request_failed', $e->getMessage() );
+			}
 			if ( is_wp_error( $result ) ) {
 				$responses[ $key ] = $result;
 			} else {
@@ -704,7 +708,12 @@ class Client {
 				$args['sslverify'] = false;
 			}
 
-			$prepared = self::prepare_http_request( $request['url'], $args );
+			// A filter that throws fails its own request, as it would that request sent alone.
+			try {
+				$prepared = self::prepare_http_request( $request['url'], $args );
+			} catch ( \Exception $e ) {
+				$prepared = array( 'response' => new WP_Error( 'http_request_failed', $e->getMessage() ) );
+			}
 			if ( isset( $prepared['response'] ) ) {
 				$responses[ $key ] = $prepared['response'];
 			} elseif ( ! empty( $prepared['serial'] ) ) {

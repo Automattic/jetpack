@@ -86,6 +86,13 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	private const BATCH_MAX_ITEMS = 20;
 
 	/**
+	 * Reads per batch by default, so a dashboard's reads fit one round of batches.
+	 *
+	 * @var int
+	 */
+	private const BATCH_SIZE = 10;
+
+	/**
 	 * Response headers worth forwarding back to the dashboard.
 	 *
 	 * @var string[]
@@ -213,7 +220,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Tell the dashboard whether `proxy/batch` can fetch in parallel here; where it cannot, separate reads are faster.
+	 * Tell the dashboard how many reads to send per `proxy/batch` request, or 0 to send them one by one.
 	 *
 	 * @param array $data The script data.
 	 *
@@ -226,12 +233,39 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		if ( ! isset( $data['premium_analytics'] ) || ! is_array( $data['premium_analytics'] ) ) {
 			$data['premium_analytics'] = array();
 		}
-		// An older Connection package loaded by another plugin has no parallel client.
-		$data['premium_analytics']['proxy_batch'] = method_exists( Client::class, 'supports_parallel_requests' )
-			&& method_exists( Client::class, 'wpcom_json_api_get_multiple_as_blog' )
-			&& Client::supports_parallel_requests();
+		$data['premium_analytics']['proxy_batch_size'] = self::batch_size();
 
 		return $data;
+	}
+
+	/**
+	 * Reads per `proxy/batch` request, or 0 where the server cannot fetch a batch in parallel.
+	 *
+	 * @return int
+	 */
+	private static function batch_size(): int {
+		// An older Connection package loaded by another plugin has no parallel client.
+		if (
+			! method_exists( Client::class, 'supports_parallel_requests' )
+			|| ! method_exists( Client::class, 'wpcom_json_api_get_multiple_as_blog' )
+			|| ! Client::supports_parallel_requests()
+		) {
+			return 0;
+		}
+
+		/**
+		 * Filters how many Stats reads the dashboard sends in one `proxy/batch` request.
+		 *
+		 * A host can shrink batches, or return 0 to have the dashboard send each read on its own.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param int $size Reads per batch, at most 20. Default 10.
+		 */
+		$size = (int) apply_filters( 'jetpack_premium_analytics_proxy_batch_size', self::BATCH_SIZE );
+
+		// A batch of one is a single read with extra steps.
+		return $size < 2 ? 0 : min( $size, self::BATCH_MAX_ITEMS );
 	}
 
 	/**
@@ -402,34 +436,19 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 */
 	private function prepare_batched_read( WP_REST_Request $sub ) {
 		$endpoint = (string) $sub->get_param( 'endpoint' );
-		$config   = $this->config_for( $endpoint );
-		if ( ! empty( $config['unauthenticated'] ) ) {
+		$opts     = $this->forward_opts( $endpoint, (string) $sub->get_param( 'version' ) );
+		if ( $opts['unauthenticated'] ) {
 			return $this->handle_data_request( $sub );
 		}
 
-		$version    = (string) $sub->get_param( 'version' );
-		$base       = $this->base_for_version( $version );
 		$wpcom_path = $this->build_data_path( $endpoint );
-		$cache_key  = null === $sub->get_param( 'force_refresh' )
-			? $this->cache_key_for( $wpcom_path, $version, $base, $this->get_forwarded_params( $sub, $wpcom_path ), $this->cache_scope_for( $endpoint ) )
-			: null;
+		$cache_key  = $this->read_cache_key( $sub, $wpcom_path, $opts );
 
-		if ( null !== $cache_key ) {
-			$cached = get_transient( $cache_key );
-			if ( false !== $cached ) {
-				return $this->build_response( $cached );
-			}
-		}
-
-		if ( ! ( new Manager( self::SLUG ) )->is_connected() ) {
-			return new WP_Error( 'no_connection', __( 'Please connect Jetpack to load your data.', 'jetpack-premium-analytics-pkg' ), array( 'status' => 403 ) );
-		}
-
-		return array(
+		return $this->cached_response( $cache_key ) ?? $this->connection_error() ?? array(
 			'request'   => $sub,
 			'path'      => $this->append_forwarded_params( $sub, $wpcom_path ),
-			'version'   => $version,
-			'base'      => $base,
+			'version'   => $opts['version'],
+			'base'      => $opts['base'],
 			'cache_key' => $cache_key,
 		);
 	}
@@ -452,19 +471,27 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			return $results;
 		}
 
-		$responses = Client::wpcom_json_api_get_multiple_as_blog(
-			array_map(
-				static function ( $read ) {
-					return array(
-						'path'          => $read['path'],
-						'version'       => $read['version'],
-						'base_api_path' => $read['base'],
-						'args'          => array( 'timeout' => self::API_TIMEOUT ),
-					);
-				},
-				$pending
-			)
-		);
+		try {
+			$responses = Client::wpcom_json_api_get_multiple_as_blog(
+				array_map(
+					static function ( $read ) {
+						return array(
+							'path'          => $read['path'],
+							'version'       => $read['version'],
+							'base_api_path' => $read['base'],
+							'args'          => array( 'timeout' => self::API_TIMEOUT ),
+						);
+					},
+					$pending
+				)
+			);
+		} catch ( \Exception $e ) {
+			// As `forward()` answers a throw; the client already fails a throwing read on its own.
+			return array_fill_keys(
+				array_keys( $pending ),
+				new WP_Error( 'api_error', __( 'Error processing the request.', 'jetpack-premium-analytics-pkg' ), array( 'status' => 500 ) )
+			);
+		}
 
 		foreach ( $pending as $index => $read ) {
 			$response          = $responses[ $index ] ?? null;
@@ -629,23 +656,76 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			);
 		}
 
-		$version = (string) $request->get_param( 'version' );
-
-		$config = $this->config_for( $endpoint );
-
 		return $this->forward(
 			$request,
 			$this->build_data_path( $endpoint ),
-			array(
-				'version'           => $version,
-				'base'              => $this->base_for_version( $version ),
-				'bust_on_write'     => $this->busts_cache( $endpoint ),
-				'invalidates'       => $config['invalidates'] ?? array(),
-				'cache_scope'       => $this->cache_scope_for( $endpoint ),
-				'unauthenticated'   => ! empty( $config['unauthenticated'] ),
-				'inject_user_email' => ! empty( $config['inject_user_email'] ),
-			)
+			$this->forward_opts( $endpoint, (string) $request->get_param( 'version' ) )
 		);
+	}
+
+	/**
+	 * How `forward()` treats an endpoint, from its PREFIX_CONFIG group.
+	 *
+	 * @param string $endpoint The validated sub-path.
+	 * @param string $version  WPCOM API version.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function forward_opts( string $endpoint, string $version ): array {
+		$config = $this->config_for( $endpoint );
+
+		return array(
+			'version'           => $version,
+			'base'              => $this->base_for_version( $version ),
+			'bust_on_write'     => $this->busts_cache( $endpoint ),
+			'invalidates'       => $config['invalidates'] ?? array(),
+			'cache_scope'       => $this->cache_scope_for( $endpoint ),
+			'unauthenticated'   => ! empty( $config['unauthenticated'] ),
+			'inject_user_email' => ! empty( $config['inject_user_email'] ),
+		);
+	}
+
+	/**
+	 * The transient key a read is cached under, or null for a write or a `force_refresh`.
+	 *
+	 * @param WP_REST_Request      $request    Request object.
+	 * @param string               $wpcom_path WPCOM path without the forwarded query string.
+	 * @param array<string, mixed> $opts       From `forward_opts()`, plus any cache override.
+	 *
+	 * @return string|null
+	 */
+	private function read_cache_key( WP_REST_Request $request, string $wpcom_path, array $opts ): ?string {
+		$cacheable = 'GET' === strtoupper( $request->get_method() )
+			&& ( $opts['cache'] ?? true )
+			&& null === $request->get_param( 'force_refresh' );
+
+		return $cacheable
+			? $this->cache_key_for( $wpcom_path, $opts['version'] ?? '2', $opts['base'] ?? 'wpcom', $this->get_forwarded_params( $request, $wpcom_path ), $opts['cache_scope'] ?? null )
+			: null;
+	}
+
+	/**
+	 * The cached answer under a key, if there is one.
+	 *
+	 * @param string|null $cache_key Transient key, or null when the read is not cached.
+	 *
+	 * @return WP_REST_Response|null
+	 */
+	private function cached_response( ?string $cache_key ): ?WP_REST_Response {
+		$cached = null !== $cache_key ? get_transient( $cache_key ) : false;
+
+		return false !== $cached ? $this->build_response( $cached ) : null;
+	}
+
+	/**
+	 * The error a signed read answers with while the site has no connection, or null when it has one.
+	 *
+	 * @return WP_Error|null
+	 */
+	private function connection_error(): ?WP_Error {
+		return ( new Manager( self::SLUG ) )->is_connected()
+			? null
+			: new WP_Error( 'no_connection', __( 'Please connect Jetpack to load your data.', 'jetpack-premium-analytics-pkg' ), array( 'status' => 403 ) );
 	}
 
 	/**
@@ -850,18 +930,10 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		$base      = $opts['base'] ?? 'wpcom';
 		$method    = strtoupper( $request->get_method() );
 		$is_read   = 'GET' === $method;
-		$cacheable = $is_read
-			&& ( $opts['cache'] ?? true )
-			&& null === $request->get_param( 'force_refresh' );
-
-		$cache_key = $cacheable
-			? $this->cache_key_for( $wpcom_path, $version, $base, $this->get_forwarded_params( $request, $wpcom_path ), $opts['cache_scope'] ?? null )
-			: null;
-		if ( null !== $cache_key ) {
-			$cached = get_transient( $cache_key );
-			if ( false !== $cached ) {
-				return $this->build_response( $cached );
-			}
+		$cache_key = $this->read_cache_key( $request, $wpcom_path, $opts );
+		$cached    = $this->cached_response( $cache_key );
+		if ( null !== $cached ) {
+			return $cached;
 		}
 
 		// Unsigned forwards need no tokens — only the blog id baked into the path —
@@ -875,12 +947,9 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			return $this->cache_and_build_response( $response, $cache_key );
 		}
 
-		if ( ! ( new Manager( self::SLUG ) )->is_connected() ) {
-			return new WP_Error(
-				'no_connection',
-				__( 'Please connect Jetpack to load your data.', 'jetpack-premium-analytics-pkg' ),
-				array( 'status' => 403 )
-			);
+		$no_connection = $this->connection_error();
+		if ( null !== $no_connection ) {
+			return $no_connection;
 		}
 
 		$args = array(

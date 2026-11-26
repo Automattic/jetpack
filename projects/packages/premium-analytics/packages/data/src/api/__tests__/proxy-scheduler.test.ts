@@ -25,10 +25,10 @@ function failedResponse( status: number, body: unknown ) {
 	return { status, json: async () => body };
 }
 
-function setServer( proxyBatch: boolean | undefined ) {
+function setServer( batchSize: number | undefined ) {
 	Object.defineProperty( window, 'JetpackScriptData', {
 		configurable: true,
-		value: { premium_analytics: { proxy_batch: proxyBatch } },
+		value: { premium_analytics: { proxy_batch_size: batchSize } },
 	} );
 }
 
@@ -42,7 +42,7 @@ function batchPaths( apiFetch: jest.MockedFunction< typeof apiFetchType > ) {
 describe( 'proxy scheduler', () => {
 	beforeEach( () => {
 		jest.useFakeTimers();
-		setServer( true );
+		setServer( 10 );
 	} );
 
 	afterEach( () => {
@@ -51,12 +51,13 @@ describe( 'proxy scheduler', () => {
 	} );
 
 	it.each( [
-		[ true, true ],
-		[ false, false ],
+		[ 10, true ],
+		[ 1, false ],
+		[ 0, false ],
 		[ undefined, false ],
-	] )( 'batches where the server reports proxy_batch %p: %p', async ( proxyBatch, expected ) => {
+	] )( 'batches where the server reports a batch size of %p: %p', async ( batchSize, expected ) => {
 		const { scheduler } = await load();
-		setServer( proxyBatch );
+		setServer( batchSize );
 
 		expect( scheduler.shouldBatchProxyReads() ).toBe( expected );
 	} );
@@ -100,17 +101,21 @@ describe( 'proxy scheduler', () => {
 		);
 	} );
 
-	it( 'falls back to single reads, and sends no more batches, where the batch route is missing', async () => {
+	it.each( [
+		[ 'the route is missing', failedResponse( 404, { code: 'rest_no_route' } ) ],
+		[ 'the server fails', failedResponse( 500, { code: 'internal_server_error' } ) ],
+		[ 'no reply arrives', { code: 'fetch_error' } ],
+	] )( 'falls back to single reads, and sends no more batches, when %s', async ( _, failure ) => {
 		const { scheduler, apiFetch } = await load();
 		apiFetch.mockImplementation( ( async ( { path }: { path?: string } ) => {
 			if ( path === `${ PROXY }/batch` ) {
-				throw failedResponse( 404, { code: 'rest_no_route' } );
+				throw failure;
 			}
 			return { path };
 		} ) as typeof apiFetchType );
 
-		// More reads than four batches of ten, so some are still queued when the 404 lands.
-		const reads = Array.from( { length: 45 }, ( _, i ) =>
+		// More reads than four batches of ten, so some are still queued when the failure lands.
+		const reads = Array.from( { length: 45 }, ( __, i ) =>
 			scheduler.scheduleProxyGet( `${ PROXY }/v1.1/stats/r${ i }`, undefined )
 		);
 		jest.runOnlyPendingTimers();
@@ -118,6 +123,69 @@ describe( 'proxy scheduler', () => {
 		await expect( Promise.all( reads ) ).resolves.toHaveLength( 45 );
 		expect( batchPaths( apiFetch ) ).toHaveLength( 4 );
 		expect( scheduler.shouldBatchProxyReads() ).toBe( false );
+	} );
+
+	it( 'rejects the reads of a batch the server refuses, without sending them again', async () => {
+		const { scheduler, apiFetch } = await load();
+		apiFetch.mockRejectedValue( failedResponse( 403, { code: 'rest_forbidden' } ) );
+
+		const reads = [ 'a', 'b' ].map( name =>
+			scheduler.scheduleProxyGet( `${ PROXY }/v1.1/stats/${ name }`, undefined )
+		);
+		jest.runOnlyPendingTimers();
+
+		await expect( reads[ 0 ] ).rejects.toMatchObject( { code: 'rest_forbidden', status: 403 } );
+		await expect( reads[ 1 ] ).rejects.toMatchObject( { code: 'rest_forbidden', status: 403 } );
+		expect( apiFetch ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'keeps a batch going while any of its reads still wants the answer', async () => {
+		const { scheduler, apiFetch } = await load();
+		let batchSignal: AbortSignal | undefined;
+		let answer: ( value: unknown ) => void = () => {};
+		apiFetch.mockImplementation( ( ( { signal }: { signal?: AbortSignal } ) => {
+			batchSignal = signal;
+			return new Promise( resolve => ( answer = resolve ) );
+		} ) as typeof apiFetchType );
+		const first = new AbortController();
+		const second = new AbortController();
+
+		const cancelled = scheduler.scheduleProxyGet(
+			`${ PROXY }/v1.1/stats/a`,
+			undefined,
+			first.signal
+		);
+		const kept = scheduler.scheduleProxyGet( `${ PROXY }/v1.1/stats/b`, undefined, second.signal );
+		jest.runOnlyPendingTimers();
+		first.abort();
+
+		await expect( cancelled ).rejects.toMatchObject( { name: 'AbortError' } );
+		expect( batchSignal?.aborted ).toBe( false );
+		answer( [
+			{ status: 200, body: 'a' },
+			{ status: 200, body: 'b' },
+		] );
+		await expect( kept ).resolves.toBe( 'b' );
+	} );
+
+	it( 'abandons a batch once every read in it is cancelled', async () => {
+		const { scheduler, apiFetch } = await load();
+		let batchSignal: AbortSignal | undefined;
+		apiFetch.mockImplementation( ( ( { signal }: { signal?: AbortSignal } ) => {
+			batchSignal = signal;
+			return new Promise( () => {} );
+		} ) as typeof apiFetchType );
+		const controllers = [ new AbortController(), new AbortController() ];
+
+		controllers.forEach( ( controller, i ) =>
+			scheduler
+				.scheduleProxyGet( `${ PROXY }/v1.1/stats/r${ i }`, undefined, controller.signal )
+				.catch( () => {} )
+		);
+		jest.runOnlyPendingTimers();
+		controllers.forEach( controller => controller.abort() );
+
+		expect( batchSignal?.aborted ).toBe( true );
 	} );
 
 	it( 'drops a read cancelled while it waits for its batch', async () => {

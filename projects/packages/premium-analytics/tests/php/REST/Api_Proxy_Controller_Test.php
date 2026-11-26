@@ -1392,6 +1392,85 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertSame( array( 'GET', 'GET' ), array_column( $sent, 1 ) );
 	}
 
+	public function test_batch_answers_each_read_in_its_request_position() {
+		// The first read misses the cache and is fetched after the second is answered from it.
+		set_transient(
+			$this->cache_key_for_path( '/sites/4242/stats/top-posts', '1.1', 'rest', array( 'max' => '10' ) ),
+			array(
+				'data'    => array( 'from' => 'cache' ),
+				'status'  => 200,
+				'headers' => array(),
+			),
+			MINUTE_IN_SECONDS
+		);
+
+		$items = $this->dispatch_connected_batch(
+			array( '/v1.1/stats/visits?unit=day', '/v1.1/stats/top-posts?max=10' ),
+			static function () {
+				return '{"from":"wpcom"}';
+			}
+		);
+
+		$this->assertSame( array( array( 'from' => 'wpcom' ), array( 'from' => 'cache' ) ), array_column( $items, 'body' ) );
+	}
+
+	public function test_batch_fails_only_the_read_a_throwing_filter_stops() {
+		$items = $this->dispatch_connected_batch(
+			array( '/v1.1/stats/visits?unit=day', '/v1.1/stats/top-posts?max=10' ),
+			static function ( $url ) {
+				if ( str_contains( $url, '/top-posts' ) ) {
+					throw new \RuntimeException( 'A filter gave up.' );
+				}
+				return '{"ok":true}';
+			}
+		);
+
+		$this->assertSame( array( 200, 500 ), array_column( $items, 'status' ) );
+		$this->assertSame( 'api_error', $items[1]['body']['code'] );
+	}
+
+	/**
+	 * @dataProvider data_batch_sizes
+	 *
+	 * @param int|null $filtered The filter's answer, or null to leave the default.
+	 * @param int      $expected The batch size the dashboard is told.
+	 */
+	#[DataProvider( 'data_batch_sizes' )]
+	public function test_batch_size_follows_the_filter_within_bounds( ?int $filtered, int $expected ) {
+		if ( ! \Automattic\Jetpack\Connection\Client::supports_parallel_requests() ) {
+			$this->markTestSkipped( 'cURL multi is unavailable here.' );
+		}
+		$filter = static function () use ( $filtered ) {
+			return $filtered;
+		};
+		if ( null !== $filtered ) {
+			add_filter( 'jetpack_premium_analytics_proxy_batch_size', $filter );
+		}
+
+		$data = array();
+		try {
+			$data = $this->controller->add_batch_script_data( array() );
+		} finally {
+			remove_filter( 'jetpack_premium_analytics_proxy_batch_size', $filter );
+		}
+
+		$this->assertSame( $expected, $data['premium_analytics']['proxy_batch_size'] );
+	}
+
+	/**
+	 * Filter answers and the batch size each gives.
+	 *
+	 * @return array<string, array{0: int|null, 1: int}>
+	 */
+	public static function data_batch_sizes(): array {
+		return array(
+			'the default'              => array( null, 10 ),
+			'zero turns batching off'  => array( 0, 0 ),
+			'one is no batch at all'   => array( 1, 0 ),
+			'more than the route caps' => array( 50, 20 ),
+		);
+	}
+
 	public function test_batch_items_answer_to_what_would_deny_them_as_single_requests() {
 		wp_set_current_user(
 			wp_insert_user(
@@ -1425,6 +1504,52 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 
 		$this->assertSame( 403, $items[0]['status'] );
 		$this->assertSame( 'site_policy', $items[0]['body']['code'] );
+	}
+
+	/**
+	 * Dispatch a batch as an administrator of a connected site, answering each WPCOM call with `$respond`.
+	 *
+	 * @param string[] $items   Batch item paths.
+	 * @param callable $respond Takes the WPCOM URL and returns the response body, or throws.
+	 *
+	 * @return array[]
+	 */
+	private function dispatch_connected_batch( array $items, callable $respond ): array {
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		\Jetpack_Options::update_option( 'id', 4242 );
+		\Jetpack_Options::update_option( 'blog_token', 'blog_token.secret' );
+		( new Connection_Manager() )->reset_connection_status();
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'jpa_batch_' . wp_generate_password( 6, false ),
+					'user_pass'  => 'password',
+					'role'       => 'administrator',
+				)
+			)
+		);
+		add_filter(
+			'pre_http_request',
+			static function ( $pre, $args, $url ) use ( $respond ) {
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => $respond( $url ),
+					'headers'  => array(),
+				);
+			},
+			10,
+			3
+		);
+
+		try {
+			return $this->dispatch_batch( $items );
+		} finally {
+			remove_all_filters( 'pre_http_request' );
+			\Jetpack_Options::delete_option( 'blog_token' );
+			\Jetpack_Options::delete_option( 'id' );
+			( new Connection_Manager() )->reset_connection_status();
+			Constants::clear_single_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
+		}
 	}
 
 	/**

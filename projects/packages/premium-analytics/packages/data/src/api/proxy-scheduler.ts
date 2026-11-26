@@ -5,12 +5,9 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 /**
  * Internal dependencies
  */
-import { getApiErrorCode } from '../utils/api-error';
+import { getApiErrorCode, getApiErrorStatus } from '../utils/api-error';
 import { statsProxyPath } from './constants';
 import { fetchPreservingStatus } from './stats-proxy-fetch';
-
-/** Reads per batch, so a dashboard's reads fit one round of batches; the route accepts up to 20. */
-const BATCH_SIZE = 10;
 
 /** Batches in flight at once; on HTTP/1.1 this leaves two of six connections for assets and other requests. */
 const MAX_IN_FLIGHT = 4;
@@ -33,16 +30,39 @@ type BatchItemResult = { status: number; body: unknown };
 const queue: Job[] = [];
 let inFlight = 0;
 let flushTimer: ReturnType< typeof setTimeout > | null = null;
-let batchRouteMissing = false;
+let batchingOff = false;
+
+/** Reads per batch, from the server: 0 where it cannot fetch a batch in parallel, or a host turned batching off. */
+function batchSize(): number {
+	return getScriptData()?.premium_analytics?.proxy_batch_size ?? 0;
+}
 
 /**
- * Whether to batch local proxy reads: the server can fetch a batch in parallel, and has the route.
- * Batching runs on every protocol, though HTTP/1.1, with its six connections per host, gains most.
+ * Whether to batch local proxy reads. Batching runs on every protocol, though HTTP/1.1, with its
+ * six connections per host, gains most.
  *
  * @return Whether local proxy reads should be batched.
  */
 export function shouldBatchProxyReads(): boolean {
-	return ! batchRouteMissing && getScriptData()?.premium_analytics?.proxy_batch === true;
+	return ! batchingOff && batchSize() > 1;
+}
+
+/**
+ * Whether the batch request itself failed, so its reads may still succeed one by one: a missing
+ * route, a server error, an unreadable reply, or none at all. Refusals such as 403 are left alone.
+ *
+ * @param error - What the batch request threw.
+ * @return Whether to fall back to single reads.
+ */
+function isBatchFailure( error: unknown ): boolean {
+	const code = getApiErrorCode( error );
+	const status = getApiErrorStatus( error );
+	return (
+		code === 'rest_no_route' ||
+		code === 'fetch_error' ||
+		code === 'invalid_json' ||
+		( status !== null && status >= 500 )
+	);
 }
 
 function abortReason( signal: AbortSignal ) {
@@ -135,9 +155,9 @@ async function dispatch( jobs: Job[] ): Promise< void > {
 		} );
 		jobs.forEach( ( job, index ) => settleBatchItem( job, results?.[ index ] ) );
 	} catch ( error ) {
-		// A site whose server code predates the route: stop batching and send these reads one by one.
-		if ( getApiErrorCode( error ) === 'rest_no_route' ) {
-			batchRouteMissing = true;
+		// Send these reads one by one, and the page's later ones too, rather than retry a failing batch.
+		if ( isBatchFailure( error ) ) {
+			batchingOff = true;
 			await Promise.all( jobs.filter( job => ! job.settled ).map( fetchOne ) );
 			return;
 		}
@@ -149,7 +169,7 @@ async function dispatch( jobs: Job[] ): Promise< void > {
 
 function pump() {
 	while ( inFlight < MAX_IN_FLIGHT && queue.length ) {
-		const jobs = takeBatch( batchRouteMissing ? 1 : BATCH_SIZE );
+		const jobs = takeBatch( batchingOff ? 1 : batchSize() );
 		inFlight++;
 		dispatch( jobs ).finally( () => {
 			inFlight--;

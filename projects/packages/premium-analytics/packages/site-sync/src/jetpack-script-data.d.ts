@@ -13,8 +13,8 @@ declare module '@automattic/jetpack-script-data' {
 			csv_exports_enabled?: boolean;
 			// Whether the site runs VideoPress, which gates the video surfaces.
 			has_videopress?: boolean;
-			// Whether `proxy/batch` fetches in parallel on this server, so batching reads pays off.
-			proxy_batch?: boolean;
+			// Reads per `proxy/batch` request, or 0 to send each read on its own.
+			proxy_batch_size?: number;
 			// The single-report pages the reader may open, as `routes/single-report/registry.ts` reads them. Absent until the page registry is hydrated.
 			single_report_pages?: Array< {
 				id: string;

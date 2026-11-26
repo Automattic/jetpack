@@ -168,9 +168,11 @@ once a minute. `x-wp-total` / `x-wp-totalpages` are forwarded back. Errors:
 (up to 20 paths below `proxy`) and answers `[ { status, body, headers }, … ]` in the same order. Each
 item is a read checked exactly as the single route checks it (allowlist, version, capability,
 cache), and the cache misses go to WPCOM in parallel through
-`Client::wpcom_json_api_get_multiple_as_blog()`. The client batches its local GETs wherever the server
-reports `premium_analytics.proxy_batch` (cURL multi available), whatever the protocol; HTTP/1.1, whose
-six connections per host would queue the dashboard's reads in waves, gains most. See
+`Client::wpcom_json_api_get_multiple_as_blog()`. The client batches its local GETs, whatever the
+protocol, in batches of `premium_analytics.proxy_batch_size`: 10 by default, 0 without cURL multi, and
+filterable through `jetpack_premium_analytics_proxy_batch_size` (0 turns batching off). HTTP/1.1, whose
+six connections per host would queue the dashboard's reads in waves, gains most. A batch that fails as
+a whole (no route, a 5xx, no reply) is replayed as single reads, and the page stops batching. See
 `packages/data/src/api/proxy-scheduler.ts`.
 
 The `jetpack-stats` write is the one body the proxy rewrites: it gains the submitting user's
