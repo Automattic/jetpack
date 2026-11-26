@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+My Jetpack: Match the Protect card's threat counts to the Protect page after the site fixes a threat, before the next scan.

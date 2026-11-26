@@ -5,11 +5,11 @@ namespace Automattic\Jetpack\My_Jetpack;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Protect\Dashboard_Threats;
-use Automattic\Jetpack\Protect_Models\Status_Model;
 use Automattic\Jetpack\Protect_Status\Plan;
 use Automattic\Jetpack\Protect_Status\Scan_Status;
 use Automattic\Jetpack\Protect_Status\Status;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
@@ -81,13 +81,38 @@ class Protect_Threat_Count_Test extends TestCase {
 		return rest_do_request( new WP_REST_Request( 'GET', '/my-jetpack/v1/site/protect/data' ) )->get_data();
 	}
 
-	public function test_leaves_out_a_threat_the_site_fixed_since_the_last_scan() {
+	/**
+	 * Whether the stored status is still fresh, and how many threats the endpoint then lists.
+	 *
+	 * @return array
+	 */
+	public static function provide_stored_status_ages() {
+		return array(
+			'fresh'                  => array( HOUR_IN_SECONDS, 3 ),
+			'expired, refresh fails' => array( -HOUR_IN_SECONDS, 0 ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_stored_status_ages
+	 *
+	 * @param int $expires_in   Seconds until the stored status expires.
+	 * @param int $listed_count How many threats scanData lists.
+	 */
+	#[DataProvider( 'provide_stored_status_ages' )]
+	public function test_leaves_out_a_threat_the_site_fixed_since_the_last_scan( $expires_in, $listed_count ) {
 		update_option( Current_Plan::SITE_PRODUCTS_OPTION, array( array( 'product_slug' => 'jetpack_scan' ) ) );
 		Plan::has_required_plan( true );
-		$threats = array();
-		foreach ( array( 1, 2 ) as $id ) {
+		$severities = array(
+			1 => 5,
+			2 => 5,
+			3 => 1,
+		);
+		$threats    = array();
+		foreach ( $severities as $id => $severity ) {
 			$threats[] = (object) array(
 				'id'        => $id,
+				'severity'  => $severity,
 				'signature' => 'PHP.Generic',
 				'filename'  => ABSPATH . "threat-$id.php",
 			);
@@ -102,19 +127,21 @@ class Protect_Threat_Count_Test extends TestCase {
 				)
 			)
 		);
-		update_option( Scan_Status::OPTION_TIMESTAMP_NAME, time() + HOUR_IN_SECONDS );
+		update_option( Scan_Status::OPTION_TIMESTAMP_NAME, time() + $expires_in );
 		Dashboard_Threats::resolve( array( 'id' => '1' ) );
 
 		$data = $this->get_data();
 
-		$this->assertCount( 2, $data['scanData']->threats );
-		$this->assertSame( 1, $data['threatCount'] );
+		$this->assertCount( $listed_count, $data['scanData']->threats );
+		$this->assertSame( 2, $data['threatCount'] );
+		$this->assertSame( 1, $data['criticalThreatCount'] );
 	}
 
 	public function test_is_null_without_a_stored_status() {
-		Status::$status = new Status_Model( array( 'error' => true ) );
+		$data = $this->get_data();
 
-		$this->assertNull( $this->get_data()['threatCount'] );
+		$this->assertNull( $data['threatCount'] );
+		$this->assertNull( $data['criticalThreatCount'] );
 	}
 
 	/**
@@ -126,6 +153,9 @@ class Protect_Threat_Count_Test extends TestCase {
 	public function test_is_null_with_a_protect_package_that_cannot_count() {
 		require_once __DIR__ . '/stubs/older-protect/class-threat-count.php';
 
-		$this->assertNull( $this->get_data()['threatCount'] );
+		$data = $this->get_data();
+
+		$this->assertNull( $data['threatCount'] );
+		$this->assertNull( $data['criticalThreatCount'] );
 	}
 }
