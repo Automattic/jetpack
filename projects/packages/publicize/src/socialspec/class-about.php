@@ -37,7 +37,7 @@ class About implements Document {
 	/**
 	 * The Markdown document: the title and the content of the About page.
 	 *
-	 * @return string|null Null if no public About page is set, or the page is empty.
+	 * @return string|null Null if there is no public About page, or the page is empty.
 	 */
 	public function get_content() {
 		$page = self::get_page();
@@ -87,7 +87,7 @@ class About implements Document {
 	}
 
 	/**
-	 * The About page, if it is set and everyone can see it.
+	 * The About page, if everyone can see it: the page from the settings, or the one at /about.
 	 *
 	 * @return \WP_Post|null
 	 */
@@ -97,9 +97,9 @@ class About implements Document {
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param int|\WP_Post $page The page, or 0 for none. Defaults to the `jetpack_social_about_page` option.
+		 * @param int|\WP_Post $page The page from the settings, or the page at /about until one is picked. 0 for none.
 		 */
-		$page = apply_filters( 'jetpack_social_about_page', (int) get_option( 'jetpack_social_about_page' ) );
+		$page = apply_filters( 'jetpack_social_about_page', Socialspec::get_about_page_id() );
 
 		// get_post( 0 ) would return the global post.
 		$page = $page ? get_post( $page ) : null;

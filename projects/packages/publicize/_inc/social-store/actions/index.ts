@@ -9,6 +9,7 @@ import * as sigActions from './social-image-generator';
 import * as socialModuleSettings from './social-module-settings';
 import * as socialNoteSettings from './social-notes';
 import * as socialSettings from './social-settings';
+import * as socialspecActions from './socialspec';
 import * as trafficStatsActions from './traffic-stats';
 import * as unifiedModal from './unified-modal';
 import * as utmActions from './utm-settings';
@@ -20,6 +21,7 @@ const actions = {
 	...connectionFlowActions,
 	...sigActions,
 	...utmActions,
+	...socialspecActions,
 	...socialNoteSettings,
 	...socialSettings,
 	...socialModuleSettings,

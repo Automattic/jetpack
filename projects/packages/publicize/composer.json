@@ -9,7 +9,6 @@
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-config": "@dev",
-		"automattic/jetpack-feature-flags": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-image-cdn": "@dev",
 		"automattic/jetpack-redirect": "@dev",

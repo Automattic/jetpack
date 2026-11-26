@@ -12,6 +12,7 @@ import { hasAdminUiV2 } from '../../utils/script-data';
 import { ConnectionFlowModal } from '../connection-flow';
 import ConnectionManagement from '../connection-management';
 import { ThemedConnectionsModal } from '../manage-connections-modal';
+import SocialspecPromo from './socialspec-promo';
 import TrafficChartCard from './traffic-chart-card';
 import type { JSX } from 'react';
 import './style.scss';
@@ -92,6 +93,7 @@ export default function OverviewTab(): JSX.Element {
 					<ConnectionError trackingContext="social" />
 				</div>
 			) }
+			{ canManageOptions && <SocialspecPromo /> }
 			{ /*
 			 * Mount the connections modal at the tab level when the
 			 * empty state replaces the connections list, so the

@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Publicize\Socialspec;
 
-use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -37,37 +36,71 @@ class Socialspec_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Forget the request, the flag and the cached site status between tests.
+	 * Forget the request and the cached site status between tests.
 	 */
 	public function tear_down() {
 		unset( $_SERVER['REQUEST_URI'] );
-		Feature_Flags::reset();
 		Status_Cache::clear();
 		parent::tear_down();
 	}
 
 	/**
-	 * The documents are served only with the feature flag on.
+	 * The documents are served once the site owner has turned the profile on, also while auto-sharing is off.
 	 */
 	public function test_is_enabled() {
-		Socialspec::init();
+		add_filter( 'jetpack_active_modules', '__return_empty_array' );
 		$this->assertFalse( Socialspec::is_enabled() );
 
-		add_filter( 'jetpack_feature_flag_enabled_' . Socialspec::FEATURE_FLAG, '__return_true' );
+		update_option( Socialspec::OPTION, array( 'enabled' => true ) );
 		$this->assertTrue( Socialspec::is_enabled() );
 	}
 
 	/**
-	 * Every document is published only with the flag on, and never on a private or unlaunched site.
+	 * Saving one setting keeps the others, and only a page can be the About page.
+	 */
+	public function test_sanitize_settings() {
+		$page = wp_insert_post(
+			array(
+				'post_type'   => 'page',
+				'post_status' => 'publish',
+				'post_title'  => 'Me',
+			)
+		);
+		$post = wp_insert_post(
+			array(
+				'post_status' => 'publish',
+				'post_title'  => 'Post',
+			)
+		);
+
+		update_option( Socialspec::OPTION, Socialspec::sanitize_settings( array( 'enabled' => '1' ) ) );
+		update_option( Socialspec::OPTION, Socialspec::sanitize_settings( array( 'about_page' => $page ) ) );
+		$this->assertSame(
+			array(
+				'enabled'         => true,
+				'about_page'      => $page,
+				'promo_dismissed' => false,
+			),
+			Socialspec::get_settings()
+		);
+
+		$this->assertSame( $page, Socialspec::get_about_page_id() );
+		$this->assertSame( 0, Socialspec::sanitize_settings( array( 'about_page' => $post ) )['about_page'] );
+		$this->assertSame( Socialspec::get_settings(), Socialspec::sanitize_settings( 'not settings' ) );
+		$this->assertArrayNotHasKey( 'other', Socialspec::sanitize_settings( array( 'other' => 1 ) ) );
+	}
+
+	/**
+	 * Every document is published only when turned on, and never on a private or unlaunched site.
 	 */
 	public function test_get_document() {
-		Socialspec::init();
-
 		foreach ( array_keys( Socialspec::get_documents() ) as $name ) {
 			$_SERVER['REQUEST_URI'] = '/.well-known/' . $name;
+
+			delete_option( Socialspec::OPTION );
 			$this->assertNull( Socialspec::get_document(), $name );
 
-			add_filter( 'jetpack_feature_flag_enabled_' . Socialspec::FEATURE_FLAG, '__return_true' );
+			update_option( Socialspec::OPTION, array( 'enabled' => true ) );
 			$this->assertInstanceOf( Document::class, Socialspec::get_document(), $name );
 
 			foreach ( array( 'jetpack_is_private_site', 'jetpack_is_coming_soon' ) as $gate ) {
@@ -78,7 +111,6 @@ class Socialspec_Test extends BaseTestCase {
 			}
 
 			Status_Cache::clear();
-			remove_filter( 'jetpack_feature_flag_enabled_' . Socialspec::FEATURE_FLAG, '__return_true' );
 		}
 	}
 

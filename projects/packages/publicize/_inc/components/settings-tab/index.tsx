@@ -4,12 +4,14 @@ import { Card, Stack } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
 import { features, getSocialScriptData, hasSocialPaidFeatures } from '../../utils';
 import { canToggleSocialModule } from '../../utils/misc';
+import SocialspecPromo from '../overview-tab/socialspec-promo';
 import ContentCreationCard from './content-creation-card';
 import CustomizeLinksCard from './customize-links-card';
 import CustomizeMediaCard from './customize-media-card';
 import DefaultShareMessageCard from './default-share-message-card';
 import PublicizeInactiveEmptyState from './publicize-inactive-empty-state';
 import SocialModuleCard from './social-module-card';
+import SocialspecCard from './socialspec-card';
 import { useTurnOnSocial } from './turn-on-social-context';
 import type { JSX } from 'react';
 import './style.scss';
@@ -23,6 +25,7 @@ import './style.scss';
  * - **Content creation** — Social Notes (Social-plugin only — the CPT registration lives in the plugin).
  * - **Customize media** — Social Image Generator (paid).
  * - **Customize links** — UTM parameters.
+ * - **Social web profile** — the SocialSpec documents, admins only. Also on the turn-on surface below, with its promotion.
  *
  * A compact master on/off (`SocialModuleCard`) sits at the top whenever the
  * current user can toggle the module (`canToggleSocialModule()`), and when the
@@ -45,15 +48,23 @@ export default function SettingsTab(): JSX.Element {
 	// settings cards for that sub-second gap before the reload just flickers.
 	const { isEnabling } = useTurnOnSocial();
 
+	// Not while another plugin serves the same documents.
+	const hasSocialspec =
+		currentUserCan( 'manage_options' ) &&
+		getSocialScriptData().settings?.socialspec?.available !== false;
+
 	if ( ( ! isPublicizeActive || isEnabling ) && canToggleSocialModule() ) {
 		return (
-			<div className="jetpack-social-settings">
+			<Stack direction="column" gap="lg" className="jetpack-social-settings">
+				{ /* The profile does not need auto-sharing, and the Overview tab does not show without it. */ }
+				{ hasSocialspec && <SocialspecPromo /> }
 				<Card.Root>
 					<Card.Content>
 						<PublicizeInactiveEmptyState />
 					</Card.Content>
 				</Card.Root>
-			</div>
+				{ hasSocialspec && <SocialspecCard /> }
+			</Stack>
 		);
 	}
 
@@ -68,6 +79,7 @@ export default function SettingsTab(): JSX.Element {
 			{ hasSocialPlugin && <ContentCreationCard /> }
 			{ hasImageGenerator && <CustomizeMediaCard /> }
 			<CustomizeLinksCard />
+			{ hasSocialspec && <SocialspecCard /> }
 		</Stack>
 	);
 }

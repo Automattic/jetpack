@@ -21,6 +21,10 @@ jest.mock( '../content-creation-card', () => () => <div data-testid="content-cre
 jest.mock( '../customize-media-card', () => () => <div data-testid="customize-media-card" /> );
 jest.mock( '../customize-links-card', () => () => <div data-testid="customize-links-card" /> );
 jest.mock( '../social-module-card', () => () => <div data-testid="social-module-card" /> );
+jest.mock( '../socialspec-card', () => () => <div data-testid="socialspec-card" /> );
+jest.mock( '../../overview-tab/socialspec-promo', () => () => (
+	<div data-testid="socialspec-promo" />
+) );
 jest.mock( '../publicize-inactive-empty-state', () => () => (
 	<div data-testid="publicize-inactive-empty-state" />
 ) );
@@ -64,6 +68,7 @@ const mockUseTurnOnSocial = useTurnOnSocial as jest.Mock;
  * @param overrides.features            - Map of feature slugs to whether the site has them.
  * @param overrides.hasPaidFeatures     - Whether the site has social paid features.
  * @param overrides.isEnabling          - Whether Social is mid-way through being turned on.
+ * @param overrides.socialspecAvailable - Whether no other plugin serves the SocialSpec documents.
  */
 function setupSite(
 	overrides: {
@@ -74,6 +79,7 @@ function setupSite(
 		features?: Record< string, boolean >;
 		hasPaidFeatures?: boolean;
 		isEnabling?: boolean;
+		socialspecAvailable?: boolean;
 	} = {}
 ) {
 	const {
@@ -84,6 +90,7 @@ function setupSite(
 		features = { 'social-image-generator': true },
 		hasPaidFeatures = true,
 		isEnabling = false,
+		socialspecAvailable = true,
 	} = overrides;
 
 	// SettingsTab's single useSelect derives `publicize` from the store.
@@ -95,6 +102,7 @@ function setupSite(
 	mockCanToggleSocialModule.mockReturnValue( canToggle );
 	mockGetSocialScriptData.mockReturnValue( {
 		plugin_info: { social: { version: socialPluginVersion } },
+		settings: { socialspec: { available: socialspecAvailable } },
 	} );
 	mockCurrentUserCan.mockImplementation( cap =>
 		cap === 'manage_options' ? manageOptions : false
@@ -116,6 +124,9 @@ describe( 'SettingsTab', () => {
 
 		expect( screen.getByTestId( 'publicize-inactive-empty-state' ) ).toBeInTheDocument();
 		expect( screen.queryByTestId( 'customize-links-card' ) ).not.toBeInTheDocument();
+		// The profile does not need auto-sharing, so it stays reachable, with its promotion.
+		expect( screen.getByTestId( 'socialspec-card' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'socialspec-promo' ) ).toBeInTheDocument();
 	} );
 
 	it( 'renders the cards (not the empty state) when Publicize is off but the user cannot toggle modules', () => {
@@ -177,6 +188,22 @@ describe( 'SettingsTab', () => {
 		setupSite( { hasPaidFeatures: false, manageOptions: true } );
 		render( <SettingsTab /> );
 		expect( screen.queryByTestId( 'default-share-message-card' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'renders the Social web profile card only for admins, and not while another plugin serves the documents', () => {
+		setupSite();
+		const { unmount } = render( <SettingsTab /> );
+		expect( screen.getByTestId( 'socialspec-card' ) ).toBeInTheDocument();
+		unmount();
+
+		setupSite( { manageOptions: false } );
+		const { unmount: unmount2 } = render( <SettingsTab /> );
+		expect( screen.queryByTestId( 'socialspec-card' ) ).not.toBeInTheDocument();
+		unmount2();
+
+		setupSite( { socialspecAvailable: false } );
+		render( <SettingsTab /> );
+		expect( screen.queryByTestId( 'socialspec-card' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders the Content creation card only when the Social plugin is active', () => {

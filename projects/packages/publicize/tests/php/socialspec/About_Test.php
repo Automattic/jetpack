@@ -44,25 +44,33 @@ class About_Test extends BaseTestCase {
 			)
 		);
 
-		update_option( 'jetpack_social_about_page', $page_id );
+		update_option( Socialspec::OPTION, array( 'about_page' => $page_id ) );
 
 		return $page_id;
 	}
 
 	/**
-	 * Without a page set there is nothing to publish.
+	 * Only the About page is published, not just any page. WorDBless cannot look up the default, the page at /about.
 	 */
-	public function test_without_page() {
+	public function test_selected_page() {
 		wp_insert_post(
 			array(
-				'post_type'   => 'page',
-				'post_status' => 'publish',
-				'post_name'   => 'about',
-				'post_title'  => 'About',
+				'post_type'    => 'page',
+				'post_status'  => 'publish',
+				'post_name'    => 'contact',
+				'post_title'   => 'Contact',
+				'post_content' => 'Other',
 			)
 		);
-
 		$this->assertNull( ( new About() )->get_content() );
+
+		self::create_about_page(
+			array(
+				'post_title'   => 'Me',
+				'post_content' => 'Selected',
+			)
+		);
+		$this->assertSame( "# Me\n\nSelected\n", ( new About() )->get_content() );
 	}
 
 	/**

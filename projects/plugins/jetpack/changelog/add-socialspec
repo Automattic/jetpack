@@ -1,4 +1,4 @@
-Significance: patch
-Type: other
+Significance: minor
+Type: enhancement
 
-Blogroll: Add the feeds of all public Blogroll blocks to the SocialSpec following list, which is behind a feature flag.
+Social: Add a social web profile that you can turn on in the Social settings. It shares who your site is, its About page and the feeds from your Blogroll blocks with feed readers and social apps.

@@ -3736,7 +3736,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "3951fce49b7669fc1342d8cb00f5fa5e767cbd34"
+                "reference": "d5fc44b5e932b61e89502cf9a3101db0dc0b0560"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -3744,7 +3744,6 @@
                 "automattic/jetpack-autoloader": "@dev",
                 "automattic/jetpack-config": "@dev",
                 "automattic/jetpack-connection": "@dev",
-                "automattic/jetpack-feature-flags": "@dev",
                 "automattic/jetpack-image-cdn": "@dev",
                 "automattic/jetpack-plans": "@dev",
                 "automattic/jetpack-post-media": "@dev",
