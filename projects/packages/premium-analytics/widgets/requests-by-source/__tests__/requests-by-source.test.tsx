@@ -2,7 +2,8 @@
  * External dependencies
  */
 import { useStatsEdgeBotRequests } from '@jetpack-premium-analytics/data';
-import { fireEvent, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
@@ -80,7 +81,7 @@ describe( 'RequestsBySource', () => {
 		expect( lastParams ).toMatchObject( params );
 	} );
 
-	it( 'brings out one source at a time, and lets it go on a second click', () => {
+	it( 'brings out one source at a time, and lets it go on a second click', async () => {
 		mockUseStatsEdgeBotRequests.mockReturnValue(
 			requestsResult( { human: 600, ai: 250, other: 100, blocked: 50 } )
 		);
@@ -90,13 +91,13 @@ describe( 'RequestsBySource', () => {
 				.getAllByRole( 'button', { pressed: true } )
 				.map( button => button.textContent?.match( /^\D+/ )?.[ 0 ] );
 
-		fireEvent.click( screen.getByRole( 'button', { name: /AI bots/ } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: /AI bots/ } ) );
 		expect( pressed() ).toEqual( [ 'AI bots' ] );
 
-		fireEvent.click( screen.getByRole( 'button', { name: /Blocked/ } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: /Blocked/ } ) );
 		expect( pressed() ).toEqual( [ 'Blocked' ] );
 
-		fireEvent.click( screen.getByRole( 'button', { name: /Blocked/ } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: /Blocked/ } ) );
 		expect( screen.queryByRole( 'button', { pressed: true } ) ).not.toBeInTheDocument();
 	} );
 
