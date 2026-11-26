@@ -8,7 +8,7 @@ import { Link } from '@wordpress/ui';
 import { getRedirectUrl, IconTooltip } from '@automattic/jetpack-components';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import ModuleRow from '$features/module/module-row';
-import { useTooltipLayer } from '$features/module/surface';
+import { tooltipLayer } from '$features/module/tooltip-layer';
 import { useNotices } from '$features/notice/context';
 const unsafeSpeculationRulesLink = getRedirectUrl( 'jetpack-boost-unsafe-speculation-rules' );
 import type { ReactNode } from 'react';
@@ -59,8 +59,6 @@ type BypassPatternsExampleProps = {
 };
 
 const PrerenderWarningMessage = ( { children }: BypassPatternsExampleProps ) => {
-	const tooltipLayer = useTooltipLayer();
-
 	return (
 		<IconTooltip
 			trigger={ children }

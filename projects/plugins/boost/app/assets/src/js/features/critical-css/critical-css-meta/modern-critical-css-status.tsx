@@ -6,7 +6,7 @@ import { getProvidersWithErrors } from '../lib/critical-css-errors';
 import { useRegenerateCriticalCssAction } from '../lib/stores/critical-css-state';
 import type { CriticalCssState } from '../lib/stores/critical-css-state-types';
 import TimeAgo from '../time-ago/time-ago';
-import { useTooltipLayer } from '$features/module/surface';
+import { tooltipLayer } from '$features/module/tooltip-layer';
 import ProgressBar from '$features/ui/progress-bar/progress-bar';
 import { subpageHref } from '$lib/modern/routes';
 import { recordBoostEvent } from '$lib/utils/analytics';
@@ -20,7 +20,6 @@ type Props = {
 
 export default function ModernCriticalCssStatus( { cssState, isGenerating, progress }: Props ) {
 	const regenerateAction = useRegenerateCriticalCssAction();
-	const tooltipLayer = useTooltipLayer();
 	const generating = isGenerating || cssState.status === 'pending';
 	const idle = cssState.status === 'not_generated';
 	const successCount = cssState.providers.filter(

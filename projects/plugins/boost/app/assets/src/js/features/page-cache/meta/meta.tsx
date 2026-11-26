@@ -11,7 +11,7 @@ import clsx from 'clsx';
 import { useMutationNotice } from '$features/ui';
 import SaveButton from '$features/ui/save-button/save-button';
 import { useDataSyncSubset } from '@automattic/jetpack-react-data-sync-client';
-import { useTooltipLayer } from '$features/module/surface';
+import { tooltipLayer } from '$features/module/tooltip-layer';
 import ErrorBoundary from '$features/error-boundary/error-boundary';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import CollapsibleMeta from '$features/ui/collapsible-meta/collapsible-meta';
@@ -240,8 +240,6 @@ type BypassPatternsExampleProps = {
 };
 
 const BypassPatternsExample = ( { children, exceptionsFieldRef }: BypassPatternsExampleProps ) => {
-	const tooltipLayer = useTooltipLayer();
-
 	return (
 		<IconTooltip
 			trigger={ children }
