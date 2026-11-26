@@ -9,10 +9,6 @@ jest.mock( '$lib/utils/analytics', () => ( {
 	recordBoostEvent: jest.fn(),
 	recordBoostEventAndRedirect: jest.fn(),
 } ) );
-jest.mock(
-	'@automattic/jetpack-my-jetpack/components/product-interstitial/assets/boost.webp',
-	() => ''
-);
 jest.mock( '$lib/stores/premium-features', () => ( { usePremiumFeatures: () => [] } ) );
 jest.mock( 'jetpackConfig', () => ( { consumer_slug: 'jetpack-boost' } ), { virtual: true } );
 
