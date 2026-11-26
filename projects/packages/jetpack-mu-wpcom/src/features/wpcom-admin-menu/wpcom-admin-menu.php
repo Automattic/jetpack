@@ -657,6 +657,27 @@ function wpcom_add_native_activity_log_submenu() {
 }
 
 /**
+ * Adds the native Activity Log page to the Jetpack admin shell on a Simple site, which the package leaves to this one.
+ *
+ * @param array $members Shell members keyed by admin page slug.
+ * @return array
+ */
+function wpcom_add_activity_log_admin_shell_member( $members ) {
+	// No leading backslash, and a string: the package ships with Jetpack, which deploys separately from this one.
+	$activity_log = 'Automattic\\Jetpack\\Activity_Log\\Jetpack_Activity_Log';
+
+	// @phan-suppress-next-line PhanUndeclaredClassReference -- The package ships with Jetpack; method_exists() is the guard.
+	if ( ! Feature_Flags::is_enabled( WPCOM_NATIVE_ACTIVITY_LOG_FLAG ) || ! method_exists( $activity_log, 'add_admin_shell_member' ) ) {
+		return $members;
+	}
+
+	return $activity_log::add_admin_shell_member( $members );
+}
+if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	add_filter( 'jetpack_admin_shell_members', 'wpcom_add_activity_log_admin_shell_member' );
+}
+
+/**
  * Registers the Monetize page under Jetpack wherever it loaded: from the Jetpack module on WoA, or from this package on Simple.
  *
  * @return bool Whether the page was registered.
