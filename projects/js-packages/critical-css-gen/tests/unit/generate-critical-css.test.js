@@ -206,15 +206,19 @@ describe( 'Generate Critical CSS', () => {
 			);
 		} );
 
-		it( 'Avoids repeated searches on a nested stylesheet without layer statements', () => {
+		it( 'Keeps the search count steady as nesting increases without layer statements', () => {
 			jest.isolateModules( () => {
 				const find = jest.spyOn( require( 'css-tree' ), 'find' );
-				const depth = 16;
-				const css = '@media screen{'.repeat( depth ) + '.top{color:red}' + '}'.repeat( depth );
 				try {
 					const isolatedDedupe = require( '../../build/deduplicate-css.js' );
-					expect( isolatedDedupe.deduplicateCss( css ) ).toBe( css );
-					expect( find ).toHaveBeenCalledTimes( 2 );
+					const [ shallowSearches, deepSearches ] = [ 16, 32 ].map( depth => {
+						const css = '@media screen{'.repeat( depth ) + '.top{color:red}' + '}'.repeat( depth );
+						find.mockClear();
+						expect( isolatedDedupe.deduplicateCss( css ) ).toBe( css );
+						return find.mock.calls.length;
+					} );
+					expect( find ).toHaveBeenCalled();
+					expect( deepSearches ).toBe( shallowSearches );
 				} finally {
 					find.mockRestore();
 				}
