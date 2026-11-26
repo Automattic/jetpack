@@ -59,13 +59,17 @@ class Speculation_Rules implements Feature, Changes_Output_On_Activation, Optimi
 			return;
 		}
 
-		// remove the protocol and domain from the list of cornerstone urls
 		$home_url         = wp_parse_url( home_url() );
-		$domain           = $home_url['host'];
-		$protocol         = $home_url['scheme'];
+		$origin           = $home_url['scheme'] . '://' . $home_url['host'];
+		$port             = $home_url['port'] ?? null;
 		$cornerstone_urls = array_map(
-			function ( $url ) use ( $protocol, $domain ) {
-				return trailingslashit( str_replace( $protocol . '://' . $domain, '', $url ) );
+			function ( $url ) use ( $origin, $port ) {
+				if ( null !== $port && 0 === strpos( $url, $origin . ':' ) && $port === wp_parse_url( $url, PHP_URL_PORT ) ) {
+					// Keep query strings and fragments in the pattern.
+					return trailingslashit( wp_parse_url( $url, PHP_URL_PATH ) . strpbrk( $url, '?#' ) );
+				}
+
+				return trailingslashit( str_replace( $origin, '', $url ) );
 			},
 			$cornerstone_urls
 		);

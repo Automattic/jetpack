@@ -11,6 +11,7 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Speculation_Rules\Speculation
 use Brain\Monkey;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Class Test_Speculation_Rules
@@ -96,10 +97,14 @@ class Speculation_Rules_Test extends MockeryTestCase {
 	}
 
 	/**
-	 * Test add_cornerstone_rules() with valid URLs
+	 * Test prerender patterns for Cornerstone Pages.
+	 *
+	 * @param string $home_url The site home URL.
+	 * @dataProvider home_urls
 	 */
-	public function test_add_cornerstone_rules_with_valid_urls() {
-		$test_urls = array( 'https://example.com/page1', 'https://example.com/page2' );
+	#[DataProvider( 'home_urls' )]
+	public function test_add_cornerstone_rules_with_valid_urls( $home_url ) {
+		$test_urls = array( $home_url, $home_url . '/about', $home_url . '/contact/' );
 
 		// Set up Cornerstone_Utils mock for this test
 		$cornerstone_utils_mock = Mockery::mock( 'alias:Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils' );
@@ -107,33 +112,13 @@ class Speculation_Rules_Test extends MockeryTestCase {
 			->once()
 			->andReturn( $test_urls );
 
-		// Rest of the test remains the same...
-		Monkey\Functions\stubs(
-			array(
-				'wp_parse_url' => array(
-					'host'   => 'example.com',
-					'scheme' => 'https',
-				),
-			)
-		);
-
-		Monkey\Functions\stubs(
-			array(
-				'home_url' => 'https://example.com/',
-			)
-		);
+		Monkey\Functions\when( 'home_url' )->justReturn( $home_url );
+		Monkey\Functions\when( 'wp_parse_url' )->alias( 'parse_url' );
 
 		$speculation_rules    = new Speculation_Rules();
 		$wp_speculation_rules = new \WP_Speculation_Rules();
 		$speculation_rules->add_cornerstone_rules( $wp_speculation_rules );
 
-		$output_test_urls = array_map(
-			function ( $url ) {
-				return trailingslashit( str_replace( 'https://example.com', '', $url ) );
-			},
-			$test_urls
-		);
-		// Assert that the rule was added correctly
 		// @phan-suppress-next-line PhanUndeclaredMethod -- In our polyfill, which this tests, just not core's version.
 		$rules = $wp_speculation_rules->get_rules();
 		$this->assertCount( 1, $rules );
@@ -143,11 +128,23 @@ class Speculation_Rules_Test extends MockeryTestCase {
 			array(
 				'source'    => 'document',
 				'where'     => array(
-					'href_matches' => $output_test_urls,
+					'href_matches' => array( '/', '/about/', '/contact/' ),
 				),
 				'eagerness' => 'moderate',
 			),
 			$rules[0]['args']
+		);
+	}
+
+	/**
+	 * Provide home URLs with and without a port.
+	 *
+	 * @return array<string, array{string}>
+	 */
+	public static function home_urls() {
+		return array(
+			'plain host'  => array( 'https://example.com' ),
+			'custom port' => array( 'http://localhost:8081' ),
 		);
 	}
 }
