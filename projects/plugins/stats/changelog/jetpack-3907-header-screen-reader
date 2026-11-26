@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+My Jetpack: Announce the same connection status on the header's account button as in its panel, and read that status first when the panel opens from the keyboard.
