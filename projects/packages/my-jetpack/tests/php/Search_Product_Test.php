@@ -277,16 +277,7 @@ class Search_Product_Test extends TestCase {
 	 * Boost) the success-path comparison in is_new_pricing_202208() fatals with "Class not found".
 	 * The existing tests only cover the WP_Error branch, so the comparison line was never exercised.
 	 * This locks in the success path against the self-owned SEARCH_NEW_PRICING_VERSION constant.
-	 *
-	 * Runs in a separate process so the static $pricings memo in get_pricing_from_wpcom()
-	 * starts empty; otherwise a WP_Error cached by an earlier failure-path test (same record-count
-	 * key) would be returned and the success comparison would never run.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_is_new_pricing_202208_true_on_successful_fetch() {
 		unset( $_GET['new_pricing_202208'] );
 		add_filter( 'pre_http_request', array( $this, 'force_pricing_success' ) );
@@ -457,9 +448,8 @@ class Search_Product_Test extends TestCase {
 	 * constant. A tripwire autoloader throws if Search\Plan is loaded, so any reintroduced runtime reference
 	 * fails here instead of in production -- unlike the constant-drift guard, which runs with Search present.
 	 *
-	 * Runs in a separate process for two reasons: (1) the drift-guard test loads Search\Plan into the
-	 * shared process, and an already-loaded class never triggers the autoloader, defeating the tripwire;
-	 * (2) the static $pricings memo in get_pricing_from_wpcom() must start empty. The opening
+	 * Runs in a separate process because the drift-guard test loads Search\Plan into the shared process,
+	 * and an already-loaded class never triggers the autoloader, defeating the tripwire. The opening
 	 * assertion confirms Search\Plan is not already loaded, proving the isolated process is clean.
 	 *
 	 * @runInSeparateProcess
@@ -503,8 +493,7 @@ class Search_Product_Test extends TestCase {
 	 * loaded, so a reintroduced runtime reference fails here instead of in production.
 	 *
 	 * Runs in a separate process so Search\Plan is not already loaded (the drift-guard test loads it in
-	 * the shared process) and so the static $pricings memo starts empty. The opening assertion
-	 * confirms the isolated process is clean.
+	 * the shared process). The opening assertion confirms the isolated process is clean.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
