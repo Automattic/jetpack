@@ -16,28 +16,32 @@ jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mo
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
-// Rows as the `bot-class-and-name` template answers each `bot_category`.
-const RESPONSES: Record< string, unknown > = {
-	ai: [ { traffic_class: 'AI Data Scraper', bot_name: 'GPTBot', total: '300' } ],
-	'non-ai': [
-		{ traffic_class: 'Search Engine Crawler', bot_name: 'Googlebot', total: '900' },
-		{ traffic_class: 'Fetcher', bot_name: 'facebookexternalhit', total: '100' },
-	],
-};
+// Rows as the `bot-activity` template answers: display order, not ranked by requests.
+const RESPONSE = [
+	{
+		bot_group: 'ai_training',
+		group_order: 1,
+		bot_name: 'GPTBot',
+		total: '300',
+		group_total: '300',
+	},
+	{
+		bot_group: 'search_engines',
+		group_order: 4,
+		bot_name: 'Googlebot',
+		total: '900',
+		group_total: '900',
+	},
+	{
+		bot_group: 'other_known',
+		group_order: 5,
+		bot_name: 'axios',
+		total: '5000',
+		group_total: '5000',
+	},
+];
 
 const ACCESS_DENIED = { code: 'rest_forbidden', status: 403 };
-
-function categoryOf( path: string ) {
-	return new URLSearchParams( path.split( '?' )[ 1 ] ).get( 'bot_category' ) ?? '';
-}
-
-function answer( failing?: string ) {
-	mockApiFetch.mockImplementation( ( { path } ) =>
-		categoryOf( path ) === failing
-			? Promise.reject( ACCESS_DENIED )
-			: Promise.resolve( RESPONSES[ categoryOf( path ) ] )
-	);
-}
 
 function renderWidget( preset: PresetType = 'last-7-days' ) {
 	return render(
@@ -54,54 +58,68 @@ function groupRows() {
 describe( 'BotActivity', () => {
 	beforeEach( () => {
 		jest.useFakeTimers();
+		jest.setSystemTime( new Date( '2026-11-26T12:00:00Z' ) );
 		queryClient.clear();
 		mockApiFetch.mockReset();
-		answer();
+		mockApiFetch.mockResolvedValue( RESPONSE );
 	} );
 
 	afterEach( () => {
 		jest.useRealTimers();
 	} );
 
-	it( 'ranks the groups of the AI and the other bots together', async () => {
+	it( 'lists the groups in the order the template gives them', async () => {
 		renderWidget();
 
 		await expect(
-			screen.findByRole( 'button', { name: 'View the bots in Search engines' } )
+			screen.findByRole( 'button', { name: 'View the bots in AI training' } )
 		).resolves.toBeInTheDocument();
-
 		expect( groupRows() ).toEqual( [
-			'View the bots in Search engines',
 			'View the bots in AI training',
+			'View the bots in Search engines',
 			'View the bots in Other known bots',
 		] );
 	} );
 
-	it( 'shows the error rather than half of the groups when one first load fails', async () => {
-		answer( 'non-ai' );
+	it.each( [
+		[ 'last-7-days', 'raw' ],
+		[ 'last-month', 'rollup' ],
+		[ 'last-90-days', 'rollup' ],
+	] as const )( 'reads %s from the %s table', async ( preset, table ) => {
+		renderWidget( preset );
+
+		await expect(
+			screen.findByRole( 'button', { name: 'View the bots in AI training' } )
+		).resolves.toBeInTheDocument();
+		expect( mockApiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( { path: expect.stringContaining( `table=${ table }` ) } )
+		);
+	} );
+
+	it( 'shows that the reader has no access instead of offering a retry', async () => {
+		mockApiFetch.mockRejectedValue( ACCESS_DENIED );
 
 		renderWidget();
 
 		await expect(
 			screen.findByText( "You don't have access to this data." )
 		).resolves.toBeInTheDocument();
-		expect( groupRows() ).toEqual( [] );
+		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'keeps the groups on screen when a refresh of one half fails', async () => {
+	it( 'keeps the groups on screen when a refresh fails', async () => {
 		renderWidget();
 		await expect(
-			screen.findByRole( 'button', { name: 'View the bots in Search engines' } )
+			screen.findByRole( 'button', { name: 'View the bots in AI training' } )
 		).resolves.toBeInTheDocument();
 
-		answer( 'non-ai' );
+		mockApiFetch.mockRejectedValue( ACCESS_DENIED );
 		await act( async () => {
 			await queryClient.refetchQueries();
 			jest.runOnlyPendingTimers();
 		} );
 
 		expect( groupRows() ).toHaveLength( 3 );
-		expect( screen.queryByText( "You don't have access to this data." ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'asks for a shorter period instead of requesting more than a year', async () => {

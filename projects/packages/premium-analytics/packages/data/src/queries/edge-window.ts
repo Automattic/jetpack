@@ -9,6 +9,9 @@ const MS_PER_DAY = 24 * 60 * 60 * 1000;
 /** Days the pre-aggregated edge table serves at once; a longer window gets a 400 no retry fixes. */
 export const EDGE_ROLLUP_MAX_DAYS = 366;
 
+/** Days the raw edge table, which hourly reports read, serves at once. */
+export const EDGE_RAW_MAX_DAYS = 30;
+
 /**
  * A report window as the edge templates of `stats/ua-queries` take it: whole
  * days, with an exclusive `end`.

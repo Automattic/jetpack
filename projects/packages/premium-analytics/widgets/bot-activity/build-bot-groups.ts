@@ -1,83 +1,51 @@
 /**
  * External dependencies
  */
-import { AI_PROVIDER_UNKNOWN, type StatsBotClassItem } from '@jetpack-premium-analytics/data';
+import { AI_PROVIDER_UNKNOWN, type StatsBotActivityGroup } from '@jetpack-premium-analytics/data';
 import { __ } from '@wordpress/i18n';
 import type { LeaderboardRowInput } from '@jetpack-premium-analytics/widgets-toolkit';
 
-type BotGroupId =
-	'ai-training' | 'ai-search' | 'ai-assistants' | 'search-engines' | 'other-known' | 'unidentified';
-
-function groupLabel( id: BotGroupId ): string {
-	switch ( id ) {
-		case 'ai-training':
+function groupLabel( key: string ): string {
+	switch ( key ) {
+		case 'ai_training':
 			return __( 'AI training', 'jetpack-premium-analytics-pkg' );
-		case 'ai-search':
+		case 'ai_search':
 			return __( 'AI search', 'jetpack-premium-analytics-pkg' );
-		case 'ai-assistants':
+		case 'ai_assistants_agents':
 			return __( 'AI assistants & agents', 'jetpack-premium-analytics-pkg' );
-		case 'search-engines':
+		case 'search_engines':
 			return __( 'Search engines', 'jetpack-premium-analytics-pkg' );
-		case 'other-known':
+		case 'other_known':
 			return __( 'Other known bots', 'jetpack-premium-analytics-pkg' );
 		case 'unidentified':
 			return __( 'Unidentified bots', 'jetpack-premium-analytics-pkg' );
+		default:
+			// A group the template added after this release, named from its key until it gets a label here.
+			return key.charAt( 0 ).toUpperCase() + key.slice( 1 ).replace( /_/g, ' ' );
 	}
-}
-
-// Until `bot-class-and-name` returns these groups itself (DLINK-570).
-const GROUP_BY_TRAFFIC_CLASS: Record< string, BotGroupId > = {
-	'AI Data Scraper': 'ai-training',
-	'AI Search Crawler': 'ai-search',
-	'AI Assistant': 'ai-assistants',
-	'AI Agent': 'ai-assistants',
-	'Search Engine Crawler': 'search-engines',
-};
-
-function groupOf( item: StatsBotClassItem ): BotGroupId {
-	// The edge files the bots it cannot tell apart under one name, inside its `Bot` class.
-	if ( item.botName === 'Generic Bot' ) {
-		return 'unidentified';
-	}
-
-	return GROUP_BY_TRAFFIC_CLASS[ item.trafficClass ] ?? 'other-known';
 }
 
 /**
- * The rows of the Bot activity list: one per group with bots, most requests first,
- * each opening onto its bots.
+ * The rows of the Bot activity list: one per group, in the template's order, each
+ * opening onto its top bots.
  *
- * A bot the edge files under two classes of one group counts once, with both counts.
- *
- * @param items - The bots of both halves of `bot-class-and-name`, AI and the rest.
+ * @param groups - The groups of the `bot-activity` template.
  * @return The rows.
  */
-export function buildBotGroupRows( items: readonly StatsBotClassItem[] ): LeaderboardRowInput[] {
-	const groups = new Map< BotGroupId, Map< string, number > >();
-
-	for ( const item of items ) {
-		const id = groupOf( item );
-		const bots = groups.get( id ) ?? new Map< string, number >();
-
-		bots.set( item.botName, ( bots.get( item.botName ) ?? 0 ) + item.requests );
-		groups.set( id, bots );
-	}
-
-	return [ ...groups ]
-		.map( ( [ id, bots ] ) => ( {
-			id,
-			label: groupLabel( id ),
-			value: [ ...bots.values() ].reduce( ( sum, requests ) => sum + requests, 0 ),
-			children: [ ...bots ]
-				.sort( ( a, b ) => b[ 1 ] - a[ 1 ] )
-				.map( ( [ name, requests ] ) => ( {
-					id: `${ id }/${ name }`,
-					label:
-						name === AI_PROVIDER_UNKNOWN
-							? __( 'Unnamed bots', 'jetpack-premium-analytics-pkg' )
-							: name,
-					value: requests,
-				} ) ),
-		} ) )
-		.sort( ( a, b ) => b.value - a.value );
+export function buildBotGroupRows(
+	groups: readonly StatsBotActivityGroup[]
+): LeaderboardRowInput[] {
+	return groups.map( group => ( {
+		id: group.key,
+		label: groupLabel( group.key ),
+		value: group.requests,
+		children: group.bots.map( bot => ( {
+			id: `${ group.key }/${ bot.name }`,
+			label:
+				bot.name === AI_PROVIDER_UNKNOWN
+					? __( 'Unnamed bots', 'jetpack-premium-analytics-pkg' )
+					: bot.name,
+			value: bot.requests,
+		} ) ),
+	} ) );
 }

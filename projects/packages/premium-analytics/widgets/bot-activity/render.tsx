@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { isEdgeWindowTooLong, useStatsBotClasses } from '@jetpack-premium-analytics/data';
+import { isEdgeWindowTooLong, useStatsBotActivity } from '@jetpack-premium-analytics/data';
 import {
 	Leaderboard,
 	describeError,
@@ -11,7 +11,7 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -40,23 +40,12 @@ function rowAriaLabel( row: LeaderboardRowInput ) {
 
 function BotActivityInner() {
 	const { reportParams } = useWidgetRootContext();
-	// The template reads AI bots and the rest in separate requests.
-	const ai = useStatsBotClasses( reportParams, 'ai' );
-	const other = useStatsBotClasses( reportParams, 'non-ai' );
-	const aiItems = ai.primary.data?.data;
-	const otherItems = other.primary.data?.data;
-	const rows = useMemo(
-		() => buildBotGroupRows( [ ...( aiItems ?? [] ), ...( otherItems ?? [] ) ] ),
-		[ aiItems, otherItems ]
-	);
-	const aiRefetch = ai.refetch;
-	const otherRefetch = other.refetch;
-	const refetch = useCallback(
-		() => Promise.all( [ aiRefetch(), otherRefetch() ] ),
-		[ aiRefetch, otherRefetch ]
-	);
-	// A half with no rows would rank the groups as if it had no bots; a failed refresh keeps its rows.
-	const failed = [ ai, other ].find( half => half.isError && ! half.primary.data?.data );
+	const { primary, isLoading, isFetching, isError, error, refetch } =
+		useStatsBotActivity( reportParams );
+	const groups = primary.data?.data;
+	const rows = useMemo( () => buildBotGroupRows( groups ?? [] ), [ groups ] );
+	// Rows from a successful load stay on screen when a refresh fails.
+	const showError = isError && ! rows.length;
 	const isRangeTooLong = isEdgeWindowTooLong( reportParams );
 	const columns = useMemo(
 		() => ( {
@@ -78,20 +67,21 @@ function BotActivityInner() {
 			<Leaderboard
 				rows={ rows }
 				status={ {
-					isLoading: ai.isLoading || other.isLoading,
-					isFetching: ai.isFetching || other.isFetching,
-					isError: !! failed,
+					isLoading,
+					isFetching,
+					isError: showError,
 					refetch,
 				} }
 				error={
-					failed &&
-					describeError( failed.error, {
-						retryDescription: __(
-							"We couldn't load bot activity. Please try again in a moment.",
-							'jetpack-premium-analytics-pkg'
-						),
-						onRetry: refetch,
-					} )
+					showError
+						? describeError( error, {
+								retryDescription: __(
+									"We couldn't load bot activity. Please try again in a moment.",
+									'jetpack-premium-analytics-pkg'
+								),
+								onRetry: refetch,
+							} )
+						: undefined
 				}
 				empty={ {
 					description: isRangeTooLong

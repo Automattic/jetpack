@@ -58,7 +58,7 @@ export { statsHighlightsQuery } from './stats-highlights-query';
 export { statsTagsQuery } from './stats-tags-query';
 export { statsDevicesQuery } from './stats-devices-query';
 export { statsAiProvidersQuery } from './stats-ai-providers-query';
-export { statsBotClassesQuery } from './stats-bot-classes-query';
+export { statsBotActivityQuery } from './stats-bot-activity-query';
 export { statsEdgeBotRequestsQuery } from './stats-edge-bot-requests-query';
 export {
 	statsAppSiteHasNeverPublishedPostQuery,

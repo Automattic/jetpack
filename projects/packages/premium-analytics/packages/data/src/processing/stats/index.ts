@@ -65,8 +65,12 @@ export { sanitizeStatsTagsResponse } from './tags';
 export { mergeStatsDevicesComparisonRows, sanitizeStatsDevicesResponse } from './devices';
 export { AI_PROVIDER_UNKNOWN, sanitizeStatsAiProvidersResponse } from './ai-providers';
 export type { StatsAiProvider, StatsAiProviderBot, StatsAiProvidersReport } from './ai-providers';
-export { sanitizeStatsBotClassesResponse } from './bot-classes';
-export type { StatsBotClassItem, StatsBotClassesReport } from './bot-classes';
+export { sanitizeStatsBotActivityResponse } from './bot-activity';
+export type {
+	StatsBotActivityBot,
+	StatsBotActivityGroup,
+	StatsBotActivityReport,
+} from './bot-activity';
 export { EDGE_REQUEST_SOURCES, sanitizeStatsEdgeBotRequestsResponse } from './edge-bot-requests';
 export type {
 	EdgeRequestSource,

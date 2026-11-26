@@ -6,7 +6,7 @@ import { toLocalTZ } from '@jetpack-premium-analytics/datetime';
  * Internal dependencies
  */
 import { resolveReportTimeZone, type ReportTimeZoneParams } from '../utils/report-timezone';
-import { EDGE_ROLLUP_MAX_DAYS, edgeWindow } from './edge-window';
+import { EDGE_RAW_MAX_DAYS, EDGE_ROLLUP_MAX_DAYS, edgeWindow } from './edge-window';
 import { statsProxyQuery, type StatsReportQueryOptions } from './stats-query';
 import type { StatsChartBucketPeriod } from '../processing/stats';
 import type { ReportParams } from '../utils/search';
@@ -24,7 +24,10 @@ const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
 
 /** The most days each table serves; the endpoint answers a longer range with a 400. */
-const MAX_DAYS: Record< EdgeGranularity, number > = { hour: 30, day: EDGE_ROLLUP_MAX_DAYS };
+const MAX_DAYS: Record< EdgeGranularity, number > = {
+	hour: EDGE_RAW_MAX_DAYS,
+	day: EDGE_ROLLUP_MAX_DAYS,
+};
 
 function edgeGranularity( params: StatsEdgeBotRequestsParams ): EdgeGranularity {
 	return params.period === 'hour' ? 'hour' : 'day';

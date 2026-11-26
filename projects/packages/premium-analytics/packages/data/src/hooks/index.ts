@@ -129,7 +129,7 @@ export type { StatsHighlightsParams, StatsHighlightsResponse } from './use-stats
 export { useStatsTags, type StatsTagsParams, type StatsTagsResponse } from './use-stats-tags';
 export { useStatsDevices } from './use-stats-devices';
 export { isAiProvidersRangeTooLong, useStatsAiProviders } from './use-stats-ai-providers';
-export { isEdgeWindowTooLong, useStatsBotClasses } from './use-stats-bot-classes';
+export { isEdgeWindowTooLong, useStatsBotActivity } from './use-stats-bot-activity';
 export {
 	isEdgeBotRequestsRangeTooLong,
 	useStatsEdgeBotRequests,
