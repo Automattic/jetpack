@@ -99,13 +99,13 @@ class Speculation_Rules_Test extends MockeryTestCase {
 	/**
 	 * Test prerender patterns for Cornerstone Pages.
 	 *
-	 * @param string $home_url The site home URL.
+	 * @param string   $home_url The site home URL.
+	 * @param string[] $test_urls The Cornerstone Page URLs.
+	 * @param string[] $patterns The expected prerender patterns.
 	 * @dataProvider home_urls
 	 */
 	#[DataProvider( 'home_urls' )]
-	public function test_add_cornerstone_rules_with_valid_urls( $home_url ) {
-		$test_urls = array( $home_url, $home_url . '/about', $home_url . '/contact/' );
-
+	public function test_add_cornerstone_rules_with_valid_urls( $home_url, $test_urls, $patterns ) {
 		// Set up Cornerstone_Utils mock for this test
 		$cornerstone_utils_mock = Mockery::mock( 'alias:Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils' );
 		$cornerstone_utils_mock->shouldReceive( 'get_list' )
@@ -128,7 +128,7 @@ class Speculation_Rules_Test extends MockeryTestCase {
 			array(
 				'source'    => 'document',
 				'where'     => array(
-					'href_matches' => array( '/', '/about/', '/contact/' ),
+					'href_matches' => $patterns,
 				),
 				'eagerness' => 'moderate',
 			),
@@ -137,14 +137,25 @@ class Speculation_Rules_Test extends MockeryTestCase {
 	}
 
 	/**
-	 * Provide home URLs with and without a port.
+	 * Provide home URLs, Cornerstone Pages, and their patterns.
 	 *
-	 * @return array<string, array{string}>
+	 * @return array<string, array{string, string[], string[]}>
 	 */
 	public static function home_urls() {
+		$plain_host  = 'https://example.com';
+		$custom_port = 'http://localhost:8081';
+		$other_host  = 'http://other.example:8081/about';
+		$userinfo    = 'http://localhost:8081@evil.example:8081/about';
+		$patterns    = array( '/', '/about/', '/contact/' );
+
 		return array(
-			'plain host'  => array( 'https://example.com' ),
-			'custom port' => array( 'http://localhost:8081' ),
+			'plain host'                     => array( $plain_host, array( $plain_host, $plain_host . '/about', $plain_host . '/contact/' ), $patterns ),
+			'custom port'                    => array( $custom_port, array( $custom_port, $custom_port . '/about', $custom_port . '/contact/' ), $patterns ),
+			'mixed origins on a custom port' => array(
+				$custom_port,
+				array( $other_host, $custom_port . '/shop?orderby=price', $userinfo ),
+				array( $other_host . '/', '/shop?orderby=price/', $userinfo . '/' ),
+			),
 		);
 	}
 }

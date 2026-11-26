@@ -63,13 +63,23 @@ class Speculation_Rules implements Feature, Changes_Output_On_Activation, Optimi
 		$origin           = $home_url['scheme'] . '://' . $home_url['host'];
 		$port             = $home_url['port'] ?? null;
 		$cornerstone_urls = array_map(
-			function ( $url ) use ( $origin, $port ) {
-				if ( null !== $port && 0 === strpos( $url, $origin . ':' ) && $port === wp_parse_url( $url, PHP_URL_PORT ) ) {
-					// Keep query strings and fragments in the pattern.
-					return trailingslashit( wp_parse_url( $url, PHP_URL_PATH ) . strpbrk( $url, '?#' ) );
+			function ( $url ) use ( $home_url, $origin, $port ) {
+				if ( null === $port ) {
+					return trailingslashit( str_replace( $origin, '', $url ) );
 				}
 
-				return trailingslashit( str_replace( $origin, '', $url ) );
+				$parts = wp_parse_url( $url );
+				if ( ( $parts['scheme'] ?? null ) !== $home_url['scheme']
+					|| ( $parts['host'] ?? null ) !== $home_url['host']
+					|| ( $parts['port'] ?? null ) !== $port
+					|| isset( $parts['user'] )
+					|| isset( $parts['pass'] )
+				) {
+					return trailingslashit( $url );
+				}
+
+				// Keep query strings and fragments in the pattern.
+				return trailingslashit( ( $parts['path'] ?? '' ) . strpbrk( $url, '?#' ) );
 			},
 			$cornerstone_urls
 		);
