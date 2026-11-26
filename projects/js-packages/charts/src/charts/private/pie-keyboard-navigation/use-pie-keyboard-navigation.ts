@@ -67,12 +67,15 @@ export const usePieKeyboardNavigation = < Arc extends { data: DataPointPercentag
 		[ focusTooltip ]
 	);
 
-	// Arrow keys mount the next tooltip in the same commit, so focus only reaches the body when the selection's tooltip went away.
+	// Arrow keys mount the next tooltip in the same commit, and it takes focus once placed, so only a removed selection hands focus back.
 	useLayoutEffect( () => {
 		if ( ! tooltipLostFocus.current ) {
 			return;
 		}
 		tooltipLostFocus.current = false;
+		if ( keyboardTooltip.current?.isConnected ) {
+			return;
+		}
 		const { activeElement, body } = chartRef.current?.ownerDocument ?? document;
 		if ( activeElement === null || activeElement === body ) {
 			chartRef.current?.focus();
