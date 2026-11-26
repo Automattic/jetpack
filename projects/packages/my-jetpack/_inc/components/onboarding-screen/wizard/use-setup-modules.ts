@@ -2,10 +2,19 @@ import { store as modulesStore } from '@automattic/jetpack-shared-stores';
 import apiFetch from '@wordpress/api-fetch';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { bell, chartBar, envelope, listView, postCommentsForm, shield } from '@wordpress/icons';
+import {
+	bell,
+	chartBar,
+	envelope,
+	listView,
+	postCommentsForm,
+	search,
+	shield,
+} from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
 import { requestModuleSwitch } from '../../../data/module-switch';
 import { queueActivationRequest } from '../../../data/queue-activation-request';
+import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import { isWanted } from './lib';
 import type { MyJetpackModule } from '../../../types';
 
@@ -13,11 +22,12 @@ import type { MyJetpackModule } from '../../../types';
  * What the wizard offers, in order.
  *
  * Jetpack modules rather than My Jetpack's feature cards, which is not a detail:
- * the Protect card installs the standalone Protect plugin, and two of the six
- * have no card at all. Modules keep one control for all six and install nothing.
+ * the Protect card installs the standalone Protect plugin, and some of these
+ * have no card at all. Modules keep one control for all of them and install nothing.
  */
 export const SETUP_MODULES = [
 	'stats',
+	'seo-tools',
 	'contact-form',
 	'protect',
 	'activity-log',
@@ -31,15 +41,47 @@ export type SetupModuleSlug = ( typeof SETUP_MODULES )[ number ];
 const NO_MODULES: Record< string, MyJetpackModule > = {};
 
 /*
- * The order the six are read in, by what the site is for. Every site is still
- * offered all six: the answer changes what is at the top of the list, not what
- * is in it. featuresDescriptions() in lib.ts names each top pick, so move both.
+ * The order they are read in, by what the site is for. Every site is still
+ * offered all of them: the answer changes what is at the top of the list, not what
+ * is in it. featuresDescriptions() in lib.ts names the top two, so move both.
  */
 const SETUP_MODULE_ORDER: Record< string, readonly SetupModuleSlug[] > = {
-	blog: [ 'stats', 'subscriptions', 'contact-form', 'protect', 'activity-log', 'monitor' ],
-	store: [ 'monitor', 'protect', 'contact-form', 'activity-log', 'stats', 'subscriptions' ],
-	portfolio: [ 'contact-form', 'stats', 'protect', 'monitor', 'subscriptions', 'activity-log' ],
-	business: [ 'contact-form', 'monitor', 'stats', 'protect', 'subscriptions', 'activity-log' ],
+	blog: [
+		'stats',
+		'subscriptions',
+		'seo-tools',
+		'contact-form',
+		'protect',
+		'activity-log',
+		'monitor',
+	],
+	store: [
+		'monitor',
+		'protect',
+		'seo-tools',
+		'contact-form',
+		'activity-log',
+		'stats',
+		'subscriptions',
+	],
+	portfolio: [
+		'contact-form',
+		'stats',
+		'seo-tools',
+		'protect',
+		'monitor',
+		'subscriptions',
+		'activity-log',
+	],
+	business: [
+		'contact-form',
+		'monitor',
+		'seo-tools',
+		'stats',
+		'protect',
+		'subscriptions',
+		'activity-log',
+	],
 };
 
 /**
@@ -75,6 +117,7 @@ export function orderSetupModules(
  */
 const SETUP_MODULE_ICONS: Record< SetupModuleSlug, typeof shield > = {
 	stats: chartBar,
+	'seo-tools': search,
 	'contact-form': postCommentsForm,
 	protect: shield,
 	'activity-log': listView,
@@ -125,7 +168,7 @@ export type SetupModuleResult = {
 };
 
 /**
- * The six modules the wizard offers, with whatever the site says about them.
+ * The modules the wizard offers, with whatever the site says about them.
  *
  * @param siteType - What the site is for, which sets the order they are read in.
  * @param enabled  - Whether to read them yet: only a connected user reaches the step that lists them.
@@ -162,14 +205,15 @@ export function useSetupModules(
 
 	return useMemo( () => {
 		const descriptions = setupModuleDescriptions();
+		const seoPlugin = getMyJetpackWindowInitialState( 'onboardingWizard' )?.seoPlugin;
 
 		return {
 			isLoading,
 			// A module Jetpack does not have on this site is left out rather than
-			// rendered as a row that cannot be switched.
+			// rendered as a row that cannot be switched, and so is SEO beside another SEO plugin.
 			modules: orderSetupModules(
 				siteType,
-				SETUP_MODULES.filter( slug => modules?.[ slug ] )
+				SETUP_MODULES.filter( slug => modules?.[ slug ] && ! ( slug === 'seo-tools' && seoPlugin ) )
 			).map( slug => ( {
 				slug,
 				name: modules[ slug ].name,

@@ -483,6 +483,8 @@ type OnboardingWizardState = {
 	dashboardUrl: string;
 	// This site and user, hashed: what the saved run is stored under.
 	runScope: string;
+	// The SEO plugin running instead of Jetpack's SEO, or null when there is none.
+	seoPlugin?: string | null;
 };
 
 type MainFeaturePluginStatus = 'not-installed' | 'inactive' | 'active';

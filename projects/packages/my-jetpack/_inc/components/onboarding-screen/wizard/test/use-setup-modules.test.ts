@@ -207,6 +207,30 @@ describe( 'The modules the wizard offers', () => {
 		] );
 	} );
 
+	// Jetpack's SEO does nothing beside Yoast and the like, so its switch would claim a change that never happens.
+	it( 'leaves SEO out while another SEO plugin runs instead', () => {
+		mockStore.modules = {
+			stats: { name: 'Stats', description: '', activated: true },
+			'seo-tools': { name: 'SEO Tools', description: '', activated: true },
+		};
+		const slugs = () =>
+			renderHook( () => useSetupModules() ).result.current.modules.map( m => m.slug );
+
+		expect( slugs() ).toEqual( [ 'stats', 'seo-tools' ] );
+
+		try {
+			window.myJetpackInitialState.onboardingWizard = {
+				exitUrl: '',
+				dashboardUrl: '',
+				runScope: '',
+				seoPlugin: 'Yoast SEO',
+			};
+			expect( slugs() ).toEqual( [ 'stats' ] );
+		} finally {
+			delete window.myJetpackInitialState.onboardingWizard;
+		}
+	} );
+
 	it( 'replaces a line that promises a paid plan, and keeps the rest', () => {
 		mockStore.modules = {
 			stats: { name: 'Stats', description: 'Traffic insights.', activated: true },

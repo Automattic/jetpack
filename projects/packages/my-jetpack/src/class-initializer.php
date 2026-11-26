@@ -92,11 +92,11 @@ class Initializer {
 	const ONBOARDING_DEFER_MODULES_OPTION = 'jetpack_my_jetpack_onboarding_defer_modules';
 
 	/**
-	 * Modules a fresh connection still needs. The features step offers the rest.
+	 * Modules a fresh connection still needs, and SEO, which every site does. The features step offers the rest.
 	 *
 	 * @var string[]
 	 */
-	const ONBOARDING_BACKGROUND_MODULES = array( 'blocks', 'json-api' );
+	const ONBOARDING_BACKGROUND_MODULES = array( 'blocks', 'json-api', 'seo-tools' );
 
 	/**
 	 * Whether the current request is the wizard's registration call.
@@ -739,12 +739,15 @@ class Initializer {
 	 *
 	 * @since 6.11.0
 	 *
-	 * @return array{exitUrl: string, dashboardUrl: string, runScope: string}|null
+	 * @return array{exitUrl: string, dashboardUrl: string, runScope: string, seoPlugin: string|null}|null
 	 */
 	public static function get_onboarding_wizard_state() {
 		if ( ! self::is_onboarding_wizard_enabled() ) {
 			return null;
 		}
+
+		/** This filter is documented in projects/packages/seo/src/class-seo-tools.php */
+		$seo_plugin = apply_filters( 'jetpack_seo_conflicting_plugin', null );
 
 		return array(
 			// Where skipping the wizard lands: the admin menu is hidden, so leaving is always one click.
@@ -753,6 +756,8 @@ class Initializer {
 			'dashboardUrl' => admin_url(),
 			// Keys the run in session storage, which subdirectory sites on one domain share.
 			'runScope'     => substr( md5( admin_url() . '|' . get_current_user_id() ), 0, 12 ),
+			// Jetpack's SEO switches itself off beside another SEO plugin, so the wizard leaves its row out.
+			'seoPlugin'    => is_string( $seo_plugin ) && '' !== trim( $seo_plugin ) ? trim( $seo_plugin ) : null,
 		);
 	}
 
