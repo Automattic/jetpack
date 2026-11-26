@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Abilities: validate an unexpected input key on a no-argument ability as an error instead of a PHP error.

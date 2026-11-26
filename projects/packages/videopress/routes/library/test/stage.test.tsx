@@ -9,6 +9,10 @@ import type { LibraryItem } from '../../../src/dashboard/types/library';
 import type { View } from '@wordpress/dataviews';
 import type { ReactNode } from 'react';
 
+jest.mock( '../../../src/dashboard/hooks/use-available-license-count', () => ( {
+	useAvailableLicenseCount: () => 0,
+} ) );
+
 jest.mock( '@automattic/jetpack-analytics', () => ( {
 	__esModule: true,
 	default: { tracks: { recordEvent: jest.fn() } },
@@ -79,14 +83,18 @@ let mockIsLoading = false;
 let mockIsTotalLoading = false;
 let mockIsError = false;
 let mockIsTotalError = false;
+let mockIsPlaceholderData = false;
 const mockUseLibrary = jest.fn();
 jest.mock( '../../../src/dashboard/hooks/use-library', () => ( {
 	LIBRARY_QUERY_KEY: 'videopress-library',
+	isWholeLibraryView: jest.requireActual( '../../../src/dashboard/hooks/use-library' )
+		.isWholeLibraryView,
 	useLibrary: ( view: View, ...rest: unknown[] ) => {
 		mockUseLibrary( view, ...rest );
 		return {
 			items: mockItems,
 			isLoading: view.perPage === 1 ? mockIsTotalLoading : mockIsLoading,
+			isPlaceholderData: view.perPage === 1 ? false : mockIsPlaceholderData,
 			isError: view.perPage === 1 ? mockIsTotalError : mockIsError,
 			error: null,
 			paginationInfo: { totalItems: mockLibraryTotal, totalPages: mockLibraryTotal ? 1 : 0 },
@@ -139,8 +147,12 @@ const mockUpgradeLocation = jest.fn();
 jest.mock( '../../../src/dashboard/hooks/use-videopress-upgrade', () => ( {
 	useVideoPressUpgrade: ( location: string ) => () => mockUpgradeLocation( location ),
 } ) );
+let mockViewSearch = '';
 jest.mock( '../../../src/dashboard/hooks/use-persisted-view', () => ( {
-	usePersistedView: ( fallback: unknown ) => [ fallback, jest.fn() ],
+	usePersistedView: ( fallback: View ) => [
+		mockViewSearch ? { ...fallback, search: mockViewSearch } : fallback,
+		jest.fn(),
+	],
 } ) );
 jest.mock( '@automattic/jetpack-connection/use-connection-error-notice', () => ( {
 	__esModule: true,
@@ -175,6 +187,8 @@ describe( 'library stage empty state', () => {
 		mockIsTotalLoading = false;
 		mockIsError = false;
 		mockIsTotalError = false;
+		mockIsPlaceholderData = false;
+		mockViewSearch = '';
 		mockFreeTier = { isAtLimit: false, isFree: false, isUnlimited: true, videoCount: 0, limit: 1 };
 	} );
 
@@ -199,7 +213,8 @@ describe( 'library stage empty state', () => {
 		[ 'both requests are pending', true, true ],
 		[ 'the count finishes first', true, false ],
 		[ 'the listing finishes first', false, true ],
-	] )( 'keeps DataViews loading when %s', ( _label, listingLoading, countLoading ) => {
+	] )( 'keeps a searched view loading when %s', ( _label, listingLoading, countLoading ) => {
+		mockViewSearch = 'cat';
 		mockLibraryTotal = 0;
 		mockIsLoading = listingLoading;
 		mockIsTotalLoading = countLoading;
@@ -218,6 +233,7 @@ describe( 'library stage empty state', () => {
 	} );
 
 	it( 'shows fetched videos without waiting for the count', () => {
+		mockViewSearch = 'cat';
 		mockLibraryTotal = 0;
 		mockIsTotalLoading = true;
 		mockItems = [ makeLibraryItem() ];
@@ -229,6 +245,7 @@ describe( 'library stage empty state', () => {
 	} );
 
 	it( 'does not treat a failed count as an empty library', () => {
+		mockViewSearch = 'cat';
 		mockLibraryTotal = 0;
 		mockIsTotalError = true;
 
@@ -236,6 +253,30 @@ describe( 'library stage empty state', () => {
 
 		expect( screen.getByTestId( 'dataviews' ) ).toHaveAttribute( 'aria-busy', 'false' );
 		expect( screen.queryByText( 'Upload your first video' ) ).not.toBeInTheDocument();
+	} );
+
+	it.each( [
+		[ 'skips the count request for an unfiltered view', '', false ],
+		[ 'requests the count for a searched view', 'cat', true ],
+	] )( '%s', ( _label, search, countEnabled ) => {
+		mockViewSearch = search;
+
+		render( <Stage /> );
+
+		expect( mockUseLibrary ).toHaveBeenCalledWith( expect.objectContaining( { perPage: 1 } ), {
+			poll: false,
+			enabled: countEnabled,
+		} );
+	} );
+
+	it( 'keeps the listing while a placeholder still holds the previous view’s empty total', () => {
+		mockLibraryTotal = 0;
+		mockIsPlaceholderData = true;
+
+		render( <Stage /> );
+
+		expect( screen.queryByText( 'Upload your first video' ) ).not.toBeInTheDocument();
+		expect( screen.getByTestId( 'dataviews' ) ).toHaveAttribute( 'aria-busy', 'true' );
 	} );
 
 	it( 'renders the upload dropzone instead of the grid when the library is empty', () => {

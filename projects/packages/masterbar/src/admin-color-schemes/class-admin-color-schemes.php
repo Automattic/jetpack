@@ -125,20 +125,6 @@ class Admin_Color_Schemes {
 	 * Registers new admin color schemes
 	 */
 	public function register_admin_color_schemes() {
-		global $_wp_admin_css_colors;
-
-		// Adds custom CSS overrides for Fresh
-		if ( isset( $_wp_admin_css_colors['fresh'] ) ) {
-			$fresh = $_wp_admin_css_colors['fresh'];
-			wp_admin_css_color(
-				'fresh',
-				$fresh->name,
-				$this->get_admin_color_scheme_url( 'fresh' ),
-				$fresh->colors,
-				$fresh->icon_colors
-			);
-		}
-
 		wp_admin_css_color(
 			'aquatic',
 			$this->get_admin_color_scheme_name( 'aquatic' ),

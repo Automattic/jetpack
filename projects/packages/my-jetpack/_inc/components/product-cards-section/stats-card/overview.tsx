@@ -19,7 +19,26 @@ import type { FC } from 'react';
 
 type StatsOverviewItemProps = {
 	admin: boolean;
-	period: Pick< StatsPeriod, 'days' | 'end' >;
+	period: Pick< StatsPeriod, 'days' | 'end' | 'offset' >;
+};
+
+type VisitsData = ReturnType< typeof useStatsVisits >[ 'data' ];
+
+/**
+ * The visits without their latest day.
+ *
+ * @param {VisitsData} visits - The visits response.
+ * @return {VisitsData} The same response, one day shorter.
+ */
+const withoutLatestDay = ( visits: VisitsData ): VisitsData => {
+	if ( ! visits || ! Array.isArray( visits.data ) ) {
+		return visits;
+	}
+	const periodIndex = visits.fields.indexOf( 'period' );
+	const rows = [ ...visits.data ].sort( ( a, b ) =>
+		String( a[ periodIndex ] ).localeCompare( String( b[ periodIndex ] ) )
+	);
+	return { ...visits, data: rows.slice( 0, -1 ) };
 };
 
 const StatsOverviewItem: FC< StatsOverviewItemProps > = ( { admin, period } ) => {
@@ -30,7 +49,7 @@ const StatsOverviewItem: FC< StatsOverviewItemProps > = ( { admin, period } ) =>
 	const { recordEvent } = useAnalytics();
 	const isActive = status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
 
-	const { days, end } = period;
+	const { days, end, offset } = period;
 	const visitsOptions = useMemo(
 		() => getStatsPeriodVisitsOptions( { days, end } ),
 		[ days, end ]
@@ -41,6 +60,11 @@ const StatsOverviewItem: FC< StatsOverviewItemProps > = ( { admin, period } ) =>
 		visitsOptions
 	);
 	const { counts, chartData } = useMemo( () => processStatsData( data, days ), [ data, days ] );
+	// The latest period ends today, so the badge compares the complete days before it instead.
+	const comparison = useMemo( () => {
+		const compared = processStatsData( offset === 0 ? withoutLatestDay( data ) : data, days );
+		return { counts: compared.counts, previousCounts: compared.previousCounts };
+	}, [ data, days, offset ] );
 	const isRetrying = isError && isFetching;
 	const isStatsLoading = isLoading || isRetrying;
 	useOverviewLoadEvent( PRODUCT_SLUGS.STATS, isActive && isStatsLoading );
@@ -65,6 +89,8 @@ const StatsOverviewItem: FC< StatsOverviewItemProps > = ( { admin, period } ) =>
 				<OverviewStats
 					isLoading={ isProductLoading || isStatsLoading }
 					counts={ counts }
+					comparison={ comparison }
+					days={ days }
 					chartData={ chartData }
 					detailedStatsHref={ detailedStatsHref }
 					onDetailedStatsClick={ onDetailedStatsClick }

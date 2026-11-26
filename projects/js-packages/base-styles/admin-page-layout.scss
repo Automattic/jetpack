@@ -410,6 +410,41 @@ $jp-breakpoint-mobile: 782px;
 		overflow: clip;
 	}
 
+	// Boot pins its snackbars across the whole viewport, so they center
+	// left of the page. Give them the content column's insets.
+	#wpbody-content .components-snackbar-list {
+		inset-inline-start: $jp-sidebar-width-expanded;
+		inset-inline-end: 0;
+		width: auto;
+	}
+
+	&.folded #wpbody-content .components-snackbar-list {
+		inset-inline-start: $jp-sidebar-width-folded;
+	}
+
+	@media (max-width: #{$jp-breakpoint-auto-fold}) {
+
+		&.auto-fold #wpbody-content .components-snackbar-list {
+			inset-inline-start: $jp-sidebar-width-folded;
+		}
+	}
+
+	@media (min-width: #{$jp-breakpoint-auto-fold + 1px}) {
+
+		&.is-nav-unification:not(.folded) #wpbody-content .components-snackbar-list {
+			inset-inline-start: $jp-sidebar-width-nav-unification;
+		}
+	}
+
+	@media (max-width: #{$jp-breakpoint-mobile}) {
+
+		#wpbody-content .components-snackbar-list,
+		&.folded #wpbody-content .components-snackbar-list,
+		&.auto-fold #wpbody-content .components-snackbar-list {
+			inset-inline-start: 0;
+		}
+	}
+
 	// admin-ui's `<Breadcrumbs>` renders semantic `<ul>/<li>/<a>` so it
 	// inherits two wp-admin globals that misbehave inside the header:
 	//   `ul li { margin-bottom: 6px }` inflates the breadcrumb `<ul>`'s

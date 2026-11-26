@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Let a caller cap how long a Stats plan usage lookup waits on WordPress.com.

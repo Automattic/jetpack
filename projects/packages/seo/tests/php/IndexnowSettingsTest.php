@@ -26,6 +26,7 @@ class IndexnowSettingsTest extends SeoTestCase {
 		}
 		remove_filter( 'rsm_jetpack_seo', '__return_true' );
 		remove_all_filters( 'jetpack_active_modules' );
+		add_filter( 'jetpack_active_modules', 'jetpack_seo_test_switch_on', 1000 );
 		remove_all_filters( 'jetpack_seo_indexnow_can_notify' );
 		wp_set_current_user( 0 );
 		remove_action( 'rest_api_init', array( Indexnow::class, 'register_routes' ) );
@@ -236,6 +237,41 @@ class IndexnowSettingsTest extends SeoTestCase {
 		$status = Indexnow::status();
 		$this->assertTrue( $status['cooldown_active'] );
 		$this->assertEqualsCanonicalizing( array( 'enabled', 'pending', 'latest', 'enqueue_error', 'cooldown_active', 'scheduling_delayed', 'pause_reason' ), array_keys( $status ) );
+	}
+
+	public function test_filtered_scheme_does_not_pause_or_reset_pending_work_and_accepted_history() {
+		$home   = get_option( 'home' );
+		$scheme = 'http';
+		update_option( 'home', 'http://example.com/blog' );
+		$resolve = static function ( $url ) use ( &$scheme ) {
+			return set_url_scheme( $url, $scheme );
+		};
+		add_filter( 'home_url', $resolve );
+		try {
+			$request = new WP_REST_Request( 'POST' );
+			$request->set_param( 'enabled', true );
+			Indexnow::save( $request );
+			$this->assertTrue( Indexnow_Queue::enqueue( 'http://example.com/blog/removed/', 42, true ) );
+			$receipt = array(
+				'state' => 'accepted',
+				'time'  => 100,
+				'count' => 1,
+			);
+			update_option( Indexnow_Queue::ACCEPTED_OPTION, $receipt, false );
+			$scheme = 'https';
+			$this->assertSame( '', Indexnow::status()['pause_reason'] );
+			$status = Indexnow::save( $request );
+			$this->assertSame( $receipt, $status['latest']['accepted'] ?? null );
+			$this->assertSame( 1, $status['pending'] );
+			$scheme = 'http';
+			$request->set_param( 'enabled', false );
+			$status = Indexnow::save( $request );
+			$this->assertSame( 0, $status['pending'] );
+			$this->assertSame( $receipt, $status['latest']['accepted'] ?? null );
+		} finally {
+			remove_filter( 'home_url', $resolve );
+			update_option( 'home', $home );
+		}
 	}
 
 	/**

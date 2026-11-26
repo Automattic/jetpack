@@ -8,7 +8,7 @@ export const wpcomTrackEvent = (
 
 	const userId = eventUserId ?? currentUser.id;
 	const username = eventUsername ?? currentUser.username;
-	const blogId = eventProperties.blogId ?? currentUser.blogId;
+	const { blogId, ...properties } = eventProperties;
 
 	window._tkq = window._tkq || [];
 	if ( username && userId ) {
@@ -18,8 +18,8 @@ export const wpcomTrackEvent = (
 		'recordEvent',
 		eventName,
 		{
-			...eventProperties,
-			blog_id: blogId,
+			...properties,
+			blog_id: blogId ?? currentUser.blogId,
 		},
 	] );
 };

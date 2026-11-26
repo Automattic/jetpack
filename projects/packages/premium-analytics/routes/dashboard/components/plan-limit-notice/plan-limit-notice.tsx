@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { getScriptData, isSimpleSite } from '@automattic/jetpack-script-data';
+import { getScriptData, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import {
 	AnalyticsQueryClientProvider,
 	useStatsAppNoticeMutation,
@@ -9,7 +9,10 @@ import {
 	useStatsAppPlanUsage,
 } from '@jetpack-premium-analytics/data';
 import { Notice } from '@jetpack-premium-analytics/externals';
-import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	useStatsUpgradeLinkProps,
+	useTrackEvent,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -17,7 +20,6 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { getPlanLimitStatus } from '../../../plan-limit-status';
-import { usePlanUpgradeLinkProps } from '../../../use-plan-upgrade-link-props';
 import styles from './plan-limit-notice.module.scss';
 import type { JSX } from 'react';
 
@@ -40,8 +42,8 @@ export function resetPlanLimitNoticeForTesting() {
  * @return The notice, or nothing.
  */
 function ConnectedNotice(): JSX.Element | null {
-	// Stats shows this notice on Jetpack-connected sites only, and VIP sites are exempt from the limit.
-	const isEligible = ! isSimpleSite() && getScriptData()?.site?.host !== 'vip';
+	// Only self-hosted Jetpack sites have a views limit: WordPress.com and VIP sites are exempt from it.
+	const isEligible = ! isWpcomPlatformSite() && getScriptData()?.site?.host !== 'vip';
 
 	const { data: usage } = useStatsAppPlanUsage( { enabled: isEligible } );
 	const status = isEligible ? getPlanLimitStatus( usage ) : null;
@@ -59,7 +61,7 @@ function ConnectedNotice(): JSX.Element | null {
 			),
 	} );
 	const trackEvent = useTrackEvent();
-	const upgradeLink = usePlanUpgradeLinkProps( 'jetpack-premium-analytics-plan-limit-notice' );
+	const upgradeLink = useStatsUpgradeLinkProps( 'jetpack-premium-analytics-plan-limit-notice' );
 
 	const isHeld = isNear && ( ! notices || notices.tier_upgrade === false );
 	const statusName = status?.isOver ? 'over' : 'near';

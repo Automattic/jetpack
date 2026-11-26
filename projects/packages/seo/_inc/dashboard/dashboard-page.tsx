@@ -2,12 +2,19 @@ import { AdminPage, ThemeProvider } from '@automattic/jetpack-components';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import SearchVisibilityNotice from '../components/search-visibility-notice';
 import { recordScreenViewOnce, recordSeoEvent } from '../data/record-seo-event';
 import DashboardNav from './dashboard-nav';
+import DashboardNotices from './dashboard-notices';
 import '../admin-page-layout.scss';
 import type { SeoTab } from './dashboard-nav';
 import type { ReactNode } from 'react';
+
+// Each tab's content column. The Content tab runs full width.
+const COLUMN_BY_TAB: Partial< Record< SeoTab, 'narrow' | 'wide' > > = {
+	overview: 'wide',
+	settings: 'narrow',
+	geo: 'narrow',
+};
 
 interface Props {
 	/** The tab for the currently rendered route (drives the active nav state). */
@@ -24,15 +31,9 @@ interface Props {
 	 */
 	flush?: boolean;
 	/**
-	 * Whether to render the tab bar. The module-off stage hides it because every
-	 * tab would show the same enable prompt. Defaults to `true`.
+	 * Whether to render the tab bar. Settings hides it while it is the only tab. Defaults to `true`.
 	 */
 	showTabs?: boolean;
-	/**
-	 * Fill the content area and center the content in it, for a stage whose only
-	 * content is a short message (the module-off empty state). Defaults to `false`.
-	 */
-	centered?: boolean;
 	children: ReactNode;
 }
 
@@ -49,7 +50,6 @@ interface Props {
  * @param props.showFooter - Whether to render the Jetpack footer (default true).
  * @param props.flush      - Render content with no page padding (default false).
  * @param props.showTabs   - Whether to render the tab bar (default true).
- * @param props.centered   - Fill the content area and center the content (default false).
  * @param props.children   - The route's screen content.
  * @return The SEO dashboard page chrome.
  */
@@ -58,7 +58,6 @@ const DashboardPage = ( {
 	showFooter = true,
 	flush = false,
 	showTabs = true,
-	centered = false,
 	children,
 }: Props ) => {
 	useEffect( () => recordScreenViewOnce( active ), [ active ] );
@@ -75,16 +74,24 @@ const DashboardPage = ( {
 		return () => window.removeEventListener( 'jetpack-admin-shell:page-shown', onShown );
 	}, [ active ] );
 
+	// Top the column with the notices so they line up; full-bleed stages have no column.
+	const column = ! flush && COLUMN_BY_TAB[ active ];
 	const content = (
 		<>
-			<SearchVisibilityNotice />
+			{ ! column && <DashboardNotices /> }
 			<div
 				className={ clsx( 'jetpack-seo-page-content', {
 					'jetpack-seo-page-content--flush': flush,
-					'jetpack-seo-page-content--centered': centered,
 				} ) }
 			>
-				{ children }
+				{ column ? (
+					<div className={ `jetpack-seo-page-column jetpack-seo-page-column--${ column }` }>
+						<DashboardNotices />
+						{ children }
+					</div>
+				) : (
+					children
+				) }
 			</div>
 		</>
 	);
@@ -99,7 +106,10 @@ const DashboardPage = ( {
 				) }
 				showFooter={ showFooter }
 			>
-				{ showTabs ? <DashboardNav active={ active }>{ content }</DashboardNav> : content }
+				{ /* Always wrapped, so hiding the tabs doesn't remount the page. */ }
+				<DashboardNav active={ active } showTabs={ showTabs }>
+					{ content }
+				</DashboardNav>
 			</AdminPage>
 		</ThemeProvider>
 	);

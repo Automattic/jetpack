@@ -24,7 +24,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
  */
 class Analytics {
 
-	const PACKAGE_VERSION = '0.18.0';
+	const PACKAGE_VERSION = '0.19.0';
 
 	/**
 	 * Whether the class has been initialized.
@@ -74,7 +74,7 @@ class Analytics {
 	 * notices, sync bootstrap, and the dashboard support routes itself.
 	 *
 	 * Hosts call this on every request once the flag is on, never only on admin ones: the
-	 * store-event tracker listens on the front end. {@see self::load_dashboard_surface()} is what
+	 * Jetpack Stats tracker listens on the front end. {@see self::load_dashboard_surface()} is what
 	 * keeps the admin-only work off those requests.
 	 *
 	 * @param array $options Optional configuration options.
@@ -146,6 +146,7 @@ class Analytics {
 	 * @return void
 	 */
 	private static function load_dashboard() {
+		Dashboard_Support::load();
 		self::load_dashboard_components();
 		self::load_build();
 		self::remove_full_page_interceptor();
@@ -237,8 +238,7 @@ class Analytics {
 		// Must be hooked before admin_menu and rest_api_init check the capability.
 		Capabilities::register();
 
-		// Emit WooCommerce store events into the Woo pipeline (ClickHouse + proxy).
-		WooCommerce_Analytics_Tracker::configure();
+		AI_Traffic::register_feature_flag();
 
 		// CSV report export pipeline (WOOA7S-1581): hooks rest_api_init, so it must
 		// register on all requests. Self-gates on WooCommerce + Jetpack connection.
@@ -246,8 +246,16 @@ class Analytics {
 
 		self::register_script_data();
 
+		// The flag registers here, not beside the feature it gates: it must be discoverable
+		// through Feature_Flags::all() on every request, not only the ones that render the
+		// dashboard, so `wp companion feature-flag` lists it.
+		Parsely_Prompts::register_feature_flag();
+
 		// Stats links elsewhere (post list table, admin bar, action bar) open this dashboard.
 		Stats_Links::register();
+
+		// What the dashboard announces on the What's new surface it hosts.
+		Dashboard_Announcements::configure();
 	}
 
 	/**
@@ -353,7 +361,7 @@ class Analytics {
 	}
 
 	/**
-	 * Load the dashboard components every platform renders with.
+	 * Load the package's own dashboard components, over the API Dashboard_Support::load() provides.
 	 *
 	 * Admin-only, via load_dashboard_surface(); boot_routes() requires these
 	 * again for REST.
@@ -361,14 +369,7 @@ class Analytics {
 	 * @return void
 	 */
 	private static function load_dashboard_components() {
-		// Widget modules for the client's dynamic import() map.
-		require_once __DIR__ . '/widget-modules.php';
-
-		// Default layout primitives and the bundled defaults' seed.
-		require_once __DIR__ . '/dashboard-layout.php';
-
-		// Dashboard section API, then the package's own sections registered through it.
-		require_once __DIR__ . '/dashboard-sections.php';
+		// The package's own sections, registered through the section API.
 		require_once __DIR__ . '/default-dashboard-sections.php';
 		configure_dashboard_sections_script_data();
 
@@ -389,6 +390,14 @@ class Analytics {
 		// The plan's locked Stats features, for the client's locked states.
 		require_once __DIR__ . '/stats-plan-gates.php';
 		configure_stats_plan_gates();
+
+		// Whether this site and user see the Upgrade to Parse.ly prompts.
+		require_once __DIR__ . '/parsely-prompts.php';
+		configure_parsely_prompts();
+
+		// The promo slot, for the options menu and Settings.
+		require_once __DIR__ . '/promos.php';
+		configure_promos();
 
 		// The purchase a Stats checkout returned with, for the thank-you notice.
 		require_once __DIR__ . '/purchase-success.php';
@@ -420,7 +429,8 @@ class Analytics {
 	}
 
 	/**
-	 * Load the wp-build output (interceptor, modules, routes, page render).
+	 * Load the wp-build output (interceptor, routes, page render); Dashboard_Support::load()
+	 * already registered its script modules.
 	 *
 	 * Admin-only, via load_dashboard_surface(). REST does not need it:
 	 * boot_routes() and ensure_widget_registry_ready() load what they use.
@@ -431,7 +441,6 @@ class Analytics {
 		$build_entry = self::build_entry_path();
 		if ( file_exists( $build_entry ) ) {
 			require_once $build_entry;
-			require_once __DIR__ . '/sdk-module.php';
 		}
 	}
 
@@ -464,7 +473,14 @@ class Analytics {
 	private static function register_polyfills() {
 		WP_Build_Polyfills::register(
 			'jetpack-premium-analytics',
-			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )
+			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS ),
+			null,
+			array(
+				array(
+					'prefix' => 'jpa',
+					'slug'   => 'jetpack-premium-analytics',
+				),
+			)
 		);
 	}
 
@@ -550,7 +566,7 @@ class Analytics {
 	/**
 	 * Register the dashboard with the admin shell.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.19.0
 	 *
 	 * @param array $members Shell members keyed by admin page slug.
 	 * @return array
@@ -580,7 +596,7 @@ class Analytics {
 	/**
 	 * Ready the dashboard's routes and page data while another dashboard's page is open.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.19.0
 	 *
 	 * @return void
 	 */
@@ -648,7 +664,7 @@ class Analytics {
 	 *
 	 * The shell also loads it on a menu hover, so code that marks a visit or writes anything checks is_dashboard_request() instead.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.19.0
 	 *
 	 * @return bool
 	 */

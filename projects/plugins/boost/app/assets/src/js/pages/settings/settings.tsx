@@ -6,12 +6,12 @@ import CornerstonePagesCard from '$features/cornerstone-pages/cornerstone-pages-
 import CloudCssModule from '$features/critical-css/cloud-css-module/cloud-css-module';
 import CloudCssUpgradeNotice from '$features/critical-css/cloud-css-upgrade-notice';
 import CriticalCssModule from '$features/critical-css/critical-css-module/critical-css-module';
+import DeferFonts from '$features/defer-fonts/defer-fonts';
 import ImageCdn from '$features/image-cdn/image-cdn';
 import ImageGuide from '$features/image-guide/image-guide';
 import LcpModule from '$features/lcp/lcp';
 import MinifyCss from '$features/minify-css/minify-css';
 import MinifyJs from '$features/minify-js/minify-js';
-import { ModuleSurfaceProvider } from '$features/module/surface';
 import PageCacheModule from '$features/page-cache/page-cache';
 import RenderBlockingJs from '$features/render-blocking-js/render-blocking-js';
 import { useRef } from 'react';
@@ -83,70 +83,66 @@ const Group = ( {
 };
 
 const Settings = ( { active = true }: { active?: boolean } ) => {
-	const summary = useCornerstoneSummary( false );
+	const summary = useCornerstoneSummary();
 	const section = useRef< HTMLDivElement >( null );
 	const visit = useSettingsVisit( active );
 	useSettingsExposure( section, { visit } );
 
 	return (
-		<ModuleSurfaceProvider value="row">
-			<Stack ref={ section } direction="column" gap="xl" className={ styles.settings }>
-				{ active && <CloudCssUpgradeNotice /> }
-				<Group
-					group="cornerstone_pages"
-					visit={ visit }
-					title={ __( 'Cornerstone Pages', 'jetpack-boost' ) }
-					description={ __(
-						'Choose the pages that matter most on your site so Boost can give them its most targeted optimizations.',
-						'jetpack-boost'
-					) }
-					summary={ summary }
-					icon={ desktop }
-					defaultOpen={ false }
-				>
-					<CornerstonePagesCard />
-				</Group>
-				<Group
-					group="page_loading"
-					visit={ visit }
-					title={ __( 'Page loading', 'jetpack-boost' ) }
-					description={ __(
-						'Manage how your page content is loaded for visitors.',
-						'jetpack-boost'
-					) }
-					icon={ pending }
-				>
-					<CriticalCssModule />
-					<CloudCssModule />
-					<PageCacheModule />
-					<RenderBlockingJs />
-				</Group>
-				<Group
-					group="code_optimization"
-					visit={ visit }
-					title={ __( 'Code optimization', 'jetpack-boost' ) }
-					description={ __( 'Reduce the code needed to load your site.', 'jetpack-boost' ) }
-					icon={ code }
-				>
-					<MinifyJs />
-					<MinifyCss />
-				</Group>
-				<Group
-					group="images"
-					visit={ visit }
-					title={ __( 'Images', 'jetpack-boost' ) }
-					description={ __(
-						'Tools to load and deliver images more efficiently.',
-						'jetpack-boost'
-					) }
-					icon={ image }
-				>
-					<LcpModule />
-					<ImageCdn />
-					<ImageGuide />
-				</Group>
-			</Stack>
-		</ModuleSurfaceProvider>
+		<Stack ref={ section } direction="column" gap="xl" className={ styles.settings }>
+			{ active && <CloudCssUpgradeNotice /> }
+			<Group
+				group="cornerstone_pages"
+				visit={ visit }
+				title={ __( 'Cornerstone Pages', 'jetpack-boost' ) }
+				description={ __(
+					'Choose the pages that matter most on your site so Boost can give them its most targeted optimizations.',
+					'jetpack-boost'
+				) }
+				summary={ summary }
+				icon={ desktop }
+				defaultOpen={ false }
+			>
+				<CornerstonePagesCard />
+			</Group>
+			<Group
+				group="page_loading"
+				visit={ visit }
+				title={ __( 'Page loading', 'jetpack-boost' ) }
+				description={ __(
+					'Manage how your page content is loaded for visitors.',
+					'jetpack-boost'
+				) }
+				icon={ pending }
+			>
+				<CriticalCssModule />
+				<CloudCssModule />
+				<PageCacheModule />
+				<RenderBlockingJs />
+				<DeferFonts />
+			</Group>
+			<Group
+				group="code_optimization"
+				visit={ visit }
+				title={ __( 'Code optimization', 'jetpack-boost' ) }
+				description={ __( 'Reduce the code needed to load your site.', 'jetpack-boost' ) }
+				icon={ code }
+			>
+				<MinifyJs />
+				<MinifyCss />
+			</Group>
+			<Group
+				group="images"
+				visit={ visit }
+				title={ __( 'Images', 'jetpack-boost' ) }
+				description={ __( 'Tools to load and deliver images more efficiently.', 'jetpack-boost' ) }
+				icon={ image }
+			>
+				<LcpModule />
+				<ImageCdn />
+				<ImageGuide />
+			</Group>
+		</Stack>
 	);
 };
 

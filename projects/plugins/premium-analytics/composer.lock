@@ -127,7 +127,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "114c85c94d30632d5aa4c9b16e39522c8a78e0c9"
+                "reference": "bf4b9fcc4888a4b3a8bcc72d0e878fb970869cd4"
             },
             "require": {
                 "automattic/jetpack-feature-flags": "@dev",
@@ -153,7 +153,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-admin-ui/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.14.x-dev"
+                    "dev-trunk": "0.15.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -200,6 +200,82 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Generic Jetpack wp-admin UI elements",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-announcements",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/announcements",
+                "reference": "002853c7b0b879c7c36b57793edb3e878938b441"
+            },
+            "require": {
+                "php": ">=7.4"
+            },
+            "require-dev": {
+                "automattic/jetpack-test-environment": "@dev",
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "mirror-repo": "Automattic/jetpack-announcements",
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "textdomain": "jetpack-announcements",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-announcements.php"
+                },
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-announcements/compare/v${old}...v${new}"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "actions.php"
+                ],
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "build-development": [
+                    "pnpm run build"
+                ],
+                "build-production": [
+                    "pnpm run build-production"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
+                ],
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "test-js": [
+                    "pnpm run test"
+                ],
+                "test-js-coverage": [
+                    "pnpm run test-coverage"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "A product-agnostic channel to tell Jetpack users what is new.",
             "transport-options": {
                 "relative": true
             }
@@ -968,10 +1044,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "4d58948e4aa84339573d0c503add11241be9e06a"
+                "reference": "40866c411b346ca33493dba8a2e0ba5898b59f9a"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
+                "automattic/jetpack-announcements": "@dev",
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-config": "@dev",
                 "automattic/jetpack-connection": "@dev",
@@ -981,7 +1058,6 @@
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-sync": "@dev",
                 "automattic/jetpack-wp-build-polyfills": "@dev",
-                "automattic/woocommerce-analytics": "^0.18",
                 "php": ">=7.4"
             },
             "require-dev": {
@@ -1000,7 +1076,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-premium-analytics/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.18.x-dev"
+                    "dev-trunk": "0.19.x-dev"
                 }
             },
             "autoload": {
@@ -1156,7 +1232,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats",
-                "reference": "edaa435d7cf0d1bd88b7a0a05b343fd49ecbc839"
+                "reference": "8be3916958abc43d38cb99f1b4941d7cd1c60433"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1184,7 +1260,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-stats/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.24.x-dev"
+                    "dev-trunk": "0.25.x-dev"
                 },
                 "textdomain": "jetpack-stats-pkg"
             },
@@ -1357,13 +1433,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/woocommerce-stats",
-                "reference": "349c7ddfaaf2a522408eb4ae7dfbc6f093e501d8"
+                "reference": "d4b9d99dae53ad8410ab19f5c57a2bcdbfa24119"
             },
             "require": {
                 "automattic/jetpack-config": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-premium-analytics": "@dev",
                 "automattic/jetpack-sync": "@dev",
+                "automattic/woocommerce-analytics": "^0.18",
                 "php": ">=7.4"
             },
             "require-dev": {
@@ -1379,7 +1456,7 @@
                 "autorelease": true,
                 "mirror-repo": "Automattic/jetpack-woocommerce-stats",
                 "branch-alias": {
-                    "dev-trunk": "0.4.x-dev"
+                    "dev-trunk": "0.5.x-dev"
                 },
                 "textdomain": "jetpack-woocommerce-stats-pkg",
                 "version-constants": {
@@ -1435,7 +1512,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/wp-abilities",
-                "reference": "a956e20141812d69729a524237e6ccc133b4f6d1"
+                "reference": "f404a5f869361fa2bc3415fcf7d563cdf1990d9c"
             },
             "require": {
                 "php": ">=7.4"
@@ -1455,7 +1532,7 @@
                     "link-template": "https://github.com/automattic/jetpack-wp-abilities/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.2.x-dev"
+                    "dev-trunk": "0.3.x-dev"
                 },
                 "textdomain": "jetpack-wp-abilities",
                 "version-constants": {

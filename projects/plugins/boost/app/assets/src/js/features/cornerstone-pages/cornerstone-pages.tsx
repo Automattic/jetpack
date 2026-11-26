@@ -1,86 +1,17 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
-import Meta, { CornerstonePagesUpgradeCTA } from './meta/meta';
-import { Panel, PanelBody, PanelRow } from '@wordpress/components';
-import styles from './cornerstone-pages.module.scss';
-import { recordBoostEvent } from '$lib/utils/analytics';
 import { useCustomCornerstonePages } from './lib/stores/cornerstone-pages';
-import Prerender from './prerender/prerender';
-import { useSingleModuleState } from '$features/module/lib/stores';
 
-const CornerstonePages = () => {
-	const [ moduleState ] = useSingleModuleState( 'speculation_rules' );
-	const isSpeculationRulesAvailable = moduleState?.available ?? false;
-	const summary = useCornerstoneSummary();
-
-	return (
-		<div className={ styles.wrapper }>
-			<Panel className={ styles.panel }>
-				<PanelBody
-					title={
-						<div>
-							<h3>{ __( 'Cornerstone Pages', 'jetpack-boost' ) }</h3>
-							<p className={ styles.description }>
-								{ __(
-									'Choose the pages that matter most on your site so Boost can give them its most targeted optimizations.',
-									'jetpack-boost'
-								) }
-							</p>
-							{ summary }
-						</div>
-					}
-					initialOpen={ false }
-					onToggle={ ( value: boolean ) => {
-						recordBoostEvent( 'cornerstone_pages_panel_toggle', {
-							status: value ? 'open' : 'close',
-							panel_scope: 'section',
-						} );
-					} }
-					className={ styles.body }
-				>
-					<PanelRow>
-						<Meta />
-					</PanelRow>
-					{ isSpeculationRulesAvailable && (
-						<PanelRow>
-							<Prerender />
-						</PanelRow>
-					) }
-					<CornerstonePagesUpgradeCTA />
-				</PanelBody>
-			</Panel>
-		</div>
-	);
-};
-
-export const useCornerstoneSummary = ( includeLabel = true ) => {
+export const useCornerstoneSummary = () => {
 	const [ cornerstonePages ] = useCustomCornerstonePages();
 	if ( ! Array.isArray( cornerstonePages ) ) {
 		return null;
 	}
 
-	const pages =
-		cornerstonePages.length === 0
-			? __( 'Homepage', 'jetpack-boost' )
-			: sprintf(
-					/* translators: %d is the number of pages in the custom cornerstone pages list. */
-					_n(
-						'Homepage + %d page',
-						'Homepage + %d pages',
-						cornerstonePages.length,
-						'jetpack-boost'
-					),
-					cornerstonePages.length
-				);
-
-	if ( ! includeLabel ) {
-		return pages;
-	}
-
-	return sprintf(
-		/* translators: %s is the number of pages in the custom cornerstone pages list. */
-		__( 'Added: %s', 'jetpack-boost' ),
-		pages
-	);
+	return cornerstonePages.length === 0
+		? __( 'Homepage', 'jetpack-boost' )
+		: sprintf(
+				/* translators: %d is the number of pages in the custom cornerstone pages list. */
+				_n( 'Homepage + %d page', 'Homepage + %d pages', cornerstonePages.length, 'jetpack-boost' ),
+				cornerstonePages.length
+			);
 };
-
-export default CornerstonePages;

@@ -190,6 +190,9 @@ jobs:
 
       - name: Setup tools
         uses: $/.github/actions/tool-setup
+        with:
+          # pnpm/setup v3's attempt to workaround its own brokenness fails for this job.
+          pnpm-save-cache: false
 
       - name: Install cloudflared
         if: env.USE_CLOUDFLARE_TUNNEL
@@ -278,6 +281,11 @@ jobs:
         run: |
           # Copy debug.log to output folder, if it exists
           [[ ! -f "$WP_DEBUG_PATH" ]] || { mkdir -p "output/logs" && cp "$WP_DEBUG_PATH" "output/logs/php_errors.log"; }
+
+          # Deregister the site from WordPress.com, or each run leaves a site on the test user.
+          # Calls the Connection package, not `wp jetpack`: Social specs deactivate Jetpack.
+          # Warns only on local failures: disconnect_site() ignores the deregister result, so a WordPress.com refusal still exits 0.
+          timeout 30 pnpm jetpack docker --type e2e --name t1 wp -- eval '$m = new Automattic\Jetpack\Connection\Manager(); if ( $m->is_connected() ) { $m->disconnect_site(); WP_CLI::success( "Disconnected the test site from WordPress.com." ); }' || echo "::warning::Could not disconnect the test site from WordPress.com."
 
           pnpm run tunnel:down
           echo "::group::Tunnel logs"

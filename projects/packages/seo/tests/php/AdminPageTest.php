@@ -127,9 +127,9 @@ class AdminPageTest extends TestCase {
 	}
 
 	/**
-	 * The menu item hides while seo-tools is off, like other Jetpack modules.
+	 * The menu item follows the SEO switch.
 	 */
-	public function test_menu_item_is_gated_on_seo_tools() {
+	public function test_menu_item_is_gated_on_the_seo_switch() {
 		Admin_Page::add_menu_item();
 
 		$menu_items = new \ReflectionProperty( Admin_Menu::class, 'menu_items' );
@@ -145,7 +145,7 @@ class AdminPageTest extends TestCase {
 		}
 
 		$this->assertNotNull( $seo_item, 'SEO menu item was not registered' );
-		$this->assertSame( 'seo-tools', $seo_item['args']['module'] ?? null );
+		$this->assertSame( Initializer::DASHBOARD_MODULE, $seo_item['args']['module'] ?? null );
 		$this->assertSame( 'jetpack-seo', $seo_item['args']['key'] ?? null );
 	}
 
@@ -316,18 +316,16 @@ class AdminPageTest extends TestCase {
 	 * @dataProvider admin_shell_member_cases
 	 *
 	 * @param bool $built           Whether build/build.php exists.
-	 * @param bool $seo_tools       Whether the seo-tools module is active.
+	 * @param bool $seo_switch      Whether the SEO switch is on.
 	 * @param bool $simple          Whether the site is WordPress.com Simple.
 	 * @param bool $expected_listed Whether SEO should join the shell.
 	 */
 	#[DataProvider( 'admin_shell_member_cases' )]
-	public function test_admin_shell_member( $built, $seo_tools, $simple, $expected_listed ) {
+	public function test_admin_shell_member( $built, $seo_switch, $simple, $expected_listed ) {
 		$this->set_wp_build_index( __DIR__ . ( $built ? '/files/build-entry/build.php' : '/files/build-entry/absent.php' ) );
-		$modules = static function ( $active ) use ( $seo_tools ) {
-			$active = array_diff( (array) $active, array( 'seo-tools' ) );
-			return $seo_tools ? array_merge( $active, array( 'seo-tools' ) ) : $active;
-		};
-		add_filter( 'jetpack_active_modules', $modules );
+		if ( ! $seo_switch ) {
+			remove_filter( 'jetpack_active_modules', 'jetpack_seo_test_switch_on', 1000 );
+		}
 		if ( $simple ) {
 			Constants::set_constant( 'IS_WPCOM', true );
 		}
@@ -335,7 +333,7 @@ class AdminPageTest extends TestCase {
 		try {
 			$members = Admin_Page::add_admin_shell_member( array( 'other' => array() ) );
 		} finally {
-			remove_filter( 'jetpack_active_modules', $modules );
+			add_filter( 'jetpack_active_modules', 'jetpack_seo_test_switch_on', 1000 );
 			Constants::clear_single_constant( 'IS_WPCOM' );
 		}
 
@@ -349,14 +347,14 @@ class AdminPageTest extends TestCase {
 	/**
 	 * Admin shell member cases.
 	 *
-	 * @return array<string, array{bool, bool, bool, bool}>
+	 * @return array<string, array{0: bool, 1: bool, 2: bool, 3: bool}>
 	 */
 	public static function admin_shell_member_cases() {
 		return array(
-			'built, seo-tools on, self-hosted' => array( true, true, false, true ),
-			'unbuilt'                          => array( false, true, false, false ),
-			'seo-tools off'                    => array( true, false, false, false ),
-			'Simple'                           => array( true, true, true, true ),
+			'built, SEO on, self-hosted' => array( true, true, false, true ),
+			'unbuilt'                    => array( false, true, false, false ),
+			'SEO off'                    => array( true, false, false, false ),
+			'Simple'                     => array( true, true, true, true ),
 		);
 	}
 

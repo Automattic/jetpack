@@ -76,6 +76,7 @@ class Jetpack_Connector {
 		add_action( 'wp_connectors_init', array( static::class, 'register_connector' ), 20 );
 		add_action( 'admin_enqueue_scripts', array( static::class, 'enqueue_script_module' ) );
 		add_action( 'jetpack_client_authorize_error', array( static::class, 'store_auth_error' ) );
+		add_filter( 'jetpack_identity_crisis_show_notice', array( static::class, 'hide_safe_mode_notice' ) );
 	}
 
 	/**
@@ -113,18 +114,7 @@ class Jetpack_Connector {
 	 * @since 9.14.0 Loads the Tracks script when tracking is allowed.
 	 */
 	public static function enqueue_script_module() {
-		$screen = get_current_screen();
-
-		if ( ! $screen || ! static::is_connectors_screen( $screen ) ) {
-			return;
-		}
-
-		if ( ! class_exists( 'WP_Connector_Registry' ) ) {
-			return;
-		}
-
-		// The built files are missing in a checkout that hasn't run the build, or mid-deploy.
-		$asset = static::get_module_asset( __DIR__ . '/' . static::MODULE_FILE );
+		$asset = static::get_card_asset();
 		if ( null === $asset ) {
 			return;
 		}
@@ -204,6 +194,7 @@ class Jetpack_Connector {
 	 * @since 8.2.0
 	 * @since 9.13.0 Shared connection state moved to the jetpack-connection store.
 	 * @since 9.14.0 Adds `connectorsUrl`; sends `connectedUsersUrl` whenever there are account rows, including while the owner's token is broken.
+	 * @since $$next-version$$ Leaves out `pluginLogos` in Safe Mode.
 	 *
 	 * @param array $data Existing script module data.
 	 * @return array Filtered script module data.
@@ -220,9 +211,13 @@ class Jetpack_Connector {
 		$data['connectorDescription'] = __( 'Enhanced functionality for Jetpack and WooCommerce with WordPress.com cloud services.', 'jetpack-connection' );
 		$data['connectorLogoUrl']     = static::get_connector_logo_url();
 
-		$connected_plugins   = $manager->get_connected_plugins();
-		$connected_plugins   = is_array( $connected_plugins ) ? $connected_plugins : array();
-		$data['pluginLogos'] = static::get_plugin_logos( array_keys( $connected_plugins ) );
+		$connected_plugins = $manager->get_connected_plugins();
+		$connected_plugins = is_array( $connected_plugins ) ? $connected_plugins : array();
+
+		// In Safe Mode the card lists no plugins, and the Safe Mode screen gets the logos from Initial_State.
+		if ( ! ( new Status() )->in_safe_mode() ) {
+			$data['pluginLogos'] = static::get_connected_plugin_logos();
+		}
 
 		if ( $is_registered ) {
 			$data['siteDetails'] = array(
@@ -272,6 +267,7 @@ class Jetpack_Connector {
 	 *
 	 * @since 8.7.0
 	 * @since 9.13.0 No longer sends `isInSafeMode`; the card reads it from the store.
+	 * @since 9.18.3 Not sent with the `connection-idc-screen` flag on.
 	 *
 	 * @param array $data Script module data passed by reference.
 	 */
@@ -281,6 +277,11 @@ class Jetpack_Connector {
 		}
 
 		if ( ! ( new Status() )->in_safe_mode() ) {
+			return;
+		}
+
+		// The new screen reads the shared Safe Mode state. Guarded: the abandoned jetpack-identity-crisis package defines the same class.
+		if ( method_exists( Identity_Crisis::class, 'is_new_screen_enabled' ) && Identity_Crisis::is_new_screen_enabled() ) {
 			return;
 		}
 
@@ -368,6 +369,33 @@ class Jetpack_Connector {
 		$url      = $owner_id > 0 ? get_edit_user_link( $owner_id ) : '';
 
 		return '' !== $url ? $url : null;
+	}
+
+	/**
+	 * The card's asset data, when the current admin page shows the card.
+	 *
+	 * @return array|null Null off the Connectors page, on a WordPress without connector cards, or without the build.
+	 */
+	private static function get_card_asset() {
+		$screen = get_current_screen();
+		if ( ! $screen || ! static::is_connectors_screen( $screen ) || ! class_exists( 'WP_Connector_Registry' ) ) {
+			return null;
+		}
+
+		// The built files are missing in a checkout that hasn't run the build, or mid-deploy.
+		return static::get_module_asset( __DIR__ . '/' . static::MODULE_FILE );
+	}
+
+	/**
+	 * Hide the Safe Mode notice where the card shows, since the card shows the same screen.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $show Whether to show the notice.
+	 * @return bool
+	 */
+	public static function hide_safe_mode_notice( $show ) {
+		return null === static::get_card_asset() ? $show : false;
 	}
 
 	/**
@@ -465,20 +493,18 @@ class Jetpack_Connector {
 	}
 
 	/**
-	 * Map connected plugin slugs to their logo URLs.
+	 * Get the connected plugins' logo URLs.
 	 *
-	 * The plugin list itself comes from the jetpack-connection store; logos stay here because
-	 * third parties add them through a PHP filter.
+	 * @since $$next-version$$
 	 *
-	 * @since 9.13.0
-	 *
-	 * @param string[] $slugs Connected plugin slugs.
-	 * @return array<string,string> Logo URL by slug, for slugs that have one.
+	 * @return array<string,string> Logo URL by slug, for plugins that have one.
 	 */
-	private static function get_plugin_logos( $slugs ) {
-		$logos = array();
+	public static function get_connected_plugin_logos() {
+		$plugins = ( new Manager() )->get_connected_plugins();
+		$plugins = is_array( $plugins ) ? $plugins : array();
+		$logos   = array();
 
-		foreach ( $slugs as $slug ) {
+		foreach ( array_keys( $plugins ) as $slug ) {
 			$logo_url = static::get_plugin_logo_url( (string) $slug );
 			if ( $logo_url ) {
 				$logos[ $slug ] = $logo_url;
@@ -607,11 +633,12 @@ class Jetpack_Connector {
 
 		/**
 		 * Filters a map of plugin slugs to custom logo URLs for the
-		 * Settings → Connectors card.
+		 * Settings → Connectors card and the Safe Mode screen.
 		 *
 		 * Add entries as `$slug => $url` pairs. URLs must point to an
 		 * SVG file (`.svg` extension required); non-SVG values are
-		 * silently ignored and the generic fallback icon is shown.
+		 * silently ignored: the card shows its generic fallback icon,
+		 * and the Safe Mode screen shows the plugin's name only.
 		 *
 		 * Example:
 		 *

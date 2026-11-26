@@ -2,14 +2,10 @@
 /* eslint-disable jest-dom/prefer-in-document, jest-dom/prefer-to-have-attribute -- This Jest project does not load jest-dom. */
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { resetLocaleData, setLocaleData } from '@wordpress/i18n';
-import { ModuleSurfaceProvider } from '$features/module/surface';
 import { useImageCdnQuality } from '../lib/stores';
 import QualitySettings from './quality-settings';
 
 jest.mock( './quality-settings.module.scss', () => ( { well: 'well' } ) );
-jest.mock( '$features/ui/module-subsection/module-subsection.module.scss', () => ( {
-	wrapper: 'module-subsection',
-} ) );
 jest.mock( '../lib/stores', () => ( { useImageCdnQuality: jest.fn() } ) );
 jest.mock( '$features/ui/mutation-notice/mutation-notice', () => ( {
 	useMutationNotice: jest.fn(),
@@ -22,12 +18,7 @@ const quality = {
 	webp: { quality: 65, lossless: false },
 };
 const mutate = jest.fn();
-const renderSettings = () =>
-	render(
-		<ModuleSurfaceProvider value="row">
-			<QualitySettings isPremium />
-		</ModuleSurfaceProvider>
-	);
+const renderSettings = () => render( <QualitySettings isPremium /> );
 
 beforeEach( () => {
 	mutate.mockClear();
@@ -43,7 +34,7 @@ afterEach( () => {
 	jest.useRealTimers();
 } );
 
-test( 'renders the modern quality heading from the translation catalog', () => {
+test( 'renders the quality heading from the translation catalog', () => {
 	setLocaleData(
 		{ 'Adjust image quality per format': [ 'Ajuster la qualité des images par format' ] },
 		'jetpack-boost'
@@ -54,7 +45,7 @@ test( 'renders the modern quality heading from the translation catalog', () => {
 	).toBeTruthy();
 } );
 
-test( 'keeps the modern help button named and its tooltip dismissible', async () => {
+test( 'keeps the help button named and its tooltip dismissible', async () => {
 	renderSettings();
 	const help = screen.getByRole( 'button', { name: 'How image quality works' } );
 	expect( help.getAttribute( 'aria-expanded' ) ).toBe( 'false' );
@@ -93,7 +84,7 @@ test( 'expands existing quality values and preserves other formats when saving q
 	} );
 } );
 
-test( 'exposes the modern Adjust Quality toggle as a disclosure of the quality controls', () => {
+test( 'exposes the Adjust Quality toggle as a disclosure of the quality controls', () => {
 	renderSettings();
 	const toggle = screen.getByRole( 'button', { name: 'Adjust Quality' } );
 	expect( toggle.getAttribute( 'aria-expanded' ) ).toBe( 'false' );
@@ -103,16 +94,4 @@ test( 'exposes the modern Adjust Quality toggle as a disclosure of the quality c
 	// eslint-disable-next-line testing-library/no-node-access -- aria-controls names the panel by id.
 	const panel = document.getElementById( toggle.getAttribute( 'aria-controls' )! );
 	expect( panel?.contains( screen.getAllByRole( 'slider' )[ 0 ] ) ).toBe( true );
-} );
-
-test( 'keeps the Image Quality heading and summary on the default legacy surface', () => {
-	const { container } = render( <QualitySettings isPremium /> );
-
-	expect( container.firstElementChild?.className ).toBe( 'module-subsection' );
-	// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- The well is a presentation container.
-	expect( container.querySelector( '.well' ) ).toBeNull();
-	expect( screen.getByRole( 'heading', { name: 'Image Quality', level: 4 } ) ).toBeTruthy();
-	expect(
-		screen.getByText( 'JPEG Quality: 75, PNG Quality: lossless, WEBP Quality: 65' )
-	).toBeTruthy();
 } );

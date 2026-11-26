@@ -96,7 +96,7 @@ const setPageState = ( myJetpackFlags: Record< string, boolean > = {} ) => {
 };
 
 const openControl = async () => {
-	await userEvent.click( screen.getByRole( 'button', { name: /^Connection:/ } ) );
+	await userEvent.click( screen.getByRole( 'button', { name: /^Jetpack Connection:/ } ) );
 	return screen.findByRole( 'dialog' );
 };
 
@@ -132,7 +132,7 @@ describe( 'getHeaderControls', () => {
 		setPageState( { headerControls: true } );
 		render( <>{ getHeaderControls() }</> );
 
-		expect( screen.getByRole( 'button', { name: /^Connection:/ } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: /^Jetpack Connection:/ } ) ).toBeInTheDocument();
 		expect( mockUseConnectionErrorNotice ).toHaveBeenCalledWith(
 			expect.objectContaining( { trackingContext: 'my-jetpack' } )
 		);
@@ -153,29 +153,62 @@ describe( 'HeaderControls', () => {
 		expect( dialog ).toContainElement( screen.getByRole( role, { name } ) );
 	} );
 
-	it( 'focuses the panel, not its first link, when it opens with a click', async () => {
-		mockUseConnectionState.mockReturnValue(
-			stateWith( { action: 'CONNECT_USER', status: 'warning' } )
-		);
+	it.each( [
+		[ 'connected', 'Site and account connected', 'Connected', 'Jetpack Connection: Connected' ],
+		[ 'site-connected', 'Site connected', 'Connected', 'Jetpack Connection: Connected' ],
+		[
+			'user-not-connected',
+			'Site connected',
+			'Not connected',
+			'Jetpack Connection: Not connected',
+		],
+		[ 'owner-missing', 'Site connected', 'Not connected', 'Jetpack Connection: Not connected' ],
+		[
+			'site-not-connected',
+			'Site not connected',
+			'Site not connected',
+			'Jetpack Connection: Site not connected',
+		],
+		[
+			'error',
+			'Jetpack Connection error: Your account (connection owner)',
+			'Jetpack Connection error: Your account (connection owner)',
+			'Jetpack Connection error: Your account (connection owner)',
+		],
+	] as const )( 'names its button after the badge when %s', async ( id, label, badge, name ) => {
+		mockUseConnectionState.mockReturnValue( stateWith( { id, label } ) );
 		render( <HeaderControls trackingContext="my-jetpack" /> );
 
-		const dialog = await openControl();
+		await userEvent.click( screen.getByRole( 'button', { name } ) );
+		const dialog = await screen.findByRole( 'dialog' );
 
-		await waitFor( () => expect( dialog ).toHaveFocus() );
+		expect( dialog ).toHaveAccessibleDescription( badge );
 	} );
 
-	it( 'focuses its first link when it opens from the keyboard', async () => {
+	it.each( [
+		[
+			'a click',
+			() => userEvent.click( screen.getByRole( 'button', { name: /^Jetpack Connection:/ } ) ),
+		],
+		[
+			'the keyboard',
+			() => {
+				screen.getByRole( 'button', { name: /^Jetpack Connection:/ } ).focus();
+				return userEvent.keyboard( '{Enter}' );
+			},
+		],
+	] )( 'focuses the panel, by its title, when it opens with %s', async ( _, open ) => {
 		mockUseConnectionState.mockReturnValue(
-			stateWith( { action: 'CONNECT_USER', status: 'warning' } )
+			stateWith( { id: 'user-not-connected', action: 'CONNECT_USER', status: 'warning' } )
 		);
 		render( <HeaderControls trackingContext="my-jetpack" /> );
 
-		screen.getByRole( 'button', { name: /^Connection:/ } ).focus();
-		await userEvent.keyboard( '{Enter}' );
+		await open();
+		const dialog = await screen.findByRole( 'dialog', { name: 'Jetpack Connection' } );
 
-		await waitFor( () =>
-			expect( screen.getByRole( 'link', { name: 'Connect my account' } ) ).toHaveFocus()
-		);
+		await waitFor( () => expect( dialog ).toHaveFocus() );
+		await userEvent.tab();
+		expect( screen.getByRole( 'link', { name: 'Connect my account' } ) ).toHaveFocus();
 	} );
 
 	it( 'offers no action in Safe Mode', async () => {
@@ -311,7 +344,7 @@ describe( 'HeaderControls', () => {
 		await userEvent.click( await screen.findByRole( 'button', { name: 'Close dialog' } ) );
 
 		await waitFor( () =>
-			expect( screen.getByRole( 'button', { name: /^Connection:/ } ) ).toHaveFocus()
+			expect( screen.getByRole( 'button', { name: /^Jetpack Connection:/ } ) ).toHaveFocus()
 		);
 	} );
 
@@ -332,6 +365,62 @@ describe( 'HeaderControls', () => {
 		expect( mockManageConnectionDialog ).toHaveBeenCalledWith(
 			expect.objectContaining( { isOpen: true, context: 'boost', placement: 'header' } )
 		);
+	} );
+
+	it.each( [
+		[ 'Connect my account', 'link', { action: 'CONNECT_USER' }, 'connect_user' ],
+		[ 'Connect site', 'link', { action: 'CONNECT_SITE' }, 'connect_site' ],
+		[
+			'Manage connection',
+			'link',
+			{ manageConnection: { type: 'link', url: 'https://example.com/connectors' } },
+			'manage_connection',
+		],
+		[
+			'Manage connection',
+			'button',
+			{ manageConnection: { type: 'dialog' } },
+			'manage_connection',
+		],
+	] as const )(
+		'records opening the control and "%s" (%s) with the host page and connection state',
+		async ( name, role, overrides, action ) => {
+			mockUseConnectionState.mockReturnValue(
+				stateWith( { id: 'user-not-connected', status: 'warning', ...overrides } )
+			);
+			render( <HeaderControls trackingContext="boost" /> );
+			const properties = { context: 'boost', connection_state: 'user-not-connected' };
+
+			const dialog = await openControl();
+
+			expect( mockRecordEvent ).toHaveBeenCalledWith(
+				'jetpack_myjetpack_header_connection_open',
+				properties
+			);
+
+			const control = within( dialog ).getByRole( role, { name } );
+			control.addEventListener( 'click', event => event.preventDefault() );
+			await userEvent.click( control );
+
+			expect( mockRecordEvent ).toHaveBeenCalledWith(
+				'jetpack_myjetpack_header_connection_action_click',
+				{ ...properties, action }
+			);
+		}
+	);
+
+	it( 'records each open of the control, but not its close', async () => {
+		render( <HeaderControls trackingContext="my-jetpack" /> );
+
+		await openControl();
+		await userEvent.keyboard( '{Escape}' );
+		await waitFor( () => expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument() );
+		await openControl();
+
+		const opens = mockRecordEvent.mock.calls.filter(
+			( [ event ] ) => event === 'jetpack_myjetpack_header_connection_open'
+		);
+		expect( opens ).toHaveLength( 2 );
 	} );
 
 	it( 'loads the plan once, on first open', async () => {
@@ -365,7 +454,7 @@ describe( 'HeaderControls', () => {
 		expect( mockApiFetch ).not.toHaveBeenCalled();
 	} );
 
-	it( "tags the plan links' Tracks events as from the header", async () => {
+	it( "tags the plan links' Tracks events with the header and its host page", async () => {
 		window.myJetpackInitialState = {
 			userIsAdmin: true,
 			myJetpackFlags: {},
@@ -376,19 +465,27 @@ describe( 'HeaderControls', () => {
 				ID: 1,
 				product_name: 'Jetpack Search',
 				product_slug: 'jetpack_search',
-				expiry_date: null,
-				expiry_status: 'active',
+				expiry_date: '2027-01-28T00:00:00+00:00',
+				expiry_status: 'expiring',
 				subscribed_date: '2025-11-05T00:00:00+00:00',
 				domain: 'example.com',
 			},
 		] );
-		render( <HeaderControls trackingContext="my-jetpack" /> );
+		render( <HeaderControls trackingContext="boost" /> );
 
 		await openControl();
 		await userEvent.click( await screen.findByRole( 'link', { name: /Manage your plan/ } ) );
+		await userEvent.click( screen.getByRole( 'link', { name: /Renew/ } ) );
 
 		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_myjetpack_plans_manage_click', {
 			location: 'header',
+			context: 'boost',
+		} );
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_myjetpack_plans_renew_click', {
+			location: 'header',
+			context: 'boost',
+			action: 'renew',
+			product_slug: 'jetpack_search',
 		} );
 	} );
 
@@ -551,7 +648,7 @@ describe( 'header controls script', () => {
 		rtlRender( <>{ getHeaderControlsSlot( 'boost' ) }</> );
 
 		await expect(
-			screen.findByRole( 'button', { name: /^Connection:/ } )
+			screen.findByRole( 'button', { name: /^Jetpack Connection:/ } )
 		).resolves.toBeInTheDocument();
 		expect( mockUseConnectionErrorNotice ).toHaveBeenCalledWith(
 			expect.objectContaining( { trackingContext: 'boost' } )

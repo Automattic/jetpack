@@ -1,4 +1,3 @@
-import { useModuleSurface } from '$features/module/surface';
 import Module from '$features/module/module';
 import PageCacheMeta from '$features/page-cache/meta/meta';
 import Health from '$features/page-cache/health/health';
@@ -35,15 +34,6 @@ const DismissableNotice = ( { title, children }: { title: string; children: Reac
 };
 
 const PageCache = () => {
-	const legacyDescription = __(
-		'Store and serve preloaded content to reduce load times and enhance your site performance and user experience.',
-		'jetpack-boost'
-	);
-	const modernDescription = __(
-		'Stores prepared versions of your pages so they can be served more efficiently.',
-		'jetpack-boost'
-	);
-	const isModern = useModuleSurface() === 'row';
 	const [ moduleState ] = useSingleModuleState( 'page_cache' );
 	const [ pageCacheSetup, pageCacheSetupNotices ] = usePageCacheSetup();
 	const [ pageCacheError, pageCacheErrorMutation ] = usePageCacheError();
@@ -118,7 +108,12 @@ const PageCache = () => {
 			} }
 			description={
 				<>
-					<p>{ isModern ? modernDescription : legacyDescription }</p>
+					<p>
+						{ __(
+							'Stores prepared versions of your pages so they can be served more efficiently.',
+							'jetpack-boost'
+						) }
+					</p>
 					{ showCacheFromHostingNotice &&
 						( hasHostPageCache ? (
 							<Notice.Root intent="success">

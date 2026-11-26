@@ -1,4 +1,5 @@
 import BoostAdminPage from '$layout/boost-admin-page/boost-admin-page';
+import PageFrame from '$layout/page-frame/page-frame';
 import BackButton from '$features/ui/back-button/back-button';
 import JetpackLogo from '$svg/jetpack-green';
 import clsx from 'clsx';
@@ -7,7 +8,6 @@ import type { ReactNode } from 'react';
 
 type CardPageProps = {
 	children: ReactNode;
-	showActivateLicense?: boolean;
 	showBackButton?: boolean;
 	sidebarItem?: ReactNode;
 	footerNote?: ReactNode;
@@ -15,14 +15,13 @@ type CardPageProps = {
 
 const CardPage = ( {
 	children,
-	showActivateLicense = true,
 	showBackButton = true,
 	footerNote,
 	sidebarItem,
 }: CardPageProps ) => {
 	return (
-		<BoostAdminPage showActivateLicense={ showActivateLicense }>
-			<div id="jb-dashboard" className="jb-dashboard">
+		<BoostAdminPage>
+			<PageFrame>
 				<div className={ styles.body }>
 					<div className={ 'jb-container jb-container--fixed mt-2' }>
 						{ showBackButton && <BackButton /> }
@@ -37,7 +36,7 @@ const CardPage = ( {
 						{ footerNote && <footer className={ styles[ 'footer-note' ] }>{ footerNote }</footer> }
 					</div>
 				</div>
-			</div>
+			</PageFrame>
 		</BoostAdminPage>
 	);
 };

@@ -3,8 +3,8 @@ import { Snackbar } from '@wordpress/components';
 import { getUpgradeURL, useConnection } from '$lib/stores/connection';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { BoostPricingTable } from '$features/boost-pricing-table/boost-pricing-table';
-import { detectMode } from '$lib/modern/mode';
 import BoostAdminPage from '$layout/boost-admin-page/boost-admin-page';
+import PageFrame from '$layout/page-frame/page-frame';
 import styles from './getting-started.module.scss';
 import { useGettingStarted } from '$lib/stores/getting-started';
 import { useBoostNavigation } from '$lib/navigation/navigation-context';
@@ -16,7 +16,6 @@ import { canOfferUpgrade } from '../../../../../../_inc/overview/lib/use-modules
 import type { FC } from 'react';
 
 const GettingStarted: FC = () => {
-	const isModern = detectMode() === 'modern';
 	const [ selectedPlan, setSelectedPlan ] = useState< 'free' | 'premium' | false >( false );
 	const [ snackbarMessage, setSnackbarMessage ] = useState< string >( '' );
 	const { returnToSettings } = useBoostNavigation();
@@ -37,10 +36,9 @@ const GettingStarted: FC = () => {
 		if ( ! shouldGetStarted && selectedPlan ) {
 			// Go to the purchase flow if the user doesn't have a premium plan.
 			if ( ! isPremium && selectedPlan === 'premium' ) {
-				window.location.href =
-					isModern && canOfferUpgrade()
-						? upgradeHref
-						: getUpgradeURL( domain, userConnected, wpcomBlogId ? wpcomBlogId.toString() : null );
+				window.location.href = canOfferUpgrade()
+					? upgradeHref
+					: getUpgradeURL( domain, userConnected, wpcomBlogId ? wpcomBlogId.toString() : null );
 			} else {
 				if ( ! isPremium ) {
 					setCriticalCssState( true );
@@ -50,7 +48,6 @@ const GettingStarted: FC = () => {
 		}
 	}, [
 		domain,
-		isModern,
 		isPremium,
 		returnToSettings,
 		selectedPlan,
@@ -84,8 +81,8 @@ const GettingStarted: FC = () => {
 	}
 
 	return (
-		<BoostAdminPage showActivateLicense={ ! isModern }>
-			<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
+		<BoostAdminPage>
+			<PageFrame className={ styles.page } white>
 				<div className="jb-section jb-section--alt">
 					<div className="jb-container">
 						<div className={ styles[ 'pricing-table' ] }>
@@ -104,7 +101,7 @@ const GettingStarted: FC = () => {
 						</div>
 					</div>
 				</div>
-			</div>
+			</PageFrame>
 		</BoostAdminPage>
 	);
 };

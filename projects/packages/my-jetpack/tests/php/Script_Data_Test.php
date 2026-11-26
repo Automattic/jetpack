@@ -99,7 +99,9 @@ class Script_Data_Test extends BaseTestCase {
 			$_registered_pages[ $page_hook ] = true;
 			$_GET['page']                    = 'edit.php';
 
+			add_filter( $flag_filter, '__return_false' );
 			$this->assertFalse( Initializer::add_admin_script_data( array() )['myJetpack'][ $key ] );
+			remove_filter( $flag_filter, '__return_false' );
 
 			add_filter( $flag_filter, '__return_true' );
 			$this->assertTrue( Initializer::add_admin_script_data( array() )['myJetpack'][ $key ] );
@@ -111,12 +113,94 @@ class Script_Data_Test extends BaseTestCase {
 			unset( $_registered_pages[ $page_hook ] );
 			$this->assertFalse( Initializer::add_admin_script_data( array() )['myJetpack'][ $key ] );
 		} finally {
+			remove_filter( $flag_filter, '__return_false' );
 			remove_filter( $flag_filter, '__return_true' );
 			remove_filter( $host_filter, '__return_false' );
 			\Automattic\Jetpack\Feature_Flags\Feature_Flags::reset();
 			$_registered_pages = $registered_pages;
 			$wp_actions        = $actions;
 			unset( $_GET['page'] );
+			wp_set_current_user( $user_id );
+		}
+	}
+
+	public function test_settings_notices_carry_the_jetpack_state_only_where_my_jetpack_shows_them() {
+		global $_registered_pages, $wp_actions;
+
+		$registered_pages = $_registered_pages;
+		$actions          = $wp_actions;
+		$user_id          = get_current_user_id();
+		$flag_filter      = 'jetpack_feature_flag_enabled_' . Initializer::SETTINGS_CONSOLIDATION_FLAG;
+		$cookie_state     = new \Automattic\Jetpack\CookieState();
+		// The Jetpack plugin maps this cap; onboarding redirects only users who have it.
+		$connect_cap = static function ( $caps, $cap ) {
+			return 'jetpack_connect' === $cap ? array( 'manage_options' ) : $caps;
+		};
+
+		try {
+			$admin_id = wp_insert_user(
+				array(
+					'user_login' => 'notices-admin',
+					'user_pass'  => 'test-password',
+					'role'       => 'administrator',
+				)
+			);
+			wp_set_current_user( $admin_id );
+			add_filter( 'map_meta_cap', $connect_cap, 10, 2 );
+			add_filter( 'jetpack_offline_mode', '__return_false' );
+			$wp_actions['my_jetpack_init'] = 1;
+			$_registered_pages[ get_plugin_page_hookname( 'my-jetpack', 'jetpack' ) ] = true;
+			$cookie_state->state( 'error', 'wrong_state' );
+			$cookie_state->state( 'error_description', 'Log in again.' );
+			update_option( 'blog_public', '0' );
+
+			$this->assertNull( Initializer::get_settings_notices_state(), 'Flag off.' );
+
+			add_filter( $flag_filter, '__return_true' );
+			$this->assertNull( Initializer::get_settings_notices_state(), 'Unconnected: My Jetpack sends the user to onboarding.' );
+
+			\Jetpack_Options::update_options(
+				array(
+					'id'          => 123,
+					'blog_token'  => 'blog.token',
+					'master_user' => $admin_id,
+					'user_tokens' => array( $admin_id => "user.token.$admin_id" ),
+				)
+			);
+			( new \Automattic\Jetpack\Connection\Manager() )->reset_connection_status();
+
+			$notices = Initializer::get_settings_notices_state() ?? array();
+			$this->assertSame(
+				array(
+					'error'            => 'wrong_state',
+					'errorDescription' => 'Log in again.',
+					'message'          => null,
+				),
+				$notices['jetpackState']
+			);
+			$this->assertFalse( $notices['searchEnginesVisible'] );
+
+			$_GET['step'] = 'onboarding';
+			$this->assertNull( Initializer::get_settings_notices_state(), 'The onboarding step.' );
+			unset( $_GET['step'] );
+
+			add_filter( 'jetpack_offline_mode', '__return_true', 11 );
+			\Automattic\Jetpack\Status\Cache::clear();
+			$this->assertNull( Initializer::get_settings_notices_state(), 'Offline: the Features page.' );
+		} finally {
+			unset( $_GET['step'] );
+			remove_filter( 'jetpack_offline_mode', '__return_true', 11 );
+			\Automattic\Jetpack\Status\Cache::clear();
+			remove_filter( $flag_filter, '__return_true' );
+			remove_filter( 'map_meta_cap', $connect_cap, 10 );
+			remove_filter( 'jetpack_offline_mode', '__return_false' );
+			\Jetpack_Options::delete_option( array( 'id', 'blog_token', 'master_user', 'user_tokens' ) );
+			( new \Automattic\Jetpack\Connection\Manager() )->reset_connection_status();
+			$cookie_state->state( 'error', '' );
+			$cookie_state->state( 'error_description', '' );
+			delete_option( 'blog_public' );
+			$_registered_pages = $registered_pages;
+			$wp_actions        = $actions;
 			wp_set_current_user( $user_id );
 		}
 	}
@@ -317,6 +401,22 @@ class Script_Data_Test extends BaseTestCase {
 			$_registered_pages = $registered_pages;
 			$wp_actions        = $actions;
 			wp_set_current_user( $user_id );
+		}
+	}
+
+	/**
+	 * Footers hide their My Jetpack links where the host says it does not show the page.
+	 */
+	public function test_reports_whether_the_host_shows_my_jetpack() {
+		$host_filter = 'jetpack_my_jetpack_modules_management_available';
+
+		$this->assertTrue( Initializer::add_admin_script_data( array() )['myJetpack']['isShownByHost'] );
+
+		add_filter( $host_filter, '__return_false' );
+		try {
+			$this->assertFalse( Initializer::add_admin_script_data( array() )['myJetpack']['isShownByHost'] );
+		} finally {
+			remove_filter( $host_filter, '__return_false' );
 		}
 	}
 

@@ -145,12 +145,19 @@ class Access_Control {
 			return $this->filter_video_restriction_details( $restriction_details, $guid, $embedded_post_id, $selected_plan_id );
 		}
 
+		// Every visitor sees the active theme's templates, but read_post on them needs edit_theme_options.
+		if ( self::is_active_theme_template( $post_to_check ) ) {
+			$restriction_details = $this->default_video_restriction_details( current_user_can( 'read' ) );
+			return $this->check_block_level_access( $restriction_details, $guid, $embedded_post_id, $selected_plan_id, true );
+		}
+
 		$default_auth        = $this->get_default_user_capability_for_post( $post_to_check );
 		$restriction_details = $this->default_video_restriction_details( $default_auth );
 		// Logged-out visitors never have read_post, so a public post admits them on its status alone.
 		// Neither check knows about post passwords, which the page enforces for everyone.
+		$password_required   = post_password_required( $post_to_check );
 		$post_admits_visitor = ( $default_auth || is_post_publicly_viewable( $post_to_check ) )
-			&& ! post_password_required( $post_to_check );
+			&& ! $password_required;
 
 		if ( $this->jetpack_memberships_available() ) {
 			$post_access_level = \Jetpack_Memberships::get_post_access_level( $embedded_post_id );
@@ -162,6 +169,8 @@ class Access_Control {
 				$post_admits_visitor               = $post_admits_visitor && $memberships_can_view_post;
 			}
 		}
+
+		$restriction_details['can_access'] = $restriction_details['can_access'] && ! $password_required;
 
 		return $this->check_block_level_access(
 			$restriction_details,
@@ -364,6 +373,61 @@ class Access_Control {
 		set_transient( $transient_key, $unique_guids, self::GUID_CACHE_EXPIRATION );
 
 		return $unique_guids;
+	}
+
+	/**
+	 * Get the post a block is rendering on, for playback authorization.
+	 *
+	 * Falls back to the current block template on views without a post, such as a 404 page.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param \WP_Block|null $block The block being rendered.
+	 * @return int The post ID, or 0 when there is none.
+	 */
+	public static function get_embedding_post_id( $block = null ) {
+		$post_id = $block instanceof \WP_Block && isset( $block->context['postId'] )
+			? $block->context['postId']
+			: get_the_ID();
+
+		return $post_id ? absint( $post_id ) : self::get_current_template_post_id();
+	}
+
+	/**
+	 * Get the stored post ID of the block template being rendered.
+	 *
+	 * Templates still served from theme files have no post, so they return 0.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return int The wp_template post ID, or 0.
+	 */
+	public static function get_current_template_post_id() {
+		global $_wp_current_template_id;
+
+		if ( empty( $_wp_current_template_id ) || ! is_string( $_wp_current_template_id ) || ! function_exists( 'get_block_template' ) ) {
+			return 0;
+		}
+
+		$template = get_block_template( $_wp_current_template_id, 'wp_template' );
+
+		return $template && ! empty( $template->wp_id ) ? absint( $template->wp_id ) : 0;
+	}
+
+	/**
+	 * Whether a post is a published template of the active theme.
+	 *
+	 * @param WP_Post $post The post to check.
+	 * @return bool
+	 */
+	private static function is_active_theme_template( $post ) {
+		if ( 'wp_template' !== $post->post_type || 'publish' !== $post->post_status ) {
+			return false;
+		}
+
+		$themes = get_the_terms( $post, 'wp_theme' );
+
+		return is_array( $themes ) && in_array( get_stylesheet(), wp_list_pluck( $themes, 'name' ), true );
 	}
 
 	/**

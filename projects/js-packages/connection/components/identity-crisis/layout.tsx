@@ -1,6 +1,7 @@
 import { JetpackLogo } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
+import clsx from 'clsx';
 import { useId } from 'react';
 import styles from './styles.module.scss';
 import type { IdentityCrisisLayoutProps } from './types';
@@ -15,8 +16,10 @@ import type { ReactNode } from 'react';
 export default function IdentityCrisisLayout( {
 	logoUrl,
 	showHeader = true,
+	heading,
 	children,
 	hostActions,
+	isBusy = false,
 }: IdentityCrisisLayoutProps ): ReactNode {
 	const headingId = useId();
 	// Decorative: the heading next to it names the screen.
@@ -30,20 +33,29 @@ export default function IdentityCrisisLayout( {
 		<section
 			{ ...( showHeader
 				? { 'aria-labelledby': headingId }
-				: { 'aria-label': __( 'Jetpack Connection Safe Mode', 'jetpack-connection-js' ) } ) }
+				: {
+						'aria-label': heading ?? __( 'Jetpack Connection Safe Mode', 'jetpack-connection-js' ),
+					} ) }
 		>
 			<Stack direction="column" gap="lg">
 				{ showHeader && (
 					<Stack direction="row" gap="sm" align="center">
 						{ logo }
 						<Text variant="heading-lg" render={ <h2 id={ headingId } /> }>
-							{ __( 'Jetpack Connection is in Safe Mode', 'jetpack-connection-js' ) }
+							{ heading ?? __( 'Jetpack Connection is in Safe Mode', 'jetpack-connection-js' ) }
 						</Text>
 					</Stack>
 				) }
 				{ children }
 				{ hostActions && (
-					<Stack direction="row" gap="sm" wrap="wrap" className={ styles[ 'host-actions' ] }>
+					<Stack
+						direction="row"
+						gap="sm"
+						wrap="wrap"
+						className={ clsx( styles.fieldset, styles.divider ) }
+						// Disables any host's buttons without the host having to; not a group to announce.
+						render={ <fieldset role="presentation" disabled={ isBusy } /> }
+					>
 						{ hostActions }
 					</Stack>
 				) }

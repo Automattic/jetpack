@@ -8,14 +8,21 @@ import {
 } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
 import { page as pageIcon, post as postIcon } from '@wordpress/icons';
+import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
 import { setMockRouteSearch } from '../../../../tests/js/route-test-utils';
-import { getArchivesFields, getPostsFields } from './fields';
+import {
+	getArchivesFields,
+	getPostsFields,
+	PostThumbnailUrlsContext,
+	usePostTitleLinks,
+} from './fields';
 import type { ArchiveRow } from '@jetpack-premium-analytics/widgets-toolkit';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	getPostReportKind: () => 'post',
 	isPostDetailAvailable: () => true,
 	useSiteHomeUrl: jest.fn(),
 } ) );
@@ -42,6 +49,8 @@ function glyphPath( root: Element ) {
 
 const mockUseSiteHomeUrl = useSiteHomeUrl as jest.MockedFunction< typeof useSiteHomeUrl >;
 
+const NO_TITLE_LINKS = { detailSearch: {} };
+
 const homepage: StatsTopPostsComparisonItem = {
 	id: 0,
 	label: 'Homepage (Latest posts)',
@@ -58,14 +67,24 @@ const homepage: StatsTopPostsComparisonItem = {
  * @param thumbnailUrls - Thumbnail URLs keyed by post ID.
  * @return The Testing Library render result.
  */
-function renderPostsField(
-	fieldId: 'title' | 'thumbnail',
-	item: StatsTopPostsComparisonItem,
-	thumbnailUrls: PostThumbnailUrls = {}
-) {
-	const field = getPostsFields( false, 'posts-pages', thumbnailUrls ).find(
-		candidate => candidate.id === fieldId
-	);
+type PostsFieldCellProps = {
+	fieldId: 'title' | 'thumbnail';
+	item: StatsTopPostsComparisonItem;
+};
+
+/**
+ * Resolve the title links the way the report page does, then render one posts field's cell.
+ *
+ * @param props         - The cell props.
+ * @param props.fieldId - The posts field to render.
+ * @param props.item    - The top-posts row to render the cell for.
+ * @return The field cell.
+ */
+function PostsFieldCell( { fieldId, item }: PostsFieldCellProps ) {
+	// Memoized as the report page does, so a re-render reaches the same cell renderers.
+	const titleLinks = usePostTitleLinks( 'posts-pages' );
+	const fields = useMemo( () => getPostsFields( false, titleLinks ), [ titleLinks ] );
+	const field = fields.find( candidate => candidate.id === fieldId );
 	// eslint-disable-next-line testing-library/render-result-naming-convention -- `render` here is the DataViews field render component, not RTL's render result.
 	const FieldRender = field?.render;
 
@@ -73,7 +92,27 @@ function renderPostsField(
 		throw new Error( `Posts ${ fieldId } field render callback is unavailable` );
 	}
 
-	return render( <FieldRender item={ item } field={ field as never } /> );
+	return <FieldRender item={ item } field={ field as never } />;
+}
+
+/**
+ * Mount one posts field's render component for a table row.
+ *
+ * @param fieldId       - The posts field to render.
+ * @param item          - The top-posts row to render the cell for.
+ * @param thumbnailUrls - Thumbnail URLs keyed by post ID.
+ * @return The Testing Library render result.
+ */
+function renderPostsField(
+	fieldId: 'title' | 'thumbnail',
+	item: StatsTopPostsComparisonItem,
+	thumbnailUrls: PostThumbnailUrls = {}
+) {
+	return render(
+		<PostThumbnailUrlsContext.Provider value={ thumbnailUrls }>
+			<PostsFieldCell fieldId={ fieldId } item={ item } />
+		</PostThumbnailUrlsContext.Provider>
+	);
 }
 
 /**
@@ -102,7 +141,7 @@ function renderArchiveTitleField( item: ArchiveRow ) {
  * @return The Testing Library render result.
  */
 function renderPostViewsField( item: StatsTopPostsComparisonItem, withComparison = false ) {
-	const field = getPostsFields( withComparison, 'posts-pages' ).find(
+	const field = getPostsFields( withComparison, NO_TITLE_LINKS ).find(
 		candidate => candidate.id === 'views'
 	);
 	// eslint-disable-next-line testing-library/render-result-naming-convention -- `render` here is the DataViews field render component, not RTL's render result.
@@ -232,6 +271,21 @@ describe( 'posts title field', () => {
 		// link back to the tab the visitor came from.
 		expect( search.get( 'ref' ) ).toBe( 'posts' );
 		expect( search.get( 'ref_section' ) ).toBe( 'posts-pages' );
+	} );
+
+	it( 'shows a post title that changes while its row stays mounted', () => {
+		const post: StatsTopPostsComparisonItem = {
+			id: 42,
+			label: 'Hello world',
+			views: 12,
+			link: 'https://example.com/hello-world/',
+			type: 'post',
+		};
+		const { rerender } = render( <PostsFieldCell fieldId="title" item={ post } /> );
+
+		rerender( <PostsFieldCell fieldId="title" item={ { ...post, label: 'Hello again' } } /> );
+
+		expect( screen.getByRole( 'link', { name: 'Hello again' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows the archives views delta when comparison is enabled', () => {

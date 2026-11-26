@@ -15,6 +15,11 @@ export {
 	type TooltipExtraSeries,
 } from './chart-comparative-line';
 export {
+	StackedAreaChart,
+	type StackedAreaChartProps,
+	type StackedAreaSeries,
+} from './chart-stacked-area';
+export {
 	ComparativeBarChart,
 	type ComparativeBarChartProps,
 	type ComparativeBarChartSeries,
@@ -53,6 +58,7 @@ export {
 	resolveLeaderboardRowAction,
 	type LeaderboardRowAction,
 	type LeaderboardRowActionOptions,
+	type LeaderboardRowActionWithTrailing,
 	type LeaderboardRowChartProps,
 	type LeaderboardRowMedia,
 	type LeaderboardRowProps,
@@ -167,6 +173,7 @@ export {
 	type DetailPageActionsProps,
 	type DetailPageCustomize,
 } from './detail-page';
+export { PromoCard } from './promo-card';
 export { PageEmptyState, type PageEmptyStateProps } from './page-empty-state';
 export { LockedPage, LockedWidget } from './locked-widget';
 export { PageNotice, type PageNoticeProps } from './page-notice';

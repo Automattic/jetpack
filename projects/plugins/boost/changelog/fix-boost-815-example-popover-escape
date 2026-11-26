@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Page Cache: Fix the Exceptions examples popover not closing with Escape or a click outside it.

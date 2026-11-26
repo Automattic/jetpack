@@ -426,7 +426,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 				),
 			)
 		);
-		update_option( \Automattic\Jetpack\SEO\Initializer::VISIBILITY_OPTION, $is_visible );
+		update_option( 'jetpack_seo_surface_visible_v2', $is_visible );
 
 		$settings = $this->get_injected_settings();
 
@@ -439,7 +439,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	public static function seo_settings_url_cases() {
 		return array(
 			'visible surface with plan features'    => array( array( 'unrelated-feature' ), true, 'admin.php?page=jetpack-seo' ),
-			'existing install not opted in'         => array( array( 'unrelated-feature' ), false, 'admin.php?page=jetpack-settings#/traffic' ),
+			'existing install not opted in'         => array( array( 'unrelated-feature' ), false, 'admin.php?page=jetpack-seo' ),
 			'visible surface without plan features' => array( array(), true, 'admin.php?page=jetpack-seo' ),
 		);
 	}
@@ -704,6 +704,37 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 			'Simple'                         => array( 'simple', null, false ),
 			'host switches to WordPress.com' => array( 'vip', false, false ),
 			'unknown filtered value'         => array( 'self-hosted', 'yes', false ),
+		);
+	}
+
+	/**
+	 * Atomic sites list their own abilities too, as Calypso does; only Simple sites don't.
+	 *
+	 * @param string $host     Host to simulate: self-hosted, woa or simple.
+	 * @param bool   $expected Expected showSiteAbilities setting.
+	 *
+	 * @dataProvider show_site_abilities_provider
+	 */
+	#[DataProvider( 'show_site_abilities_provider' )]
+	public function test_show_site_abilities_setting( $host, $expected ) {
+		$this->given_woa( 'woa' === $host );
+		if ( 'simple' === $host ) {
+			$this->given_simple_site();
+		}
+
+		$this->assertSame( $expected, $this->get_injected_settings()['showSiteAbilities'] );
+	}
+
+	/**
+	 * Data provider for test_show_site_abilities_setting.
+	 *
+	 * @return array
+	 */
+	public static function show_site_abilities_provider() {
+		return array(
+			'self-hosted' => array( 'self-hosted', true ),
+			'WoA'         => array( 'woa', true ),
+			'Simple'      => array( 'simple', false ),
 		);
 	}
 

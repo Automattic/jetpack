@@ -178,6 +178,7 @@ export default function MyJetpackScreen() {
 			title="Jetpack"
 			globalControls={ getHeaderControls() }
 			optionalMenuItems={ optionalMenuItems }
+			showFooterFeaturesLink={ false }
 			className={ styles[ 'my-jetpack-screen' ] }
 			showBottomBorder={ false }
 		>

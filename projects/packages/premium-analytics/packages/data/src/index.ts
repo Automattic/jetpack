@@ -114,6 +114,8 @@ export {
 	POST_DETAIL_SECTION,
 	type DashboardSectionSlug,
 } from './utils/dashboard-sections';
+export { getPostReportKind } from './utils/single-report-pages';
+export { DASHBOARD_ONBOARDING_KEY, DASHBOARD_STORE_ONBOARDING_KEY } from './utils/onboarding-keys';
 export {
 	getLockedFeature,
 	getLockedSection,
@@ -122,6 +124,15 @@ export {
 	type LockedSectionGate,
 	type StatsFeatureKey,
 } from './utils/plan-gates';
+export {
+	getPromosForPlacement,
+	isFinalClose,
+	isPromoDismissed,
+	pickPromo,
+	type Promo,
+	type PromoDismissal,
+	type PromoPlacement,
+} from './utils/promos';
 export { getStatsCheckoutUrl } from './utils/stats-checkout-url';
 export {
 	applyStatsDatePolicy,
@@ -182,6 +193,7 @@ export type {
 	StatsEmailBreakdownItem,
 	StatsDevicesComparisonItem,
 	StatsDevicesItem,
+	EdgeRequestSource,
 	StatsFileDownloadsComparisonItem,
 	StatsFileDownloadsItem,
 	StatsFollowersItem,
@@ -232,7 +244,7 @@ export type {
 	StatsVideoPlaysComparisonItem,
 	StatsVideoPlaysItem,
 } from './processing/stats';
-export { compareEmailBreakdownItems } from './processing/stats';
+export { compareEmailBreakdownItems, EDGE_REQUEST_SOURCES } from './processing/stats';
 export type { StatsReportParams } from './queries/stats-query';
 export {
 	getStatsPeriodFromInterval,

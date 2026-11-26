@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Footer: Add a showFeaturesLink prop so a page that already links to Features can leave it out of the footer.

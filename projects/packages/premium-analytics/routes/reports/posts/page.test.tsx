@@ -8,7 +8,7 @@ import {
 	ReportDrilldownTable,
 	ReportRecordsTable,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { act, render } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
@@ -36,6 +36,7 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	DateFiltersPanel: () => null,
+	ROW_BATCH_SIZE: jest.requireActual( '@jetpack-premium-analytics/ui' ).ROW_BATCH_SIZE,
 	safeHttpUrl: jest.requireActual( '@jetpack-premium-analytics/ui' ).safeHttpUrl,
 	StatsBreadcrumbs: () => null,
 } ) );
@@ -57,6 +58,8 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	ReportPageTabs: () => null,
 	ReportDrilldownTable: jest.fn( () => null ),
 	ReportRecordsTable: jest.fn( () => null ),
+	ReportThumbnail: ( { thumbnailUrl }: { thumbnailUrl?: string } ) =>
+		thumbnailUrl ? <img alt="" src={ thumbnailUrl } /> : null,
 	ExporterCsvAction: jest.fn( () => <button>Download</button> ),
 } ) );
 
@@ -70,15 +73,19 @@ jest.mock( '@wordpress/admin-ui', () => ( {
 	Breadcrumbs: () => null,
 } ) );
 
-jest.mock( '@wordpress/route', () => ( {
-	Link: ( { children }: { children: ReactNode } ) => <a href="/post">{ children }</a>,
-	useNavigate: () => jest.fn(),
-	useSearch: () => ( {
+jest.mock( '@wordpress/route', () => {
+	// One object, as the router hands back while the search is unchanged.
+	const search = {
 		from: '2026-06-01T00:00:00+02:00',
 		to: '2026-06-30T23:59:59+02:00',
 		interval: 'day',
-	} ),
-} ) );
+	};
+	return {
+		Link: ( { children }: { children: ReactNode } ) => <a href="/post">{ children }</a>,
+		useNavigate: () => jest.fn(),
+		useSearch: () => search,
+	};
+} );
 
 const useRecordsMock = jest.mocked( usePostsReportRecords );
 const usePostThumbnailsMock = jest.mocked( usePostThumbnails );
@@ -136,6 +143,7 @@ describe( 'PostsReportPage', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		usePostThumbnailsMock.mockReturnValue( {} );
+		reportRecordsTableMock.mockImplementation( () => null );
 		useSectionTabMock.mockReturnValue( [ 'posts-pages', jest.fn() ] );
 	} );
 
@@ -167,19 +175,20 @@ describe( 'PostsReportPage', () => {
 		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ].isFetching ).toBe( true );
 	} );
 
-	it( 'resolves thumbnails for the visible posts page', () => {
+	it( 'resolves thumbnails for the rows the table has mounted', () => {
 		const records = buildRecords();
 		useRecordsMock.mockReturnValue( records );
 
 		render( <PostsReportPage /> );
 
-		expect( usePostThumbnailsMock ).toHaveBeenCalledWith( [] );
+		expect( usePostThumbnailsMock ).toHaveBeenCalledWith( [], 50 );
 
 		act( () => {
 			reportRecordsTableMock.mock.calls[ 0 ][ 0 ].onChangePageItems?.( records.posts.rows );
 		} );
 
-		expect( usePostThumbnailsMock ).toHaveBeenLastCalledWith( records.posts.rows );
+		expect( usePostThumbnailsMock ).toHaveBeenLastCalledWith( records.posts.rows, 50 );
+		expect( reportRecordsTableMock ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'draws each post thumbnail beside its title', () => {
@@ -191,6 +200,25 @@ describe( 'PostsReportPage', () => {
 			titleField: 'title',
 			mediaField: 'thumbnail',
 		} );
+	} );
+
+	it( "hands each resolved thumbnail to its row's thumbnail cell", () => {
+		const records = buildRecords();
+		useRecordsMock.mockReturnValue( records );
+		usePostThumbnailsMock.mockReturnValue( { 42: 'https://example.com/42.jpg' } );
+		reportRecordsTableMock.mockImplementation( ( { data, fields } ) => {
+			const thumbnail = fields.find( field => field.id === 'thumbnail' );
+			// eslint-disable-next-line testing-library/render-result-naming-convention -- `render` here is the DataViews field render component, not RTL's render result.
+			const Cell = thumbnail?.render;
+			return Cell ? <Cell item={ data[ 0 ] } field={ thumbnail as never } /> : null;
+		} );
+
+		render( <PostsReportPage /> );
+
+		expect( screen.getByRole( 'presentation' ) ).toHaveAttribute(
+			'src',
+			'https://example.com/42.jpg'
+		);
 	} );
 
 	it( 'gives the Archives export the archives request status', () => {

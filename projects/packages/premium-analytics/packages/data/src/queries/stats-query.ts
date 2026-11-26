@@ -7,6 +7,7 @@ import {
 import {
 	sanitizeStatsClicksResponse,
 	sanitizeStatsDevicesResponse,
+	sanitizeStatsEdgeBotRequestsResponse,
 	sanitizeStatsFileDownloadsResponse,
 	sanitizeStatsHighlightsResponse,
 	sanitizeStatsLocationsResponse,
@@ -91,6 +92,7 @@ const statsSanitizers = {
 	followers: sanitizeStatsFollowersResponse,
 	comments: sanitizeStatsCommentsResponse,
 	devices: sanitizeStatsDevicesResponse,
+	edgeBotRequests: sanitizeStatsEdgeBotRequestsResponse,
 	insights: sanitizeStatsInsightsResponse,
 	streak: sanitizeStatsStreakResponse,
 	tags: sanitizeStatsTagsResponse,

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-SEO: Stop including Query Loop block text in the Article structured data description when Open Graph tags are off.

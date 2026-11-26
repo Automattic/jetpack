@@ -68,7 +68,14 @@ interface IdentityCrisisBase {
 	/** Whether the `connection-idc-screen` feature flag is on. */
 	useNewScreen: boolean;
 	isSafeModeConfirmed: boolean;
+	/** Set in the browser, not by the server, once a failed fresh connection has left the site disconnected. */
+	isDisconnected?: boolean;
+	/** Set in the browser, not by the server, once a fresh connection was refused because the site is no longer in Safe Mode. */
+	isResolved?: boolean;
 }
+
+/** Logo URL by connected plugin slug, for plugins that have one. */
+export type PluginLogos = Partial< Record< string, string > >;
 
 /** Safe Mode state for the shared Safe Mode screen. Only a viewer who can resolve Safe Mode gets its details. */
 export type IdentityCrisisState =
@@ -83,6 +90,8 @@ export type IdentityCrisisState =
 			possibleDynamicSiteUrlDetected: boolean;
 			/** Jetpack mark, combined with the marks of the other plugin families that use the connection. */
 			logoUrl: string;
+			/** Absent from a server that predates it. */
+			pluginLogos?: PluginLogos;
 	  } );
 
 export type ConnectionScriptData = {

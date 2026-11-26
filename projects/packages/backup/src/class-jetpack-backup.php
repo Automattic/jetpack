@@ -104,6 +104,48 @@ class Jetpack_Backup {
 	const PROMOTED_PRODUCT_CACHE_TTL = 12 * HOUR_IN_SECONDS;
 
 	/**
+	 * Transient holding the last good `/rewind/size` answer.
+	 *
+	 * @var string
+	 */
+	const SITE_SIZE_TRANSIENT = 'jetpack_backup_site_size';
+
+	/**
+	 * Transient holding the last good `/rewind/policies` answer.
+	 *
+	 * @var string
+	 */
+	const SITE_POLICIES_TRANSIENT = 'jetpack_backup_site_policies';
+
+	/**
+	 * Transient that, while set, keeps the storage reads out of the cache.
+	 *
+	 * @var string
+	 */
+	const STORAGE_CACHE_BYPASS_TRANSIENT = 'jetpack_backup_storage_cache_bypass';
+
+	/**
+	 * Transient holding the dashboard's capabilities, kept only while they include Backup.
+	 *
+	 * @var string
+	 */
+	const CAPABILITIES_TRANSIENT = 'jetpack_backup_capabilities';
+
+	/**
+	 * How long a rewind read stays cached: the same window the dashboard already treats these reads as fresh.
+	 *
+	 * @var int
+	 */
+	const REWIND_READ_CACHE_TTL = 5 * MINUTE_IN_SECONDS;
+
+	/**
+	 * Query arg the dashboard's checkout links return with, so the storage figures are read again.
+	 *
+	 * @var string
+	 */
+	const STORAGE_PURCHASED_ARG = 'storage_purchased';
+
+	/**
 	 * Licenses product ID.
 	 *
 	 * @var string
@@ -295,6 +337,13 @@ class Jetpack_Backup {
 	 */
 	public static function admin_init() {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_scripts' ) );
+
+		// Only bypasses a cache, so it needs no nonce.
+		if ( isset( $_GET[ self::STORAGE_PURCHASED_ARG ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			self::clear_storage_cache();
+			// A purchase can take a moment to reach `/rewind/policies`, so a read made right after checkout is not kept.
+			set_transient( self::STORAGE_CACHE_BYPASS_TRANSIENT, 1, self::REWIND_READ_CACHE_TTL );
+		}
 
 		if ( self::is_wp_build_dashboard_active() ) {
 			// Notices reflow the dual-pane layout, so clear them but keep our own.
@@ -1048,25 +1097,7 @@ class Jetpack_Backup {
 	 * @return \WP_REST_Response|WP_Error The site storage size, or a WP_Error if WordPress.com could not be reached.
 	 */
 	public static function get_site_backup_size() {
-		$blog_id = Jetpack_Options::get_option( 'id' );
-
-		$response = Client::wpcom_json_api_request_as_user(
-			'/sites/' . $blog_id . '/rewind/size?force=wpcom',
-			'v2',
-			array(),
-			null,
-			'wpcom'
-		);
-
-		$response_code = (int) wp_remote_retrieve_response_code( $response );
-
-		if ( 200 !== $response_code ) {
-			return self::get_failed_fetch_error( $response );
-		}
-
-		return rest_ensure_response(
-			json_decode( $response['body'], true )
-		);
+		return self::get_cached_rewind_read( 'size', self::SITE_SIZE_TRANSIENT );
 	}
 
 	/**
@@ -1075,10 +1106,40 @@ class Jetpack_Backup {
 	 * @return \WP_REST_Response|WP_Error The site storage policies, or a WP_Error if WordPress.com could not be reached.
 	 */
 	public static function get_site_backup_policies() {
+		return self::get_cached_rewind_read( 'policies', self::SITE_POLICIES_TRANSIENT );
+	}
+
+	/**
+	 * Forget the cached storage figures, after anything that changes them.
+	 *
+	 * @since 5.3.0
+	 *
+	 * @return void
+	 */
+	public static function clear_storage_cache() {
+		delete_transient( self::SITE_SIZE_TRANSIENT );
+		delete_transient( self::SITE_POLICIES_TRANSIENT );
+	}
+
+	/**
+	 * Read a `/rewind/<endpoint>` route as the user, answering from a transient while one is warm.
+	 *
+	 * @param string $endpoint  The route under `/sites/<id>/rewind/`.
+	 * @param string $transient The transient that holds a good answer.
+	 * @return \WP_REST_Response|WP_Error The decoded answer, or a WP_Error if WordPress.com could not be reached.
+	 */
+	private static function get_cached_rewind_read( $endpoint, $transient ) {
+		$use_cache = false === get_transient( self::STORAGE_CACHE_BYPASS_TRANSIENT );
+		$cached    = $use_cache ? get_transient( $transient ) : false;
+
+		if ( is_array( $cached ) ) {
+			return rest_ensure_response( $cached );
+		}
+
 		$blog_id = Jetpack_Options::get_option( 'id' );
 
 		$response = Client::wpcom_json_api_request_as_user(
-			'/sites/' . $blog_id . '/rewind/policies?force=wpcom',
+			'/sites/' . $blog_id . '/rewind/' . $endpoint . '?force=wpcom',
 			'v2',
 			array(),
 			null,
@@ -1091,9 +1152,14 @@ class Jetpack_Backup {
 			return self::get_failed_fetch_error( $response );
 		}
 
-		return rest_ensure_response(
-			json_decode( $response['body'], true )
-		);
+		$body = json_decode( $response['body'], true );
+
+		// `ok: false` is WordPress.com failing to measure; caching it would hide the figures once it recovers.
+		if ( $use_cache && is_array( $body ) && false !== ( $body['ok'] ?? true ) ) {
+			set_transient( $transient, $body, self::REWIND_READ_CACHE_TTL );
+		}
+
+		return rest_ensure_response( $body );
 	}
 
 	/**
@@ -1287,6 +1353,7 @@ class Jetpack_Backup {
 				array(
 					'activityLogUrl'        => self::get_activity_log_url(),
 					'knownThreatsAvailable' => \Automattic\Jetpack\Backup\V0005\REST\Restore_Bridge::known_threats_available(),
+					'addLicense'            => Backup_Initial_State::is_add_license_screen_enabled(),
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_json_encode() with JSON_HEX_* flags is safe in a script tag.
@@ -1351,6 +1418,13 @@ class Jetpack_Backup {
 			array_merge(
 				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::SCRIPT_HANDLES,
 				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::MODULE_IDS
+			),
+			null,
+			array(
+				array(
+					'prefix' => 'jetpack_backup',
+					'slug'   => 'jetpack-backup-dashboard',
+				),
 			)
 		);
 	}

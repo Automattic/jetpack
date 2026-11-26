@@ -1,6 +1,22 @@
 import { createRoot } from '@wordpress/element';
 import { act } from 'react';
 
+let mockIdentityCrisis = null;
+let mockSelectors = null;
+let mockScreenProps = null;
+const mockNewScreen = props => {
+	mockScreenProps = props;
+	return 'New Safe Mode screen';
+};
+const sharedScript = {
+	CONNECTION_FROM: { connectionSafeModeNotice: 'connection_safe_mode_notice' },
+	CONNECTION_STORE_ID: 'jetpack-connection',
+	IdentityCrisis: mockNewScreen,
+};
+
+jest.mock( '@wordpress/data', () => ( {
+	select: () => mockSelectors ?? { getIdentityCrisis: () => mockIdentityCrisis },
+} ) );
 jest.mock( '@automattic/jetpack-idc', () => ( { IDCScreen: () => 'Safe Mode choices' } ) );
 jest.mock( '@wordpress/element', () => {
 	const element = jest.requireActual( '@wordpress/element' );
@@ -38,6 +54,7 @@ describe( 'Safe Mode screen', () => {
 
 	beforeEach( () => {
 		window.JP_IDENTITY_CRISIS__INITIAL_STATE = { consumerData: {}, isSafeModeConfirmed: false };
+		window.JetpackConnection = { ...sharedScript };
 	} );
 
 	afterEach( () => {
@@ -45,6 +62,11 @@ describe( 'Safe Mode screen', () => {
 		createRoot.mockClear();
 		document.body.innerHTML = '';
 		delete window.JP_IDENTITY_CRISIS__INITIAL_STATE;
+		delete window.JetpackConnection;
+		mockIdentityCrisis = null;
+		mockSelectors = null;
+		mockScreenProps = null;
+		jest.clearAllMocks();
 	} );
 
 	it( 'renders into a container that exists when the page loads', () => {
@@ -105,5 +127,70 @@ describe( 'Safe Mode screen', () => {
 		} finally {
 			observe.mockRestore();
 		}
+	} );
+
+	it.each( [
+		[ 'the flag is on', { useNewScreen: true }, sharedScript, undefined, 'New Safe Mode screen' ],
+		[ 'the flag is off', { useNewScreen: false }, sharedScript, undefined, 'Safe Mode choices' ],
+		[
+			'the shared script is not loaded',
+			{ useNewScreen: true },
+			undefined,
+			undefined,
+			'Safe Mode choices',
+		],
+		[
+			'the shared script has no new screen',
+			{ useNewScreen: true },
+			{ ...sharedScript, IdentityCrisis: undefined },
+			undefined,
+			'Safe Mode choices',
+		],
+		[ 'the state has no Safe Mode entry', null, sharedScript, undefined, 'Safe Mode choices' ],
+		[
+			"it is My Jetpack's container",
+			{ useNewScreen: true },
+			sharedScript,
+			lateContainerId,
+			'Safe Mode choices',
+		],
+	] )( 'shows the right screen when %s', ( _, identityCrisis, script, containerID, expected ) => {
+		mockIdentityCrisis = identityCrisis;
+		window.JetpackConnection = script;
+		window.JP_IDENTITY_CRISIS__INITIAL_STATE.containerID = containerID;
+		const container = addElement( containerID ?? 'jp-identity-crisis-container' );
+
+		act( () => onLoad() );
+
+		expect( container ).toHaveTextContent( expected );
+	} );
+
+	it( 'shows the old screen when an older store, without the selector, is registered', () => {
+		mockSelectors = {};
+		const container = addElement( 'jp-identity-crisis-container' );
+
+		act( () => onLoad() );
+
+		expect( container ).toHaveTextContent( 'Safe Mode choices' );
+	} );
+
+	describe( 'with the new screen', () => {
+		beforeEach( () => {
+			mockIdentityCrisis = { useNewScreen: true };
+			window.JP_IDENTITY_CRISIS__INITIAL_STATE.redirectUri = '/edit.php';
+			addElement( 'jp-identity-crisis-container' );
+			act( () => onLoad() );
+		} );
+
+		it( 'tells the screen where it shows', () => {
+			expect( mockScreenProps ).toMatchObject( {
+				context: 'notice',
+				from: 'connection_safe_mode_notice',
+				redirectUri: '/edit.php',
+			} );
+			// The screen's own handlers navigate.
+			expect( mockScreenProps ).not.toHaveProperty( 'onActionSuccess' );
+			expect( mockScreenProps ).not.toHaveProperty( 'onMigratedDone' );
+		} );
 	} );
 } );

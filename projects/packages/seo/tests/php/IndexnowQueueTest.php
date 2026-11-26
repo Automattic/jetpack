@@ -32,6 +32,7 @@ class IndexnowQueueTest extends SeoTestCase {
 		}
 		remove_filter( 'rsm_jetpack_seo', '__return_true' );
 		remove_all_filters( 'jetpack_active_modules' );
+		add_filter( 'jetpack_active_modules', 'jetpack_seo_test_switch_on', 1000 );
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'jetpack_seo_indexnow_queue_capacity' );
 		remove_all_filters( 'jetpack_seo_indexnow_batch_size' );
@@ -121,6 +122,49 @@ class IndexnowQueueTest extends SeoTestCase {
 		$this->assertSame( 0, $calls );
 		$this->assertCount( 0, Indexnow_Queue::rows() );
 	}
+
+	/** @dataProvider scope_scheme_changes */
+	#[DataProvider( 'scope_scheme_changes' )]
+	public function test_pending_notifications_deliver_after_a_filtered_scheme_change( $saved_scheme, $worker_scheme ) {
+		update_option( 'home', $saved_scheme . '://example.com/blog' );
+		update_option( Indexnow_Client::SCOPE_OPTION, $saved_scheme . '://example.com/blog/' );
+		$url = $saved_scheme . '://example.com/blog/removed/';
+		$this->assertTrue( Indexnow_Queue::enqueue( $url, 42, true ) );
+		$this->make_pending_due();
+		$resolve = static function ( $home ) use ( $worker_scheme ) {
+			return set_url_scheme( $home, $worker_scheme );
+		};
+		$calls   = 0;
+		$submit  = function ( $pre, $args ) use ( $url, $worker_scheme, &$calls ) {
+			++$calls;
+			$payload = json_decode( $args['body'], true );
+			$this->assertSame( array( $url ), $payload['urlList'] );
+			$this->assertSame( $worker_scheme . '://example.com/blog/' . Indexnow_Client::key() . '.txt', $payload['keyLocation'] );
+			return array(
+				'headers'  => array(),
+				'body'     => '',
+				'response' => array( 'code' => 200 ),
+			);
+		};
+		add_filter( 'home_url', $resolve );
+		add_filter( 'pre_http_request', $submit, 10, 2 );
+		try {
+			Indexnow_Queue::work();
+			$this->assertSame( 1, $calls );
+			$this->assertSame( 0, Indexnow_Queue::size() );
+			$this->assertSame( 'accepted', get_option( Indexnow_Queue::STATUS_OPTION )['state'] ?? null );
+		} finally {
+			remove_filter( 'home_url', $resolve );
+			remove_filter( 'pre_http_request', $submit );
+		}
+	}
+
+	public static function scope_scheme_changes() {
+		return array(
+			'HTTP capture, HTTPS worker' => array( 'http', 'https' ),
+			'HTTPS capture, HTTP worker' => array( 'https', 'http' ),
+		);
+	}
 	public function test_full_queue_refuses_new_work_without_overwriting_admitted_urls() {
 		add_filter(
 			'jetpack_seo_indexnow_queue_capacity',
@@ -182,9 +226,10 @@ class IndexnowQueueTest extends SeoTestCase {
 		);
 		$this->make_pending_due();
 		wp_clear_scheduled_hook( Indexnow_Queue::HOOK );
+		$started_at = time();
 		Indexnow_Queue::work();
 		$item = json_decode( Indexnow_Queue::rows()[0]['option_value'], true );
-		$this->assertGreaterThanOrEqual( time() + DAY_IN_SECONDS - 1, $item['due'] );
+		$this->assertGreaterThanOrEqual( $started_at + DAY_IN_SECONDS, $item['due'] );
 		$this->assertGreaterThanOrEqual( $item['due'], wp_next_scheduled( Indexnow_Queue::HOOK ) );
 	}
 	public function test_restricted_deletion_does_not_revive_an_older_removal_notification() {

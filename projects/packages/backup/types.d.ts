@@ -8,5 +8,7 @@ interface Window {
 	JPBACKUP_DASHBOARD_STATE?: {
 		activityLogUrl?: string | null;
 		knownThreatsAvailable?: boolean;
+		/** Whether My Jetpack's add-license screen is available. */
+		addLicense?: boolean;
 	};
 }

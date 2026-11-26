@@ -361,7 +361,7 @@ class Initial_State_Test extends TestCase {
 	 */
 	public static function provide_identity_crisis_viewers() {
 		$shared   = array( 'useNewScreen', 'canResolve', 'isSafeModeConfirmed' );
-		$resolver = array_merge( $shared, array( 'wpcomHomeUrl', 'currentUrl', 'isDevelopmentSite', 'possibleDynamicSiteUrlDetected', 'logoUrl' ) );
+		$resolver = array_merge( $shared, array( 'wpcomHomeUrl', 'currentUrl', 'isDevelopmentSite', 'possibleDynamicSiteUrlDetected', 'logoUrl', 'pluginLogos' ) );
 
 		return array(
 			'admin, confirmed'       => array( 'administrator', true, $resolver ),

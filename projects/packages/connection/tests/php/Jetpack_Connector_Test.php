@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use Automattic\Jetpack\Tracking;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -108,6 +109,7 @@ class Jetpack_Connector_Test extends TestCase {
 
 		remove_all_filters( 'jetpack_offline_mode' );
 		remove_all_filters( 'jetpack_is_in_safe_mode' );
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . Identity_Crisis::NEW_SCREEN_FLAG );
 		remove_all_filters( 'jetpack_connection_requires_protected_owner' );
 		remove_all_filters( 'jetpack_connection_protected_owner_default_ui' );
 		remove_all_filters( 'script_module_data_' . Jetpack_Connector::MODULE_ID );
@@ -134,6 +136,7 @@ class Jetpack_Connector_Test extends TestCase {
 		$this->assertIsInt( has_action( 'wp_connectors_init', array( Jetpack_Connector::class, 'register_connector' ) ) );
 		$this->assertIsInt( has_action( 'admin_enqueue_scripts', array( Jetpack_Connector::class, 'enqueue_script_module' ) ) );
 		$this->assertIsInt( has_action( 'jetpack_client_authorize_error', array( Jetpack_Connector::class, 'store_auth_error' ) ) );
+		$this->assertIsInt( has_filter( 'jetpack_identity_crisis_show_notice', array( Jetpack_Connector::class, 'hide_safe_mode_notice' ) ) );
 	}
 
 	/**
@@ -473,6 +476,22 @@ class Jetpack_Connector_Test extends TestCase {
 	}
 
 	/**
+	 * Test that the new Safe Mode screen gets no card copy of the Safe Mode data, since it reads the shared state.
+	 */
+	public function test_idc_data_absent_with_new_screen() {
+		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
+		\Jetpack_Options::update_option( 'id', 12345 );
+		StatusCache::clear();
+		add_filter( 'jetpack_is_in_safe_mode', '__return_true' );
+		add_filter( 'jetpack_feature_flag_enabled_' . Identity_Crisis::NEW_SCREEN_FLAG, '__return_true' );
+
+		$data = Jetpack_Connector::get_connector_data( array() );
+
+		$this->assertArrayNotHasKey( 'isSafeModeConfirmed', $data );
+		$this->assertArrayNotHasKey( 'idc', $data );
+	}
+
+	/**
 	 * Test that the card bumps Safe Mode MC stats only when tracking is allowed.
 	 *
 	 * @param bool $tos_agreed Whether the site agreed to the terms of service.
@@ -636,6 +655,41 @@ class Jetpack_Connector_Test extends TestCase {
 
 		$this->assertNull( wp_script_modules()->get_registered( Jetpack_Connector::MODULE_ID ) );
 		$this->assertFalse( wp_style_is( 'jetpack-connector-card', 'enqueued' ) );
+	}
+
+	/**
+	 * Test that the Safe Mode notice is hidden only where the card shows.
+	 *
+	 * @param string $screen   The admin screen.
+	 * @param bool   $built    Whether the card's build is present.
+	 * @param bool   $expected Whether the notice shows.
+	 * @dataProvider provide_safe_mode_notice_pages
+	 */
+	#[DataProvider( 'provide_safe_mode_notice_pages' )]
+	public function test_hide_safe_mode_notice_only_where_the_card_shows( $screen, $built, $expected ) {
+		$restore = $this->stub_module_build( $built ? array( 'version' => 'test-card-version' ) : null );
+
+		try {
+			set_current_screen( $screen );
+			$show = Jetpack_Connector::hide_safe_mode_notice( true );
+		} finally {
+			$restore();
+		}
+
+		$this->assertSame( $expected, $show );
+	}
+
+	/**
+	 * Data provider for test_hide_safe_mode_notice_only_where_the_card_shows.
+	 *
+	 * @return array
+	 */
+	public static function provide_safe_mode_notice_pages() {
+		return array(
+			'Connectors page'                => array( 'options-connectors', true, false ),
+			'Connectors page, build missing' => array( 'options-connectors', false, true ),
+			'other page'                     => array( 'dashboard', true, true ),
+		);
 	}
 
 	/**
@@ -890,7 +944,7 @@ class Jetpack_Connector_Test extends TestCase {
 		$this->assertTrue( $families['has_a4a'] );
 	}
 
-	/* ── get_plugin_logos() ─────────────────────────────────────── */
+	/* ── get_connected_plugin_logos() ───────────────────────────── */
 
 	/**
 	 * Connected plugins get their logo by slug, and plugins without one are left out.
@@ -906,6 +960,33 @@ class Jetpack_Connector_Test extends TestCase {
 		$this->assertSame( array( 'jetpack', 'woocommerce' ), array_keys( $logos ) );
 		$this->assertStringContainsString( 'jetpack-icon.svg', $logos['jetpack'] );
 		$this->assertStringContainsString( 'woo-icon.svg', $logos['woocommerce'] );
+	}
+
+	/**
+	 * In Safe Mode the screen reads the logos from the shared state, so the card gets no copy.
+	 */
+	public function test_get_connector_data_leaves_out_plugin_logos_in_safe_mode() {
+		StatusCache::clear();
+		add_filter( 'jetpack_is_in_safe_mode', '__return_true' );
+
+		$this->assertArrayNotHasKey( 'pluginLogos', Jetpack_Connector::get_connector_data( array() ) );
+	}
+
+	/**
+	 * The Safe Mode screen gets the same logos as the card, including filtered ones.
+	 */
+	public function test_get_connected_plugin_logos_matches_the_card() {
+		Plugin_Storage::configure();
+		Plugin_Storage::upsert( 'automattic-for-agencies-client', array( 'name' => 'Automattic for Agencies' ) );
+		Plugin_Storage::upsert( 'custom-plugin', array( 'name' => 'Custom Plugin' ) );
+		add_filter( 'jetpack_connection_plugin_logos', fn () => array( 'custom-plugin' => 'https://example.com/logo.svg' ) );
+
+		$logos = Jetpack_Connector::get_connected_plugin_logos();
+
+		remove_all_filters( 'jetpack_connection_plugin_logos' );
+		$this->assertSame( array( 'automattic-for-agencies-client', 'custom-plugin' ), array_keys( $logos ) );
+		$this->assertStringContainsString( 'automattic-icon.svg', $logos['automattic-for-agencies-client'] );
+		$this->assertSame( 'https://example.com/logo.svg', $logos['custom-plugin'] );
 	}
 
 	/* ── get_connectors_page_path() ────────────────────────────── */

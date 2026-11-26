@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Put the readme back to the paste-code text while API-managed buttons are behind a feature flag.
+

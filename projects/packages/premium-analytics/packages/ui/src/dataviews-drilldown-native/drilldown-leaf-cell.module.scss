@@ -5,5 +5,11 @@
  */
 span.leaf a[href] {
 	display: inline-flex;
-	align-items: center;
+	align-items: flex-start;
+	vertical-align: top;
+}
+
+/* Keeps the outbound marker on the first line of a title that wraps. */
+span.leaf a[href] > * {
+	line-height: inherit;
 }

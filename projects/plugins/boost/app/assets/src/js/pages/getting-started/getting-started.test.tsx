@@ -1,7 +1,6 @@
-/* eslint-disable jest-dom/prefer-in-document -- The legacy Boost Jest project does not load jest-dom. */
 /* eslint-disable testing-library/prefer-user-event -- This project does not provide user-event. */
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { LEGACY_ROOT_ID, MODERN_ROOT_ID } from '$lib/modern/mode';
+import { MODERN_ROOT_ID } from '$lib/modern/mode';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
 import { getUpgradeURL } from '$lib/stores/connection';
 import { useGettingStarted } from '$lib/stores/getting-started';
@@ -58,7 +57,6 @@ function renderFreeSite(
 				domain: 'example.com',
 				online: true,
 				myJetpack: true,
-				addLicense: true,
 				host: 'other',
 				...siteOverrides,
 			},
@@ -70,31 +68,6 @@ function renderFreeSite(
 }
 
 test.each( [
-	{ rootId: MODERN_ROOT_ID, features: [], links: 0 },
-	{ rootId: LEGACY_ROOT_ID, features: [], links: 1 },
-] )(
-	'leaves license redemption on the modern upgrade page and preserves the legacy header (%o)',
-	( { rootId, features, links } ) => {
-		renderFreeSite( rootId, { host: 'unknown' }, features );
-
-		expect( screen.getByRole( 'button', { name: 'Get Boost' } ) ).toBeTruthy();
-		const found = screen.queryAllByRole( 'link', { name: 'Use license key' } );
-		expect( found ).toHaveLength( links );
-		expect( found[ 0 ]?.getAttribute( 'href' ) ).toBe(
-			links ? 'admin.php?page=my-jetpack#/add-license' : undefined
-		);
-	}
-);
-
-test.each( [
-	{ rootId: LEGACY_ROOT_ID, myJetpack: false, addLicense: true },
-	{ rootId: LEGACY_ROOT_ID, myJetpack: true, addLicense: false },
-] )( 'hides unavailable license screens (%o)', ( { rootId, myJetpack, addLicense } ) => {
-	renderFreeSite( rootId, { myJetpack, addLicense, host: 'unknown' } );
-	expect( screen.queryByRole( 'link', { name: 'Use license key' } ) ).toBeNull();
-} );
-
-test.each( [
 	{
 		rootId: MODERN_ROOT_ID,
 		myJetpack: true,
@@ -103,11 +76,6 @@ test.each( [
 	{
 		rootId: MODERN_ROOT_ID,
 		myJetpack: false,
-		destination: '#checkout',
-	},
-	{
-		rootId: LEGACY_ROOT_ID,
-		myJetpack: true,
 		destination: '#checkout',
 	},
 ] )(

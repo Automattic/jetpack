@@ -220,6 +220,12 @@ function _manually_load_muplugin() {
 	}
 }
 
+// Ability tests turn abilities on themselves, so keep them off while the plugin loads.
+tests_add_filter( 'jetpack_wp_abilities_enabled', '__return_false' );
+
+// With the flag on, Stats v2 sets up WooCommerce Stats Sync while the plugin loads, which Sync tests do not expect; Stats v2 tests turn it on themselves.
+tests_add_filter( 'jetpack_feature_flag_enabled_jetpack-stats-classic-page-retired', '__return_false' );
+
 // If we are running the uninstall tests don't load jetpack.
 if ( ! ( in_running_uninstall_group() ) ) {
 	tests_add_filter( 'plugins_loaded', '_manually_load_plugin', 1 );

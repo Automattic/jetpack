@@ -103,7 +103,8 @@ class Initial_State {
 	/**
 	 * Get the Safe Mode state the shared Safe Mode screen reads.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.18.3
+	 * @since $$next-version$$ Adds `pluginLogos`.
 	 *
 	 * @param Status $status Status instance.
 	 * @return array|null Null outside Safe Mode.
@@ -134,13 +135,15 @@ class Initial_State {
 			'isDevelopmentSite'              => (bool) Status::is_development_site(),
 			'possibleDynamicSiteUrlDetected' => (bool) Identity_Crisis::detect_possible_dynamic_site_url(),
 			'logoUrl'                        => Jetpack_Connector::get_connector_logo_url(),
+			// Guarded: an older Jetpack_Connector may already be loaded.
+			'pluginLogos'                    => method_exists( Jetpack_Connector::class, 'get_connected_plugin_logos' ) ? Jetpack_Connector::get_connected_plugin_logos() : array(),
 		);
 	}
 
 	/**
 	 * Get the mismatched URLs, including once Safe Mode is confirmed.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.18.3
 	 *
 	 * @return array{wpcom_url: string, current_url: string}|false
 	 */

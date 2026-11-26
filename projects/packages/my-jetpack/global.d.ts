@@ -432,6 +432,8 @@ type ProtectData = {
 		themes: ScanItem[];
 		threats?: ThreatItem[];
 	};
+	// Protect's badge count, without threats fixed since the last scan; null when unknown.
+	threatCount: number | null;
 	// Fields marked optional are only sent to users with `manage_options`.
 	wafConfig: {
 		automatic_rules_available?: boolean;
@@ -536,6 +538,8 @@ type MainFeature = {
 	name: string;
 	description: string;
 	long_description: string;
+	// Comma-separated keywords the Features search also matches.
+	search_terms?: string;
 	icon: string;
 	manage_url: string;
 	essential: boolean;
@@ -612,6 +616,8 @@ interface Window {
 		isUserFromKnownHost: string;
 		loadAddLicenseScreen: string;
 		myJetpackCheckoutUri: string;
+		/** A host's own plan links, from `jetpack_my_jetpack_plan_urls`: '' keeps Jetpack's link, false hides the link. */
+		planUrls?: { purchase: string | false; manage: string | false };
 		myJetpackFlags: {
 			accountConnect?: boolean;
 			headerControls?: boolean;
@@ -669,6 +675,8 @@ interface Window {
 					has_paid_plan_for_product: boolean;
 					has_protect_page?: boolean;
 					scan_results_url?: string;
+					host_may_sell?: boolean;
+					host_purchase_url?: string | null;
 					is_bundle: boolean;
 					is_feature: boolean;
 					is_plugin_active: boolean;
@@ -805,12 +813,14 @@ interface Window {
 		userIsAdmin: string;
 		userFirstName: string;
 		isWelcomeTourActive: boolean;
-		seoOptIn: {
-			showCard: boolean;
-			redirect: string;
-		};
 		// Security modules whose settings live on the Protect page, keyed by module slug; empty without that page.
 		protectPageModuleUrls?: Record< string, string >;
+		// Null while the notices Jetpack › Settings shows stay there.
+		settingsNotices?: {
+			jetpackState: import( './_inc/components/jetpack-state-notice' ).JetpackState;
+			jetpackVersion: string | null;
+			searchEnginesVisible: boolean;
+		} | null;
 		// Null unless the partner coupon screen replaces the dashboard.
 		partnerCoupon?: {
 			coupon: {

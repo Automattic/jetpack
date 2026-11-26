@@ -11,6 +11,7 @@ use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Products;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Automattic\Jetpack\Protect\Threat_Count;
 use Automattic\Jetpack\Protect_Status\Plan;
 use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
 use Automattic\Jetpack\Redirect;
@@ -574,33 +575,6 @@ class Protect extends Hybrid_Product {
 	}
 
 	/**
-	 * Where the card's upgrade goes: a host's plans when it sends them, else the Protect interstitial.
-	 *
-	 * @return ?string
-	 */
-	public static function get_purchase_url() {
-		if ( static::has_paid_plan_for_product() ) {
-			return parent::get_purchase_url();
-		}
-
-		/** This filter is documented in projects/packages/my-jetpack/src/class-main-features.php */
-		$upgrade = apply_filters(
-			'jetpack_feature_upgrade',
-			array(
-				'path'     => '/add-protect',
-				'name'     => 'Jetpack Scan', // Product name, do not translate.
-				'back_url' => admin_url( 'admin.php?page=my-jetpack' ),
-			),
-			'protect-dashboard',
-			false
-		);
-
-		$url = is_array( $upgrade ) ? esc_url_raw( (string) ( $upgrade['url'] ?? '' ) ) : '';
-
-		return $url ? $url : parent::get_purchase_url();
-	}
-
-	/**
 	 * Where a site with Scan manages its threats without the Protect page: WordPress.com on WoA, Jetpack Cloud elsewhere.
 	 *
 	 * @return string
@@ -672,8 +646,9 @@ class Protect extends Hybrid_Product {
 
 		return rest_ensure_response(
 			array(
-				'scanData'  => self::filter_scan_data_by_capability( $scan_data ),
-				'wafConfig' => array_merge(
+				'scanData'    => self::filter_scan_data_by_capability( $scan_data ),
+				'threatCount' => self::get_threat_count(),
+				'wafConfig'   => array_merge(
 					self::filter_waf_config_by_capability( $waf_config ),
 					array(
 						'waf_supported'        => $waf_supported,
@@ -684,6 +659,18 @@ class Protect extends Hybrid_Product {
 				),
 			)
 		);
+	}
+
+	/**
+	 * The count Protect shows in its menu badge, which leaves out threats the site fixed since Scan last scanned.
+	 *
+	 * @return int|null Null when Protect is too old to tell, or has no stored status yet.
+	 */
+	private static function get_threat_count() {
+		if ( ! class_exists( Threat_Count::class ) || ! method_exists( Threat_Count::class, 'get_cached' ) ) {
+			return null;
+		}
+		return Threat_Count::get_cached();
 	}
 
 	/**

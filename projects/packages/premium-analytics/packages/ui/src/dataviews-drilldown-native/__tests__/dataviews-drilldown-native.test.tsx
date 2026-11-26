@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { mockRowLayout, scrollRowsToEnd } from '../../../../../tests/js/row-batches-test-utils';
 import { DataViewsDrilldownNative } from '../dataviews-drilldown-native';
 import type { DataViewsDrilldownNativeProps } from '../dataviews-drilldown-native';
 import type { Field } from '@jetpack-premium-analytics/externals';
@@ -234,7 +235,10 @@ function flatRows( count: number ): Row[] {
 }
 
 describe( 'DataViewsDrilldownNative paging', () => {
-	it( 'lists every row on one page with no page size menu', async () => {
+	beforeEach( mockRowLayout );
+	afterEach( () => jest.restoreAllMocks() );
+
+	it( 'offers no pager or page size menu', async () => {
 		render(
 			<DataViewsDrilldownNative< Row >
 				data={ flatRows( 25 ) }
@@ -251,5 +255,25 @@ describe( 'DataViewsDrilldownNative paging', () => {
 		await userEvent.setup().click( screen.getByRole( 'button', { name: 'View options' } ) );
 		await expect( screen.findByText( 'Sort by' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( 'Items per page' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'keeps the last parent mounted when a branch unfolds after scrolling', async () => {
+		const groups: Row[] = Array.from( { length: 60 }, ( _, index ) => [
+			{ id: `group-${ index + 1 }`, referrer: `Group ${ index + 1 }`, views: 1000 - index },
+			{
+				id: `child-${ index + 1 }`,
+				parentId: `group-${ index + 1 }`,
+				referrer: `Child ${ index + 1 }`,
+				views: 1,
+			},
+		] ).flat();
+		renderTable( { data: groups, collapsible: true, defaultExpanded: 'none' } );
+
+		scrollRowsToEnd();
+		await expect( screen.findByText( 'Group 60' ) ).resolves.toBeInTheDocument();
+		await userEvent.setup().click( screen.getByRole( 'button', { name: 'Group 59' } ) );
+
+		expect( screen.getByText( 'Child 59' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Group 60' ) ).toBeInTheDocument();
 	} );
 } );

@@ -169,9 +169,9 @@ class Dashboard_Data {
 	 * `manage_options` capability, so it works on every platform with one code path.
 	 *
 	 * Only settings registered with `show_in_rest` round-trip through that
-	 * endpoint, and it silently ignores keys that aren't registered — which is why
-	 * this runs behind the same `seo-tools` gate as the rest of the settings
-	 * surface, and why the dashboard hides its controls when that module is off.
+	 * endpoint, and it silently ignores keys that aren't registered. Independent
+	 * settings must stay registered while SEO Tools is off; the dashboard hides the
+	 * SEO-dependent editors until that module is active.
 	 *
 	 * Hooked on `rest_api_init`, not earlier: which option the front page description is
 	 * stored in depends on `jetpack_disable_seo_tools`, and a conflicting SEO plugin can
@@ -201,6 +201,7 @@ class Dashboard_Data {
 		// rest of the request — including the site's own visibility control, which must
 		// stay able to change it.
 		add_filter( 'rest_pre_update_setting', array( __CLASS__, 'block_publishing_a_private_site' ), 10, 3 );
+		add_filter( 'rest_pre_update_setting', array( __CLASS__, 'save_verification_codes' ), 10, 3 );
 
 		foreach ( self::settings_definitions() as $option => $args ) {
 			register_setting( self::SETTINGS_GROUP, $option, $args );
@@ -234,8 +235,8 @@ class Dashboard_Data {
 	 * and description still describe its own surface, and leaving its `sanitize_callback`
 	 * in place is what keeps the verification-tools module's `jetpack_verification_validate`
 	 * attached — and with it the `jetpack_site_verification_validate` action its consumers
-	 * listen for. Our own sanitizer is attached by our own `register_setting()` call and
-	 * stays attached alongside it, since sanitize filters accumulate.
+	 * listen for. Dashboard verification normalization runs only on core REST writes, leaving
+	 * the legacy module and API's own normalization intact.
 	 *
 	 * @param array  $args     Arguments the caller passed to `register_setting()`.
 	 * @param array  $defaults Default arguments.
@@ -256,13 +257,14 @@ class Dashboard_Data {
 			return $args;
 		}
 
+		if ( array_key_exists( 'default', $ours[ $option ] ) ) {
+			$args['default'] = $ours[ $option ]['default'];
+		}
+
 		return array_merge(
 			$args,
 			array(
 				'type'         => $ours[ $option ]['type'],
-				// `filter_default_option()` reads this key unconditionally once the option
-				// is registered, so it has to survive a caller that didn't set one.
-				'default'      => $ours[ $option ]['default'],
 				'show_in_rest' => $ours[ $option ]['show_in_rest'],
 			)
 		);
@@ -373,10 +375,9 @@ class Dashboard_Data {
 				),
 			),
 			self::VERIFICATION_CODES_OPTION       => array(
-				'type'              => 'object',
-				'default'           => array(),
-				'sanitize_callback' => array( __CLASS__, 'sanitize_verification_codes' ),
-				'show_in_rest'      => array(
+				'type'         => 'object',
+				'default'      => array(),
+				'show_in_rest' => array(
 					'schema' => array(
 						'type'       => 'object',
 						'properties' => array_fill_keys(
@@ -388,11 +389,15 @@ class Dashboard_Data {
 			),
 			self::front_page_description_option() => array(
 				'type'              => 'string',
-				'default'           => '',
 				'sanitize_callback' => array( __CLASS__, 'sanitize_front_page_description' ),
 				// The REST key stays the modern option name even when the value lives in
 				// the legacy one, so the client never has to know which is in play.
-				'show_in_rest'      => array( 'name' => self::FRONT_PAGE_META_OPTION ),
+				// Keep the default in REST only: legacy writers distinguish an absent option
+				// from an empty description when the legacy backing option is in use.
+				'show_in_rest'      => array(
+					'name'   => self::FRONT_PAGE_META_OPTION,
+					'schema' => array( 'default' => '' ),
+				),
 			),
 		);
 	}
@@ -694,6 +699,27 @@ class Dashboard_Data {
 	}
 
 	/**
+	 * Normalize dashboard verification writes without changing legacy option writers.
+	 *
+	 * A register_setting sanitizer would also intercept the legacy API and Sync.
+	 * Core has already validated the REST shape here; leave null resets to core.
+	 * Existing module sanitizers and their notification hooks still run on the write.
+	 *
+	 * @param bool   $updated Whether another filter handled the setting.
+	 * @param string $name    REST setting name.
+	 * @param mixed  $value   Validated submitted value.
+	 * @return bool
+	 */
+	public static function save_verification_codes( $updated, $name, $value ) {
+		if ( $updated || self::VERIFICATION_CODES_OPTION !== $name || null === $value ) {
+			return $updated;
+		}
+
+		update_option( self::VERIFICATION_CODES_OPTION, self::sanitize_verification_codes( $value ) );
+		return true;
+	}
+
+	/**
 	 * Reduce each submitted verification entry to the bare code, merged over the
 	 * codes already stored.
 	 *
@@ -716,26 +742,26 @@ class Dashboard_Data {
 		}
 
 		foreach ( $value as $service => $code ) {
+			if ( ! is_scalar( $code ) ) {
+				continue;
+			}
 			$service = sanitize_key( $service );
-			$code    = (string) $code;
+			$code    = trim( (string) $code );
 
-			// Anything that isn't already a bare code has to yield one, by unwrapping the
-			// whole `<meta …>` tag a service hands out. A value that yields no code at
-			// all is not a verification code, and the stored one is kept rather than
-			// overwritten: the old `/jetpack/v4/settings` route rejected that input with
-			// a 400 and left the saved code intact, and silently destroying it is the
-			// worse of the two failures. (Keeping it also survives the verification-tools
-			// module's own sanitizer running after ours, which sees a valid bare code.)
-			// An empty string is a deliberate clear, not a failed parse, so it passes.
-			if ( '' !== $code && ! preg_match( '/^[a-z0-9_-]+$/i', $code ) ) {
-				if ( ! preg_match( '/content=["\']?([^"\' ]*)["\' ]/i', $code, $matches ) ) {
+			// Match Jetpack's verification-tools validator, including punctuation in
+			// real provider tokens. Preserve literal plus signs when decoding a meta tag.
+			$pattern = '/^(?!.*[<>"\'])[!-~]+$/';
+			if ( '' !== $code && ! preg_match( $pattern, $code ) ) {
+				if ( ! preg_match( '/content=["\']?([^"\' ]*)["\' ]/is', $code, $matches ) ) {
 					continue;
 				}
-				$code = urldecode( $matches[1] );
+				$code = trim( rawurldecode( $matches[1] ) );
+				if ( '' === $code || ! preg_match( $pattern, $code ) ) {
+					continue;
+				}
 			}
 
-			// 100 chars is the cap the verification-tools module stores by.
-			$stored[ $service ] = substr( sanitize_text_field( trim( $code ) ), 0, 100 );
+			$stored[ $service ] = substr( $code, 0, 100 );
 		}
 
 		return $stored;
@@ -758,6 +784,7 @@ class Dashboard_Data {
 			'sitemap_active'            => 'sitemaps',
 			'canonical_active'          => 'canonical-urls',
 			'verification_tools_active' => 'verification-tools',
+			'seo_tools_active'          => 'seo-tools',
 		);
 	}
 
@@ -943,8 +970,8 @@ class Dashboard_Data {
 	 *
 	 * Read-only bootstrap only. Writes go to core's `/wp/v2/settings` for every field
 	 * backed by an option alone ({@see self::register_rest_settings()}), and to the
-	 * package's own routes for the three settings whose write switches a Jetpack module
-	 * — sitemap, canonical URLs and site verification ({@see self::module_settings()})
+	 * package's own routes for the settings whose write switches a Jetpack module
+	 * — sitemap, canonical URLs, site verification and SEO tools ({@see self::module_settings()})
 	 * — and for the nested Schema container; bootstrapping them all here keeps the
 	 * Settings UI hydrated without a second request.
 	 *
@@ -989,6 +1016,7 @@ class Dashboard_Data {
 			'site_is_private'            => self::is_site_private(),
 			'site_is_coming_soon'        => self::is_site_coming_soon(),
 			'site_visibility_url'        => Ai_Crawlers::privacy_settings_url(),
+			'data_sharing_available'     => ( new Host() )->is_wpcom_platform(),
 			'sitemap_active'             => $sitemap_active,
 			'sitemap_switchable'         => self::has_module( 'sitemaps' ),
 			// The reachable sitemap URL (Jetpack serves a valid sitemap here as soon as
@@ -1012,6 +1040,7 @@ class Dashboard_Data {
 			'front_page_description'     => (string) $front_page_desc,
 			'has_legacy_front_page_meta' => $has_legacy_front_page_meta,
 			'verification_tools_active'  => $modules->is_active( 'verification-tools' ),
+			'seo_tools_active'           => $modules->is_active( 'seo-tools' ),
 			'verification'               => array(
 				'google'    => isset( $codes['google'] ) ? (string) $codes['google'] : '',
 				'bing'      => isset( $codes['bing'] ) ? (string) $codes['bing'] : '',

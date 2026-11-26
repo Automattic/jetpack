@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Media library: Skip the scripts and styles the page already loaded, even when they were concatenated.

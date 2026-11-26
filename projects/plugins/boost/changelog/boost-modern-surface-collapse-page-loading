@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Remove dead legacy dashboard branches from Page Cache, Defer JS and Concatenate.
+
+

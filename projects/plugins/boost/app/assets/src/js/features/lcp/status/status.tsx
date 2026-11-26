@@ -1,4 +1,3 @@
-import { useModuleSurface } from '$features/module/surface';
 import TimeAgo from '$features/critical-css/time-ago/time-ago';
 import { __ } from '@wordpress/i18n';
 import { Progress } from '@wordpress/ui';
@@ -7,21 +6,12 @@ import styles from './status.module.scss';
 import type { FC } from 'react';
 
 const Status: FC = () => {
-	const legacyProgress = __(
-		"Jetpack Boost is optimizing your Cornerstone Page's LCP for you.",
-		'jetpack-boost'
-	);
-	const modernProgress = __(
-		"Jetpack Boost is optimizing your Cornerstone Page's LCP…",
-		'jetpack-boost'
-	);
-	const isModern = useModuleSurface() === 'row';
 	const [ query ] = useLcpState();
 	const lcpState = query?.data;
 
 	if ( lcpState?.status === 'error' ) {
 		return (
-			<div className={ styles?.failures }>
+			<div>
 				{ __(
 					"An error occurred while optimizing your Cornerstone Page's LCP. Please try again.",
 					'jetpack-boost'
@@ -43,24 +33,22 @@ const Status: FC = () => {
 	}
 
 	if ( lcpState?.status === 'pending' ) {
-		if ( isModern ) {
-			return (
-				<div className={ styles.pending }>
-					<span>{ modernProgress }</span>
-					<Progress.Root
-						className={ styles.progress }
-						aria-label={ __( 'Optimizing LCP images', 'jetpack-boost' ) }
-						value={ null }
-					>
-						<Progress.Track className={ styles.track }>
-							<Progress.Indicator className={ styles.indicator } />
-						</Progress.Track>
-					</Progress.Root>
-				</div>
-			);
-		}
-
-		return <div className={ styles?.generating }>{ legacyProgress }</div>;
+		return (
+			<div className={ styles.pending }>
+				<span>
+					{ __( "Jetpack Boost is optimizing your Cornerstone Page's LCP…", 'jetpack-boost' ) }
+				</span>
+				<Progress.Root
+					className={ styles.progress }
+					aria-label={ __( 'Optimizing LCP images', 'jetpack-boost' ) }
+					value={ null }
+				>
+					<Progress.Track className={ styles.track }>
+						<Progress.Indicator className={ styles.indicator } />
+					</Progress.Track>
+				</Progress.Root>
+			</div>
+		);
 	}
 
 	if ( lcpState?.status !== 'analyzed' || ! lcpState?.updated ) {
@@ -69,7 +57,7 @@ const Status: FC = () => {
 
 	return (
 		<>
-			<div className={ styles?.successes }>
+			<div>
 				{ __( 'Last optimized', 'jetpack-boost' ) }{ ' ' }
 				<TimeAgo time={ new Date( lcpState.updated * 1000 ) } />.
 			</div>

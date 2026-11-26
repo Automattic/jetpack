@@ -136,9 +136,7 @@ class Jetpack_Ads_Settings_Home_Test extends WP_UnitTestCase {
 	 * @param array $site What is on.
 	 */
 	private function arrange( array $site ) {
-		if ( ! empty( $site['consolidation'] ) ) {
-			add_filter( 'jetpack_feature_flag_enabled_' . Initializer::SETTINGS_CONSOLIDATION_FLAG, '__return_true' );
-		}
+		add_filter( 'jetpack_feature_flag_enabled_' . Initializer::SETTINGS_CONSOLIDATION_FLAG, empty( $site['consolidation'] ) ? '__return_false' : '__return_true' );
 		if ( ! empty( $site['monetize'] ) ) {
 			add_filter( 'jetpack_feature_flag_enabled_' . Dashboard::FEATURE_FLAG, '__return_true' );
 		}

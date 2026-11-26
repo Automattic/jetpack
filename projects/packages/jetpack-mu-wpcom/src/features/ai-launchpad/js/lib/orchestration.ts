@@ -54,3 +54,45 @@ export function buildAutoInput( data: OrchestrationData ): WizardInput | null {
 export function isAllTasksMode( search: string ): boolean {
 	return new URLSearchParams( search ).get( 'all_tasks' ) === '1';
 }
+
+/** The `start` value that opens Site Setup on "Which AI do you use?", also sent as the `start` Tracks prop. */
+export const AI_TOOL_START = 'ai-tool';
+
+/**
+ * Whether the wizard opens on "Which AI do you use?" (`?start=ai-tool`), only when the wizard would show anyway.
+ *
+ * @param search - The page's `location.search` string.
+ * @param view   - The initial view.
+ * @return True when the wizard opens on the AI tool view.
+ */
+export function startsOnAiTool( search: string, view: View ): boolean {
+	return view === 'wizard' && asksForAiTool( search );
+}
+
+/**
+ * Whether the URL carries `start=ai-tool`.
+ *
+ * @param search - The page's `location.search` string.
+ * @return True when it does.
+ */
+export function asksForAiTool( search: string ): boolean {
+	return new URLSearchParams( search ).get( 'start' ) === AI_TOOL_START;
+}
+
+/**
+ * The `GET /wpcom/v2/ai-launchpad` path for this page, forwarding `all_tasks` and `start=ai-tool`.
+ *
+ * @param search - The page's `location.search` string.
+ * @return The read path.
+ */
+export function readPath( search: string ): string {
+	const query = new URLSearchParams();
+	if ( isAllTasksMode( search ) ) {
+		query.set( 'all_tasks', '1' );
+	}
+	if ( asksForAiTool( search ) ) {
+		query.set( 'start', AI_TOOL_START );
+	}
+	const args = query.toString();
+	return args ? `/wpcom/v2/ai-launchpad?${ args }` : '/wpcom/v2/ai-launchpad';
+}

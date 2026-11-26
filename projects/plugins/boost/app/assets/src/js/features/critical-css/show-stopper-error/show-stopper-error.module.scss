@@ -2,8 +2,7 @@
 	display: block;
 }
 
-.is-modern {
-
+.notice {
 	// Element selector so this wins over Button's size rule.
 	button:global(.components-button.is-link) {
 		font-size: inherit;

@@ -9,17 +9,6 @@
 	}
 }
 
-.body {
-	background-color: var(--gray-0);
-	padding: 16px 16px 24px;
-}
-
-:global(.jb-dashboard) .body h5 {
-	font-weight: 600;
-	font-size: 14px;
-	line-height: 1.5;
-}
-
 .popover {
 	color: var(--jp-black);
 }
