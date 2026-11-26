@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Settings: Show the "Notify search engines when content changes" toggle right away instead of a loading message.

@@ -26,6 +26,32 @@ async function openSettings() {
 }
 
 beforeEach( () => jest.resetAllMocks() );
+afterEach( () => {
+	delete ( window as unknown as { JetpackScriptData?: unknown } ).JetpackScriptData;
+} );
+
+it( 'draws the preloaded toggle at once and keeps a save for the next visit', async () => {
+	( window as unknown as { JetpackScriptData: unknown } ).JetpackScriptData = {
+		seo: { preload: { '/jetpack/v4/seo/indexnow': { body: status } } },
+	};
+	apiFetch.mockResolvedValueOnce( status );
+	const { unmount } = render( <IndexnowSettings isSaving={ false } /> );
+	const toggle = screen.getByRole( 'switch', {
+		name: 'Notify search engines when content changes',
+	} );
+	expect( screen.queryByText( /Loading search engine notification/ ) ).not.toBeInTheDocument();
+	await waitFor( () => expect( apiFetch ).toHaveBeenCalledTimes( 1 ) );
+	apiFetch.mockResolvedValueOnce( { ...status, enabled: true } );
+	// eslint-disable-next-line testing-library/prefer-user-event -- Match the existing settings tests.
+	fireEvent.click( toggle );
+	await waitFor( () => expect( toggle ).toBeChecked() );
+	unmount();
+	apiFetch.mockImplementationOnce( () => new Promise( () => {} ) );
+	render( <IndexnowSettings isSaving={ false } /> );
+	expect(
+		screen.getByRole( 'switch', { name: 'Notify search engines when content changes' } )
+	).toBeChecked();
+} );
 
 it( 'keeps the opt-in off after a rejected save, then permits a retry', async () => {
 	apiFetch.mockResolvedValueOnce( status );
