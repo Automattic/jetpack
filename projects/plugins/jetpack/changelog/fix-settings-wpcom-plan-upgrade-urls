@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Settings: Send the Ads and Google Analytics upgrades on WordPress.com sites to the WordPress.com plans that include them, and stop showing the Google Analytics card in unrelated searches.
