@@ -309,7 +309,7 @@ class Blogroll_Test extends \WP_UnitTestCase {
 			);
 		};
 
-		self::factory()->post->create(
+		$page    = self::factory()->post->create(
 			array(
 				'post_type'    => 'page',
 				'post_name'    => 'links',
@@ -354,6 +354,17 @@ class Blogroll_Test extends \WP_UnitTestCase {
 			array( 'https://page.example/feed/', 'https://pattern.example/feed/' ),
 			wp_list_pluck( Blogroll\add_following( array() ), 'xmlUrl' )
 		);
+
+		// Another plugin can keep a post's blogroll out of the list.
+		$exclude = static function ( $listed, $post ) use ( $page ) {
+			return $post->ID === $page ? false : $listed;
+		};
+		add_filter( 'jetpack_blogroll_in_following', $exclude, 10, 2 );
+		$this->assertSame(
+			array( 'https://pattern.example/feed/' ),
+			wp_list_pluck( Blogroll\add_following( array() ), 'xmlUrl' )
+		);
+		remove_filter( 'jetpack_blogroll_in_following', $exclude );
 	}
 
 	/**

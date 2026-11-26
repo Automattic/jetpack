@@ -331,7 +331,9 @@ function get_following_post_ids() {
 		)
 	);
 	foreach ( $patterns as $pattern ) {
-		$likes[] = '%' . $wpdb->esc_like( '"ref":' . (int) $pattern ) . '%';
+		// With the closing character, so pattern 12 does not match pattern 123.
+		$likes[] = '%' . $wpdb->esc_like( '"ref":' . (int) $pattern . '}' ) . '%';
+		$likes[] = '%' . $wpdb->esc_like( '"ref":' . (int) $pattern . ',' ) . '%';
 	}
 
 	$ids = array();
@@ -393,7 +395,21 @@ function add_following( $outlines ) {
 	foreach ( $ids as $id ) {
 		$post = get_post( $id );
 		// Decided on every request, so a blogroll that became gated is not listed from the cache.
-		if ( has_opml( $post ) ) {
+		if ( ! is_post_publicly_viewable( $post ) || ! has_opml( $post ) ) {
+			continue;
+		}
+
+		/**
+		 * Filters whether the blogroll of a post is listed in the site's SocialSpec following list.
+		 *
+		 * Lets a plugin that restricts access to a post keep its blogroll out of the public list.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool     $listed Whether the blogroll is listed. Only public posts get here.
+		 * @param \WP_Post $post   The post.
+		 */
+		if ( apply_filters( 'jetpack_blogroll_in_following', true, $post ) ) {
 			$items = get_opml_items( get_public_blocks( $post ), $items );
 		}
 	}
