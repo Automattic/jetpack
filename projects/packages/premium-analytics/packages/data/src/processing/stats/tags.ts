@@ -64,34 +64,43 @@ function getTagLink( tag: StatsRecord ): string | null {
 	return typeof tag.link === 'string' ? tag.link : null;
 }
 
-function normalizeStatsTagsItem( item: StatsRecord ): StatsTagsItem {
-	const tagItems = coerceStatsArray< StatsRecord >( item.tags );
-	const hasChildren = tagItems.length > 1;
-	const labels = tagItems.map( tag => ( {
-		label: getTagName( tag ),
-		type: termType( tag.type ),
-		labelIcon: tagIcon( tag.type ),
-		link: hasChildren ? null : getTagLink( tag ),
-	} ) );
+/**
+ * Build a row from its terms: one stands alone with its archive link, several form a group.
+ *
+ * @param members - The row's terms, in the endpoint's order.
+ * @param value   - The row's views.
+ * @return The normalized row.
+ */
+function toStatsTagsItem( members: StatsTagsChildItem[], value: number ): StatsTagsItem {
+	const isGroup = members.length > 1;
 
 	return {
-		label: labels,
-		labelText: labels.map( label => label.label ).join( ', ' ),
-		link: hasChildren ? null : ( labels[ 0 ]?.link ?? null ),
-		value: safeParseFloat( item.views ),
-		...( hasChildren
-			? {
-					children: tagItems.map( tag => ( {
-						label: getTagName( tag ),
-						type: termType( tag.type ),
-						labelIcon: tagIcon( tag.type ),
-						value: null,
-						link: getTagLink( tag ),
-						children: null,
-					} ) ),
-				}
-			: {} ),
+		label: members.map( member => ( {
+			label: member.label,
+			type: member.type,
+			labelIcon: member.labelIcon,
+			link: isGroup ? null : member.link,
+		} ) ),
+		labelText: members.map( member => member.label ).join( ', ' ),
+		link: isGroup ? null : ( members[ 0 ]?.link ?? null ),
+		value,
+		...( isGroup ? { children: members } : {} ),
 	};
+}
+
+function normalizeStatsTagsItem( item: StatsRecord ): StatsTagsItem {
+	const members = coerceStatsArray< StatsRecord >( item.tags ).map(
+		( tag ): StatsTagsChildItem => ( {
+			label: getTagName( tag ),
+			type: termType( tag.type ),
+			labelIcon: tagIcon( tag.type ),
+			value: null,
+			link: getTagLink( tag ),
+			children: null,
+		} )
+	);
+
+	return toStatsTagsItem( members, safeParseFloat( item.views ) );
 }
 
 export function sanitizeStatsTagsResponse(
@@ -132,29 +141,10 @@ export function selectStatsTagsItemsByType(
 
 		const kept = members.filter( member => member.type === type );
 
-		if ( kept.length === members.length ) {
-			return [ item ];
-		}
-
 		if ( ! kept.length ) {
 			return [];
 		}
 
-		const isGroup = kept.length > 1;
-
-		return [
-			{
-				...item,
-				label: kept.map( member => ( {
-					label: member.label,
-					type: member.type,
-					labelIcon: member.labelIcon,
-					link: isGroup ? null : member.link,
-				} ) ),
-				labelText: kept.map( member => member.label ).join( ', ' ),
-				link: isGroup ? null : kept[ 0 ].link,
-				children: isGroup ? kept : undefined,
-			},
-		];
+		return [ kept.length === members.length ? item : toStatsTagsItem( kept, item.value ) ];
 	} );
 }

@@ -120,13 +120,15 @@ describe( 'Stats tags normalizer', () => {
 			);
 		} );
 
-		it( 'keeps a narrowed group a drill-down over its surviving members', () => {
+		it( 'keeps a drill-down only for a narrowed row left with several members', () => {
 			const [ group ] = selectStatsTagsItemsByType( items, 'tag' );
+			const [ , lone ] = selectStatsTagsItemsByType( items, 'category' );
 
 			expect( group.children?.map( child => [ child.label, child.link ] ) ).toEqual( [
 				[ 'Release', '/tag/release/' ],
 				[ 'Beta', '/tag/beta/' ],
 			] );
+			expect( lone.children ).toBeUndefined();
 		} );
 	} );
 } );
