@@ -653,11 +653,13 @@ class Main_Features {
 		 * Filters where a feature's upgrade link goes, so a host can send it to its own plans.
 		 *
 		 * Set `url` to an absolute address to replace the My Jetpack route, which also drops the
-		 * Jetpack plans the feature's details would otherwise link to; it is ignored when `$site_has_feature`.
+		 * Jetpack plans the feature's details would otherwise link to, or to '' when the host sells
+		 * nothing here: no upgrade and no Jetpack plans. Both are ignored when `$site_has_feature`.
 		 *
 		 * @since 6.14.0
 		 * @since 6.16.0 No longer reads `manage_url`; a feature's manage link is always My Jetpack's own.
 		 * @since 6.19.0 Also asked for the purchase links of the feature's product, with the Overview as `back_url`.
+		 * @since $$next-version$$ An empty `url` offers nothing to buy.
 		 *
 		 * @param array  $upgrade          `path` (a My Jetpack route) and `name` (the product sold), both empty when nothing is,
 		 *                                 and `back_url`, the admin page the link is on, for a host flow to return to.
@@ -676,8 +678,22 @@ class Main_Features {
 		);
 
 		// A site that already pays has nothing to buy, wherever a host would send it.
-		if ( ! $site_has_feature && ! empty( $filtered['url'] ) ) {
-			$result['url'] = esc_url_raw( (string) $filtered['url'] );
+		if ( $site_has_feature || ! isset( $filtered['url'] ) ) {
+			return $result;
+		}
+
+		if ( '' === $filtered['url'] ) {
+			return array(
+				'path' => '',
+				'name' => '',
+				'url'  => '',
+			);
+		}
+
+		// An address that doesn't survive sanitizing keeps Jetpack's route rather than selling nothing.
+		$url = esc_url_raw( (string) $filtered['url'] );
+		if ( '' !== $url ) {
+			$result['url'] = $url;
 		}
 
 		return $result;
@@ -687,9 +703,11 @@ class Main_Features {
 	 * Where a host sells the feature a product delivers, for the purchase links outside the Features tab.
 	 *
 	 * @since 6.19.0
+	 * @since $$next-version$$ Returns '' when the host sells nothing here.
 	 *
 	 * @param string $product_slug A My Jetpack product slug, matched to the catalog's `product` key.
-	 * @return ?string Null when the host names no address, the site has the feature, or no feature is the product's.
+	 * @return ?string Null when the host names no address, the site has the feature, or no feature is the product's;
+	 *                 '' when the host sells nothing here.
 	 */
 	public static function get_host_purchase_url( $product_slug ) {
 		// No host listening settles the answer, and spares the ownership lookups below.
@@ -707,7 +725,7 @@ class Main_Features {
 		$included      = self::is_included_in_plan( $definition, $product_class );
 		$upgrade       = self::filter_upgrade( self::get_upgrade( $definition, $product_class, $included ), $slug, $included, '' );
 
-		return empty( $upgrade['url'] ) ? null : $upgrade['url'];
+		return $upgrade['url'] ?? null;
 	}
 
 	/**

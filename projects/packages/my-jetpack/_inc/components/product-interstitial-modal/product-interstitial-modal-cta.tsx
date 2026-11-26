@@ -5,6 +5,7 @@ import { useCallback, type FC } from 'react';
 import useProduct from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
+import { hostSellsNothing } from '../../utils/host-sells-nothing';
 
 interface ProductInterstitialModalCtaProps {
 	slug: string;
@@ -76,6 +77,10 @@ const ProductInterstitialModalCta: FC< ProductInterstitialModalCtaProps > = ( {
 	const isDisabled = disabled || isProductLoading;
 	const isLoading = isProductLoading || hasMainCheckoutStarted;
 	const label = buttonLabel || __( 'Upgrade', 'jetpack-my-jetpack' );
+
+	if ( hostSellsNothing( hostPurchaseUrl ) ) {
+		return null;
+	}
 
 	// A host that sells the product takes the place of Jetpack's checkout.
 	if ( hostPurchaseUrl && ! isDisabled && ! isLoading ) {

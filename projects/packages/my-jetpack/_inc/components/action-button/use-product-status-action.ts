@@ -10,6 +10,7 @@ import useForcedOffReason from '../../hooks/use-forced-off-reason';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { connectionScreenRoute, getConnectUrl, productsFrom } from '../../utils/connect-url';
+import { hostSellsNothing } from '../../utils/host-sells-nothing';
 import type { SecondaryButtonProps } from './secondary-button';
 import type { AdditionalAction } from './types';
 import type { MouseEvent } from 'react';
@@ -134,7 +135,13 @@ const useProductStatusAction = (
 	}, [ slug, installStandalonePlugin, recordEvent, tracksIdentifier ] );
 
 	const action: Partial< SecondaryButtonProps > = useMemo( () => {
-		switch ( status ) {
+		// With nothing for sale, a product that would offer a plan gets the action of one the site has.
+		const offersPlan =
+			status === PRODUCT_STATUSES.CAN_UPGRADE || status === PRODUCT_STATUSES.NEEDS_PLAN;
+		const shownStatus =
+			offersPlan && hostSellsNothing( hostPurchaseUrl ) ? PRODUCT_STATUSES.ACTIVE : status;
+
+		switch ( shownStatus ) {
 			case PRODUCT_STATUSES.ABSENT: {
 				const buttonText = __( 'Learn more', 'jetpack-my-jetpack' );
 				return {

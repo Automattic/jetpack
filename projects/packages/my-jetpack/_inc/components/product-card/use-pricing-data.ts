@@ -13,6 +13,7 @@ import { tierPricePerMonth } from '../../data/utils/prepare-product-data';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { getConnectUrl, recommendationsFrom } from '../../utils/connect-url';
+import { hostSellsNothing } from '../../utils/host-sells-nothing';
 
 const parsePricingData = ( pricingForUi: ProductCamelCase[ 'pricingForUi' ] ) => {
 	const { tiers, wpcomFreeProductSlug, introductoryOffer } = pricingForUi || {};
@@ -103,9 +104,10 @@ const getPrimaryAction = (
 	const purchase = detail.hostPurchaseUrl
 		? { href: detail.hostPurchaseUrl, onClick: onHostPurchase }
 		: { onClick: onCheckout };
+	const sellsNothing = hostSellsNothing( detail.hostPurchaseUrl );
 
 	if ( detail.status === PRODUCT_STATUSES.CAN_UPGRADE || isUpgradable ) {
-		if ( upgradeHasPrice ) {
+		if ( upgradeHasPrice && ! sellsNothing ) {
 			return { label: __( 'Upgrade', 'jetpack-my-jetpack' ), ...purchase };
 		}
 		return null;
@@ -115,7 +117,7 @@ const getPrimaryAction = (
 		return getFeaturePrimaryAction( detail, { onActivate, onInstall, onManage } );
 	}
 
-	return { label: __( 'Purchase', 'jetpack-my-jetpack' ), ...purchase };
+	return sellsNothing ? null : { label: __( 'Purchase', 'jetpack-my-jetpack' ), ...purchase };
 };
 
 const getSecondaryAction = ( detail: ProductCamelCase, onActivate: () => void ) => {
