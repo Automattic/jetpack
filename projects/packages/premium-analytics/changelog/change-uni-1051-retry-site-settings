@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Retry loading the site settings after a failed load, so the Homepage row in Posts & Pages can get its link without reloading the page.
+Retry loading the site settings after a failed load, so the Homepage link in Posts & Pages and the Settings page can recover without reloading the page.
