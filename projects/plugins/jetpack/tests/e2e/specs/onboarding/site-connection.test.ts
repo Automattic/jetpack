@@ -24,7 +24,7 @@ test( 'Site only connection', async ( { page, admin } ) => {
 		await admin.visitAdminPage( 'admin.php', 'page=my-jetpack' );
 
 		await page
-			.getByRole( 'button', { name: 'Jetpack Connection: Site connected', exact: true } )
+			.getByRole( 'button', { name: 'Jetpack Connection: Not connected', exact: true } )
 			.click();
 		const connectionPopover = page.getByRole( 'dialog', {
 			name: 'Jetpack Connection',

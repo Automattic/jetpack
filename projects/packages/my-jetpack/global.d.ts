@@ -432,6 +432,8 @@ type ProtectData = {
 		themes: ScanItem[];
 		threats?: ThreatItem[];
 	};
+	// Protect's badge count, without threats fixed since the last scan; null when unknown.
+	threatCount: number | null;
 	// Fields marked optional are only sent to users with `manage_options`.
 	wafConfig: {
 		automatic_rules_available?: boolean;
