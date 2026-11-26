@@ -61,9 +61,9 @@ function wpcom_better_footer_links( $footer ) {
 	// Get current theme data.
 	$theme = wp_get_theme();
 
-	// Replace separator from content, since we are replacing theme and designer credits.
-	// Any span separator with a .sep class will be matched and replaced by the regular expression.
-	$footer = preg_replace( '/\<span class="([^"]+\s)?sep(\s[^"]+)?">.*<\/span>/i', '', $footer );
+	// Remove .sep separator spans, since we are replacing theme and designer credits.
+	// Lazy match: a greedy one runs to the last </span> on the line, taking widget content with it.
+	$footer = preg_replace( '/\<span class="([^"]+\s)?sep(\s[^"]+)?">.*?<\/span>/i', '', $footer );
 
 	// Handle WP.com footer text.
 	$lang = get_bloginfo( 'language' );
@@ -101,11 +101,9 @@ function wpcom_better_footer_links( $footer ) {
 		$before = substr( $footer, 0, $offset );
 		$after  = substr( $footer, $offset );
 
-		// Remove the separator that immediately preceded the credit link, now that the credit
-		// itself is being replaced. Anchored to this offset on purpose: this function runs on an
-		// output buffer covering the whole footer, footer widget areas included, so removing the
-		// separator globally also strips pipes out of content the site owner wrote.
-		$before = preg_replace( '/\s\|\s$/', '', $before );
+		// Remove only the separator right before the credit: the buffer also holds footer widgets.
+		// `\s*` because a credit regex filter (see Twotone below) can start the match on the space.
+		$before = preg_replace( '/\s\|\s*$/', '', $before );
 
 		// Replace on the last part. Ensure we only do one replacement to avoid duplicates.
 		$after = preg_replace( $credit_regex, $credit_link, $after, 1 );

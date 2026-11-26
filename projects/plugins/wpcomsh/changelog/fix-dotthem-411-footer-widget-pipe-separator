@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Footer credit: stop stripping pipe separators out of footer content. The separator is now only removed where it directly precedes the theme credit link being replaced.
+Footer credit: Stop removing pipe separators and other content from footer widgets when replacing the theme credit.
