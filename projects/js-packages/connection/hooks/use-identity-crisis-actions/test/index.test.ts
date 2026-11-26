@@ -82,7 +82,6 @@ describe( 'useIdentityCrisisActions', () => {
 		const { result } = renderHook( () => useIdentityCrisisActions() );
 
 		await act( async () => {
-			// The path for CONNECT-620's events is accepted on every action.
 			await expect(
 				result.current[ method ]( { entry: 'main', path: 'original>safe' } )
 			).resolves.toBe( failed );
