@@ -108,7 +108,7 @@ export function findNewConnections(
  * The count of other AI tools connected, from the endpoint's `other_connections`.
  *
  * @param value - The field as the endpoint returned it.
- * @return The count, or null when the endpoint can't tell; Copy prompt then starts no wait.
+ * @return The count, or null when the endpoint can't tell.
  */
 export function otherConnectionCount( value: unknown ): number | null {
 	return Number.isInteger( value ) && ( value as number ) >= 0 ? ( value as number ) : null;
@@ -117,7 +117,7 @@ export function otherConnectionCount( value: unknown ): number | null {
 /**
  * Whether another AI tool connected since Copy prompt. Only a rise counts, so a tool connected earlier doesn't.
  *
- * @param baseline - The count when the prompt was copied, or null while not waiting.
+ * @param baseline - The count to beat, or null while no count has been read.
  * @param count    - The latest count, or null when unknown.
  * @return True once the count is above the baseline.
  */
@@ -128,7 +128,7 @@ export function otherToolConnected( baseline: number | null, count: number | nul
 /**
  * The count to wait from: the first known count, lowered when the count drops so a reconnect still counts as a rise.
  *
- * @param baseline - The count the wait started from, or null when no wait has started.
+ * @param baseline - The count the wait started from, or null while no count has been read.
  * @param count    - The latest count, or null when unknown.
  * @return The count to wait from, or null when still unknown.
  */
