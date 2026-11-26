@@ -305,20 +305,100 @@ function print_opml_link() {
 add_action( 'wp_head', __NAMESPACE__ . '\print_opml_link' );
 
 /**
- * List the blogroll of the /blogroll page in the site's SocialSpec following list.
+ * The IDs of the published posts that may show a blogroll, also through a synced pattern.
  *
- * @link https://slashpages.net/#blogroll
+ * Capped and cached. Access is not decided here, see add_following().
+ *
+ * @return int[]
+ */
+function get_following_post_ids() {
+	global $wpdb;
+
+	$ids = get_transient( 'jetpack_blogroll_following_posts' );
+	if ( is_array( $ids ) ) {
+		return $ids;
+	}
+
+	$types = array_values( get_post_types( array( 'exclude_from_search' => false ) ) );
+	$likes = array( '%' . $wpdb->esc_like( 'wp:jetpack/blogroll' ) . '%' );
+
+	// Not a WP_Query search: search plugins replace the results of those.
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Cached below, with the posts.
+	$patterns = $wpdb->get_col(
+		$wpdb->prepare(
+			"SELECT ID FROM $wpdb->posts WHERE post_type = 'wp_block' AND post_status = 'publish' AND post_content LIKE %s LIMIT 10",
+			$likes[0]
+		)
+	);
+	foreach ( $patterns as $pattern ) {
+		$likes[] = '%' . $wpdb->esc_like( '"ref":' . (int) $pattern ) . '%';
+	}
+
+	$ids = array();
+	if ( $types ) {
+		$type_placeholders = implode( ', ', array_fill( 0, count( $types ), '%s' ) );
+		$like_placeholders = implode( ' OR ', array_fill( 0, count( $likes ), 'post_content LIKE %s' ) );
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Both are generated lists of placeholders.
+		$sql = "SELECT ID FROM $wpdb->posts
+				WHERE post_status = 'publish'
+					AND post_type IN ( $type_placeholders )
+					AND ( $like_placeholders )
+				ORDER BY post_date ASC
+				LIMIT 100";
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Cached right below.
+		$ids = $wpdb->get_col(
+			$wpdb->prepare(
+				$sql, // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Prepared right here.
+				array_merge( $types, $likes )
+			)
+		);
+	}
+
+	$ids = array_map( 'intval', $ids );
+	set_transient( 'jetpack_blogroll_following_posts', $ids, HOUR_IN_SECONDS );
+
+	return $ids;
+}
+
+/**
+ * Forget the posts with a blogroll when a published post with one is saved.
+ *
+ * A post that only shows a blogroll through a synced pattern is found when the cache expires.
+ *
+ * @param int      $post_id Post ID.
+ * @param \WP_Post $post    Post object.
+ */
+function clear_following_post_ids( $post_id, $post ) {
+	if ( 'publish' === $post->post_status && has_block( 'jetpack/blogroll', $post ) ) {
+		delete_transient( 'jetpack_blogroll_following_posts' );
+	}
+}
+add_action( 'save_post', __NAMESPACE__ . '\clear_following_post_ids', 10, 2 );
+
+/**
+ * List the public blogrolls of the site in its SocialSpec following list.
  *
  * @param array[] $outlines OPML outline attributes.
  * @return array[]
  */
 function add_following( $outlines ) {
-	$post = get_page_by_path( 'blogroll' );
-	if ( ! has_opml( $post ) ) {
-		return $outlines;
+	$ids   = get_following_post_ids();
+	$items = array();
+
+	_prime_post_caches( $ids, false, false );
+
+	foreach ( $ids as $id ) {
+		$post = get_post( $id );
+		// Decided on every request, so a blogroll that became gated is not listed from the cache.
+		if ( has_opml( $post ) ) {
+			$items = get_opml_items( get_public_blocks( $post ), $items );
+		}
 	}
 
-	foreach ( get_opml_items( get_public_blocks( $post ) ) as $item ) {
+	foreach ( $items as $item ) {
 		$outlines[] = array(
 			'type'    => 'rss',
 			'text'    => $item['name'],

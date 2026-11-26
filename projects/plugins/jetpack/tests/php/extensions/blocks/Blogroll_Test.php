@@ -292,46 +292,68 @@ class Blogroll_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * The following list takes the public feeds of the /blogroll page only.
+	 * The following list takes the public feeds of every blogroll on the site, each feed once.
 	 */
 	public function test_add_following() {
-		$content = self::blogroll(
-			self::item(
-				array(
-					'name'     => 'Feed',
-					'url'      => 'https://feed.example/',
-					'feed_url' => 'https://feed.example/feed/',
-				)
-			)
-		);
-		$args    = array(
-			'post_type'    => 'page',
-			'post_content' => $content,
-		);
-
-		self::factory()->post->create( $args + array( 'post_name' => 'links' ) );
 		$this->assertSame( array(), Blogroll\add_following( array() ) );
 
-		$page = self::factory()->post->create( $args + array( 'post_name' => 'blogroll' ) );
-		$this->assertSame(
+		$blogroll = static function ( $name ) {
+			return self::blogroll(
+				self::item(
+					array(
+						'name'     => $name,
+						'url'      => "https://$name.example/",
+						'feed_url' => "https://$name.example/feed/",
+					)
+				)
+			);
+		};
+
+		self::factory()->post->create(
 			array(
-				array(
-					'type'    => 'rss',
-					'text'    => 'Feed',
-					'xmlUrl'  => 'https://feed.example/feed/',
-					'htmlUrl' => 'https://feed.example/',
-				),
-			),
-			Blogroll\add_following( array() )
+				'post_type'    => 'page',
+				'post_name'    => 'links',
+				'post_content' => $blogroll( 'page' ),
+			)
+		);
+		$post    = self::factory()->post->create( array( 'post_content' => $blogroll( 'page' ) . $blogroll( 'post' ) ) );
+		$pattern = self::factory()->post->create(
+			array(
+				'post_type'    => 'wp_block',
+				'post_content' => $blogroll( 'pattern' ),
+			)
+		);
+		self::factory()->post->create( array( 'post_content' => '<!-- wp:block {"ref":' . $pattern . '} /-->' ) );
+		self::factory()->post->create(
+			array(
+				'post_status'  => 'private',
+				'post_content' => $blogroll( 'private' ),
+			)
+		);
+		self::factory()->post->create(
+			array(
+				'post_password' => 'secret',
+				'post_content'  => $blogroll( 'password' ),
+			)
 		);
 
+		$this->assertEqualsCanonicalizing(
+			array( 'https://page.example/feed/', 'https://post.example/feed/', 'https://pattern.example/feed/' ),
+			wp_list_pluck( Blogroll\add_following( array() ), 'xmlUrl' )
+		);
+
+		// A blogroll that is no longer public is dropped although its post is still cached.
 		wp_update_post(
 			array(
-				'ID'          => $page,
-				'post_status' => 'private',
+				'ID'            => $post,
+				'post_content'  => 'Hi',
+				'post_password' => 'secret',
 			)
 		);
-		$this->assertSame( array(), Blogroll\add_following( array() ) );
+		$this->assertEqualsCanonicalizing(
+			array( 'https://page.example/feed/', 'https://pattern.example/feed/' ),
+			wp_list_pluck( Blogroll\add_following( array() ), 'xmlUrl' )
+		);
 	}
 
 	/**
