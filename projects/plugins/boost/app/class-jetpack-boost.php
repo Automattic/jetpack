@@ -209,17 +209,14 @@ class Jetpack_Boost {
 			jetpack_boost_minify_activation();
 		}
 
-		if ( ! get_option( 'jetpack_boost_page_cache_uri_keys' ) ) {
-			$home_url  = home_url();
-			$home_host = wp_parse_url( $home_url, PHP_URL_HOST );
-			if ( is_string( $home_host ) ) {
-				$home_port = wp_parse_url( $home_url, PHP_URL_PORT );
-				if ( is_int( $home_port ) ) {
-					$home_host .= ':' . $home_port;
-				}
-				( new Boost_Cache( new File_Storage( strtolower( $home_host ) ) ) )->delete_recursive( $home_url );
+		$home_url  = home_url();
+		$home_host = wp_parse_url( $home_url, PHP_URL_HOST );
+		if ( is_string( $home_host ) ) {
+			$home_port = wp_parse_url( $home_url, PHP_URL_PORT );
+			if ( is_int( $home_port ) ) {
+				$home_host .= ':' . $home_port;
 			}
-			update_option( 'jetpack_boost_page_cache_uri_keys', 1, false );
+			( new Boost_Cache( new File_Storage( strtolower( $home_host ) ) ) )->delete_recursive( $home_url );
 		}
 
 		$page_cache = new Module( new Page_Cache() );
