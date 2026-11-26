@@ -123,6 +123,18 @@ class Dashboard_Threats_Test extends BaseTestCase {
 				array( 'fixedIn' ),
 				'2.3.0',
 			),
+			'archived zero update target'    => array(
+				array(
+					'status'  => 'fixed',
+					'fixable' => false,
+					'fixer'   => (object) array(
+						'fixer'  => 'update',
+						'target' => '0',
+					),
+				),
+				array( 'fixedIn' ),
+				null,
+			),
 			'context drops the marks'        => array(
 				array(
 					'context' => (object) array(

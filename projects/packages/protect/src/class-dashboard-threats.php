@@ -161,7 +161,7 @@ class Dashboard_Threats {
 		$theme = $theme && $theme->exists() ? $theme : null;
 		// Fixed history can include the original fixer even when the threat is no longer fixable.
 		$update_target = 'update' === ( $threat->fixer->fixer ?? null ) ? ( $threat->fixer->target ?? null ) : null;
-		$update_target = is_string( $update_target ) && '' !== $update_target ? $update_target : null;
+		$update_target = is_string( $update_target ) && ! empty( $update_target ) ? $update_target : null;
 		$fixed_in      = $threat->fixed_in ?? null;
 
 		return array(
