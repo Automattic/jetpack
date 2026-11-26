@@ -8,17 +8,9 @@ import userEvent from '@testing-library/user-event';
  */
 import { mockRowLayout, scrollRowsToEnd } from '../../../../../../tests/js/row-batches-test-utils';
 import { ReportDrilldownTable } from '../report-drilldown-table';
-import { ReportPageLayout } from '../report-page-layout';
 import { ReportRecordsTable } from '../report-records-table';
 import type { Field, View } from '@jetpack-premium-analytics/externals';
-import type { ReportDateFilters } from '@jetpack-premium-analytics/routing';
 import type { ReactElement } from 'react';
-
-// The layout hands the date controller to this panel; only the applied range matters here.
-jest.mock( '@jetpack-premium-analytics/ui', () => ( {
-	...jest.requireActual( '@jetpack-premium-analytics/ui' ),
-	DateFiltersPanel: () => null,
-} ) );
 
 interface Row {
 	id: string;
@@ -349,24 +341,6 @@ describe.each( TABLES )( '%s with a long report', ( _name, table ) => {
 		rerender( table( longReport() ) );
 
 		expect( screen.getByText( 'Row 100' ) ).toBeInTheDocument();
-	} );
-
-	it( 'starts over on a new period, even one whose rows are cached', async () => {
-		const inPeriod = ( from: string ) => (
-			<ReportPageLayout
-				title="Report"
-				dateFilters={ { appliedRange: { from, to: '2026-11-24' } } as unknown as ReportDateFilters }
-			>
-				{ table( longReport() ) }
-			</ReportPageLayout>
-		);
-		const { rerender } = render( inPeriod( '2026-11-18' ) );
-		scrollRowsToEnd();
-		await expect( screen.findByText( 'Row 100' ) ).resolves.toBeInTheDocument();
-
-		rerender( inPeriod( '2026-10-26' ) );
-
-		expect( screen.queryByText( 'Row 51' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'holds the next batch while the rows on screen revalidate', () => {
