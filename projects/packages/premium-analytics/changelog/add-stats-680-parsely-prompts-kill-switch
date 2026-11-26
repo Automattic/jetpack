@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Let WordPress.com decide which sites see the Upgrade to Parse.ly prompts, in place of the feature flag.

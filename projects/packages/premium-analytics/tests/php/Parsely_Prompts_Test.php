@@ -8,9 +8,7 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Status\Cache;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
@@ -23,18 +21,20 @@ require_once __DIR__ . '/../../src/parsely-prompts.php';
  * @covers ::Automattic\Jetpack\PremiumAnalytics\offers_parsely_prompts
  * @covers ::Automattic\Jetpack\PremiumAnalytics\has_parsely_integration
  * @covers ::Automattic\Jetpack\PremiumAnalytics\get_monthly_stats_views
- * @covers ::Automattic\Jetpack\PremiumAnalytics\fetch_monthly_stats_views
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\prompts_enabled_by_wordpress_com
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\get_parsely_prompts_usage
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\fetch_parsely_prompts_usage
  * @covers ::Automattic\Jetpack\PremiumAnalytics\quietest_monthly_views
- * @covers Automattic\Jetpack\PremiumAnalytics\Parsely_Prompts
  * @covers ::Automattic\Jetpack\PremiumAnalytics\configure_parsely_prompts
  * @covers ::Automattic\Jetpack\PremiumAnalytics\inject_parsely_prompts_script_data
  */
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\offers_parsely_prompts' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\has_parsely_integration' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_monthly_stats_views' )]
-#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\fetch_monthly_stats_views' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\prompts_enabled_by_wordpress_com' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_parsely_prompts_usage' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\fetch_parsely_prompts_usage' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\quietest_monthly_views' )]
-#[CoversClass( Parsely_Prompts::class )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\configure_parsely_prompts' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\inject_parsely_prompts_script_data' )]
 class Parsely_Prompts_Test extends BaseTestCase {
@@ -59,8 +59,6 @@ class Parsely_Prompts_Test extends BaseTestCase {
 	public function set_up() {
 		parent::set_up();
 		Cache::clear();
-		// The registry is static, so without this a test could read a flag an earlier one registered.
-		Feature_Flags::reset();
 
 		$user_id = wp_insert_user(
 			array(
@@ -75,7 +73,6 @@ class Parsely_Prompts_Test extends BaseTestCase {
 		\Jetpack_Options::update_option( 'blog_token', 'blog_token.secret' );
 		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 
-		add_filter( 'jetpack_feature_flag_enabled_' . Parsely_Prompts::FLAG, '__return_true' );
 		add_filter( STATS_PLAN_TIER_FILTER, array( $this, 'return_commercial_tier' ) );
 
 		// Defeat the stats client's own cache, so the request counts below answer for this file's cache alone.
@@ -90,7 +87,6 @@ class Parsely_Prompts_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		remove_all_filters( 'pre_http_request' );
-		remove_all_filters( 'jetpack_feature_flag_enabled_' . Parsely_Prompts::FLAG );
 		remove_all_filters( STATS_PLAN_TIER_FILTER );
 		remove_all_filters( OFFERS_PARSELY_PROMPTS_FILTER );
 		remove_all_filters( 'jetpack_fetch_stats_cache_expiration' );
@@ -186,14 +182,15 @@ class Parsely_Prompts_Test extends BaseTestCase {
 		}
 
 		return array(
-			'billable_monthly_views' => 0,
-			'current_usage'          => array(
+			'billable_monthly_views'      => 0,
+			PARSELY_PROMPTS_ENABLED_FIELD => true,
+			'current_usage'               => array(
 				'current_start' => '2026-10-26',
 				'next_start'    => '2026-11-26',
 				'views_count'   => 1,
 				'days_to_reset' => 1,
 			),
-			'recent_usages'          => $months,
+			'recent_usages'               => $months,
 		);
 	}
 
@@ -262,6 +259,98 @@ class Parsely_Prompts_Test extends BaseTestCase {
 
 		$this->assertTrue( offers_parsely_prompts() );
 		$this->assertSame( 1, $this->usage_requests );
+	}
+
+	/**
+	 * The switch WordPress.com holds, and the reason this check asks it at all: a self-hosted site
+	 * can be reached by nothing else between plugin releases.
+	 */
+	public function test_wordpress_com_can_close_the_prompts() {
+		$this->answer_stats_usage_with( self::usage_enabled( self::usage_with_views( 150000 ), false ) );
+
+		$this->assertFalse( offers_parsely_prompts() );
+	}
+
+	/**
+	 * A payload that predates the field must leave the prompts closed, or every qualifying site
+	 * would show them the moment this ships, before anyone decided to open them.
+	 */
+	public function test_a_payload_without_the_field_closes_the_prompts() {
+		$payload = self::usage_with_views( 150000 );
+		unset( $payload[ PARSELY_PROMPTS_ENABLED_FIELD ] );
+		$this->answer_stats_usage_with( $payload );
+
+		$this->assertFalse( offers_parsely_prompts() );
+	}
+
+	/**
+	 * @dataProvider provide_values_that_do_not_open_the_prompts
+	 *
+	 * @param mixed $value What the field carries.
+	 */
+	#[DataProvider( 'provide_values_that_do_not_open_the_prompts' )]
+	public function test_only_a_true_opens_the_prompts( $value ) {
+		$this->answer_stats_usage_with( self::usage_enabled( self::usage_with_views( 150000 ), $value ) );
+
+		$this->assertFalse( offers_parsely_prompts() );
+	}
+
+	/**
+	 * Values a loose check would open the prompts for.
+	 *
+	 * @return array<string, array{mixed}>
+	 */
+	public static function provide_values_that_do_not_open_the_prompts() {
+		return array(
+			'null'            => array( null ),
+			'one'             => array( 1 ),
+			'the string true' => array( 'true' ),
+			'the string on'   => array( 'on' ),
+		);
+	}
+
+	public function test_the_switch_shares_the_views_lookup() {
+		$this->answer_stats_usage_with( self::usage_with_views( 150000 ) );
+
+		$this->assertTrue( prompts_enabled_by_wordpress_com() );
+		$this->assertSame( 150000, get_monthly_stats_views() );
+		$this->assertSame( 1, $this->usage_requests );
+	}
+
+	/**
+	 * A cache written before the field existed carries no answer about it, so reading it would
+	 * hold the prompts closed for a site WordPress.com has since opened.
+	 */
+	public function test_a_cache_without_the_field_is_refetched() {
+		set_transient( PARSELY_PROMPTS_VIEWS_TRANSIENT, array( 'views' => 150000 ), PARSELY_PROMPTS_VIEWS_TTL );
+		$this->answer_stats_usage_with( self::usage_with_views( 150000 ) );
+
+		$this->assertTrue( offers_parsely_prompts() );
+		$this->assertSame( 1, $this->usage_requests );
+	}
+
+	/**
+	 * The local override, which is how a development site shows the prompts: WordPress.com will
+	 * never open them for a site it does not know.
+	 */
+	public function test_the_filter_opens_the_prompts_without_wordpress_com() {
+		$this->answer_stats_usage_with( self::usage_enabled( self::usage_with_views( 150000 ), false ) );
+		add_filter( OFFERS_PARSELY_PROMPTS_FILTER, '__return_true' );
+
+		$this->assertTrue( offers_parsely_prompts() );
+	}
+
+	/**
+	 * A usage payload whose enabled field carries the given value.
+	 *
+	 * @param array $usage The payload to set it on.
+	 * @param mixed $value What the field carries.
+	 * @return array
+	 */
+	private static function usage_enabled( array $usage, $value ) {
+		$usage[ PARSELY_PROMPTS_ENABLED_FIELD ] = $value;
+
+		return $usage;
 	}
 
 	public function test_exactly_the_threshold_offers_the_prompts() {
@@ -334,14 +423,6 @@ class Parsely_Prompts_Test extends BaseTestCase {
 			'jetpack free' => array( STATS_TIER_JETPACK_FREE, false ),
 			'unknown'      => array( STATS_TIER_UNKNOWN, false ),
 		);
-	}
-
-	public function test_the_flag_closes_the_gate_without_a_request() {
-		remove_all_filters( 'jetpack_feature_flag_enabled_' . Parsely_Prompts::FLAG );
-		$this->answer_stats_usage_with( self::usage_with_views( 150000 ) );
-
-		$this->assertFalse( offers_parsely_prompts() );
-		$this->assertSame( 0, $this->usage_requests );
 	}
 
 	public function test_a_user_without_manage_options_does_not_offer_the_prompts() {
@@ -490,11 +571,14 @@ class Parsely_Prompts_Test extends BaseTestCase {
 	 */
 	public function test_an_unreadable_month_does_not_discard_the_months_beside_it() {
 		$this->answer_stats_usage_with(
-			array(
-				'recent_usages' => array(
-					array( 'views_count' => 'not a number' ),
-					array( 'views_count' => 150000 ),
+			self::usage_enabled(
+				array(
+					'recent_usages' => array(
+						array( 'views_count' => 'not a number' ),
+						array( 'views_count' => 150000 ),
+					),
 				),
+				true
 			)
 		);
 
@@ -514,12 +598,6 @@ class Parsely_Prompts_Test extends BaseTestCase {
 		add_filter( OFFERS_PARSELY_PROMPTS_FILTER, '__return_false' );
 
 		$this->assertFalse( offers_parsely_prompts() );
-	}
-
-	public function test_the_flag_is_registered_off_by_default() {
-		Parsely_Prompts::register_feature_flag();
-
-		$this->assertSame( false, Feature_Flags::get( Parsely_Prompts::FLAG )['default'] ?? null );
 	}
 
 	/**
