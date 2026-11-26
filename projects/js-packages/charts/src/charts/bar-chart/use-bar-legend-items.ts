@@ -1,6 +1,9 @@
 import { useMemo } from 'react';
-import { useChartLegendItems } from '../../components/legend/hooks/use-chart-legend-items';
-import { getDrawnSeries } from './private/stack-layout';
+import {
+	useChartLegendItems,
+	getComparisonItemLabel,
+} from '../../components/legend/hooks/use-chart-legend-items';
+import { COMPARISON_TOTAL_KEY } from './constants';
 import { useBarColors } from './use-bar-colors';
 import type { ChartLegendOptions } from '../../components/legend/hooks/use-chart-legend-items';
 import type { BaseLegendItem } from '../../components/legend/types';
@@ -15,20 +18,66 @@ const isComparison = ( data: SeriesData[], label: string | undefined ) =>
 	data.some( series => series.label === label && series.options?.type === 'comparison' );
 
 /**
- * Applies what a bar layout changes about a legend: overlap lists every primary before every comparison, as it draws their slots, with every swatch opaque like its bar; a collapsed grouped item takes its comparison's tint, the wider bar that frames the group.
+ * The series a stacked layout's legend lists: every primary, then, with a comparison item, the comparison total it draws.
+ *
+ * @param data           - The chart's series.
+ * @param comparisonItem - The legend's `comparisonItem` option.
+ * @return The series, and each one's index in `data` for its color.
+ */
+function getStackedLegendSeries(
+	data: SeriesData[],
+	comparisonItem: BarLegendOptions[ 'comparisonItem' ]
+): { series: SeriesData[]; indexes: number[] } {
+	const indexes = data.flatMap( ( series, index ) =>
+		series.options?.type === 'comparison' ? [] : [ index ]
+	);
+	const comparison = data.findIndex( series => series.options?.type === 'comparison' );
+	const series = indexes.map( index => data[ index ] );
+
+	if ( ! comparisonItem || comparison === -1 ) {
+		return { series, indexes };
+	}
+
+	return {
+		series: [
+			...series,
+			{
+				label: COMPARISON_TOTAL_KEY,
+				data: [],
+				options: { type: 'comparison' },
+			},
+		],
+		indexes: [ ...indexes, comparison ],
+	};
+}
+
+/**
+ * Applies what a bar layout changes about a legend: its swatch colors, and the order and kind of its comparison items.
  *
  * @param data         - The series the items were built from.
  * @param items        - The legend items.
  * @param layout       - The layout the bars are drawn in.
  * @param seriesColors - Each series' bar color, by index.
+ * @param totalLabel   - The name of a stacked layout's comparison total.
  * @return The legend items.
  */
 function forBarLayout(
 	data: SeriesData[],
 	items: BaseLegendItem[],
 	layout: BarChartLayout,
-	seriesColors: string[]
+	seriesColors: string[],
+	totalLabel: string
 ): BaseLegendItem[] {
+	if ( layout === 'stacked' ) {
+		// The comparison total is not a series to toggle: hiding a primary already drops its comparison from it.
+		return items.map( item =>
+			item.seriesLabels?.[ 0 ] === COMPARISON_TOTAL_KEY
+				? { ...item, label: totalLabel, seriesLabels: undefined, interactive: false }
+				: item
+		);
+	}
+
+	// Overlap lists every primary before every comparison, as it draws their slots, with opaque swatches.
 	if ( layout === 'overlap' ) {
 		const opaque = items.map( item =>
 			item.shapeStyle ? { ...item, shapeStyle: { ...item.shapeStyle, opacity: undefined } } : item
@@ -44,6 +93,7 @@ function forBarLayout(
 		];
 	}
 
+	// A collapsed grouped item takes its comparison's tint, the wider bar that frames the group.
 	return items.map( item => {
 		if ( ( item.seriesLabels?.length ?? 0 ) < 2 ) {
 			return item;
@@ -70,20 +120,43 @@ export function useBarLegendItems(
 	legendShape?: LegendShape< SeriesData[], number >
 ): BaseLegendItem[] {
 	const { layout } = options;
-	const data = useMemo( () => getDrawnSeries( allData, layout ), [ allData, layout ] );
-	const getBarColors = useBarColors();
-	const seriesColors = useMemo(
-		() => ( layout ? getBarColors( data, { layout } ) : undefined ),
-		[ data, layout, getBarColors ]
+	const stacked = useMemo(
+		() =>
+			layout === 'stacked' ? getStackedLegendSeries( allData, options.comparisonItem ) : undefined,
+		[ allData, layout, options.comparisonItem ]
 	);
+	const data = stacked?.series ?? allData;
+	const getBarColors = useBarColors();
+	const seriesColors = useMemo( () => {
+		if ( ! layout ) {
+			return undefined;
+		}
+		const colors = getBarColors( allData, { layout } );
+		return stacked ? stacked.indexes.map( index => colors[ index ] ) : colors;
+	}, [ allData, stacked, layout, getBarColors ] );
 	const chartLegendOptions = useMemo(
-		(): ChartLegendOptions => ( { ...options, seriesColors } ),
-		[ options, seriesColors ]
+		(): ChartLegendOptions => ( {
+			...options,
+			// A stacked layout lists its comparison total itself.
+			...( stacked && { comparisonItem: false, comparisonSeriesItems: undefined } ),
+			seriesColors,
+		} ),
+		[ options, stacked, seriesColors ]
 	);
 	const items = useChartLegendItems( data, chartLegendOptions, legendShape );
 
+	const { comparisonItem } = options;
 	return useMemo(
-		() => ( layout && seriesColors ? forBarLayout( data, items, layout, seriesColors ) : items ),
-		[ data, items, layout, seriesColors ]
+		() =>
+			layout && seriesColors
+				? forBarLayout(
+						data,
+						items,
+						layout,
+						seriesColors,
+						getComparisonItemLabel( comparisonItem )
+					)
+				: items,
+		[ data, items, layout, seriesColors, comparisonItem ]
 	);
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+VideoPress: Keep the post from being saved or published while a video is still uploading in the VideoPress block, so the video is not lost.

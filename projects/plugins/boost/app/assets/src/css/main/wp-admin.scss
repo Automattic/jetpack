@@ -28,9 +28,8 @@ p {
 	--spacing-base: 8px;
 }
 
-// The type scale and component overrides the settings controls rely on.
-// Shared, because both dashboards render those same controls. The page frame
-// below is not: the modern chassis supplies its own.
+// The type scale and component overrides shared by the Getting Started and
+// Purchase Success pages (`.jb-dashboard`) and the modern settings chassis.
 // $yield-links drops the scope from the link rule's specificity, so
 // @wordpress/ui links keep their own tone.
 @mixin settings-content(
@@ -89,7 +88,6 @@ p {
 
 	@include settings-content;
 
-	// TODO(BOOST-702): remove with the legacy dashboard.
 	h1,
 	h2,
 	h3,
@@ -142,9 +140,4 @@ p {
 :where(.jb-modern-settings, .jb-modern-settings-popovers) p {
 	font-size: inherit;
 	color: inherit;
-}
-
-// Reset WP-Admin styles for boost dashboard
-.jetpack_page_jetpack-boost #jb-admin-settings {
-	background: #fff;
 }

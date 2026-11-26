@@ -6,8 +6,8 @@ import {
 	type ReportParams,
 	type StatsChartBucketPeriod,
 } from '@jetpack-premium-analytics/data';
-import { getDateIntervalDateParts, parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
-import { toDay } from '@jetpack-premium-analytics/widgets-toolkit';
+import { clipBucketToRange, parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
+import { toDayRange } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 
 /**
@@ -19,27 +19,6 @@ export type AuthorPerformancePoint = {
 	endDate?: Date;
 	value: number;
 };
-
-/**
- * The days of a bucket that fall in the range, so the tooltip names a month the
- * range cuts by its days.
- *
- * @param start  - The bucket's first calendar day, `yyyy-MM-dd`.
- * @param period - The bucket size.
- * @param from   - The range's first day, `yyyy-MM-dd`.
- * @param to     - The range's last day, `yyyy-MM-dd`.
- * @return The bucket's clipped first and last day.
- */
-function clipBucketToRange(
-	start: string,
-	period: StatsChartBucketPeriod,
-	from: string,
-	to: string
-) {
-	const { endDate: end } = getDateIntervalDateParts( start, period );
-
-	return { from: start < from ? from : start, to: end > to ? to : end };
-}
 
 export interface AuthorPerformanceState {
 	current: AuthorPerformancePoint[];
@@ -80,8 +59,7 @@ export default function useAuthorPerformance(
 	);
 
 	const current = useMemo( () => {
-		const from = toDay( reportParams.from );
-		const to = toDay( reportParams.to );
+		const range = toDayRange( reportParams.from, reportParams.to );
 
 		return ( data?.data ?? [] ).flatMap( point => {
 			const start = parseSiteDateTime( point.period );
@@ -89,7 +67,7 @@ export default function useAuthorPerformance(
 				return [];
 			}
 
-			const bounds = from && to ? clipBucketToRange( point.period, period, from, to ) : undefined;
+			const bounds = range && clipBucketToRange( point.period, period, range );
 			const date = parseSiteDateTime( bounds?.from ) ?? start;
 			const endDate = parseSiteDateTime( bounds?.to );
 			const value = point.views;

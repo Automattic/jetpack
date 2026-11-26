@@ -407,6 +407,17 @@ describe( 'ViewsOverYears widget', () => {
 		expect( ( await downloads.lines() ).at( -1 ) ).toBe( oldestYear );
 	} );
 
+	it( 'keeps the averages download while the first day with views revalidates', () => {
+		mockVisits(
+			visitsResult( ROWS ),
+			visitsResult( [ [ '2025-11-20', 4 ] ], { isFetching: true } )
+		);
+
+		const { declaredAction } = renderWidget( { metric: 'average' } );
+
+		expect( declaredAction( 'download-csv' ) ).toBeDefined();
+	} );
+
 	it.each( [
 		[ 'the site has no views', {}, visitsResult( [ [ '2026-03-01', 0 ] ] ), undefined ],
 		[
@@ -428,6 +439,12 @@ describe( 'ViewsOverYears widget', () => {
 			{ metric: 'average' },
 			visitsResult( ROWS ),
 			visitsResult( undefined, { isError: true, error: new Error( 'boom' ) } ),
+		],
+		[
+			'the averages are reading a failed first day again',
+			{ metric: 'average' },
+			visitsResult( ROWS ),
+			visitsResult( undefined, { isFetching: true, primary: { isFetched: true } } ),
 		],
 	] )( 'offers no download when %s', ( _, attributes, months, days ) => {
 		mockVisits( months, days );

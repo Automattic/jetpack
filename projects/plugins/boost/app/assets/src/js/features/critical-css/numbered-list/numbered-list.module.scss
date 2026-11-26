@@ -26,20 +26,6 @@
 		line-height: 1.3em;
 		margin-right: 5px;
 	}
-
-	// TODO(BOOST-702): remove with the legacy dashboard.
-	:global(.jb-dashboard) & {
-
-		.text {
-			// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
-			line-height: 1.3em;
-		}
-
-		.index {
-			border-color: #ccc;
-			font-size: 14px;
-		}
-	}
 }
 
 .numbered-list:last-child {

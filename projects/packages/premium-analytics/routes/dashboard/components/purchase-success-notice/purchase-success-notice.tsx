@@ -4,14 +4,16 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { AnalyticsQueryClientProvider, useSiteIsCommercial } from '@jetpack-premium-analytics/data';
 import { Link, Notice } from '@jetpack-premium-analytics/externals';
-import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	useStatsUpgradeLinkProps,
+	useTrackEvent,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { speak } from '@wordpress/a11y';
 import { createInterpolateElement, useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { usePlanUpgradeLinkProps } from '../../../use-plan-upgrade-link-props';
 import styles from './purchase-success-notice.module.scss';
 import type { JSX } from 'react';
 
@@ -60,7 +62,7 @@ function ConnectedNotice(): JSX.Element | null {
 	const [ isDismissed, setIsDismissed ] = useState( isDismissedThisLoad );
 	const { data: isCommercial, isPending } = useSiteIsCommercial( { enabled: isPaid } );
 	const trackEvent = useTrackEvent();
-	const upgradeLink = usePlanUpgradeLinkProps( 'jetpack-free-stats-purchase-success-notice' );
+	const upgradeLink = useStatsUpgradeLinkProps( 'jetpack-free-stats-purchase-success-notice' );
 
 	useEffect( removePurchaseSuccessParam, [] );
 

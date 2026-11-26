@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Hide the views limit notice and the plan usage card on WordPress.com sites, which have no views limit, and open the upgrade page from old classic Stats purchase links.

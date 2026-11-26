@@ -16,6 +16,7 @@ import { store as noticesStore } from '@wordpress/notices';
  */
 import { Link } from '@wordpress/ui';
 import RecordVideoButton from '../../../../../components/video-recording';
+import useLockSavingWhileUploading from '../../../../../hooks/use-lock-saving-while-uploading';
 import useResumableUploader from '../../../../../hooks/use-resumable-uploader';
 import { uploadFromLibrary } from '../../../../../hooks/use-uploader';
 import { isSiteConnected } from '../../../../../lib/connection';
@@ -54,6 +55,15 @@ const VideoPressUploader = ( {
 	const { createWarningNotice } = useDispatch( noticesStore );
 
 	/*
+	 * Tracking error data
+	 */
+	const [ uploadErrorData, setUploadErrorDataState ] = useState( null );
+
+	useLockSavingWhileUploading(
+		( isUploadingInProgress || isVerifyingLocalMedia ) && ! uploadErrorData
+	);
+
+	/*
 	 * When the file to upload is set, start the upload process
 	 * just after the component is mounted.
 	 */
@@ -82,11 +92,6 @@ const VideoPressUploader = ( {
 	const setUploadingProgress = useCallback( function ( ...args ) {
 		setUploadingProgressState( args );
 	}, [] );
-
-	/*
-	 * Tracking error data
-	 */
-	const [ uploadErrorData, setUploadErrorDataState ] = useState( null );
 
 	// Define a memoized function to register the error data.
 	const setUploadErrorData = useCallback( function ( error ) {

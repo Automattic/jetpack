@@ -108,6 +108,8 @@ class Jetpack_Top_Posts_Helper_Test extends WP_UnitTestCase {
 					sprintf( '/sites/%d/stats/top-posts', self::BLOG_ID ),
 					WPCOM_Stats::STATS_REST_API_VERSION,
 					wp_json_encode( $args, JSON_UNESCAPED_SLASHES ),
+					// The helper asks for no timeout of its own, so the entry is under the default.
+					WPCOM_Stats::REQUEST_TIMEOUT,
 				)
 			)
 		);

@@ -18,6 +18,15 @@ export { ensureCoreSettingsReady } from './ensure-core-settings';
 export { getDefaultIntervalForPeriod } from './interval';
 export { safeParseInt, safeParseFloat } from './parsing';
 export { computeDateRangeFromPreset } from './preset-date-range';
+export {
+	getPromosForPlacement,
+	isFinalClose,
+	isPromoDismissed,
+	pickPromo,
+	type Promo,
+	type PromoDismissal,
+	type PromoPlacement,
+} from './promos';
 export { resolveReportTimeZone, type ReportTimeZoneParams } from './report-timezone';
 export { saveBlob } from './save-blob';
 export { findAuthorRow, toAuthorId, toPostId } from './to-post-id';

@@ -12,6 +12,7 @@ require_once __DIR__ . '/mocks/class-mock-styles-helper.php';
 require_once __DIR__ . '/mocks/class-mock-table-wrapper-helper.php';
 
 use PHPUnit\Framework\Attributes\CoversMethod;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Tiled Gallery Block Email Rendering tests.
@@ -95,6 +96,193 @@ class Tiled_Gallery_Block_Email_Test extends WP_UnitTestCase {
 
 		// Should contain margin styling for email spacing
 		$this->assertStringContainsString( 'margin: 16px 0', $result );
+	}
+
+	/**
+	 * Each layout's rows fill the email width, at pixel sizes Outlook honors; mosaic rows share a height from the aspect ratios.
+	 *
+	 * @param array  $layout_attrs   Block attributes choosing the layout.
+	 * @param string $source         Block attribute the images come from: 'ids' or 'images'.
+	 * @param array  $dimensions     Width and height of each image, or null when unknown.
+	 * @param array  $expected_sizes Expected width and height attributes of each image.
+	 * @param array  $expected_cells Expected width percentage of each image's cell.
+	 * @param bool   $expected_crop  Whether the images are cropped with object-fit.
+	 * @dataProvider provide_galleries
+	 */
+	#[DataProvider( 'provide_galleries' )]
+	public function test_render_email_sizes_images_to_fit_email_width( $layout_attrs, $source, $dimensions, $expected_sizes, $expected_cells, $expected_crop ) {
+		$attrs = $layout_attrs;
+		foreach ( $dimensions as $index => $size ) {
+			if ( 'images' === $source ) {
+				$attrs['images'][] = array(
+					'url'    => "http://example.com/photo-$index.jpg",
+					'width'  => $size ? $size[0] : null,
+					'height' => $size ? $size[1] : null,
+				);
+				continue;
+			}
+
+			$id = self::factory()->attachment->create_object(
+				array(
+					'file'           => "photo-$index.jpg",
+					'post_mime_type' => 'image/jpeg',
+				)
+			);
+			wp_update_attachment_metadata(
+				$id,
+				array(
+					'file'   => "photo-$index.jpg",
+					'width'  => $size[0],
+					'height' => $size[1],
+				)
+			);
+			$attrs['ids'][] = $id;
+		}
+
+		// Square and Circle crop through Photon, so make sure it handles the uploads URL.
+		add_filter( 'jetpack_photon_development_mode', '__return_false' );
+		add_filter( 'jetpack_photon_skip_for_url', '__return_false' );
+		$result = \Automattic\Jetpack\Extensions\Tiled_Gallery::render_email( '', array( 'attrs' => $attrs ), $this->create_rendering_context_mock( '740px' ) );
+		remove_filter( 'jetpack_photon_development_mode', '__return_false' );
+		remove_filter( 'jetpack_photon_skip_for_url', '__return_false' );
+
+		preg_match_all( '/<img [^>]*width="(\d+)"(?: height="(\d+)")?/', $result, $sizes );
+		$this->assertSame( $expected_sizes, array_map( null, $sizes[1], $sizes[2] ) );
+
+		// Clients other than Outlook lay the row out from the cell widths: each image plus 4px of padding, out of 740px.
+		preg_match_all( '/<td style="width: ([\d.]+)%/', $result, $cells );
+		$this->assertSame( $expected_cells, $cells[1] );
+		$this->assertSame( $expected_crop, str_contains( $result, 'object-fit' ) );
+	}
+
+	/**
+	 * Galleries rendered at 740px, where each row's images fill 740px less 4px of cell padding per image.
+	 *
+	 * @return array
+	 */
+	public static function provide_galleries() {
+		return array(
+			// 728px / ( 1.5 + 0.5 + 1.5 ) = 208px tall.
+			'landscape and portrait share a row' => array(
+				array(),
+				'ids',
+				array( array( 600, 400 ), array( 400, 800 ), array( 600, 400 ) ),
+				array( array( '312', '208' ), array( '104', '208' ), array( '312', '208' ) ),
+				array( '42.7027', '14.5946', '42.7027' ),
+				false,
+			),
+			// Each image is alone in its 736px row: the 6:1 panorama is 123px tall, the 3:2 landscapes 491px.
+			'a panorama gets a row of its own'   => array(
+				array(),
+				'ids',
+				array( array( 600, 400 ), array( 900, 150 ), array( 600, 400 ) ),
+				array( array( '736', '491' ), array( '736', '123' ), array( '736', '491' ) ),
+				array( '100', '100', '100' ),
+				false,
+			),
+			// The 3:1 panorama opens the gallery alone at 736px / 3 = 245px tall; the landscapes share 732px at 244px tall.
+			'a panorama opens the gallery'       => array(
+				array(),
+				'ids',
+				array( array( 900, 300 ), array( 600, 400 ), array( 600, 400 ) ),
+				array( array( '736', '245' ), array( '366', '244' ), array( '366', '244' ) ),
+				array( '100', '50', '50' ),
+				false,
+			),
+			// The image without dimensions counts as square, 728px / ( 1.5 + 1 + 1 ) = 208px tall, but gets no height.
+			'images attribute, one size unknown' => array(
+				array(),
+				'images',
+				array( array( 600, 400 ), null, array( 500, 500 ) ),
+				array( array( '312', '208' ), array( '208', '' ), array( '208', '208' ) ),
+				array( '42.7027', '28.6486', '28.6486' ),
+				false,
+			),
+			// The first row takes the odd image; the 1300px square crops fill 736px and 732px / 2.
+			'square, 2 columns'                  => array(
+				array(
+					'className' => 'is-style-square',
+					'columns'   => 2,
+				),
+				'ids',
+				array( array( 600, 400 ), array( 600, 400 ), array( 600, 400 ) ),
+				array( array( '736', '736' ), array( '366', '366' ), array( '366', '366' ) ),
+				array( '100', '50', '50' ),
+				true,
+			),
+			// 728px / 3 leaves 2px over, which the last image takes.
+			'circle, 3 columns'                  => array(
+				array(
+					'className' => 'is-style-circle',
+					'columns'   => 3,
+				),
+				'ids',
+				array( array( 600, 400 ), array( 600, 400 ), array( 600, 400 ) ),
+				array( array( '242', '242' ), array( '242', '242' ), array( '244', '244' ) ),
+				array( '33.2432', '33.2432', '33.5135' ),
+				true,
+			),
+			// Images go round the 242px, 242px and 244px columns, at heights from their aspect ratios.
+			'columns, 3 columns'                 => array(
+				array(
+					'className' => 'is-style-columns',
+					'columns'   => 3,
+				),
+				'ids',
+				array( array( 600, 400 ), array( 400, 800 ), array( 600, 400 ), array( 500, 500 ) ),
+				array( array( '242', '161' ), array( '242', '242' ), array( '242', '484' ), array( '244', '163' ) ),
+				array( '33.2432', '33.2432', '33.5135' ),
+				false,
+			),
+		);
+	}
+
+	/**
+	 * A square image is cropped through Photon, since a site's own uploads URL ignores resize; one Photon skips gets no height.
+	 *
+	 * @param bool   $photon_skips    Whether Photon skips the image URL.
+	 * @param string $expected_src    Expected image URL.
+	 * @param string $expected_height Expected height attribute, or '' for none.
+	 * @dataProvider provide_square_image_urls
+	 */
+	#[DataProvider( 'provide_square_image_urls' )]
+	public function test_render_email_crops_square_images_through_photon( $photon_skips, $expected_src, $expected_height ) {
+		add_filter( 'jetpack_photon_development_mode', '__return_false' );
+		add_filter( 'jetpack_photon_skip_for_url', $photon_skips ? '__return_true' : '__return_false' );
+		$id = self::factory()->attachment->create_object(
+			array(
+				'file'           => 'photo.jpg',
+				'post_mime_type' => 'image/jpeg',
+			)
+		);
+
+		$result = \Automattic\Jetpack\Extensions\Tiled_Gallery::render_email(
+			'',
+			array(
+				'attrs' => array(
+					'ids'       => array( $id ),
+					'className' => 'is-style-square',
+				),
+			),
+			$this->create_rendering_context_mock( '740px' )
+		);
+		remove_filter( 'jetpack_photon_development_mode', '__return_false' );
+		remove_filter( 'jetpack_photon_skip_for_url', $photon_skips ? '__return_true' : '__return_false' );
+
+		preg_match( '/<img [^>]*src="([^"]+)" width="(\d+)"(?: height="(\d+)")?/', $result, $image );
+		$this->assertSame( array( $expected_src, '736', $expected_height ), array( $image[1], $image[2], $image[3] ?? '' ) );
+	}
+
+	/**
+	 * Square image URLs Photon handles and skips.
+	 *
+	 * @return array
+	 */
+	public static function provide_square_image_urls() {
+		return array(
+			'self-hosted uploads URL' => array( false, 'https://i0.wp.com/example.org/wp-content/uploads/photo.jpg?resize=1300%2C1300', '736' ),
+			'URL Photon skips'        => array( true, 'http://example.org/wp-content/uploads/photo.jpg', '' ),
+		);
 	}
 
 	/**

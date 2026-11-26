@@ -12,6 +12,7 @@
 namespace Automattic\Jetpack\SEO;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WP_Post;
 
@@ -53,6 +54,7 @@ class SchemaBuilderTest extends TestCase {
 		remove_all_filters( 'pre_option_show_on_front' );
 		remove_all_filters( 'pre_option_page_on_front' );
 		remove_all_filters( 'home_url' );
+		remove_all_filters( 'jetpack_seo_schema_article_authors' );
 		\WooCommerce::$is_template = false;
 		$this->remove_schema_builder_hooks();
 		$this->remove_woo_schema_hooks();
@@ -564,6 +566,171 @@ class SchemaBuilderTest extends TestCase {
 
 		// Site-level nodes still live on the home page only.
 		$this->assertNull( $this->node_of_type( $doc, 'Organization' ), 'A post must not carry the Organization node.' );
+	}
+
+	/**
+	 * The authors filter can credit several Person nodes; the Article then
+	 * references each by `@id` and the graph carries every node.
+	 */
+	public function test_article_authors_filter_credits_multiple_authors() {
+		$user   = $this->make_user();
+		$guest  = array(
+			'@type' => 'Person',
+			'@id'   => 'https://example.test/author/guest/#person',
+			'name'  => 'Guest Author',
+		);
+		$filter = static function ( $authors ) use ( $guest ) {
+			$authors[] = $guest;
+			return $authors;
+		};
+		add_filter( 'jetpack_seo_schema_article_authors', $filter );
+
+		$doc = $this->emit_document( $this->make_post( array( 'post_author' => $user->ID ) ) );
+
+		$article = $this->node_of_type( $doc, 'Article' );
+		$this->assertSame(
+			array(
+				array( '@id' => Schema_Node_Ids::person( $user->ID, $user->user_nicename ) ),
+				array( '@id' => $guest['@id'] ),
+			),
+			$article['author']
+		);
+		$this->assertContains( $guest, $doc['@graph'], 'The filtered Person node must be in the graph.' );
+	}
+
+	/**
+	 * @dataProvider provide_coauthor_publisher_states
+	 *
+	 * @param string $site_name        The publisher's fallback name.
+	 * @param string $site_represents  Publisher type.
+	 * @param bool   $has_organization Whether an Organization resolves.
+	 */
+	#[DataProvider( 'provide_coauthor_publisher_states' )]
+	public function test_wordpress_coauthor_matches_the_same_users_primary_author_node( $site_name, $site_represents, $has_organization ) {
+		$this->set_site_name( $site_name );
+		Schema_Settings::update( array( 'siteRepresents' => $site_represents ) );
+		$user  = $this->make_user();
+		$other = $this->make_user();
+		update_user_meta( $user->ID, Author_Schema_Node::META_JOB_TITLE, 'Editor' );
+		update_user_meta( $user->ID, Author_Schema_Node::META_SAME_AS, array( 'https://example.test/editor' ) );
+
+		$id            = Schema_Node_Ids::person( $user->ID, $user->user_nicename );
+		$primary_doc   = $this->emit_document( $this->make_post( array( 'post_author' => $user->ID ) ) );
+		$primary_nodes = array_column( $primary_doc['@graph'], null, '@id' );
+		if ( $has_organization ) {
+			$this->assertSame( array( '@id' => home_url( '/#organization' ) ), $primary_nodes[ $id ]['worksFor'] );
+		} else {
+			$this->assertArrayNotHasKey( 'worksFor', $primary_nodes[ $id ] );
+		}
+
+		add_filter(
+			'jetpack_seo_schema_article_authors',
+			static function ( $authors ) use ( $user, $has_organization ) {
+				$authors[] = Schema_Builder::build_person_node( $user, $has_organization );
+				return $authors;
+			}
+		);
+		$coauthor_doc   = $this->emit_document( $this->make_post( array( 'post_author' => $other->ID ) ) );
+		$coauthor_nodes = array_column( $coauthor_doc['@graph'], null, '@id' );
+
+		$this->assertSame( $primary_nodes[ $id ], $coauthor_nodes[ $id ] );
+		$this->assertContains( array( '@id' => $id ), $this->node_of_type( $coauthor_doc, 'Article' )['author'] );
+	}
+
+	/**
+	 * @return array[]
+	 */
+	public static function provide_coauthor_publisher_states() {
+		return array(
+			'Organization publisher' => array( 'Assessment publisher', 'organization', true ),
+			'Person publisher'       => array( 'Personal publication', 'person', false ),
+			'No Organization'        => array( '', 'organization', false ),
+		);
+	}
+
+	/**
+	 * An author returned twice is output once, and a single node returned
+	 * instead of a list still counts.
+	 */
+	public function test_article_authors_filter_dedupes_and_accepts_single_node() {
+		$user  = $this->make_user();
+		$guest = array(
+			'@type' => 'Person',
+			'@id'   => 'https://example.test/author/guest/#person',
+			'name'  => 'Guest Author',
+		);
+
+		add_filter(
+			'jetpack_seo_schema_article_authors',
+			static function ( $authors ) use ( $guest ) {
+				return array_merge( $authors, $authors, array( $guest ) );
+			}
+		);
+		$doc = $this->emit_document( $this->make_post( array( 'post_author' => $user->ID ) ) );
+		$this->assertCount( 2, $this->node_of_type( $doc, 'Article' )['author'] );
+		$this->assertCount( 2, array_filter( $doc['@graph'], static fn( $node ) => 'Person' === ( $node['@type'] ?? '' ) ) );
+
+		remove_all_filters( 'jetpack_seo_schema_article_authors' );
+		$guest['@id'] = '123';
+		add_filter(
+			'jetpack_seo_schema_article_authors',
+			static function () use ( $guest ) {
+				return $guest;
+			}
+		);
+		$doc = $this->emit_document( $this->make_post( array( 'post_author' => $user->ID ) ) );
+		$this->assertSame( array( '@id' => $guest['@id'] ), $this->node_of_type( $doc, 'Article' )['author'] );
+		$this->assertContains( $guest, $doc['@graph'] );
+		$this->assertCount( 1, array_filter( $doc['@graph'], static fn( $node ) => 'Person' === ( $node['@type'] ?? '' ) ) );
+	}
+
+	/**
+	 * Crediting the site's own Person as author references the publisher node
+	 * rather than adding it a second time.
+	 */
+	public function test_article_authors_filter_does_not_duplicate_site_person() {
+		Schema_Settings::update( array( 'siteRepresents' => 'person' ) );
+		add_filter(
+			'jetpack_seo_schema_article_authors',
+			static function () {
+				return array(
+					array(
+						'@type' => 'Person',
+						'@id'   => Schema_Node_Ids::site_person(),
+						'name'  => 'Site Owner',
+					),
+				);
+			}
+		);
+
+		$doc = $this->emit_document( $this->make_post( array( 'post_author' => $this->make_user()->ID ) ) );
+
+		$this->assertSame( array( '@id' => Schema_Node_Ids::site_person() ), $this->node_of_type( $doc, 'Article' )['author'] );
+		$this->assertCount( 1, array_filter( $doc['@graph'], static fn( $node ) => Schema_Node_Ids::site_person() === ( $node['@id'] ?? '' ) ) );
+	}
+
+	/**
+	 * Filtered entries without an `@id` are dropped, so an empty result leaves
+	 * the Article with no author rather than a broken reference.
+	 */
+	public function test_article_authors_filter_drops_entries_without_id() {
+		$user   = $this->make_user();
+		$filter = static function () {
+			return array(
+				array(
+					'@type' => 'Person',
+					'name'  => 'No Id',
+				),
+				'not-a-node',
+			);
+		};
+		add_filter( 'jetpack_seo_schema_article_authors', $filter );
+
+		$doc = $this->emit_document( $this->make_post( array( 'post_author' => $user->ID ) ) );
+
+		$article = $this->node_of_type( $doc, 'Article' );
+		$this->assertArrayNotHasKey( 'author', $article );
+		$this->assertNull( $this->node_of_type( $doc, 'Person' ) );
 	}
 
 	/**

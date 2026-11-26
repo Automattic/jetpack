@@ -4,8 +4,9 @@
 import { MENU_SURFACE_PRESETS_WITH_ALL_TIME } from '@jetpack-premium-analytics/datetime';
 import { JetpackFooter } from '@jetpack-premium-analytics/externals';
 import { DateFiltersPanel, SectionHeader } from '@jetpack-premium-analytics/ui';
+import { useResizeObserver } from '@wordpress/compose';
 import clsx from 'clsx';
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useRef } from 'react';
 /**
  * Internal dependencies
  */
@@ -13,7 +14,8 @@ import styles from './report-page-layout.module.scss';
 import type { ReportDateFilters } from '@jetpack-premium-analytics/routing';
 import type { ReactNode } from 'react';
 
-const ReportHasPeriodContext = createContext( false );
+// The applied date range as a key; null on a report with no period.
+const ReportPeriodContext = createContext< string | null >( null );
 
 const ALL_TIME_MENU = {
 	presetIds: MENU_SURFACE_PRESETS_WITH_ALL_TIME,
@@ -26,7 +28,17 @@ const ALL_TIME_MENU = {
  * @return True only inside a `ReportPageLayout` with date filters.
  */
 export function useReportHasPeriod(): boolean {
-	return useContext( ReportHasPeriodContext );
+	return useContext( ReportPeriodContext ) !== null;
+}
+
+/**
+ * Identify the period the report is showing, so its tables can start over when it changes, even
+ * to a period whose rows are cached and load without a loading state.
+ *
+ * @return A key that changes with the applied date range; empty on a report with no period.
+ */
+export function useReportPeriodKey(): string {
+	return useContext( ReportPeriodContext ) ?? '';
 }
 
 export interface ReportPageLayoutProps {
@@ -61,17 +73,28 @@ export function ReportPageLayout( {
 	tabs,
 	children,
 }: ReportPageLayoutProps ) {
+	const rootRef = useRef< HTMLDivElement >( null );
+	// Set on the element, not through state, since the band resizes on every frame it condenses.
+	const pinnedHeaderRef = useResizeObserver< HTMLDivElement >( ( [ entry ] ) => {
+		rootRef.current?.style.setProperty(
+			'--report-pinned-header-size',
+			`${ ( entry.target as HTMLElement ).offsetHeight }px`
+		);
+	} );
+
 	return (
-		<div className={ styles.root }>
+		<div ref={ rootRef } className={ styles.root }>
 			{ tabs }
-			<SectionHeader title={ title } pinned>
+			<SectionHeader ref={ pinnedHeaderRef } title={ title } pinned>
 				{ dateFilters ? (
 					<DateFiltersPanel { ...dateFilters } { ...( withAllTime ? ALL_TIME_MENU : {} ) } />
 				) : null }
 			</SectionHeader>
-			<ReportHasPeriodContext.Provider value={ !! dateFilters }>
+			<ReportPeriodContext.Provider
+				value={ dateFilters ? JSON.stringify( dateFilters.appliedRange ) : null }
+			>
 				<div className={ styles.sections }>{ children }</div>
-			</ReportHasPeriodContext.Provider>
+			</ReportPeriodContext.Provider>
 			<JetpackFooter />
 		</div>
 	);

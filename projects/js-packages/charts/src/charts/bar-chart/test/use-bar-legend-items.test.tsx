@@ -1,6 +1,8 @@
 import { renderHook } from '@testing-library/react';
 import { useChartLegendItems } from '../../../components/legend';
 import { GlobalChartsProvider } from '../../../providers';
+import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/use-global-charts-context';
+import { contrastRatio } from '../../../providers/chart-context/private/perceptual-color';
 import { useBarColors } from '../use-bar-colors';
 import { useBarLegendItems } from '../use-bar-legend-items';
 import type { SeriesData } from '../../../types';
@@ -66,8 +68,7 @@ describe( 'useBarLegendItems', () => {
 		);
 	} );
 
-	test( 'colors and lists only the series a stacked chart draws', () => {
-		const drawn = twoMetricData.filter( series => series.options?.type !== 'comparison' );
+	test( 'lists the stacked primaries, then one static item in the comparison total color', () => {
 		const { result } = renderHook(
 			() => ( {
 				items: useBarLegendItems( twoMetricData, { layout: 'stacked', comparisonItem: true } ),
@@ -75,13 +76,74 @@ describe( 'useBarLegendItems', () => {
 			} ),
 			{ wrapper }
 		);
-		const chartColors = result.current.getBarColors( drawn, { layout: 'stacked' } );
 		const colors = result.current.getBarColors( twoMetricData, { layout: 'stacked' } );
 
-		expect( [ colors[ 0 ], colors[ 2 ] ] ).toEqual( chartColors );
-		expect( result.current.items.map( item => [ item.label, item.color ] ) ).toEqual(
-			drawn.map( ( series, index ) => [ series.label, chartColors[ index ] ] )
+		expect( colors[ 1 ] ).toBe( colors[ 3 ] );
+		expect(
+			result.current.items.map( item => [ item.label, item.color, item.interactive !== false ] )
+		).toEqual( [
+			[ 'Views', colors[ 0 ], true ],
+			[ 'Visitors', colors[ 2 ], true ],
+			[ 'Comparison period', colors[ 1 ], false ],
+		] );
+	} );
+
+	test.each( [
+		[ 'comparisonItem unset', twoMetricData, undefined ],
+		[ 'comparisonItem false', twoMetricData, false ],
+		[
+			'nothing to compare',
+			twoMetricData.filter( series => series.options?.type !== 'comparison' ),
+			true,
+		],
+	] )( 'lists only the stacked primaries with %s', ( _case, data, comparisonItem ) => {
+		const { result } = renderHook(
+			() => useBarLegendItems( data, { layout: 'stacked', comparisonItem } ),
+			{ wrapper }
 		);
+
+		expect( result.current.map( item => item.label ) ).toEqual( [ 'Views', 'Visitors' ] );
+	} );
+
+	const stackedColors = ( data: SeriesData[] ) =>
+		renderHook(
+			() => ( {
+				colors: useBarColors()( data, { layout: 'stacked' } ),
+				background: useGlobalChartsContext().backgroundColor ?? '#ffffff',
+			} ),
+			{ wrapper }
+		).result.current;
+
+	test.each( [
+		[ 'the default gray', undefined, true ],
+		[ 'a themed role', '#3858e9', false ],
+	] )(
+		'colors every stacked comparison in the comparison role toned to 3:1, from %s',
+		( _case, role, gray ) => {
+			if ( role ) {
+				document.documentElement.style.setProperty( '--a8c-charts-color-comparison', role );
+			}
+			const { colors, background } = stackedColors( twoMetricData );
+			document.documentElement.style.removeProperty( '--a8c-charts-color-comparison' );
+			const [ red, green, blue ] = colors[ 1 ].slice( 1 ).match( /../g ) ?? [];
+
+			expect( colors[ 3 ] ).toBe( colors[ 1 ] );
+			expect( red === green && green === blue ).toBe( gray );
+			expect( contrastRatio( colors[ 1 ], background ) ).toBeGreaterThanOrEqual( 3 );
+			expect( contrastRatio( colors[ 1 ], background ) ).toBeLessThan( 3.2 );
+		}
+	);
+
+	test( "colors every stacked comparison in the first comparison's own stroke", () => {
+		const { colors } = stackedColors(
+			twoMetricData.map( series =>
+				series.label === 'Visitors — previous'
+					? { ...series, options: { ...series.options, stroke: '#aa3355' } }
+					: series
+			)
+		);
+
+		expect( [ colors[ 1 ], colors[ 3 ] ] ).toEqual( [ '#aa3355', '#aa3355' ] );
 	} );
 
 	test( "returns the chart legend's own items without a layout", () => {
