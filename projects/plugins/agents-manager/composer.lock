@@ -65,7 +65,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "bf4b9fcc4888a4b3a8bcc72d0e878fb970869cd4"
+                "reference": "40ddc6b58e0301c9210a1bedde56a2e67a3e7df9"
             },
             "require": {
                 "automattic/jetpack-feature-flags": "@dev",
@@ -420,7 +420,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "3c1ee1080cbc5f1035282f735539cdb0bedaeb27"
+                "reference": "e402e7a24fb1857ccb581e675f0049b39b0174fa"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",

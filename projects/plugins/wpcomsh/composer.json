@@ -118,10 +118,8 @@
 	"prefer-stable": true,
 	"config": {
 		"allow-plugins": {
-			"dealerdirect/phpcodesniffer-composer-installer": true,
-			"composer/installers": true,
-			"automattic/jetpack-composer-plugin": true,
-			"automattic/jetpack-autoloader": true
+			"automattic/jetpack-autoloader": true,
+			"automattic/jetpack-composer-plugin": true
 		},
 		"autoloader-suffix": "26841ac2064774301cbe06d174833bfc_wpcomshⓥ10_0_0"
 	},

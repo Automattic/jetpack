@@ -77,10 +77,5 @@
 				"packages/my-jetpack"
 			]
 		}
-	},
-	"config": {
-		"allow-plugins": {
-			"roots/wordpress-core-installer": true
-		}
 	}
 }

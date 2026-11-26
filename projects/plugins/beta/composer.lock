@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "bf4b9fcc4888a4b3a8bcc72d0e878fb970869cd4"
+                "reference": "40ddc6b58e0301c9210a1bedde56a2e67a3e7df9"
             },
             "require": {
                 "automattic/jetpack-feature-flags": "@dev",

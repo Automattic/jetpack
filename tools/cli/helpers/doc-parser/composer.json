@@ -14,15 +14,5 @@
 		]
 	},
 	"minimum-stability": "dev",
-	"prefer-stable": true,
-	"extra": {
-		"installer-disable": [
-			"wordpress"
-		]
-	},
-	"config": {
-		"allow-plugins": {
-			"composer/installers": true
-		}
-	}
+	"prefer-stable": true
 }

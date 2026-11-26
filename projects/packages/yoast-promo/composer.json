@@ -59,10 +59,5 @@
 		"version-constants": {
 			"::PACKAGE_VERSION": "src/class-yoast-promo.php"
 		}
-	},
-	"config": {
-		"allow-plugins": {
-			"roots/wordpress-core-installer": true
-		}
 	}
 }

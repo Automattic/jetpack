@@ -41,11 +41,6 @@
 	],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
-	"config": {
-		"allow-plugins": {
-			"roots/wordpress-core-installer": true
-		}
-	},
 	"extra": {
 		"branch-alias": {
 			"dev-trunk": "0.11.x-dev"

@@ -46,11 +46,6 @@
 			"pnpm run test-coverage"
 		]
 	},
-	"config": {
-		"allow-plugins": {
-			"roots/wordpress-core-installer": true
-		}
-	},
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {

@@ -71,10 +71,5 @@
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-woocommerce-stats/compare/v${old}...v${new}"
 		}
-	},
-	"config": {
-		"allow-plugins": {
-			"roots/wordpress-core-installer": true
-		}
 	}
 }

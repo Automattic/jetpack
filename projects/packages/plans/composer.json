@@ -50,10 +50,5 @@
 		"branch-alias": {
 			"dev-trunk": "0.16.x-dev"
 		}
-	},
-	"config": {
-		"allow-plugins": {
-			"roots/wordpress-core-installer": true
-		}
 	}
 }

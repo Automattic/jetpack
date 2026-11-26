@@ -59,10 +59,5 @@
 			"dev-trunk": "0.25.x-dev"
 		},
 		"textdomain": "jetpack-stats-pkg"
-	},
-	"config": {
-		"allow-plugins": {
-			"roots/wordpress-core-installer": true
-		}
 	}
 }

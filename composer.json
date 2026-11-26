@@ -111,11 +111,11 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {
-		"use-github-api": false,
-		"sort-packages": true,
 		"allow-plugins": {
 			"dealerdirect/phpcodesniffer-composer-installer": true
-		}
+		},
+		"sort-packages": true,
+		"use-github-api": false
 	},
 	"require": {
 		"ext-json": "*"

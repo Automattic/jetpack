@@ -99,10 +99,5 @@
 				"packages/waf"
 			]
 		}
-	},
-	"config": {
-		"allow-plugins": {
-			"roots/wordpress-core-installer": true
-		}
 	}
 }

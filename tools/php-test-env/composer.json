@@ -15,11 +15,11 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {
-		"sort-packages": true,
 		"allow-plugins": {
 			"roots/wordpress-core-installer": true
 		},
+		"lock": false,
 		"prepend-autoloader": false,
-		"lock": false
+		"sort-packages": true
 	}
 }

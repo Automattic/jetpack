@@ -73,10 +73,5 @@
 		"version-constants": {
 			"::VERSION": "src/class-package.php"
 		}
-	},
-	"config": {
-		"allow-plugins": {
-			"roots/wordpress-core-installer": true
-		}
 	}
 }
