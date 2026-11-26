@@ -6,8 +6,7 @@ import {
 	statsDevicesPeriodsQuery,
 	statsDevicesQuery,
 	type StatsDeviceProperty,
-	type StatsDevicesParams as StatsDevicesQueryParams,
-	type StatsDevicesPeriod,
+	type StatsDevicesPeriodsParams,
 } from '../queries/stats-devices-query';
 import {
 	createStatsListReportHook,
@@ -57,10 +56,10 @@ export function useStatsDevices( params: StatsDevicesParams, options?: StatsDevi
  * @return The primary and comparison reports.
  */
 export function useStatsDevicesPeriods(
-	params: ReportParams & { period: StatsDevicesPeriod; deviceProperty?: StatsDeviceProperty },
+	params: ReportParams & Pick< StatsDevicesPeriodsParams, 'period' | 'deviceProperty' >,
 	options?: UseStatsOptions
 ) {
-	return useStatsReport< StatsDevicesQueryParams, StatsTimeSeriesReport >(
+	return useStatsReport< StatsDevicesPeriodsParams, StatsTimeSeriesReport >(
 		statsDevicesPeriodsQuery,
 		params,
 		[ 'stats', 'devices-periods', '__comparison__', 'disabled' ],

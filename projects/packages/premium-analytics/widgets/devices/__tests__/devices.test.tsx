@@ -144,7 +144,7 @@ describe( 'DevicesWidget CSV download', () => {
 	} );
 } );
 
-describe( 'DevicesWidget bar chart CSV download', () => {
+describe( 'DevicesWidget bar chart', () => {
 	let downloads: ReturnType< typeof captureCsvDownloads > | undefined;
 
 	beforeEach( () => {

@@ -15,8 +15,6 @@ import type { DevicesChartGranularity } from './widget';
 /** Stacked bottom up in this order; any other device follows, largest first. */
 const DEVICE_ORDER = [ 'desktop', 'mobile', 'tablet' ];
 
-const RANGE_FIELDS = new Set( [ 'date_start', 'date_end' ] );
-
 interface DeviceViewsOverTimeState {
 	/** One tab per device, its views in each bucket and, with comparison on, the previous period's. */
 	devices: MetricTab[];
@@ -40,7 +38,7 @@ function getDeviceKeys( reports: ( StatsTimeSeriesReport | undefined )[] ): stri
 	const totals = new Map< string, number >();
 	for ( const report of reports ) {
 		for ( const [ key, total ] of Object.entries( report?.summary ?? {} ) ) {
-			if ( ! RANGE_FIELDS.has( key ) && typeof total === 'number' ) {
+			if ( typeof total === 'number' ) {
 				totals.set( key, ( totals.get( key ) ?? 0 ) + total );
 			}
 		}
@@ -71,8 +69,8 @@ export default function useDeviceViewsOverTime(
 		[ reportParams, period ]
 	);
 	const report = useStatsDevicesPeriods( params );
-	const primary = report.primary.data as StatsTimeSeriesReport | undefined;
-	const comparison = report.comparison.data as StatsTimeSeriesReport | undefined;
+	const primary = report.primary.data;
+	const comparison = report.comparison.data;
 	const { hasComparison, timezone, periodStarts } = report;
 
 	const devices = useMemo(

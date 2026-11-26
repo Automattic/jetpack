@@ -36,7 +36,7 @@ export default {
 			Edit: ( props: IntervalEditProps ) =>
 				props.data.chartType === 'bar' ? createElement( IntervalEdit, props ) : null,
 		},
-	] as WidgetAttributeField< DevicesAttributes >[],
+	] satisfies WidgetAttributeField< DevicesAttributes >[],
 	example: {
 		attributes: {},
 	},

@@ -45,8 +45,9 @@ lookupWidgetIcon( 'core/calendar' ); // null
 
 ## Exports
 
-Icons: `calendar`, `channel`, `chartHalfRing`, `chartLine`, `coupon`, `customer`, `device`, `goal`, `jetpack`,
-`location`, `megaphone`, `payment`, `paymentReturn`, `productBlouse`, `reports`, `search`, `tag`.
+Icons: `calendar`, `channel`, `chartHalfRing`, `chartLine`, `coupon`, `customer`, `device`, `goal`,
+`jetpack`, `location`, `megaphone`, `payment`, `paymentReturn`, `productBlouse`, `reports`, `search`,
+`tag`.
 
 Lookup: `lookupWidgetIcon`, `resolveWidgetIcon`.
 

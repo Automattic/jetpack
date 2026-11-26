@@ -26,6 +26,8 @@ export type StatsDevicesPeriod = ( typeof STATS_DEVICES_PERIODS )[ number ];
 
 export type StatsDevicesParams = StatsReportParams & { deviceProperty?: StatsDeviceProperty };
 
+export type StatsDevicesPeriodsParams = StatsDevicesParams & { period: StatsDevicesPeriod };
+
 export const statsDevicesQuery = ( params: StatsDevicesParams ) => {
 	const deviceProperty = params.deviceProperty ?? 'screensize';
 
@@ -44,7 +46,7 @@ export const statsDevicesQuery = ( params: StatsDevicesParams ) => {
  * @return The query options.
  */
 export const statsDevicesPeriodsQuery = (
-	params: StatsDevicesParams
+	params: StatsDevicesPeriodsParams
 ): StatsReportQueryOptions< 'devicesPeriods' > => {
 	const deviceProperty = params.deviceProperty ?? 'screensize';
 	const apiParams = statsQueryParamsToApiParams( reportParamsToStatsQueryParams( params ) );

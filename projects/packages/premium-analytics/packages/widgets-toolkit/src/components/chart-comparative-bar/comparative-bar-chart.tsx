@@ -151,15 +151,14 @@ export type ComparativeBarChartProps = {
  */
 function withStackTotal( model: DatedTooltipModel, dataFormat: DataFormat ): DatedTooltipModel {
 	const series = model.rows.filter( row => row.indicator.kind === 'series' );
-	const sum = ( values: ( number | null | undefined )[] ) => {
-		const readings = values.filter( ( value ): value is number => typeof value === 'number' );
-		return readings.length ? readings.reduce( ( total, value ) => total + value, 0 ) : null;
-	};
-
 	if ( series.filter( row => row.value !== null ).length < 2 ) {
 		return model;
 	}
 
+	const sum = ( values: ( number | null | undefined )[] ) => {
+		const readings = values.filter( ( value ): value is number => typeof value === 'number' );
+		return readings.length ? readings.reduce( ( total, value ) => total + value, 0 ) : null;
+	};
 	const blank = { kind: 'blank' } as const;
 	const hasPrevious = series.some( row => row.previous );
 

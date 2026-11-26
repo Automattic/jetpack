@@ -814,6 +814,7 @@ describe( 'Stats query factories', () => {
 			from: '2026-01-01',
 			to: '2026-06-07',
 			interval: 'week',
+			period: 'week',
 		} );
 
 		expect( query.queryKey ).toEqual( [
