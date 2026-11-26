@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Stats: Turn on the WooCommerce Stats feature flag, so stores keep the WooCommerce tab.

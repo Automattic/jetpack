@@ -12,15 +12,18 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 /**
  * @covers ::wpcomsh_retire_classic_stats
+ * @covers ::wpcomsh_enable_woocommerce_stats
  * @covers ::wpcomsh_enable_woocommerce_analytics_proxy_tracking
  */
 #[CoversFunction( 'wpcomsh_retire_classic_stats' )]
+#[CoversFunction( 'wpcomsh_enable_woocommerce_stats' )]
 #[CoversFunction( 'wpcomsh_enable_woocommerce_analytics_proxy_tracking' )]
 class StatsTest extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
-	const RETIRED_FLAG = 'jetpack-stats-classic-page-retired';
-	const STATS_V2     = 'Automattic\\Jetpack\\PremiumAnalytics\\Analytics';
+	const RETIRED_FLAG           = 'jetpack-stats-classic-page-retired';
+	const WOOCOMMERCE_STATS_FLAG = 'jetpack-woocommerce-stats';
+	const STATS_V2               = 'Automattic\\Jetpack\\PremiumAnalytics\\Analytics';
 
 	/**
 	 * @runInSeparateProcess
@@ -95,6 +98,25 @@ class StatsTest extends WP_UnitTestCase {
 		);
 
 		$this->assertFalse( Feature_Flags::is_enabled( self::RETIRED_FLAG ) );
+	}
+
+	public function test_atomic_turns_on_woocommerce_stats_and_no_other_flag() {
+		$this->assertTrue( Feature_Flags::is_enabled( self::WOOCOMMERCE_STATS_FLAG ) );
+		$this->assertFalse( wpcomsh_enable_woocommerce_stats( false, 'some-other-flag' ) );
+	}
+
+	public function test_a_per_site_override_still_switches_woocommerce_stats_off() {
+		// The a8c Feature Flags screen answers the same filter at the default priority.
+		add_filter(
+			'jetpack_feature_flag_enabled',
+			static function ( $enabled, $name ) {
+				return self::WOOCOMMERCE_STATS_FLAG === $name ? false : $enabled;
+			},
+			10,
+			2
+		);
+
+		$this->assertFalse( Feature_Flags::is_enabled( self::WOOCOMMERCE_STATS_FLAG ) );
 	}
 
 	/**
