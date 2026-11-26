@@ -124,6 +124,15 @@ export {
 	type LockedSectionGate,
 	type StatsFeatureKey,
 } from './utils/plan-gates';
+export {
+	getPromosForPlacement,
+	isFinalClose,
+	isPromoDismissed,
+	pickPromo,
+	type Promo,
+	type PromoDismissal,
+	type PromoPlacement,
+} from './utils/promos';
 export { getStatsCheckoutUrl } from './utils/stats-checkout-url';
 export {
 	applyStatsDatePolicy,

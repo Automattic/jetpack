@@ -113,6 +113,18 @@ declare module '@automattic/jetpack-script-data' {
 			purchase_success?: { type: 'paid' | 'free' };
 			// Whether the dashboard mounts the What's new surface; a feature flag decides it for now.
 			whats_new_enabled?: boolean;
+			// The promos this user is offered, in display order.
+			promos?: Array< {
+				slug: string;
+				placement: 'options-menu' | 'settings';
+				order: number;
+				title: string;
+				description: string;
+				cta_label: string;
+				cta_url: string;
+				dismissible: boolean;
+				snooze_days: number;
+			} >;
 		};
 		newsletter?: {
 			// The Newsletter page's Subscribers tab; null when this user cannot open it.

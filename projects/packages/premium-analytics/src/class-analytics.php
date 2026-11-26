@@ -246,8 +246,9 @@ class Analytics {
 
 		self::register_script_data();
 
-		// Registered here, not with the rest of the prompts: a flag must be discoverable through
-		// Feature_Flags::all() on every request, not only the ones that render the dashboard.
+		// The flag registers here, not beside the feature it gates: it must be discoverable
+		// through Feature_Flags::all() on every request, not only the ones that render the
+		// dashboard, so `wp companion feature-flag` lists it.
 		Parsely_Prompts::register_feature_flag();
 
 		// Stats links elsewhere (post list table, admin bar, action bar) open this dashboard.
@@ -393,6 +394,10 @@ class Analytics {
 		// Whether this site and user see the Upgrade to Parse.ly prompts.
 		require_once __DIR__ . '/parsely-prompts.php';
 		configure_parsely_prompts();
+
+		// The promo slot, for the options menu and Settings.
+		require_once __DIR__ . '/promos.php';
+		configure_promos();
 
 		// The purchase a Stats checkout returned with, for the thank-you notice.
 		require_once __DIR__ . '/purchase-success.php';
