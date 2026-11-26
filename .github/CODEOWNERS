@@ -82,6 +82,8 @@
 /projects/plugins/stats/composer.lock # No owner - too noisy
 /projects/plugins/stats/changelog # No owner - to go with the above
 /projects/plugins/boost @Automattic/jetpack-boost
+/projects/plugins/boost/composer.lock # No owner - too noisy
+/projects/plugins/boost/changelog # No owner - to go with the above
 
 # Functionality that is important to our partners
 /projects/plugins/jetpack/class.jetpack-cli.php @Automattic/jetpack-infinity
