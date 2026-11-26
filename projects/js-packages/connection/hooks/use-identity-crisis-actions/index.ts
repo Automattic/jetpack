@@ -71,7 +71,6 @@ export default function useIdentityCrisisActions( {
 		[ setBusy ]
 	);
 
-	// Each action takes an `IdentityCrisisActionPath` for CONNECT-620's events; nothing reads it yet.
 	const migrate: IdentityCrisisActions[ 'migrate' ] = useCallback( async () => {
 		const result = await run( 'migrate', () => restApi.migrateIDC() );
 		if ( ! result ) {

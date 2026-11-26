@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ConnectedPlugin } from '../../../helpers/site-words';
 import type { IdentityCrisisState } from '../../../types';
@@ -326,6 +326,74 @@ describe( 'IdentityCrisis', () => {
 		expect( screen.queryByRole( 'button', { name: 'Try again' } ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'disables the host’s actions while an action runs, and not otherwise', async () => {
+		const user = userEvent.setup();
+		let fail: ( reason: Error ) => void = () => {};
+		migrateIDC.mockReturnValue( new Promise( ( _, reject ) => ( fail = reject ) ) );
+		render(
+			<IdentityCrisis
+				context="connectors"
+				hostActions={ <button>Disconnect site</button> }
+				onActionSuccess={ jest.fn() }
+			/>
+		);
+		expect( screen.getByRole( 'button', { name: 'Disconnect site' } ) ).toBeEnabled();
+
+		await answer( user, [ 'This site’s old address' ], 'Update address' );
+		expect( screen.getByRole( 'button', { name: 'Disconnect site' } ) ).toBeDisabled();
+		expect( screen.getByRole( 'radio', { name: 'The original site' } ) ).toBeDisabled();
+
+		await act( async () => fail( new Error() ) );
+		expect( screen.getByRole( 'button', { name: 'Disconnect site' } ) ).toBeEnabled();
+	} );
+
+	it( 'after a migrate, says the update started and leaves the rest to the host', async () => {
+		const user = userEvent.setup();
+		migrateIDC.mockResolvedValue( {} );
+		const onMigratedDone = jest.fn();
+		render(
+			<IdentityCrisis
+				context="notice"
+				onActionSuccess={ jest.fn() }
+				onMigratedDone={ onMigratedDone }
+			/>
+		);
+
+		await answer( user, [ 'This site’s old address' ], 'Update address' );
+		expect( screen.getByRole( 'status' ) ).toHaveTextContent( /Address update started/ );
+		expect( onMigratedDone ).not.toHaveBeenCalled();
+		const done = screen.getByRole( 'button', { name: 'Got it, thanks' } );
+		expect( done ).toHaveFocus();
+		expect( done ).toHaveAccessibleDescription( /Address update started/ );
+
+		await user.click( done );
+		expect( onMigratedDone ).toHaveBeenCalledTimes( 1 );
+		expect( reloadPage ).not.toHaveBeenCalled();
+	} );
+
+	it( 'shows a connected plugin’s logo when the server sends one', () => {
+		storeState = {
+			state: {
+				...resolvable,
+				logoUrl: '',
+				pluginLogos: { 'automattic-for-agencies-client': 'https://example.com/a8c.svg' },
+			},
+			plugins: [
+				...jetpack,
+				{ slug: 'automattic-for-agencies-client', name: 'Automattic for Agencies' },
+			],
+		};
+		render(
+			<IdentityCrisis context="connectors" showHeader={ false } onActionSuccess={ jest.fn() } />
+		);
+
+		expect( screen.getByRole( 'presentation' ) ).toHaveAttribute(
+			'src',
+			'https://example.com/a8c.svg'
+		);
+		expect( screen.getByText( 'Jetpack' ) ).toBeInTheDocument();
+	} );
+
 	it( 'never offers "same" without a detected dynamic address', () => {
 		render( <IdentityCrisis context="notice" onActionSuccess={ jest.fn() } /> );
 
@@ -469,6 +537,19 @@ describe( 'IdentityCrisis', () => {
 
 		expect( confirmIDCSafeMode ).toHaveBeenCalledTimes( 1 );
 		expect( onActionSuccess ).toHaveBeenCalledWith( { action: 'confirm-safe-mode' } );
+	} );
+
+	it( 'on a staging store, starts at Safe Mode preselected with no Back, and calls it a site', () => {
+		storeState = {
+			state: { ...resolvable, isDevelopmentSite: true },
+			plugins: [ { slug: 'woocommerce-payments', name: 'WooPayments' } ],
+		};
+		render( <IdentityCrisis context="notice" onActionSuccess={ jest.fn() } /> );
+
+		expect( screen.getByRole( 'radio', { name: 'Keep it in Safe Mode' } ) ).toBeChecked();
+		expect( screen.getByRole( 'button', { name: 'Stay in Safe Mode' } ) ).toBeEnabled();
+		expect( screen.queryByRole( 'button', { name: 'Back' } ) ).not.toBeInTheDocument();
+		expect( screen.getByText( /WordPress marks this as a staging site,/ ) ).toBeInTheDocument();
 	} );
 
 	it( 'opens the guide from the staging note, and Back returns to the first screen as it was', async () => {

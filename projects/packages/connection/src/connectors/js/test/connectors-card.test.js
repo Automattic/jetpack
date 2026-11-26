@@ -722,6 +722,62 @@ describe( 'Connectors card', () => {
 			}
 		);
 
+		it( 'reloads on Close after a migrate', async () => {
+			const { user, props } = await openScreen();
+
+			act( () => props.onActionSuccess( { action: 'migrate' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Close' } ) );
+
+			await expectNavigation();
+			expect( screen.getByTestId( 'identity-crisis' ) ).toBeInTheDocument();
+		} );
+
+		it( 'reloads on Close without the link that opened the card', async () => {
+			const { user, connection } = renderCard( {
+				state: newScreen,
+				search: '?page=other&connector=wordpress_com',
+			} );
+			const props = connection.IdentityCrisis.mock.calls.at( -1 )[ 0 ];
+
+			act( () => props.onActionSuccess( { action: 'migrate' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Close' } ) );
+
+			await expectNavigation();
+			expect( window.location.search ).toBe( '?page=other' );
+		} );
+
+		it( 'reloads on Resolve when a migrate succeeds after Close', async () => {
+			const { user, props } = await openScreen();
+
+			await user.click( screen.getByRole( 'button', { name: 'Close' } ) );
+			act( () => props.onActionSuccess( { action: 'migrate' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Resolve' } ) );
+
+			await expectNavigation();
+			expect( screen.getByTestId( 'identity-crisis' ) ).not.toBeVisible();
+		} );
+
+		it( 'keeps the same screen, hidden, while closed', async () => {
+			const { user } = await openScreen();
+			const identityCrisis = screen.getByTestId( 'identity-crisis' );
+
+			await user.click( screen.getByRole( 'button', { name: 'Close' } ) );
+			expect( identityCrisis ).not.toBeVisible();
+
+			await user.click( screen.getByRole( 'button', { name: 'Resolve' } ) );
+			expect( identityCrisis ).toBeVisible();
+		} );
+
+		it( 'only closes on Close after another action', async () => {
+			const { user, props } = await openScreen();
+
+			act( () => props.onActionSuccess( { action: 'confirm-safe-mode' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Close' } ) );
+
+			// A reload would also fail here, through the console error jsdom reports for it.
+			expect( screen.getByRole( 'button', { name: 'Resolve' } ) ).toBeInTheDocument();
+		} );
+
 		it( "opens the card's own disconnect dialog", async () => {
 			const { user } = await openScreen();
 

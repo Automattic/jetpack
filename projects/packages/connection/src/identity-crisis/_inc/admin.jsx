@@ -59,11 +59,12 @@ function waitForContainer( containerId ) {
  */
 function getNewScreenScript() {
 	const connection = window.JetpackConnection;
-	// An older shared script has neither the screen nor its selector.
+	// An older shared script has no screen.
 	if ( typeof connection?.IdentityCrisis !== 'function' ) {
 		return null;
 	}
-	const state = select( connection.CONNECTION_STORE_ID ).getIdentityCrisis();
+	// Another script can register an older store first, without the selector; the old screen shows then.
+	const state = select( connection.CONNECTION_STORE_ID )?.getIdentityCrisis?.();
 	return true === state?.useNewScreen ? connection : null;
 }
 

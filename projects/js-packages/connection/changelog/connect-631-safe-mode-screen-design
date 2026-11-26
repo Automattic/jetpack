@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Safe Mode: Improve the design of the new screen, behind a feature flag, and disable a host's own actions while an action runs.

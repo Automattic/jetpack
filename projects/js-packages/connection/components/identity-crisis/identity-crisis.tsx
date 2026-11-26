@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { Notice, Stack } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { formatSiteAddress, getSiteUrl } from '../../helpers/format-site-address';
 import { hasJetpackPlugin, hasWooPlugin } from '../../helpers/site-words';
@@ -38,7 +38,6 @@ import IdentityCrisisMigrated from './migrated';
 import { reloadPage } from './navigate';
 import IdentityCrisisNonAdmin from './non-admin';
 import { onIdentityCrisisActionSuccess } from './on-action-success';
-import styles from './styles.module.scss';
 import useIdentityCrisisState from './use-identity-crisis-state';
 import type { ActionCopy, CopyContext } from './flow/copy';
 import type { FlowContext } from './flow/steps';
@@ -97,8 +96,10 @@ function IdentityCrisisResolver( {
 	};
 	const flow = useIdentityCrisisFlow( ctx, actions.clearError );
 	// The site is no longer in Safe Mode, so the questions no longer apply. Resolved wins: the site is connected again.
-	let finalView: 'resolved' | 'disconnected' | null = null;
-	if ( actions.isResolved || state.isResolved === true ) {
+	let finalView: 'migrated' | 'resolved' | 'disconnected' | null = null;
+	if ( actions.isMigrated ) {
+		finalView = 'migrated';
+	} else if ( actions.isResolved || state.isResolved === true ) {
 		finalView = 'resolved';
 	} else if ( actions.isDisconnected || state.isDisconnected === true ) {
 		finalView = 'disconnected';
@@ -114,7 +115,7 @@ function IdentityCrisisResolver( {
 	}, [ finalView ] );
 
 	// Focus the new question, statement or result when the step changes, but not on the first render.
-	const legendRef = useRef< HTMLDivElement >( null );
+	const legendRef = useRef< HTMLLegendElement >( null );
 	const headingRef = useRef< HTMLHeadingElement >( null );
 	const stepKey = `${ flow.state.step }:${ flow.state.history.length }`;
 	const previousStepKey = useRef( stepKey );
@@ -185,7 +186,7 @@ function IdentityCrisisResolver( {
 		/>
 	);
 
-	if ( actions.isMigrated ) {
+	if ( finalView === 'migrated' ) {
 		return (
 			<IdentityCrisisLayout
 				logoUrl={ state.logoUrl }
@@ -193,11 +194,13 @@ function IdentityCrisisResolver( {
 				hostActions={ hostActions }
 			>
 				{ addresses }
-				<IdentityCrisisMigrated
-					wpcomHomeUrl={ state.wpcomHomeUrl }
-					currentUrl={ state.currentUrl }
-					onDone={ onMigratedDone }
-				/>
+				<div ref={ finalViewRef }>
+					<IdentityCrisisMigrated
+						wpcomHomeUrl={ state.wpcomHomeUrl }
+						currentUrl={ state.currentUrl }
+						onDone={ onMigratedDone }
+					/>
+				</div>
 			</IdentityCrisisLayout>
 		);
 	}
@@ -316,25 +319,26 @@ function IdentityCrisisResolver( {
 			logoUrl={ state.logoUrl }
 			showHeader={ showHeader }
 			hostActions={ hostActions }
+			isBusy={ isBusy }
 		>
 			{ addresses }
-			{ flow.isFirstView && <Intro copy={ copy } plugins={ plugins } /> }
+			{ flow.isFirstView && (
+				<Intro copy={ copy } plugins={ plugins } logos={ state.pluginLogos } />
+			) }
 			{ isStagingHome && (
-				<Stack direction="column" gap="xs" className={ styles.note }>
-					<Text variant="body-md" render={ <p /> }>
-						{ getStagingNote( copy ) }
-					</Text>
-					<span>
+				<Notice.Root intent="info">
+					<Notice.Description>{ getStagingNote( copy ) }</Notice.Description>
+					<Notice.Actions>
 						<TextButton onClick={ flow.openGuide } disabled={ isBusy }>
 							{ getStagingGuideText() }
 						</TextButton>
-					</span>
-				</Stack>
+					</Notice.Actions>
+				</Notice.Root>
 			) }
 			{ flow.isFirstView && state.isSafeModeConfirmed && (
-				<Text variant="body-md" render={ <p /> } className={ styles.note }>
-					{ getConfirmedNote() }
-				</Text>
+				<Notice.Root>
+					<Notice.Description>{ getConfirmedNote() }</Notice.Description>
+				</Notice.Root>
 			) }
 			<Stack direction="column" gap="md">
 				{ ! isGuideStep( step ) && trail }

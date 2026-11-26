@@ -1,6 +1,7 @@
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button, Stack, Text } from '@wordpress/ui';
+import { Button, Notice, Stack, Text } from '@wordpress/ui';
+import { useId } from 'react';
 import { formatSiteAddress } from '../../helpers/format-site-address';
 import styles from './styles.module.scss';
 import type { IdentityCrisisMigratedProps } from './types';
@@ -18,6 +19,7 @@ export default function IdentityCrisisMigrated( {
 	currentUrl,
 	onDone,
 }: IdentityCrisisMigratedProps ): ReactNode {
+	const noticeId = useId();
 	// Elements, not formatted text, so nothing in an address is parsed as a tag.
 	const addresses = {
 		x: <strong>{ formatSiteAddress( currentUrl ) }</strong>,
@@ -25,12 +27,12 @@ export default function IdentityCrisisMigrated( {
 	};
 
 	return (
-		<Stack direction="column" gap="md" align="flex-start">
-			<Stack direction="column" gap="xs" role="status">
-				<Text variant="heading-md" render={ <h3 /> }>
+		<Stack direction="column" gap="md">
+			<Notice.Root id={ noticeId } intent="success" role="status" className={ styles.prose }>
+				<Notice.Title render={ <h3 /> }>
 					{ __( 'Address update started', 'jetpack-connection-js' ) }
-				</Text>
-				<Text variant="body-md" render={ <p /> } className={ styles.prose }>
+				</Notice.Title>
+				<Notice.Description render={ <p /> }>
 					{ createInterpolateElement(
 						/* translators: <x />: this site's address, e.g. example.com. */
 						__(
@@ -39,8 +41,8 @@ export default function IdentityCrisisMigrated( {
 						),
 						addresses
 					) }
-				</Text>
-			</Stack>
+				</Notice.Description>
+			</Notice.Root>
 			<Text variant="body-md" render={ <p /> } className={ styles.prose }>
 				{ createInterpolateElement(
 					/* translators: <z />: the address WordPress.com had on record, e.g. example.com. */
@@ -52,9 +54,12 @@ export default function IdentityCrisisMigrated( {
 				) }
 			</Text>
 			{ onDone && (
-				<Button variant="solid" onClick={ onDone }>
-					{ __( 'Got it, thanks', 'jetpack-connection-js' ) }
-				</Button>
+				<div>
+					{ /* The screen focuses this button, so it carries the message the status may not announce. */ }
+					<Button variant="solid" onClick={ onDone } aria-describedby={ noticeId }>
+						{ __( 'Got it, thanks', 'jetpack-connection-js' ) }
+					</Button>
+				</div>
 			) }
 		</Stack>
 	);
