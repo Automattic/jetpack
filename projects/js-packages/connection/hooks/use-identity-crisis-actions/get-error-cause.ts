@@ -1,3 +1,4 @@
+import { getSiteRequestFailureCause } from '../../helpers/get-site-request-failure.ts';
 import type { IdentityCrisisErrorCause } from './types';
 
 /**
@@ -13,29 +14,11 @@ function isObject( value: unknown ): value is Record< string, unknown > {
 /**
  * Classify what an `@automattic/jetpack-api` request rejected with.
  *
- * The client names each of its errors; an `ApiError` also carries the REST error body as `response`.
- *
- * @param error - The rejection.
+ * @param error - The rejection; an `ApiError` carries the REST error body as `response`.
  * @return Why the request failed.
  */
 export function getIdentityCrisisErrorCause( error: unknown ): IdentityCrisisErrorCause {
-	switch ( error instanceof Error ? error.name : undefined ) {
-		// Reads these the way `getConnectScreenErrorMessage()` does; keep the two in step.
-		// The request never completed: no connection, or a firewall, CDN or redirect in the way.
-		case 'FetchNetworkError':
-			return 'offline';
-		// A non-JSON answer: something, usually a plugin or a PHP error, printed extra output.
-		case 'JsonParseError':
-		case 'JsonParseAfterRedirectError':
-			return 'output';
-		// The REST route is missing, so a security plugin or server rule is blocking it.
-		case 'Api404Error':
-		case 'Api404AfterRedirectError':
-			return 'blocked';
-	}
-
 	const body = isObject( error ) ? error.response : undefined;
-	const code = isObject( body ) ? body.code : undefined;
 	const data = isObject( body ) ? body.data : undefined;
 	const status = isObject( data ) && typeof data.status === 'number' ? data.status : null;
 
@@ -44,31 +27,19 @@ export function getIdentityCrisisErrorCause( error: unknown ): IdentityCrisisErr
 		return 'disconnected';
 	}
 
-	// WordPress sends 401 when the request has no logged-in user, whatever the error code.
-	if ( status === 401 ) {
-		return 'session';
+	const code = getIdentityCrisisErrorCode( error );
+	// Safe Mode was resolved since the screen loaded, e.g. in another tab.
+	if ( code === 'start_fresh_not_in_safe_mode' ) {
+		return 'resolved';
 	}
 
-	switch ( code ) {
-		case 'rest_disabled':
-			return 'blocked';
-		// The client does not refresh an expired nonce, so a reload is what fixes it.
-		case 'rest_cookie_invalid_nonce':
-		case 'rest_not_logged_in':
-			return 'session';
-		// Logged in, but not allowed to resolve Safe Mode.
-		case 'invalid_user_permission_identity_crisis':
-		case 'rest_forbidden':
-			return 'permission';
-		// Safe Mode was resolved since the screen loaded, e.g. in another tab.
-		case 'start_fresh_not_in_safe_mode':
-			return 'resolved';
+	const cause = getSiteRequestFailureCause( code, status );
+	if ( cause ) {
+		return cause;
 	}
-
-	if ( status === 403 ) {
+	if ( code === 'invalid_user_permission_identity_crisis' ) {
 		return 'permission';
 	}
-
 	// The site answered with an error or an unusable response.
 	return 'server';
 }

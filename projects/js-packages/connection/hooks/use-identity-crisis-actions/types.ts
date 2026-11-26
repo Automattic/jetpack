@@ -1,16 +1,10 @@
+import type { SiteRequestFailureCause } from '../../helpers/get-site-request-failure.ts';
+
 /** A Safe Mode resolution, named after its REST endpoint under `jetpack/v4/identity-crisis/`. */
 export type IdentityCrisisAction = 'migrate' | 'start-fresh' | 'confirm-safe-mode';
 
-/** Why a Safe Mode request failed; `getIdentityCrisisErrorCause()` says what each covers. */
-export type IdentityCrisisErrorCause =
-	| 'offline'
-	| 'blocked'
-	| 'output'
-	| 'session'
-	| 'permission'
-	| 'disconnected'
-	| 'resolved'
-	| 'server';
+/** Why a Safe Mode request failed: a shared cause from `getSiteRequestFailureCause()`, or one only Safe Mode has. */
+export type IdentityCrisisErrorCause = SiteRequestFailureCause | 'disconnected' | 'resolved';
 
 export interface IdentityCrisisError {
 	action: IdentityCrisisAction;

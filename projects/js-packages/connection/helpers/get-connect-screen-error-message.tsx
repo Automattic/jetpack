@@ -1,6 +1,10 @@
 import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import {
+	getSiteRequestFailureCause,
+	getSiteRequestFailureMessage,
+} from './get-site-request-failure.ts';
 import type { RegistrationError } from '../components/use-connection/types';
 import type { ReactNode } from 'react';
 
@@ -26,6 +30,23 @@ export const getRegistrationErrorCode = (
 		return code;
 	}
 	return typeof registrationError.name === 'string' ? registrationError.name : undefined;
+};
+
+/**
+ * The HTTP status the site's REST API sent with a registration error.
+ *
+ * Only site-side errors carry one: WordPress.com's registration errors reach the browser with their status as bare `data`.
+ *
+ * @param {RegistrationError|false} registrationError - The `registrationError` from `useConnection()`.
+ * @return {number|undefined} The status, or undefined when the error has none.
+ */
+const getRegistrationErrorStatus = (
+	registrationError?: RegistrationError | false
+): number | undefined => {
+	const data: unknown = registrationError ? registrationError.response?.data : undefined;
+	const status: unknown =
+		typeof data === 'object' && data !== null ? ( data as { status?: unknown } ).status : undefined;
+	return typeof status === 'number' ? status : undefined;
 };
 
 // Matches the PHP helper.
@@ -90,6 +111,8 @@ export type RegistrationErrorDisplay = {
 	message?: ReactNode;
 	/** A second line with the underlying cause, when it adds something the message doesn't say. */
 	detail?: string;
+	/** Whether `message` is our own copy, rather than the site's text or nothing. */
+	isMapped?: boolean;
 };
 
 /**
@@ -113,24 +136,31 @@ export const getRegistrationErrorDisplay = (
 	isOfflineMode?: boolean
 ): RegistrationErrorDisplay => {
 	const code = getRegistrationErrorCode( registrationError );
-	const message = getConnectScreenErrorMessage( code, isOfflineMode );
+	const status = getRegistrationErrorStatus( registrationError );
+	const message = getConnectScreenErrorMessage( code, isOfflineMode, undefined, status );
 	const description = getRegistrationErrorDescription( registrationError );
 
 	if ( ! message ) {
-		return { message: description };
+		return { message: description, isMapped: false };
 	}
 	if ( ! description ) {
-		return { message };
+		return { message, isMapped: true };
 	}
 	if ( code === 'register_http_request_failed' ) {
-		return { message, detail: description };
+		return { message, detail: description, isMapped: true };
 	}
 	if ( code && /^site_inaccessible_\d{3}$/.test( code ) ) {
 		return {
-			message: getConnectScreenErrorMessage( code, isOfflineMode, getSiteUrl( description ) ),
+			message: getConnectScreenErrorMessage(
+				code,
+				isOfflineMode,
+				getSiteUrl( description ),
+				status
+			),
+			isMapped: true,
 		};
 	}
-	return { message };
+	return { message, isMapped: true };
 };
 
 const offlineModeMessage = () =>
@@ -247,18 +277,20 @@ const siteHttpErrorMessage = ( status: number, siteUrl?: string ): string => {
 /**
  * Maps a connection error code (and offline mode) to a user-facing message.
  *
- * The Jetpack plugin's `state-notices.jsx` (`getErrorFromKey`) keeps an overlapping map;
+ * My Jetpack's `jetpack-state-notice/index.tsx` (`getErrorMessage`) keeps an overlapping map;
  * when changing copy for a code in both, check the other file too.
  *
  * @param {string}  errorCode     - The connection error code, see `getRegistrationErrorCode()`.
  * @param {boolean} isOfflineMode - Whether the site is in offline mode.
  * @param {string}  siteUrl       - For `site_inaccessible_{status}`: the URL WordPress.com tried, when known.
+ * @param {number}  status        - The HTTP status the site's REST API sent, read only for the connect endpoint's own permission code.
  * @return {import('react').ReactNode} The error message, or undefined if there isn't one.
  */
 export const getConnectScreenErrorMessage = (
 	errorCode?: string,
 	isOfflineMode?: boolean,
-	siteUrl?: string
+	siteUrl?: string,
+	status?: number
 ): ReactNode => {
 	// Offline mode takes away the connect capability, so this error means offline mode, not a missing role.
 	if ( isOfflineMode && errorCode === 'invalid_user_permission_jetpack_connect' ) {
@@ -362,33 +394,11 @@ export const getConnectScreenErrorMessage = (
 				'jetpack-connection-js'
 			);
 
-		// The site's own REST request failed before WordPress.com was contacted.
-		// The Safe Mode screen reads these the same way (`getIdentityCrisisErrorCause()`); keep the two in step.
-		case 'JsonParseError':
-		case 'JsonParseAfterRedirectError':
-			return __(
-				'The connection request got an unexpected response. Another plugin or a PHP error may be adding extra output; your site’s error log, or temporarily deactivating other plugins, can show which.',
-				'jetpack-connection-js'
-			);
-		case 'Api404Error':
-		case 'Api404AfterRedirectError':
-			return __(
-				'Your site’s REST API couldn’t be reached. A security plugin or server rule may be blocking it.',
-				'jetpack-connection-js'
-			);
-		case 'FetchNetworkError':
-			return __(
-				'Your browser couldn’t complete the request to your site. A firewall, CDN or redirect may be interfering. Reload the page and try again.',
-				'jetpack-connection-js'
-			);
-		case 'rest_cookie_invalid_nonce':
-			return __( 'Your session expired. Reload the page and try again.', 'jetpack-connection-js' );
-		case 'internal_server_error':
-			return __(
-				'A critical error stopped the connection. Your site’s error log has the details.',
-				'jetpack-connection-js'
-			);
+		// The connect endpoint's own permission check.
 		case 'invalid_user_permission_jetpack_connect':
+			if ( getSiteRequestFailureCause( errorCode, status ) === 'session' ) {
+				return getSiteRequestFailureMessage( 'session' );
+			}
 			return __(
 				'Only site administrators can connect this site. Ask an administrator to connect it.',
 				'jetpack-connection-js'
@@ -416,6 +426,12 @@ export const getConnectScreenErrorMessage = (
 				'WordPress.com returned an unexpected response when registering your site. Please try again in a minute.',
 				'jetpack-connection-js'
 			);
+	}
+
+	// No status: here a 401/403 with another code comes from another plugin, whose own text says more.
+	const siteFailure = getSiteRequestFailureCause( errorCode );
+	if ( siteFailure ) {
+		return getSiteRequestFailureMessage( siteFailure );
 	}
 
 	if ( isOfflineMode ) {
