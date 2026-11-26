@@ -3,7 +3,7 @@
  */
 import { Button, Fieldset, Icon, Menu, Stack } from '@jetpack-premium-analytics/externals';
 import { CheckboxControl, Spinner } from '@wordpress/components';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { chevronDown } from '@wordpress/icons';
 /**
  * Internal dependencies
@@ -29,9 +29,17 @@ export default function ArrayCheckboxField< Item >( {
 	const disabled = field.isDisabled( { item: data, field } );
 	const selectedValues = normalizeSelectedValues( getValue( { item: data } ) );
 
+	// Read the list again when the menu opens: a plugin may register an option after the field mounted.
+	const [ revision, setRevision ] = useState( 0 );
+	const onOpenChange = useCallback( ( open: boolean ) => {
+		if ( open ) {
+			setRevision( current => current + 1 );
+		}
+	}, [] );
 	const { elements, isLoading } = useElements( {
 		elements: field.elements,
 		getElements: field.getElements,
+		revision,
 	} );
 
 	const updateValues = useCallback(
@@ -83,7 +91,7 @@ export default function ArrayCheckboxField< Item >( {
 	}
 
 	return (
-		<Menu.Root>
+		<Menu.Root onOpenChange={ onOpenChange }>
 			<Menu.Trigger
 				render={
 					<Button
