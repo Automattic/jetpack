@@ -68,7 +68,7 @@ export const GlobalNotice = ( { message, title, options } ) => {
 				loading={ action.isLoading }
 				loadingAnnouncement={ action.loadingText }
 			>
-				{ action.label }
+				{ action.isLoading && action.loadingText ? action.loadingText : action.label }
 			</Notice.ActionButton>
 		)
 	);

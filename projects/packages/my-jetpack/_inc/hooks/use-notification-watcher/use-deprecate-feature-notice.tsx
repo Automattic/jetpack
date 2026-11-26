@@ -23,7 +23,7 @@ const useDeprecateFeatureNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 			<Stack direction="column" gap="sm">
 				<Text render={ <p /> }>{ text }</Text>
 				<Text render={ <p /> }>
-					<Link href={ link.url } openInNewTab>
+					<Link href={ link.url } openInNewTab rel="noreferrer">
 						{ link.label }
 					</Link>
 				</Text>
