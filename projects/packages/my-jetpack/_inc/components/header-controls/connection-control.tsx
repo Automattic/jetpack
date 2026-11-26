@@ -116,6 +116,7 @@ const ConnectionControl: FC< ConnectionControlProps > = ( { trackingContext } ) 
 	const triggerRef = useRef< HTMLButtonElement >( null );
 	const popupRef = useRef< HTMLDivElement >( null );
 	const returnFocusRef = useRef( false );
+	// Not Popover.Description: it adds body-md to the badge's body-sm, leaving the badge's size to wpui's rule order.
 	const badgeId = useId();
 	// Focus the panel itself on every open: its first link shows a focus ring even after a click (JETPACK-3422),
 	// and a screen reader would skip the title and status above it (JETPACK-3907).
