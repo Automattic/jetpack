@@ -1,0 +1,88 @@
+<svg viewBox="0 0 880 470" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three roles and two interfaces. The registrant owns the content: it decides what is news, where it is published, who may read it, and whether to register it at all, and it registers on the jetpack_register_announcements action. The host owns the page: it decides which channels it shows, when the surface mounts, when it leaves the page, and what the page provides, and it mounts the surface through the @automattic/jetpack-announcements module. The package sits between them and decides nothing about relevance: it sanitizes and stores the records, serves them over REST, and renders the teaser and the reader, which keep what a user has seen in that user's WordPress preferences, the same for every consumer.">
+  <defs>
+    <marker id="arrow-roles" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect x="6" y="6" width="868" height="458" rx="12" fill="#ffffff"/>
+
+  <text x="440" y="36" text-anchor="middle" font-family="-apple-system, system-ui, sans-serif" font-size="13" font-weight="700" fill="#334155">The consumers decide; the package carries.</text>
+
+  <!-- Registrant -->
+  <rect x="30" y="58" width="236" height="312" rx="9" fill="#fff3d0" stroke="#b07020" stroke-width="1.5"/>
+  <text x="46" y="84" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12.5" font-weight="700" fill="#855317">registrant</text>
+  <text x="134" y="84" font-family="-apple-system, system-ui, sans-serif" font-size="10" font-style="italic" fill="#855317">owns the content</text>
+
+  <rect x="46" y="98" width="204" height="50" rx="5" fill="#ffffff" stroke="#b07020" stroke-width="1.2"/>
+  <text x="58" y="118" font-family="ui-monospace, SFMono-Regular, monospace" font-size="9.5" fill="#855317">register_announcement(</text>
+  <text x="70" y="134" font-family="ui-monospace, SFMono-Regular, monospace" font-size="9.5" fill="#855317">'vendor/slug', $args )</text>
+
+  <text x="46" y="174" font-family="-apple-system, system-ui, sans-serif" font-size="10.5" font-weight="700" fill="#855317">what is news</text>
+  <text x="46" y="188" font-family="-apple-system, system-ui, sans-serif" font-size="9" font-style="italic" fill="#855317">date, title, excerpt, content, media, link</text>
+
+  <text x="46" y="214" font-family="-apple-system, system-ui, sans-serif" font-size="10.5" font-weight="700" fill="#855317">where it is published</text>
+  <text x="46" y="228" font-family="-apple-system, system-ui, sans-serif" font-size="9" font-style="italic" fill="#855317">channels: labels a host subscribes to</text>
+
+  <text x="46" y="254" font-family="-apple-system, system-ui, sans-serif" font-size="10.5" font-weight="700" fill="#855317">who may read it</text>
+  <text x="46" y="268" font-family="-apple-system, system-ui, sans-serif" font-size="9" font-style="italic" fill="#855317">a capability, enforced by the package</text>
+
+  <text x="46" y="294" font-family="-apple-system, system-ui, sans-serif" font-size="10.5" font-weight="700" fill="#855317">whether to register it at all</text>
+  <text x="46" y="308" font-family="-apple-system, system-ui, sans-serif" font-size="9" font-style="italic" fill="#855317">per site, per user, by age: its call</text>
+
+  <text x="148" y="350" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="8.5" font-weight="700" fill="#855317">PHP · jetpack_register_announcements</text>
+
+  <!-- Registrant to package -->
+  <line x1="268" y1="214" x2="302" y2="214" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow-roles)"/>
+
+  <!-- Package -->
+  <rect x="306" y="58" width="268" height="312" rx="9" fill="#fafbfc" stroke="#cbd5e1" stroke-width="1.4"/>
+  <text x="322" y="84" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12.5" font-weight="700" fill="#1d6b5a">package</text>
+  <text x="386" y="84" font-family="-apple-system, system-ui, sans-serif" font-size="10" fill="#94a3b8">carries · never decides relevance</text>
+
+  <rect x="322" y="98" width="236" height="54" rx="5" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2"/>
+  <text x="334" y="120" font-family="-apple-system, system-ui, sans-serif" font-size="10.5" font-weight="700" fill="#334155">registry</text>
+  <text x="334" y="137" font-family="ui-monospace, SFMono-Regular, monospace" font-size="8.5" fill="#64748b">sanitizes every field · refuses a bad id</text>
+
+  <rect x="322" y="160" width="236" height="54" rx="5" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2"/>
+  <text x="334" y="182" font-family="-apple-system, system-ui, sans-serif" font-size="10.5" font-weight="700" fill="#334155">REST routes and entity</text>
+  <text x="334" y="199" font-family="ui-monospace, SFMono-Regular, monospace" font-size="8.5" fill="#64748b">wpcom/v2/jetpack-announcements</text>
+
+  <rect x="322" y="222" width="236" height="116" rx="5" fill="#ffffff" stroke="#1d6b5a" stroke-width="1.4"/>
+  <text x="334" y="244" font-family="-apple-system, system-ui, sans-serif" font-size="10.5" font-weight="700" fill="#1d6b5a">surface</text>
+  <text x="334" y="261" font-family="ui-monospace, SFMono-Regular, monospace" font-size="8.5" fill="#64748b">teaser of the newest unseen · reader</text>
+  <text x="334" y="290" font-family="-apple-system, system-ui, sans-serif" font-size="9" font-style="italic" fill="#64748b">what a user has seen is kept in their</text>
+  <text x="334" y="304" font-family="-apple-system, system-ui, sans-serif" font-size="9" font-style="italic" fill="#64748b">WordPress preferences, for every host</text>
+
+  <text x="440" y="358" text-anchor="middle" font-family="-apple-system, system-ui, sans-serif" font-size="9" font-style="italic" fill="#94a3b8">the same for every consumer</text>
+
+  <!-- Host to package -->
+  <line x1="612" y1="214" x2="578" y2="214" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow-roles)"/>
+
+  <!-- Host -->
+  <rect x="614" y="58" width="236" height="312" rx="9" fill="#fff3d0" stroke="#b07020" stroke-width="1.5"/>
+  <text x="630" y="84" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12.5" font-weight="700" fill="#855317">host</text>
+  <text x="672" y="84" font-family="-apple-system, system-ui, sans-serif" font-size="10" font-style="italic" fill="#855317">owns the page</text>
+
+  <rect x="630" y="98" width="204" height="50" rx="5" fill="#ffffff" stroke="#b07020" stroke-width="1.2"/>
+  <text x="642" y="118" font-family="ui-monospace, SFMono-Regular, monospace" font-size="9.5" fill="#855317">mountWhatsNew( {</text>
+  <text x="654" y="134" font-family="ui-monospace, SFMono-Regular, monospace" font-size="9.5" fill="#855317">channels: [ 'my-plugin' ] } )</text>
+
+  <text x="630" y="174" font-family="-apple-system, system-ui, sans-serif" font-size="10.5" font-weight="700" fill="#855317">which channels it shows</text>
+  <text x="630" y="188" font-family="-apple-system, system-ui, sans-serif" font-size="9" font-style="italic" fill="#855317">it subscribes; the package filters</text>
+
+  <text x="630" y="214" font-family="-apple-system, system-ui, sans-serif" font-size="10.5" font-weight="700" fill="#855317">when the surface mounts</text>
+  <text x="630" y="228" font-family="-apple-system, system-ui, sans-serif" font-size="9" font-style="italic" fill="#855317">behind its flag, after its onboarding</text>
+
+  <text x="630" y="254" font-family="-apple-system, system-ui, sans-serif" font-size="10.5" font-weight="700" fill="#855317">when it leaves the page</text>
+  <text x="630" y="268" font-family="-apple-system, system-ui, sans-serif" font-size="9" font-style="italic" fill="#855317">the function mountWhatsNew() returns</text>
+
+  <text x="630" y="294" font-family="-apple-system, system-ui, sans-serif" font-size="10.5" font-weight="700" fill="#855317">what the page provides</text>
+  <text x="630" y="308" font-family="-apple-system, system-ui, sans-serif" font-size="9" font-style="italic" fill="#855317">wp-admin, core-data, the import map</text>
+
+  <text x="732" y="350" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="8.5" font-weight="700" fill="#855317">JS · @automattic/jetpack-announcements</text>
+
+  <text x="440" y="396" text-anchor="middle" font-family="-apple-system, system-ui, sans-serif" font-size="9.5" font-style="italic" fill="#94a3b8">a product can be a registrant, a host, or both · Premium Analytics is the first of each</text>
+
+  <text x="440" y="434" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700" fill="#855317">the registrant decides what is news · the host decides where and when · the package carries it</text>
+</svg>
