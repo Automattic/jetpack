@@ -309,7 +309,7 @@ function get_ai_section_default_layout() {
 			'default-top-ai-pages-widget-instance',
 			'ai-traffic/top-ai-pages',
 			1,
-			1,
+			2,
 			DASHBOARD_TILE_LIST
 		),
 		get_dashboard_default_widget_instance(
