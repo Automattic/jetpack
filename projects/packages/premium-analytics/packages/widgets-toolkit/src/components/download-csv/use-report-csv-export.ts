@@ -14,7 +14,10 @@ export type ReportCsvExportStatus = {
 	isError: boolean;
 };
 
-/** Whether exports are enabled and the request has rows, revalidating or not. */
+/**
+ * Whether exports are enabled and the request has rows, revalidating or not: a widget whose
+ * footer loses its only action collapses it and resizes the chart above.
+ */
 export function hasReportCsvRows(
 	status: Pick< ReportCsvExportStatus, 'isLoading' | 'isError' >,
 	rowCount: number

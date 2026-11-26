@@ -60,7 +60,6 @@ export function useRowsCsvAction< TRow >(
 ): CsvDownloadAction | null {
 	const { reportParams } = useWidgetRootContext();
 
-	// Kept through a revalidation: dropping a footer's only action collapses it under the chart.
 	return useCsvDownloadAction(
 		options &&
 			! options.status.isPlaceholderData &&

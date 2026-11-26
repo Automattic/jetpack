@@ -429,6 +429,12 @@ describe( 'ViewsOverYears widget', () => {
 			visitsResult( ROWS ),
 			visitsResult( undefined, { isError: true, error: new Error( 'boom' ) } ),
 		],
+		[
+			'the averages are reading a failed first day again',
+			{ metric: 'average' },
+			visitsResult( ROWS ),
+			visitsResult( undefined, { isFetching: true, primary: { isFetched: true } } ),
+		],
 	] )( 'offers no download when %s', ( _, attributes, months, days ) => {
 		mockVisits( months, days );
 

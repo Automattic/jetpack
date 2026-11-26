@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Premium Analytics: Keep the Download CSV action in place while a widget refreshes its data, so the Traffic summary chart no longer jumps when returning to the tab.
