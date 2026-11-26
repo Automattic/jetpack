@@ -151,7 +151,7 @@ class Social_Admin_Page {
 	 * @return bool
 	 */
 	private function should_add_menu() {
-		// If this isn't an admin (or someone with the capability to change the module status )
+		// If this isn't an admin (or someone with the capability to change the module status)
 		// and Publicize is inactive, then don't render the admin page.
 		if ( ! Utils::can_open_social_dashboard() ) {
 			return false;
