@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { toDay } from '../to-day';
+import { toDay, toDayRange } from '../to-day';
 
 describe( 'toDay', () => {
 	it( 'extracts the date-only part of an ISO date-time', () => {
@@ -39,5 +39,20 @@ describe( 'toDay', () => {
 
 	it( 'rejects a leap day in a non-leap year', () => {
 		expect( toDay( '2026-02-29' ) ).toBeUndefined();
+	} );
+} );
+
+describe( 'toDayRange', () => {
+	it( 'slices the date part off both ISO bounds', () => {
+		expect(
+			toDayRange( '2026-07-01T00:00:00.000+08:00', '2026-07-07T23:59:59.999+08:00' )
+		).toEqual( { from: '2026-07-01', to: '2026-07-07' } );
+	} );
+
+	it.each( [
+		[ 'a missing from', undefined, '2026-07-07T23:59:59.999+08:00' ],
+		[ 'an invalid to', '2026-07-01T00:00:00.000+08:00', '2026-02-31T00:00:00.000+08:00' ],
+	] )( 'returns undefined for %s', ( _case, from, to ) => {
+		expect( toDayRange( from, to ) ).toBeUndefined();
 	} );
 } );
