@@ -13,6 +13,7 @@ use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 use Automattic\Jetpack\Forms\ContactForm\Response_Export_Link;
 use Automattic\Jetpack\Forms\ContactForm\Utility;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/../contact-form/class-utility.php';
@@ -694,31 +695,43 @@ class Forms_Abilities_Test extends BaseTestCase {
 		return $queries;
 	}
 
-	public function test_export_responses_is_a_readonly_ability_for_users_who_can_export() {
-		$spec = Forms_Abilities::get_abilities()['jetpack-forms/export-responses'];
-
-		$this->assertSame( array( Forms_Abilities::class, 'can_export' ), $spec['permission_callback'] );
-		$this->assertTrue( $spec['meta']['annotations']['readonly'] );
-		$this->assertFalse( $spec['meta']['annotations']['destructive'] );
-	}
-
-	public function test_can_export_needs_the_export_capability() {
-		$editor_id = wp_insert_user(
-			array(
-				'user_login' => 'test_editor',
-				'user_pass'  => '123',
-				'role'       => 'editor',
+	/**
+	 * @dataProvider provide_export_roles
+	 *
+	 * @param string $role    Role of the user asking.
+	 * @param bool   $allowed Whether the export may run.
+	 */
+	#[DataProvider( 'provide_export_roles' )]
+	public function test_export_responses_runs_only_for_users_who_can_export( $role, $allowed ) {
+		if ( ! function_exists( 'wp_get_ability' ) ) {
+			$this->markTestSkipped( 'Abilities API functions not available' );
+		}
+		$this->simulate_doing_wp_abilities_categories_init_action();
+		Forms_Abilities::register_category();
+		$this->simulate_doing_wp_abilities_init_action();
+		Forms_Abilities::register_abilities();
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => "export_$role",
+					'user_pass'  => '123',
+					'role'       => $role,
+				)
 			)
 		);
 
-		wp_set_current_user( self::$user_id );
-		$this->assertTrue( Forms_Abilities::can_export() );
+		$this->assertSame( $allowed, true === wp_get_ability( 'jetpack-forms/export-responses' )->check_permissions() );
+	}
 
-		wp_set_current_user( $editor_id );
-		$this->assertFalse( Forms_Abilities::can_export(), 'Editors can read responses but must not export them.' );
-
-		wp_set_current_user( self::$subscriber_user_id );
-		$this->assertFalse( Forms_Abilities::can_export() );
+	/**
+	 * Roles and whether each may export, since an export holds every response's personal data.
+	 */
+	public static function provide_export_roles() {
+		return array(
+			'administrator' => array( 'administrator', true ),
+			'editor'        => array( 'editor', false ),
+			'subscriber'    => array( 'subscriber', false ),
+		);
 	}
 
 	public function test_export_responses_returns_count_forms_and_a_link_for_the_current_user() {
@@ -744,17 +757,32 @@ class Forms_Abilities_Test extends BaseTestCase {
 			$result['forms']
 		);
 		$this->assertSame( 2, $result['forms_total'] );
-		$this->assertMatchesRegularExpression( '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/', $result['expires_at'] );
+		$this->assertEqualsWithDelta( time() + Response_Export_Link::LIFETIME, strtotime( $result['expires_at'] ), 5 );
 
 		$query = array();
 		wp_parse_str( (string) wp_parse_url( $result['download_url'], PHP_URL_QUERY ), $query );
 		$this->assertIsArray( Response_Export_Link::resolve( $query['token'], self::$user_id ) );
 	}
 
+	public function test_export_responses_lists_at_most_fifty_forms_but_counts_them_all() {
+		wp_set_current_user( self::$user_id );
+		$responses = array( self::make_response( 0 ) );
+		for ( $i = 0; $i <= Forms_Abilities::EXPORT_MAX_FORMS; $i++ ) {
+			$responses[] = self::make_response( (int) wp_insert_post( array( 'post_title' => "Form $i" ) ) );
+		}
+		$this->answer_export_query( $responses );
+
+		$result = Forms_Abilities::export_responses( array() );
+
+		$this->assertSame( Forms_Abilities::EXPORT_MAX_FORMS + 2, $result['count'] );
+		$this->assertCount( Forms_Abilities::EXPORT_MAX_FORMS, $result['forms'] );
+		$this->assertSame( Forms_Abilities::EXPORT_MAX_FORMS + 1, $result['forms_total'], 'A response with no form must not count as a form.' );
+	}
+
 	public function test_export_responses_link_repeats_the_requested_filters() {
 		wp_set_current_user( self::$user_id );
 		$contact = (int) wp_insert_post( array( 'post_title' => 'Contact' ) );
-		$this->answer_export_query( array( self::make_response( $contact, 'spam' ) ) );
+		$this->answer_export_query( array( self::make_response( $contact ) ) );
 
 		$result = Forms_Abilities::export_responses(
 			array(
@@ -806,21 +834,37 @@ class Forms_Abilities_Test extends BaseTestCase {
 		);
 	}
 
-	public function test_export_responses_queries_the_inbox_unless_asked_for_spam_or_trash() {
+	/**
+	 * @dataProvider provide_export_statuses
+	 *
+	 * @param array        $input       Ability input.
+	 * @param string|array $post_status Expected query post status.
+	 */
+	#[DataProvider( 'provide_export_statuses' )]
+	public function test_export_responses_queries_the_requested_folder( $input, $post_status ) {
 		wp_set_current_user( self::$user_id );
 		$queries = $this->answer_export_query( array() );
 
-		Forms_Abilities::export_responses( array() );
-		Forms_Abilities::export_responses( array( 'status' => 'inbox' ) );
-		Forms_Abilities::export_responses( array( 'status' => 'spam' ) );
+		Forms_Abilities::export_responses( $input );
 
-		$this->assertEqualsCanonicalizing( array( 'publish', 'draft' ), $queries[0]['post_status'] );
-		$this->assertEqualsCanonicalizing( array( 'publish', 'draft' ), $queries[1]['post_status'] );
-		$this->assertSame( 'spam', $queries[2]['post_status'] );
+		$this->assertEqualsCanonicalizing( $post_status, $queries[0]['post_status'] );
+	}
+
+	/**
+	 * Folders and the post status each one queries.
+	 */
+	public static function provide_export_statuses() {
+		return array(
+			'no status' => array( array(), array( 'publish', 'draft' ) ),
+			'inbox'     => array( array( 'status' => 'inbox' ), array( 'publish', 'draft' ) ),
+			'spam'      => array( array( 'status' => 'spam' ), 'spam' ),
+			'trash'     => array( array( 'status' => 'trash' ), 'trash' ),
+		);
 	}
 
 	public function test_export_responses_with_no_matches_returns_no_link() {
 		wp_set_current_user( self::$user_id );
+		$this->answer_export_query( array() );
 
 		$result = Forms_Abilities::export_responses( array() );
 
@@ -830,27 +874,44 @@ class Forms_Abilities_Test extends BaseTestCase {
 		$this->assertNull( $result['expires_at'] );
 	}
 
-	public function test_export_responses_rejects_a_date_range_that_ends_before_it_starts() {
+	/**
+	 * @dataProvider provide_bad_dates
+	 *
+	 * @param array  $input Ability input.
+	 * @param string $code  Expected error code.
+	 */
+	#[DataProvider( 'provide_bad_dates' )]
+	public function test_export_responses_rejects_bad_dates( $input, $code ) {
 		wp_set_current_user( self::$user_id );
 
-		$result = Forms_Abilities::export_responses(
-			array(
-				'after'  => '2026-11-01T00:00:00Z',
-				'before' => '2026-10-01T00:00:00Z',
-			)
-		);
+		$result = Forms_Abilities::export_responses( $input );
 
 		$this->assertInstanceOf( \WP_Error::class, $result );
-		$this->assertSame( 'jetpack_forms_invalid_date_range', $result->get_error_code() );
+		$this->assertSame( $code, $result->get_error_code() );
 	}
 
-	public function test_export_responses_rejects_a_date_it_cannot_read() {
-		wp_set_current_user( self::$user_id );
-
-		$result = Forms_Abilities::export_responses( array( 'after' => 'last month-ish' ) );
-
-		$this->assertInstanceOf( \WP_Error::class, $result );
-		$this->assertSame( 'jetpack_forms_invalid_date', $result->get_error_code() );
+	/**
+	 * Date inputs the ability must refuse.
+	 */
+	public static function provide_bad_dates() {
+		return array(
+			'unreadable after'   => array( array( 'after' => 'last month-ish' ), 'jetpack_forms_invalid_date' ),
+			'unreadable before'  => array( array( 'before' => 'soonish' ), 'jetpack_forms_invalid_date' ),
+			'range ends earlier' => array(
+				array(
+					'after'  => '2026-11-01T00:00:00Z',
+					'before' => '2026-10-01T00:00:00Z',
+				),
+				'jetpack_forms_invalid_date_range',
+			),
+			'empty range'        => array(
+				array(
+					'after'  => '2026-11-01T00:00:00Z',
+					'before' => '2026-11-01T00:00:00Z',
+				),
+				'jetpack_forms_invalid_date_range',
+			),
+		);
 	}
 
 	public function test_every_ability_opts_into_mcp_as_public_tool(): void {

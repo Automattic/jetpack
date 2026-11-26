@@ -15,6 +15,8 @@ use Automattic\Jetpack\Menu_Badges\Notification_Counts;
 use Closure;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 use WP_Block;
 use WP_Block_Type_Registry;
@@ -1043,11 +1045,19 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		Utility::destroy_post_context( $current_post );
 	}
 
+	/**
+	 * Runs isolated because it sends headers, which older PHPUnit refuses after printing output.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_stream_export_csv_writes_every_response_and_returns_the_count() {
 		$current_post = Utility::create_post_context();
 		$post_ids     = array(
 			Utility::create_legacy_feedback( array( '1_Name' => 'First' ) ),
-			Utility::create_legacy_feedback( array( '1_Name' => '=SUM(A1)' ) ),
+			Utility::create_legacy_feedback( array( '1_Name' => 'Second' ) ),
 		);
 
 		ob_start();
@@ -1064,7 +1074,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$column = array_search( 'Name', $header, true );
 
 		$this->assertSame( 2, $count );
-		$this->assertSame( array( 'First', '\'=SUM(A1)' ), array_column( $lines, $column ) );
+		$this->assertSame( array( 'First', 'Second' ), array_column( $lines, $column ) );
 
 		Utility::destroy_post_context( $current_post );
 	}

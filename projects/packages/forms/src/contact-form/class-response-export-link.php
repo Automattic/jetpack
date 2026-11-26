@@ -35,6 +35,11 @@ class Response_Export_Link {
 	const LIFETIME = 15 * MINUTE_IN_SECONDS;
 
 	/**
+	 * How long a link's record is kept, in seconds, so an expired link can say it expired.
+	 */
+	const RECORD_LIFETIME = DAY_IN_SECONDS;
+
+	/**
 	 * Transient key prefix. The token's hash completes the key, so stored keys cannot rebuild a link.
 	 */
 	const TRANSIENT_PREFIX = 'jetpack_forms_export_';
@@ -70,7 +75,7 @@ class Response_Export_Link {
 				'include_test_responses' => (bool) $include_test_responses,
 				'expires_at'             => $expires_at,
 			),
-			self::LIFETIME
+			self::RECORD_LIFETIME
 		);
 
 		return array(
@@ -82,13 +87,12 @@ class Response_Export_Link {
 	/**
 	 * Returns the export a link describes, when the user may download it.
 	 *
-	 * @param string   $token   Token from the link.
-	 * @param int      $user_id The user opening the link.
-	 * @param int|null $now     Unix timestamp to check expiry against. Defaults to the current time.
+	 * @param string $token   Token from the link.
+	 * @param int    $user_id The user opening the link.
 	 *
 	 * @return array{filters: array, include_test_responses: bool}|WP_Error
 	 */
-	public static function resolve( $token, $user_id, $now = null ) {
+	public static function resolve( $token, $user_id ) {
 		$token  = is_string( $token ) ? $token : '';
 		$record = 1 === preg_match( '/^[A-Za-z0-9]{32}$/', $token ) ? get_transient( self::get_transient_key( $token ) ) : false;
 
@@ -106,7 +110,7 @@ class Response_Export_Link {
 			);
 		}
 
-		if ( ( $now ?? time() ) > (int) $record['expires_at'] ) {
+		if ( time() > (int) $record['expires_at'] ) {
 			return new WP_Error(
 				'jetpack_forms_export_link_expired',
 				__( 'This export link has expired. Ask for a new export.', 'jetpack-forms' ),

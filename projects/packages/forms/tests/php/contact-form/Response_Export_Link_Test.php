@@ -8,6 +8,9 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 use WP_Error;
 
@@ -77,13 +80,6 @@ class Response_Export_Link_Test extends BaseTestCase {
 		$this->assertLessThanOrEqual( time() + 15 * MINUTE_IN_SECONDS, $link['expires_at'] );
 	}
 
-	public function test_each_link_gets_its_own_token() {
-		$first  = Response_Export_Link::create( array(), false, $this->admin_id );
-		$second = Response_Export_Link::create( array(), false, $this->admin_id );
-
-		$this->assertNotSame( self::get_token( $first['url'] ), self::get_token( $second['url'] ) );
-	}
-
 	public function test_resolve_returns_the_export_for_the_user_who_asked() {
 		$filters = array(
 			'form'   => 12,
@@ -112,12 +108,6 @@ class Response_Export_Link_Test extends BaseTestCase {
 		$this->assertSame( 'jetpack_forms_export_link_invalid', $export->get_error_code() );
 	}
 
-	public function test_resolve_refuses_a_logged_out_visitor() {
-		$link = Response_Export_Link::create( array(), false, $this->admin_id );
-
-		$this->assertInstanceOf( WP_Error::class, Response_Export_Link::resolve( self::get_token( $link['url'] ), 0 ) );
-	}
-
 	public function test_resolve_refuses_a_user_who_can_no_longer_export() {
 		$link = Response_Export_Link::create( array(), false, $this->admin_id );
 		( new \WP_User( $this->admin_id ) )->set_role( 'editor' );
@@ -128,20 +118,105 @@ class Response_Export_Link_Test extends BaseTestCase {
 		$this->assertSame( 'jetpack_forms_export_link_invalid', $export->get_error_code() );
 	}
 
-	public function test_resolve_refuses_an_unknown_or_malformed_token() {
+	/**
+	 * @dataProvider provide_bad_tokens
+	 *
+	 * @param mixed $token Token from the request.
+	 */
+	#[DataProvider( 'provide_bad_tokens' )]
+	public function test_resolve_refuses_an_unknown_or_malformed_token( $token ) {
 		Response_Export_Link::create( array(), false, $this->admin_id );
 
-		foreach ( array( '', 'not-a-token', str_repeat( 'a', 32 ), str_repeat( 'a', 200 ) ) as $token ) {
-			$this->assertInstanceOf( WP_Error::class, Response_Export_Link::resolve( $token, $this->admin_id ), "Token '$token' must be refused." );
-		}
+		$export = Response_Export_Link::resolve( $token, $this->admin_id );
+
+		$this->assertInstanceOf( WP_Error::class, $export );
+		$this->assertSame( 'jetpack_forms_export_link_invalid', $export->get_error_code() );
 	}
 
-	public function test_resolve_refuses_an_expired_link() {
-		$link = Response_Export_Link::create( array(), false, $this->admin_id );
+	/**
+	 * Tokens that match no link.
+	 */
+	public static function provide_bad_tokens() {
+		return array(
+			'empty'        => array( '' ),
+			'wrong format' => array( 'not-a-token' ),
+			'unknown'      => array( str_repeat( 'a', 32 ) ),
+			'too long'     => array( str_repeat( 'a', 200 ) ),
+			'not a string' => array( array( 'token' ) ),
+			'null'         => array( null ),
+		);
+	}
 
-		$export = Response_Export_Link::resolve( self::get_token( $link['url'] ), $this->admin_id, $link['expires_at'] + 1 );
+	public function test_resolve_says_a_link_expired_after_fifteen_minutes() {
+		$link = Response_Export_Link::create( array(), false, $this->admin_id );
+		$key  = Response_Export_Link::TRANSIENT_PREFIX . hash( 'sha256', self::get_token( $link['url'] ) );
+		$this->assertGreaterThan( $link['expires_at'], (int) get_option( '_transient_timeout_' . $key ), 'The record must outlive the link, or an expired link reads as invalid.' );
+
+		set_transient( $key, array_merge( get_transient( $key ), array( 'expires_at' => time() - 1 ) ), HOUR_IN_SECONDS );
+		$export = Response_Export_Link::resolve( self::get_token( $link['url'] ), $this->admin_id );
 
 		$this->assertInstanceOf( WP_Error::class, $export );
 		$this->assertSame( 'jetpack_forms_export_link_expired', $export->get_error_code() );
+	}
+
+	/**
+	 * Runs isolated because it sends headers, which older PHPUnit refuses after printing output.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 * @dataProvider provide_refused_downloads
+	 *
+	 * @param bool   $real_token Whether the request carries the link's own token.
+	 * @param string $opener     Who opens the link: owner, other or demoted.
+	 * @param int    $status     Expected HTTP status.
+	 */
+	#[DataProvider( 'provide_refused_downloads' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_handle_download_refuses_without_sending_the_file( $real_token, $opener, $status ) {
+		$link          = Response_Export_Link::create( array(), false, $this->admin_id );
+		$_GET['token'] = $real_token ? self::get_token( $link['url'] ) : str_repeat( 'a', 32 );
+		wp_set_current_user( 'other' === $opener ? $this->other_admin_id : $this->admin_id );
+		if ( 'demoted' === $opener ) {
+			( new \WP_User( $this->admin_id ) )->set_role( 'editor' );
+		}
+		add_filter(
+			'posts_pre_query',
+			static function ( $posts, $query ) {
+				return Feedback::POST_TYPE === $query->get( 'post_type' ) ? array() : $posts;
+			},
+			10,
+			2
+		);
+		add_filter(
+			'wp_die_ajax_handler',
+			static function () {
+				/** @return never */
+				return static function ( $message, $title, $args ) {
+					throw new \RuntimeException( (string) $args['response'] );
+				};
+			}
+		);
+
+		$this->expectException( \RuntimeException::class );
+		$this->expectExceptionMessage( (string) $status );
+		$this->expectOutputString( '' );
+		try {
+			Response_Export_Link::handle_download();
+		} finally {
+			unset( $_GET['token'] );
+		}
+	}
+
+	/**
+	 * Requests the download handler must refuse, with the status it sends.
+	 */
+	public static function provide_refused_downloads() {
+		return array(
+			'unknown token'        => array( false, 'owner', 403 ),
+			'another user'         => array( true, 'other', 403 ),
+			'user who lost export' => array( true, 'demoted', 403 ),
+			'nothing matches now'  => array( true, 'owner', 404 ),
+		);
 	}
 }
