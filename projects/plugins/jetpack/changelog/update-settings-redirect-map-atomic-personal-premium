@@ -1,4 +1,3 @@
 Significance: patch
 Type: other
-Comment: Settings redirect map: keep security settings on Settings on Atomic sites without the Protect page, and send the Reader route to Features on Atomic. The map is not read by any code yet.
-
+Comment: Settings redirect map: keep security settings on Settings where the Protect dashboard module is unavailable, and send the Reader route to Features on Atomic. The map is not read by any code yet.
