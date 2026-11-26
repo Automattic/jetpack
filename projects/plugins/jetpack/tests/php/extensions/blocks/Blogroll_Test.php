@@ -295,6 +295,7 @@ class Blogroll_Test extends \WP_UnitTestCase {
 	 * The following list takes the public feeds of every blogroll on the site, each feed once.
 	 */
 	public function test_add_following() {
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Another filter callback may return anything.
 		$this->assertSame( array(), Blogroll\add_following( 'not a list' ) );
 
 		$blogroll = static function ( $name ) {

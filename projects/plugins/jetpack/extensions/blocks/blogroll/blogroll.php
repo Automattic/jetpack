@@ -391,7 +391,8 @@ function add_following( $outlines ) {
 	$ids      = get_following_post_ids();
 	$items    = array();
 
-	_prime_post_caches( $ids, false, false );
+	// With meta: the paywall check reads the access level of every post.
+	_prime_post_caches( $ids, false, true );
 
 	foreach ( $ids as $id ) {
 		$post = get_post( $id );
