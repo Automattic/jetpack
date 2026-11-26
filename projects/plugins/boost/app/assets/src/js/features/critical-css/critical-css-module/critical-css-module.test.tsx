@@ -1,6 +1,5 @@
 /* eslint-disable jest-dom/prefer-in-document, jest-dom/prefer-to-have-attribute -- The legacy Boost Jest project does not load jest-dom. */
 import { fireEvent, render, screen } from '@testing-library/react';
-import { ModuleSurfaceProvider } from '$features/module/surface';
 import { MODERN_ROOT_ID } from '$lib/modern/mode';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import CriticalCssModule from './critical-css-module';
@@ -40,17 +39,12 @@ jest.mock( '$lib/stores/pricing', () => ( { usePricing: () => null } ) );
 jest.mock( '$lib/stores/premium-features', () => ( { usePremiumFeatures: () => [] } ) );
 jest.mock( 'jetpackConfig', () => ( { consumer_slug: 'jetpack-boost' } ), { virtual: true } );
 
-test( 'routes the modern Critical CSS notice to the upgrade page without inline license redemption', () => {
+test( 'routes the Critical CSS notice to the upgrade page without inline license redemption', () => {
 	Object.assign( globalThis, {
 		Jetpack_Boost: { site: { online: true, myJetpack: true, host: 'other' } },
 	} );
 	render( <div id={ MODERN_ROOT_ID } data-testid="dashboard-root" /> );
-	render(
-		<ModuleSurfaceProvider value="row">
-			<CriticalCssModule />
-		</ModuleSurfaceProvider>,
-		{ container: screen.getByTestId( 'dashboard-root' ) }
-	);
+	render( <CriticalCssModule />, { container: screen.getByTestId( 'dashboard-root' ) } );
 	expect( screen.getByRole( 'link', { name: 'Upgrade now' } ).getAttribute( 'href' ) ).toBe(
 		'admin.php?page=my-jetpack#/add-boost'
 	);
@@ -58,45 +52,26 @@ test( 'routes the modern Critical CSS notice to the upgrade page without inline 
 	expect( screen.queryByRole( 'dialog' ) ).toBeNull();
 } );
 
-test.each( [ 'row', 'block' ] as const )(
-	'enabling manual CSS on the %s surface preserves its generation behavior',
-	surface => {
-		mockRegenerate.mockClear();
-		Object.assign( globalThis, {
-			Jetpack_Boost: { site: { online: true, myJetpack: true, host: 'unknown' } },
-			myJetpackInitialState: { products: { items: { boost: { slug: 'boost', title: 'Boost' } } } },
-			JP_CONNECTION_INITIAL_STATE: {},
-		} );
-		render(
-			<ModuleSurfaceProvider value={ surface }>
-				<CriticalCssModule />
-			</ModuleSurfaceProvider>
-		);
-		expect(
-			screen.getByText(
-				surface === 'row'
-					? /Prioritizes the styles needed to display the visible part of your page first/
-					: /Move important styling information to the start of the page/
-			)
-		).toBeTruthy();
-		// eslint-disable-next-line testing-library/prefer-user-event -- This project does not provide user-event.
-		fireEvent.click( screen.getByRole( 'button', { name: 'Enable' } ) );
-		expect( mockRegenerate ).toHaveBeenCalledTimes( surface === 'row' ? 0 : 1 );
-	}
-);
-
 test( 'records the Critical CSS documentation link click', () => {
 	Object.assign( globalThis, {
 		Jetpack_Boost: { site: { online: true, myJetpack: true, host: 'unknown' } },
 		myJetpackInitialState: { products: { items: { boost: { slug: 'boost', title: 'Boost' } } } },
 		JP_CONNECTION_INITIAL_STATE: {},
 	} );
-	render(
-		<ModuleSurfaceProvider value="row">
-			<CriticalCssModule />
-		</ModuleSurfaceProvider>
-	);
+	render( <CriticalCssModule /> );
 	// eslint-disable-next-line testing-library/prefer-user-event -- This project does not provide user-event.
 	fireEvent.click( screen.getByRole( 'link', { name: /Critical CSS/ } ) );
 	expect( recordBoostEvent ).toHaveBeenCalledWith( 'critical_css_link_clicked', {} );
+} );
+
+test( 'enabling manual CSS waits for Generate instead of regenerating', () => {
+	Object.assign( globalThis, {
+		Jetpack_Boost: { site: { online: true, myJetpack: true, host: 'unknown' } },
+		myJetpackInitialState: { products: { items: { boost: { slug: 'boost', title: 'Boost' } } } },
+		JP_CONNECTION_INITIAL_STATE: {},
+	} );
+	render( <CriticalCssModule /> );
+	// eslint-disable-next-line testing-library/prefer-user-event -- This project does not provide user-event.
+	fireEvent.click( screen.getByRole( 'button', { name: 'Enable' } ) );
+	expect( mockRegenerate ).not.toHaveBeenCalled();
 } );

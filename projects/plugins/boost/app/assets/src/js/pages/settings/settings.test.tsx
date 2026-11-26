@@ -11,7 +11,7 @@ jest.mock( '$features/critical-css/cloud-css-upgrade-notice', () => () => (
 
 /* Each module stub prints its name so the test can assert the order. */
 jest.mock( '$features/cornerstone-pages/cornerstone-pages', () => ( {
-	useCornerstoneSummary: () => 'Added: Homepage',
+	useCornerstoneSummary: () => 'Homepage',
 } ) );
 jest.mock( '$features/cornerstone-pages/meta/meta', () => ( {
 	CornerstonePagesDescription: () => <>cornerstone description</>,
@@ -71,7 +71,7 @@ describe( 'Settings', () => {
 		expect( screen.getByTestId( 'upgrade-confirmation' ) ).toBeTruthy();
 
 		expect( screen.getAllByRole( 'button' ).map( button => button.textContent ) ).toEqual( [
-			'Cornerstone PagesAdded: HomepageChoose the pages that matter most on your site so Boost can give them its most targeted optimizations.',
+			'Cornerstone PagesHomepageChoose the pages that matter most on your site so Boost can give them its most targeted optimizations.',
 			'Page loadingManage how your page content is loaded for visitors.',
 			'Code optimizationReduce the code needed to load your site.',
 			'ImagesTools to load and deliver images more efficiently.',
@@ -89,7 +89,7 @@ describe( 'Settings', () => {
 		expect( modulesIn( 'Cornerstone Pages' ) ).toEqual( [ 'prerender' ] );
 		expect( screen.getAllByRole( 'heading', { name: 'Cornerstone Pages' } ) ).toHaveLength( 1 );
 		expect( screen.getAllByText( 'cornerstone description' ) ).toHaveLength( 1 );
-		expect( screen.getAllByText( 'Added: Homepage' ) ).toHaveLength( 1 );
+		expect( screen.getAllByText( 'Homepage' ) ).toHaveLength( 1 );
 	} );
 
 	it( 'shows the Cornerstone description in the header while collapsed', () => {
@@ -108,7 +108,7 @@ describe( 'Settings', () => {
 		expect(
 			screen.getAllByRole( 'heading', { level: 3 } ).map( heading => heading.textContent )
 		).toEqual( [
-			'Cornerstone PagesAdded: HomepageChoose the pages that matter most on your site so Boost can give them its most targeted optimizations.',
+			'Cornerstone PagesHomepageChoose the pages that matter most on your site so Boost can give them its most targeted optimizations.',
 			'Page loadingManage how your page content is loaded for visitors.',
 			'Code optimizationReduce the code needed to load your site.',
 			'ImagesTools to load and deliver images more efficiently.',
