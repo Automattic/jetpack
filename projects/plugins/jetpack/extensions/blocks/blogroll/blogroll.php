@@ -381,7 +381,9 @@ function clear_following_post_ids( $post_id, $post ) {
 add_action( 'save_post', __NAMESPACE__ . '\clear_following_post_ids', 10, 2 );
 
 /**
- * List the public blogrolls of the site in its SocialSpec following list.
+ * Add the public blogrolls of the site to its SocialSpec following list, /.well-known/following.opml.
+ *
+ * The Publicize package serves that list, see Automattic\Jetpack\Publicize\Socialspec\Following.
  *
  * @param array[] $outlines OPML outline attributes.
  * @return array[]
@@ -397,7 +399,7 @@ function add_following( $outlines ) {
 	foreach ( $ids as $id ) {
 		$post = get_post( $id );
 		// Decided on every request, not cached. Stricter than has_opml(): a visitor who knows a post's password gets the same list.
-		if ( ! $post || '' !== $post->post_password || ! is_post_publicly_viewable( $post ) ) {
+		if ( ! $post instanceof \WP_Post || '' !== $post->post_password || ! is_post_publicly_viewable( $post ) ) {
 			continue;
 		}
 

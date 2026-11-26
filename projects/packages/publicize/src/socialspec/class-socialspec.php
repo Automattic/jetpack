@@ -147,6 +147,8 @@ class Socialspec {
 			header_remove( $header );
 		}
 
+		// Short and explicit, so a cache in front of the site does not keep a document for longer than this.
+		header( 'Cache-Control: public, max-age=300' );
 		header( 'Access-Control-Allow-Origin: *' );
 
 		$method = strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ?? 'GET' ) ) );
