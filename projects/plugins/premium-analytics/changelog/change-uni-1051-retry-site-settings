@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Retry loading the site settings on the next visit to a page without dates in its URL, so the Homepage row in Posts & Pages gets its link after an earlier load failed.
+Retry loading the site settings after a failed load, so the Homepage row in Posts & Pages can get its link without reloading the page.
