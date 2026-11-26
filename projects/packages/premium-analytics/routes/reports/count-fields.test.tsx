@@ -53,7 +53,7 @@ describe( 'report table count fields', () => {
 	} );
 
 	it.each( [
-		[ 'Posts views', getPostsFields( false, 'posts-pages' ), 'views', { views: 12345 } ],
+		[ 'Posts views', getPostsFields( false, { detailSearch: {} } ), 'views', { views: 12345 } ],
 		[ 'Archives views', getArchivesFields(), 'views', { views: 12345 } ],
 		[ 'Authors views', getAuthorsFields(), 'views', { views: 12345 } ],
 		[ 'Subscribers', getCommentFollowersFields(), 'subscribers', { followers: 12345 } ],
