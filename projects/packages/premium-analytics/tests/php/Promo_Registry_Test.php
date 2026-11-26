@@ -101,6 +101,17 @@ class Promo_Registry_Test extends BaseTestCase {
 		);
 	}
 
+	public function test_register_refuses_an_unknown_cta_variant() {
+		$this->assert_refused(
+			'acme/offer',
+			array(
+				'placement'   => 'settings',
+				'title'       => 'Offer',
+				'cta_variant' => 'outline',
+			)
+		);
+	}
+
 	public function test_register_refuses_an_options_menu_promo_without_a_cta_label() {
 		$this->assert_refused(
 			'acme/offer',

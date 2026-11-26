@@ -51,6 +51,7 @@ const settingsPromo = {
 	description: '',
 	cta_label: 'Go',
 	cta_url: 'https://example.com',
+	cta_variant: 'primary',
 	dismissible: true,
 	snooze_days: 7,
 };
