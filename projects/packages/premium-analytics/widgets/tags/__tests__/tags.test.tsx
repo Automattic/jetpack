@@ -59,6 +59,27 @@ const FULL_REPORT = {
 	],
 };
 
+// Each row stays a group in the view of its own type, under the same label as in All.
+const GROUPED_RESPONSE = {
+	...TAGS_RESPONSE,
+	tags: [
+		{
+			tags: [
+				{ type: 'tag', name: 'vegan', link: 'https://example.com/tag/vegan/' },
+				{ type: 'tag', name: 'quick', link: 'https://example.com/tag/quick/' },
+			],
+			views: 500,
+		},
+		{
+			tags: [
+				{ type: 'category', name: 'Recipes', link: 'https://example.com/category/recipes/' },
+				{ type: 'category', name: 'Dinner', link: 'https://example.com/category/dinner/' },
+			],
+			views: 400,
+		},
+	],
+};
+
 function glyphPath( root: Element | null | undefined ) {
 	return root?.querySelector( 'svg path' )?.getAttribute( 'd' );
 }
@@ -176,7 +197,7 @@ describe( 'TagsWidget', () => {
 		}
 	);
 
-	// `tag-7` ranks 12th overall, so it shows only if the view narrows the full report
+	// `tag-7` ranks 11th overall, so it shows only if the view narrows the full report
 	// before trimming to 10; `tag-8` would be the 11th tag.
 	it.each( [
 		[ 'tag', [ 'vegan', 'chocolate', 'tag-7' ], [ 'Recipes', 'Desserts', 'tag-8' ] ],
@@ -200,6 +221,54 @@ describe( 'TagsWidget', () => {
 			hidden.forEach( label => expect( screen.queryByText( label ) ).not.toBeInTheDocument() );
 		}
 	);
+
+	it.each( [
+		[ 'tag', 'Tags', 'vegan, quick', 'All tags' ],
+		[ 'category', 'Categories', 'Recipes, Dinner', 'All categories' ],
+	] as const )(
+		'names the %s view in its column, drill-down and back link',
+		async ( termType, column, group, backLink ) => {
+			mockApiFetch.mockResolvedValue( GROUPED_RESPONSE );
+			render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams(), termType } } /> );
+
+			const groupButton = await screen.findByRole( 'button', {
+				name: `View the ${ column.toLowerCase() } in ${ group }`,
+			} );
+			expect( screen.getByText( column ) ).toBeInTheDocument();
+
+			fireEvent.click( groupButton ); // eslint-disable-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+
+			await expect(
+				screen.findByRole( 'button', { name: backLink } )
+			).resolves.toBeInTheDocument();
+		}
+	);
+
+	it( 'leaves a drilled-in group when the view changes', async () => {
+		mockApiFetch.mockResolvedValue( GROUPED_RESPONSE );
+		const { rerender } = render(
+			<TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } />
+		);
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+		fireEvent.click(
+			await screen.findByRole( 'button', {
+				name: 'View the tags and categories in vegan, quick',
+			} )
+		);
+		await expect(
+			screen.findByRole( 'button', { name: 'All tags & categories' } )
+		).resolves.toBeInTheDocument();
+
+		rerender(
+			<TagsWidget attributes={ { reportParams: getDefaultQueryParams(), termType: 'tag' } } />
+		);
+
+		await expect(
+			screen.findByRole( 'button', { name: 'View the tags in vegan, quick' } )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'All tags' } ) ).not.toBeInTheDocument();
+	} );
 
 	it( 'refetches with the new window when the dashboard period changes', async () => {
 		const { rerender } = render(
@@ -269,19 +338,37 @@ describe( 'TagsWidget CSV export', () => {
 		expect( lines ).toHaveLength( 13 );
 	} );
 
-	it( 'downloads only the tags when the widget shows tags', async () => {
-		const { findDeclaredAction } = renderWithActionsHost(
-			<TagsWidget attributes={ { reportParams: getDefaultQueryParams(), termType: 'tag' } } />
-		);
+	it.each( [
+		[
+			'tag',
+			/^tags-.+\.csv$/,
+			'"chocolate","760","https://example.com/tag/chocolate/"',
+			/Recipes|Desserts/,
+			12,
+		],
+		[
+			'category',
+			/^categories-.+\.csv$/,
+			'"Desserts","760","https://example.com/category/desserts/"',
+			/vegan|chocolate|tag-/,
+			3,
+		],
+	] as const )(
+		'downloads only the rows of the %s view',
+		async ( termType, filename, line, others, lineCount ) => {
+			const { findDeclaredAction } = renderWithActionsHost(
+				<TagsWidget attributes={ { reportParams: getDefaultQueryParams(), termType } } />
+			);
 
-		await expect( screen.findByText( 'vegan' ) ).resolves.toBeInTheDocument();
-		await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
+			await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
 
-		const lines = await downloads.lines();
-		expect( lines ).toContain( '"chocolate","760","https://example.com/tag/chocolate/"' );
-		expect( lines.join( '\n' ) ).not.toMatch( /Recipes|Desserts/ );
-		expect( lines ).toHaveLength( 12 );
-	} );
+			const lines = await downloads.lines();
+			expect( downloads.files[ 0 ].filename ).toMatch( filename );
+			expect( lines ).toContain( line );
+			expect( lines.join( '\n' ) ).not.toMatch( others );
+			expect( lines ).toHaveLength( lineCount );
+		}
+	);
 } );
 
 describe( 'TagsWidget empty state', () => {
