@@ -53,6 +53,36 @@ it( 'draws the preloaded toggle at once and keeps a save for the next visit', as
 	).toBeChecked();
 } );
 
+it( 'reads the status only after a save that outlived the previous tab', async () => {
+	apiFetch.mockResolvedValueOnce( status );
+	const { unmount } = render( <IndexnowSettings isSaving={ false } /> );
+	const toggle = await screen.findByRole( 'switch', {
+		name: 'Notify search engines when content changes',
+	} );
+	let finishSave: ( value: unknown ) => void = () => {};
+	apiFetch.mockImplementationOnce(
+		() =>
+			new Promise( resolve => {
+				finishSave = resolve;
+			} )
+	);
+	// eslint-disable-next-line testing-library/prefer-user-event -- Match the existing settings tests.
+	fireEvent.click( toggle );
+	unmount();
+	apiFetch.mockResolvedValueOnce( { ...status, enabled: true } );
+	render( <IndexnowSettings isSaving={ false } /> );
+	expect( apiFetch ).toHaveBeenCalledTimes( 2 );
+	await act( async () => {
+		finishSave( { ...status, enabled: true } );
+	} );
+	await waitFor( () =>
+		expect(
+			screen.getByRole( 'switch', { name: 'Notify search engines when content changes' } )
+		).toBeChecked()
+	);
+	expect( apiFetch ).toHaveBeenCalledTimes( 3 );
+} );
+
 it( 'keeps the opt-in off after a rejected save, then permits a retry', async () => {
 	apiFetch.mockResolvedValueOnce( status );
 	const toggle = await openSettings();

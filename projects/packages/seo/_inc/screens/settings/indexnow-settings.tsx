@@ -9,9 +9,10 @@ import {
 } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Link, Notice, Stack, SwitchControl, Text } from '@wordpress/ui';
-import { getPreloaded, writePreloaded } from '../../data/get-preloaded';
+import { INDEXNOW_PATH, getPreloaded, writePreloaded } from '../../data/get-preloaded';
 
-const INDEXNOW_PATH = '/jetpack/v4/seo/indexnow';
+// A save can outlive its mount when the user switches tabs, so the next mount reads after it.
+let pendingSave: Promise< unknown > | null = null;
 
 interface Status {
 	enabled: boolean;
@@ -159,6 +160,9 @@ export default function IndexnowSettings( { isSaving, onSavingChange }: Props ) 
 			}
 			const version = ++revision.current;
 			try {
+				if ( pendingSave ) {
+					await pendingSave;
+				}
 				const value = await apiFetch< Status >( { path: INDEXNOW_PATH } );
 				if ( mounted && version === revision.current ) {
 					adopt( value );
@@ -193,14 +197,15 @@ export default function IndexnowSettings( { isSaving, onSavingChange }: Props ) 
 			setBusy( true );
 			onSavingChange?.( true );
 			setError( '' );
+			const request = apiFetch< Status >( {
+				path: INDEXNOW_PATH,
+				method: 'POST',
+				data: { enabled },
+			} );
+			const settled = request.catch( () => null );
+			pendingSave = settled;
 			try {
-				adopt(
-					await apiFetch< Status >( {
-						path: INDEXNOW_PATH,
-						method: 'POST',
-						data: { enabled },
-					} )
-				);
+				adopt( await request );
 			} catch {
 				setError(
 					__(
@@ -209,6 +214,9 @@ export default function IndexnowSettings( { isSaving, onSavingChange }: Props ) 
 					)
 				);
 			} finally {
+				if ( pendingSave === settled ) {
+					pendingSave = null;
+				}
 				saving.current = false;
 				setBusy( false );
 				onSavingChange?.( false );

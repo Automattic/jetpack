@@ -9,6 +9,8 @@ export const OVERVIEW_PATH = '/jetpack/v4/seo/overview';
 export const SETTINGS_PATH = '/jetpack/v4/seo/settings';
 export const GEO_PATH = '/jetpack/v4/seo/geo';
 export const CONTENT_PATH = '/jetpack/v4/seo/content';
+// Registered by `Indexnow::register_routes()`, and preloaded with the paths above.
+export const INDEXNOW_PATH = '/jetpack/v4/seo/indexnow';
 
 /** A single preloaded REST response, as emitted by `rest_preload_api_request()`. */
 interface PreloadedResponse {
