@@ -5,12 +5,13 @@
  * @package jetpack
  */
 
-use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Modules;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
+
+require_once __DIR__ . '/../class-jetpack-subscriber-data.php';
 
 /**
  * Class that adds the Jetpack Newsletter Dashboard Widget to the WordPress admin dashboard.
@@ -61,18 +62,9 @@ class Jetpack_Newsletter_Dashboard_Widget {
 		);
 
 		if ( Jetpack::is_connection_ready() ) {
-			$site_id  = Jetpack_Options::get_option( 'id' );
-			$api_path = sprintf( '/sites/%d/subscribers/stats', $site_id );
-			$response = Client::wpcom_json_api_request_as_blog(
-				$api_path,
-				'2',
-				array(),
-				null,
-				'wpcom'
-			);
+			$subscriber_counts = Jetpack_Subscriber_Data::get_stats();
 
-			if ( 200 === wp_remote_retrieve_response_code( $response ) ) {
-				$subscriber_counts = json_decode( wp_remote_retrieve_body( $response ), true );
+			if ( ! is_wp_error( $subscriber_counts ) ) {
 				if ( isset( $subscriber_counts['counts']['email_subscribers'] ) ) {
 					$config_data['emailSubscribers'] = (int) $subscriber_counts['counts']['email_subscribers'];
 				}
