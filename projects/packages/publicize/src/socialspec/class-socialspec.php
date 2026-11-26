@@ -31,7 +31,7 @@ class Socialspec {
 			self::FEATURE_FLAG,
 			array(
 				'default'     => false,
-				'description' => 'Let feed readers and social apps see who the site is and which blogs it follows (SocialSpec), and let web apps read its feeds.',
+				'description' => 'Let feed readers and social apps see who the site is, what it is about and which feeds it recommends (SocialSpec), and let web apps read its feeds.',
 				'owner'       => 'jetpack-social',
 			)
 		);
@@ -75,6 +75,7 @@ class Socialspec {
 		return array(
 			'contact.vcf'    => new Contact(),
 			'following.opml' => new Following(),
+			'about.md'       => new About(),
 		);
 	}
 
