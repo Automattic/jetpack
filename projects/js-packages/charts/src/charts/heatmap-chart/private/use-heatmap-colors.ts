@@ -1,47 +1,62 @@
 import type { HeatmapColumn } from '../types';
 
+/** How many color steps a stepped scale paints on, and the legend draws. */
+export const HEATMAP_SCALE_STEPS = 5;
+
 export const isPresent = ( value: number | null | undefined ): value is number =>
 	value !== null && value !== undefined && ! isNaN( value );
 
 /**
- * Get the min and max values from heatmap data, ignoring null/NaN and the zeros
- * `isEmptyValue` paints as empty. Summary columns stay out: a roll-up on the
- * scale would flatten every real cell.
+ * Every value a cell reports, ascending. Roll-up columns stay out, since a
+ * summary on the scale would flatten every real cell, and so do cells that
+ * report nothing about the series.
+ *
  * @param data - The heatmap columns
- * @return Tuple of [min, max] values
+ * @return The reported values, ascending
  */
-export const getValueExtent = ( data: HeatmapColumn[] ): [ number, number ] => {
-	let min = Infinity;
-	let max = -Infinity;
-	let hasZero = false;
+export const scaleValues = ( data: HeatmapColumn[] ): number[] => {
+	const values: number[] = [];
 	for ( const column of data ) {
 		if ( column.summary ) {
 			continue;
 		}
 		for ( const cell of column.data ) {
-			if ( ! isPresent( cell.value ) ) {
+			if ( cell.hidden || cell.placeholder || cell.partial || ! isPresent( cell.value ) ) {
 				continue;
 			}
-			if ( cell.value === 0 ) {
-				hasZero = true;
-				continue;
-			}
-			if ( cell.value < min ) {
-				min = cell.value;
-			}
-			if ( cell.value > max ) {
-				max = cell.value;
-			}
+			values.push( cell.value );
 		}
 	}
-	if ( hasZero && min < 0 ) {
-		max = Math.max( max, 0 );
-	}
-	if ( min === Infinity ) {
+	return values.sort( ( a, b ) => a - b );
+};
+
+/**
+ * Get the min and max of an ascending value list, ignoring the zeros
+ * `isEmptyValue` paints as empty.
+ *
+ * @param values - The values from `scaleValues`
+ * @return Tuple of [min, max] values
+ */
+export const getExtentOf = ( values: number[] ): [ number, number ] => {
+	const nonZero = values.filter( value => value !== 0 );
+	if ( ! nonZero.length ) {
 		return [ 0, 0 ];
 	}
-	return [ min, max ];
+	const min = nonZero[ 0 ];
+	const max = nonZero[ nonZero.length - 1 ];
+	// A zero counts as data once the series has negatives, so the scale has to reach it.
+	return [ min, min < 0 && nonZero.length < values.length ? Math.max( max, 0 ) : max ];
 };
+
+/**
+ * Get the min and max values from heatmap data, ignoring the zeros
+ * `isEmptyValue` paints as empty.
+ *
+ * @param data - The heatmap columns
+ * @return Tuple of [min, max] values
+ */
+export const getValueExtent = ( data: HeatmapColumn[] ): [ number, number ] =>
+	getExtentOf( scaleValues( data ) );
 
 /**
  * Whether a value paints as an empty cell: a zero in data with no negatives
@@ -55,12 +70,12 @@ export const isEmptyValue = ( value: number, extent: [ number, number ] ): boole
 	value === 0 && extent[ 0 ] >= 0;
 
 /**
- * Normalize a value to 0–1 within the extent. A flat extent (min === max)
- * maps to 1, since every cell is equally the "highest".
+ * Place a value by its distance from the extent's ends rather than its rank.
+ * A flat extent maps to 1, since every cell is equally the highest.
  *
- * @param value  - The value to normalize
- * @param extent - Tuple of [min, max] values for the normalization range
- * @return Normalized value between 0 and 1
+ * @param value  - The value to place
+ * @param extent - Tuple of [min, max] from `getExtentOf`
+ * @return Position between 0 and 1
  */
 export const getNormalizedValue = ( value: number, extent: [ number, number ] ): number => {
 	const [ min, max ] = extent;
@@ -69,3 +84,36 @@ export const getNormalizedValue = ( value: number, extent: [ number, number ] ):
 	}
 	return Math.min( 1, Math.max( 0, ( value - min ) / ( max - min ) ) );
 };
+
+/**
+ * Place a value by its distance in log space and snap it to `steps`, so a
+ * tenfold jump moves the color by the same amount wherever it falls in the
+ * series and a cell always matches a legend swatch. Undefined at or below zero,
+ * so the caller checks `canPlaceOnLogScale` first.
+ *
+ * @param value  - The value to place
+ * @param extent - Tuple of [min, max] from `getExtentOf`
+ * @param steps  - How many color steps the cells share with the legend
+ * @return The swatch position between 0 and 1
+ */
+export const getLogValue = ( value: number, extent: [ number, number ], steps: number ): number => {
+	const [ min, max ] = extent;
+	if ( min === max ) {
+		return 1;
+	}
+	const position = ( Math.log( value ) - Math.log( min ) ) / ( Math.log( max ) - Math.log( min ) );
+	const bounded = Math.min( 1, Math.max( 0, position ) );
+	return Math.round( bounded * ( steps - 1 ) ) / ( steps - 1 );
+};
+
+/**
+ * Whether a series can take the log scale. A negative has no logarithm, and
+ * `getExtentOf` strips the zeros that paint as empty cells, so a floor at or
+ * below zero means the series holds a negative. A flat extent places at 1 on
+ * either scale, which covers a series with nothing on the scale at all.
+ *
+ * @param extent - The extent from `getExtentOf`
+ * @return True when the log scale can place every value the extent spans
+ */
+export const canPlaceOnLogScale = ( extent: [ number, number ] ): boolean =>
+	extent[ 0 ] === extent[ 1 ] || extent[ 0 ] > 0;

@@ -13,7 +13,7 @@ import { log } from './debug';
  *
  * @param {Function} getVisible - Returns the slug of the app on screen.
  * @param {Function} onWrite    - Called after every history write reaches the browser.
- * @return {object} `mount( slug )`, `mounted( slug )`, `isMounting()`, `listen( type, listener )` and `pushUrl( url )`.
+ * @return {object} `mount( slug )`, `mounted( slug )`, `isMounting()`, `listen( type, listener )`, `pushUrl( url )` and `replaceUrl( url )`.
  */
 export function isolateRouters( getVisible, onWrite ) {
 	// Apps mounting now, latest last: what subscribes is tagged as the latest one's.
@@ -112,6 +112,12 @@ export function isolateRouters( getVisible, onWrite ) {
 			log( 'router', 'URL pushed by the shell', new URL( url, location.href ).search );
 			onWrite();
 		},
+		// Rewrites the current entry in place, keeping its state, so Back/Forward keep their count.
+		replaceUrl: url => {
+			native.replaceState( history.state, '', url );
+			log( 'router', 'URL replaced by the shell', new URL( url, location.href ).search );
+			onWrite();
+		},
 	};
 }
 
@@ -174,6 +180,22 @@ export function notifyRouters() {
 	window.dispatchEvent( new PopStateEvent( 'popstate', { state: history.state } ) );
 }
 
+/**
+ * Load a page, dropping every app in this document. Kept here so tests can see it: jsdom can't stub `location`.
+ *
+ * @param {string}  url             - The page to load.
+ * @param {object}  options         - Options.
+ * @param {boolean} options.replace - Load it into the current history entry instead of a new one.
+ */
+export function loadPage( url, { replace = false } = {} ) {
+	log( 'shell', `loading ${ url }` );
+	if ( replace ) {
+		location.replace( url );
+	} else {
+		location.assign( url );
+	}
+}
+
 const importMapUrl = id =>
 	[ ...document.querySelectorAll( 'script[type="importmap"]' ) ]
 		.map( el => JSON.parse( el.textContent ).imports?.[ id ] )
@@ -204,6 +226,24 @@ export function prefetchBoot() {
 	return bootSource;
 }
 
+// Any quote style: the Gutenberg plugin's minified build writes it as a template literal.
+const BOOT_STORE_NAME = /(["'`])wordpress\/boot\1/g;
+
+/**
+ * Give one guest's copy of `@wordpress/boot` source its own store name.
+ *
+ * @param {string} source - `@wordpress/boot` module source.
+ * @param {string} slug   - Guest page slug.
+ * @return {string} The source with the store renamed.
+ */
+export function renameBootStore( source, slug ) {
+	// Exactly one: a second, unrenamed copy of the name would make the apps share a store again.
+	if ( source.match( BOOT_STORE_NAME )?.length !== 1 ) {
+		throw new Error( '@wordpress/boot no longer names its store "wordpress/boot" exactly once' );
+	}
+	return source.replace( BOOT_STORE_NAME, () => JSON.stringify( `wordpress/boot--${ slug }` ) );
+}
+
 /**
  * A copy of `@wordpress/boot` for one guest app.
  *
@@ -216,14 +256,7 @@ export function prefetchBoot() {
 export async function bootFor( slug ) {
 	const source = await prefetchBoot();
 	log( 'prewarm', `${ slug }: own copy of @wordpress/boot, store "wordpress/boot--${ slug }"` );
-	// Exactly one: a second, unrenamed copy of the name would make the apps share a store again.
-	if ( source.split( '"wordpress/boot"' ).length !== 2 ) {
-		throw new Error( '@wordpress/boot no longer names its store "wordpress/boot" exactly once' );
-	}
-	const renamed = source.replace(
-		'"wordpress/boot"',
-		JSON.stringify( `wordpress/boot--${ slug }` )
-	);
+	const renamed = renameBootStore( source, slug );
 	const blobUrl = URL.createObjectURL( new Blob( [ renamed ], { type: 'text/javascript' } ) );
 	try {
 		return await import( /* webpackIgnore: true */ blobUrl );

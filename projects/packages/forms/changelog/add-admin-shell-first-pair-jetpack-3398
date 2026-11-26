@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Join the admin shell, so switching to and from other Jetpack dashboards skips the page load when the admin shell flag is on.

@@ -152,7 +152,7 @@ ADMIN_SHELL_OFF_USER=demo ADMIN_SHELL_OFF_PASSWORD=... \
 pnpm test:admin-shell
 ```
 
-- `ADMIN_SHELL_URL` (default `http://localhost:8889`) must have `jetpack_admin_shell_enabled` on.
+- `ADMIN_SHELL_URL` (default `http://localhost:8889`) must have `jetpack_admin_shell_enabled` on. Members marked `optional` in `helpers/admin-shell-helper.ts` need site setup, noted on each entry, and tests that use one skip where the site's admin menu lacks it. SEO, for example, shows only with the `seo-admin-ui` plan feature or the `rsm_jetpack_seo` filter, and with the `seo-tools` module on.
 - `ADMIN_SHELL_OFF_URL` is optional: a site with the shell off, for the `shell off` smoke projects. Without it they are skipped.
 - `ADMIN_SHELL_STANDALONE_URL` (with `ADMIN_SHELL_STANDALONE_USER` / `ADMIN_SHELL_STANDALONE_PASSWORD`) is optional: a site with the shell on and only standalone plugins, such as Backup, Social and VideoPress, without the Jetpack plugin (JETPACK-3419). It adds the `standalone` projects; without it there are none. Run it again after installing standalone plugins built against different Admin UI versions.
 - Add `--project='shell on: chromium'` to run one browser.

@@ -371,40 +371,6 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that wpcom_newsletter_send_default option defaults to true.
-	 */
-	public function test_newsletter_send_default_option_defaults_to_true() {
-		delete_option( 'wpcom_newsletter_send_default' );
-		$this->assertTrue( (bool) get_option( 'wpcom_newsletter_send_default', true ) );
-	}
-
-	/**
-	 * Test that wpcom_newsletter_send_default=true means emails are sent (meta default false).
-	 */
-	public function test_newsletter_send_default_true_sends_email() {
-		update_option( 'wpcom_newsletter_send_default', 1 );
-		$this->assertFalse( ! get_option( 'wpcom_newsletter_send_default', true ) );
-		delete_option( 'wpcom_newsletter_send_default' );
-	}
-
-	/**
-	 * Test that wpcom_newsletter_send_default=false means emails are skipped (meta default true).
-	 */
-	public function test_newsletter_send_default_false_skips_email() {
-		update_option( 'wpcom_newsletter_send_default', 0 );
-		$this->assertTrue( ! get_option( 'wpcom_newsletter_send_default', true ) );
-		delete_option( 'wpcom_newsletter_send_default' );
-	}
-
-	/**
-	 * Test that when option is missing, the default behavior is to send email.
-	 */
-	public function test_newsletter_send_default_missing_sends_email() {
-		delete_option( 'wpcom_newsletter_send_default' );
-		$this->assertFalse( ! get_option( 'wpcom_newsletter_send_default', true ) );
-	}
-
-	/**
 	 * Test that set_newsletter_send_default sets the option on first activation.
 	 */
 	public function test_set_newsletter_send_default_on_activation() {

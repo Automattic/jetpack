@@ -13,6 +13,7 @@ type MockRouteLinkProps = {
 } & Omit< AnchorHTMLAttributes< HTMLAnchorElement >, 'href' >;
 
 let currentSearch: Record< string, unknown > = {};
+let currentRoutePath = '/';
 
 /**
  * Set the search params supplied to route-link updater functions.
@@ -21,6 +22,15 @@ let currentSearch: Record< string, unknown > = {};
  */
 export function setMockRouteSearch( search: Record< string, unknown > = {} ): void {
 	currentSearch = search;
+}
+
+/**
+ * Set the path of the page on screen, which `useLinkProps` marks a link to as current.
+ *
+ * @param path - Current route path.
+ */
+export function setMockRoutePath( path = '/' ): void {
+	currentRoutePath = path;
 }
 
 /**
@@ -65,6 +75,8 @@ const MockRouteLink = forwardRef( RouteLinkAnchor );
 /** Shared Jest replacement for the WordPress route module. */
 export const mockWordPressRoute = {
 	Link: MockRouteLink,
+	useLinkProps: ( { to }: { to: string } ) =>
+		to === currentRoutePath ? { 'data-status': 'active', 'aria-current': 'page' } : {},
 	useSearch: () => currentSearch,
 	// Swallows the write. A component under test may hold a hook that commits to
 	// the URL, and rendering it must not need a router.

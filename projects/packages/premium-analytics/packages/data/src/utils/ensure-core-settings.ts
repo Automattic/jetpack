@@ -8,12 +8,10 @@ import { resolveSelect } from '@wordpress/data';
 let readyPromise: Promise< void > | null = null;
 
 /**
- * Ensures that 'site' and 'general settings' are in the coreStore.
- * Memoizes the same promise to avoid races and duplicate requests.
+ * Starts loading the core 'site' record, memoized to avoid races and duplicate requests.
  *
- * A rejected result is not cached: on failure the memo is cleared so the next
- * call retries, otherwise one transient error (network blip, 401, …) would
- * wedge every later caller until a full page reload.
+ * The memo is cleared on failure, but core-data keeps the failed resolution, so a later call
+ * rejects again without a new request.
  *
  * Resolves at once for a reader without `manage_options`: the settings route would only 403.
  */
@@ -23,10 +21,8 @@ export function ensureCoreSettingsReady(): Promise< void > {
 	}
 
 	if ( ! readyPromise ) {
-		readyPromise = Promise.all( [
-			resolveSelect( coreStore ).getEntityRecord( 'root', 'site' ),
-			resolveSelect( coreStore ).getEntityRecord( 'root', 'settings', 'general' ),
-		] )
+		readyPromise = resolveSelect( coreStore )
+			.getEntityRecord( 'root', 'site' )
 			.then( () => void 0 )
 			.catch( err => {
 				readyPromise = null;

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Concatenate CSS: Keep styles applied when another plugin stops one stylesheet in a bundle from loading as a stylesheet, as Trustindex review widgets 15.0 do.

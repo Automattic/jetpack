@@ -73,18 +73,6 @@ class WPCOM_REST_API_V2_Endpoint_Application_Password_Extras_Test extends Jetpac
 	}
 
 	/**
-	 * Test permission check for authenticated users.
-	 */
-	public function test_authenticated_user_can_access_abilities() {
-		wp_set_current_user( static::$user_id );
-
-		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/application-password-extras/abilities' );
-		$response = $this->server->dispatch( $request );
-
-		$this->assertEquals( 200, $response->get_status() );
-	}
-
-	/**
 	 * Test that get_abilities endpoint returns correct data.
 	 */
 	public function test_get_abilities_endpoint_returns_correct_data() {

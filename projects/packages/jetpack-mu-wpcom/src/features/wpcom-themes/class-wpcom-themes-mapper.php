@@ -91,9 +91,9 @@ class WPCom_Themes_Mapper {
 	 *
 	 * @param stdClass $theme WPCom theme object.
 	 *
-	 * @return array Theme tags.
+	 * @return string[] Theme tags.
 	 */
-	private function build_theme_tags( $theme ) {
+	public function build_theme_tags( $theme ) {
 		$tags = array();
 
 		foreach ( $theme->taxonomies->theme_subject ?? array() as $subject ) {

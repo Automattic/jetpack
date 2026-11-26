@@ -273,6 +273,7 @@ The major changes when a widget built against the previous contract stops workin
 | 2.1.0 | `Button`, `ButtonLink`, `Progress`, `Text` and `VisuallyHidden`, the `@wordpress/ui` primitives a widget renders, shared so it bundles no copy of its own. |
 | 2.2.0 | `jpa/report-params`, a date range over the presets in `elements`, All time anchored on the item's `allTimeStart`                                           |
 | 2.3.0 | A chart without `chartTitle` is named after its widget's title, so `chartTitle` is needed only when the chart shows something else.                         |
+| 2.4.0 | `useOpenChartBucket`: a `MetricTabsChart` click opens the clicked bucket as the dashboard period.                                                         |
 
 Inside `plugins/jetpack` the package and a consumer module ship together, so the check is a formality. With the standalone `plugins/premium-analytics` next to another plugin, each brings its own copy, and the check is what keeps a widget built against 1.x from registering on a 2.x package.
 
@@ -308,7 +309,7 @@ VideoPress: `register_widget_types()` registers `videopress/top-videos` the same
 
 ### Who calls it
 
-Ads is the section's story, in [Dashboard sections](dashboard-sections.md#a-real-consumer-the-ads-section): the WordAds module outside the WordPress.com platform, `jetpack-mu-wpcom` on Simple and Atomic where the plan includes WordAds and the site has it on.
+Ads is the section's story, in [Dashboard sections](dashboard-sections.md#a-real-consumer-the-ads-section): the WordAds module outside the WordPress.com platform, `jetpack-mu-wpcom` on Simple and Atomic where the site has WordAds on.
 
 VideoPress follows `Status::is_active()`: `Initializer::active_initialization()` calls `init()` where the VideoPress module of the Jetpack plugin or the standalone plugin is active, and `init()` returns early on the WordPress.com platform. `jetpack-mu-wpcom` calls the two registrants from `src/features/premium-analytics/videopress-widgets.php` on Simple and Atomic where `wpcom_site_has_feature( 'videopress' )` holds. Both run against the copy the Jetpack plugin bundles, so Simple, which runs no Jetpack module, serves the bundles from it too.
 
@@ -320,7 +321,7 @@ Top videos moved with `jpa/videopress` declared as a former name. A stored layou
 
 ### What leaves this package
 
-The widget folder, its default instance in Traffic, its entry in `VIDEOPRESS_WIDGET_TYPES`, and the row helpers only it used. `src/videopress-availability.php` stays: the Videos report and the video detail route still gate on it, and whether the widget appears is the VideoPress package's call now.
+The widget folder, its default instance in Traffic, its entry in `VIDEOPRESS_WIDGET_TYPES`, and the row helpers only it used. `src/videopress-availability.php` stays: the Videos report and the video detail widgets still gate on it, and whether the widget appears is the VideoPress package's call now.
 
 ## Where the tests are
 

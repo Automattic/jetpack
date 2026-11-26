@@ -32,7 +32,7 @@ add_filter( 'a8c_enable_public_coming_soon', '__return_true' );
  * @return string The value of WPCOM_PUBLIC_COMING_SOON if set, otherwise the option value.
  */
 function wpcomsh_coming_soon_get_atomic_persistent_data( $wpcom_public_coming_soon ) {
-	$persistent_data                   = new Atomic_Persistent_Data();
+	$persistent_data                   = wpcomsh_get_atomic_persistent_data();
 	$persistent_data_coming_soon_value = $persistent_data->WPCOM_PUBLIC_COMING_SOON; // phpcs:ignore WordPress.NamingConventions.ValidVariableName
 
 	if ( $persistent_data_coming_soon_value !== null ) {
@@ -51,7 +51,7 @@ add_filter( 'option_wpcom_public_coming_soon', 'wpcomsh_coming_soon_get_atomic_p
  * @return string The value of WPCOM_PUBLIC_PREVIEW_LINKS if set, otherwise the option value.
  */
 function wpcomsh_public_preview_links_get_atomic_persistent_data( $wpcom_public_preview_links ) {
-	$persistent_data                            = new Atomic_Persistent_Data();
+	$persistent_data                            = wpcomsh_get_atomic_persistent_data();
 	$persistent_data_public_preview_links_value = $persistent_data->WPCOM_PUBLIC_PREVIEW_LINKS; // phpcs:ignore WordPress.NamingConventions.ValidVariableName
 
 	if ( $persistent_data_public_preview_links_value !== null ) {

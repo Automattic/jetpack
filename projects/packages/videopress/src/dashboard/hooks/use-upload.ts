@@ -8,6 +8,7 @@ import { createUploadAnalytics } from '../../client/lib/upload-analytics';
 import { syncChapters } from '../../client/utils/video-chapters/sync-chapters';
 import { toLibraryItem } from '../utils/library-item';
 import { startVideoUpload } from '../utils/start-video-upload';
+import { postVideoMeta } from '../utils/video-meta-request';
 import { LIBRARY_QUERY_KEY } from './use-library';
 import { patchToApi } from './use-update-video-meta';
 import type { VideoMediaProps } from '../../client/lib/resumable-file-uploader/types';
@@ -119,11 +120,7 @@ async function finishUpload( id: string, client: QueryClient ): Promise< void > 
 		// Save clicks during a request must be applied before the form changes routes.
 		while ( readItem( id )?.details !== saved ) {
 			const details = readItem( id )?.details;
-			await apiFetch( {
-				path: '/wpcom/v2/videopress/meta',
-				method: 'POST',
-				data: { id: initial.media.id, ...patchToApi( details ) },
-			} );
+			await postVideoMeta( { id: initial.media.id, ...patchToApi( details ) } );
 			if ( details.description !== undefined ) {
 				const raw = await apiFetch< ApiMediaItem >( {
 					path: `/wp/v2/media/${ initial.media.id }`,

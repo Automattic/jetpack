@@ -53,7 +53,7 @@ class Protect_Status extends Status {
 	/**
 	 * Name of the option where the site owner turns the daily vulnerability check on or off.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.11.0
 	 *
 	 * @var string
 	 */
@@ -62,7 +62,7 @@ class Protect_Status extends Status {
 	/**
 	 * The report status while the site owner has the daily vulnerability check off.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.11.0
 	 *
 	 * @var string
 	 */
@@ -124,7 +124,7 @@ class Protect_Status extends Status {
 	/**
 	 * Whether the site owner lets Jetpack check the site every day for known vulnerabilities; always on with a Scan plan.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.11.0
 	 *
 	 * @return bool
 	 */

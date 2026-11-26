@@ -34,18 +34,13 @@ class Llms_Txt {
 	const OPTION = 'jetpack_seo_llms_txt_enabled';
 
 	/**
-	 * Max items listed per supported content type, so a large site doesn't dump
-	 * its whole tree. Pages in the main menu are listed even past it.
+	 * Default max items listed per supported content type, so a large site doesn't dump
+	 * its whole tree.
 	 */
 	const MAX_POSTS_PER_TYPE = 50;
 
 	/**
-	 * Max main-menu pages listed, so a mega menu can't list a whole site.
-	 */
-	const MAX_MAIN_MENU_PAGES = 100;
-
-	/**
-	 * Page meta an owner sets to always list a page in llms.txt.
+	 * Post meta an owner sets to always list supported content in llms.txt.
 	 *
 	 * @var string
 	 */
@@ -99,19 +94,20 @@ class Llms_Txt {
 	}
 
 	/**
-	 * Register the always-include page meta, so the Content tab can read and save it
-	 * through core REST like the page's other SEO fields, and keep it off on hidden pages.
+	 * Register the always-include meta for core REST and keep it off on hidden content.
 	 *
 	 * @return void
 	 */
 	public static function register_always_include() {
-		register_post_meta(
-			'page',
+		// Core REST saves meta in registration order; noindex must be written first.
+		unregister_meta_key( 'post', self::META_ALWAYS_INCLUDE );
+		register_meta(
+			'post',
 			self::META_ALWAYS_INCLUDE,
 			array(
 				'type'         => 'boolean',
 				// Not translated: this runs before `init`, too early to load the text domain.
-				'description'  => 'Whether to always list the page in llms.txt.',
+				'description'  => 'Whether to always list the content in llms.txt.',
 				'single'       => true,
 				'default'      => false,
 				'show_in_rest' => true,
@@ -120,11 +116,11 @@ class Llms_Txt {
 		foreach ( array( 'added_post_meta', 'updated_post_meta' ) as $hook ) {
 			add_action( $hook, array( __CLASS__, 'clear_always_include_if_hidden' ), 10, 4 );
 		}
+		add_action( 'rest_api_init', array( __CLASS__, 'register_always_include' ), 0 );
 	}
 
 	/**
-	 * Keep "Always include" off while a page is hidden from search engines, from any editor,
-	 * so un-hiding the page doesn't bring it back.
+	 * Keep "Always include" off while content is hidden from search engines.
 	 *
 	 * @param int    $meta_id    Meta ID.
 	 * @param int    $post_id    Post ID.
@@ -136,7 +132,6 @@ class Llms_Txt {
 		if (
 			$meta_value
 			&& in_array( $meta_key, array( Content_Coverage::META_NOINDEX, self::META_ALWAYS_INCLUDE ), true )
-			&& 'page' === get_post_type( $post_id )
 			&& get_post_meta( $post_id, Content_Coverage::META_NOINDEX, true )
 		) {
 			delete_post_meta( $post_id, self::META_ALWAYS_INCLUDE );
@@ -173,10 +168,11 @@ class Llms_Txt {
 	 */
 	public static function clear_cache_for_option( $option ) {
 		if ( self::OPTION === $option ) {
-			// Turning llms.txt off or on is the owner's reset, so purge even when nothing is stored:
-			// the edge copy can outlive an expired stored one.
+			// Turning llms.txt off or on is the owner's reset, so fire even when nothing is stored:
+			// an edge or CDN copy can outlive an expired stored one.
 			delete_transient( self::CACHE_KEY );
-			self::purge_edge_cache();
+			/** This action is documented in projects/packages/seo/src/class-llms-txt.php */
+			do_action( 'jetpack_seo_llms_txt_cleared' );
 		} elseif (
 			in_array( $option, self::CACHE_OPTIONS, true )
 			|| ( 0 === strpos( $option, 'theme_mods_' ) && 'theme_mods_' . get_stylesheet() === $option )
@@ -193,25 +189,12 @@ class Llms_Txt {
 	public static function clear_cache() {
 		// The lookup is cached when nothing is stored, so bulk edits and imports don't query on every write.
 		if ( false !== get_transient( self::CACHE_KEY ) && delete_transient( self::CACHE_KEY ) ) {
-			self::purge_edge_cache();
-		}
-	}
-
-	/**
-	 * Ask WordPress.com to drop its edge copy of llms.txt on every domain of the site, as
-	 * it does for robots.txt; a no-op elsewhere.
-	 *
-	 * @return void
-	 */
-	private static function purge_edge_cache() {
-		if ( ! function_exists( 'wpcom_get_all_blog_domains_with_path' ) || ! function_exists( 'queue_async_job' ) ) {
-			return;
-		}
-		// @phan-suppress-next-line PhanUndeclaredFunction -- WordPress.com-only and guarded above; remove once wpcom stubs declare it.
-		$urls = wpcom_get_all_blog_domains_with_path( 0, '/llms.txt', true );
-		if ( ! empty( $urls ) ) {
-			// @phan-suppress-next-line PhanUndeclaredFunction -- WordPress.com-only and guarded above; remove once wpcom stubs declare it.
-			queue_async_job( array( 'output_cache' => array( 'url' => $urls ) ), 'wpcom_invalidate_output_cache_job', -16, 0 );
+			/**
+			 * Fires after the stored llms.txt is dropped, so hosts can purge cached copies of /llms.txt.
+			 *
+			 * @since 0.12.0
+			 */
+			do_action( 'jetpack_seo_llms_txt_cleared' );
 		}
 	}
 
@@ -383,7 +366,21 @@ class Llms_Txt {
 			}
 		}
 
-		return implode( "\n\n", $blocks ) . "\n";
+		$text = implode( "\n\n", $blocks ) . "\n";
+
+		/**
+		 * Filters the llms.txt Markdown, e.g. to add a section.
+		 *
+		 * The result is stored for up to 12 hours; call Llms_Txt::clear_cache() when your section's data
+		 * changes. Anything but a non-empty string keeps the unfiltered text.
+		 *
+		 * @since 0.12.0
+		 *
+		 * @param string $text The llms.txt Markdown.
+		 */
+		$filtered = apply_filters( 'jetpack_seo_llms_txt', $text );
+
+		return is_string( $filtered ) && '' !== $filtered ? $filtered : $text;
 	}
 
 	/**
@@ -412,32 +409,68 @@ class Llms_Txt {
 	 * @return \WP_Post[]
 	 */
 	private static function get_posts_for_type( $post_type ) {
+		$limit = self::get_limit( $post_type );
 		if ( 'page' === $post_type ) {
-			return self::get_pages();
+			return self::get_pages( $limit );
+		}
+
+		$always_included = self::get_always_included_posts( $post_type );
+		$room            = max( 0, $limit - count( $always_included ) );
+		if ( 0 === $room ) {
+			return $always_included;
 		}
 
 		$args                   = self::query_args( $post_type );
-		$args['posts_per_page'] = self::MAX_POSTS_PER_TYPE;
+		$args['posts_per_page'] = $room;
+		$args['post__not_in']   = wp_list_pluck( $always_included, 'ID' );
 		$args['orderby']        = 'date';
 		$args['order']          = 'DESC';
 
-		return get_posts( $args );
+		return array_merge( $always_included, get_posts( $args ) );
+	}
+
+	/**
+	 * How many items to list for a post type.
+	 *
+	 * @param string $post_type Post type slug.
+	 * @return int
+	 */
+	private static function get_limit( $post_type ) {
+		/**
+		 * Filters how many items llms.txt lists for a post type. Items the owner always
+		 * includes are listed even past it.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param int    $limit     Max items to list. Default 50.
+		 * @param string $post_type Post type slug.
+		 */
+		$limit = apply_filters( 'jetpack_seo_llms_txt_items_per_type', self::MAX_POSTS_PER_TYPE, $post_type );
+		$limit = filter_var( $limit, FILTER_VALIDATE_INT, array( 'options' => array( 'min_range' => 0 ) ) );
+
+		return false === $limit ? self::MAX_POSTS_PER_TYPE : $limit;
 	}
 
 	/**
 	 * Pages ranked: the ones the owner always includes, then the main menu, then other
 	 * displayed menus, then the rest by {@see get_pages_by_order()}.
 	 *
+	 * @param int $limit Max pages to list.
 	 * @return \WP_Post[]
 	 */
-	private static function get_pages() {
-		$always_included = self::get_always_included_pages();
-		$skip            = wp_list_pluck( $always_included, 'ID' );
-		$menus           = Nav_Menu_Pages::get();
-		$main            = self::get_pages_in_order( array_values( array_diff( $menus['main'], $skip ) ), self::MAX_MAIN_MENU_PAGES );
-		$room            = max( 0, self::MAX_POSTS_PER_TYPE - count( $always_included ) - count( $main ) );
-		$other           = self::get_pages_in_order( array_values( array_diff( $menus['other'], $skip ) ), $room );
-		$room           -= count( $other );
+	private static function get_pages( $limit ) {
+		$always_included = self::get_always_included_posts( 'page' );
+		$room            = $limit - count( $always_included );
+		if ( $room <= 0 ) {
+			return $always_included;
+		}
+
+		$skip  = wp_list_pluck( $always_included, 'ID' );
+		$menus = Nav_Menu_Pages::get();
+		$main  = self::get_pages_in_order( array_values( array_diff( $menus['main'], $skip ) ), $room );
+		$room -= count( $main );
+		$other = self::get_pages_in_order( array_values( array_diff( $menus['other'], $skip ) ), $room );
+		$room -= count( $other );
 		if ( $room <= 0 ) {
 			return array_merge( $always_included, $main, $other );
 		}
@@ -450,12 +483,13 @@ class Llms_Txt {
 	}
 
 	/**
-	 * Listable pages the owner switched on to always include, sorted by {@see get_pages_by_order()}.
+	 * Fetch eligible content the owner switched on to always include.
 	 *
+	 * @param string $post_type Post type slug.
 	 * @return \WP_Post[]
 	 */
-	private static function get_always_included_pages() {
-		$args                   = self::query_args( 'page' );
+	private static function get_always_included_posts( $post_type ) {
+		$args                   = self::query_args( $post_type );
 		$args['meta_query']     = array(
 			// @phan-suppress-next-line PhanPluginMixedKeyNoKey
 			'relation' => 'AND',
@@ -466,8 +500,10 @@ class Llms_Txt {
 			),
 		);
 		$args['posts_per_page'] = -1;
+		$args['orderby']        = 'date';
+		$args['order']          = 'DESC';
 
-		return self::get_pages_by_order( $args );
+		return 'page' === $post_type ? self::get_pages_by_order( $args ) : get_posts( $args );
 	}
 
 	/**
@@ -606,11 +642,7 @@ class Llms_Txt {
 	 * @return string
 	 */
 	private static function summary( $post ) {
-		$seo_description = '';
-		if ( class_exists( 'Jetpack_SEO_Utils' ) && class_exists( 'Jetpack_SEO_Posts' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Posts lives in plugins/jetpack; guarded by the class_exists checks above.
-			$seo_description = wp_trim_words( strip_shortcodes( wp_strip_all_tags( \Jetpack_SEO_Posts::get_post_custom_description( $post ) ) ), Post_Schema_Node::DESCRIPTION_MAX_WORDS, '' );
-		}
+		$seo_description = wp_trim_words( strip_shortcodes( wp_strip_all_tags( Post_Seo::get_custom_description( $post ) ) ), Post_Schema_Node::DESCRIPTION_MAX_WORDS, '' );
 
 		// The SEO description and manual excerpt are deliberate public summaries; a body gate does not withhold them.
 		if ( '' !== $seo_description ) {

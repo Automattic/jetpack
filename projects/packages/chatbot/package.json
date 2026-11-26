@@ -1,6 +1,5 @@
 {
 	"name": "@automattic/jetpack-chatbot",
-	"version": "0.2.0",
 	"private": true,
 	"description": "Helpful chatbots for you and your visitors",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/chatbot/#readme",

@@ -54,3 +54,28 @@ describe( 'Settings search', () => {
 		}
 	);
 } );
+
+describe( 'Settings search for Google Analytics', () => {
+	afterEach( () => {
+		delete window.JetpackScriptData;
+	} );
+
+	// Google Analytics is not a module, so only the Traffic pointer or card matches it.
+	it.each( [
+		[ 'finds', 'on WoA', 'woa', false ],
+		[ 'finds nothing', 'elsewhere', '', true ],
+	] )( '%s %s', ( _verb, _where, host, isEmpty ) => {
+		window.JetpackScriptData = { site: { host } };
+		const state = buildState( 'stats' );
+		state.jetpack.search.searchTerm = 'google analytics';
+
+		render(
+			<MemoryRouter>
+				<Settings searchTerm="google analytics" userCanManageModules />
+			</MemoryRouter>,
+			{ initialState: state }
+		);
+
+		expect( Boolean( screen.queryByText( 'No matching settings' ) ) ).toBe( isEmpty );
+	} );
+} );

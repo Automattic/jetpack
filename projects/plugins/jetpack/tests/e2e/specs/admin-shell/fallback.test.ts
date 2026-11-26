@@ -7,6 +7,7 @@ import {
 	markDocument,
 	menuLink,
 	openMember,
+	skipUnlessOnSite,
 	sameDocument,
 	waitForShown,
 } from '../../helpers/admin-shell-helper';
@@ -22,6 +23,7 @@ test.describe( 'Admin shell: fallback', () => {
 		test( `with ?jetpack_admin_shell=0, clicking ${ m.slug } is a full page load`, async ( {
 			page,
 		} ) => {
+			await skipUnlessOnSite( page, m.slug );
 			await page.goto( '/wp-admin/admin.php?page=my-jetpack&jetpack_admin_shell=0' );
 			await waitForShown( page, 'my-jetpack' );
 			expect( await isShellActive( page ), 'shell is off for this request' ).toBe( false );

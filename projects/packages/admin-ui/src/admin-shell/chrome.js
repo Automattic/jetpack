@@ -1,15 +1,38 @@
 /*
- * The wp-admin chrome around the app: sidebar highlight, body class and document title.
+ * The wp-admin chrome around the app: sidebar highlight, body class, document title and the
+ * screen reader announcement of a switch.
  */
+import { log } from './debug';
 
 export const pageOf = url => new URL( url, location.href ).searchParams.get( 'page' );
 
-const highlightMenu = slug => {
-	// Submenu links first: a top-level item can point at the same page as its first submenu item.
-	const link = [
+// Submenu links first: a top-level item can point at the same page as its first submenu item.
+const menuLink = slug =>
+	[
 		...document.querySelectorAll( '#adminmenu .wp-submenu a[href]' ),
 		...document.querySelectorAll( '#adminmenu a[href]' ),
 	].find( a => pageOf( a.href ) === slug && ! new URL( a.href, location.href ).hash );
+
+/**
+ * The sidebar label of a page, which on most pages is also its heading.
+ *
+ * @param {string} slug - Page slug.
+ * @return {string|null} The label, without count badges.
+ */
+export function menuLabel( slug ) {
+	const link = menuLink( slug );
+	// Only the label's own text: badges like Forms' unread count are child elements.
+	const label = link?.querySelector( '.wp-menu-name' ) ?? link;
+	const text = [ ...( label?.childNodes ?? [] ) ]
+		.filter( node => node.nodeType === Node.TEXT_NODE )
+		.map( node => node.textContent )
+		.join( '' )
+		.trim();
+	return text || null;
+}
+
+const highlightMenu = slug => {
+	const link = menuLink( slug );
 	if ( ! link ) {
 		return;
 	}
@@ -54,4 +77,20 @@ export function updateChrome( slug, members ) {
 	if ( focused?.closest?.( '#adminmenu' ) && focused.href && pageOf( focused.href ) !== slug ) {
 		focused.blur();
 	}
+}
+
+let a11y;
+
+/**
+ * Announce the page now on screen, as a screen reader reads the title of a loaded page.
+ *
+ * @param {string} title - Document title of the page.
+ */
+export function announcePage( title ) {
+	// Core prints its live regions on pages that depend on this module; see class-admin-shell.php.
+	// eslint-disable-next-line import/no-unresolved -- Core's script module, from the import map.
+	a11y ??= import( /* webpackIgnore: true */ '@wordpress/a11y' );
+	a11y
+		.then( ( { speak } ) => speak( title, 'polite' ) )
+		.catch( error => log( 'shell', 'could not announce the page', error ) );
 }

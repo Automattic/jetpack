@@ -38,6 +38,9 @@
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
+		"test-js": [
+			"pnpm run test"
+		],
 		"test-php": [
 			"@composer phpunit"
 		],

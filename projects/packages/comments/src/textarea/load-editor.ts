@@ -29,7 +29,10 @@ export const preloadEditor = () => {
  * @param textarea - The theme-styled textarea in it.
  */
 export const matchTheme = ( box: HTMLElement, textarea: HTMLTextAreaElement ) => {
-	const { fontFamily, fontSize, lineHeight } = getComputedStyle( textarea );
+	const { fontFamily, fontSize, lineHeight, paddingBlock, paddingInline } =
+		getComputedStyle( textarea );
+	// Its height as the reader reached for it, which a theme can size apart from ours.
+	const height = textarea.offsetHeight;
 	const { color } = getComputedStyle( box );
 	// The first ancestor that paints a background.
 	let background = '';
@@ -44,6 +47,11 @@ export const matchTheme = ( box: HTMLElement, textarea: HTMLTextAreaElement ) =>
 	box.style.setProperty( '--jetpack-comments-font-family', fontFamily );
 	box.style.setProperty( '--jetpack-comments-font-size', fontSize );
 	box.style.setProperty( '--jetpack-comments-line-height', lineHeight );
+	box.style.setProperty( '--jetpack-comments-padding-block', paddingBlock );
+	box.style.setProperty( '--jetpack-comments-padding-inline', paddingInline );
+	if ( height ) {
+		box.style.setProperty( '--jetpack-comments-min-height', `${ height }px` );
+	}
 	box.style.setProperty( '--jetpack-comments-color', color );
 	if ( background ) {
 		box.style.setProperty( '--jetpack-comments-background', background );

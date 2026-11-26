@@ -21,11 +21,21 @@ use WorDBless\BaseTestCase;
  */
 #[CoversClass( Threat_Count::class )]
 class Threat_Count_Test extends BaseTestCase {
+	use Plugin_Cache;
 
 	/**
-	 * Leave no count, status, back-off, user or script behind.
+	 * Start each test with no plugins installed.
+	 */
+	public function set_up() {
+		parent::set_up();
+		self::seed_plugin_cache();
+	}
+
+	/**
+	 * Leave no count, status, back-off, user, plugin or script behind.
 	 */
 	public function tear_down() {
+		self::clear_plugin_cache();
 		remove_all_filters( 'jetpack_protect_threat_notifications_enabled' );
 		Notification_Counts::reset();
 		Status::$status = null;

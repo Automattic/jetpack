@@ -4,8 +4,6 @@ import userEvent from '@testing-library/user-event';
 import { InfoPopover } from '../';
 import useAnalytics from '../../../hooks/use-analytics';
 
-jest.mock( '../../../hooks/use-analytics' );
-
 const mockUseAnalytics = useAnalytics as jest.MockedFunction< typeof useAnalytics >;
 const recordEvent = jest.fn();
 

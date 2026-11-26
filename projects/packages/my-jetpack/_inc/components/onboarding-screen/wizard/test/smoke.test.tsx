@@ -11,6 +11,7 @@ import {
 	published,
 } from '@wordpress/icons';
 import { Children, isValidElement } from 'react';
+import useAnalytics from '../../../../hooks/use-analytics';
 import { isWanted, startBenefits } from '../lib';
 import { Wizard } from '../wizard';
 import type { UserEvent } from '@testing-library/user-event';
@@ -68,12 +69,7 @@ jest.mock( '../use-just-connected', () => ( {
 	markConnecting: jest.fn(),
 } ) );
 
-const mockRecordEvent = jest.fn();
-
-jest.mock( '../../../../hooks/use-analytics', () => ( {
-	__esModule: true,
-	default: () => ( { recordEvent: mockRecordEvent } ),
-} ) );
+const mockRecordEvent = jest.mocked( jest.mocked( useAnalytics )().recordEvent );
 
 /*
  * What the feature step offers, mocked rather than driven through the modules store.

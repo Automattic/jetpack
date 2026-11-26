@@ -1849,6 +1849,84 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 
 	// --- Constants ---
 
+	// --- Images ---
+
+	/**
+	 * The block keeps the primary image first, whatever order PayPal lists them in.
+	 */
+	public function test_api_response_to_attributes_reads_the_images_primary_first() {
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
+			array(
+				'id'         => 'PLB-TEST123',
+				'line_items' => array(
+					array(
+						'name'   => 'Widget',
+						'images' => array(
+							array(
+								'asset_id' => 'SIDE',
+								'status'   => 'IN_REVIEW',
+							),
+							array(
+								'asset_id'      => 'HERO',
+								'status'        => 'APPROVED',
+								'is_primary'    => true,
+								'url'           => 'https://pics.paypal.com/m.jpg',
+								'thumbnail_url' => 'https://pics.paypal.com/t.jpg',
+							),
+							array( 'status' => 'APPROVED' ),
+						),
+					),
+				),
+			)
+		);
+
+		$this->assertSame(
+			array(
+				array(
+					'assetId'      => 'HERO',
+					'status'       => 'APPROVED',
+					'url'          => 'https://pics.paypal.com/m.jpg',
+					'thumbnailUrl' => 'https://pics.paypal.com/t.jpg',
+				),
+				array(
+					'assetId'      => 'SIDE',
+					'status'       => 'IN_REVIEW',
+					'url'          => '',
+					'thumbnailUrl' => '',
+				),
+			),
+			$attributes['images']
+		);
+	}
+
+	public function test_api_response_to_attributes_omits_missing_images() {
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
+			array(
+				'id'         => 'PLB-TEST123',
+				'line_items' => array( array( 'name' => 'Widget' ) ),
+			)
+		);
+
+		$this->assertArrayNotHasKey( 'images', $attributes );
+	}
+
+	/**
+	 * Leaving images out of a PUT is how a save removes them, so the merge must not carry them over.
+	 */
+	public function test_merge_drops_images_the_block_left_out() {
+		$current                            = self::stored_payment();
+		$current['line_items'][0]['images'] = array(
+			array(
+				'asset_id'   => 'HERO',
+				'is_primary' => true,
+			),
+		);
+
+		$merged = PayPal_Attribute_Mapper::merge_into_resource( $current, self::bare_update() );
+
+		$this->assertArrayNotHasKey( 'images', $merged['line_items'][0] );
+	}
+
 	// --- merge_into_resource ---
 
 	/**

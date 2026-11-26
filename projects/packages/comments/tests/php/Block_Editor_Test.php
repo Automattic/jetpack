@@ -29,10 +29,28 @@ class Block_Editor_Test extends BaseTestCase {
 		$paragraph = "<!-- wp:paragraph -->\n<p>Hi</p>\n<!-- /wp:paragraph -->";
 
 		return array(
-			'plain text is untouched' => array( 'Hi <b>there</b>', 'Hi <b>there</b>' ),
-			'paragraph is kept'       => array( $paragraph, $paragraph ),
-			'html block is dropped'   => array( "<!-- wp:html --><script>x()</script><!-- /wp:html -->\n\n$paragraph", "\n\n$paragraph" ),
-			'heading becomes bold'    => array( '<!-- wp:heading --><h2>Hi</h2><!-- /wp:heading -->', "<!-- wp:paragraph -->\n<p><strong>Hi</strong></p>\n<!-- /wp:paragraph -->" ),
+			'plain text is untouched'    => array( 'Hi <b>there</b>', 'Hi <b>there</b>' ),
+			'paragraph is kept'          => array( $paragraph, $paragraph ),
+			'html block is dropped'      => array( "<!-- wp:html --><script>x()</script><!-- /wp:html -->\n\n$paragraph", "\n\n$paragraph" ),
+			'empty paragraph is dropped' => array( "$paragraph\n\n<!-- wp:paragraph -->\n<p><br></p>\n<!-- /wp:paragraph -->\n\n$paragraph", "$paragraph\n\n\n\n$paragraph" ),
+			'heading becomes bold'       => array( '<!-- wp:heading --><h2>Hi</h2><!-- /wp:heading -->', "<!-- wp:paragraph -->\n<p><strong>Hi</strong></p>\n<!-- /wp:paragraph -->" ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_render_by_blog
+	 */
+	#[DataProvider( 'provide_render_by_blog' )]
+	public function test_render_by_blog( $enabled, $expected ) {
+		add_filter( 'jetpack_comments_enabled', $enabled ? '__return_true' : '__return_false' );
+
+		$this->assertSame( $expected, Block_Editor::render( '<!-- wp:p2/embed-github --><div>GH</div><!-- /wp:p2/embed-github -->' ) );
+	}
+
+	public static function provide_render_by_blog() {
+		return array(
+			'blog with Jetpack Comments drops the block' => array( true, '' ),
+			'blog without it leaves the comment alone'   => array( false, '<!-- wp:p2/embed-github --><div>GH</div><!-- /wp:p2/embed-github -->' ),
 		);
 	}
 }

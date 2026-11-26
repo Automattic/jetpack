@@ -3,7 +3,6 @@ import ProductOverviewItem from '../product-item';
 
 let mockStatus = 'active';
 
-jest.mock( '../../../../hooks/use-analytics', () => () => ( { recordEvent: jest.fn() } ) );
 jest.mock( '../../../../data/products/use-product', () => () => ( {
 	detail: { name: 'AI', status: mockStatus, manageUrl: 'https://example.org/ai' },
 	isLoading: false,

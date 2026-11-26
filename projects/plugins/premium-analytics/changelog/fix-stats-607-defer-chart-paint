@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Charts: Wait for a chart's size before drawing it, so charts and their legends no longer jump into place as a page loads.

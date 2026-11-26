@@ -115,7 +115,7 @@ class Newsletter extends Module_Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Draw your readers from one post to another', 'jetpack-my-jetpack' );
+		return __( 'Build your subscriber list and email your newsletter automatically.', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -124,7 +124,7 @@ class Newsletter extends Module_Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return __( 'Draw your readers from one post to another, increasing overall traffic on your site', 'jetpack-my-jetpack' );
+		return __( 'Every post you publish goes out by email, with no cap on subscribers or sends. New readers find you through the WordPress.com Reader, and when you’re ready, you can charge for your newsletter.', 'jetpack-my-jetpack' );
 	}
 
 	/**
