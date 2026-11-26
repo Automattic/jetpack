@@ -1,6 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { jest } from '@jest/globals';
 import userEvent from '@testing-library/user-event';
+import { FEATURE_GOOGLE_ANALYTICS_JETPACK, FEATURE_WORDADS_JETPACK } from 'lib/plans/constants';
 import { render, screen } from 'test/test-utils';
 import { SettingsCard } from '../index';
 
@@ -206,6 +207,42 @@ describe( 'SettingsCard', () => {
 			await user.click( button );
 			await user.click( button );
 			expect( onSave ).not.toHaveBeenCalled();
+		} );
+	} );
+
+	describe( 'When the host sells nothing for a feature', () => {
+		const bannerState = {
+			jetpack: {
+				initialState: {
+					currentVersion: '16.5',
+					userData: { currentUser: { permissions: { manage_modules: true } } },
+					siteData: { showPromotions: true },
+				},
+				connection: { user: { currentUser: { isConnected: true, isMaster: true } } },
+			},
+		};
+
+		it.each( [
+			[ 'Ads', FEATURE_WORDADS_JETPACK, 'adsUpgradeUrl', 'Generate income with high-quality ads.' ],
+			[
+				'Google Analytics',
+				FEATURE_GOOGLE_ANALYTICS_JETPACK,
+				'gaUpgradeUrl',
+				'Connect your site to Google Analytics.',
+			],
+		] )( 'drops the %s upsell', ( _name, feature, urlProp, title ) => {
+			const props = { ...testProps, feature, hasConnectedOwner: true };
+			const { rerender } = render(
+				<SettingsCard
+					{ ...props }
+					{ ...{ [ urlProp ]: 'https://wordpress.com/setup/plan-upgrade' } }
+				/>,
+				{ initialState: bannerState }
+			);
+			expect( screen.getByText( title ) ).toBeInTheDocument();
+
+			rerender( <SettingsCard { ...props } { ...{ [ urlProp ]: '' } } /> );
+			expect( screen.queryByText( title ) ).not.toBeInTheDocument();
 		} );
 	} );
 

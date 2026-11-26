@@ -88,6 +88,8 @@ describe( 'Traffic settings', () => {
 		[ 'ga', 'on, in a search', true, 'analytics', [ 'ga pointer' ], 'woa' ],
 		[ 'ga', 'on, in another search', true, 'sitemap', [], 'woa' ],
 		[ 'ga', 'on without the panel', true, '', [ 'ga card' ], 'woa', false ],
+		[ 'ga', 'on without the panel, in a search', true, 'analytics', [ 'ga card' ], 'woa', false ],
+		[ 'ga', 'on without the panel, in another search', true, 'sitemap', [], 'woa', false ],
 	] )(
 		'shows %s with the settings flag %s',
 		( module, _when, flag, searchTerm, expected, host, gaPanel = PANEL_URL ) => {
