@@ -145,12 +145,25 @@ class Speculation_Rules_Test extends MockeryTestCase {
 		$plain_host  = 'https://example.com';
 		$custom_port = 'http://localhost:8081';
 		$subdir      = $custom_port . '/blog';
+		$other_host  = 'http://other.example:8081/about';
+		$userinfo    = 'http://localhost:8081@evil.example:8081/about';
+		$local_user  = 'http://user@localhost:8081/about';
 		$patterns    = array( '/', '/about/', '/contact/' );
 
 		return array(
-			'plain host'               => array( $plain_host, array( $plain_host, $plain_host . '/about', $plain_host . '/contact/' ), $patterns ),
-			'custom port'              => array( $custom_port, array( $custom_port, $custom_port . '/about', $custom_port . '/contact/' ), $patterns ),
-			'custom-port subdirectory' => array(
+			'plain host'                     => array( $plain_host, array( $plain_host, $plain_host . '/about', $plain_host . '/contact/' ), $patterns ),
+			'custom port'                    => array( $custom_port, array( $custom_port, $custom_port . '/about', $custom_port . '/contact/' ), $patterns ),
+			'mixed origins on a custom port' => array(
+				$custom_port,
+				array( $other_host, $custom_port . '/shop?orderby=price', $userinfo, $local_user ),
+				array( $other_host . '/', '/shop?orderby=price/', $userinfo . '/', $local_user . '/' ),
+			),
+			'unparseable custom-port URL'    => array(
+				$custom_port,
+				array( $custom_port, 'http://localhost:8081.invalid/about/', $custom_port . '/contact/' ),
+				array( '/', '/contact/' ),
+			),
+			'custom-port subdirectory'       => array(
 				$subdir,
 				array( $subdir, $subdir . '/about' ),
 				array( '/blog/', '/blog/about/' ),
