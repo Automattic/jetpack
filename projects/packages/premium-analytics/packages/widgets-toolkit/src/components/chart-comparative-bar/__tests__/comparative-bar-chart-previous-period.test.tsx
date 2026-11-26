@@ -245,31 +245,52 @@ describe( 'ComparativeBarChart previous-period toggle', () => {
 		] );
 	} );
 
-	it( "totals a stack's rows in its tooltip, without the chart's own previous-total entry", () => {
-		renderChart( { layout: 'stacked', previousPeriodShown: true } );
+	it.each( [
+		[
+			'beside the previous period, without the chart’s own previous-total entry',
+			SERIES,
+			[ 'Views', 'Visitors', COMPARISON_TOTAL_KEY ],
+			[
+				[ 'Views', 100, 80 ],
+				[ 'Visitors', 40, 30 ],
+				[ 'Total', 140, 110 ],
+			],
+		],
+		[
+			'with no comparison',
+			CURRENT_SERIES,
+			[ 'Views', 'Visitors' ],
+			[
+				[ 'Views', 100, undefined ],
+				[ 'Visitors', 40, undefined ],
+				[ 'Total', 140, undefined ],
+			],
+		],
+		[ 'only for more than one reading', SERIES, [ 'Views' ], [ [ 'Views', 100, 80 ] ] ],
+	] )( "totals a stack's rows in its tooltip %s", ( _case, chartSeries, keys, rows ) => {
+		renderChart( { layout: 'stacked', series: chartSeries, previousPeriodShown: true } );
 
-		const entry = ( key: string, value: number ) => ( { datum: { date: JULY_1, value }, key } );
+		const values: Record< string, number > = {
+			Views: 100,
+			Visitors: 40,
+			[ COMPARISON_TOTAL_KEY ]: 110,
+		};
+		const datumByKey = Object.fromEntries(
+			keys.map( ( key, index ) => [
+				key,
+				{ datum: { date: JULY_1, value: values[ key ] }, key, index },
+			] )
+		);
 		/* eslint-disable testing-library/render-result-naming-convention --
 		   `renderTooltip` is the chart's prop, not testing-library's `render()`. */
 		const tooltip = lastBarChart().renderTooltip( {
-			tooltipData: {
-				nearestDatum: entry( 'Views', 100 ),
-				datumByKey: {
-					Views: { ...entry( 'Views', 100 ), index: 0 },
-					Visitors: { ...entry( 'Visitors', 40 ), index: 1 },
-					[ COMPARISON_TOTAL_KEY ]: { ...entry( COMPARISON_TOTAL_KEY, 110 ), index: 2 },
-				},
-			},
+			tooltipData: { nearestDatum: datumByKey.Views, datumByKey },
 		} );
 		/* eslint-enable testing-library/render-result-naming-convention */
 
 		expect(
 			tooltip?.props.model.rows.map( row => [ row.name, row.value, row.previous?.value ] )
-		).toEqual( [
-			[ 'Views', 100, 80 ],
-			[ 'Visitors', 40, 30 ],
-			[ 'Total', 140, 110 ],
-		] );
+		).toEqual( rows );
 	} );
 
 	it( 'keeps the current-period bar colors when the previous period is toggled', () => {
