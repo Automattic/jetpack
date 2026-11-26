@@ -81,7 +81,7 @@ Auto-generates share images from post content. Key classes:
 
 ### SocialSpec (`src/socialspec/`)
 
-Publishes the [SocialSpec](https://socialspec.org/) documents at `/.well-known/`, behind the `social-socialspec` feature flag. `Socialspec` routes the request and serves a `Document` (`Contact`, `Following`, `About`) in place of the 404 template. The following list is filled through the `jetpack_social_following` filter. The About page is the page in the `jetpack_social_about_page` option, converted with `wp_html_to_markdown()`. Where the site does not have that function, `src/lib/wp-html-to-markdown.php` defines it on top of `Lib\Markdown`.
+Publishes the [SocialSpec](https://socialspec.org/) documents at `/.well-known/`, behind the `social-socialspec` feature flag. `Socialspec` routes the request and serves a `Document` (`Contact`, `Following`, `About`) in place of the 404 template. The following list is filled through the `jetpack_social_following` filter. The About page is the page in the `jetpack_social_about_page` option, converted with the `wp_html_to_markdown()` of the html-to-md library where the site has it, and with `Lib\Markdown` (`src/lib/`) otherwise.
 
 ### Jetpack Social Settings (`src/jetpack-social-settings/`)
 

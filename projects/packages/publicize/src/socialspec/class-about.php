@@ -9,6 +9,8 @@
 
 namespace Automattic\Jetpack\Publicize\Socialspec;
 
+use Automattic\Jetpack\Publicize\Lib\Markdown;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
@@ -35,7 +37,7 @@ class About implements Document {
 	/**
 	 * The Markdown document: the title and the content of the About page.
 	 *
-	 * @return string|null Null if no public About page is set.
+	 * @return string|null Null if no public About page is set, or the page is empty.
 	 */
 	public function get_content() {
 		$page = self::get_page();
@@ -44,12 +46,9 @@ class About implements Document {
 			return null;
 		}
 
-		// Defines wp_html_to_markdown() if the site does not have it.
-		require_once __DIR__ . '/../lib/wp-html-to-markdown.php';
-
 		$html     = self::render( $page );
-		$title    = trim( wp_html_to_markdown( '<h1>' . get_the_title( $page ) . '</h1>' ) );
-		$markdown = trim( wp_html_to_markdown( $html ) );
+		$title    = self::to_markdown( '<h1>' . get_the_title( $page ) . '</h1>' );
+		$markdown = self::to_markdown( $html );
 
 		// HTML is valid Markdown, so it is the fallback if it cannot be converted.
 		if ( '' === $markdown ) {
@@ -60,7 +59,31 @@ class About implements Document {
 			$markdown = rtrim( $title . "\n\n" . $markdown );
 		}
 
-		return $markdown . "\n";
+		return '' !== $markdown ? $markdown . "\n" : null;
+	}
+
+	/**
+	 * Converts HTML to Markdown with the html-to-md library where the site has it, and with our converter otherwise.
+	 *
+	 * @link https://github.com/dmsnell/html-to-md
+	 *
+	 * @param string $html The HTML.
+	 * @return string The Markdown, or an empty string if the HTML cannot be converted.
+	 */
+	private static function to_markdown( $html ) {
+		$markdown = '';
+
+		if ( function_exists( 'wp_html_to_markdown' ) ) {
+			try {
+				// @phan-suppress-next-line PhanUndeclaredFunction -- From the html-to-md library, on sites that have it.
+				$markdown = trim( (string) wp_html_to_markdown( $html ) );
+			} catch ( \Throwable $e ) {
+				// The library throws on HTML it cannot handle.
+				$markdown = '';
+			}
+		}
+
+		return '' !== $markdown ? $markdown : trim( (string) Markdown::from_html( $html ) );
 	}
 
 	/**
@@ -102,19 +125,25 @@ class About implements Document {
 		$GLOBALS['post'] = $page; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		setup_postdata( $page );
 
+		// A callback of its own, so removing it cannot remove another plugin's `__return_false`.
+		$hide = static function () {
+			return false;
+		};
+
 		foreach ( self::ADDITIONS as $hook ) {
-			add_filter( $hook, '__return_false', PHP_INT_MAX );
+			add_filter( $hook, $hide, PHP_INT_MAX );
 		}
 
 		/** This filter is documented in wp-includes/post-template.php */
 		$html = (string) apply_filters( 'the_content', $page->post_content );
 
 		foreach ( self::ADDITIONS as $hook ) {
-			remove_filter( $hook, '__return_false', PHP_INT_MAX );
+			remove_filter( $hook, $hide, PHP_INT_MAX );
 		}
 
-		$GLOBALS['post'] = $previous; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		// In this order: wp_reset_postdata() sets the global post to the one of the main query.
 		wp_reset_postdata();
+		$GLOBALS['post'] = $previous; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		return $html;
 	}

@@ -83,6 +83,15 @@ class About_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A page without a title and content is not published.
+	 */
+	public function test_empty_page() {
+		self::create_about_page( array( 'post_title' => '' ) );
+
+		$this->assertNull( ( new About() )->get_content() );
+	}
+
+	/**
 	 * Unpublished and protected pages are not published.
 	 */
 	public function test_private_pages() {
@@ -155,9 +164,18 @@ class About_Test extends BaseTestCase {
 	public function test_keeps_the_function_of_the_site() {
 		require_once __DIR__ . '/fixtures/wp-html-to-markdown.php';
 
-		self::create_about_page( array( 'post_content' => 'Text' ) );
+		$page_id = self::create_about_page( array( 'post_content' => 'Text' ) );
 
 		$this->assertStringContainsString( 'from the site: <p>Text</p>', ( new About() )->get_content() );
+
+		// When that function throws, our converter takes over.
+		wp_update_post(
+			array(
+				'ID'           => $page_id,
+				'post_content' => '<p data-unsupported="1">Some <strong>text</strong></p>',
+			)
+		);
+		$this->assertStringEndsWith( "\n\nSome **text**\n", ( new About() )->get_content() );
 	}
 
 	/**
