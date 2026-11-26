@@ -1,6 +1,7 @@
 /**
  * Internal dependencies
  */
+import { StatsResponseShapeError } from '../../utils/api-error';
 import { safeParseFloat } from '../../utils/parsing';
 import { sanitizeStatsTimeSeriesResponse } from './time-series';
 import {
@@ -112,7 +113,7 @@ export function mergeStatsDevicesComparisonRows(
 export function sanitizeStatsDevicesPeriodsResponse( response: unknown, query?: StatsQueryParams ) {
 	const payload = coerceStatsRecord( response );
 	if ( ! ( 'days' in payload ) ) {
-		throw new Error( 'stats/devices returned no per-period views.' );
+		throw new StatsResponseShapeError( 'stats/devices returned no per-period views.' );
 	}
 
 	// Each bucket's `other_views` and `total_views` sit beside its devices, so only `views` becomes fields.

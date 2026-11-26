@@ -3,6 +3,7 @@ import {
 	sanitizeStatsDevicesPeriodsResponse,
 	sanitizeStatsDevicesResponse,
 } from '..';
+import { StatsResponseShapeError } from '../../../utils/api-error';
 import { devicesEmptyFixture, devicesFixture } from '../__fixtures__/devices';
 import type { StatsDevicesItem, StatsNormalizedReport } from '..';
 
@@ -85,7 +86,7 @@ describe( 'sanitizeStatsDevicesPeriodsResponse', () => {
 	it( 'rejects a response without per-period views', () => {
 		expect( () =>
 			sanitizeStatsDevicesPeriodsResponse( { top_values: { desktop: 62.3 } } )
-		).toThrow();
+		).toThrow( StatsResponseShapeError );
 	} );
 
 	it( 'reads an empty days map as a range with no views', () => {
