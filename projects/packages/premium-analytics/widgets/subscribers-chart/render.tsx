@@ -134,7 +134,6 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 			hasDateRange: true,
 			status: {
 				isLoading: state.isLoading,
-				isFetching: state.isFetching,
 				isError: state.csvIsError,
 				isPlaceholderData: state.csvIsPlaceholderData,
 			},

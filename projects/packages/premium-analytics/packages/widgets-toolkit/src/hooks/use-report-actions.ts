@@ -88,7 +88,6 @@ export type ReportActionsOptions< TItem, TRow > = {
 
 const SETTLED_EMPTY: ReportCsvExportStatus = {
 	isLoading: false,
-	isFetching: false,
 	isError: false,
 };
 

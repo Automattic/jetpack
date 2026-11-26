@@ -22,7 +22,7 @@ const mockGetScriptData = jest.mocked( getScriptData );
 const DISABLED_SCRIPT_DATA = {
 	premium_analytics: { csv_exports_enabled: false },
 } as ReturnType< typeof getScriptData >;
-const readyStatus = { isLoading: false, isFetching: false, isError: false };
+const readyStatus = { isLoading: false, isError: false };
 
 describe( 'useReportCsvExport', () => {
 	beforeEach( () => {
@@ -65,18 +65,6 @@ describe( 'useReportCsvExport', () => {
 		);
 
 		expect( result.current.filename ).toBe( 'annual-insights' );
-	} );
-
-	it( 'keeps export while the report refreshes the same rows', () => {
-		const { result } = renderHook( () =>
-			useReportCsvExport( {
-				rows: [ { title: 'Post', views: 1 } ],
-				filenamePrefix: 'top-posts',
-				status: { ...readyStatus, isFetching: true },
-			} )
-		);
-
-		expect( result.current.canExport ).toBe( true );
 	} );
 
 	it.each( [

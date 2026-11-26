@@ -272,7 +272,7 @@ function TopPostsReport() {
 		section: 'posts-pages',
 		csv: {
 			exporter: postsPagesCsvExporter,
-			status: { isLoading, isFetching, isError: primary.isError },
+			status: { isLoading, isError: primary.isError },
 			rowCount: rows.length,
 		},
 	} );
@@ -420,7 +420,7 @@ function ArchivesReport() {
 		section: 'archives',
 		csv: {
 			exporter: archivesCsvExporter,
-			status: { isLoading, isFetching, isError: primary.isError },
+			status: { isLoading, isError: primary.isError },
 			rowCount: rows.length,
 		},
 	} );

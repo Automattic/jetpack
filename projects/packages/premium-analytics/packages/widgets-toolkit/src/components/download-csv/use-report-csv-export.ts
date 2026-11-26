@@ -10,7 +10,6 @@ import { isStatsCsvExportEnabled } from './is-csv-export-enabled';
 
 export type ReportCsvExportStatus = {
 	isLoading: boolean;
-	isFetching: boolean;
 	isError: boolean;
 };
 

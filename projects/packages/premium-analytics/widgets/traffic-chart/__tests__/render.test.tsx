@@ -719,6 +719,20 @@ describe( 'TrafficChart CSV download', () => {
 		expect( lines ).toEqual( [ '"Date","Views"', '"2026-06-29 14:00","3"' ] );
 	} );
 
+	it( 'keeps the download while the same period refreshes', () => {
+		mockUseTrafficChart.mockReturnValue( {
+			...SETTLED_STATE,
+			isFetching: true,
+			metrics: [ tab( 'views', 'Views', [ 10, 0 ] ) ],
+		} );
+
+		const { declaredAction } = renderWithActionsHost(
+			<TrafficChartRender attributes={ { reportParams: reportParams( 'day' ) } } />
+		);
+
+		expect( declaredAction( 'download-csv' ) ).toBeDefined();
+	} );
+
 	it.each( [
 		[
 			'the period has no views, though the previous one has',

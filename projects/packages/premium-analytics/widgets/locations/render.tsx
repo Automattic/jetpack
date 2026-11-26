@@ -238,7 +238,7 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 		section: getLocationsReportSection( geoGranularity ),
 		csv: {
 			exporter: csvExporter,
-			status: { isLoading, isFetching, isError },
+			status: { isLoading, isError },
 			rowCount: data.length,
 		},
 	} );
