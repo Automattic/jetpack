@@ -5,13 +5,10 @@
  * @package wpcomsh
  */
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 /**
  * Class FooterCreditSeparatorTest.
- *
- * The wpcom_better_footer_links() function runs on an output buffer that covers the whole footer,
- * which includes any footer widget areas the theme renders from footer.php. These tests pin down
- * that it only removes the separator belonging to the credit it replaces, and leaves separators
- * in site-owner content alone.
  */
 class FooterCreditSeparatorTest extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -39,6 +36,7 @@ class FooterCreditSeparatorTest extends WP_UnitTestCase {
 	public function tearDown(): void {
 		remove_filter( 'wpcom_better_footer_credit_apply', '__return_true', PHP_INT_MAX );
 		remove_filter( 'wpcom_better_footer_credit_link', array( $this, 'fixed_credit_link' ), PHP_INT_MAX );
+		remove_filter( 'wpcom_better_footer_credit_regex', array( $this, 'match_from_leading_space' ), 20 );
 
 		parent::tearDown();
 	}
@@ -53,57 +51,61 @@ class FooterCreditSeparatorTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * A pipe a site owner typed into a footer widget must survive, even when it sits directly in
-	 * front of a link. Regression test for a footer widget losing "Terms | <a>Privacy</a>".
+	 * Make the credit regex start on the space before the link, as the Twotone filter does.
+	 *
+	 * @param string $credit_regex The credit regex.
+	 * @return string
 	 */
-	public function test_separator_in_footer_widget_content_is_preserved() {
-		$footer = '<div class="widget widget_block"><p>Terms &amp; Conditions | <a href="https://example.com/privacy">Privacy Policy</a></p></div>'
-			. '<div class="site-info"><a href="https://wordpress.org/">Proudly powered by WordPress</a></div>';
+	public function match_from_leading_space( $credit_regex ) {
+		return str_replace( '#<a', '#\s<a', $credit_regex );
+	}
 
-		$filtered = wpcom_better_footer_links( $footer );
+	/**
+	 * Only the credit's own separator is removed; separators in site-owner content survive.
+	 *
+	 * @param string $footer   Footer HTML.
+	 * @param string $expected Filtered footer HTML.
+	 *
+	 * @dataProvider data_footers
+	 */
+	#[DataProvider( 'data_footers' )]
+	public function test_removes_only_the_credit_separator( $footer, $expected ) {
+		$this->assertSame( $expected, wpcom_better_footer_links( $footer ) );
+	}
 
-		$this->assertStringContainsString(
-			'Terms &amp; Conditions | <a href="https://example.com/privacy">Privacy Policy</a>',
-			$filtered,
-			'The separator in footer widget content should be left alone.'
+	/**
+	 * Footers and their expected output.
+	 *
+	 * @return array[]
+	 */
+	public static function data_footers() {
+		$wporg = '<a href="https://wordpress.org/">Proudly powered by WordPress</a>';
+
+		return array(
+			'pipe in a footer widget is kept'              => array(
+				'<p>Terms | <a href="https://example.com/privacy">Privacy</a></p>' . $wporg,
+				'<p>Terms | <a href="https://example.com/privacy">Privacy</a></p>' . self::CREDIT_LINK,
+			),
+			'pipe before the credit is removed'            => array(
+				'<a href="https://designer.example/">Designer</a> | ' . $wporg,
+				'<a href="https://designer.example/">Designer</a>' . self::CREDIT_LINK,
+			),
+			'sep span is removed, spans after it are kept' => array(
+				'<span class="sep"> | </span>' . $wporg . '<p>My <span class="x">own</span> text</p>',
+				self::CREDIT_LINK . '<p>My <span class="x">own</span> text</p>',
+			),
 		);
 	}
 
 	/**
-	 * A footer with no WordPress credit link at all should come back untouched. This is the common
-	 * case on themes that do not ship a WordPress colophon, where there is no credit to replace.
+	 * A credit regex filter that matches from the leading space still drops the separator.
 	 */
-	public function test_footer_without_a_credit_link_is_unchanged() {
-		$footer = '<div class="footer-widgets"><p>Shop | <a href="https://example.com/shop">All products</a></p></div>';
-
-		$this->assertSame( $footer, wpcom_better_footer_links( $footer ) );
-	}
-
-	/**
-	 * The separator that belongs to the credit link must still be removed, otherwise replacing the
-	 * credit leaves a dangling pipe behind.
-	 */
-	public function test_separator_before_the_credit_link_is_removed() {
-		$footer = '<div class="site-info"><a href="https://designer.example/">Designer</a> | <a href="https://wordpress.org/">Proudly powered by WordPress</a></div>';
-
-		$filtered = wpcom_better_footer_links( $footer );
+	public function test_removes_the_separator_when_the_match_starts_on_a_space() {
+		add_filter( 'wpcom_better_footer_credit_regex', array( $this, 'match_from_leading_space' ), 20 );
 
 		$this->assertSame(
-			'<div class="site-info"><a href="https://designer.example/">Designer</a>' . self::CREDIT_LINK . '</div>',
-			$filtered,
-			'The separator belonging to the credit link should be removed along with the credit.'
+			'<a href="https://designer.example/">Designer</a>' . self::CREDIT_LINK,
+			wpcom_better_footer_links( '<a href="https://designer.example/">Designer</a> | <a href="https://wordpress.org/">Proudly powered by WordPress</a>' )
 		);
-	}
-
-	/**
-	 * A ".sep" separator span next to the credit is still removed.
-	 */
-	public function test_sep_span_is_removed() {
-		$footer = '<div class="site-info"><span class="sep"> | </span><a href="https://wordpress.org/">Proudly powered by WordPress</a></div>';
-
-		$filtered = wpcom_better_footer_links( $footer );
-
-		$this->assertStringNotContainsString( 'class="sep"', $filtered );
-		$this->assertStringContainsString( self::CREDIT_LINK, $filtered );
 	}
 }
