@@ -11,8 +11,8 @@ use Automattic\Woocommerce_Analytics;
 
 /**
  * Turns on the modern (ClickHouse + proxy) pipeline and triggers the vendored
- * WooCommerce Analytics tracker, unless the host turns store tracking off. The
- * tracker self-gates on WooCommerce + connection and is idempotent.
+ * WooCommerce Analytics tracker where the WooCommerce tab is enabled, unless the host
+ * turns store tracking off. The tracker self-gates on WooCommerce + connection and is idempotent.
  */
 class WooCommerce_Analytics_Tracker {
 
@@ -37,6 +37,11 @@ class WooCommerce_Analytics_Tracker {
 	 * them while localizing `window.wcAnalytics` at `wp_footer`.
 	 */
 	public static function bootstrap() {
+		// Kept out of the filter below, so no host can track shoppers on a store whose owner cannot see the data.
+		if ( ! Analytics_Dashboard::is_enabled() ) {
+			return;
+		}
+
 		/**
 		 * Filters whether WooCommerce Stats starts WooCommerce Analytics store tracking.
 		 *
