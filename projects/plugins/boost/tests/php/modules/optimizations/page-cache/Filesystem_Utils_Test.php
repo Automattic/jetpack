@@ -420,16 +420,14 @@ class Filesystem_Utils_Test extends TestCase {
 
 	public function test_each_version_change_clears_the_home_host_cache() {
 		Functions\when( 'delete_site_option' )->justReturn( true );
+		Functions\when( 'delete_option' )->justReturn( true );
 		Functions\when( 'get_site_option' )->justReturn( JETPACK_BOOST_MINIFY_CACHE_RULES_VERSION );
 		Functions\when( 'jetpack_boost_ds_get' )->justReturn( false );
 		Functions\when( 'jetpack_boost_minify_is_enabled' )->justReturn( false );
 		Functions\when( 'home_url' )->justReturn( 'https://example.com:8080' );
 		Functions\when( 'wp_parse_url' )->alias( 'parse_url' );
-		$options = array(
-			// Keep the old flag set so this fails if the purge becomes a one-time migration again.
-			'jetpack_boost_page_cache_uri_keys' => 1,
-			'jetpack_boost_status_page-cache'   => true,
-		);
+		// Keep the old flag set so this fails if the purge becomes a one-time migration again.
+		$options = array( 'jetpack_boost_page_cache_uri_keys' => 1 );
 		Functions\when( 'get_option' )->alias(
 			function ( $name, $default = false ) use ( &$options ) {
 				return $options[ $name ] ?? $default;

@@ -6,8 +6,6 @@ Jetpack Boost gives your site the same performance advantages as the world’s l
 
 **If you are not planning on developing with Jetpack Boost, you should install Jetpack Boost from pre-built sources.** Details on that may be found [on this page](https://github.com/Automattic/jetpack-boost-production).
 
-After each plugin version change, Jetpack Boost schedules Page Cache to be cleared so cached pages reflect the updated plugin. Pages may temporarily load more slowly while the cache rebuilds.
-
 ## Development
 
 ### Watching development builds

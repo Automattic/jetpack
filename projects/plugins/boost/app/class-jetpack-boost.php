@@ -209,9 +209,11 @@ class Jetpack_Boost {
 			jetpack_boost_minify_activation();
 		}
 
+		delete_option( 'jetpack_boost_page_cache_uri_keys' );
+
 		$page_cache = new Module( new Page_Cache() );
 		if ( $page_cache->is_enabled() ) {
-			// A one-off preload from the purge can mask a missing recurring event.
+			// Schedule the recurring preload first so a one-off from the purge cannot block it.
 			( new Cache_Preload() )->schedule_cornerstone_cronjob();
 		}
 

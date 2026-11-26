@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Page Cache: Clear cached pages after each Boost update so visitors see fresh content.
+Page Cache: Clear cached pages after each Boost update so the updated plugin rebuilds them.
