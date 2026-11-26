@@ -106,6 +106,8 @@ class Main_Features {
 			return $definitions[ $locale ];
 		}
 
+		$is_wpcom_platform = ( new Host() )->is_wpcom_platform();
+
 		$definitions[ $locale ] = array(
 			'activity-log'      => array(
 				'info_url'         => 'https://jetpack.com/security/activity-log/',
@@ -374,18 +376,25 @@ class Main_Features {
 				'module'           => 'subscriptions',
 				'off_pages'        => array( 'jetpack-newsletter' ),
 				'needs_account'    => true,
-				'free_highlights'  => array(
-					__( 'No limit on subscribers or email sends', 'jetpack-my-jetpack' ),
-					__( 'Import up to 100 subscribers', 'jetpack-my-jetpack' ),
-					__( 'Subscribe forms and pop-ups to collect subscribers on your site', 'jetpack-my-jetpack' ),
-					__( 'New subscribers from the WordPress.com Reader', 'jetpack-my-jetpack' ),
-					/* translators: %d is the percentage fee, such as 10. */
-					sprintf( __( 'Paid newsletter with a %d%% fee on subscriptions', 'jetpack-my-jetpack' ), 10 ),
+				// No fee lines on WordPress.com, where the plan sets the fee (as in Monetize).
+				'free_highlights'  => array_merge(
+					array(
+						__( 'No limit on subscribers or email sends', 'jetpack-my-jetpack' ),
+						__( 'Import up to 100 subscribers', 'jetpack-my-jetpack' ),
+						__( 'Subscribe forms and pop-ups to collect subscribers on your site', 'jetpack-my-jetpack' ),
+						__( 'New subscribers from the WordPress.com Reader', 'jetpack-my-jetpack' ),
+					),
+					$is_wpcom_platform ? array() : array(
+						/* translators: %d is the percentage fee, such as 10. */
+						sprintf( __( 'Paid newsletter with a %d%% fee on subscriptions', 'jetpack-my-jetpack' ), 10 ),
+					)
 				),
-				'paid_highlights'  => array(
-					__( 'Import as many subscribers as you like', 'jetpack-my-jetpack' ),
-					/* translators: %d is the percentage fee, such as 10. */
-					sprintf( __( 'Paid newsletter with a %d%% fee on subscriptions', 'jetpack-my-jetpack' ), 2 ),
+				'paid_highlights'  => array_merge(
+					array( __( 'Import as many subscribers as you like', 'jetpack-my-jetpack' ) ),
+					$is_wpcom_platform ? array() : array(
+						/* translators: %d is the percentage fee, such as 10. */
+						sprintf( __( 'Paid newsletter with a %d%% fee on subscriptions', 'jetpack-my-jetpack' ), 2 ),
+					)
 				),
 				'delivery'         => array(
 					'jetpack' => true,
@@ -393,6 +402,8 @@ class Main_Features {
 					'free'    => true,
 				),
 				'plans'            => array( 'growth', 'pro', 'complete' ),
+				// Every WordPress.com plan can run a paid newsletter; the plan sets the fee.
+				'paid_feature'     => $is_wpcom_platform ? 'recurring-payments' : '',
 			),
 			'podcast'           => array(
 				'info_url'         => 'https://jetpack.com/podcast/',

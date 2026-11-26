@@ -7,6 +7,7 @@ use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -1015,6 +1016,8 @@ class Main_Features_Test extends TestCase {
 			'Atomic plan with podcasting'                  => array( true, 'podcasting', 'podcast', true ),
 			'self-hosted, where every site has podcasting' => array( false, 'podcasting', 'podcast', false ),
 			'Atomic plan with file uploads'                => array( true, 'field-file', 'jetpack-forms', true ),
+			'Atomic plan with paid newsletters'            => array( true, 'recurring-payments', 'newsletter', true ),
+			'self-hosted, where every site has payments'   => array( false, 'recurring-payments', 'newsletter', false ),
 		);
 	}
 
@@ -1051,6 +1054,40 @@ class Main_Features_Test extends TestCase {
 		Constants::clear_single_constant( 'WPCOMSH__PLUGIN_FILE' );
 		StatusCache::clear();
 		$this->assertSame( $expected, $included[ $slug ] );
+	}
+
+	/**
+	 * Newsletter states Jetpack's fees only off WordPress.com, where the plan sets the fee.
+	 *
+	 * @testWith [true, false]
+	 *           [false, true]
+	 *
+	 * @param bool $is_atomic Whether the site is on WordPress.com Atomic.
+	 * @param bool $has_fees  Whether the highlights name a fee.
+	 */
+	#[TestWith( array( true, false ) )]
+	#[TestWith( array( false, true ) )]
+	public function test_newsletter_fee_lines_only_off_wpcom( $is_atomic, $has_fees ) {
+		if ( $is_atomic ) {
+			Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
+			Constants::set_constant( 'ATOMIC_CLIENT_ID', 123 );
+			Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/tmp/wpcomsh/wpcomsh.php' );
+		}
+		StatusCache::clear();
+		$locale = static function () use ( $is_atomic ) {
+			return 'newsletter_fees_' . ( $is_atomic ? 'atomic' : 'self_hosted' );
+		};
+		add_filter( 'locale', $locale );
+
+		$newsletter = Main_Features::get_feature_definitions()['newsletter'];
+
+		remove_filter( 'locale', $locale );
+		Constants::clear_single_constant( 'ATOMIC_SITE_ID' );
+		Constants::clear_single_constant( 'ATOMIC_CLIENT_ID' );
+		Constants::clear_single_constant( 'WPCOMSH__PLUGIN_FILE' );
+		StatusCache::clear();
+		$fee_lines = preg_grep( '/fee/', array_merge( $newsletter['free_highlights'], $newsletter['paid_highlights'] ) );
+		$this->assertCount( $has_fees ? 2 : 0, $fee_lines );
 	}
 
 	/**
