@@ -7,7 +7,6 @@ type MinifyMetaKeys = ( typeof minifyMetaOptions )[ number ];
 
 export interface Props {
 	datasyncKey: MinifyMetaKeys;
-	buttonText: string;
 	placeholder: string;
 }
 
