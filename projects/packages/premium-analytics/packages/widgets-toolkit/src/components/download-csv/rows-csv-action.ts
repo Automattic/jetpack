@@ -11,7 +11,7 @@ import {
 import { getReportCsvFilename } from '../../report-exports/download-report-csv';
 import { useWidgetRootContext } from '../widget-root';
 import { useCsvDownloadAction, type CsvDownloadAction } from './csv-download-action';
-import { isReportCsvReady, type ReportCsvExportStatus } from './use-report-csv-export';
+import { hasReportCsvRows, type ReportCsvExportStatus } from './use-report-csv-export';
 
 export type RowsCsvActionOptions< TRow > = {
 	/**
@@ -54,16 +54,17 @@ export type RowsCsvActionOptions< TRow > = {
 	  }
 );
 
-/** A download of the widget's loaded rows, or null until they settle. */
+/** A download of the widget's loaded rows, or null until they answer the current range. */
 export function useRowsCsvAction< TRow >(
 	options?: RowsCsvActionOptions< TRow >
 ): CsvDownloadAction | null {
 	const { reportParams } = useWidgetRootContext();
 
+	// Kept through a revalidation: dropping a footer's only action collapses it under the chart.
 	return useCsvDownloadAction(
 		options &&
 			! options.status.isPlaceholderData &&
-			isReportCsvReady( options.status, options.rows.length )
+			hasReportCsvRows( options.status, options.rows.length )
 			? async () => {
 					const { filenamePrefix, hasDateRange = false, range } = options;
 

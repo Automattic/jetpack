@@ -13,7 +13,7 @@ import { WidgetRootContext, useWidgetRootContext } from '../widget-root';
 import { isCsvExportEnabled } from './is-csv-export-enabled';
 import { toDownloadReportParams } from './to-download-report-params';
 import { useDownloadWithErrorNotice } from './use-download-with-error-notice';
-import { isReportCsvReady, type ReportCsvExportStatus } from './use-report-csv-export';
+import { hasReportCsvRows, type ReportCsvExportStatus } from './use-report-csv-export';
 import type { ReportCsvExporter } from '../../report-exports/types';
 
 /** A widget's CSV download, assignable to `WidgetCallbackAction` from WordPress/gutenberg#83877. */
@@ -51,7 +51,7 @@ export type UseExporterCsvActionOptions< TItem, TRow > = {
 	rowCount: number;
 };
 
-/** The linked report's full CSV download, or null until the widget's rows settle. */
+/** The linked report's full CSV download, or null until the widget has rows; it fetches the current range itself. */
 export function useExporterCsvAction< TItem, TRow >( {
 	exporter,
 	status,
@@ -67,7 +67,7 @@ export function useExporterCsvAction< TItem, TRow >( {
 	}
 
 	return useCsvDownloadAction(
-		exporter && ( phase !== 'idle' || isReportCsvReady( status, rowCount ) )
+		exporter && ( phase !== 'idle' || hasReportCsvRows( status, rowCount ) )
 			? async () => {
 					setPhase( 'downloading' );
 					try {
