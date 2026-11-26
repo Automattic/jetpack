@@ -140,13 +140,34 @@ function getNoFixAdvice( type: string | null, state?: string | null ): string | 
  */
 function getResolution( threat: ScanThreat, canDelete: boolean ): string {
 	const { fixable, fixedIn } = threat;
-	const preferManualUpdate =
+	const type = threat.extension?.type;
+	if (
 		fixedIn &&
 		fixable &&
 		isDeleteFix( threat ) &&
-		threat.extension?.type === 'plugins' &&
-		fixable.extras?.isDotorg === false;
-	if ( fixable && ! preferManualUpdate ) {
+		fixable.extras?.isDotorg === false &&
+		( type === 'plugins' || type === 'themes' )
+	) {
+		if ( type === 'themes' ) {
+			return sprintf(
+				/* translators: %s is the fixed version number. */
+				__(
+					'Update to version %s or later, or let Jetpack delete the theme.',
+					'jetpack-protect-pkg'
+				),
+				fixedIn
+			);
+		}
+		return sprintf(
+			/* translators: %s is the fixed version number. */
+			__(
+				'Update to version %s or later, or let Jetpack delete the plugin.',
+				'jetpack-protect-pkg'
+			),
+			fixedIn
+		);
+	}
+	if ( fixable ) {
 		const fixer = getFixerDescription( threat as Threat );
 		if ( fixer ) {
 			return sprintf(

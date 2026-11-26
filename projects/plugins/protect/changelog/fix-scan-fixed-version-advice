@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Recommend updating plugins from outside WordPress.org when Scan reports a fixed version.
+Show update and delete options when an off-directory plugin or theme has a known fix. Name the version Auto-fix installs. Show known fixed versions in Scan history.

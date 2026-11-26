@@ -75,21 +75,47 @@ describe( 'ThreatDetails', () => {
 	} );
 
 	it.each( [
-		[ null, 'Jetpack can fix this threat for you: Delete the plugin directory to fix the threat.' ],
-		[ '2.0.2', 'Update to version 2.0.2 or later.' ],
-	] )( 'advises on an off-directory delete fixer with fixed version %s', ( fixedIn, advice ) => {
+		[
+			'an off-directory plugin without a fixed version',
+			'plugins',
+			false,
+			null,
+			'Jetpack can fix this threat for you: Delete the plugin directory to fix the threat.',
+		],
+		[
+			'an off-directory plugin with a fixed version',
+			'plugins',
+			false,
+			'2.0.2',
+			'Update to version 2.0.2 or later, or let Jetpack delete the plugin.',
+		],
+		[
+			'an off-directory theme with a fixed version',
+			'themes',
+			false,
+			'2.0.2',
+			'Update to version 2.0.2 or later, or let Jetpack delete the theme.',
+		],
+		[
+			'a WordPress.org plugin with a fixed version',
+			'plugins',
+			true,
+			'2.0.2',
+			'Jetpack can fix this threat for you: Delete the plugin directory to fix the threat.',
+		],
+	] as const )( 'advises on a delete fix for %s', ( _name, type, isDotorg, fixedIn, advice ) => {
 		const fixer = {
 			fixer: 'delete',
-			file: '{$PLUGINS}/example-premium',
+			file: ( type === 'themes' ? '{$THEMES}' : '{$PLUGINS}' ) + '/example-premium',
 			extensionStatus: 'active',
-			extras: { isDotorg: false, isBulkFixable: false },
+			extras: { isDotorg, isBulkFixable: false },
 		};
 		const threat: ScanThreat = {
 			...threatIn( 4, 'delete' ),
 			fixedIn,
 			fixable: fixer,
 			extension: {
-				type: 'plugins',
+				type,
 				slug: 'example-premium',
 				name: 'Example Premium',
 				version: '2.0.1',
