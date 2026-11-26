@@ -1,6 +1,6 @@
 <?php
 /**
- * The Upgrade to Parse.ly card on the Stats Settings page.
+ * The Upgrade to Parse.ly prompts in the Stats dashboard.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -12,34 +12,34 @@ require_once __DIR__ . '/parsely-prompts.php';
 require_once __DIR__ . '/parsely-signup-url.php';
 
 /**
- * Arranges for the Upgrade to Parse.ly card to be registered.
+ * Arranges for the Upgrade to Parse.ly prompts to be registered.
  *
- * The card's copy is translated, and the package boots on `plugins_loaded`, before the textdomain
+ * Their copy is translated, and the package boots on `plugins_loaded`, before the textdomain
  * can load. The script data filter that publishes the promos runs later than `init`, so waiting
- * costs the card nothing.
+ * costs them nothing.
  *
  * @since $$next-version$$
  *
  * @return void
  */
-function configure_parsely_promo() {
+function configure_parsely_promos() {
 	if ( did_action( 'init' ) ) {
-		register_parsely_promo();
+		register_parsely_promos();
 
 		return;
 	}
 
-	add_action( 'init', __NAMESPACE__ . '\\register_parsely_promo' );
+	add_action( 'init', __NAMESPACE__ . '\\register_parsely_promos' );
 }
 
 /**
- * Registers the Upgrade to Parse.ly card.
+ * Registers the Upgrade to Parse.ly prompts.
  *
  * @since $$next-version$$
  *
  * @return void
  */
-function register_parsely_promo() {
+function register_parsely_promos() {
 	register_promo(
 		'parsely/settings-upgrade',
 		array(
@@ -49,6 +49,17 @@ function register_parsely_promo() {
 			'cta_label'    => __( 'Upgrade to Parse.ly', 'jetpack-premium-analytics-pkg' ),
 			'cta_url'      => parsely_signup_url(),
 			'cta_variant'  => 'secondary',
+			'dismissible'  => false,
+			'is_available' => __NAMESPACE__ . '\\offers_parsely_prompts',
+		)
+	);
+
+	register_promo(
+		'parsely/menu-upgrade',
+		array(
+			'placement'    => 'options-menu',
+			'cta_label'    => __( 'Upgrade to Parse.ly', 'jetpack-premium-analytics-pkg' ),
+			'cta_url'      => parsely_signup_url(),
 			'dismissible'  => false,
 			'is_available' => __NAMESPACE__ . '\\offers_parsely_prompts',
 		)
