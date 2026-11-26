@@ -338,7 +338,8 @@ class Stats_Links_Test extends BaseTestCase {
 			'geo mode elsewhere'   => array( '#!/stats/day/referrers/123?geoMode=regions', '%2Freports%2Freferrers' ),
 			'video'                => array( '#!/stats/day/videodetails/123?post=29', '%2Freport%2Fvideo%2F29' ),
 			'video without an ID'  => array( '#!/stats/day/videodetails/123', '%2Freports%2Fvideos' ),
-			'no dashboard page'    => array( '#!/stats/purchase/123?from=x', '%2F' ),
+			'purchase'             => array( '#!/stats/purchase/123?from=jetpack-my-jetpack&productType=commercial', '%2Fupgrade%3Fsource%3Djetpack-my-jetpack' ),
+			'purchase, no source'  => array( '#!/stats/purchase/123', '%2Fupgrade' ),
 			'not a Stats fragment' => array( '#/insights', '%2F' ),
 		);
 	}
