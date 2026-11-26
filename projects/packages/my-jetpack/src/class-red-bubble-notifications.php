@@ -444,7 +444,8 @@ class Red_Bubble_Notifications {
 		$connection = new Connection_Manager();
 		$state      = array(
 			get_current_user_id(),
-			get_option( self::CACHE_GENERATION_OPTION, 0 ),
+			// Cast, since it reads as an int right after an update and as a string on later requests.
+			(int) get_option( self::CACHE_GENERATION_OPTION, 0 ),
 			get_option( self::PURCHASES_FINGERPRINT_OPTION, '' ),
 			$connection->is_connected(),
 			$connection->is_user_connected(),
