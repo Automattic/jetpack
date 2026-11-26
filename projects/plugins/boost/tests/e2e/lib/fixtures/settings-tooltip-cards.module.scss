@@ -1,14 +1,10 @@
-// Gives the fixture tooltip a realistic size and anchor, so the clipping
-// checks measure a real layout.
+// Sizes the fixture tooltip as a wide, CTA-holding worst case, so the
+// clipping checks have something to catch.
 .wrapper {
 	margin-block: 1em;
 
 	p {
 		display: inline;
-	}
-
-	:global(.icon-tooltip-content) p {
-		display: block;
 	}
 }
 
