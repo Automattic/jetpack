@@ -48,6 +48,7 @@ describe( 'OnboardingScreen when the wizard fails to load', () => {
 	beforeEach( () => {
 		window.myJetpackInitialState.onboardingWizard = {
 			exitUrl,
+			featuresUrl: `${ exitUrl }&p=%2Ffeatures`,
 			dashboardUrl,
 			runScope: 'a1b2c3d4e5f6',
 		};

@@ -99,8 +99,23 @@ $data-in-height: 779px;
 
 // The artwork's share of the panel, and the prototype's own draw. The nearest
 // WPDS duration is 400ms, far too fast to read as drawing.
-$panel-art-width: 68%;
+$panel-art-width: 90%;
 $panel-art-draw-duration: 1.4s;
+
+// The panel's display copy, from the prototype. Above the WPDS type
+// scale, which stops at 32px.
+$panel-copy-size: clamp(26px, 2.3vw, 40px);
+$panel-copy-line-height: 1.16;
+$panel-copy-tracking: -0.005em;
+$panel-copy-rise: 14px;
+$panel-copy-rise-duration: 0.5s;
+
+// The dots under the copy, from the prototype: a 6px dot every 14px,
+// on a 24px-tall button.
+$panel-dot-size: 6px;
+$panel-dot-pitch: 14px;
+$panel-dot-target: 24px;
+$panel-dot-idle-opacity: 0.35;
 
 /*
  * The prototype's easing, on everything ported from it. Not the expressive
@@ -370,24 +385,42 @@ $rail-row-min-height: 40px;
 	}
 }
 
+// The Site Editor's root screen header: 12 at the sides and 32 above the title.
 .rail-head {
 	flex-shrink: 0;
-	padding-inline: var(--wpds-dimension-padding-lg);
+	padding-inline: var(--wpds-dimension-padding-md);
+
+	// The rail's own 16 plus this. Not on the collapsed bar.
+	@media (min-width: $rail-breakpoint) {
+		padding-block-start: var(--wpds-dimension-padding-lg);
+	}
 }
 
-/*
- * The way out of the takeover, pulled back by the button's own inline
- * padding so the mark still lines up with the rail title under it.
- */
-.exit {
-	align-self: flex-start;
-	margin-inline-start: calc(-1 * var(--wpds-dimension-padding-md));
-	margin-block-end: var(--wpds-dimension-gap-md);
+// Core's `.edit-site-sidebar-button` (a components Button renders a real
+// link), two classes deep so the components stylesheet can't win on order.
+.rail-head .exit {
+	flex-shrink: 0;
+	color: var(--wpds-color-foreground-interactive-neutral);
+
+	&:hover:not([aria-disabled="true"]),
+	&:focus-visible {
+		color: var(--wpds-color-foreground-interactive-neutral-active);
+	}
+
+	&:focus:not(:focus-visible) {
+		outline: none;
+	}
 }
 
-// Looser than heading-xl's own, so a wrapped title doesn't crowd the count.
+.rail-heading {
+	flex-grow: 1;
+	min-inline-size: 0;
+}
+
+// Core's title: 20px on a 32px line, level with the button.
 .rail-head .rail-title {
 	line-height: var(--wpds-typography-line-height-xl);
+	overflow-wrap: break-word;
 }
 
 // Takes the row's spare width, as FlexBlock did, and lets a long label wrap.
@@ -724,13 +757,10 @@ $rail-row-min-height: 40px;
 
 /*
  * The plugins feeding the screen, on the features step. Portrait like the
- * panel, so the height leads and the width follows.
- *
- * Runs once: looping beside a form with no pause control fails WCAG 2.2.2.
- * `--flow-runs` is the composition's own setting for that.
+ * panel, so the height leads and the width follows. The flow loops, as on the
+ * showcase; reduced motion parks it (see the composition's own stylesheet).
  */
 .data-in {
-	--flow-runs: 1;
 
 	@include panel-artwork;
 
@@ -772,6 +802,126 @@ $rail-row-min-height: 40px;
 		animation-duration: var(--wpds-motion-duration-xl);
 		animation-timing-function: var(--wpds-motion-easing-subtle);
 		animation-fill-mode: both;
+	}
+}
+
+/*
+ * The messages under the mark. In flow below the artwork, so the mark takes
+ * whatever height the copy leaves it, and lifted off the panel's foot so the
+ * dots under it are not crowded into the corner.
+ */
+.brand-panel__copy {
+	position: relative;
+	z-index: 2;
+	flex-shrink: 0;
+	padding-block-start: var(--wpds-dimension-padding-2xl);
+	margin-block-end: var(--wpds-dimension-padding-2xl);
+}
+
+// Every message in one cell: the block is as tall as the tallest, so
+// nothing moves.
+.brand-panel__messages {
+	display: grid;
+}
+
+// Sat on the cell's foot, so a shorter message keeps the same last line.
+.brand-panel__message {
+	grid-area: 1 / 1;
+	align-self: end;
+	margin: 0;
+	font-size: $panel-copy-size;
+	font-weight: var(--wpds-typography-font-weight-default);
+	line-height: $panel-copy-line-height;
+	letter-spacing: $panel-copy-tracking;
+	color: var(--jp-green-mint);
+	visibility: hidden;
+}
+
+.brand-panel__message--current {
+	visibility: visible;
+}
+
+.brand-panel__line {
+	display: block;
+	opacity: 0;
+}
+
+/*
+ * The rise runs whenever a message becomes the current one: the class comes
+ * and goes, so the animation starts over each time.
+ */
+.brand-panel__message--current .brand-panel__line {
+	animation-name: panel-copy-rise;
+	animation-duration: $panel-copy-rise-duration;
+	animation-timing-function: $house-easing;
+	animation-fill-mode: forwards;
+
+	@media (prefers-reduced-motion: reduce) {
+		animation-name: fade-in;
+		animation-duration: $appear-reduced-duration;
+	}
+}
+
+// Centred under the copy: both insets and auto margins on a fit-content box.
+.brand-panel__dots {
+	display: flex;
+	position: absolute;
+	inset-block-start: 100%;
+	inset-inline: 0;
+	inline-size: fit-content;
+	margin-block-start: var(--wpds-dimension-padding-md);
+	margin-inline: auto;
+	padding: 0;
+	border: 0;
+	background: none;
+	cursor: pointer;
+
+	&:focus {
+		outline: none;
+	}
+
+	&:focus-visible {
+		outline: var(--wpds-border-width-focus) solid var(--jp-green-mint);
+	}
+}
+
+.brand-panel__dot {
+	display: grid;
+	place-items: center;
+	inline-size: $panel-dot-pitch;
+	block-size: $panel-dot-target;
+
+	&::before {
+		content: "";
+		inline-size: $panel-dot-size;
+		block-size: $panel-dot-size;
+		border-radius: 50%;
+		background: var(--jp-green-mint);
+		opacity: $panel-dot-idle-opacity;
+		transition-property: opacity;
+		transition-duration: var(--wpds-motion-duration-sm);
+		transition-timing-function: var(--wpds-motion-easing-subtle);
+	}
+
+	&:hover::before {
+		opacity: 1;
+	}
+}
+
+.brand-panel__dot--current::before {
+	opacity: 1;
+}
+
+@keyframes panel-copy-rise {
+
+	from {
+		opacity: 0;
+		transform: translateY($panel-copy-rise);
+	}
+
+	to {
+		opacity: 1;
+		transform: none;
 	}
 }
 
@@ -1282,6 +1432,12 @@ $rail-row-min-height: 40px;
 		padding-block-start: 0;
 	}
 
+	// `.finish` carries the sheet's padding, so the wash it clips reaches
+	// the sheet's edges.
+	.panel-body {
+		padding: 0;
+	}
+
 	.canvas {
 		grid-column: 1 / -1;
 
@@ -1313,8 +1469,8 @@ $rail-row-min-height: 40px;
 	min-block-size: 100%;
 	align-items: center;
 	justify-content: center;
-	padding-block: var(--wpds-dimension-padding-3xl);
-	padding-inline: var(--wpds-dimension-padding-lg);
+	padding-block: calc(var(--wpds-dimension-padding-2xl) + var(--wpds-dimension-padding-3xl));
+	padding-inline: calc(var(--wpds-dimension-padding-3xl) + var(--wpds-dimension-padding-lg));
 	text-align: center;
 }
 
@@ -1425,15 +1581,14 @@ $rail-row-min-height: 40px;
 	flex-shrink: 0;
 	align-items: center;
 	justify-content: center;
-	inline-size: var(--wpds-dimension-size-2xs);
-	block-size: var(--wpds-dimension-size-2xs);
+	inline-size: var(--wpds-dimension-size-xs);
+	block-size: var(--wpds-dimension-size-xs);
 	border-radius: 50%;
 	background: var(--wpds-color-background-surface-neutral-strong);
 	color: var(--wpds-color-foreground-content-neutral-weak);
 
+	// At Icon's own 24px, wider than the disc: the check fills half its box.
 	svg {
-		inline-size: var(--wpds-dimension-size-3xs);
-		block-size: var(--wpds-dimension-size-3xs);
 		fill: currentColor;
 	}
 }
@@ -1521,8 +1676,6 @@ $rail-row-min-height: 40px;
 	display: flex;
 
 	svg {
-		inline-size: var(--wpds-dimension-size-3xs);
-		block-size: var(--wpds-dimension-size-3xs);
 		fill: currentColor;
 	}
 }

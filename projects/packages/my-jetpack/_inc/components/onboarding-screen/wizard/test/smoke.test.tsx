@@ -147,6 +147,7 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 
 const exitUrl = 'http://example.com/wp-admin/admin.php?page=my-jetpack';
 const dashboardUrl = 'http://example.com/wp-admin/';
+const featuresUrl = `${ exitUrl }&p=%2Ffeatures`;
 
 // Where the wizard sent the browser, which is the only thing jsdom lets us see.
 const mockAssignLocation = jest.fn();
@@ -210,7 +211,7 @@ const setupWizard = ( { isUserConnected = false, isRegistered = isUserConnected 
 
 	const user = userEvent.setup();
 	const { rerender, unmount } = render(
-		<Wizard exitUrl={ exitUrl } dashboardUrl={ dashboardUrl } />
+		<Wizard exitUrl={ exitUrl } featuresUrl={ featuresUrl } dashboardUrl={ dashboardUrl } />
 	);
 
 	return {
@@ -219,7 +220,10 @@ const setupWizard = ( { isUserConnected = false, isRegistered = isUserConnected 
 		unmount,
 		// Re-renders with the same props, so a move in the connection mock reaches
 		// the component the way a store update would.
-		refresh: () => rerender( <Wizard exitUrl={ exitUrl } dashboardUrl={ dashboardUrl } /> ),
+		refresh: () =>
+			rerender(
+				<Wizard exitUrl={ exitUrl } featuresUrl={ featuresUrl } dashboardUrl={ dashboardUrl } />
+			),
 	};
 };
 
@@ -610,6 +614,30 @@ describe( 'What the brand panel is showing', () => {
 		expect( onScreen( 'ev-scene' ) ).toBe( 0 );
 	} );
 
+	it( 'takes the brand messages in turn under the mark, one at a time', async () => {
+		const { user } = setupWizard();
+		// Every message is in the DOM; the ones not showing are hidden from assistive tech.
+		const showing = ( text: string ) =>
+			screen.queryByText( text, { ignore: '[aria-hidden="true"] *, script, style' } );
+		const dots = screen.getByRole( 'button', { name: /^Message \d of 3\. Show the next one\.$/ } );
+
+		expect( dots ).toHaveAccessibleName( 'Message 1 of 3. Show the next one.' );
+		expect( showing( 'Grow your audience.' ) ).toBeInTheDocument();
+		expect( showing( 'Set up in minutes.' ) ).not.toBeInTheDocument();
+
+		await user.click( dots );
+
+		expect( dots ).toHaveAccessibleName( 'Message 2 of 3. Show the next one.' );
+		expect( showing( 'Set up in minutes.' ) ).toBeInTheDocument();
+		expect( showing( 'Grow your audience.' ) ).not.toBeInTheDocument();
+
+		// From the last message, the next one is the first again.
+		await user.click( dots );
+		await user.click( dots );
+
+		expect( showing( 'Grow your audience.' ) ).toBeInTheDocument();
+	} );
+
 	it( 'shows the plugins feeding the screen on the feature step, and only there', async () => {
 		const { user } = setupWizard( { isUserConnected: true } );
 
@@ -625,9 +653,9 @@ describe( 'What the brand panel is showing', () => {
 
 	/*
 	 * Read off the source, not the DOM: Jest stubs the Sass module, so no rule of
-	 * ours is ever applied. Looping beside a form with no pause control fails WCAG 2.2.2.
+	 * ours is ever applied. The loop is the design's call, so nothing here may cap `--flow-runs`.
 	 */
-	it( 'runs the composition once beside the form', () => {
+	it( 'keeps the composition’s flow looping beside the form', () => {
 		const sheet = readFileSync( `${ __dirname }/../styles.module.scss`, 'utf8' );
 		const from = sheet.indexOf( '.data-in {' );
 
@@ -657,7 +685,7 @@ describe( 'What the brand panel is showing', () => {
 		const rule = sheet.slice( from, end + 1 );
 
 		expect( rule ).toMatch( /svg\s*\{/ );
-		expect( rule ).toMatch( /--flow-runs:\s*1;/ );
+		expect( rule ).not.toMatch( /--flow-runs/ );
 	} );
 } );
 
@@ -676,7 +704,7 @@ describe( 'Wizard shell', () => {
 	it( 'sends the rail out to WordPress and the footer back to My Jetpack', () => {
 		setupWizard( { isRegistered: true } );
 
-		const railExit = screen.getByRole( 'link', { name: 'Back to your WordPress site' } );
+		const railExit = screen.getByRole( 'link', { name: 'Go to the Dashboard' } );
 		const skip = screen.getByRole( 'link', { name: 'Skip setup' } );
 
 		expect( railExit ).toHaveAttribute( 'href', dashboardUrl );
@@ -824,19 +852,19 @@ describe( 'Wizard shell', () => {
 
 		expect( screen.queryByRole( 'button', { name: 'Continue' } ) ).not.toBeInTheDocument();
 
-		expect( screen.getByRole( 'link', { name: 'Go to My Jetpack' } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'link', { name: 'Go to Jetpack features' } ) ).toHaveAttribute(
 			'href',
-			exitUrl
+			featuresUrl
 		);
 		expect( screen.getByRole( 'link', { name: 'Back to your WordPress site' } ) ).toHaveAttribute(
 			'href',
 			dashboardUrl
 		);
 
-		// My Jetpack is the primary, so it leads. The class that styles it as one is
+		// Features is the primary, so it leads. The class that styles it as one is
 		// stubbed out under Jest, which leaves the order as what can be asserted.
 		expect( screen.getAllByRole( 'link' ).map( link => link.textContent ) ).toEqual( [
-			'Go to My Jetpack',
+			'Go to Jetpack features',
 			'Back to your WordPress site',
 		] );
 	} );
@@ -957,7 +985,7 @@ describe( 'Leaving setup', () => {
 	} );
 
 	// Leaving mid-apply would abandon the module requests still queued.
-	it.each( [ 'Skip setup', 'Back to your WordPress site' ] )(
+	it.each( [ 'Skip setup', 'Go to the Dashboard' ] )(
 		'ignores %s while modules are being switched',
 		async name => {
 			mockSetup.isApplying = true;
@@ -1021,9 +1049,9 @@ describe( 'Leaving setup', () => {
 
 		// Rejected only now, so nothing on the way here is answered with it.
 		mockApiFetch.mockRejectedValueOnce( new Error( 'nope' ) );
-		await user.click( await screen.findByRole( 'link', { name: 'Go to My Jetpack' } ) );
+		await user.click( await screen.findByRole( 'link', { name: 'Go to Jetpack features' } ) );
 
-		await waitFor( () => expect( assignedHref() ).toBe( exitUrl ) );
+		await waitFor( () => expect( assignedHref() ).toBe( featuresUrl ) );
 	} );
 
 	it( 'is not an exit when a middle click opens the link somewhere else', async () => {
@@ -1058,7 +1086,9 @@ describe( 'Leaving setup', () => {
 		// A hash is the only href jsdom will follow, so arriving at it is the only way
 		// to see that the default action was left alone.
 		mockConnection.isRegistered = true;
-		render( <Wizard exitUrl="#skipped" dashboardUrl={ dashboardUrl } /> );
+		render(
+			<Wizard exitUrl="#skipped" featuresUrl={ featuresUrl } dashboardUrl={ dashboardUrl } />
+		);
 
 		const held = savedRun();
 		expect( held ).not.toBeNull();
@@ -1081,7 +1111,7 @@ describe( 'Leaving setup', () => {
 	] )( '%s', async ( _name, isRegistered ) => {
 		const { user } = setupWizard( { isRegistered } );
 
-		await user.click( screen.getByRole( 'link', { name: 'Back to your WordPress site' } ) );
+		await user.click( screen.getByRole( 'link', { name: 'Go to the Dashboard' } ) );
 
 		const skips = mockApiFetch.mock.calls.filter( call =>
 			JSON.stringify( call ).includes( '"outcome":"skipped"' )
@@ -1095,7 +1125,7 @@ describe( 'Leaving setup', () => {
 		const { user } = setupWizard( { isUserConnected: true } );
 		await advance( user, 2 );
 
-		for ( const name of [ 'Go to My Jetpack', 'Back to your WordPress site' ] ) {
+		for ( const name of [ 'Go to Jetpack features', 'Back to your WordPress site' ] ) {
 			await user.pointer( { keys: '[MouseMiddle]', target: screen.getByRole( 'link', { name } ) } );
 		}
 
@@ -1152,7 +1182,12 @@ describe( 'Coming back to a run in progress', () => {
 	// Subdirectory sites share one origin, and so one session storage.
 	it( 'keeps each site’s run to that site', async () => {
 		const scoped = ( runScope: string ) =>
-			( window.myJetpackInitialState.onboardingWizard = { exitUrl, dashboardUrl, runScope } );
+			( window.myJetpackInitialState.onboardingWizard = {
+				exitUrl,
+				featuresUrl,
+				dashboardUrl,
+				runScope,
+			} );
 
 		try {
 			scoped( 'site-a' );
@@ -1472,7 +1507,7 @@ describe( 'What the wizard reports', () => {
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 		await user.click( screen.getByRole( 'switch', { name: 'Downtime Monitor' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
-		await user.click( await screen.findByRole( 'link', { name: 'Go to My Jetpack' } ) );
+		await user.click( await screen.findByRole( 'link', { name: 'Go to Jetpack features' } ) );
 
 		const keys = mockRecordEvent.mock.calls.flatMap( ( [ , props ] ) => Object.keys( props ) );
 
@@ -1487,7 +1522,7 @@ describe( 'What the wizard reports', () => {
 		const { user } = setupWizard( { isUserConnected: true } );
 		await advance( user, 2 );
 
-		await user.click( screen.getByRole( 'link', { name: 'Go to My Jetpack' } ) );
+		await user.click( screen.getByRole( 'link', { name: 'Go to Jetpack features' } ) );
 		await user.click( screen.getByRole( 'link', { name: 'Back to your WordPress site' } ) );
 
 		const exits = mockRecordEvent.mock.calls.filter( ( [ name ] ) =>
@@ -1682,10 +1717,10 @@ describe( 'The feature step', () => {
 			expect( heading() ).toHaveTextContent( 'Some features need another look' )
 		);
 		expect( screen.getByText( 'Not changed' ) ).toBeInTheDocument();
-		expect( screen.getByText( /The rest are ready/ ) ).toBeInTheDocument();
+		expect( screen.getByText( /Your other changes went through/ ) ).toBeInTheDocument();
 	} );
 
-	// "The rest are ready" is only true when some of the changes went through.
+	// "Your other changes went through" is only true when some of them did.
 	it( 'does not call the rest ready when none of the changes went through', async () => {
 		mockApply.mockResolvedValueOnce( [
 			{ slug: 'stats', name: 'Jetpack Stats', wanted: true, ok: true, changed: false },
@@ -1701,7 +1736,7 @@ describe( 'The feature step', () => {
 				"Your changes didn't go through. You can try them again in Jetpack settings."
 			)
 		).resolves.toBeInTheDocument();
-		expect( screen.queryByText( /The rest are ready/ ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /Your other changes went through/ ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( 'Nothing needed changing on this site.' ) ).not.toBeInTheDocument();
 	} );
 
@@ -1731,15 +1766,32 @@ describe( 'The feature step', () => {
 
 	// Safari drops the list role off a `list-style: none` list, so the summary
 	// has to say it or its rows read as loose text with no count.
-	it( 'keeps the finish summary a list', async () => {
+	it( 'lists only what the run switched on, as a list', async () => {
 		const { user } = setupWizard( { isUserConnected: true } );
 		await featureStep( user );
+		await user.click( screen.getByRole( 'switch', { name: 'Downtime Monitor' } ) );
+		await user.click( screen.getByRole( 'switch', { name: 'Jetpack Stats' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 
 		const list = await screen.findByRole( 'list' );
 
 		expect( list ).toHaveAttribute( 'role', 'list' );
-		expect( within( list ).getAllByRole( 'listitem' ) ).toHaveLength( mockModules.length );
+		expect(
+			within( list )
+				.getAllByRole( 'listitem' )
+				.map( item => item.textContent )
+		).toEqual( [ 'Downtime MonitorOn' ] );
+	} );
+
+	it( 'leaves the list out when the run switched nothing on', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+		await featureStep( user );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		await expect(
+			screen.findByText( 'Nothing needed changing on this site.' )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'list' ) ).not.toBeInTheDocument();
 	} );
 } );
 

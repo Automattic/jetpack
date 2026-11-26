@@ -181,16 +181,7 @@ export function wizardSteps(): WizardStepMeta[] {
 			 * This one is true either way, so it needs no second question about which.
 			 */
 			title: __( "What's this site for?", 'jetpack-my-jetpack' ),
-			/*
-			 * Says what the answer does and no more. It only orders the features —
-			 * all six are offered and all six start on whatever is picked — so
-			 * anything about recommending a different set would be a promise the
-			 * next step does not keep.
-			 */
-			description: __(
-				'Pick the closest fit. We’ll put the most useful features first.',
-				'jetpack-my-jetpack'
-			),
+			description: __( 'We’ll suggest the most useful features first.', 'jetpack-my-jetpack' ),
 			/*
 			 * Slugs rather than the prototype's prose values. Its label and stored
 			 * value disagree on the business row, and these go to Tracks.
@@ -322,6 +313,16 @@ export function settleOnboarding( outcome: SettleOutcome ): Promise< unknown > {
 }
 
 /**
+ * Whether this run switched a module on, and it took.
+ *
+ * @param result - What became of the module.
+ * @return True for a module the run turned on.
+ */
+export function switchedOn( result: SetupModuleResult ): boolean {
+	return result.changed && result.wanted && result.ok;
+}
+
+/**
  * What a run did: switched on, switched off, and failed.
  *
  * @param results - What became of each module.
@@ -329,7 +330,7 @@ export function settleOnboarding( outcome: SettleOutcome ): Promise< unknown > {
  */
 export function tallyResults( results: SetupModuleResult[] ) {
 	return {
-		on: results.filter( result => result.changed && result.wanted && result.ok ).length,
+		on: results.filter( switchedOn ).length,
 		off: results.filter( result => result.changed && ! result.wanted && result.ok ).length,
 		failed: results.filter( result => ! result.ok ).length,
 	};
@@ -388,7 +389,7 @@ function featuresDescriptions(): Record< string, string > {
 			'jetpack-my-jetpack'
 		),
 		store: __(
-			'A store loses sales while it’s down, so downtime alerts and login protection come first.',
+			'A store loses sales while it’s down, and stats show which products get seen.',
 			'jetpack-my-jetpack'
 		),
 		portfolio: __(

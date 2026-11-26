@@ -1,9 +1,8 @@
 import { __ } from '@wordpress/i18n';
-import { ThemeProvider } from '@wordpress/theme';
 import { Icon, Stack, Switch, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useId } from 'react';
-import { BRAND_COLOR, isWanted } from '../lib';
+import { isWanted } from '../lib';
 import styles from '../styles.module.scss';
 import { StepHeading } from './step-heading';
 import type { SetupModule } from '../use-setup-modules';
@@ -148,7 +147,7 @@ export function FeaturesStep( {
 			{ /*
 			 * A heading promising a list needs a list under it. Neither of these is a
 			 * theoretical state: the modules come from a request, and a site whose
-			 * Jetpack has none of the six reports none.
+			 * Jetpack has none of them reports none.
 			 */ }
 			{ isLoading && (
 				<Text variant="body-lg" render={ <p /> } className={ styles[ 'step-description' ] }>
@@ -165,25 +164,23 @@ export function FeaturesStep( {
 				</Text>
 			) }
 
-			<ThemeProvider color={ BRAND_COLOR }>
-				<div className={ clsx( styles[ 'feature-rows' ], styles.wave, styles[ 'wave-3' ] ) }>
-					{ modules.map( ( module, index ) => (
-						<div
-							key={ module.slug }
-							// The same cascade the answers above use, counted the same way.
-							className={ styles[ 'feature-row__wrap' ] }
-							style={ { '--row-index': index } as React.CSSProperties }
-						>
-							<FeatureRow
-								module={ module }
-								checked={ isWanted( wanted, module ) }
-								onChange={ onChange }
-								disabled={ disabled }
-							/>
-						</div>
-					) ) }
-				</div>
-			</ThemeProvider>
+			<div className={ clsx( styles[ 'feature-rows' ], styles.wave, styles[ 'wave-3' ] ) }>
+				{ modules.map( ( module, index ) => (
+					<div
+						key={ module.slug }
+						// The same cascade the answers above use, counted the same way.
+						className={ styles[ 'feature-row__wrap' ] }
+						style={ { '--row-index': index } as React.CSSProperties }
+					>
+						<FeatureRow
+							module={ module }
+							checked={ isWanted( wanted, module ) }
+							onChange={ onChange }
+							disabled={ disabled }
+						/>
+					</div>
+				) ) }
+			</div>
 		</Stack>
 	);
 }

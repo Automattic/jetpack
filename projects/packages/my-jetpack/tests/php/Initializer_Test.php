@@ -875,7 +875,7 @@ class Initializer_Test extends BaseTestCase {
 		Initializer::note_onboarding_registration( null, rest_get_server(), $request );
 
 		$this->assertSame(
-			array( 'blocks', 'json-api', 'seo-tools' ),
+			array( 'protect', 'blocks', 'json-api', 'seo-tools' ),
 			Initializer::limit_onboarding_default_modules( $offered )
 		);
 		$this->assertSame( '1', get_option( Initializer::ONBOARDING_DEFER_MODULES_OPTION ) );
@@ -887,7 +887,7 @@ class Initializer_Test extends BaseTestCase {
 		$_GET['redirect'] = 'admin.php?page=my-jetpack&step=onboarding';
 
 		$this->assertSame(
-			array( 'blocks', 'json-api', 'seo-tools' ),
+			array( 'protect', 'blocks', 'json-api', 'seo-tools' ),
 			Initializer::limit_onboarding_default_modules( $offered )
 		);
 		// Notes, AI and Newsletter require a user, so they are this second list and nothing else.

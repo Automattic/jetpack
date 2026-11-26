@@ -481,6 +481,8 @@ type VideopressData = {
 type OnboardingWizardState = {
 	// Where skipping the wizard lands: the My Jetpack dashboard.
 	exitUrl: string;
+	// Where finishing lands: My Jetpack's Features page.
+	featuresUrl: string;
 	// Where leaving Jetpack altogether lands: wp-admin's own dashboard.
 	dashboardUrl: string;
 	// This site and user, hashed: what the saved run is stored under.

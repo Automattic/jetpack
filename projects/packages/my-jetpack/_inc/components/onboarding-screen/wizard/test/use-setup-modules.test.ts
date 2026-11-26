@@ -221,6 +221,7 @@ describe( 'The modules the wizard offers', () => {
 		try {
 			window.myJetpackInitialState.onboardingWizard = {
 				exitUrl: '',
+				featuresUrl: '',
 				dashboardUrl: '',
 				runScope: '',
 				seoPlugin: 'Yoast SEO',
@@ -231,26 +232,40 @@ describe( 'The modules the wizard offers', () => {
 		}
 	} );
 
-	it( 'replaces a line that promises a paid plan, and keeps the rest', () => {
+	// A switch for something the host hid has no control anywhere else in My Jetpack.
+	it.each( [ 'publicize', 'social' ] )( 'leaves out Social when the host hides %s', hiddenSlug => {
 		mockStore.modules = {
-			stats: { name: 'Stats', description: 'Traffic insights.', activated: true },
-			'activity-log': {
-				name: 'Activity Log',
-				description: 'See what happened and roll back when something goes wrong.',
-				activated: true,
-			},
+			stats: { name: 'Stats', description: '', activated: true },
+			publicize: { name: 'Jetpack Social', description: '', activated: false },
 		};
 
-		const { result } = renderHook( () => useSetupModules() );
+		try {
+			window.myJetpackInitialState.hiddenFeatures = [ hiddenSlug ];
+			expect(
+				renderHook( () => useSetupModules() ).result.current.modules.map( m => m.slug )
+			).toEqual( [ 'stats' ] );
+		} finally {
+			delete window.myJetpackInitialState.hiddenFeatures;
+		}
+	} );
 
-		expect(
-			result.current.modules.map( ( { slug, description } ) => ( { slug, description } ) )
-		).toEqual( [
-			{ slug: 'stats', description: 'Traffic insights.' },
-			{
-				slug: 'activity-log',
-				description: 'See what changed on your site, who changed it, and when.',
-			},
-		] );
+	// Switching AI off here while Features hides its switch would leave no way to turn it back on.
+	it( 'offers AI only where Features shows its switch', () => {
+		mockStore.modules = {
+			stats: { name: 'Stats', description: '', activated: true },
+			ai: { name: 'AI', description: '', activated: true },
+		};
+		const slugs = () =>
+			renderHook( () => useSetupModules() ).result.current.modules.map( m => m.slug );
+		const flags = window.myJetpackInitialState.myJetpackFlags;
+
+		expect( slugs() ).toEqual( [ 'stats' ] );
+
+		try {
+			window.myJetpackInitialState.myJetpackFlags = { ...flags, showAiModuleToggle: true };
+			expect( slugs() ).toEqual( [ 'stats', 'ai' ] );
+		} finally {
+			window.myJetpackInitialState.myJetpackFlags = flags;
+		}
 	} );
 } );

@@ -51,8 +51,8 @@ const WizardLoading: FC = () => (
 	</div>
 );
 
-// The two ways out; the wizard reads its storage scope off the page itself.
-type WizardLinks = Pick< OnboardingWizardState, 'exitUrl' | 'dashboardUrl' >;
+// The ways out; the wizard reads its storage scope off the page itself.
+type WizardLinks = Pick< OnboardingWizardState, 'exitUrl' | 'featuresUrl' | 'dashboardUrl' >;
 
 // Stands in for a wizard that failed to load, keeping its skip: with the flag on,
 // My Jetpack keeps sending a site-only connection back here.
@@ -147,7 +147,11 @@ const OnboardingScreen: FC = () => {
 	if ( wizard?.exitUrl ) {
 		return (
 			<Suspense fallback={ <WizardLoading /> }>
-				<Wizard exitUrl={ wizard.exitUrl } dashboardUrl={ wizard.dashboardUrl } />
+				<Wizard
+					exitUrl={ wizard.exitUrl }
+					featuresUrl={ wizard.featuresUrl }
+					dashboardUrl={ wizard.dashboardUrl }
+				/>
 			</Suspense>
 		);
 	}

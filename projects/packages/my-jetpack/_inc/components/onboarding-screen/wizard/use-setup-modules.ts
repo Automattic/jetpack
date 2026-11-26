@@ -1,22 +1,22 @@
 import { store as modulesStore } from '@automattic/jetpack-shared-stores';
 import apiFetch from '@wordpress/api-fetch';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
-import {
-	bell,
-	chartBar,
-	envelope,
-	listView,
-	postCommentsForm,
-	search,
-	shield,
-} from '@wordpress/icons';
+import { bell, chartBar, envelope, postCommentsForm, search, share } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
 import { requestModuleSwitch } from '../../../data/module-switch';
 import { queueActivationRequest } from '../../../data/queue-activation-request';
-import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
+import {
+	getHiddenFeatures,
+	getMyJetpackWindowInitialState,
+} from '../../../data/utils/get-my-jetpack-window-state';
+import {
+	PRODUCT_MODULES,
+	isAiModuleToggleShown,
+} from '../../my-jetpack-tab-panel/features/mappings';
+import { aiSparkles } from './ai-sparkles';
 import { isWanted } from './lib';
 import type { MyJetpackModule } from '../../../types';
+import type { ReactElement } from 'react';
 
 /**
  * What the wizard offers, in order.
@@ -29,8 +29,8 @@ export const SETUP_MODULES = [
 	'stats',
 	'seo-tools',
 	'contact-form',
-	'protect',
-	'activity-log',
+	'publicize',
+	'ai',
 	'subscriptions',
 	'monitor',
 ] as const;
@@ -46,42 +46,18 @@ const NO_MODULES: Record< string, MyJetpackModule > = {};
  * is in it. featuresDescriptions() in lib.ts names the top two, so move both.
  */
 const SETUP_MODULE_ORDER: Record< string, readonly SetupModuleSlug[] > = {
-	blog: [
-		'stats',
-		'subscriptions',
-		'seo-tools',
-		'contact-form',
-		'protect',
-		'activity-log',
-		'monitor',
-	],
-	store: [
-		'monitor',
-		'protect',
-		'seo-tools',
-		'contact-form',
-		'activity-log',
-		'stats',
-		'subscriptions',
-	],
+	blog: [ 'stats', 'subscriptions', 'publicize', 'seo-tools', 'ai', 'contact-form', 'monitor' ],
+	store: [ 'monitor', 'stats', 'seo-tools', 'publicize', 'contact-form', 'ai', 'subscriptions' ],
 	portfolio: [
 		'contact-form',
 		'stats',
+		'publicize',
 		'seo-tools',
-		'protect',
+		'ai',
 		'monitor',
 		'subscriptions',
-		'activity-log',
 	],
-	business: [
-		'contact-form',
-		'monitor',
-		'seo-tools',
-		'stats',
-		'protect',
-		'subscriptions',
-		'activity-log',
-	],
+	business: [ 'contact-form', 'monitor', 'seo-tools', 'stats', 'publicize', 'ai', 'subscriptions' ],
 };
 
 /**
@@ -109,44 +85,23 @@ export function orderSetupModules(
 	return slugs.slice().sort( ( a, b ) => rank( a ) - rank( b ) );
 }
 
-/*
- * A glyph per module. Modules carry no icon of their own, and the Features grid
- * keys its icons off a catalog field these do not have, so the mapping lives
- * here. `@wordpress/icons` rather than the brand product SVGs, which is what the
- * Features grid uses and what the prototype's row shape was drawn around.
- */
-const SETUP_MODULE_ICONS: Record< SetupModuleSlug, typeof shield > = {
+// A glyph per module, which modules don't carry: `@wordpress/icons`, and AI's own sparkles where those have none.
+const SETUP_MODULE_ICONS: Record< SetupModuleSlug, ReactElement > = {
 	stats: chartBar,
 	'seo-tools': search,
 	'contact-form': postCommentsForm,
-	protect: shield,
-	'activity-log': listView,
+	publicize: share,
+	ai: aiSparkles,
 	subscriptions: envelope,
 	monitor: bell,
 };
 
-/**
- * Lines that replace a module's own, where its own promises more than the free tier gives.
- *
- * @return The replacement line for each module that needs one, translated at call time.
- */
-function setupModuleDescriptions(): Partial< Record< SetupModuleSlug, string > > {
-	return {
-		// Its header offers rolling back, which needs a paid Backup plan.
-		'activity-log': __(
-			'See what changed on your site, who changed it, and when.',
-			'jetpack-my-jetpack'
-		),
-	};
-}
-
 export type SetupModule = {
 	slug: SetupModuleSlug;
-	// Jetpack's own name and line for the module, already translated. The line is
-	// replaced only where setupModuleDescriptions() says why.
+	// Jetpack's own name and line for the module, already translated.
 	name: string;
 	description: string;
-	icon: typeof shield;
+	icon: ReactElement;
 	// Whether the site runs it now, which is also where its switch starts.
 	activated: boolean;
 	// The host forces it on or off, so its switch is shown but cannot move.
@@ -204,20 +159,30 @@ export function useSetupModules(
 	);
 
 	return useMemo( () => {
-		const descriptions = setupModuleDescriptions();
 		const seoPlugin = getMyJetpackWindowInitialState( 'onboardingWizard' )?.seoPlugin;
+		const showAi = isAiModuleToggleShown();
+		// A host hides a feature by its module slug or by the card that switches it.
+		const hidden = new Set( getHiddenFeatures() );
+		const hiddenCards = Object.entries( PRODUCT_MODULES ).filter( ( [ card ] ) =>
+			hidden.has( card )
+		);
+		const offered = ( slug: SetupModuleSlug ) =>
+			! hidden.has( slug ) &&
+			! hiddenCards.some( ( [ , module ] ) => module === slug ) &&
+			( slug !== 'seo-tools' || ! seoPlugin ) &&
+			( slug !== 'ai' || showAi );
 
 		return {
 			isLoading,
-			// A module Jetpack does not have on this site is left out rather than
-			// rendered as a row that cannot be switched, and so is SEO beside another SEO plugin.
+			// A module Jetpack does not have on this site is left out rather than rendered as a
+			// row that cannot be switched, and so is one the host hid or Features does not offer.
 			modules: orderSetupModules(
 				siteType,
-				SETUP_MODULES.filter( slug => modules?.[ slug ] && ! ( slug === 'seo-tools' && seoPlugin ) )
+				SETUP_MODULES.filter( slug => modules?.[ slug ] && offered( slug ) )
 			).map( slug => ( {
 				slug,
 				name: modules[ slug ].name,
-				description: descriptions[ slug ] ?? modules[ slug ].description,
+				description: modules[ slug ].description,
 				icon: SETUP_MODULE_ICONS[ slug ],
 				activated: Boolean( modules[ slug ].activated ),
 				locked: Boolean( modules[ slug ].override ),

@@ -11,8 +11,8 @@ describe( 'Ordering the feature list by what the site is for', () => {
 		] );
 	} );
 
-	it( 'leads a store with staying up and staying locked', () => {
-		expect( orderSetupModules( 'store', ALL ).slice( 0, 2 ) ).toEqual( [ 'monitor', 'protect' ] );
+	it( 'leads a store with staying up and being seen', () => {
+		expect( orderSetupModules( 'store', ALL ).slice( 0, 2 ) ).toEqual( [ 'monitor', 'stats' ] );
 	} );
 
 	it( 'leads a portfolio and a business site with being contacted', () => {

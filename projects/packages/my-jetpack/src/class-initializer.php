@@ -93,11 +93,12 @@ class Initializer {
 	const ONBOARDING_DEFER_MODULES_OPTION = 'jetpack_my_jetpack_onboarding_defer_modules';
 
 	/**
-	 * Modules a fresh connection still needs, and SEO, which every site does. The features step offers the rest.
+	 * Modules a fresh connection still needs, plus SEO, login protection and the activity log, which
+	 * stay on without a row. The features step offers the rest.
 	 *
 	 * @var string[]
 	 */
-	const ONBOARDING_BACKGROUND_MODULES = array( 'blocks', 'json-api', 'seo-tools' );
+	const ONBOARDING_BACKGROUND_MODULES = array( 'blocks', 'json-api', 'seo-tools', 'protect', 'activity-log' );
 
 	/**
 	 * Whether the current request is the wizard's registration call.
@@ -747,7 +748,7 @@ class Initializer {
 	 *
 	 * @since 6.11.0
 	 *
-	 * @return array{exitUrl: string, dashboardUrl: string, runScope: string, seoPlugin: string|null}|null
+	 * @return array{exitUrl: string, featuresUrl: string, dashboardUrl: string, runScope: string, seoPlugin: string|null}|null
 	 */
 	public static function get_onboarding_wizard_state() {
 		if ( ! self::is_onboarding_wizard_enabled() ) {
@@ -760,6 +761,14 @@ class Initializer {
 		return array(
 			// Where skipping the wizard lands: the admin menu is hidden, so leaving is always one click.
 			'exitUrl'      => admin_url( 'admin.php?page=my-jetpack' ),
+			// Where finishing lands: Features, as a full page load so it leaves the takeover.
+			'featuresUrl'  => add_query_arg(
+				array(
+					'page' => 'my-jetpack',
+					'p'    => rawurlencode( '/features' ),
+				),
+				admin_url( 'admin.php' )
+			),
 			// Where leaving Jetpack altogether lands: wp-admin's own dashboard.
 			'dashboardUrl' => admin_url(),
 			// Keys the run in session storage, which subdirectory sites on one domain share.

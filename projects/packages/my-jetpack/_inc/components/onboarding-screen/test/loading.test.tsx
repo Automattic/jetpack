@@ -11,6 +11,7 @@ describe( 'OnboardingScreen while the wizard loads', () => {
 	it( 'says it is busy rather than showing an empty window', async () => {
 		window.myJetpackInitialState.onboardingWizard = {
 			exitUrl: 'http://example.com/wp-admin/admin.php?page=my-jetpack',
+			featuresUrl: 'http://example.com/wp-admin/admin.php?page=my-jetpack&p=%2Ffeatures',
 			dashboardUrl: 'http://example.com/wp-admin/',
 			runScope: 'a1b2c3d4e5f6',
 		};

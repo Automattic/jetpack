@@ -5,7 +5,7 @@ import { check, lineSolid } from '@wordpress/icons';
 import { ThemeProvider } from '@wordpress/theme';
 import { ButtonLink, Card, Icon, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
-import { BRAND_COLOR, tallyResults } from '../lib';
+import { BRAND_COLOR, switchedOn, tallyResults } from '../lib';
 import styles from '../styles.module.scss';
 import type { SetupModuleResult } from '../use-setup-modules';
 import type { MouseEvent } from 'react';
@@ -18,7 +18,7 @@ type FinishStepProps = {
 	results: SetupModuleResult[];
 	// Where the two ways out lead.
 	dashboardUrl: string;
-	exitUrl: string;
+	featuresUrl: string;
 	// Records that setup is finished.
 	onLeave: ( event: MouseEvent< HTMLElement > ) => void;
 	// True once one of the exits has been taken.
@@ -39,11 +39,11 @@ function summarise( results: SetupModuleResult[], counts: Tally ) {
 	if ( counts.failed ) {
 		return {
 			title: __( 'Some features need another look', 'jetpack-my-jetpack' ),
-			// "The rest" only when some of the changes went through.
+			// "Other changes" only when some of them went through.
 			description:
 				counts.on + counts.off > 0
 					? __(
-							'The rest are ready. You can try the others again in Jetpack settings.',
+							'Your other changes went through. You can try these again in Jetpack settings.',
 							'jetpack-my-jetpack'
 						)
 					: __(
@@ -58,7 +58,7 @@ function summarise( results: SetupModuleResult[], counts: Tally ) {
 		return {
 			title: __( 'Nothing changed on your site', 'jetpack-my-jetpack' ),
 			description: __(
-				'Everything stays as it was. You can switch these on any time in Jetpack settings.',
+				'Everything stays as it was. You can switch features on any time in Jetpack settings.',
 				'jetpack-my-jetpack'
 			),
 		};
@@ -133,20 +133,6 @@ function sessionTally( { on, off, failed }: Tally ): string | null {
 }
 
 /**
- * What one row says on the right.
- *
- * @param result - What became of the module.
- * @return The status word.
- */
-function statusLabel( result: SetupModuleResult ) {
-	if ( ! result.ok ) {
-		return __( 'Not changed', 'jetpack-my-jetpack' );
-	}
-
-	return result.wanted ? __( 'On', 'jetpack-my-jetpack' ) : __( 'Off', 'jetpack-my-jetpack' );
-}
-
-/**
  * The finish screen: the mark arriving, what happened, and the way out.
  *
  * It takes the whole sheet rather than sitting in the question column, because
@@ -157,7 +143,7 @@ function statusLabel( result: SetupModuleResult ) {
  * @param props.titleId      - The id the region is labelled by.
  * @param props.results      - What became of each module.
  * @param props.dashboardUrl - Back to wp-admin.
- * @param props.exitUrl      - On to My Jetpack.
+ * @param props.featuresUrl  - On to My Jetpack's Features page.
  * @param props.onLeave      - Records the finish, then follows the link.
  * @param props.isLeaving    - Whether an exit is already under way.
  * @return The rendered step.
@@ -166,7 +152,7 @@ export function FinishStep( {
 	titleId,
 	results,
 	dashboardUrl,
-	exitUrl,
+	featuresUrl,
 	onLeave,
 	isLeaving = false,
 }: FinishStepProps ) {
@@ -174,6 +160,8 @@ export function FinishStep( {
 	const counts = tallyResults( results );
 	const summary = summarise( results, counts );
 	const tally = sessionTally( counts );
+	// What this run switched on, and anything it could not change; every listed row that took is on.
+	const listed = results.filter( result => ! result.ok || switchedOn( result ) );
 
 	return (
 		<div className={ styles.finish }>
@@ -238,37 +226,41 @@ export function FinishStep( {
 						) }
 
 						{ /* Safari drops the list role off a `list-style: none` list, so the count goes unsaid. */ }
-						<Card.Root
-							render={ <ul /> }
-							role="list"
-							className={ clsx( styles[ 'finish-card' ], styles.wave, styles[ 'wave-3' ] ) }
-						>
-							{ results.map( result => (
-								<Stack
-									key={ result.slug }
-									render={ <li /> }
-									align="center"
-									gap="md"
-									className={ styles[ 'finish-row' ] }
-								>
-									<span
-										aria-hidden="true"
-										className={ clsx(
-											styles[ 'finish-row__glyph' ],
-											result.ok && result.wanted && styles[ 'finish-row__glyph--on' ]
-										) }
+						{ listed.length > 0 && (
+							<Card.Root
+								render={ <ul /> }
+								role="list"
+								className={ clsx( styles[ 'finish-card' ], styles.wave, styles[ 'wave-3' ] ) }
+							>
+								{ listed.map( result => (
+									<Stack
+										key={ result.slug }
+										render={ <li /> }
+										align="center"
+										gap="md"
+										className={ styles[ 'finish-row' ] }
 									>
-										<Icon icon={ result.ok && result.wanted ? check : lineSolid } />
-									</span>
-									<Text variant="body-md" className={ styles[ 'finish-row__name' ] }>
-										{ result.name }
-									</Text>
-									<Text variant="body-md" className={ styles[ 'finish-row__state' ] }>
-										{ statusLabel( result ) }
-									</Text>
-								</Stack>
-							) ) }
-						</Card.Root>
+										<span
+											aria-hidden="true"
+											className={ clsx(
+												styles[ 'finish-row__glyph' ],
+												result.ok && styles[ 'finish-row__glyph--on' ]
+											) }
+										>
+											<Icon icon={ result.ok ? check : lineSolid } />
+										</span>
+										<Text variant="body-md" className={ styles[ 'finish-row__name' ] }>
+											{ result.name }
+										</Text>
+										<Text variant="body-md" className={ styles[ 'finish-row__state' ] }>
+											{ result.ok
+												? __( 'On', 'jetpack-my-jetpack' )
+												: __( 'Not changed', 'jetpack-my-jetpack' ) }
+										</Text>
+									</Stack>
+								) ) }
+							</Card.Root>
+						) }
 					</Stack>
 				) }
 
@@ -280,12 +272,12 @@ export function FinishStep( {
 					<ThemeProvider color={ BRAND_COLOR }>
 						<ButtonLink
 							variant="solid"
-							href={ exitUrl }
+							href={ featuresUrl }
 							onClick={ onLeave }
 							aria-disabled={ isLeaving || undefined }
 							className={ styles[ 'finish-primary' ] }
 						>
-							{ __( 'Go to My Jetpack', 'jetpack-my-jetpack' ) }
+							{ __( 'Go to Jetpack features', 'jetpack-my-jetpack' ) }
 						</ButtonLink>
 					</ThemeProvider>
 

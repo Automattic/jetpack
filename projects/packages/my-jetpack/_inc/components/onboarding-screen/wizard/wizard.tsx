@@ -1,12 +1,13 @@
 import { useConnection } from '@automattic/jetpack-connection';
 import { NavigableRegion } from '@wordpress/admin-ui';
 import {
-	// The Site Editor's own rail is built from these two; there is no stable alias.
+	// The Site Editor's own rail is built from these; Item and ItemGroup have no stable alias.
+	Button as SidebarButton,
 	__experimentalItem as Item, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalItemGroup as ItemGroup, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
-import { __, sprintf } from '@wordpress/i18n';
-import { border, chevronLeft, chevronRight, drafts, published, wordpress } from '@wordpress/icons';
+import { __, isRTL, sprintf } from '@wordpress/i18n';
+import { border, chevronLeft, chevronRight, drafts, published } from '@wordpress/icons';
 import { ThemeProvider } from '@wordpress/theme';
 import { Button, ButtonLink, Icon, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
@@ -35,6 +36,7 @@ import {
 	type WizardStepKind,
 } from './lib';
 import { PanelArt } from './panel-art';
+import { PanelLines } from './panel-lines';
 import { ChoiceStep } from './steps/choice-step';
 import { FeaturesStep } from './steps/features-step';
 import { FinishStep } from './steps/finish-step';
@@ -87,7 +89,8 @@ function stepGlyph( index: number, current: number ) {
  *
  * The panel takes the subject of the step it is next to: a site being run on the
  * step that asks what the site is for, the plugins feeding the screen on the step
- * that asks which to switch on, and the mark everywhere else.
+ * that asks which to switch on, and the mark everywhere else, with the brand's
+ * messages taking turns under it.
  *
  * @param props      - The component props.
  * @param props.kind - The kind of step the panel is beside.
@@ -102,13 +105,20 @@ function PanelArtwork( { kind }: { kind: WizardStepKind } ) {
 		return <DataInArt />;
 	}
 
-	return <PanelArt />;
+	return (
+		<>
+			<PanelArt />
+			<PanelLines />
+		</>
+	);
 }
 
 type WizardProps = {
 	// Where skipping the wizard lands. The admin menu is hidden here, so leaving is never
 	// more than one click.
 	exitUrl: string;
+	// Where the finish screen's primary leads: My Jetpack's Features page.
+	featuresUrl: string;
 	// Where the rail's control lands: out of Jetpack entirely, back to wp-admin.
 	dashboardUrl: string;
 };
@@ -122,10 +132,11 @@ type WizardProps = {
  *
  * @param props              - The component props.
  * @param props.exitUrl      - The My Jetpack URL the footer's skip leads to.
+ * @param props.featuresUrl  - The Features URL the finish screen leads to.
  * @param props.dashboardUrl - The wp-admin URL the rail's control leads to.
  * @return The rendered wizard.
  */
-export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
+export function Wizard( { exitUrl, featuresUrl, dashboardUrl }: WizardProps ) {
 	const steps = wizardSteps();
 
 	// Connecting leaves wp-admin for WordPress.com and comes back to a fresh page,
@@ -171,8 +182,8 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	 */
 	const [ siteTypeDetail, setSiteTypeDetail ] = useState( saved?.freeText ?? '' );
 
-	// Ordered by what the site is for: the same six, with the ones that matter to
-	// this kind of site at the top.
+	// Ordered by what the site is for: the same features, with the ones that matter
+	// to this kind of site at the top.
 	const siteType = siteTypeAnswer( { choices, freeText: siteTypeDetail } );
 	const { modules, isLoading: modulesLoading } = useSetupModules( siteType, isUserConnected );
 	const { apply, isApplying } = useApplySetupModules();
@@ -456,7 +467,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 				titleId={ titleId }
 				results={ moduleResults }
 				dashboardUrl={ dashboardUrl }
-				exitUrl={ exitUrl }
+				featuresUrl={ featuresUrl }
 				onLeave={ handleExit( 'completed' ) }
 				isLeaving={ isLeaving }
 			/>
@@ -499,37 +510,24 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 				 */ }
 				{ ! isFinish && (
 					<NavigableRegion ariaLabel={ wizardTitle } className={ styles.rail }>
-						<Stack
-							direction="column"
-							align="flex-start"
-							gap="xs"
-							className={ styles[ 'rail-head' ] }
-						>
-							{ /*
-							 * The words are on the control rather than in a tooltip. The mark
-							 * alone says nothing, and a tooltip is the one affordance a touch
-							 * user never gets — on the screen that takes over their admin, the
-							 * way back has to be readable without hovering it.
-							 */ }
-							<ButtonLink
-								variant="minimal"
-								tone="neutral"
+						<Stack align="flex-start" gap="md" className={ styles[ 'rail-head' ] }>
+							<SidebarButton
 								size="compact"
+								icon={ isRTL() ? chevronRight : chevronLeft }
+								label={ __( 'Go to the Dashboard', 'jetpack-my-jetpack' ) }
 								href={ dashboardUrl }
 								onClick={ handleExit( 'skipped' ) }
 								aria-disabled={ busy || undefined }
 								className={ styles.exit }
-							>
-								<ButtonLink.Icon icon={ wordpress } />
-								{ __( 'Back to your WordPress site', 'jetpack-my-jetpack' ) }
-							</ButtonLink>
-
-							<Text variant="heading-xl" render={ <h2 /> } className={ styles[ 'rail-title' ] }>
-								{ wizardTitle }
-							</Text>
-							<Text variant="body-md" className={ styles[ 'rail-count' ] }>
-								{ stepCount }
-							</Text>
+							/>
+							<Stack direction="column" className={ styles[ 'rail-heading' ] }>
+								<Text variant="heading-xl" render={ <h2 /> } className={ styles[ 'rail-title' ] }>
+									{ wizardTitle }
+								</Text>
+								<Text variant="body-md" className={ styles[ 'rail-count' ] }>
+									{ stepCount }
+								</Text>
+							</Stack>
 						</Stack>
 
 						{ /*

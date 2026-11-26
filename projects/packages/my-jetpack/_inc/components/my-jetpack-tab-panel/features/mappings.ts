@@ -49,14 +49,22 @@ export const PRODUCT_MODULES: {
  * @return The map, without the AI entry while the control is gated.
  */
 export function getProductModules() {
-	const { showAiModuleToggle = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
-	if ( showAiModuleToggle ) {
+	if ( isAiModuleToggleShown() ) {
 		return PRODUCT_MODULES;
 	}
 
 	const gated = { ...PRODUCT_MODULES };
 	delete gated[ 'jetpack-ai' ];
 	return gated;
+}
+
+/**
+ * Whether Jetpack AI's switch is past its pre-release gate. The setup wizard offers AI on the same terms.
+ *
+ * @return Whether surfaces may offer the AI module's switch.
+ */
+export function isAiModuleToggleShown(): boolean {
+	return Boolean( getMyJetpackWindowInitialState( 'myJetpackFlags' ).showAiModuleToggle );
 }
 
 /**
