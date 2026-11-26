@@ -8,7 +8,7 @@ import {
 	ReportDrilldownTable,
 	ReportRecordsTable,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { act, render } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
@@ -57,6 +57,8 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	ReportPageTabs: () => null,
 	ReportDrilldownTable: jest.fn( () => null ),
 	ReportRecordsTable: jest.fn( () => null ),
+	ReportThumbnail: ( { thumbnailUrl }: { thumbnailUrl?: string } ) =>
+		thumbnailUrl ? <img alt="" src={ thumbnailUrl } /> : null,
 	ExporterCsvAction: jest.fn( () => <button>Download</button> ),
 } ) );
 
@@ -140,6 +142,7 @@ describe( 'PostsReportPage', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		usePostThumbnailsMock.mockReturnValue( {} );
+		reportRecordsTableMock.mockImplementation( () => null );
 		useSectionTabMock.mockReturnValue( [ 'posts-pages', jest.fn() ] );
 	} );
 
@@ -196,6 +199,25 @@ describe( 'PostsReportPage', () => {
 			titleField: 'title',
 			mediaField: 'thumbnail',
 		} );
+	} );
+
+	it( "hands each resolved thumbnail to its row's thumbnail cell", () => {
+		const records = buildRecords();
+		useRecordsMock.mockReturnValue( records );
+		usePostThumbnailsMock.mockReturnValue( { 42: 'https://example.com/42.jpg' } );
+		reportRecordsTableMock.mockImplementation( ( { data, fields } ) => {
+			const thumbnail = fields.find( field => field.id === 'thumbnail' );
+			// eslint-disable-next-line testing-library/render-result-naming-convention -- `render` here is the DataViews field render component, not RTL's render result.
+			const Cell = thumbnail?.render;
+			return Cell ? <Cell item={ data[ 0 ] } field={ thumbnail as never } /> : null;
+		} );
+
+		render( <PostsReportPage /> );
+
+		expect( screen.getByRole( 'presentation' ) ).toHaveAttribute(
+			'src',
+			'https://example.com/42.jpg'
+		);
 	} );
 
 	it( 'gives the Archives export the archives request status', () => {
