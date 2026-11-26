@@ -36,39 +36,34 @@ const PARSELY_PROMPTS_VIEWS_THRESHOLD = 100000;
 const PARSELY_PROMPTS_TIERS = array( STATS_TIER_COMMERCIAL, STATS_TIER_PAID );
 
 /**
- * Field on the Stats usage payload that opens the prompts for a site. WordPress.com decides which
- * sites get them, which is the only switch a self-hosted site can be reached by between plugin
- * releases: those sites answer no filter and store no state of their own, so anything in the
- * plugin would hold until the next release. STATS-680 serves it.
- *
- * Only an explicit `true` opens them, so a payload that predates the field, and a failed lookup,
- * both leave them closed.
+ * Stats usage field that opens the prompts for a site. Only an explicit `true` does.
  *
  * @var string
  */
 const PARSELY_PROMPTS_ENABLED_FIELD = 'parsely_prompts_enabled';
 
 /**
- * Transient holding the views figure the threshold is measured against, and whether
- * WordPress.com opens the prompts for the site. Both come from one request.
+ * Transient holding what the Stats usage payload said: the views figure the threshold is measured
+ * against, and whether WordPress.com opens the prompts. Both come from one request.
  *
  * @var string
  */
-const PARSELY_PROMPTS_VIEWS_TRANSIENT = 'jetpack_premium_analytics_parsely_views';
+const PARSELY_PROMPTS_USAGE_TRANSIENT = 'jetpack_premium_analytics_parsely_usage';
 
 /**
- * How long that figure stands. A promo can lag a site crossing the threshold.
+ * How long that answer stands. A promo can lag a site crossing the threshold, and opening or
+ * closing the prompts takes this long to reach a site holding a recent answer.
  *
  * @var int
  */
-const PARSELY_PROMPTS_VIEWS_TTL = 12 * HOUR_IN_SECONDS;
+const PARSELY_PROMPTS_USAGE_TTL = 12 * HOUR_IN_SECONDS;
 
 /**
  * How long a failed lookup stands, so one bad response does not hide the prompt all day.
  *
  * @var int
  */
-const PARSELY_PROMPTS_VIEWS_RETRY_TTL = HOUR_IN_SECONDS;
+const PARSELY_PROMPTS_USAGE_RETRY_TTL = HOUR_IN_SECONDS;
 
 /**
  * Configures the Upgrade to Parse.ly prompts.
@@ -123,7 +118,6 @@ function offers_parsely_prompts() {
 	/**
 	 * Filters whether the site and user see the Upgrade to Parse.ly prompts. It runs after every
 	 * condition, so returning true shows them to a site WordPress.com has not opened them for.
-	 * This is how a development site, which WordPress.com will never open them for, shows them.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -172,7 +166,9 @@ function get_monthly_stats_views() {
  * @return bool
  */
 function prompts_enabled_by_wordpress_com() {
-	return get_parsely_prompts_usage()['enabled'];
+	// Checked as strictly as it was stored: an object cache that hands back 1 for a stored true
+	// would otherwise open the prompts, and nothing here may fail open.
+	return true === get_parsely_prompts_usage()['enabled'];
 }
 
 /**
@@ -184,7 +180,7 @@ function prompts_enabled_by_wordpress_com() {
  * @return array{views: int|null, enabled: bool}
  */
 function get_parsely_prompts_usage() {
-	$cached = get_transient( PARSELY_PROMPTS_VIEWS_TRANSIENT );
+	$cached = get_transient( PARSELY_PROMPTS_USAGE_TRANSIENT );
 
 	// A cache of any other shape is refetched rather than read, so one written before `enabled`
 	// existed heals itself instead of holding the prompts closed for the rest of its life.
@@ -199,9 +195,9 @@ function get_parsely_prompts_usage() {
 	 * this a site whose blog token has gone stale re-sends the request on every admin page render.
 	 */
 	set_transient(
-		PARSELY_PROMPTS_VIEWS_TRANSIENT,
+		PARSELY_PROMPTS_USAGE_TRANSIENT,
 		$usage,
-		null === $usage['views'] ? PARSELY_PROMPTS_VIEWS_RETRY_TTL : PARSELY_PROMPTS_VIEWS_TTL
+		null === $usage['views'] ? PARSELY_PROMPTS_USAGE_RETRY_TTL : PARSELY_PROMPTS_USAGE_TTL
 	);
 
 	return $usage;

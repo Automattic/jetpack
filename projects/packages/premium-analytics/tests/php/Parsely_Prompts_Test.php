@@ -92,7 +92,7 @@ class Parsely_Prompts_Test extends BaseTestCase {
 		remove_all_filters( 'jetpack_fetch_stats_cache_expiration' );
 		remove_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_parsely_prompts_script_data', 20 );
 		unset( $_GET['page'], $GLOBALS['current_screen'], $GLOBALS['parsely'] );
-		delete_transient( PARSELY_PROMPTS_VIEWS_TRANSIENT );
+		delete_transient( PARSELY_PROMPTS_USAGE_TRANSIENT );
 		delete_option( 'parsely' );
 		wp_set_current_user( 0 );
 		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
@@ -237,38 +237,28 @@ class Parsely_Prompts_Test extends BaseTestCase {
 		$this->answer_stats_usage_with( new WP_Error( 'api_error', 'WordPress.com is unavailable.' ) );
 
 		offers_parsely_prompts();
-		$timeout = (int) get_option( '_transient_timeout_' . PARSELY_PROMPTS_VIEWS_TRANSIENT );
+		$timeout = (int) get_option( '_transient_timeout_' . PARSELY_PROMPTS_USAGE_TRANSIENT );
 
 		$this->assertGreaterThan( time(), $timeout );
-		$this->assertLessThanOrEqual( time() + PARSELY_PROMPTS_VIEWS_RETRY_TTL, $timeout );
+		$this->assertLessThanOrEqual( time() + PARSELY_PROMPTS_USAGE_RETRY_TTL, $timeout );
 	}
 
 	public function test_an_answer_stands_longer_than_a_failure() {
 		$this->answer_stats_usage_with( self::usage_with_views( 150000 ) );
 
 		offers_parsely_prompts();
-		$timeout = (int) get_option( '_transient_timeout_' . PARSELY_PROMPTS_VIEWS_TRANSIENT );
+		$timeout = (int) get_option( '_transient_timeout_' . PARSELY_PROMPTS_USAGE_TRANSIENT );
 
-		$this->assertGreaterThan( time() + PARSELY_PROMPTS_VIEWS_RETRY_TTL, $timeout );
-		$this->assertLessThanOrEqual( time() + PARSELY_PROMPTS_VIEWS_TTL, $timeout );
+		$this->assertGreaterThan( time() + PARSELY_PROMPTS_USAGE_RETRY_TTL, $timeout );
+		$this->assertLessThanOrEqual( time() + PARSELY_PROMPTS_USAGE_TTL, $timeout );
 	}
 
 	public function test_a_cache_of_another_shape_is_refetched() {
-		set_transient( PARSELY_PROMPTS_VIEWS_TRANSIENT, array( 'an earlier shape' => 150000 ), PARSELY_PROMPTS_VIEWS_TTL );
+		set_transient( PARSELY_PROMPTS_USAGE_TRANSIENT, array( 'an earlier shape' => 150000 ), PARSELY_PROMPTS_USAGE_TTL );
 		$this->answer_stats_usage_with( self::usage_with_views( 150000 ) );
 
 		$this->assertTrue( offers_parsely_prompts() );
 		$this->assertSame( 1, $this->usage_requests );
-	}
-
-	/**
-	 * The switch WordPress.com holds, and the reason this check asks it at all: a self-hosted site
-	 * can be reached by nothing else between plugin releases.
-	 */
-	public function test_wordpress_com_can_close_the_prompts() {
-		$this->answer_stats_usage_with( self::usage_enabled( self::usage_with_views( 150000 ), false ) );
-
-		$this->assertFalse( offers_parsely_prompts() );
 	}
 
 	/**
@@ -302,7 +292,7 @@ class Parsely_Prompts_Test extends BaseTestCase {
 	 */
 	public static function provide_values_that_do_not_open_the_prompts() {
 		return array(
-			'null'            => array( null ),
+			'false'           => array( false ),
 			'one'             => array( 1 ),
 			'the string true' => array( 'true' ),
 			'the string on'   => array( 'on' ),
@@ -322,17 +312,13 @@ class Parsely_Prompts_Test extends BaseTestCase {
 	 * hold the prompts closed for a site WordPress.com has since opened.
 	 */
 	public function test_a_cache_without_the_field_is_refetched() {
-		set_transient( PARSELY_PROMPTS_VIEWS_TRANSIENT, array( 'views' => 150000 ), PARSELY_PROMPTS_VIEWS_TTL );
+		set_transient( PARSELY_PROMPTS_USAGE_TRANSIENT, array( 'views' => 150000 ), PARSELY_PROMPTS_USAGE_TTL );
 		$this->answer_stats_usage_with( self::usage_with_views( 150000 ) );
 
 		$this->assertTrue( offers_parsely_prompts() );
 		$this->assertSame( 1, $this->usage_requests );
 	}
 
-	/**
-	 * The local override, which is how a development site shows the prompts: WordPress.com will
-	 * never open them for a site it does not know.
-	 */
 	public function test_the_filter_opens_the_prompts_without_wordpress_com() {
 		$this->answer_stats_usage_with( self::usage_enabled( self::usage_with_views( 150000 ), false ) );
 		add_filter( OFFERS_PARSELY_PROMPTS_FILTER, '__return_true' );
