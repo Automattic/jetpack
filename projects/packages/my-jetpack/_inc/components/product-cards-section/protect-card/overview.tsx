@@ -51,7 +51,9 @@ const ProtectOverviewItem: ProductCardComponent = ( { admin } ) => {
 	if ( hasPaidPlanForProduct ) {
 		label = __( 'Threats found', 'jetpack-my-jetpack' );
 		count =
-			isPluginActive && isSiteConnected ? ( data?.scanData?.threats?.length ?? 0 ) : undefined;
+			isPluginActive && isSiteConnected
+				? ( data?.threatCount ?? data?.scanData?.threats?.length ?? 0 )
+				: undefined;
 		if ( manageUrl ) {
 			action = {
 				label: count

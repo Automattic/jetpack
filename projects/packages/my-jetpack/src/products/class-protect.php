@@ -11,6 +11,7 @@ use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Products;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Automattic\Jetpack\Protect\Threat_Count;
 use Automattic\Jetpack\Protect_Status\Plan;
 use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
 use Automattic\Jetpack\Redirect;
@@ -645,8 +646,9 @@ class Protect extends Hybrid_Product {
 
 		return rest_ensure_response(
 			array(
-				'scanData'  => self::filter_scan_data_by_capability( $scan_data ),
-				'wafConfig' => array_merge(
+				'scanData'    => self::filter_scan_data_by_capability( $scan_data ),
+				'threatCount' => self::get_threat_count(),
+				'wafConfig'   => array_merge(
 					self::filter_waf_config_by_capability( $waf_config ),
 					array(
 						'waf_supported'        => $waf_supported,
@@ -657,6 +659,18 @@ class Protect extends Hybrid_Product {
 				),
 			)
 		);
+	}
+
+	/**
+	 * The count Protect shows in its menu badge, which leaves out threats the site fixed since Scan last scanned.
+	 *
+	 * @return int|null Null when Protect is too old to tell, or has no stored status yet.
+	 */
+	private static function get_threat_count() {
+		if ( ! class_exists( Threat_Count::class ) || ! method_exists( Threat_Count::class, 'get_cached' ) ) {
+			return null;
+		}
+		return Threat_Count::get_cached();
 	}
 
 	/**
