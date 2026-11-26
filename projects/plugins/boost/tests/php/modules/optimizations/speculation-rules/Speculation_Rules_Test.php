@@ -102,10 +102,10 @@ class Speculation_Rules_Test extends MockeryTestCase {
 	 * @param string   $home_url The site home URL.
 	 * @param string[] $test_urls The Cornerstone Page URLs.
 	 * @param string[] $patterns The expected prerender patterns.
-	 * @dataProvider home_urls
+	 * @dataProvider provide_cornerstone_prerender_patterns
 	 */
-	#[DataProvider( 'home_urls' )]
-	public function test_add_cornerstone_rules_with_valid_urls( $home_url, $test_urls, $patterns ) {
+	#[DataProvider( 'provide_cornerstone_prerender_patterns' )]
+	public function test_cornerstone_prerender_patterns( $home_url, $test_urls, $patterns ) {
 		// Set up Cornerstone_Utils mock for this test
 		$cornerstone_utils_mock = Mockery::mock( 'alias:Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils' );
 		$cornerstone_utils_mock->shouldReceive( 'get_list' )
@@ -141,11 +141,13 @@ class Speculation_Rules_Test extends MockeryTestCase {
 	 *
 	 * @return array<string, array{string, string[], string[]}>
 	 */
-	public static function home_urls() {
+	public static function provide_cornerstone_prerender_patterns() {
 		$plain_host  = 'https://example.com';
 		$custom_port = 'http://localhost:8081';
+		$subdir      = $custom_port . '/blog';
 		$other_host  = 'http://other.example:8081/about';
 		$userinfo    = 'http://localhost:8081@evil.example:8081/about';
+		$local_user  = 'http://user@localhost:8081/about';
 		$patterns    = array( '/', '/about/', '/contact/' );
 
 		return array(
@@ -153,8 +155,18 @@ class Speculation_Rules_Test extends MockeryTestCase {
 			'custom port'                    => array( $custom_port, array( $custom_port, $custom_port . '/about', $custom_port . '/contact/' ), $patterns ),
 			'mixed origins on a custom port' => array(
 				$custom_port,
-				array( $other_host, $custom_port . '/shop?orderby=price', $userinfo ),
-				array( $other_host . '/', '/shop?orderby=price/', $userinfo . '/' ),
+				array( $other_host, $custom_port . '/shop?orderby=price', $userinfo, $local_user ),
+				array( $other_host . '/', '/shop?orderby=price/', $userinfo . '/', $local_user . '/' ),
+			),
+			'unparseable custom-port URL'    => array(
+				$custom_port,
+				array( $custom_port, 'http://localhost:8081.invalid/about/', $custom_port . '/contact/' ),
+				array( '/', '/contact/' ),
+			),
+			'custom-port subdirectory'       => array(
+				$subdir,
+				array( $subdir, $subdir . '/about' ),
+				array( '/blog/', '/blog/about/' ),
 			),
 		);
 	}

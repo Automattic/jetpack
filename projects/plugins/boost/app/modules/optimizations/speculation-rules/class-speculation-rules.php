@@ -69,6 +69,10 @@ class Speculation_Rules implements Feature, Changes_Output_On_Activation, Optimi
 				}
 
 				$parts = wp_parse_url( $url );
+				if ( false === $parts ) {
+					return null;
+				}
+
 				if ( ( $parts['scheme'] ?? null ) !== $home_url['scheme']
 					|| ( $parts['host'] ?? null ) !== $home_url['host']
 					|| ( $parts['port'] ?? null ) !== $port
@@ -78,11 +82,18 @@ class Speculation_Rules implements Feature, Changes_Output_On_Activation, Optimi
 					return trailingslashit( $url );
 				}
 
-				// Keep query strings and fragments in the pattern.
+				// Add the trailing slash after any query or fragment, as on sites without a port.
 				return trailingslashit( ( $parts['path'] ?? '' ) . strpbrk( $url, '?#' ) );
 			},
 			$cornerstone_urls
 		);
+
+		if ( null !== $port ) {
+			$cornerstone_urls = array_values( array_filter( $cornerstone_urls, 'is_string' ) );
+			if ( empty( $cornerstone_urls ) ) {
+				return;
+			}
+		}
 
 		// Add prerender rule for cornerstone pages with moderate eagerness
 		$speculation_rules->add_rule(
