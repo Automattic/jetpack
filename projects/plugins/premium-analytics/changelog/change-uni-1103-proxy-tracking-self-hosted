@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Send WooCommerce store events through the Stats script on sites not hosted on WordPress.com, so a pageview no longer adds an uncached request to the site.
+Use the Stats script for WooCommerce store tracking on sites not hosted on WordPress.com, so a pageview no longer adds an uncached request to the site.
