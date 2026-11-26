@@ -49,7 +49,7 @@ function TopAiCompaniesInner() {
 	);
 	const columns = useMemo(
 		() => ( {
-			label: __( 'Company', 'jetpack-premium-analytics-pkg' ),
+			label: __( 'Companies', 'jetpack-premium-analytics-pkg' ),
 			metric: 'requests' as const,
 		} ),
 		[]
