@@ -332,6 +332,20 @@ describe.each( TABLES )( '%s with a long report', ( _name, table ) => {
 		expect( screen.queryByText( 'Row 70' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'starts over from the first batch of a new search', async () => {
+		render( table( longReport() ) );
+		scrollRowsToEnd();
+		await expect( screen.findByText( 'Row 100' ) ).resolves.toBeInTheDocument();
+
+		const user = userEvent.setup();
+		await user.type( screen.getByRole( 'searchbox' ), 'Row' );
+		await waitFor( () => expect( screen.queryByText( 'Row 1' ) ).not.toBeInTheDocument() );
+		await user.clear( screen.getByRole( 'searchbox' ) );
+
+		await expect( screen.findByText( 'Row 50' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Row 51' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'keeps the mounted rows through a background refetch', async () => {
 		const { rerender } = render( table( longReport() ) );
 		scrollRowsToEnd();
