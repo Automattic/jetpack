@@ -13,13 +13,10 @@ type CollapsibleMetaProps = {
 	exceptions?: string[];
 	countExceptions?: boolean;
 	header?: ReactNode;
-	summary?: ReactNode;
 	toggleText?: string;
-	headerText?: string;
 	compactHeader?: boolean;
 	tracksEvent?: string;
 	tracksEventProps?: TracksEventProperties;
-	extraButtons?: ReactNode;
 	onToggleHandler?: ( isExpanded: boolean ) => void;
 };
 
@@ -34,8 +31,6 @@ const CollapsibleMeta = ( {
 	toggleText = '',
 	tracksEvent = '',
 	tracksEventProps = {},
-	extraButtons = null,
-	headerText = '',
 	compactHeader = false,
 	onToggleHandler = () => {},
 }: CollapsibleMetaProps ) => {
@@ -69,13 +64,12 @@ const CollapsibleMeta = ( {
 
 	/*
 	 * The header of the collapsible meta section.
-	 * It displays the header, extra buttons and the toggle button.
+	 * It displays the header and the toggle button.
 	 */
 	const sectionHeader = (
 		<div className={ clsx( styles.header, { [ styles[ 'compact-header' ] ]: compactHeader } ) }>
-			{ header ? header : <div className={ styles.summary }>{ headerText }</div> }
+			{ header }
 			<div className={ styles.actions }>
-				{ extraButtons && extraButtons }{ ' ' }
 				<IconButton
 					icon={ isExpanded ? chevronUp : chevronDown }
 					label={ toggleText }
