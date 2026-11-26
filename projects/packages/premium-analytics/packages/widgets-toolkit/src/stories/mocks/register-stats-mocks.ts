@@ -1236,6 +1236,36 @@ const MOCK_AI_PROVIDERS = [
 } ) );
 
 /**
+ * Rows per `bot_category` for 30 days, as the `bot-class-and-name` template answers; the
+ * handler scales them to the window asked for and returns counts as strings.
+ */
+const MOCK_BOT_CLASSES: Record< string, ( string | number )[][] > = {
+	ai: [
+		[ 'AI Search Crawler', 'Applebot', 61840 ],
+		[ 'AI Search Crawler', 'OAI-SearchBot', 12210 ],
+		[ 'AI Data Scraper', 'GPTBot', 41220 ],
+		[ 'AI Data Scraper', 'ClaudeBot', 23480 ],
+		[ 'AI Data Scraper', 'meta-externalagent', 9105 ],
+		[ 'AI Assistant', 'ChatGPT-User', 8640 ],
+		[ 'AI Assistant', 'Perplexity-User', 1210 ],
+		[ 'AI Agent', 'Perplexity-User', 340 ],
+	],
+	'non-ai': [
+		[ 'Search Engine Crawler', 'Googlebot', 459020 ],
+		[ 'Search Engine Crawler', 'bingbot', 88310 ],
+		[ 'Bot', 'Generic Bot', 209800 ],
+		[ 'Fetcher', 'facebookexternalhit', 98420 ],
+		[ 'Fetcher', 'Generic Feed Fetcher', 55570 ],
+		[ 'Software Library', 'WordPress', 31240 ],
+		[ 'Software Library', 'axios', 11020 ],
+		[ 'SEO Crawler', 'AhrefsBot', 24740 ],
+		[ 'Archiver', 'archive.org_bot', 6170 ],
+		[ 'Site Monitor', 'Jetpack Monitor', 860 ],
+		[ 'Unknown', 'Unknown', 420 ],
+	],
+};
+
+/**
  * One row per bucket of the requested window, as ClickHouse answers: counts as
  * strings, and no row for a bucket without requests (every seventh here).
  *
@@ -1315,6 +1345,20 @@ export function getStatsMock( path: string ): unknown | null {
 
 	if ( subPath === '/ua-queries' && query.get( 'template' ) === 'ai-providers-with-drill' ) {
 		return MOCK_AI_PROVIDERS;
+	}
+
+	if ( subPath === '/ua-queries' && query.get( 'template' ) === 'bot-class-and-name' ) {
+		const days =
+			( Date.parse( query.get( 'end' ) ?? '' ) - Date.parse( query.get( 'start' ) ?? '' ) ) /
+			( 24 * 60 * 60 * 1000 );
+
+		return ( MOCK_BOT_CLASSES[ query.get( 'bot_category' ) ?? '' ] ?? [] ).map(
+			( [ traffic_class, bot_name, total ] ) => ( {
+				traffic_class,
+				bot_name,
+				total: String( Math.round( ( Number( total ) * days ) / 30 ) ),
+			} )
+		);
 	}
 
 	if ( subPath === '/ua-queries' && query.get( 'template' ) === 'edge-bot-requests' ) {
