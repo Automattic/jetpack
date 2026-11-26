@@ -184,7 +184,7 @@ export function Wizard( {
 		}
 	}, [ showAiTool, reportedVariation ] );
 
-	// The tools that were connected before the AI tool view opened.
+	// The tools recorded as connected before the AI tool view opened.
 	const alreadyConnected = useRef< AiTool[] >( [] );
 	const handleConnected = useCallback( ( tool: AiTool, already = false ) => {
 		setConnectedTools( current => {
