@@ -10,8 +10,11 @@ jest.mock( '@wordpress/compose', () => ( {
 	useReducedMotion: () => mockMotion.reduced,
 } ) );
 
-const CENTRE = 'translate(0.00px, 0.00px)';
 const offset = ( layer: SVGGElement ) => layer.style.transform;
+// jsdom shortens `translate(0.00px, 0.00px)` to `translate(0px)`, so compare the numbers.
+const isCentred = ( layer: SVGGElement ) =>
+	/^translate\(/.test( offset( layer ) ) &&
+	( offset( layer ).match( /-?\d*\.?\d+/g ) ?? [] ).every( n => Number( n ) === 0 );
 
 const setup = () => {
 	const { container, unmount } = render( <EverywhereArt /> );
@@ -45,10 +48,11 @@ describe( 'The parallax on the site-type art', () => {
 		const { user, scene, layer, unmount } = setup();
 
 		await user.pointer( { target: scene, coords: { clientX: 100, clientY: 100 } } );
-		expect( offset( layer ) ).not.toBe( CENTRE );
+		expect( offset( layer ) ).not.toBe( '' );
+		expect( isCentred( layer ) ).toBe( false );
 
 		await user.unhover( scene );
-		expect( offset( layer ) ).toBe( CENTRE );
+		expect( isCentred( layer ) ).toBe( true );
 
 		unmount();
 		expect( offset( layer ) ).toBe( '' );
