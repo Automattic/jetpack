@@ -40,6 +40,7 @@ return make_phan_config(
 			'tests/php/mocks/premium-content-subscription-service.php',
 			'tests/php/mocks/compatibility-premium-content-subscription-service.php',
 			'tests/php/mocks/class-jetpack-memberships.php',
+			'tests/php/mocks/wpcom-site-has-feature.php',
 		),
 		'exclude_file_regex' => array(
 			'build/',
