@@ -43,7 +43,7 @@ const { mountWhatsNew } = await import( '@automattic/jetpack-announcements' );
 mountWhatsNew( { channels: [ 'my-plugin', 'jetpack' ] } );
 ```
 
-The surface puts the announcements of every channel in one list, newest first, and teases the newest one the user has not seen.
+The surface puts the announcements of every channel in one list, newest first, and teases the newest one while the user has not seen it. An older one is never teased in its place.
 
 A later call replaces the channels of the surface.
 
