@@ -1,10 +1,10 @@
 {
 	"name": "ai-traffic/top-ai-companies",
-	"icon": "jpa/globe",
+	"icon": "jpa/cloud",
 	"title": "Top AI companies",
 	"description": "The AI companies whose bots requested your site the most.",
 	"help": {
-		"content": "The AI companies whose bots sent the most requests to your site in the selected period. Open a company to see its bots. Bots are named by what they say they are."
+		"content": "The AI companies whose bots were served the most requests on your site. Crawl requests count only the requests we served. Requests we blocked are shown separately, in red. Open a company to see its bots. Company totals include requests from the company's search crawler, such as Googlebot or Bingbot, because the same crawl supplies its AI. Those requests are counted under Search engines in Bot activity and are not part of AI bot requests."
 	},
 	"category": "traffic",
 	"presentation": "framed"
