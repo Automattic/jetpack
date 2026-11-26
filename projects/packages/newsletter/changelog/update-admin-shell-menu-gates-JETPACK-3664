@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Admin shell: Decide whether the dashboard joins the shell with the same check that registers its page.

@@ -119,20 +119,7 @@ class Social_Admin_Page {
 		// Remove the old Social menu item, if it exists.
 		Admin_Menu::remove_menu( 'jetpack-social' );
 
-		// If this isn't an admin (or someone with the capability to change the module status )
-		// and Publicize is inactive, then don't render the admin page.
-		if ( ! Utils::can_open_social_dashboard() ) {
-			return;
-		}
-
-		// We don't need Jetpack connection on WP.com.
-		$needs_site_connection = ! ( new Host() )->is_wpcom_platform() && ! ( new Connection_Manager() )->is_connected();
-
-		/**
-		 * If the Jetpack Social plugin is not active,
-		 * we want to hide the menu if the site is not connected.
-		 */
-		if ( ! defined( 'JETPACK_SOCIAL_PLUGIN_DIR' ) && $needs_site_connection ) {
+		if ( ! $this->should_add_menu() ) {
 			return;
 		}
 
@@ -154,6 +141,25 @@ class Social_Admin_Page {
 	}
 
 	/**
+	 * Whether add_menu() registers the page, and so whether the admin shell may serve it.
+	 *
+	 * @return bool
+	 */
+	private function should_add_menu() {
+		// If this isn't an admin (or someone with the capability to change the module status)
+		// and Publicize is inactive, then don't render the admin page.
+		if ( ! Utils::can_open_social_dashboard() ) {
+			return false;
+		}
+
+		// We don't need Jetpack connection on WP.com.
+		$needs_site_connection = ! ( new Host() )->is_wpcom_platform() && ! ( new Connection_Manager() )->is_connected();
+
+		// Without the Jetpack Social plugin, the page needs a connected site.
+		return defined( 'JETPACK_SOCIAL_PLUGIN_DIR' ) || ! $needs_site_connection;
+	}
+
+	/**
 	 * Register Jetpack Social with the admin shell, which switches between Jetpack dashboards without a page load.
 	 *
 	 * @since 0.89.0
@@ -162,13 +168,7 @@ class Social_Admin_Page {
 	 * @return array
 	 */
 	public function add_admin_shell_member( $members ) {
-		$host = new Host();
-		// The same gates add_menu() applies, since admin-ajax never builds the menu.
-		if (
-			! Utils::can_open_social_dashboard()
-			|| ( ! defined( 'JETPACK_SOCIAL_PLUGIN_DIR' ) && ! $host->is_wpcom_platform() && ! ( new Connection_Manager() )->is_connected() )
-			|| ! file_exists( self::wp_build_index_path() )
-		) {
+		if ( ! $this->should_add_menu() || ! file_exists( self::wp_build_index_path() ) ) {
 			return $members;
 		}
 
