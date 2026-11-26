@@ -1,7 +1,4 @@
-/**
- * Runs against the real core-data store, so a failed resolution is replayed the way it is in the
- * browser; only the request and the capability check are mocked.
- */
+// The real core-data store, so a failed resolution is replayed as it is in the browser.
 type FetchOptions = { path: string; method?: string };
 
 let settingsFail = false;
@@ -86,7 +83,7 @@ describe( 'ensureCoreSettingsReady', () => {
 
 		await expect( ensureCoreSettingsReady() ).rejects.toThrow( 'boom' );
 
-		// A subscribed reader such as `useSiteHomeUrl()` selecting again must not refetch.
+		// Stands in for `useSiteHomeUrl()` selecting again.
 		select( coreStore ).getEntityRecord( 'root', 'site' );
 		await flush();
 		expect( settingsRequests() ).toHaveLength( 1 );
