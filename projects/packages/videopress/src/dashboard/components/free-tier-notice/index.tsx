@@ -1,6 +1,8 @@
+import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
+import { useAvailableLicenseCount } from '../../hooks/use-available-license-count';
 import { useUpsellImpression } from '../../hooks/use-upsell-impression';
 import { useVideoPressUpgrade, type UpgradeLocation } from '../../hooks/use-videopress-upgrade';
 import type { ReactElement } from 'react';
@@ -34,6 +36,9 @@ const FREE_PLAN_MESSAGE = __(
  * cancelled before the workflow runs — keeping anchor semantics (focus,
  * hover) while delegating navigation to the workflow.
  *
+ * A user holding an unattached license gets "Activate license" in the same
+ * notice, which replaces the generic license JITM on this page (VIDP-216).
+ *
  * @param props            - Component props.
  * @param props.message    - Notice body copy. Defaults to the free-plan copy.
  * @param props.location   - Surface displaying the notice.
@@ -51,6 +56,7 @@ export default function FreeTierNotice( {
 } ): ReactElement {
 	const runUpgrade = useVideoPressUpgrade( location );
 	const impressionRef = useUpsellImpression( location, videoCount );
+	const hasAvailableLicense = useAvailableLicenseCount() > 0;
 
 	const handleUpgradeClick = useCallback(
 		( event: { preventDefault: () => void } ) => {
@@ -64,8 +70,17 @@ export default function FreeTierNotice( {
 
 	return (
 		<Notice.Root intent="info" ref={ impressionRef }>
-			<Notice.Description>{ message }</Notice.Description>
+			<Notice.Description>
+				{ message }
+				{ hasAvailableLicense &&
+					' ' + __( 'You also have an unused Jetpack license.', 'jetpack-videopress-pkg' ) }
+			</Notice.Description>
 			<Notice.Actions>
+				{ hasAvailableLicense && (
+					<Notice.ActionLink href={ getMyJetpackUrl( '#/add-license' ) }>
+						{ __( 'Activate license', 'jetpack-videopress-pkg' ) }
+					</Notice.ActionLink>
+				) }
 				<Notice.ActionLink href="#" onClick={ handleUpgradeClick }>
 					{ __( 'Upgrade', 'jetpack-videopress-pkg' ) }
 				</Notice.ActionLink>

@@ -81,6 +81,9 @@ export type ComparativeBarChartProps = {
 	 */
 	compactWhenShort?: boolean;
 
+	/** Draw the legend under the chart; false when the widget names the series itself. Defaults to true. */
+	showLegend?: boolean;
+
 	maxWidth?: number;
 
 	/**
@@ -195,6 +198,7 @@ export function ComparativeBarChart( {
 	tickFormat: xTickFormatType,
 	tickResolution,
 	compactWhenShort = false,
+	showLegend = true,
 	maxWidth = Infinity,
 	defaultHiddenSeries,
 	legendInteractive = false,
@@ -530,21 +534,23 @@ export function ComparativeBarChart( {
 				onPointerUp={ onPointerUp }
 				onDatumActivate={ onDatumActivate }
 			>
-				<BarChart.Legend
-					items={ legendItems }
-					interactive={ interactiveLegend }
-					shape="rect"
-					className={ styles.legend }
-					itemClassName={ styles.legendItem }
-					itemStyles={ { margin: 0 } }
-					labelClassName={ styles.legendLabel }
-					labelStyles={ {
-						maxWidth: '100%',
-						textOverflow: 'ellipsis',
-						margin: 0,
-					} }
-					shapeStyles={ { margin: 0 } }
-				/>
+				{ showLegend && (
+					<BarChart.Legend
+						items={ legendItems }
+						interactive={ interactiveLegend }
+						shape="rect"
+						className={ styles.legend }
+						itemClassName={ styles.legendItem }
+						itemStyles={ { margin: 0 } }
+						labelClassName={ styles.legendLabel }
+						labelStyles={ {
+							maxWidth: '100%',
+							textOverflow: 'ellipsis',
+							margin: 0,
+						} }
+						shapeStyles={ { margin: 0 } }
+					/>
+				) }
 			</BarChart>
 		</Stack>
 	);

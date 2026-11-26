@@ -25,6 +25,21 @@ jest.unstable_mockModule( '../navigate', () => ( { __esModule: true, goTo, reloa
 const IdentityCrisis = ( await import( '../identity-crisis' ) ).default;
 
 /**
+ * An error shaped like the client's `ApiError`.
+ *
+ * @param code   - The REST error code.
+ * @param status - The HTTP status.
+ * @param data   - More of the error's `data`.
+ * @return The error.
+ */
+function apiError( code: string, status: number, data: Record< string, unknown > = {} ): Error {
+	return Object.assign( new Error(), {
+		name: 'ApiError',
+		response: { code, data: { status, ...data } },
+	} );
+}
+
+/**
  * Pick each answer in turn, then the action button.
  *
  * @param {ReturnType<typeof userEvent.setup>} user    - The user-event instance.
@@ -196,14 +211,11 @@ describe( 'IdentityCrisis', () => {
 		expect( screen.queryByRole( 'alert' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'after a failure that left the site disconnected, offers only Try again', async () => {
+	it( 'after a failure that left the site disconnected, offers only Try again, even once it fails otherwise', async () => {
 		const user = userEvent.setup();
-		startIDCFresh.mockRejectedValue(
-			Object.assign( new Error(), {
-				name: 'ApiError',
-				response: { code: 'cannot_save_secrets', data: { status: 500, disconnected: true } },
-			} )
-		);
+		startIDCFresh
+			.mockRejectedValueOnce( apiError( 'cannot_save_secrets', 500, { disconnected: true } ) )
+			.mockRejectedValueOnce( Object.assign( new Error(), { name: 'FetchNetworkError' } ) );
 		render( <IdentityCrisis context="notice" onActionSuccess={ jest.fn() } /> );
 
 		await answer(
@@ -211,14 +223,107 @@ describe( 'IdentityCrisis', () => {
 			[ 'The original site', 'Give it its own connection' ],
 			'Connect separately'
 		);
-
 		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( /now disconnected/ );
+		expect( screen.getByRole( 'button', { name: 'Try again' } ) ).toHaveFocus();
+		expect(
+			screen.getByRole( 'heading', { name: 'Jetpack Connection is disconnected' } )
+		).toBeInTheDocument();
+
+		await user.click( screen.getByRole( 'button', { name: 'Try again' } ) );
+
+		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( /couldn’t complete the request/ );
 		expect( screen.getByRole( 'button', { name: 'Try again' } ) ).toBeEnabled();
 		expect( screen.queryByRole( 'button', { name: 'Back' } ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'radio', { name: 'Keep it in Safe Mode' } ) ).toHaveAttribute(
-			'aria-disabled',
-			'true'
+		expect( screen.queryByRole( 'radio' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'opens on Try again when the store says a failed fresh connection disconnected the site', async () => {
+		const user = userEvent.setup();
+		storeState = { state: { ...resolvable, isDisconnected: true }, plugins: jetpack };
+		startIDCFresh.mockResolvedValue( 'https://wordpress.com/connect' );
+		const onActionSuccess = jest.fn();
+		render(
+			<IdentityCrisis
+				context="connectors"
+				showHeader={ false }
+				hostActions={ <button>Disconnect site</button> }
+				onActionSuccess={ onActionSuccess }
+			/>
 		);
+
+		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( /now disconnected/ );
+		expect( screen.queryByRole( 'radio' ) ).not.toBeInTheDocument();
+		expect(
+			screen.getByRole( 'region', { name: 'Jetpack Connection is disconnected' } )
+		).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Disconnect site' } ) ).not.toBeInTheDocument();
+
+		await user.click( screen.getByRole( 'button', { name: 'Try again' } ) );
+
+		expect( onActionSuccess ).toHaveBeenCalledWith( {
+			action: 'start-fresh',
+			connectUrl: 'https://wordpress.com/connect',
+		} );
+	} );
+
+	it.each( [
+		[ 'the questions', [] ],
+		[ 'the disconnected view', [ apiError( 'cannot_save_secrets', 500, { disconnected: true } ) ] ],
+	] )(
+		'when a fresh connection from %s is refused because the site left Safe Mode, offers only Reload',
+		async ( _from, earlierErrors ) => {
+			const user = userEvent.setup();
+			for ( const earlier of earlierErrors ) {
+				startIDCFresh.mockRejectedValueOnce( earlier );
+			}
+			startIDCFresh.mockRejectedValueOnce( apiError( 'start_fresh_not_in_safe_mode', 409 ) );
+			render(
+				<IdentityCrisis
+					context="notice"
+					hostActions={ <button>Disconnect site</button> }
+					onActionSuccess={ jest.fn() }
+				/>
+			);
+
+			await answer(
+				user,
+				[ 'The original site', 'Give it its own connection' ],
+				'Connect separately'
+			);
+			if ( earlierErrors.length ) {
+				await user.click( screen.getByRole( 'button', { name: 'Try again' } ) );
+			}
+
+			expect( screen.getByRole( 'alert' ) ).toHaveTextContent( /no longer in Safe Mode/ );
+			expect(
+				screen.getByRole( 'heading', { name: 'Jetpack Connection is no longer in Safe Mode' } )
+			).toBeInTheDocument();
+			expect( screen.queryByRole( 'radio' ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: 'Back' } ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: 'Disconnect site' } ) ).not.toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'Reload' } ) ).toHaveFocus();
+
+			await user.click( screen.getByRole( 'button', { name: 'Reload' } ) );
+
+			expect( reloadPage ).toHaveBeenCalled();
+			expect( startIDCFresh ).toHaveBeenCalledTimes( earlierErrors.length + 1 );
+		}
+	);
+
+	it( 'opens on Reload when the store says the site left Safe Mode, even if it also says disconnected', () => {
+		storeState = {
+			state: { ...resolvable, isDisconnected: true, isResolved: true },
+			plugins: jetpack,
+		};
+		render(
+			<IdentityCrisis context="connectors" showHeader={ false } onActionSuccess={ jest.fn() } />
+		);
+
+		expect(
+			screen.getByRole( 'region', { name: 'Jetpack Connection is no longer in Safe Mode' } )
+		).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Reload' } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Try again' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'never offers "same" without a detected dynamic address', () => {
@@ -331,5 +436,156 @@ describe( 'IdentityCrisis', () => {
 		expect( screen.getByText( paused ) ).toBeInTheDocument();
 		expect( screen.queryByText( /Payments will not be interrupted\./ ) !== null ).toBe( payments );
 		expect( screen.queryByText( /like Stats and Backups/ ) !== null ).toBe( ! payments );
+	} );
+
+	it( 'walks the guide to a statement, then confirms it before the action runs', async () => {
+		const user = userEvent.setup();
+		confirmIDCSafeMode.mockResolvedValue( {} );
+		const onActionSuccess = jest.fn();
+		render( <IdentityCrisis context="notice" onActionSuccess={ onActionSuccess } /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Work it out step by step' } ) );
+
+		expect( screen.getByRole( 'heading', { name: /What happens\?/ } ) ).toHaveFocus();
+		expect( screen.getByRole( 'link', { name: /Open old\.example/ } ) ).toHaveAttribute(
+			'href',
+			'http://old.example/'
+		);
+
+		await user.click( screen.getByRole( 'button', { name: 'A site loads there' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'A separate site' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'old.example' } ) );
+
+		expect(
+			screen.getByRole( 'heading', {
+				name: 'old.example is the original site, and this one is a copy',
+			} )
+		).toHaveFocus();
+		expect( screen.queryByRole( 'radio' ) ).not.toBeInTheDocument();
+
+		await user.click( screen.getByRole( 'button', { name: 'Next' } ) );
+		await user.click( screen.getByRole( 'radio', { name: 'Keep it in Safe Mode' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Stay in Safe Mode' } ) );
+
+		expect( confirmIDCSafeMode ).toHaveBeenCalledTimes( 1 );
+		expect( onActionSuccess ).toHaveBeenCalledWith( { action: 'confirm-safe-mode' } );
+	} );
+
+	it( 'opens the guide from the staging note, and Back returns to the first screen as it was', async () => {
+		const user = userEvent.setup();
+		storeState = { state: { ...resolvable, isDevelopmentSite: true }, plugins: jetpack };
+		render( <IdentityCrisis context="notice" onActionSuccess={ jest.fn() } /> );
+
+		expect(
+			screen.queryByRole( 'button', { name: 'Work it out step by step' } )
+		).not.toBeInTheDocument();
+
+		await user.click( screen.getByRole( 'radio', { name: 'Give it its own connection' } ) );
+		await user.click(
+			screen.getByRole( 'button', { name: 'Not a copy? Work it out step by step' } )
+		);
+
+		expect(
+			within( screen.getByRole( 'list', { name: 'What we already know' } ) ).getAllByRole(
+				'listitem'
+			)[ 0 ]
+		).toHaveTextContent( 'WordPress marks this as a staging site.' );
+
+		await user.click( screen.getByRole( 'button', { name: 'Back to the first screen' } ) );
+
+		expect( screen.getByRole( 'radio', { name: 'Give it its own connection' } ) ).toBeChecked();
+	} );
+
+	it( 'opens the guide from a follow-up question, and Back returns to it as it was', async () => {
+		const user = userEvent.setup();
+		render( <IdentityCrisis context="notice" onActionSuccess={ jest.fn() } /> );
+
+		await user.click( screen.getByRole( 'radio', { name: 'The original site' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Next' } ) );
+		await user.click( screen.getByRole( 'radio', { name: 'Give it its own connection' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Work it out step by step' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Back' } ) );
+
+		expect( screen.getByRole( 'radio', { name: 'Give it its own connection' } ) ).toBeChecked();
+	} );
+
+	it( 'gives an admin who cannot check a message to send, and copies it', async () => {
+		const user = userEvent.setup();
+		const writeText = jest.spyOn( navigator.clipboard, 'writeText' ).mockResolvedValue();
+		render( <IdentityCrisis context="notice" onActionSuccess={ jest.fn() } /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Work it out step by step' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'A site loads there' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'I’m not sure' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Copy message' } ) );
+
+		expect( writeText ).toHaveBeenCalledWith(
+			expect.stringMatching( /^My site new\.example shows .+ registered at old\.example\./ )
+		);
+		expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Copied' );
+		expect( screen.getByRole( 'link', { name: /Contact support/ } ) ).toHaveAttribute(
+			'href',
+			expect.stringContaining( 'jetpack-contact-support' )
+		);
+	} );
+
+	it.each( [
+		[ 'Yes, it moved from there', 'heading', 'old.example is this site’s old address' ],
+		[ 'No, or I’m not sure', 'button', 'Copy message' ],
+	] )( 'after “Nothing loads”, “%s” leads to its result', async ( choice, role, name ) => {
+		const user = userEvent.setup();
+		render( <IdentityCrisis context="notice" onActionSuccess={ jest.fn() } /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Work it out step by step' } ) );
+		await user.click(
+			screen.getByRole( 'button', { name: 'Nothing loads, or it is not my site' } )
+		);
+		await user.click( screen.getByRole( 'button', { name: choice } ) );
+
+		expect( screen.getByRole( role, { name } ) ).toBeInTheDocument();
+	} );
+
+	it( 'goes back to an earlier guide question from the answers so far', async () => {
+		const user = userEvent.setup();
+		render( <IdentityCrisis context="notice" onActionSuccess={ jest.fn() } /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Work it out step by step' } ) );
+		expect( screen.queryByRole( 'navigation', { name: 'Your answers:' } ) ).not.toBeInTheDocument();
+
+		await user.click( screen.getByRole( 'button', { name: 'A site loads there' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'A separate site' } ) );
+		await user.click(
+			within( screen.getByRole( 'navigation', { name: 'Your answers:' } ) ).getByRole( 'button', {
+				name: 'Change answer: A site loads there',
+			} )
+		);
+
+		expect( screen.getByRole( 'heading', { name: /What happens\?/ } ) ).toHaveFocus();
+		expect( screen.queryByRole( 'navigation', { name: 'Your answers:' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'stays in Safe Mode from any guide question', async () => {
+		const user = userEvent.setup();
+		render( <IdentityCrisis context="notice" onActionSuccess={ jest.fn() } /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Work it out step by step' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'A site loads there' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Stay in Safe Mode for now' } ) );
+
+		expect( screen.getByRole( 'heading', { name: 'Stay in Safe Mode for now' } ) ).toHaveFocus();
+	} );
+
+	it.each( [
+		[ 'jetpack', /the latest post or page/ ],
+		[ 'woocommerce-payments', /today’s orders or the newest product/ ],
+	] )( 'with %s connected, tells the admin what to compare', async ( slug, compare ) => {
+		const user = userEvent.setup();
+		storeState = { state: resolvable, plugins: [ { slug, name: slug } ] };
+		render( <IdentityCrisis context="notice" onActionSuccess={ jest.fn() } /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Work it out step by step' } ) );
+		await user.click( screen.getByRole( 'button', { name: /loads there/ } ) );
+
+		expect( screen.getByText( compare ) ).toBeInTheDocument();
 	} );
 } );

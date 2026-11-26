@@ -6,9 +6,6 @@ import type { SeriesData } from '../../../types';
 export const PRIMARY_SLOT = 'primary';
 export const COMPARISON_SLOT = 'comparison';
 
-/** The `key` a stacked layout draws its comparison total under, and hands to its callbacks. */
-export const COMPARISON_TOTAL_KEY = 'a8c-charts-comparison-total';
-
 const OVERLAP_SLOTS = [ PRIMARY_SLOT, COMPARISON_SLOT ] as const;
 
 export const isComparisonSeries = ( series: SeriesData ) => series.options?.type === 'comparison';

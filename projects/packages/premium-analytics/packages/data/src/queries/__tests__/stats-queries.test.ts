@@ -19,6 +19,7 @@ import { statsAuthorAllTimeOrApproximateQuery, statsAuthorQuery } from '../stats
 import { statsClicksQuery } from '../stats-clicks-query';
 import { statsCountryViewsQuery } from '../stats-country-views-query';
 import { statsDevicesPeriodsQuery, statsDevicesQuery } from '../stats-devices-query';
+import { statsEdgeBotRequestsQuery } from '../stats-edge-bot-requests-query';
 import {
 	statsEmailClicksBreakdownQuery,
 	statsEmailOpensBreakdownQuery,
@@ -1454,6 +1455,69 @@ describe( 'Stats query factories', () => {
 			start_date: '2026-06-01',
 			stat_fields: 'views,visitors',
 		} );
+	} );
+
+	// The endpoint's `end` is exclusive. Days go out as the site's own; hours go
+	// out as the UTC days around the site's window, from the raw table.
+	it.each( [
+		[ 'day', 'rollup', '2026-11-01' ],
+		[ 'hour', 'raw', '2026-10-31' ],
+	] as const )( 'asks for edge requests by %s from the %s table', ( granularity, table, start ) => {
+		const query = statsEdgeBotRequestsQuery( {
+			from: '2026-11-01T00:00:00+08:00',
+			to: '2026-11-07T23:59:59+08:00',
+			interval: 'day',
+			period: granularity,
+		} );
+
+		expect( query.queryKey[ 3 ] ).toBe( 'stats/ua-queries' );
+		expect( query.queryKey[ 5 ] ).toEqual( {
+			template: 'edge-bot-requests',
+			start,
+			end: '2026-11-08',
+			granularity,
+			table,
+		} );
+	} );
+
+	it( 'closes an hourly window with a bare `to` at the end of that day', () => {
+		const query = statsEdgeBotRequestsQuery( {
+			from: '2026-11-01',
+			to: '2026-11-01',
+			interval: 'hour',
+			period: 'hour',
+			timezone: 'Asia/Taipei',
+		} );
+
+		expect( query.queryKey[ 8 ] ).toEqual( {
+			window_start: '2026-10-31T16:00:00.000Z',
+			window_end: '2026-11-01T15:59:59.999Z',
+		} );
+	} );
+
+	it.each( [ 'week', 'month' ] as const )(
+		'asks for days and hands the %s bucket to the sanitizer',
+		period => {
+			const query = statsEdgeBotRequestsQuery( {
+				from: '2026-11-01',
+				to: '2026-11-07',
+				interval: 'day',
+				period,
+			} );
+
+			expect( query.queryKey[ 5 ] ).toMatchObject( { granularity: 'day', table: 'rollup' } );
+			expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'bucket' );
+			expect( query.queryKey[ 8 ] ).toEqual( { bucket: period } );
+		}
+	);
+
+	it.each( [
+		[ 'a year', '2025-11-08', true ],
+		[ 'more than the rollup table serves', '2023-11-08', false ],
+	] )( 'sends an edge request for %s: %s', ( _, from, enabled ) => {
+		const query = statsEdgeBotRequestsQuery( { from, to: '2026-11-07', interval: 'day' } );
+
+		expect( query.enabled ).toBe( enabled );
 	} );
 
 	it( 'asks visits for quarters, not months, when the interval is a quarter', () => {

@@ -7,6 +7,7 @@ use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authent
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Identity_Crisis;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -97,6 +98,7 @@ class REST_Endpoints_Test extends TestCase {
 
 		Connection_Rest_Authentication::init()->reset_saved_auth_state();
 		$this->reset_connection_status();
+		Status_Cache::clear();
 
 		// Static on Manager, so a `from` would otherwise reach every later registration in the run.
 		$extra_params = new \ReflectionProperty( Manager::class, 'extra_register_params' );
@@ -108,6 +110,7 @@ class REST_Endpoints_Test extends TestCase {
 		$this->register_body = null;
 
 		remove_all_filters( 'jetpack_idc_authorization_url' );
+		remove_all_filters( 'jetpack_is_in_safe_mode' );
 	}
 
 	/**
@@ -266,6 +269,40 @@ class REST_Endpoints_Test extends TestCase {
 		$this->assertTrue( $response->is_error() );
 		$this->assertSame( $expected_code, $response->get_data()['code'] );
 		$this->assertTrue( $response->get_data()['data']['disconnected'] );
+	}
+
+	/**
+	 * A connected site starts fresh only while in Safe Mode, so a screen left open, e.g. in another tab, can't disconnect it.
+	 *
+	 * @dataProvider provide_connected_safe_mode_states
+	 *
+	 * @param bool     $in_safe_mode    Whether the site is in Safe Mode.
+	 * @param int      $expected_status HTTP status the endpoint returns.
+	 * @param int|null $expected_code   Error code the endpoint returns, or null on success.
+	 */
+	#[DataProvider( 'provide_connected_safe_mode_states' )]
+	public function test_start_fresh_on_a_connected_site( $in_safe_mode, $expected_status, $expected_code ) {
+		Jetpack_Options::update_option( 'blog_token', 'new.blogtoken' );
+		Jetpack_Options::update_option( 'id', 42 );
+		$this->reset_connection_status();
+		add_filter( 'jetpack_is_in_safe_mode', $in_safe_mode ? '__return_true' : '__return_false' );
+
+		$response = $this->dispatch_start_fresh( array( $this, 'intercept_register_request' ) );
+
+		$this->assertSame( $expected_status, $response->get_status() );
+		$this->assertSame( $expected_code, $response->get_data()['code'] ?? null );
+	}
+
+	/**
+	 * Whether a connected site is in Safe Mode, and what start-fresh returns.
+	 *
+	 * @return array
+	 */
+	public static function provide_connected_safe_mode_states() {
+		return array(
+			'in Safe Mode'     => array( true, 200, null ),
+			'not in Safe Mode' => array( false, 409, 'start_fresh_not_in_safe_mode' ),
+		);
 	}
 
 	/**

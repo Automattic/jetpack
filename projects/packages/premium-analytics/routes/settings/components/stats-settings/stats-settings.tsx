@@ -11,6 +11,7 @@ import {
 	Text,
 	VisuallyHidden,
 } from '@jetpack-premium-analytics/externals';
+import { PromoCard, usePromoSlot } from '@jetpack-premium-analytics/widgets-toolkit';
 import { createInterpolateElement, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { ConsentCard } from '../consent-card';
@@ -58,6 +59,7 @@ function StatsSettingsContent(): JSX.Element {
 		return () => clearTimeout( timer );
 	}, [ isHolding ] );
 
+	const promo = usePromoSlot( 'settings' );
 	const statsSettings = getScriptData()?.premium_analytics?.stats_settings;
 	const featuresUrl = statsSettings?.features_url;
 	const featuresScreen = statsSettings?.features_screen;
@@ -103,6 +105,7 @@ function StatsSettingsContent(): JSX.Element {
 					</Card.Content>
 				</Card.Root>
 			) }
+			{ promo && <PromoCard key={ promo.slug } promo={ promo } /> }
 		</Stack>
 	);
 }

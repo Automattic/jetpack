@@ -114,6 +114,7 @@ const MODULE_FIELDS = [
 	'sitemap_active',
 	'canonical_active',
 	'verification_tools_active',
+	'seo_tools_active',
 ] as const;
 
 /**

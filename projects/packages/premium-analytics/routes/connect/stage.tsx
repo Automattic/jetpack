@@ -91,7 +91,7 @@ function PlanChoice() {
 						</Button>
 					) }
 
-					<StatsOptionsMenu isSiteConnected={ false } />
+					<StatsOptionsMenu isSiteConnected={ false } withPromo={ false } />
 				</>
 			}
 		>

@@ -1,6 +1,4 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ToggleControl } from '@wordpress/components';
-import clsx from 'clsx';
 import { useEffect } from 'react';
 import { useSingleModuleState } from './lib/stores';
 import styles from './module.module.scss';
@@ -13,7 +11,6 @@ import { Notice, Link } from '@wordpress/ui';
 import Pill from '$features/ui/pill/pill';
 import ModuleRow from './module-row';
 import { recordBoostEvent } from '$lib/utils/analytics';
-import { useModuleSurface } from './surface';
 import type { ReactNode } from 'react';
 
 type ModuleProps = {
@@ -42,7 +39,6 @@ const Module = ( {
 	onMountEnable,
 }: ModuleProps ) => {
 	const { site } = Jetpack_Boost;
-	const surface = useModuleSurface();
 	const { setNotice } = useNotices();
 	const [ status, setStatus ] = useSingleModuleState( slug, active => {
 		const activatedMessage = __( 'Module activated', 'jetpack-boost' );
@@ -118,50 +114,24 @@ const Module = ( {
 	);
 	const extras = showOfflineMessage ? offlineMessage : isModuleActive && children;
 
-	if ( surface === 'row' ) {
-		return (
-			<ModuleRow
-				testId={ `module-${ slug }` }
-				label={ label }
-				description={ description }
-				toggle={
-					toggle
-						? {
-								className: `jb-feature-toggle-${ slug }`,
-								checked: isModuleActive || isFakeActive,
-								disabled: ! isModuleAvailable,
-								onChange: handleToggle,
-							}
-						: undefined
-				}
-			>
-				{ extras }
-			</ModuleRow>
-		);
-	}
-
 	return (
-		<div className={ styles.module } data-testid={ `module-${ slug }` }>
-			<div className={ styles.toggle }>
-				{ toggle && (
-					<ToggleControl
-						className={ clsx( `jb-feature-toggle-${ slug }`, styles.small ) }
-						checked={ isModuleActive || isFakeActive }
-						disabled={ ! isModuleAvailable }
-						onChange={ handleToggle }
-						__nextHasNoMarginBottom={ true }
-					/>
-				) }
-			</div>
-
-			<div className={ styles.content }>
-				<h3>{ label }</h3>
-
-				<div className={ styles.description }>{ description }</div>
-
-				{ extras }
-			</div>
-		</div>
+		<ModuleRow
+			testId={ `module-${ slug }` }
+			label={ label }
+			description={ description }
+			toggle={
+				toggle
+					? {
+							className: `jb-feature-toggle-${ slug }`,
+							checked: isModuleActive || isFakeActive,
+							disabled: ! isModuleAvailable,
+							onChange: handleToggle,
+						}
+					: undefined
+			}
+		>
+			{ extras }
+		</ModuleRow>
 	);
 };
 
@@ -190,30 +160,14 @@ const FailedModuleNotice = ( { error }: { error: Error } ) => (
 	</Notice.Root>
 );
 
-const ModuleWithErrorBoundary = ( props: ModuleProps ) => {
-	const surface = useModuleSurface();
-
-	return (
-		<ErrorBoundary
-			fallback={ error =>
-				surface === 'row' ? (
-					<ModuleRow label={ props.title } description={ <FailedModuleNotice error={ error } /> } />
-				) : (
-					<div>
-						<div>
-							<h3>{ props.title }</h3>
-
-							<div className={ styles[ 'failed-module-notice' ] }>
-								<FailedModuleNotice error={ error } />
-							</div>
-						</div>
-					</div>
-				)
-			}
-		>
-			<Module { ...props } />
-		</ErrorBoundary>
-	);
-};
+const ModuleWithErrorBoundary = ( props: ModuleProps ) => (
+	<ErrorBoundary
+		fallback={ error => (
+			<ModuleRow label={ props.title } description={ <FailedModuleNotice error={ error } /> } />
+		) }
+	>
+		<Module { ...props } />
+	</ErrorBoundary>
+);
 
 export default ModuleWithErrorBoundary;

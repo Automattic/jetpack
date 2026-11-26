@@ -15,14 +15,22 @@ jest.mock( '$features/module/module', () => ( {
 	default: ( { children }: { children: ReactNode } ) => <section>{ children }</section>,
 } ) );
 jest.mock( '$features/module/lib/stores', () => ( { useSingleModuleState: jest.fn() } ) );
-jest.mock( '$features/image-cdn/image-cdn-liar/image-cdn-liar', () => () => null );
-jest.mock( '$features/image-cdn/quality-settings/quality-settings', () => () => null );
+jest.mock(
+	'$features/image-cdn/image-cdn-liar/image-cdn-liar',
+	() =>
+		( { isPremium }: { isPremium: boolean } ) => <p>liar:{ String( isPremium ) }</p>
+);
+jest.mock(
+	'$features/image-cdn/quality-settings/quality-settings',
+	() =>
+		( { isPremium }: { isPremium: boolean } ) => <p>quality:{ String( isPremium ) }</p>
+);
 jest.mock( '$lib/stores/premium-features', () => ( { usePremiumFeatures: () => [] } ) );
 jest.mock( 'jetpackConfig', () => ( { consumer_slug: 'jetpack-boost' } ), { virtual: true } );
 
 test( 'routes the modern Image CDN notice to the upgrade page without inline license redemption', () => {
 	Object.assign( globalThis, {
-		Jetpack_Boost: { site: { online: true, myJetpack: true, addLicense: true, host: 'unknown' } },
+		Jetpack_Boost: { site: { online: true, myJetpack: true, host: 'unknown' } },
 	} );
 	jest.mocked( useSingleModuleState ).mockReturnValue( [ { available: false }, jest.fn() ] );
 	render( <div id={ MODERN_ROOT_ID } data-testid="dashboard-root" /> );
@@ -38,4 +46,20 @@ test( 'routes the modern Image CDN notice to the upgrade page without inline lic
 	);
 	expect( screen.queryByRole( 'link', { name: 'Use license key' } ) ).toBeNull();
 	expect( screen.queryByRole( 'dialog' ) ).toBeNull();
+} );
+
+test( 'drops the upgrade notice once both premium CDN features are available', () => {
+	Object.assign( globalThis, {
+		Jetpack_Boost: { site: { online: true, myJetpack: true, host: 'unknown' } },
+	} );
+	jest.mocked( useSingleModuleState ).mockReturnValue( [ { available: true }, jest.fn() ] );
+	render(
+		<ModuleSurfaceProvider value="row">
+			<ImageCdn />
+		</ModuleSurfaceProvider>
+	);
+
+	expect( screen.queryByRole( 'link', { name: 'Upgrade now' } ) ).toBeNull();
+	expect( screen.getByText( 'liar:true' ) ).toBeTruthy();
+	expect( screen.getByText( 'quality:true' ) ).toBeTruthy();
 } );

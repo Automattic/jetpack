@@ -57,6 +57,7 @@ export { statsUtmQuery } from './stats-utm-query';
 export { statsHighlightsQuery } from './stats-highlights-query';
 export { statsTagsQuery } from './stats-tags-query';
 export { statsDevicesQuery, statsDevicesPeriodsQuery } from './stats-devices-query';
+export { statsEdgeBotRequestsQuery } from './stats-edge-bot-requests-query';
 export {
 	statsAppSiteHasNeverPublishedPostQuery,
 	type StatsAppSiteHasNeverPublishedPostParams,

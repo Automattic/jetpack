@@ -124,7 +124,11 @@ export function getComparisonTotalSeries( comparisons: SeriesData[], label: stri
 			seen.add( key );
 			const total = totals.get( key );
 			if ( ! total ) {
-				totals.set( key, { ...point, value: Number.isFinite( value ) ? value : null } );
+				totals.set( key, {
+					label: point.label,
+					date: point.date,
+					value: Number.isFinite( value ) ? value : null,
+				} );
 			} else if ( Number.isFinite( value ) ) {
 				total.value = ( total.value ?? 0 ) + value;
 			}

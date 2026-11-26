@@ -19,4 +19,9 @@
 	.container :global(.jp-idc__idc-screen) {
 		border: 0;
 	}
+
+	// The new screen draws no frame of its own.
+	.new-screen {
+		padding: 24px;
+	}
 }

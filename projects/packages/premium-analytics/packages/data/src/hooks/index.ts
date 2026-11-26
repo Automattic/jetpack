@@ -129,6 +129,10 @@ export type { StatsHighlightsParams, StatsHighlightsResponse } from './use-stats
 export { useStatsTags, type StatsTagsParams, type StatsTagsResponse } from './use-stats-tags';
 export { useStatsDevices, useStatsDevicesPeriods } from './use-stats-devices';
 export {
+	isEdgeBotRequestsRangeTooLong,
+	useStatsEdgeBotRequests,
+} from './use-stats-edge-bot-requests';
+export {
 	useStatsAppSiteHasNeverPublishedPost,
 	type StatsAppSiteHasNeverPublishedPostParams,
 	type StatsAppSiteHasNeverPublishedPostResponse,

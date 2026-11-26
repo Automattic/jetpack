@@ -16,6 +16,7 @@ export {
 	ComparativeLineChart,
 	type ComparativeLineChartSeries,
 	StackedAreaChart,
+	type StackedAreaSeries,
 	ComparativeBarChart,
 	type ComparativeBarChartProps,
 	type ComparativeBarChartSeries,
@@ -137,6 +138,7 @@ export {
 	LockedWidget,
 	PageNotice,
 	type PageNoticeProps,
+	PromoCard,
 	StatsOptionsMenu,
 	ResetLayoutAction,
 	type ResetLayoutActionProps,
@@ -192,6 +194,7 @@ export {
 	SkeletonRoot,
 	type SkeletonRootProps,
 } from './components';
+export { SeriesIndicator } from './components/chart-tooltip';
 
 /**
  * Report CSV exports
@@ -285,6 +288,7 @@ export {
 	getPostTypeCopy,
 	summaryCount,
 	toDay,
+	toDayRange,
 	defaultPeriodForInterval,
 	buildMetricTab,
 	formatComparisonSeriesLabel,
@@ -333,6 +337,7 @@ export {
 	type ElementSize,
 	useHostLinkSearch,
 	useMapName,
+	usePromoSlot,
 	useReportNavigationSearch,
 	useOpenChartBucket,
 	useWidgetNavigationSearch,

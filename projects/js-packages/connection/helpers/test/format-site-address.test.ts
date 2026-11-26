@@ -1,4 +1,4 @@
-import { formatSiteAddress, isIpAddress } from '../format-site-address';
+import { formatSiteAddress, getSiteUrl, isIpAddress } from '../format-site-address';
 
 describe( 'formatSiteAddress', () => {
 	it.each( [
@@ -28,5 +28,17 @@ describe( 'isIpAddress', () => {
 		[ '', false ],
 	] )( '%s is an IP address: %s', ( address, expected ) => {
 		expect( isIpAddress( address ) ).toBe( expected );
+	} );
+} );
+
+describe( 'getSiteUrl', () => {
+	it.each( [
+		[ 'example.com/', 'http://example.com/' ],
+		[ 'example.com/blog/', 'http://example.com/blog' ],
+		[ 'localhost:8888/', 'http://localhost:8888/' ],
+		[ '', null ],
+		[ 'exa mple.com', null ],
+	] )( '%s links to %s', ( address, url ) => {
+		expect( getSiteUrl( address ) ).toBe( url );
 	} );
 } );

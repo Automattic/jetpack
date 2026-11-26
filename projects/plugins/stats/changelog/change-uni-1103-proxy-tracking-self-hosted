@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Premium Analytics: Use the Stats script for WooCommerce store tracking on sites not hosted on WordPress.com, so a pageview no longer adds an uncached request to the site.

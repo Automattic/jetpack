@@ -33,3 +33,24 @@ export function isIpAddress( address: string ): boolean {
 		/^\d{1,3}(?:\.\d{1,3}){3}(?::\d+)?$/.test( host ) || /^\[[\da-f:.]+\](?::\d+)?$/i.test( host )
 	);
 }
+
+/**
+ * A link to an address with no scheme, as the Safe Mode state stores it.
+ *
+ * The scheme is lost when the address is stored. HTTP opens both kinds of site: HTTPS sites redirect it.
+ *
+ * @param address - The stored address, e.g. `example.com/`.
+ * @return E.g. `http://example.com/`, or null when it is not a usable address.
+ */
+export function getSiteUrl( address?: string ): string | null {
+	const formatted = formatSiteAddress( address );
+	if ( ! formatted ) {
+		return null;
+	}
+	try {
+		const url = new URL( `http://${ formatted }` );
+		return url.hostname ? url.href : null;
+	} catch {
+		return null;
+	}
+}

@@ -1,8 +1,6 @@
 import { lock } from '@wordpress/icons';
 import { Notice } from '@wordpress/ui';
-import { useModuleSurface } from '$features/module/surface';
 import { canOfferUpgrade } from '../../../../../../_inc/overview/lib/use-modules-state';
-import InterstitialModalCTA from './interstitial-modal-cta';
 import ModernUpgradeLink from './modern-upgrade-link';
 
 type UpgradeNoticeProps = {
@@ -11,10 +9,6 @@ type UpgradeNoticeProps = {
 };
 
 export default function UpgradeNotice( { description, identifier }: UpgradeNoticeProps ) {
-	if ( useModuleSurface() !== 'row' ) {
-		return <InterstitialModalCTA description={ description } identifier={ identifier } />;
-	}
-
 	if ( ! canOfferUpgrade() ) {
 		return null;
 	}

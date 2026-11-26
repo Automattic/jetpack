@@ -235,6 +235,8 @@ function register_default_single_report_pages( $registry = null ) {
 			),
 			'dashboard_section' => 'traffic',
 			'icon'              => 'jpa/page',
+			// The post page's: a page opens on either report, so both keep one arrangement.
+			'preferences_scope' => 'jetpack-premium-analytics/post-detail',
 			'sections'          => array(
 				array(
 					'slug'           => 'post-traffic',

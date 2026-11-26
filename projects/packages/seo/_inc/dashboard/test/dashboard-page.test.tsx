@@ -17,9 +17,9 @@ jest.unstable_mockModule( '@automattic/jetpack-components', () => ( {
 	ThemeProvider: ( { children }: { children: ReactNode } ) => children,
 } ) );
 jest.unstable_mockModule( '../dashboard-nav', () => ( {
-	default: ( { children }: { children: ReactNode } ) => (
+	default: ( { children, showTabs = true }: { children: ReactNode; showTabs?: boolean } ) => (
 		<div>
-			<div role="tablist" />
+			{ showTabs && <div role="tablist" /> }
 			{ children }
 		</div>
 	),
@@ -45,19 +45,21 @@ describe( 'DashboardPage', () => {
 		expect( column ).toContainElement( screen.getByText( 'notice' ) );
 	} );
 
-	it( 'drops the tab bar but keeps the header when tabs are hidden', () => {
-		render(
-			<DashboardPage active="settings" showTabs={ false } centered>
+	it( 'drops the tab bar but keeps the header and the same mounted column when tabs hide', () => {
+		const { rerender } = render( <DashboardPage active="settings">content</DashboardPage> );
+		const column = screen.getByText( 'content' );
+
+		rerender(
+			<DashboardPage active="settings" showTabs={ false }>
 				content
 			</DashboardPage>
 		);
 
 		expect( screen.getByRole( 'heading', { level: 1, name: 'SEO' } ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'tablist' ) ).not.toBeInTheDocument();
-		expect( screen.getByText( 'content' ) ).toHaveClass(
-			'jetpack-seo-page-content',
-			'jetpack-seo-page-content--centered'
-		);
+		// Remounting would reset the screen's cards and focus mid-save.
+		expect( screen.getByText( 'content' ) ).toBe( column );
+		expect( column ).toHaveClass( 'jetpack-seo-page-column--narrow' );
 	} );
 
 	it( 'records the screen view again when the admin shell shows the page again, not on its first show', () => {
