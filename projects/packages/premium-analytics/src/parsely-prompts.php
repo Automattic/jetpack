@@ -183,8 +183,7 @@ function prompts_enabled_by_wordpress_com() {
 function get_parsely_prompts_usage() {
 	$cached = get_transient( PARSELY_PROMPTS_USAGE_TRANSIENT );
 
-	// A cache of any other shape is refetched rather than read, so one written before `enabled`
-	// existed heals itself instead of holding the prompts closed for the rest of its life.
+	// Callers index both keys, so a cache carrying either one alone is refetched, not read.
 	if ( is_array( $cached ) && array_key_exists( 'views', $cached ) && array_key_exists( 'enabled', $cached ) ) {
 		return $cached;
 	}

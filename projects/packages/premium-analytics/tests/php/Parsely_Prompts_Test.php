@@ -309,8 +309,8 @@ class Parsely_Prompts_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A cache written before the field existed carries no answer about it, so reading it would
-	 * hold the prompts closed for a site WordPress.com has since opened.
+	 * A half-filled cache carries no answer about the switch, so reading it would hold the prompts
+	 * closed for a site WordPress.com has opened. A dev override is the likely writer of one.
 	 */
 	public function test_a_cache_without_the_field_is_refetched() {
 		set_transient( PARSELY_PROMPTS_USAGE_TRANSIENT, array( 'views' => 150000 ), PARSELY_PROMPTS_USAGE_TTL );
