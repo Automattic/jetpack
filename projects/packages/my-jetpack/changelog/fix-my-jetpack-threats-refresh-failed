@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Threats notice: Keep showing the stored threats when refreshing the Scan status fails.

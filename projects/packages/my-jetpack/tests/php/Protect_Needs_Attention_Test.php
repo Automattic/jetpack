@@ -106,13 +106,13 @@ class Protect_Needs_Attention_Test extends TestCase {
 	}
 
 	/**
-	 * Fixed threats, and what the alert says about the rest.
+	 * Fixed threats, what is stored, and what the alert says about the rest.
 	 *
 	 * @return array
 	 */
 	public static function provide_fixed_threats() {
 		return array(
-			'none fixed'        => array(
+			'none fixed'                              => array(
 				array(),
 				array(
 					'type' => 'error',
@@ -123,7 +123,7 @@ class Protect_Needs_Attention_Test extends TestCase {
 					),
 				),
 			),
-			'the critical one'  => array(
+			'the critical one'                        => array(
 				array( 1 ),
 				array(
 					'type' => 'warning',
@@ -134,18 +134,38 @@ class Protect_Needs_Attention_Test extends TestCase {
 					),
 				),
 			),
-			'every one of them' => array( array( 1, 2 ), false ),
+			'every one of them'                       => array( array( 1, 2 ), false ),
+			'the critical one, then a failed refresh' => array(
+				array( 1 ),
+				array(
+					'type' => 'warning',
+					'data' => array(
+						'threat_count'          => 1,
+						'critical_threat_count' => 0,
+						'fixable_threat_ids'    => array( 2 ),
+					),
+				),
+				'expired',
+			),
+			'none stored, then a failed refresh'      => array( array(), false, 'none' ),
 		);
 	}
 
 	/**
 	 * @param int[]      $fixed    Threat IDs the site fixed.
 	 * @param array|bool $expected The alert.
+	 * @param string     $stored   The stored status: 'fresh', 'expired' (so refreshing it fails) or 'none'.
 	 *
 	 * @dataProvider provide_fixed_threats
 	 */
 	#[DataProvider( 'provide_fixed_threats' )]
-	public function test_leaves_out_threats_the_site_fixed( $fixed, $expected ) {
+	public function test_leaves_out_threats_the_site_fixed( $fixed, $expected, $stored = 'fresh' ) {
+		if ( 'expired' === $stored ) {
+			update_option( Scan_Status::OPTION_TIMESTAMP_NAME, time() - HOUR_IN_SECONDS );
+		} elseif ( 'none' === $stored ) {
+			delete_option( Scan_Status::OPTION_NAME );
+			delete_option( Scan_Status::OPTION_TIMESTAMP_NAME );
+		}
 		$this->fix( $fixed );
 
 		$this->assertSame( $expected, Protect::does_module_need_attention() );

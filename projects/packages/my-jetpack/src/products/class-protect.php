@@ -423,6 +423,7 @@ class Protect extends Hybrid_Product {
 	 * Typically due to some sort of error where user troubleshooting is needed.
 	 *
 	 * Only open threats count: not those the site fixed since Scan last scanned.
+	 * When refreshing the status fails, the stored one is used, as Protect's threat count does.
 	 *
 	 * @return boolean|array
 	 */
@@ -430,6 +431,14 @@ class Protect extends Hybrid_Product {
 		$protect_data = Protect_Status::get_status();
 		if ( is_wp_error( $protect_data ) ) {
 			return false;
+		}
+
+		// A failed refresh comes back with no threats. Protect Status before 0.9 has no get_cached_status().
+		if ( ! empty( $protect_data->error ) && method_exists( Protect_Status::class, 'get_cached_status' ) ) {
+			$protect_data = Protect_Status::get_cached_status();
+			if ( null === $protect_data ) {
+				return false;
+			}
 		}
 
 		$threats = self::get_open_threats( $protect_data ) ?? $protect_data->threats;

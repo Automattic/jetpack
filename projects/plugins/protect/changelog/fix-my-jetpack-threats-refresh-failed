@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+My Jetpack: Keep the "Scan found threats" notice and the Protect card warning when refreshing the Scan status fails.
