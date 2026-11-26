@@ -39,9 +39,9 @@ const useJetpackStateNotice = () => {
 					? [
 							{
 								label: action.label,
+								url: action.href,
 								isExternalLink: action.external,
-								onClick: () =>
-									action.external ? window.open( action.href ) : assignLocation( action.href ),
+								onClick: action.external ? undefined : () => assignLocation( action.href ),
 								noDefaultClasses: true,
 							},
 						]

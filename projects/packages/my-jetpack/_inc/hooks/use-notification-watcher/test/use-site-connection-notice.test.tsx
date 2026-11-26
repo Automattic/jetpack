@@ -6,7 +6,7 @@ import useAnalytics from '../../use-analytics';
 import useConnectSite from '../../use-connect-site';
 import useSiteConnectionNotice from '../use-site-connection-notice';
 import type { NoticeContextType, NoticeOptions } from '../../../context/notices/types';
-import type { MouseEvent, ReactNode } from 'react';
+import type { MouseEvent } from 'react';
 
 const NAMES = {
 	myJetpackNoticeUser: 'my_jetpack_notice_user',
@@ -25,8 +25,6 @@ jest.mock( '../../../utils/connect-url', () => ( {
 } ) );
 jest.mock( '../../../utils/reload-page', () => ( { leavePageFor: jest.fn() } ) );
 jest.mock( '@automattic/jetpack-components', () => ( {
-	Col: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
-	Text: ( { children }: { children: ReactNode } ) => <span>{ children }</span>,
 	TermsOfService: () => null,
 } ) );
 jest.mock( '../../../data/products/use-all-products', () => ( {

@@ -40,26 +40,6 @@
 	> div {
 		position: relative;
 		margin: 0;
-
-		// action button
-		:global(.is-link) {
-			color: var(--jp-black);
-			font-size: 16px;
-			font-weight: 600;
-			padding: var(--spacing-base) calc(var(--spacing-base) * 3) !important;
-			white-space: nowrap;
-		}
-
-		@media screen and ( max-width: 600px ) {
-
-			:global(.components-button) {
-				white-space: normal;
-			}
-		}
-	}
-
-	.cta {
-		min-width: auto;
 	}
 }
 

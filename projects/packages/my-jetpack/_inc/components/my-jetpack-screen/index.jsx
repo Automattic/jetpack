@@ -1,7 +1,7 @@
 /*
  * External dependencies
  */
-import { ActionButton, AdminPage } from '@automattic/jetpack-components';
+import { AdminPage } from '@automattic/jetpack-components';
 import JitmSlot from '@automattic/jetpack-components/jitm-slot';
 import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
@@ -49,11 +49,29 @@ export const GlobalNotice = ( { message, title, options } ) => {
 		} );
 	}, [ options.id, recordEvent, options?.tracksArgs ] );
 
-	const actionButtons = options.actions?.map( action => {
-		return (
-			<ActionButton key={ action.key || action.label } customClass={ styles.cta } { ...action } />
-		);
-	} );
+	const actionButtons = options.actions?.map( action =>
+		action.isExternalLink ? (
+			<Notice.ActionLink
+				key={ action.key || action.label }
+				href={ action.url }
+				openInNewTab
+				onClick={ action.onClick }
+			>
+				{ action.label }
+			</Notice.ActionLink>
+		) : (
+			<Notice.ActionButton
+				key={ action.key || action.label }
+				variant={ action.variant === 'secondary' ? 'outline' : 'solid' }
+				onClick={ action.onClick }
+				disabled={ action.isDisabled }
+				loading={ action.isLoading }
+				loadingAnnouncement={ action.loadingText }
+			>
+				{ action.label }
+			</Notice.ActionButton>
+		)
+	);
 
 	// Watchers pass `hideCloseButton: false` plus `onClose` to override this default.
 	const hideCloseButton = options.hideCloseButton ?? true;

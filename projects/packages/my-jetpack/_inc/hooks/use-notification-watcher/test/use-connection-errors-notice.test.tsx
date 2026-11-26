@@ -10,10 +10,7 @@ import { assignLocation } from '../assignLocation';
 import useConnectionErrorsNotice from '../use-connection-errors-notice';
 import type { NoticeContextType } from '../../../context/notices/types';
 import type { ConnectionErrorObject } from '@automattic/jetpack-connection';
-import type { ElementType, ReactNode } from 'react';
-
-/** The subset of `Text`'s props the mock below reproduces. */
-type TextMockProps = { children: ReactNode; component?: ElementType };
+import type { ReactNode } from 'react';
 
 // Mock the dependencies. Use a factory for the connection package so its full
 // module graph (which touches `window` at import time) isn't loaded here.
@@ -48,14 +45,6 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 } ) );
 jest.mock( '../assignLocation' );
 
-jest.mock( '@automattic/jetpack-components', () => ( {
-	Col: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
-	// Honours `component` the way the real Text does, so the scope lines render as
-	// the list items the notice asks for and their markup can be asserted.
-	Text: ( { children, component: Component = 'span' }: TextMockProps ) => (
-		<Component>{ children }</Component>
-	),
-} ) );
 jest.mock( '@wordpress/i18n', () => ( {
 	__: ( text: string ) => text,
 

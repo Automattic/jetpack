@@ -1,6 +1,7 @@
-import { Col, TermsOfService, Text } from '@automattic/jetpack-components';
+import { TermsOfService } from '@automattic/jetpack-components';
 import { CONNECTION_FROM } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
+import { Stack, Text } from '@wordpress/ui';
 import { useContext, useEffect, useMemo } from 'react';
 import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
@@ -123,10 +124,10 @@ const useSiteConnectionNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) =
 		const messageContent = requiresUserConnection ? (
 			userConnectionContent.message
 		) : (
-			<Col>
-				<Text mb={ 2 }>{ siteConnectionContent.message }</Text>
+			<Stack direction="column" gap="sm">
+				<Text render={ <p /> }>{ siteConnectionContent.message }</Text>
 				<TermsOfService agreeButtonLabel={ siteConnectionContent.buttonLabel } />
-			</Col>
+			</Stack>
 		);
 
 		if ( ! isLoading ) {
