@@ -64,6 +64,18 @@ describe( 'ensureCoreSettingsReady', () => {
 		expect( settingsRequests() ).toHaveLength( 1 );
 	} );
 
+	it( 'does not refetch a record a reader already loaded', async () => {
+		const { ensureCoreSettingsReady } = await import( '../ensure-core-settings' );
+		const { store: coreStore } = await import( '@wordpress/core-data' );
+		const { select } = await import( '@wordpress/data' );
+
+		select( coreStore ).getEntityRecord( 'root', 'site' );
+		await flush();
+
+		await expect( ensureCoreSettingsReady() ).resolves.toBeUndefined();
+		expect( settingsRequests() ).toHaveLength( 1 );
+	} );
+
 	it( 'refetches on the next call after a failure, and not before', async () => {
 		settingsFail = true;
 		const { ensureCoreSettingsReady } = await import( '../ensure-core-settings' );
