@@ -698,6 +698,19 @@ class Backup_Product_Test extends TestCase {
 	}
 
 	/**
+	 * After the site reconnects as another WPCOM site, the previous site's undo event is not served.
+	 */
+	public function test_undo_event_is_not_reused_after_reconnecting_as_another_site() {
+		$this->connect_and_mock_undo_event();
+		$this->undo_event();
+
+		Jetpack_Options::update_option( 'id', 456 );
+		$this->undo_event();
+
+		$this->assertSame( 2, $this->undo_event_calls );
+	}
+
+	/**
 	 * A failed lookup is not stored, so the next visit asks WPCOM again.
 	 */
 	public function test_failed_undo_event_lookup_is_retried() {

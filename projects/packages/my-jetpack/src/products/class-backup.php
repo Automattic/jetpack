@@ -28,7 +28,7 @@ class Backup extends Hybrid_Product {
 	public const PLAN_REFRESH_MISS_TRANSIENT_KEY = 'my-jetpack-backup-plan-refresh-miss';
 
 	/**
-	 * Prefix of the per-user transient that keeps the undo event, since WPCOM answers as that user
+	 * Prefix of the per-site, per-user transient that keeps the undo event, since WPCOM answers as that user
 	 *
 	 * @var string
 	 */
@@ -238,7 +238,7 @@ class Backup extends Hybrid_Product {
 	 */
 	public static function get_site_backup_undo_event() {
 		$blog_id       = \Jetpack_Options::get_option( 'id' );
-		$transient_key = self::UNDO_EVENT_TRANSIENT_PREFIX . get_current_user_id();
+		$transient_key = self::UNDO_EVENT_TRANSIENT_PREFIX . (int) $blog_id . '-' . get_current_user_id();
 
 		$cached = get_transient( $transient_key );
 		if ( is_array( $cached ) ) {
