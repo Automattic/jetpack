@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
+import { COMPARISON_TOTAL_KEY } from '../constants';
 import { categoryKey, isSameCategory } from './category';
 import {
 	COMPARISON_SLOT,
-	COMPARISON_TOTAL_KEY,
 	PRIMARY_SLOT,
 	getOverlapPlacements,
 	isComparisonSeries,

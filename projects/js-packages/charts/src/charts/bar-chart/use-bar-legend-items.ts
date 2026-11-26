@@ -3,7 +3,7 @@ import {
 	useChartLegendItems,
 	getComparisonItemLabel,
 } from '../../components/legend/hooks/use-chart-legend-items';
-import { COMPARISON_TOTAL_KEY } from './private/overlap-bars';
+import { COMPARISON_TOTAL_KEY } from './constants';
 import { useBarColors } from './use-bar-colors';
 import type { ChartLegendOptions } from '../../components/legend/hooks/use-chart-legend-items';
 import type { BaseLegendItem } from '../../components/legend/types';

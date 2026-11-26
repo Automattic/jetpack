@@ -330,6 +330,20 @@ describe( 'BarChart stacked layout', () => {
 		expect( plainFills ).not.toContain( fills()[ 5 ] );
 	} );
 
+	it( "keeps a comparison point's own color off the total", () => {
+		const data = WITH_PREVIOUS.map( ( series, index ) =>
+			index === 3
+				? { ...series, data: [ { ...series.data[ 0 ], color: '#ff0000' }, series.data[ 1 ] ] }
+				: series
+		);
+		renderStacked( { data } );
+
+		const [ mon, tue ] = barRects()
+			.slice( 5 )
+			.map( bar => bar.getAttribute( 'fill' ) );
+		expect( mon ).toBe( tue );
+	} );
+
 	it( 'lists the comparison total after the stack total, named by the legend comparison item', async () => {
 		renderStacked( {
 			data: WITH_PREVIOUS,

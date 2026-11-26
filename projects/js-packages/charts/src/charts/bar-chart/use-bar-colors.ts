@@ -38,11 +38,10 @@ export function useBarColors(): GetBarColors {
 				const stroked = series.findIndex(
 					data => isComparisonSeries( data ) && data.options?.stroke
 				);
-				const firstComparison = series.findIndex( isComparisonSeries );
-				const totalColor =
-					stroked === -1 && isValidHexColor( backgroundColor )
-						? tintWithContrast( comparisonColor, backgroundColor )
-						: colors[ stroked === -1 ? firstComparison : stroked ];
+				const roleColor = isValidHexColor( backgroundColor )
+					? tintWithContrast( comparisonColor, backgroundColor )
+					: comparisonColor;
+				const totalColor = stroked === -1 ? roleColor : colors[ stroked ];
 				return series.map( data =>
 					isComparisonSeries( data )
 						? totalColor
