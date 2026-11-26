@@ -103,20 +103,12 @@ function IdentityCrisisResolver( {
 		z: formatSiteAddress( state.wpcomHomeUrl ),
 	};
 	const trackFlowEvent = useCallback(
-		( event: IdentityCrisisFlowEvent ) => {
-			const isGuideEvent = event.type === 'open_guide' || event.type === 'later';
+		( { kind, ...props }: IdentityCrisisFlowEvent ) =>
 			trackIdentityCrisisEvent(
-				isGuideEvent ? CONNECTION_EVENTS.idcGuideClick : CONNECTION_EVENTS.idcQuestionClick,
+				kind === 'guide' ? CONNECTION_EVENTS.idcGuideClick : CONNECTION_EVENTS.idcQuestionClick,
 				context,
-				{
-					action: event.type === 'open_guide' ? 'open' : event.type,
-					question: event.question,
-					answer: event.type === 'answer' ? event.answer : undefined,
-					path: event.path,
-					is_development_site: state.isDevelopmentSite,
-				}
-			);
-		},
+				{ ...props, is_development_site: state.isDevelopmentSite }
+			),
 		[ context, state.isDevelopmentSite ]
 	);
 	const flow = useIdentityCrisisFlow( ctx, actions.clearError, trackFlowEvent );

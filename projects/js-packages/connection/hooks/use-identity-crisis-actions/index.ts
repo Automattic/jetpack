@@ -19,7 +19,10 @@ import type {
 import type { ConnectionEvent, TrackingProps } from '../../helpers/connection-tracking';
 
 /** Each action's `action` value in the events, and the old screen's event for its start. */
-const ACTION_EVENTS: Record< IdentityCrisisAction, { action: string; start: ConnectionEvent } > = {
+const ACTION_EVENTS: Record<
+	IdentityCrisisAction,
+	{ action: 'migrate' | 'start_fresh' | 'confirm_safe_mode'; start: ConnectionEvent }
+> = {
 	migrate: { action: 'migrate', start: CONNECTION_EVENTS.idcMigrate },
 	'start-fresh': { action: 'start_fresh', start: CONNECTION_EVENTS.idcStartFresh },
 	'confirm-safe-mode': { action: 'confirm_safe_mode', start: CONNECTION_EVENTS.idcConfirmSafeMode },

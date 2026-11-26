@@ -301,6 +301,15 @@ describe( 'IdentityCrisis', () => {
 					},
 				],
 				[
+					'guide',
+					{
+						action: 'conclusion',
+						question: 'visitors_use',
+						answer: 'original',
+						path: 'guide>loads>separate>other_address',
+					},
+				],
+				[
 					'question',
 					{
 						action: 'answer',

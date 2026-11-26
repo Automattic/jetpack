@@ -1,5 +1,5 @@
 import { useCallback, useReducer } from 'react';
-import { flowReducer, getFlowEvent, getInitialFlowState, getOption } from './steps';
+import { flowReducer, getFlowEvents, getInitialFlowState, getOption } from './steps';
 import type {
 	FlowAction,
 	FlowContext,
@@ -34,7 +34,7 @@ export interface IdentityCrisisFlow {
  *
  * @param ctx        - The flow context.
  * @param clearError - Forgets the last failed action, which no longer matches once the flow changes.
- * @param onEvent    - Receives each change the Safe Mode events record.
+ * @param onEvent    - Receives each Safe Mode event a change sends.
  * @return The flow state and its changes.
  */
 export default function useIdentityCrisisFlow(
@@ -47,8 +47,7 @@ export default function useIdentityCrisisFlow(
 	// Only user input calls this, so `state` is the one each change starts from, and a render sends nothing.
 	const change = useCallback(
 		( action: FlowAction ) => {
-			const event = getFlowEvent( state, action, ctx );
-			if ( event ) {
+			for ( const event of getFlowEvents( state, action, ctx ) ) {
 				onEvent( event );
 			}
 			clearError();
