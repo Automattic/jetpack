@@ -67,6 +67,18 @@ describe( 'useReportCsvExport', () => {
 		expect( result.current.filename ).toBe( 'annual-insights' );
 	} );
 
+	it( 'keeps export while the report refreshes the same rows', () => {
+		const { result } = renderHook( () =>
+			useReportCsvExport( {
+				rows: [ { title: 'Post', views: 1 } ],
+				filenamePrefix: 'top-posts',
+				status: { ...readyStatus, isFetching: true },
+			} )
+		);
+
+		expect( result.current.canExport ).toBe( true );
+	} );
+
 	it.each( [
 		[ 'the server disables CSV exports', false, readyStatus, [ { title: 'Post', views: 1 } ] ],
 		[ 'there are no rows', true, readyStatus, [] ],
@@ -74,12 +86,6 @@ describe( 'useReportCsvExport', () => {
 			'the report is loading',
 			true,
 			{ ...readyStatus, isLoading: true },
-			[ { title: 'Post', views: 1 } ],
-		],
-		[
-			'the report is fetching',
-			true,
-			{ ...readyStatus, isFetching: true },
 			[ { title: 'Post', views: 1 } ],
 		],
 		[

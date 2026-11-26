@@ -11,7 +11,7 @@ import {
 import { getReportCsvFilename } from '../../report-exports/download-report-csv';
 import { useWidgetRootContext } from '../widget-root';
 import { useCsvDownloadAction, type CsvDownloadAction } from './csv-download-action';
-import { hasReportCsvRows, type ReportCsvExportStatus } from './use-report-csv-export';
+import { isReportCsvReady, type ReportCsvExportStatus } from './use-report-csv-export';
 
 export type RowsCsvActionOptions< TRow > = {
 	/**
@@ -63,7 +63,7 @@ export function useRowsCsvAction< TRow >(
 	return useCsvDownloadAction(
 		options &&
 			! options.status.isPlaceholderData &&
-			hasReportCsvRows( options.status, options.rows.length )
+			isReportCsvReady( options.status, options.rows.length )
 			? async () => {
 					const { filenamePrefix, hasDateRange = false, range } = options;
 

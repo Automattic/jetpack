@@ -15,19 +15,11 @@ export type ReportCsvExportStatus = {
 };
 
 /**
- * Whether exports are enabled and the request has rows, revalidating or not: a widget whose
- * footer loses its only action collapses it and resizes the chart above.
+ * Whether exports are enabled and the request has rows, revalidating or not: a download that
+ * unmounts during a refresh drops focus, and a widget footer left empty resizes its chart.
  */
-export function hasReportCsvRows(
-	status: Pick< ReportCsvExportStatus, 'isLoading' | 'isError' >,
-	rowCount: number
-): boolean {
-	return isStatsCsvExportEnabled() && rowCount > 0 && ! status.isLoading && ! status.isError;
-}
-
-/** Whether exports are enabled and the rows belong to a settled, successful request. */
 export function isReportCsvReady( status: ReportCsvExportStatus, rowCount: number ): boolean {
-	return hasReportCsvRows( status, rowCount ) && ! status.isFetching;
+	return isStatsCsvExportEnabled() && rowCount > 0 && ! status.isLoading && ! status.isError;
 }
 
 export type UseReportCsvExportOptions< Row > = {
