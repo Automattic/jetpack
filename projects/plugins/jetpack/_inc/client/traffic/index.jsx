@@ -62,12 +62,15 @@ export class Traffic extends Component {
 			foundRelated = this.props.isModuleFound( 'related-posts' ),
 			foundVerification = this.props.isModuleFound( 'verification-tools' ),
 			foundSitemaps = this.props.isModuleFound( 'sitemaps' ),
-			// Once the panel holds GA, the pointer shows only in a search that names it.
+			// A search shows GA only when it names it; the tab keeps the card until the panel holds GA.
 			gaPanelUrl =
 				isSettingsConsolidationEnabled() && getScriptData()?.myJetpack?.googleAnalyticsPanel,
 			gaInPanel = !! gaPanelUrl,
 			foundAnalytics =
-				isWoASite() && ( ! gaInPanel || searchFindsGoogleAnalytics( this.props.searchTerm ) ),
+				isWoASite() &&
+				( this.props.searchTerm
+					? searchFindsGoogleAnalytics( this.props.searchTerm )
+					: ! gaInPanel ),
 			foundBlaze = this.props.isModuleFound( 'blaze' );
 
 		// Eligible sites use the dedicated SEO dashboard. Hosts excluded from that
