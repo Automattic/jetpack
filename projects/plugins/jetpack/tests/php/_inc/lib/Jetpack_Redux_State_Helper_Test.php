@@ -173,17 +173,20 @@ class Jetpack_Redux_State_Helper_Test extends WP_UnitTestCase {
 	 */
 	#[DataProvider( 'provide_host_upgrade_answers' )]
 	public function test_host_upgrade_urls_follow_the_host_answer( $answer, $expected ) {
-		$asked  = array();
-		$filter = static function ( $upgrade, $slug ) use ( &$asked, $answer ) {
-			$asked[ $slug ] = $upgrade['back_url'];
-			return null === $answer ? $upgrade : $answer;
-		};
-		add_filter( 'jetpack_feature_upgrade', $filter, 10, 2 );
-		try {
-			$urls = Jetpack_Redux_State_Helper::get_initial_state()['siteData']['hostUpgradeUrls'];
-		} finally {
-			remove_filter( 'jetpack_feature_upgrade', $filter, 10 );
-		}
+		// The test suite with wpcomsh loads mu-wpcom, whose own answers would run first.
+		remove_all_filters( 'jetpack_feature_upgrade' );
+		$asked = array();
+		add_filter(
+			'jetpack_feature_upgrade',
+			static function ( $upgrade, $slug ) use ( &$asked, $answer ) {
+				$asked[ $slug ] = $upgrade['back_url'];
+				return null === $answer ? $upgrade : $answer;
+			},
+			10,
+			2
+		);
+
+		$urls = Jetpack_Redux_State_Helper::get_initial_state()['siteData']['hostUpgradeUrls'];
 
 		$this->assertSame(
 			array(
