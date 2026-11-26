@@ -71,7 +71,7 @@ const PARSELY_PROMPTS_VIEWS_TTL = 12 * HOUR_IN_SECONDS;
 const PARSELY_PROMPTS_VIEWS_RETRY_TTL = HOUR_IN_SECONDS;
 
 /**
- * Configures the Upgrade to Parse.ly prompts. The flag registers earlier, at package boot.
+ * Configures the Upgrade to Parse.ly prompts.
  *
  * @since $$next-version$$
  *
