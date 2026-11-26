@@ -1,3 +1,4 @@
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { starFilled } from '@wordpress/icons';
@@ -202,7 +203,9 @@ export function FeaturePaid( { state }: FeaturePaidProps ) {
 	const plans = feature.plans ?? [];
 	const highlights = feature.paid_highlights ?? [];
 	// A host's answer, its own plans or nothing to sell, replaces the Jetpack plans listed here, as a renewal does.
+	// WordPress.com sells its own plans, never Jetpack bundles, even for features it does not answer for.
 	const showPlans =
+		! isWpcomPlatformSite() &&
 		! isPurchaseBlocked( state ) &&
 		! feature.upgrade?.url &&
 		! hostSellsNothing( feature.upgrade?.url ) &&

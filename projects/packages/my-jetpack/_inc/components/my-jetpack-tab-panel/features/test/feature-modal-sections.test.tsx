@@ -219,6 +219,22 @@ describe( 'FeaturePaid', () => {
 		}
 	);
 
+	it( 'leaves out the Jetpack plans on WordPress.com, which does not sell them', () => {
+		const previous = window.JetpackScriptData;
+		window.JetpackScriptData = {
+			...previous,
+			site: { ...previous?.site, is_wpcom_platform: true },
+		};
+		try {
+			render( <FeaturePaid state={ moduleState( false, 'inactive' ) } /> );
+
+			expect( screen.queryByText( /Included in/ ) ).not.toBeInTheDocument();
+			expect( screen.getByText( 'Secure file uploads' ) ).toBeInTheDocument();
+		} finally {
+			window.JetpackScriptData = previous;
+		}
+	} );
+
 	it( 'leaves out the plans for a module a host forced off', () => {
 		render( <FeaturePaid state={ moduleState( 'inactive', 'inactive' ) } /> );
 
