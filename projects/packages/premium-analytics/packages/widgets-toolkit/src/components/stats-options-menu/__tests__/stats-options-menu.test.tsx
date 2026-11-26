@@ -360,7 +360,8 @@ describe( 'stats-options-menu', () => {
 				expect( recordEvent ).toHaveBeenCalledWith( 'jetpack_premium_analytics_promo_click', {
 					slug: 'acme/offer',
 					placement: 'options-menu',
-					label: 'Try Acme',
+					// Not the item's text: a translated value would group by site language.
+					label: 'cta',
 				} );
 			} );
 		} );

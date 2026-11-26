@@ -159,7 +159,7 @@ export function StatsOptionsMenu( {
 			trackEvent( 'jetpack_premium_analytics_promo_click', {
 				slug: promo.slug,
 				placement: promo.placement,
-				label: promo.cta_label,
+				label: 'cta',
 			} );
 		}
 	}, [ promo, trackEvent ] );

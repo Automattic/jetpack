@@ -75,7 +75,7 @@ function compute_available_promos() {
 }
 
 /**
- * Configures the promos. The flag registers earlier, at package boot.
+ * Configures the promos.
  *
  * @since $$next-version$$
  *
