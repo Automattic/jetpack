@@ -2,8 +2,10 @@
  * Runs against the real core-data store, so a failed resolution is replayed the way it is in the
  * browser; only the request and the capability check are mocked.
  */
+type FetchOptions = { path: string; method?: string };
+
 let settingsFail = false;
-const mockApiFetch = jest.fn( ( { method }: { path: string; method?: string } ) =>
+const mockApiFetch = jest.fn( ( { method }: FetchOptions ) =>
 	! method && settingsFail
 		? Promise.reject( new Error( 'boom' ) )
 		: Promise.resolve( settingsResponse() )
@@ -12,7 +14,7 @@ const mockCurrentUserCan = jest.fn();
 
 jest.mock( '@wordpress/api-fetch', () => ( {
 	__esModule: true,
-	default: ( options: unknown ) => mockApiFetch( options ),
+	default: ( options: FetchOptions ) => mockApiFetch( options ),
 } ) );
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
