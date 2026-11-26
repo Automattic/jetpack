@@ -119,7 +119,8 @@ export const getDetailedFixerAction = ( threat: Threat ) => {
 };
 
 export const getFixerDescription = ( threat: Threat ) => {
-	switch ( threat.fixable && threat.fixable.fixer ) {
+	const fixable = threat.fixable || undefined;
+	switch ( fixable?.fixer ) {
 		case 'delete':
 			if ( threat.filename ) {
 				if ( threat.filename.endsWith( '/' ) ) {
@@ -142,12 +143,12 @@ export const getFixerDescription = ( threat: Threat ) => {
 			}
 			break;
 		case 'update':
-			if ( threat.fixedIn && threat.extension.name ) {
+			if ( threat.fixedIn && threat.extension?.name ) {
 				return sprintf(
-					/* translators: Translates to Updates to version. %1$s: Name. %2$s: Fixed version */
+					/* translators: %1$s: Plugin or theme name. %2$s: Update target version. */
 					__( 'Update %1$s to version %2$s', 'jetpack-scan' ),
 					threat.extension.name,
-					threat.fixedIn
+					fixable.target || threat.fixedIn
 				);
 			}
 			return __( 'Upgrade the plugin or theme to a newer version.', 'jetpack-scan' );

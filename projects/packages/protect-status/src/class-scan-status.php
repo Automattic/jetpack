@@ -363,7 +363,10 @@ class Scan_Status extends Status {
 					);
 				}
 
-				$threat = new Threat_Model(
+				$update_target = 'update' === ( $scan_threat->fixer->fixer ?? null ) ? ( $scan_threat->fixer->target ?? null ) : null;
+				$update_target = is_string( $update_target ) && '' !== $update_target ? $update_target : null;
+				$fixed_in      = $scan_threat->fixed_in ?? null;
+				$threat        = new Threat_Model(
 					array(
 						'id'                        => $scan_threat->id ?? null,
 						'signature'                 => $scan_threat->signature ?? null,
@@ -375,7 +378,7 @@ class Scan_Status extends Status {
 						'payload_subtitle'          => $scan_threat->payload_subtitle ?? null,
 						'payload_description'       => $scan_threat->payload_description ?? null,
 						'first_detected'            => $scan_threat->first_detected ?? null,
-						'fixed_in'                  => isset( $scan_threat->fixer->fixer ) && 'update' === $scan_threat->fixer->fixer ? $scan_threat->fixer->target : null,
+						'fixed_in'                  => is_string( $fixed_in ) && '' !== $fixed_in ? $fixed_in : $update_target,
 						'severity'                  => $scan_threat->severity ?? null,
 						'fixable'                   => $scan_threat->fixer ?? null,
 						'status'                    => $scan_threat->status ?? null,
@@ -397,8 +400,8 @@ class Scan_Status extends Status {
 						continue;
 					}
 
-					// Updated to the fixed version, the vulnerability is gone, though Scan's report shows it until the next scan.
-					if ( 'Vulnerable.WP.Extension' === $threat->signature && ! empty( $threat->fixed_in ) && version_compare( (string) $installed_extension->version, (string) $threat->fixed_in, '>=' ) ) {
+					// Hide the stale result once the installed version reaches the update fixer's target.
+					if ( 'Vulnerable.WP.Extension' === $threat->signature && null !== $update_target && version_compare( (string) $installed_extension->version, $update_target, '>=' ) ) {
 						$installed_extension->checked = false;
 						continue;
 					}

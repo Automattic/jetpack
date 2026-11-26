@@ -75,6 +75,47 @@ describe( 'ThreatDetails', () => {
 	} );
 
 	it.each( [
+		[ null, 'Jetpack can fix this threat for you: Delete the plugin directory to fix the threat.' ],
+		[ '2.0.2', 'Update to version 2.0.2 or later.' ],
+	] )( 'advises on an off-directory delete fixer with fixed version %s', ( fixedIn, advice ) => {
+		const fixer = {
+			fixer: 'delete',
+			file: '{$PLUGINS}/example-premium',
+			extensionStatus: 'active',
+			extras: { isDotorg: false, isBulkFixable: false },
+		};
+		const threat: ScanThreat = {
+			...threatIn( 4, 'delete' ),
+			fixedIn,
+			fixable: fixer,
+			extension: {
+				type: 'plugins',
+				slug: 'example-premium',
+				name: 'Example Premium',
+				version: '2.0.1',
+				state: 'active',
+			},
+		};
+		render( <ThreatDetails threat={ threat } canAct /> );
+
+		expect( screen.getByText( advice ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Auto-fix it' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'names the automatic update target when it differs from the fixed version', () => {
+		const threat: ScanThreat = {
+			...threatIn( 4, 'update' ),
+			fixedIn: '2.0.2',
+			fixable: { fixer: 'update', target: '2.1.0' },
+		};
+		render( <ThreatDetails threat={ threat } canAct /> );
+
+		expect(
+			screen.getByText( 'Jetpack can fix this threat for you: Update Akismet to version 2.1.0.' )
+		).toBeInTheDocument();
+	} );
+
+	it.each( [
 		[
 			'an active plugin',
 			'plugins',

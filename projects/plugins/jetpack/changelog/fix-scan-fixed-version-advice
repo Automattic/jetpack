@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Protect: Recommend updating plugins from outside WordPress.org when Scan reports a fixed version.
