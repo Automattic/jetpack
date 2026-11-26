@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Admin shell: Leave out of each dashboard's page data the shared script data the current page already has.
+Admin shell: Stop sending each dashboard the shared script data the current page already has.
