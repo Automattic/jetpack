@@ -303,3 +303,30 @@ function print_opml_link() {
 	);
 }
 add_action( 'wp_head', __NAMESPACE__ . '\print_opml_link' );
+
+/**
+ * List the blogroll of the /blogroll page in the site's SocialSpec following list.
+ *
+ * @link https://slashpages.net/#blogroll
+ *
+ * @param array[] $outlines OPML outline attributes.
+ * @return array[]
+ */
+function add_following( $outlines ) {
+	$post = get_page_by_path( 'blogroll' );
+	if ( ! has_opml( $post ) ) {
+		return $outlines;
+	}
+
+	foreach ( get_opml_items( get_public_blocks( $post ) ) as $item ) {
+		$outlines[] = array(
+			'type'    => 'rss',
+			'text'    => $item['name'],
+			'xmlUrl'  => $item['feed_url'],
+			'htmlUrl' => $item['url'],
+		);
+	}
+
+	return $outlines;
+}
+add_filter( 'jetpack_social_following', __NAMESPACE__ . '\add_following' );

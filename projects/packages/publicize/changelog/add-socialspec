@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+SocialSpec: Publish a contact card and a following list at /.well-known/, behind a feature flag.

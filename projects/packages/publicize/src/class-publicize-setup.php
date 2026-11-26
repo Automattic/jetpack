@@ -93,6 +93,11 @@ class Publicize_Setup {
 		 */
 		Keyring_Result_Handler::init();
 
+		/**
+		 * The SocialSpec documents are public and do not depend on Publicize being enabled.
+		 */
+		Socialspec\Socialspec::init();
+
 		if ( ! $is_wpcom_simple ) {
 			/**
 			 * We need this only on Jetpack sites for Google Site auto-verification.

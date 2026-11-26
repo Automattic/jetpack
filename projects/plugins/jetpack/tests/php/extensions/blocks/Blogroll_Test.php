@@ -292,6 +292,49 @@ class Blogroll_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * The following list takes the public feeds of the /blogroll page only.
+	 */
+	public function test_add_following() {
+		$content = self::blogroll(
+			self::item(
+				array(
+					'name'     => 'Feed',
+					'url'      => 'https://feed.example/',
+					'feed_url' => 'https://feed.example/feed/',
+				)
+			)
+		);
+		$args    = array(
+			'post_type'    => 'page',
+			'post_content' => $content,
+		);
+
+		self::factory()->post->create( $args + array( 'post_name' => 'links' ) );
+		$this->assertSame( array(), Blogroll\add_following( array() ) );
+
+		$page = self::factory()->post->create( $args + array( 'post_name' => 'blogroll' ) );
+		$this->assertSame(
+			array(
+				array(
+					'type'    => 'rss',
+					'text'    => 'Feed',
+					'xmlUrl'  => 'https://feed.example/feed/',
+					'htmlUrl' => 'https://feed.example/',
+				),
+			),
+			Blogroll\add_following( array() )
+		);
+
+		wp_update_post(
+			array(
+				'ID'          => $page,
+				'post_status' => 'private',
+			)
+		);
+		$this->assertSame( array(), Blogroll\add_following( array() ) );
+	}
+
+	/**
 	 * Output of print_opml_link().
 	 *
 	 * @return string
