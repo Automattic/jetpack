@@ -76,8 +76,13 @@
 		}
 	}
 
+	// The Stack around them spaces these lists like the paragraphs.
+	:global(.products-list),
+	:global(.plugins-list) {
+		margin: 0;
+	}
+
 	:global(.products-list) {
-		margin: 10px 0;
 
 		:global(.product-badge) {
 			display: inline-block;
