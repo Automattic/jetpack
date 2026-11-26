@@ -98,8 +98,8 @@ interface TagViewsState {
  * Fetch the most visited tags and categories for the Tags & categories widget
  * via the shared Stats data layer.
  *
- * Delegates to `useStatsTags`, then maps the normalized rows onto the leaderboard
- * shape and trims to `max`. Single period: `stats/tags` reports no comparison.
+ * Delegates to `useStatsTags`, narrows the rows to `termType` when set, then maps them onto
+ * the leaderboard shape and trims to `max`. Single period: `stats/tags` has no comparison.
  */
 export default function useTagViews( {
 	reportParams,
