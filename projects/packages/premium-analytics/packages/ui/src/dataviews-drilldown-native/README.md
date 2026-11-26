@@ -32,9 +32,9 @@ The first field in the view's field list becomes the view's `titleField` — the
 
 ## Mounting rows in batches
 
-The table mounts its first 50 rows and grows by 50 as its own scroll container nears the end
+The table mounts its first 50 rows and grows by 50 as the page scrolls near their end
 (`useRowBatches`). Folding keeps the rows mounted so far; a new sort, search or filter starts over
-from the first batch, scrolled to the top. Data swapped in without a view change keeps them too, so
+from the first batch, with the table's top in view. Data swapped in without a view change keeps them too, so
 pass `batchResetKey` a new value when that data is a new set, such as another period.
 
 ## Siblings

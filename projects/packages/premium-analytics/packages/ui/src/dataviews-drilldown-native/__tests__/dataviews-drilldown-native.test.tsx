@@ -1,5 +1,6 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { mockRowLayout, scrollRowsToEnd } from '../../../../../tests/js/row-batches-test-utils';
 import { DataViewsDrilldownNative } from '../dataviews-drilldown-native';
 import type { DataViewsDrilldownNativeProps } from '../dataviews-drilldown-native';
 import type { Field } from '@jetpack-premium-analytics/externals';
@@ -234,6 +235,9 @@ function flatRows( count: number ): Row[] {
 }
 
 describe( 'DataViewsDrilldownNative paging', () => {
+	beforeEach( mockRowLayout );
+	afterEach( () => jest.restoreAllMocks() );
+
 	it( 'lists every row on one page with no page size menu', async () => {
 		render(
 			<DataViewsDrilldownNative< Row >
@@ -265,8 +269,7 @@ describe( 'DataViewsDrilldownNative paging', () => {
 		] ).flat();
 		renderTable( { data: groups, collapsible: true, defaultExpanded: 'none' } );
 
-		// eslint-disable-next-line testing-library/no-node-access -- the scroll container has no role.
-		fireEvent.scroll( screen.getByText( 'Group 50' ).closest( '.dataviews-layout__container' )! );
+		scrollRowsToEnd();
 		await expect( screen.findByText( 'Group 60' ) ).resolves.toBeInTheDocument();
 		await userEvent.setup().click( screen.getByRole( 'button', { name: 'Group 59' } ) );
 

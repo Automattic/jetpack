@@ -1,5 +1,0 @@
-/* Rows grow as this container scrolls, so it scrolls on its own, capped near
- * the viewport, rather than with the page. */
-.container :global(.dataviews-layout__container) {
-	max-block-size: max(20rem, calc(100dvh - 16rem));
-}

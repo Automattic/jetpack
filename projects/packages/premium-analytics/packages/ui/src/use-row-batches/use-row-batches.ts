@@ -2,45 +2,39 @@
  * External dependencies
  */
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-/**
- * Internal dependencies
- */
-import styles from './use-row-batches.module.scss';
 
 export const ROW_BATCH_SIZE = 50;
 
 // Matches the distance DataViews' own infinite scroll loads ahead at.
 const GROW_THRESHOLD_PX = 600;
-const CONTAINER_SELECTOR = '.dataviews-layout__container';
 
 export type RowBatches = {
 	/** How many leading rows to hand DataViews. */
 	rowLimit: number;
-	/** Spread onto the element wrapping DataViews: it caps the table's own scroll container. */
-	containerProps: {
-		ref: ( element: HTMLDivElement | null ) => void;
-		className: string;
-	};
+	/** Goes on the element wrapping DataViews, whose bottom edge is where the mounted rows end. */
+	ref: ( element: HTMLElement | null ) => void;
 };
 
 /**
- * Whether a scroll container is close enough to its end to mount the next batch.
+ * Whether the mounted rows end close enough to the bottom of the window to mount the next batch.
  *
- * @param container - DataViews' scroll container.
+ * @param root - The element wrapping DataViews.
  * @return True near the end.
  */
-function isNearEnd( container: Element ): boolean {
-	return container.scrollTop + container.clientHeight >= container.scrollHeight - GROW_THRESHOLD_PX;
+function isNearEnd( root: Element ): boolean {
+	const { bottom, height } = root.getBoundingClientRect();
+	// A hidden table measures zero, and filling it would mount every row.
+	return height > 0 && bottom - window.innerHeight <= GROW_THRESHOLD_PX;
 }
 
 /**
- * Mount a DataViews table's rows a batch at a time, growing as its own scroll container nears
- * the end. Unlike DataViews' infinite scroll, rows stay a plain prefix of the ordered list.
+ * Mount a DataViews table's rows a batch at a time, growing as the page scrolls toward their end.
+ * Unlike DataViews' infinite scroll, rows stay a plain prefix of the ordered list.
  *
  * @param rowCount  - How many rows the table could show.
- * @param resetKey  - A new value starts over from the first batch, scrolled to the top.
+ * @param resetKey  - A new value starts over from the first batch, with the table's top in view.
  * @param isLoading - The `isLoading` handed to DataViews, which shows its previous rows meanwhile.
- * @return The row limit and the props for the element wrapping DataViews.
+ * @return The row limit and the ref for the element wrapping DataViews.
  */
 export function useRowBatches(
 	rowCount: number,
@@ -57,10 +51,10 @@ export function useRowBatches(
 	const rowCountRef = useRef( rowCount );
 	rowCountRef.current = rowCount;
 	// Rows added while DataViews still shows its previous ones never reach the screen, so the
-	// container stays near its end and the fill below would grow every remaining row at once.
+	// table stays near its end and the fill below would grow every remaining row at once.
 	const isLoadingRef = useRef( isLoading );
 	isLoadingRef.current = isLoading;
-	const [ root, setRoot ] = useState< HTMLDivElement | null >( null );
+	const [ root, setRoot ] = useState< HTMLElement | null >( null );
 
 	const grow = useCallback( () => {
 		if ( isLoadingRef.current ) {
@@ -77,34 +71,33 @@ export function useRowBatches(
 		if ( ! root ) {
 			return;
 		}
-		// Scroll does not bubble, so catch the container's own in the capture phase.
-		const handleScroll = ( event: Event ) => {
-			const target = event.target as Element;
-			if ( target.matches?.( CONTAINER_SELECTOR ) && isNearEnd( target ) ) {
+		const handleScroll = () => {
+			if ( isNearEnd( root ) ) {
 				grow();
 			}
 		};
-		root.addEventListener( 'scroll', handleScroll, true );
-		return () => root.removeEventListener( 'scroll', handleScroll, true );
+		// Scroll does not bubble, so capture it from whichever ancestor scrolls.
+		window.addEventListener( 'scroll', handleScroll, { capture: true, passive: true } );
+		window.addEventListener( 'resize', handleScroll );
+		return () => {
+			window.removeEventListener( 'scroll', handleScroll, { capture: true } );
+			window.removeEventListener( 'resize', handleScroll );
+		};
 	}, [ root, grow ] );
 
+	// Scrolled past the table, the first rows of a new order would sit out of view above.
 	useLayoutEffect( () => {
-		const container = root?.querySelector( CONTAINER_SELECTOR );
-		if ( container ) {
-			container.scrollTop = 0;
+		if ( root && root.getBoundingClientRect().top < 0 ) {
+			root.scrollIntoView( { block: 'start' } );
 		}
 	}, [ root, resetKey ] );
 
-	// Rows that do not overflow the container never fire a scroll, so keep filling it.
+	// Rows that end above the threshold never fire a scroll, so keep filling.
 	useLayoutEffect( () => {
-		const container = root?.querySelector( CONTAINER_SELECTOR );
-		if ( container && container.clientHeight > 0 && isNearEnd( container ) ) {
+		if ( root && isNearEnd( root ) ) {
 			grow();
 		}
 	}, [ root, rowLimit, rowCount, isLoading, grow ] );
 
-	return {
-		rowLimit,
-		containerProps: { ref: setRoot, className: styles.container },
-	};
+	return { rowLimit, ref: setRoot };
 }

@@ -158,7 +158,7 @@ export function ReportRecordsTable< Item >( {
 	const periodKey = useReportPeriodKey();
 	const rowBatchesResetKey = `${ JSON.stringify( [ view.sort, view.search, view.filters ] ) }:${ periodKey }`;
 	const isRevalidating = useTableRevalidating( isFetching );
-	const { rowLimit, containerProps } = useRowBatches(
+	const { rowLimit, ref: rowBatchesRef } = useRowBatches(
 		orderedItems.length,
 		rowBatchesResetKey,
 		isLoading || isRevalidating
@@ -179,7 +179,7 @@ export function ReportRecordsTable< Item >( {
 
 	return (
 		<ReportPageSection className={ styles.root }>
-			<div { ...containerProps }>
+			<div ref={ rowBatchesRef }>
 				<GenericDataViews< Item >
 					view={ view }
 					onChangeView={ handleChangeView }

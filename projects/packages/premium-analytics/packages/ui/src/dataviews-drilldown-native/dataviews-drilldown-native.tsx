@@ -258,7 +258,11 @@ export function DataViewsDrilldownNative< Item >( {
 	const rowBatchesResetKey = `${ JSON.stringify( [ view.sort, view.search, view.filters ] ) }:${
 		batchResetKey ?? ''
 	}`;
-	const { rowLimit, containerProps } = useRowBatches( rows.length, rowBatchesResetKey, isLoading );
+	const { rowLimit, ref: rowBatchesRef } = useRowBatches(
+		rows.length,
+		rowBatchesResetKey,
+		isLoading
+	);
 	const mountedRows = useMemo( () => rows.slice( 0, rowLimit ), [ rows, rowLimit ] );
 
 	const handleToggle = useCallback( ( id: string ) => {
@@ -319,12 +323,8 @@ export function DataViewsDrilldownNative< Item >( {
 	return (
 		<CollapseContext.Provider value={ collapseContextValue }>
 			<div
-				ref={ containerProps.ref }
-				className={ clsx(
-					styles.root,
-					containerProps.className,
-					hideLevelMarkers && styles.hideLevelMarkers
-				) }
+				ref={ rowBatchesRef }
+				className={ clsx( styles.root, hideLevelMarkers && styles.hideLevelMarkers ) }
 			>
 				<GenericDataViews< Item >
 					view={ view }

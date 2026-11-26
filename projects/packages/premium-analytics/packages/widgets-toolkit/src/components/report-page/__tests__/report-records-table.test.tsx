@@ -6,6 +6,7 @@ import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
+import { mockRowLayout, scrollRowsToEnd } from '../../../../../../tests/js/row-batches-test-utils';
 import { ReportDrilldownTable } from '../report-drilldown-table';
 import { ReportPageLayout } from '../report-page-layout';
 import { ReportRecordsTable } from '../report-records-table';
@@ -150,6 +151,9 @@ function numberedRows( count: number ): NumberedRow[] {
 }
 
 describe( 'ReportRecordsTable paging', () => {
+	beforeEach( mockRowLayout );
+	afterEach( () => jest.restoreAllMocks() );
+
 	it( 'reports only the rows it has mounted', async () => {
 		const onMountedRows = jest.fn();
 		render(
@@ -163,7 +167,7 @@ describe( 'ReportRecordsTable paging', () => {
 		);
 		expect( onMountedRows ).toHaveBeenLastCalledWith( longReport().slice( 0, 50 ) );
 
-		scrollTable();
+		scrollRowsToEnd();
 
 		await waitFor( () =>
 			expect( onMountedRows ).toHaveBeenLastCalledWith( longReport().slice( 0, 100 ) )
@@ -307,22 +311,17 @@ function longReport( count = 120 ): Row[] {
 	} ) );
 }
 
-/**
- * Scroll the table's own container; jsdom lays nothing out, so any scroll reads as its end.
- */
-function scrollTable() {
-	// eslint-disable-next-line testing-library/no-node-access -- the scroll container has no role.
-	fireEvent.scroll( screen.getByRole( 'table' ).closest( '.dataviews-layout__container' )! );
-}
-
 describe.each( TABLES )( '%s with a long report', ( _name, table ) => {
+	beforeEach( mockRowLayout );
+	afterEach( () => jest.restoreAllMocks() );
+
 	it( 'mounts one batch, then the next as the table scrolls', async () => {
 		render( table( longReport() ) );
 
 		expect( screen.getByText( 'Row 50' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Row 51' ) ).not.toBeInTheDocument();
 
-		scrollTable();
+		scrollRowsToEnd();
 
 		await expect( screen.findByText( 'Row 100' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( 'Row 101' ) ).not.toBeInTheDocument();
@@ -330,7 +329,7 @@ describe.each( TABLES )( '%s with a long report', ( _name, table ) => {
 
 	it( 'starts over from the first batch of a new sort order', async () => {
 		render( table( longReport() ) );
-		scrollTable();
+		scrollRowsToEnd();
 		await expect( screen.findByText( 'Row 100' ) ).resolves.toBeInTheDocument();
 
 		const user = userEvent.setup();
@@ -343,7 +342,7 @@ describe.each( TABLES )( '%s with a long report', ( _name, table ) => {
 
 	it( 'keeps the mounted rows through a background refetch', async () => {
 		const { rerender } = render( table( longReport() ) );
-		scrollTable();
+		scrollRowsToEnd();
 		await expect( screen.findByText( 'Row 100' ) ).resolves.toBeInTheDocument();
 
 		rerender( table( longReport(), { isFetching: true } ) );
@@ -362,7 +361,7 @@ describe.each( TABLES )( '%s with a long report', ( _name, table ) => {
 			</ReportPageLayout>
 		);
 		const { rerender } = render( inPeriod( '2026-11-18' ) );
-		scrollTable();
+		scrollRowsToEnd();
 		await expect( screen.findByText( 'Row 100' ) ).resolves.toBeInTheDocument();
 
 		rerender( inPeriod( '2026-10-26' ) );
@@ -374,9 +373,11 @@ describe.each( TABLES )( '%s with a long report', ( _name, table ) => {
 		const { rerender } = render( table( longReport() ) );
 		rerender( table( longReport(), { isFetching: true } ) );
 
-		scrollTable();
-		rerender( table( longReport() ) );
-
+		scrollRowsToEnd();
 		expect( screen.queryByText( 'Row 51' ) ).not.toBeInTheDocument();
+
+		rerender( table( longReport() ) );
+		expect( screen.getByText( 'Row 100' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Row 101' ) ).not.toBeInTheDocument();
 	} );
 } );
