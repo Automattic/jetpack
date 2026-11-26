@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Features: Show Newsletter as included on WordPress.com plans instead of offering Jetpack Pro.
+Features: Show Newsletter as included on WordPress.com plans instead of offering Jetpack Pro, and leave out the Jetpack fees there.
