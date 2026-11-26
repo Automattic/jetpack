@@ -8,6 +8,8 @@ export const COMPARISON_SLOT = 'comparison';
 
 const OVERLAP_SLOTS = [ PRIMARY_SLOT, COMPARISON_SLOT ] as const;
 
+export const isComparisonSeries = ( series: SeriesData ) => series.options?.type === 'comparison';
+
 /** Thickness of the front-most layer, as a share of its slot. */
 const FRONT_THICKNESS = 0.5;
 
