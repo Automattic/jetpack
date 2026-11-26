@@ -233,7 +233,7 @@ class Parsely_Prompts_Test extends BaseTestCase {
 		$this->assertSame( 1, $this->usage_requests );
 	}
 
-	public function test_a_failed_lookup_is_retried_sooner_than_an_answer() {
+	public function test_a_failed_lookup_stands_for_the_retry_window() {
 		$this->answer_stats_usage_with( new WP_Error( 'api_error', 'WordPress.com is unavailable.' ) );
 
 		offers_parsely_prompts();
@@ -243,14 +243,15 @@ class Parsely_Prompts_Test extends BaseTestCase {
 		$this->assertLessThanOrEqual( time() + PARSELY_PROMPTS_USAGE_RETRY_TTL, $timeout );
 	}
 
-	public function test_an_answer_stands_longer_than_a_failure() {
+	public function test_an_answer_expires_inside_the_incident_budget() {
 		$this->answer_stats_usage_with( self::usage_with_views( 150000 ) );
 
 		offers_parsely_prompts();
 		$timeout = (int) get_option( '_transient_timeout_' . PARSELY_PROMPTS_USAGE_TRANSIENT );
 
-		$this->assertGreaterThan( time() + PARSELY_PROMPTS_USAGE_RETRY_TTL, $timeout );
-		$this->assertLessThanOrEqual( time() + PARSELY_PROMPTS_USAGE_TTL, $timeout );
+		$this->assertGreaterThan( time(), $timeout );
+		// Raising this back to hours would leave no way to stop the prompts on a self-hosted site.
+		$this->assertLessThanOrEqual( time() + 5 * MINUTE_IN_SECONDS, $timeout );
 	}
 
 	public function test_a_cache_of_another_shape_is_refetched() {

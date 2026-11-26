@@ -51,12 +51,13 @@ const PARSELY_PROMPTS_ENABLED_FIELD = 'parsely_prompts_enabled';
 const PARSELY_PROMPTS_USAGE_TRANSIENT = 'jetpack_premium_analytics_parsely_usage';
 
 /**
- * How long that answer stands. A promo can lag a site crossing the threshold, and opening or
- * closing the prompts takes this long to reach a site holding a recent answer.
+ * How long that answer stands. Short because closing the prompts is incident response: a site
+ * holding a recent answer keeps showing them for this long after WordPress.com says stop. Going
+ * lower buys nothing, since WPCOM_Stats caches the same response for five minutes underneath.
  *
  * @var int
  */
-const PARSELY_PROMPTS_USAGE_TTL = 12 * HOUR_IN_SECONDS;
+const PARSELY_PROMPTS_USAGE_TTL = MINUTE_IN_SECONDS;
 
 /**
  * How long a failed lookup stands, so one bad response does not hide the prompt all day.
