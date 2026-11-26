@@ -182,8 +182,16 @@ class Socialspec_Test extends BaseTestCase {
 			}
 		);
 
+		add_filter(
+			'pre_option_blogname',
+			static function () {
+				return 'Tom &amp; Jerry';
+			}
+		);
+
 		$opml = ( new Following() )->get_content();
 
+		$this->assertStringContainsString( '<title>Tom &amp; Jerry Follows</title>', $opml );
 		$this->assertStringContainsString( '<outline type="rss" text="Feed &amp; &quot;Co&quot; &lt;b&gt;" xmlUrl="https://feed.example/feed/?a=1&amp;b=2" />', $opml );
 		$this->assertStringContainsString( '<outline xmlUrl="https://untitled.example/feed/" text="untitled.example" />', $opml );
 		$this->assertSame( 2, substr_count( $opml, '<outline' ) );

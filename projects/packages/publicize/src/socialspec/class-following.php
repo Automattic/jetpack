@@ -9,6 +9,10 @@
 
 namespace Automattic\Jetpack\Publicize\Socialspec;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * The followed feeds as OPML 2.0.
  */
@@ -61,7 +65,7 @@ class Following implements Document {
 		$opml .= '<opml version="2.0">' . "\n";
 		$opml .= "\t<head>\n";
 		/* translators: %s: Site title. */
-		$opml .= "\t\t<title>" . self::escape( sprintf( __( '%s Follows', 'jetpack-publicize-pkg' ), get_bloginfo( 'name' ) ) ) . "</title>\n";
+		$opml .= "\t\t<title>" . self::escape( sprintf( __( '%s Follows', 'jetpack-publicize-pkg' ), self::decode( get_bloginfo( 'name' ) ) ) ) . "</title>\n";
 		$opml .= "\t\t<ownerId>" . self::escape( home_url( '/' ) ) . "</ownerId>\n";
 		$opml .= "\t\t<docs>http://opml.org/spec2.opml</docs>\n";
 		$opml .= "\t</head>\n";
@@ -99,8 +103,7 @@ class Following implements Document {
 				continue;
 			}
 
-			// Values may be HTML encoded, like post titles. They are escaped again for XML.
-			$value = html_entity_decode( (string) $value, ENT_QUOTES | ENT_HTML5, get_bloginfo( 'charset' ) );
+			$value = self::decode( (string) $value );
 
 			if ( in_array( $name, self::URL_ATTRIBUTES, true ) ) {
 				$value = self::sanitize_url( $value );
@@ -137,6 +140,16 @@ class Following implements Document {
 		$parts = wp_parse_url( $url );
 
 		return ! empty( $parts['scheme'] ) && ! empty( $parts['host'] ) ? $url : '';
+	}
+
+	/**
+	 * Decodes the HTML entities of stored values, like the site title, before they are escaped for XML.
+	 *
+	 * @param string $value The value.
+	 * @return string
+	 */
+	private static function decode( $value ) {
+		return html_entity_decode( $value, ENT_QUOTES | ENT_HTML5, get_bloginfo( 'charset' ) );
 	}
 
 	/**

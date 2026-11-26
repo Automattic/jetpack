@@ -9,6 +9,10 @@
 
 namespace Automattic\Jetpack\Publicize\Socialspec;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * The site as a vCard 3.0 (RFC 2426), without an email address.
  */

@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Publicize\Socialspec;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * A document served at /.well-known/.
  */

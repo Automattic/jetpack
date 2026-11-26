@@ -12,6 +12,10 @@ namespace Automattic\Jetpack\Publicize\Socialspec;
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Status;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Serves the SocialSpec documents at /.well-known/.
  */
@@ -27,7 +31,7 @@ class Socialspec {
 			self::FEATURE_FLAG,
 			array(
 				'default'     => false,
-				'description' => 'Publish the SocialSpec contact card and following list at /.well-known/.',
+				'description' => 'Let feed readers and social apps see who the site is and which blogs it follows (SocialSpec), and let web apps read its feeds.',
 				'owner'       => 'jetpack-social',
 			)
 		);
@@ -117,7 +121,9 @@ class Socialspec {
 	 * @return bool
 	 */
 	public static function exit_on_http_head( $exit ) {
-		return self::get_document() ? false : $exit;
+		$document = self::get_document();
+
+		return $document && null !== $document->get_content() ? false : $exit;
 	}
 
 	/**
