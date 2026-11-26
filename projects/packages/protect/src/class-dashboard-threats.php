@@ -161,10 +161,8 @@ class Dashboard_Threats {
 		$theme = $theme && $theme->exists() ? $theme : null;
 		// Fixed history can include the original fixer even when the threat is no longer fixable.
 		$update_target = 'update' === ( $threat->fixer->fixer ?? null ) ? ( $threat->fixer->target ?? null ) : null;
+		$update_target = is_string( $update_target ) && '' !== $update_target ? $update_target : null;
 		$fixed_in      = $threat->fixed_in ?? null;
-		if ( ! is_string( $fixed_in ) || '' === $fixed_in ) {
-			$fixed_in = is_string( $update_target ) && '' !== $update_target ? $update_target : null;
-		}
 
 		return array(
 			'id'              => $threat->id ?? null,
@@ -174,7 +172,7 @@ class Dashboard_Threats {
 			'status'          => $threat->status ?? null,
 			'severity'        => $threat->severity ?? null,
 			'firstDetected'   => $threat->first_detected ?? null,
-			'fixedIn'         => $fixed_in,
+			'fixedIn'         => is_string( $fixed_in ) && '' !== $fixed_in ? $fixed_in : $update_target,
 			'fixedOn'         => $threat->fixed_on ?? null,
 			'fixable'         => self::format_fixable( $threat->fixable ?? null ),
 			'filename'        => $threat->filename ?? null,

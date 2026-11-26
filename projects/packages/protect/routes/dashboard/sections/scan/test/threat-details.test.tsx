@@ -103,12 +103,19 @@ describe( 'ThreatDetails', () => {
 			'2.0.2',
 			'Jetpack can fix this threat for you: Delete the plugin directory to fix the threat.',
 		],
+		[
+			'a plugin with a fixed version and no fixer extras',
+			'plugins',
+			undefined,
+			'2.0.2',
+			'Jetpack can fix this threat for you: Delete the plugin directory to fix the threat.',
+		],
 	] as const )( 'advises on a delete fix for %s', ( _name, type, isDotorg, fixedIn, advice ) => {
 		const fixer = {
 			fixer: 'delete',
 			file: ( type === 'themes' ? '{$THEMES}' : '{$PLUGINS}' ) + '/example-premium',
 			extensionStatus: 'active',
-			extras: { isDotorg, isBulkFixable: false },
+			...( isDotorg !== undefined && { extras: { isDotorg, isBulkFixable: false } } ),
 		};
 		const threat: ScanThreat = {
 			...threatIn( 4, 'delete' ),

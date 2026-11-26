@@ -665,11 +665,11 @@ class Scan_Status_Test extends BaseTestCase {
 	 * @param string      $theme_version  The installed theme version.
 	 * @param array       $listed         The extension threats still listed.
 	 * @param string|null $fixed_in       The fixed version reported by the Scan API.
-	 * @param string      $fixer          The plugin's fixer type.
+	 * @param string|null $update_target  The plugin's update target, or null for a delete fixer.
 	 * @dataProvider updated_extension_data
 	 */
 	#[DataProvider( 'updated_extension_data' )]
-	public function test_get_status_after_extension_update( $plugin_version, $theme_version, $listed, $fixed_in = null, $fixer = 'update' ) {
+	public function test_get_status_after_extension_update( $plugin_version, $theme_version, $listed, $fixed_in = null, $update_target = '3.0.2' ) {
 		$this->mock_connection();
 		$update   = function ( $target ) {
 			return (object) array(
@@ -679,7 +679,7 @@ class Scan_Status_Test extends BaseTestCase {
 		};
 		$response = $this->get_sample_response();
 
-		$response->threats[1]->fixer = 'update' === $fixer ? $update( '3.0.2' ) : (object) array( 'fixer' => 'delete' );
+		$response->threats[1]->fixer = null === $update_target ? (object) array( 'fixer' => 'delete' ) : $update( $update_target );
 		if ( null !== $fixed_in ) {
 			$response->threats[1]->fixed_in = $fixed_in;
 		}
@@ -740,7 +740,7 @@ class Scan_Status_Test extends BaseTestCase {
 
 		$this->assertEqualsCanonicalizing( $listed, array_values( array_intersect( array_keys( $threats ), array( '71625245', 'malware', 'theme' ) ) ) );
 		if ( isset( $threats['71625245'] ) ) {
-			$this->assertSame( $fixed_in ?? '3.0.2', $threats['71625245']->fixed_in );
+			$this->assertSame( $fixed_in ?? ( '0' !== $update_target ? $update_target : null ), $threats['71625245']->fixed_in );
 		}
 	}
 
@@ -755,7 +755,8 @@ class Scan_Status_Test extends BaseTestCase {
 			'plugin past the fix'                   => array( '3.1', '1.0.2', array( 'malware', 'theme' ) ),
 			'theme at the fix'                      => array( '3.0.0', '1.0.3', array( '71625245', 'malware' ) ),
 			'update target above the fixed version' => array( '3.0.1', '1.0.2', array( '71625245', 'malware', 'theme' ), '3.0.1' ),
-			'delete fixer at the fixed version'     => array( '3.0.1', '1.0.2', array( '71625245', 'malware', 'theme' ), '3.0.1', 'delete' ),
+			'delete fixer at the fixed version'     => array( '3.0.1', '1.0.2', array( '71625245', 'malware', 'theme' ), '3.0.1', null ),
+			'zero update target'                    => array( '3.0.1', '1.0.2', array( '71625245', 'malware', 'theme' ), null, '0' ),
 		);
 	}
 

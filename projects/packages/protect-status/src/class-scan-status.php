@@ -364,7 +364,7 @@ class Scan_Status extends Status {
 				}
 
 				$update_target = 'update' === ( $scan_threat->fixer->fixer ?? null ) ? ( $scan_threat->fixer->target ?? null ) : null;
-				$update_target = is_string( $update_target ) && '' !== $update_target ? $update_target : null;
+				$update_target = is_string( $update_target ) && ! empty( $update_target ) ? $update_target : null;
 				$fixed_in      = $scan_threat->fixed_in ?? null;
 				$threat        = new Threat_Model(
 					array(
@@ -400,7 +400,7 @@ class Scan_Status extends Status {
 						continue;
 					}
 
-					// Hide the stale result once the installed version reaches the update fixer's target.
+					// Scan lists the threat until its next scan, so hide it once the installed version reaches the update target.
 					if ( 'Vulnerable.WP.Extension' === $threat->signature && null !== $update_target && version_compare( (string) $installed_extension->version, $update_target, '>=' ) ) {
 						$installed_extension->checked = false;
 						continue;

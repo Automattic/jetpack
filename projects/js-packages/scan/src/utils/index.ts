@@ -142,16 +142,18 @@ export const getFixerDescription = ( threat: Threat ) => {
 				return __( 'Delete the theme directory to fix the threat.', 'jetpack-scan' );
 			}
 			break;
-		case 'update':
-			if ( threat.fixedIn && threat.extension?.name ) {
+		case 'update': {
+			const version = fixable.target || threat.fixedIn;
+			if ( version && threat.extension?.name ) {
 				return sprintf(
 					/* translators: %1$s: Plugin or theme name. %2$s: Update target version. */
 					__( 'Update %1$s to version %2$s', 'jetpack-scan' ),
 					threat.extension.name,
-					fixable.target || threat.fixedIn
+					version
 				);
 			}
 			return __( 'Upgrade the plugin or theme to a newer version.', 'jetpack-scan' );
+		}
 		case 'replace':
 		case 'rollback':
 			if ( threat.filename ) {
