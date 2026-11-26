@@ -342,6 +342,7 @@ describe( 'TagsWidget CSV export', () => {
 		[
 			'tag',
 			/^tags-.+\.csv$/,
+			'"Tag","Views","URL"',
 			'"chocolate","760","https://example.com/tag/chocolate/"',
 			/Recipes|Desserts/,
 			12,
@@ -349,13 +350,14 @@ describe( 'TagsWidget CSV export', () => {
 		[
 			'category',
 			/^categories-.+\.csv$/,
+			'"Category","Views","URL"',
 			'"Desserts","760","https://example.com/category/desserts/"',
 			/vegan|chocolate|tag-/,
 			3,
 		],
 	] as const )(
 		'downloads only the rows of the %s view',
-		async ( termType, filename, line, others, lineCount ) => {
+		async ( termType, filename, header, line, others, lineCount ) => {
 			const { findDeclaredAction } = renderWithActionsHost(
 				<TagsWidget attributes={ { reportParams: getDefaultQueryParams(), termType } } />
 			);
@@ -364,6 +366,7 @@ describe( 'TagsWidget CSV export', () => {
 
 			const lines = await downloads.lines();
 			expect( downloads.files[ 0 ].filename ).toMatch( filename );
+			expect( lines[ 0 ] ).toBe( header );
 			expect( lines ).toContain( line );
 			expect( lines.join( '\n' ) ).not.toMatch( others );
 			expect( lines ).toHaveLength( lineCount );

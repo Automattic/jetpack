@@ -36,15 +36,26 @@ export const tagsCsvExporter: TagsCsvExporter = {
 	],
 };
 
-const byType = ( type: StatsTagsTermType, filenamePrefix: string ): TagsCsvExporter => ( {
+const byType = (
+	type: StatsTagsTermType,
+	filenamePrefix: string,
+	getLabelHeader: () => string
+): TagsCsvExporter => ( {
 	...tagsCsvExporter,
 	filenamePrefix,
 	fetchItems: async reportParams =>
 		selectStatsTagsItemsByType( await tagsCsvExporter.fetchItems( reportParams ), type ),
+	getColumns: () => {
+		const [ labelColumn, ...columns ] = tagsCsvExporter.getColumns();
+
+		return [ { ...labelColumn, label: getLabelHeader() }, ...columns ];
+	},
 } );
 
 /** The CSV for a widget narrowed to tags or to categories. */
 export const tagsCsvExportersByType: Record< StatsTagsTermType, TagsCsvExporter > = {
-	tag: byType( 'tag', 'tags' ),
-	category: byType( 'category', 'categories' ),
+	tag: byType( 'tag', 'tags', () => __( 'Tag', 'jetpack-premium-analytics-pkg' ) ),
+	category: byType( 'category', 'categories', () =>
+		__( 'Category', 'jetpack-premium-analytics-pkg' )
+	),
 };
