@@ -37,10 +37,6 @@ type EntityRecordsSelector = {
 	) => unknown[] | null;
 };
 
-// Each query covers one of the report table's row batches (`ROW_BATCH_SIZE` in the ui package), so
-// a new batch adds a query instead of changing resolved ones. WP REST caps `per_page` at 100.
-const ROWS_PER_QUERY = 50;
-
 function sortedIds( ids: Iterable< number > ): number[] {
 	return Array.from( new Set( ids ) ).sort( ( a, b ) => a - b );
 }
@@ -99,17 +95,22 @@ export function usePostThumbnail(
  * Resolve featured-image thumbnails for the rows a table has mounted, keeping the URLs already
  * resolved while new queries load.
  *
- * @param rows - The mounted post rows, in display order.
+ * @param rows         - The mounted post rows, in display order.
+ * @param rowsPerQuery - The table's row batch size, so a new batch adds a query instead of changing
+ *                     resolved ones. At most 100, WP REST's `per_page` cap.
  * @return Thumbnail URLs keyed by post ID.
  */
-export function usePostThumbnails( rows: PostThumbnailSource[] ): PostThumbnailUrls {
+export function usePostThumbnails(
+	rows: PostThumbnailSource[],
+	rowsPerQuery: number
+): PostThumbnailUrls {
 	const postQueries = useMemo( () => {
 		const queries: { type: string; query: Record< string, unknown > }[] = [];
 
-		for ( let start = 0; start < rows.length; start += ROWS_PER_QUERY ) {
+		for ( let start = 0; start < rows.length; start += rowsPerQuery ) {
 			const grouped = new Map< string, number[] >();
 
-			for ( const row of rows.slice( start, start + ROWS_PER_QUERY ) ) {
+			for ( const row of rows.slice( start, start + rowsPerQuery ) ) {
 				const id = Number( row.id );
 				if (
 					typeof row.type !== 'string' ||
@@ -144,7 +145,7 @@ export function usePostThumbnails( rows: PostThumbnailSource[] ): PostThumbnailU
 		}
 
 		return queries;
-	}, [ rows ] );
+	}, [ rows, rowsPerQuery ] );
 
 	const postRecordGroups = useSelect(
 		select => {
@@ -209,13 +210,19 @@ export function usePostThumbnails( rows: PostThumbnailSource[] ): PostThumbnailU
 	}, [ postRecords, media ] );
 
 	// A grown or re-sorted row list is a new query that resolves empty first; keep the URLs already
-	// shown meanwhile, so thumbnails do not blink back to their placeholder.
+	// shown until their post resolves again, so thumbnails do not blink back to their placeholder.
 	const [ shownUrls, setShownUrls ] = useState( resolvedUrls );
+	const removedIds = postRecords
+		.filter( post => post.id && ! ( ( post.featured_media ?? 0 ) > 0 ) && post.id in shownUrls )
+		.map( post => post.id as number );
 	const hasNewUrl = Object.entries( resolvedUrls ).some(
 		( [ id, url ] ) => shownUrls[ Number( id ) ] !== url
 	);
-	if ( hasNewUrl ) {
+	if ( hasNewUrl || removedIds.length ) {
 		const urls = { ...shownUrls, ...resolvedUrls };
+		for ( const id of removedIds ) {
+			delete urls[ id ];
+		}
 		setShownUrls( urls );
 		return urls;
 	}

@@ -16,6 +16,9 @@ jest.mock( '@wordpress/data', () => ( {
 	useSelect: jest.fn(),
 } ) );
 
+// The posts report's row batch size.
+const ROWS_PER_QUERY = 50;
+
 const mockUseSelect = useSelect as jest.MockedFunction< typeof useSelect >;
 const getEntityRecord = jest.fn();
 const getEntityRecords = jest.fn();
@@ -127,12 +130,15 @@ describe( 'usePostThumbnails', () => {
 		} );
 
 		const { result } = renderHook( () =>
-			usePostThumbnails( [
-				{ id: 2, type: 'page' },
-				{ id: 1, type: 'post' },
-				{ id: 0, type: 'homepage' },
-				{ id: undefined, type: 'post' },
-			] )
+			usePostThumbnails(
+				[
+					{ id: 2, type: 'page' },
+					{ id: 1, type: 'post' },
+					{ id: 0, type: 'homepage' },
+					{ id: undefined, type: 'post' },
+				],
+				ROWS_PER_QUERY
+			)
 		);
 
 		expect( result.current ).toEqual( {
@@ -193,7 +199,7 @@ describe( 'usePostThumbnails', () => {
 			}
 			mockEntityRecords( records );
 
-			const { result } = renderHook( () => usePostThumbnails( rows ) );
+			const { result } = renderHook( () => usePostThumbnails( rows, ROWS_PER_QUERY ) );
 
 			expect( result.current ).toEqual(
 				Object.fromEntries( rows.map( row => [ row.id, `https://example.com/${ row.id }.jpg` ] ) )
@@ -229,7 +235,7 @@ describe( 'usePostThumbnails', () => {
 			);
 
 		const { rerender } = renderHook(
-			( rows: { id: number; type: string }[] ) => usePostThumbnails( rows ),
+			( rows: { id: number; type: string }[] ) => usePostThumbnails( rows, ROWS_PER_QUERY ),
 			{ initialProps: postRows( 50 ) }
 		);
 		const [ firstPosts ] = queries( 'post' );
@@ -252,7 +258,7 @@ describe( 'usePostThumbnails', () => {
 			Array.from( { length: count }, ( _, index ) => ( { id: index + 1, type: 'post' } ) );
 
 		const { result, rerender } = renderHook(
-			( rows: { id: number; type: string }[] ) => usePostThumbnails( rows ),
+			( rows: { id: number; type: string }[] ) => usePostThumbnails( rows, ROWS_PER_QUERY ),
 			{ initialProps: postRows( 60 ) }
 		);
 		expect( result.current[ 1 ] ).toBe( 'https://example.com/1.jpg' );
@@ -264,14 +270,49 @@ describe( 'usePostThumbnails', () => {
 		expect( result.current[ 1 ] ).toBe( 'https://example.com/1.jpg' );
 	} );
 
+	it( 'drops a thumbnail once its post resolves without a featured image', () => {
+		const records: Record< string, unknown[] > = {
+			post: [
+				{ id: 1, featured_media: 11 },
+				{ id: 2, featured_media: 12 },
+			],
+			attachment: [
+				{ id: 11, source_url: 'https://example.com/1.jpg' },
+				{ id: 12, source_url: 'https://example.com/2.jpg' },
+			],
+		};
+		mockEntityRecords( records );
+		const { result, rerender } = renderHook(
+			( rows: { id: number; type: string }[] ) => usePostThumbnails( rows, ROWS_PER_QUERY ),
+			{
+				initialProps: [
+					{ id: 1, type: 'post' },
+					{ id: 2, type: 'post' },
+				],
+			}
+		);
+		expect( result.current[ 1 ] ).toBe( 'https://example.com/1.jpg' );
+
+		records.post[ 0 ] = { id: 1, featured_media: 0 };
+		rerender( [
+			{ id: 2, type: 'post' },
+			{ id: 1, type: 'post' },
+		] );
+
+		expect( result.current ).toEqual( { 2: 'https://example.com/2.jpg' } );
+	} );
+
 	it( 'makes no entity requests without eligible rows', () => {
 		mockEntityRecords( {} );
 
 		const { result } = renderHook( () =>
-			usePostThumbnails( [
-				{ id: 0, type: 'homepage' },
-				{ id: 'not-a-post', type: 'post' },
-			] )
+			usePostThumbnails(
+				[
+					{ id: 0, type: 'homepage' },
+					{ id: 'not-a-post', type: 'post' },
+				],
+				ROWS_PER_QUERY
+			)
 		);
 
 		expect( result.current ).toEqual( {} );

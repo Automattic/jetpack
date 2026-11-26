@@ -36,6 +36,7 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	DateFiltersPanel: () => null,
+	ROW_BATCH_SIZE: jest.requireActual( '@jetpack-premium-analytics/ui' ).ROW_BATCH_SIZE,
 	safeHttpUrl: jest.requireActual( '@jetpack-premium-analytics/ui' ).safeHttpUrl,
 	StatsBreadcrumbs: () => null,
 } ) );
@@ -180,13 +181,13 @@ describe( 'PostsReportPage', () => {
 
 		render( <PostsReportPage /> );
 
-		expect( usePostThumbnailsMock ).toHaveBeenCalledWith( [] );
+		expect( usePostThumbnailsMock ).toHaveBeenCalledWith( [], 50 );
 
 		act( () => {
 			reportRecordsTableMock.mock.calls[ 0 ][ 0 ].onChangePageItems?.( records.posts.rows );
 		} );
 
-		expect( usePostThumbnailsMock ).toHaveBeenLastCalledWith( records.posts.rows );
+		expect( usePostThumbnailsMock ).toHaveBeenLastCalledWith( records.posts.rows, 50 );
 		expect( reportRecordsTableMock ).toHaveBeenCalledTimes( 1 );
 	} );
 

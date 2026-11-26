@@ -8,7 +8,7 @@ import {
 import { Icon } from '@jetpack-premium-analytics/externals';
 import { jetpack } from '@jetpack-premium-analytics/icons';
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
-import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
+import { ROW_BATCH_SIZE, StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	ReportPageLayout,
 	ReportErrorState,
@@ -67,7 +67,7 @@ function PostThumbnailsProvider( {
 	rows: StatsTopPostsComparisonItem[];
 	children: ReactNode;
 } ): JSX.Element {
-	const thumbnailUrls = usePostThumbnails( rows );
+	const thumbnailUrls = usePostThumbnails( rows, ROW_BATCH_SIZE );
 
 	return (
 		<PostThumbnailUrlsContext.Provider value={ thumbnailUrls }>
