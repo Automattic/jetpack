@@ -3,6 +3,7 @@
  */
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
+// `usePostThumbnails` queries a batch at a time, so change its `ROWS_PER_QUERY` with this.
 export const ROW_BATCH_SIZE = 50;
 
 // Matches the distance DataViews' own infinite scroll loads ahead at.

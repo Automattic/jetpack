@@ -113,7 +113,7 @@ describe( 'usePostThumbnail', () => {
 describe( 'usePostThumbnails', () => {
 	beforeEach( resetSelectors );
 
-	it( 'batches visible posts by type and their featured media', () => {
+	it( 'batches mounted posts by type and their featured media', () => {
 		mockEntityRecords( {
 			post: [ { id: 1, featured_media: 11 } ],
 			page: [ { id: 2, featured_media: 12 } ],

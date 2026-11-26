@@ -37,8 +37,8 @@ type EntityRecordsSelector = {
 	) => unknown[] | null;
 };
 
-// Each query covers a run of this many rows, so rows mounted below add queries instead of changing
-// the ones core-data already resolved. WP REST rejects a `per_page` above 100.
+// Each query covers one of the report table's row batches (`ROW_BATCH_SIZE` in the ui package), so
+// a new batch adds a query instead of changing resolved ones. WP REST caps `per_page` at 100.
 const ROWS_PER_QUERY = 50;
 
 function sortedIds( ids: Iterable< number > ): number[] {

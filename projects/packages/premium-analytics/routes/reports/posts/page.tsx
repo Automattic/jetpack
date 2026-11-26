@@ -186,26 +186,39 @@ function PostsReport(): JSX.Element {
 	// the shared date-filter controller — same model as the dashboard.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 
+	// Kept across the re-render each mounted batch causes here, which would otherwise draw every row again.
+	const postsTable = useMemo(
+		() => (
+			<ReportRecordsTable< StatsTopPostsComparisonItem >
+				key="posts-pages"
+				data={ records.posts.rows }
+				fields={ postsFields }
+				getItemId={ getPostRowId }
+				isLoading={ records.posts.isLoading }
+				isFetching={ records.posts.isFetching }
+				initialView={ POSTS_VIEW }
+				searchLabel={ __( 'Search posts', 'jetpack-premium-analytics-pkg' ) }
+				actions={ postActions }
+				onChangePageItems={ handleVisiblePostRowsChange }
+			/>
+		),
+		[
+			records.posts.rows,
+			records.posts.isLoading,
+			records.posts.isFetching,
+			postsFields,
+			postActions,
+			handleVisiblePostRowsChange,
+		]
+	);
+
 	/*
 	 * Keyed by tab so the table's internal view state (sort, search, page)
 	 * resets when the records set changes.
 	 */
 	const recordsTable =
 		activeTab === 'posts-pages' ? (
-			<PostThumbnailsProvider rows={ visiblePostRows }>
-				<ReportRecordsTable< StatsTopPostsComparisonItem >
-					key="posts-pages"
-					data={ records.posts.rows }
-					fields={ postsFields }
-					getItemId={ getPostRowId }
-					isLoading={ records.posts.isLoading }
-					isFetching={ records.posts.isFetching }
-					initialView={ POSTS_VIEW }
-					searchLabel={ __( 'Search posts', 'jetpack-premium-analytics-pkg' ) }
-					actions={ postActions }
-					onChangePageItems={ handleVisiblePostRowsChange }
-				/>
-			</PostThumbnailsProvider>
+			<PostThumbnailsProvider rows={ visiblePostRows }>{ postsTable }</PostThumbnailsProvider>
 		) : (
 			<ReportDrilldownTable< ArchiveRow >
 				key="archives"

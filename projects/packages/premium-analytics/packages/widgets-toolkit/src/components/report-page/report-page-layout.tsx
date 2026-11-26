@@ -13,8 +13,8 @@ import styles from './report-page-layout.module.scss';
 import type { ReportDateFilters } from '@jetpack-premium-analytics/routing';
 import type { ReactNode } from 'react';
 
-const ReportHasPeriodContext = createContext( false );
-const ReportPeriodKeyContext = createContext( '' );
+// The applied date range as a key; null on a report with no period.
+const ReportPeriodContext = createContext< string | null >( null );
 
 const ALL_TIME_MENU = {
 	presetIds: MENU_SURFACE_PRESETS_WITH_ALL_TIME,
@@ -27,17 +27,17 @@ const ALL_TIME_MENU = {
  * @return True only inside a `ReportPageLayout` with date filters.
  */
 export function useReportHasPeriod(): boolean {
-	return useContext( ReportHasPeriodContext );
+	return useContext( ReportPeriodContext ) !== null;
 }
 
 /**
- * Identify the period the report is showing, so its tables can start over when it changes — even
+ * Identify the period the report is showing, so its tables can start over when it changes, even
  * to a period whose rows are cached and load without a loading state.
  *
  * @return A key that changes with the applied date range; empty on a report with no period.
  */
 export function useReportPeriodKey(): string {
-	return useContext( ReportPeriodKeyContext );
+	return useContext( ReportPeriodContext ) ?? '';
 }
 
 export interface ReportPageLayoutProps {
@@ -80,13 +80,11 @@ export function ReportPageLayout( {
 					<DateFiltersPanel { ...dateFilters } { ...( withAllTime ? ALL_TIME_MENU : {} ) } />
 				) : null }
 			</SectionHeader>
-			<ReportHasPeriodContext.Provider value={ !! dateFilters }>
-				<ReportPeriodKeyContext.Provider
-					value={ dateFilters ? JSON.stringify( dateFilters.appliedRange ) : '' }
-				>
-					<div className={ styles.sections }>{ children }</div>
-				</ReportPeriodKeyContext.Provider>
-			</ReportHasPeriodContext.Provider>
+			<ReportPeriodContext.Provider
+				value={ dateFilters ? JSON.stringify( dateFilters.appliedRange ) : null }
+			>
+				<div className={ styles.sections }>{ children }</div>
+			</ReportPeriodContext.Provider>
 			<JetpackFooter />
 		</div>
 	);

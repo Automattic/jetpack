@@ -70,15 +70,19 @@ jest.mock( '@wordpress/admin-ui', () => ( {
 	Breadcrumbs: () => null,
 } ) );
 
-jest.mock( '@wordpress/route', () => ( {
-	Link: ( { children }: { children: ReactNode } ) => <a href="/post">{ children }</a>,
-	useNavigate: () => jest.fn(),
-	useSearch: () => ( {
+jest.mock( '@wordpress/route', () => {
+	// One object, as the router hands back while the search is unchanged.
+	const search = {
 		from: '2026-06-01T00:00:00+02:00',
 		to: '2026-06-30T23:59:59+02:00',
 		interval: 'day',
-	} ),
-} ) );
+	};
+	return {
+		Link: ( { children }: { children: ReactNode } ) => <a href="/post">{ children }</a>,
+		useNavigate: () => jest.fn(),
+		useSearch: () => search,
+	};
+} );
 
 const useRecordsMock = jest.mocked( usePostsReportRecords );
 const usePostThumbnailsMock = jest.mocked( usePostThumbnails );
@@ -167,7 +171,7 @@ describe( 'PostsReportPage', () => {
 		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ].isFetching ).toBe( true );
 	} );
 
-	it( 'resolves thumbnails for the visible posts page', () => {
+	it( 'resolves thumbnails for the rows the table has mounted', () => {
 		const records = buildRecords();
 		useRecordsMock.mockReturnValue( records );
 
@@ -180,6 +184,7 @@ describe( 'PostsReportPage', () => {
 		} );
 
 		expect( usePostThumbnailsMock ).toHaveBeenLastCalledWith( records.posts.rows );
+		expect( reportRecordsTableMock ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'draws each post thumbnail beside its title', () => {
