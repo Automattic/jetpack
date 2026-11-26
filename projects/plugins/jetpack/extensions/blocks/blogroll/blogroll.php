@@ -387,15 +387,16 @@ add_action( 'save_post', __NAMESPACE__ . '\clear_following_post_ids', 10, 2 );
  * @return array[]
  */
 function add_following( $outlines ) {
-	$ids   = get_following_post_ids();
-	$items = array();
+	$outlines = is_array( $outlines ) ? $outlines : array();
+	$ids      = get_following_post_ids();
+	$items    = array();
 
 	_prime_post_caches( $ids, false, false );
 
 	foreach ( $ids as $id ) {
 		$post = get_post( $id );
-		// Decided on every request, so a blogroll that became gated is not listed from the cache.
-		if ( ! is_post_publicly_viewable( $post ) || ! has_opml( $post ) ) {
+		// Decided on every request, not cached. Stricter than has_opml(): a visitor who knows a post's password gets the same list.
+		if ( ! $post || '' !== $post->post_password || ! is_post_publicly_viewable( $post ) ) {
 			continue;
 		}
 

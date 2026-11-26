@@ -162,7 +162,7 @@ class Socialspec_Test extends BaseTestCase {
 				return array(
 					array(
 						'type'    => 'rss',
-						'text'    => 'Feed &amp; "Co" <b>',
+						'text'    => "Feed &amp;\x07 \"Co\" <b>",
 						'xmlUrl'  => 'https://feed.example/feed/?a=1&b=2',
 						'htmlUrl' => '/relative',
 						'on"x'    => 'injected',
@@ -185,7 +185,7 @@ class Socialspec_Test extends BaseTestCase {
 		add_filter(
 			'pre_option_blogname',
 			static function () {
-				return 'Tom &amp; Jerry';
+				return "Tom &amp;\x07 Jerry";
 			}
 		);
 

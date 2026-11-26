@@ -295,7 +295,7 @@ class Blogroll_Test extends \WP_UnitTestCase {
 	 * The following list takes the public feeds of every blogroll on the site, each feed once.
 	 */
 	public function test_add_following() {
-		$this->assertSame( array(), Blogroll\add_following( array() ) );
+		$this->assertSame( array(), Blogroll\add_following( 'not a list' ) );
 
 		$blogroll = static function ( $name ) {
 			return self::blogroll(
@@ -341,6 +341,13 @@ class Blogroll_Test extends \WP_UnitTestCase {
 			array( 'https://page.example/feed/', 'https://post.example/feed/', 'https://pattern.example/feed/' ),
 			wp_list_pluck( Blogroll\add_following( array() ), 'xmlUrl' )
 		);
+
+		// A visitor who has entered the password of a post gets the same list as everyone.
+		require_once ABSPATH . WPINC . '/class-phpass.php';
+		$hasher                                 = new PasswordHash( 8, true );
+		$_COOKIE[ 'wp-postpass_' . COOKIEHASH ] = $hasher->HashPassword( 'secret' );
+		$this->assertCount( 3, Blogroll\add_following( array() ) );
+		unset( $_COOKIE[ 'wp-postpass_' . COOKIEHASH ] );
 
 		// A blogroll that is no longer public is dropped although its post is still cached.
 		wp_update_post(

@@ -109,9 +109,6 @@ class Following implements Document {
 				$value = self::sanitize_url( $value );
 			}
 
-			// Control characters are not allowed in XML 1.0.
-			$value = (string) preg_replace( '/[\x00-\x08\x0B\x0C\x0E-\x1F]/', '', $value );
-
 			if ( '' !== $value ) {
 				$attributes[ $name ] = $value;
 			}
@@ -145,11 +142,15 @@ class Following implements Document {
 	/**
 	 * Decodes the HTML entities of stored values, like the site title, before they are escaped for XML.
 	 *
+	 * Also removes the control characters XML 1.0 does not allow.
+	 *
 	 * @param string $value The value.
 	 * @return string
 	 */
 	private static function decode( $value ) {
-		return html_entity_decode( $value, ENT_QUOTES | ENT_HTML5, get_bloginfo( 'charset' ) );
+		$value = html_entity_decode( $value, ENT_QUOTES | ENT_HTML5, get_bloginfo( 'charset' ) );
+
+		return (string) preg_replace( '/[\x00-\x08\x0B\x0C\x0E-\x1F]/', '', $value );
 	}
 
 	/**
