@@ -151,6 +151,26 @@ describe( 'TagsWidget', () => {
 		} );
 	} );
 
+	it.each( [
+		[ 'tag', [ 'vegan', 'chocolate' ], [ 'Recipes', 'Desserts' ] ],
+		[ 'category', [ 'Recipes', 'Desserts' ], [ 'vegan', 'chocolate' ] ],
+	] as const )(
+		'narrows the list to %s rows from the full report',
+		async ( termType, shown, hidden ) => {
+			render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams(), termType } } /> );
+
+			await expect( screen.findByText( shown[ 0 ] ) ).resolves.toBeInTheDocument();
+
+			// The member split out of the mixed group links to its own archive.
+			expect( rowLink( shown[ 1 ] ) ).toHaveAttribute(
+				'href',
+				`https://example.com/${ termType }/${ shown[ 1 ].toLowerCase() }/`
+			);
+			hidden.forEach( label => expect( screen.queryByText( label ) ).not.toBeInTheDocument() );
+			expect( tagsRequests().map( params => params.get( 'max' ) ) ).toEqual( [ '1000' ] );
+		}
+	);
+
 	it( 'refetches with the new window when the dashboard period changes', async () => {
 		const { rerender } = render(
 			<TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } />
@@ -230,6 +250,20 @@ describe( 'TagsWidget CSV export', () => {
 		expect( lines[ 0 ] ).toBe( '"Tag or category","Views","URL"' );
 		expect( lines ).toContain( '"Desserts, chocolate","760",""' );
 		expect( lines ).toHaveLength( 13 );
+	} );
+
+	it( 'downloads only the tags when the widget shows tags', async () => {
+		const { findDeclaredAction } = renderWithActionsHost(
+			<TagsWidget attributes={ { reportParams: getDefaultQueryParams(), termType: 'tag' } } />
+		);
+
+		await expect( screen.findByText( 'vegan' ) ).resolves.toBeInTheDocument();
+		await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
+
+		const lines = await downloads.lines();
+		expect( lines ).toContain( '"chocolate","760","https://example.com/tag/chocolate/"' );
+		expect( lines.join( '\n' ) ).not.toMatch( /Recipes|Desserts/ );
+		expect( lines ).toHaveLength( 12 );
 	} );
 } );
 

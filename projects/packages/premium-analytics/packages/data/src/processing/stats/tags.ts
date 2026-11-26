@@ -24,14 +24,19 @@ export type StatsTagsRawResponse = {
 	[ key: string ]: unknown;
 };
 
+/** The taxonomy a `stats/tags` term belongs to; the endpoint reports every non-category as `tag`. */
+export type StatsTagsTermType = 'tag' | 'category';
+
 export type StatsTagsLabel = {
 	label: string;
+	type: StatsTagsTermType;
 	labelIcon: string;
 	link: string | null;
 };
 
 export interface StatsTagsChildItem extends StatsNormalizedItemBase< null > {
 	label: string;
+	type: StatsTagsTermType;
 	labelIcon: string;
 	value: null;
 	link: string | null;
@@ -48,6 +53,9 @@ export interface StatsTagsItem extends StatsNormalizedItemBase< StatsTagsChildIt
 
 const tagIcon = ( type: unknown ) => ( type === 'category' ? 'folder' : String( type ?? '' ) );
 
+const termType = ( type: unknown ): StatsTagsTermType =>
+	type === 'category' ? 'category' : 'tag';
+
 function getTagName( tag: StatsRecord ): string {
 	return decodeHtmlText( tag.name, '' );
 }
@@ -61,6 +69,7 @@ function normalizeStatsTagsItem( item: StatsRecord ): StatsTagsItem {
 	const hasChildren = tagItems.length > 1;
 	const labels = tagItems.map( tag => ( {
 		label: getTagName( tag ),
+		type: termType( tag.type ),
 		labelIcon: tagIcon( tag.type ),
 		link: hasChildren ? null : getTagLink( tag ),
 	} ) );
@@ -74,6 +83,7 @@ function normalizeStatsTagsItem( item: StatsRecord ): StatsTagsItem {
 			? {
 					children: tagItems.map( tag => ( {
 						label: getTagName( tag ),
+						type: termType( tag.type ),
 						labelIcon: tagIcon( tag.type ),
 						value: null,
 						link: getTagLink( tag ),
@@ -97,4 +107,54 @@ export function sanitizeStatsTagsResponse(
 		summary: {},
 		data: tags.length ? [ createStatsListDataPoint( response, query, tags ) ] : [],
 	};
+}
+
+/**
+ * Narrow `stats/tags` rows to one taxonomy, keeping each row's members of that type.
+ *
+ * A row groups terms that sit on exactly the same posts, so each member has the row's views.
+ * One surviving member becomes a plain linked row, several stay a group, none drops the row.
+ *
+ * @param items - Normalized rows, ranked by views.
+ * @param type  - The taxonomy to keep.
+ * @return The rows for that taxonomy, in the same order.
+ */
+export function selectStatsTagsItemsByType(
+	items: StatsTagsItem[],
+	type: StatsTagsTermType
+): StatsTagsItem[] {
+	return items.flatMap( ( item ): StatsTagsItem[] => {
+		const members = item.children ?? [];
+
+		if ( ! members.length ) {
+			return item.label[ 0 ]?.type === type ? [ item ] : [];
+		}
+
+		const kept = members.filter( member => member.type === type );
+
+		if ( kept.length === members.length ) {
+			return [ item ];
+		}
+
+		if ( ! kept.length ) {
+			return [];
+		}
+
+		const isGroup = kept.length > 1;
+
+		return [
+			{
+				...item,
+				label: kept.map( member => ( {
+					label: member.label,
+					type: member.type,
+					labelIcon: member.labelIcon,
+					link: isGroup ? null : member.link,
+				} ) ),
+				labelText: kept.map( member => member.label ).join( ', ' ),
+				link: isGroup ? null : kept[ 0 ].link,
+				children: isGroup ? kept : undefined,
+			},
+		];
+	} );
 }

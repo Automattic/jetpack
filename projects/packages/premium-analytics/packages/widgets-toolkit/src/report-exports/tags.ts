@@ -1,7 +1,12 @@
 /**
  * External dependencies
  */
-import { fetchStatsTagsRows, type StatsTagsItem } from '@jetpack-premium-analytics/data';
+import {
+	fetchStatsTagsRows,
+	selectStatsTagsItemsByType,
+	type StatsTagsItem,
+	type StatsTagsTermType,
+} from '@jetpack-premium-analytics/data';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -14,7 +19,9 @@ import type { ReportCsvExporter } from './types';
  */
 export const TAGS_REPORT_ROW_LIMIT = 1000;
 
-export const tagsCsvExporter: ReportCsvExporter< StatsTagsItem, StatsTagsItem > = {
+type TagsCsvExporter = ReportCsvExporter< StatsTagsItem, StatsTagsItem >;
+
+export const tagsCsvExporter: TagsCsvExporter = {
 	filenamePrefix: 'tags-and-categories',
 	hasDateRange: true,
 	fetchItems: reportParams => fetchStatsTagsRows( { ...reportParams, max: TAGS_REPORT_ROW_LIMIT } ),
@@ -27,4 +34,17 @@ export const tagsCsvExporter: ReportCsvExporter< StatsTagsItem, StatsTagsItem > 
 		{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.value },
 		{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
 	],
+};
+
+const byType = ( type: StatsTagsTermType, filenamePrefix: string ): TagsCsvExporter => ( {
+	...tagsCsvExporter,
+	filenamePrefix,
+	fetchItems: async reportParams =>
+		selectStatsTagsItemsByType( await tagsCsvExporter.fetchItems( reportParams ), type ),
+} );
+
+/** The CSV for a widget narrowed to tags or to categories. */
+export const tagsCsvExportersByType: Record< StatsTagsTermType, TagsCsvExporter > = {
+	tag: byType( 'tag', 'tags' ),
+	category: byType( 'category', 'categories' ),
 };
