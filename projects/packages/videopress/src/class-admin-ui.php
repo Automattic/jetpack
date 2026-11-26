@@ -252,7 +252,7 @@ class Admin_UI {
 	}
 
 	/**
-	 * Whether enable_menu() registers the dashboard page, and so whether the admin shell may serve it.
+	 * Whether enable_dashboard_menu() registers the dashboard page, and so whether the admin shell may serve it.
 	 *
 	 * @return bool
 	 */
