@@ -1015,6 +1015,8 @@ class Main_Features_Test extends TestCase {
 			'Atomic plan with podcasting'                  => array( true, 'podcasting', 'podcast', true ),
 			'self-hosted, where every site has podcasting' => array( false, 'podcasting', 'podcast', false ),
 			'Atomic plan with file uploads'                => array( true, 'field-file', 'jetpack-forms', true ),
+			'Atomic plan with paid newsletters'            => array( true, 'recurring-payments', 'newsletter', true ),
+			'self-hosted, where every site has payments'   => array( false, 'recurring-payments', 'newsletter', false ),
 		);
 	}
 

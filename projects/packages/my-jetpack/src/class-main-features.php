@@ -393,6 +393,8 @@ class Main_Features {
 					'free'    => true,
 				),
 				'plans'            => array( 'growth', 'pro', 'complete' ),
+				// Every WordPress.com plan can run a paid newsletter; the plan sets the fee.
+				'paid_feature'     => ( new Host() )->is_wpcom_platform() ? 'recurring-payments' : '',
 			),
 			'podcast'           => array(
 				'info_url'         => 'https://jetpack.com/podcast/',
