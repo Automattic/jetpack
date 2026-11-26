@@ -167,6 +167,9 @@ export interface NumberFormatters {
 	getCurrencyObject: GetCurrencyObject;
 }
 
+// Every number formats through this, so a name resolves once.
+const supportedLocales = new Map< string, string | undefined >();
+
 /**
  * The nearest locale `Intl.NumberFormat` supports for a WordPress or browser locale name.
  *
@@ -178,14 +181,19 @@ export interface NumberFormatters {
  * @return The supported tag, or undefined when no part of the name is supported.
  */
 function toSupportedLocale( locale: string ): string | undefined {
+	if ( supportedLocales.has( locale ) ) {
+		return supportedLocales.get( locale );
+	}
+
 	const parts = locale.replace( /_/g, '-' ).split( '-' );
+	let tag: string | undefined;
 
-	while ( parts.length ) {
+	while ( parts.length && tag === undefined ) {
 		try {
-			const [ tag ] = Intl.getCanonicalLocales( parts.join( '-' ) );
+			const [ candidate ] = Intl.getCanonicalLocales( parts.join( '-' ) );
 
-			if ( Intl.NumberFormat.supportedLocalesOf( tag ).length ) {
-				return tag;
+			if ( Intl.NumberFormat.supportedLocalesOf( candidate ).length ) {
+				tag = candidate;
 			}
 		} catch {
 			// Not a well-formed tag yet; keep dropping subtags.
@@ -194,7 +202,9 @@ function toSupportedLocale( locale: string ): string | undefined {
 		parts.pop();
 	}
 
-	return undefined;
+	supportedLocales.set( locale, tag );
+
+	return tag;
 }
 
 /**
