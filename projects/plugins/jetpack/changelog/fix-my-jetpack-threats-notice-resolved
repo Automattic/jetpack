@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-My Jetpack: Stop showing the "Scan found threats" notice once the site has fixed every threat, before the next scan.
+My Jetpack: Stop counting threats the site has fixed since the last scan in the "Scan found threats" notice and the Protect card, so they turn from an error to a warning once the critical ones are fixed, and go away once all are.
