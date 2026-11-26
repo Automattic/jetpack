@@ -86,6 +86,13 @@ describe( 'Stats tags normalizer', () => {
 					],
 					views: 7,
 				},
+				{
+					tags: [
+						{ type: 'category', name: 'Guides', link: '/category/guides/' },
+						{ type: 'category', name: 'Updates', link: '/category/updates/' },
+					],
+					views: 5,
+				},
 				{ tags: [ { type: 'tag', name: 'Draft', link: '/tag/draft/' } ], views: 3 },
 			],
 		} ).data[ 0 ].items;
@@ -97,6 +104,7 @@ describe( 'Stats tags normalizer', () => {
 					{ labelText: 'News', value: 18, link: '/category/news/' },
 					// A lone survivor of a group becomes a linked row carrying the group's views.
 					{ labelText: 'Announcements', value: 7, link: '/category/announcements/' },
+					{ labelText: 'Guides, Updates', value: 5, link: null },
 				],
 			],
 			[

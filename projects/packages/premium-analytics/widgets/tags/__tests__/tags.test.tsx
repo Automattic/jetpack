@@ -45,6 +45,20 @@ const TAGS_RESPONSE = {
 	],
 };
 
+// The report's 1,000-row request; a 10-row request gets only `TAGS_RESPONSE`.
+const FULL_REPORT = {
+	...TAGS_RESPONSE,
+	tags: [
+		...TAGS_RESPONSE.tags,
+		...Array.from( { length: 9 }, ( _, index ) => ( {
+			tags: [
+				{ type: 'tag', name: `tag-${ index }`, link: `https://example.com/tag/${ index }/` },
+			],
+			views: 100 - index,
+		} ) ),
+	],
+};
+
 function glyphPath( root: Element | null | undefined ) {
 	return root?.querySelector( 'svg path' )?.getAttribute( 'd' );
 }
@@ -136,27 +150,35 @@ describe( 'TagsWidget', () => {
 	} );
 
 	// Calypso sends no query, so Jetpack Stats gets the endpoint's default of 10.
-	it( 'asks for the row count Jetpack Stats gets by default, over the dashboard window', async () => {
-		render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } /> );
+	it.each( [ undefined, 'all' ] as const )(
+		'asks for the row count Jetpack Stats gets by default, over the dashboard window (view: %s)',
+		async termType => {
+			render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams(), termType } } /> );
 
-		await expect( screen.findByText( 'Recipes' ) ).resolves.toBeInTheDocument();
+			await expect( screen.findByText( 'Recipes' ) ).resolves.toBeInTheDocument();
 
-		const requested = tagsRequests();
-		expect( requested ).not.toHaveLength( 0 );
-		requested.forEach( params => {
-			expect( params.get( 'max' ) ).toBe( '10' );
-			expect( params.get( 'date' ) ).toBe( getDefaultQueryParams().to );
-			expect( params.get( 'start_date' ) ).toBe( getDefaultQueryParams().from );
-			expect( params.get( 'summarize' ) ).toBe( '1' );
-		} );
-	} );
+			const requested = tagsRequests();
+			expect( requested ).not.toHaveLength( 0 );
+			requested.forEach( params => {
+				expect( params.get( 'max' ) ).toBe( '10' );
+				expect( params.get( 'date' ) ).toBe( getDefaultQueryParams().to );
+				expect( params.get( 'start_date' ) ).toBe( getDefaultQueryParams().from );
+				expect( params.get( 'summarize' ) ).toBe( '1' );
+			} );
+		}
+	);
 
+	// `tag-7` ranks 12th overall, so it shows only if the view narrows the full report
+	// before trimming to 10; `tag-8` would be the 11th tag.
 	it.each( [
-		[ 'tag', [ 'vegan', 'chocolate' ], [ 'Recipes', 'Desserts' ] ],
+		[ 'tag', [ 'vegan', 'chocolate', 'tag-7' ], [ 'Recipes', 'Desserts', 'tag-8' ] ],
 		[ 'category', [ 'Recipes', 'Desserts' ], [ 'vegan', 'chocolate' ] ],
 	] as const )(
 		'narrows the list to %s rows from the full report',
 		async ( termType, shown, hidden ) => {
+			mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+				Promise.resolve( path.includes( 'max=1000' ) ? FULL_REPORT : TAGS_RESPONSE )
+			);
 			render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams(), termType } } /> );
 
 			await expect( screen.findByText( shown[ 0 ] ) ).resolves.toBeInTheDocument();
@@ -166,8 +188,8 @@ describe( 'TagsWidget', () => {
 				'href',
 				`https://example.com/${ termType }/${ shown[ 1 ].toLowerCase() }/`
 			);
+			shown.forEach( label => expect( screen.getByText( label ) ).toBeInTheDocument() );
 			hidden.forEach( label => expect( screen.queryByText( label ) ).not.toBeInTheDocument() );
-			expect( tagsRequests().map( params => params.get( 'max' ) ) ).toEqual( [ '1000' ] );
 		}
 	);
 
@@ -201,19 +223,6 @@ describe( 'TagsWidget', () => {
 
 describe( 'TagsWidget CSV export', () => {
 	let downloads: ReturnType< typeof captureCsvDownloads >;
-
-	const FULL_REPORT = {
-		...TAGS_RESPONSE,
-		tags: [
-			...TAGS_RESPONSE.tags,
-			...Array.from( { length: 9 }, ( _, index ) => ( {
-				tags: [
-					{ type: 'tag', name: `tag-${ index }`, link: `https://example.com/tag/${ index }/` },
-				],
-				views: 100 - index,
-			} ) ),
-		],
-	};
 
 	beforeEach( () => {
 		jest.useFakeTimers();
