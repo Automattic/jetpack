@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Show update and delete options when an off-directory plugin or theme has a known fix. Name the version Auto-fix installs. Show known fixed versions in Scan history.
+Show update and delete options when a plugin or theme from outside WordPress.org has a known fix. Name the version Auto-fix installs. Show known fixed versions in Scan history.
