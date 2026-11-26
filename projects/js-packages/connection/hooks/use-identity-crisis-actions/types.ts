@@ -1,3 +1,4 @@
+import type { IdentityCrisisContext } from '../../helpers/connection-tracking.ts';
 import type { SiteRequestFailureCause } from '../../helpers/get-site-request-failure.ts';
 
 /** A Safe Mode resolution, named after its REST endpoint under `jetpack/v4/identity-crisis/`. */
@@ -18,9 +19,13 @@ export interface UseIdentityCrisisActionsOptions {
 	redirectUri?: string;
 	/** Name from `CONNECTION_FROM`, reported to WordPress.com with a fresh connection. */
 	from?: string;
+	/** The screen's `context` prop, passed to `trackIdentityCrisisEvent()`. Without it, `context` is sent as null. */
+	context?: IdentityCrisisContext;
+	/** `isDevelopmentSite` from the Safe Mode state, sent with the events. */
+	isDevelopmentSite?: boolean;
 }
 
-/** How the user reached an action, for the `jetpack_idc_*` events (CONNECT-620); unused until then. */
+/** How the user reached an action. Its events send `path`. */
 export interface IdentityCrisisActionPath {
 	entry: 'main' | 'guide';
 	/** Picks joined by `>`, e.g. `detected_copy>safe`; see `getPath()`. */

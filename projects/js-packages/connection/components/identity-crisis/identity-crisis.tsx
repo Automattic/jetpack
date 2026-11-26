@@ -1,6 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { Notice, Stack } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { CONNECTION_EVENTS, trackIdentityCrisisEvent } from '../../helpers/connection-tracking';
 import { formatSiteAddress, getSiteUrl } from '../../helpers/format-site-address';
 import { hasJetpackPlugin, hasWooPlugin } from '../../helpers/site-words';
 import useIdentityCrisisActions from '../../hooks/use-identity-crisis-actions';
@@ -39,8 +40,9 @@ import { reloadPage } from './navigate';
 import IdentityCrisisNonAdmin from './non-admin';
 import { onIdentityCrisisActionSuccess } from './on-action-success';
 import useIdentityCrisisState from './use-identity-crisis-state';
+import useIdentityCrisisView from './use-identity-crisis-view';
 import type { ActionCopy, CopyContext } from './flow/copy';
-import type { FlowContext } from './flow/steps';
+import type { FlowContext, IdentityCrisisFlowEvent } from './flow/steps';
 import type { IdentityCrisisProps } from './types';
 import type { ConnectedPlugin } from '../../helpers/site-words';
 import type {
@@ -70,6 +72,7 @@ const RESOLVED_ERROR: IdentityCrisisError = { action: 'start-fresh', cause: 'res
 function IdentityCrisisResolver( {
 	state,
 	plugins,
+	context,
 	showHeader = true,
 	redirectUri,
 	from,
@@ -77,7 +80,12 @@ function IdentityCrisisResolver( {
 	onActionSuccess = onIdentityCrisisActionSuccess,
 	onMigratedDone = reloadPage,
 }: ResolverProps ): ReactNode {
-	const actions = useIdentityCrisisActions( { redirectUri, from } );
+	const actions = useIdentityCrisisActions( {
+		redirectUri,
+		from,
+		context,
+		isDevelopmentSite: state.isDevelopmentSite,
+	} );
 	const ctx: FlowContext = useMemo(
 		() => ( {
 			isDevelopmentSite: state.isDevelopmentSite,
@@ -94,7 +102,16 @@ function IdentityCrisisResolver( {
 		x: formatSiteAddress( state.currentUrl ),
 		z: formatSiteAddress( state.wpcomHomeUrl ),
 	};
-	const flow = useIdentityCrisisFlow( ctx, actions.clearError );
+	const trackFlowEvent = useCallback(
+		( { kind, ...props }: IdentityCrisisFlowEvent ) =>
+			trackIdentityCrisisEvent(
+				kind === 'guide' ? CONNECTION_EVENTS.idcGuideClick : CONNECTION_EVENTS.idcQuestionClick,
+				context,
+				{ ...props, is_development_site: state.isDevelopmentSite }
+			),
+		[ context, state.isDevelopmentSite ]
+	);
+	const flow = useIdentityCrisisFlow( ctx, actions.clearError, trackFlowEvent );
 	// The site is no longer in Safe Mode, so the questions no longer apply. Resolved wins: the site is connected again.
 	let finalView: 'migrated' | 'resolved' | 'disconnected' | null = null;
 	if ( actions.isMigrated ) {
@@ -374,17 +391,24 @@ function IdentityCrisisResolver( {
  */
 export default function IdentityCrisis( props: IdentityCrisisProps ): ReactNode {
 	const { state, plugins } = useIdentityCrisisState();
+	const viewRef = useIdentityCrisisView( { context: props.context, state } );
 	if ( ! state ) {
 		return null;
 	}
 
-	if ( ! state.canResolve ) {
-		return (
-			<IdentityCrisisLayout showHeader={ props.showHeader ?? true }>
-				<IdentityCrisisNonAdmin isStore={ hasWooPlugin( plugins ) } onDismiss={ props.onDismiss } />
-			</IdentityCrisisLayout>
-		);
-	}
-
-	return <IdentityCrisisResolver { ...props } state={ state } plugins={ plugins } />;
+	// One root around every view, so the questions and "Address update started" count one view.
+	return (
+		<div ref={ viewRef }>
+			{ state.canResolve ? (
+				<IdentityCrisisResolver { ...props } state={ state } plugins={ plugins } />
+			) : (
+				<IdentityCrisisLayout showHeader={ props.showHeader ?? true }>
+					<IdentityCrisisNonAdmin
+						isStore={ hasWooPlugin( plugins ) }
+						onDismiss={ props.onDismiss }
+					/>
+				</IdentityCrisisLayout>
+			) }
+		</div>
+	);
 }

@@ -38,6 +38,7 @@ import {
 	TermsOfService,
 	TransferConnectionOwnership,
 	trackConnectionEvent,
+	trackIdentityCrisisEvent,
 	getUserConnectKind,
 	getUserConnectMessage,
 	// Aliased: the card's connection state keeps the results under these names.
@@ -1468,9 +1469,11 @@ function IDCPanel() {
 /**
  * Disconnect site, and the dialog it opens. In Safe Mode the server only clears this site's tokens.
  *
+ * @param {object}  props            - Component props.
+ * @param {boolean} props.isSafeMode - On the Safe Mode screen, where Disconnect records Safe Mode's events.
  * @return {object} React element.
  */
-function DisconnectSite() {
+function DisconnectSite( { isSafeMode = false } ) {
 	const [ isDialogOpen, setIsDialogOpen ] = useState( false );
 	const { isOfflineMode, tracksIdentity, connectedPlugins, viewerConnectionType } =
 		useCardConnection();
@@ -1489,7 +1492,9 @@ function DisconnectSite() {
 				size: 'compact',
 				disabled: isOfflineMode,
 				onClick: () => {
-					track( CONNECTION_EVENTS?.cardActionClick, { action: 'disconnect_site' } );
+					track( CONNECTION_EVENTS?.cardActionClick, {
+						action: isSafeMode ? 'safe_mode_disconnect_site' : 'disconnect_site',
+					} );
 					setIsDialogOpen( true );
 				},
 				className: 'jetpack-connector__disconnect-site',
@@ -1507,7 +1512,14 @@ function DisconnectSite() {
 					context: TRACKING_CONTEXT,
 					isOpen: true,
 					// The dialog disconnects on its first step; the reload waits for its closing steps.
-					onDisconnected: () => window.location.reload(),
+					onDisconnected: () => {
+						if ( isSafeMode && typeof trackIdentityCrisisEvent === 'function' ) {
+							trackIdentityCrisisEvent( CONNECTION_EVENTS.idcDisconnectSite, TRACKING_CONTEXT, {
+								use_beacon: true,
+							} );
+						}
+						window.location.reload();
+					},
 					onClose: () => {
 						setIsDialogOpen( false );
 						focusWhenReady( buttonRef.current );
@@ -1530,7 +1542,9 @@ function SafeModeScreen( { onMigrated } ) {
 		showHeader: false,
 		redirectUri: redirectUri || undefined,
 		from: CONNECTION_FROM.connectionSafeModeConnectors,
-		hostActions: isManagedPlatformSite ? null : createElement( DisconnectSite ),
+		hostActions: isManagedPlatformSite
+			? null
+			: createElement( DisconnectSite, { isSafeMode: true } ),
 		onActionSuccess: result => {
 			if ( result.action === 'start-fresh' ) {
 				window.location.href = withSkipPricing( result.connectUrl );

@@ -98,7 +98,10 @@ function renderInto( container, isNotice ) {
 	const newScreenScript = isNotice ? getNewScreenScript() : null;
 
 	if ( newScreenScript ) {
-		const { IdentityCrisis, CONNECTION_FROM } = newScreenScript;
+		const { IdentityCrisis, CONNECTION_FROM, CONNECTION_STORE_ID, initializeTracksIdentity } =
+			newScreenScript;
+		// The new screen leaves identifying the viewer to Tracks to its host; the old one did it itself.
+		initializeTracksIdentity( select( CONNECTION_STORE_ID ).getUserConnectionData()?.currentUser );
 		root.render(
 			<div className="jp-identity-crisis-notice">
 				<IdentityCrisis
