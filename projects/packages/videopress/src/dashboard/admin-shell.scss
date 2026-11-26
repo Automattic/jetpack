@@ -31,7 +31,7 @@ body.jetpack_page_jetpack-videopress {
 	// jetpack-components typography & spacing tokens. Components consumed by
 	// the connection gate (pricing table, ProductPrice, Text) reference these
 	// custom properties but don't define them — each host dashboard supplies
-	// its own set (cf. Jetpack Boost's `.jb-dashboard` root). base-styles'
+	// its own set (cf. Jetpack Boost's `.jetpack-boost-page` root). base-styles'
 	// root-variables.scss covers the title/body/color tokens but leaves these
 	// out, so without them those components fall back to unstyled defaults
 	// (e.g. the price renders at 13px and the cards lose all padding).
