@@ -700,6 +700,17 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
 };
 
 /**
+ * Where an upgrade goes: the host's own plans when it names them, else Jetpack checkout.
+ *
+ * @param {object} state  - Global state tree.
+ * @param {string} key    - The upgrade, as `siteData.hostUpgradeUrls` names it.
+ * @param {string} source - Jetpack's redirect source, for a host that does not answer.
+ * @return {string} The URL, or '' when the host sells nothing on this site.
+ */
+export const getFeatureUpgradeUrl = ( state, key, source ) =>
+	state.jetpack.initialState.siteData?.hostUpgradeUrls?.[ key ] ?? getUpgradeUrl( state, source );
+
+/**
  * Get the connection errors.
  *
  * @param {object} state - Global state tree.

@@ -36,6 +36,7 @@ import {
 	isUnavailableInOfflineMode,
 } from 'state/connection';
 import {
+	getFeatureUpgradeUrl,
 	getSiteAdminUrl,
 	getUpgradeUrl,
 	isMultisite,
@@ -138,7 +139,7 @@ export const SettingsCard = inprops => {
 				);
 
 			case FEATURE_WORDADS_JETPACK:
-				if ( props.hasWordAds ) {
+				if ( props.hasWordAds || '' === props.adsUpgradeUrl ) {
 					return '';
 				}
 
@@ -342,7 +343,7 @@ export const SettingsCard = inprops => {
 				);
 
 			case FEATURE_GOOGLE_ANALYTICS_JETPACK:
-				if ( props.hasGoogleAnalytics ) {
+				if ( props.hasGoogleAnalytics || '' === props.gaUpgradeUrl ) {
 					return '';
 				}
 
@@ -608,10 +609,10 @@ export default connect( state => {
 		vaultPressData: getVaultPressData( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		getModule: module_name => getModule( state, module_name ),
-		adsUpgradeUrl: getUpgradeUrl( state, 'jetpack-creator-cta' ),
+		adsUpgradeUrl: getFeatureUpgradeUrl( state, 'ads', 'jetpack-creator-cta' ),
 		securityUpgradeUrl: getProductDescriptionUrl( state, 'security' ),
 		scanUpgradeUrl: getProductDescriptionUrl( state, 'scan' ),
-		gaUpgradeUrl: getUpgradeUrl( state, 'settings-ga' ),
+		gaUpgradeUrl: getFeatureUpgradeUrl( state, 'googleAnalytics', 'settings-ga' ),
 		searchUpgradeUrl: getProductDescriptionUrl( state, 'search' ),
 		simplePaymentsUpgradeUrl: getUpgradeUrl( state, 'jetpack-creator-cta' ),
 		spamUpgradeUrl: getProductDescriptionUrl( state, 'akismet' ),

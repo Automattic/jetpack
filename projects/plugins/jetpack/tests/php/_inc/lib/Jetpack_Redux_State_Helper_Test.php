@@ -6,6 +6,7 @@
  */
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-redux-state-helper.php';
 
@@ -160,5 +161,58 @@ class Jetpack_Redux_State_Helper_Test extends WP_UnitTestCase {
 		$state = Jetpack_Redux_State_Helper::get_plugins_page_state();
 
 		$this->assertSame( 0, $state['pluginDeactivation']['siteId'] );
+	}
+
+	/**
+	 * Settings asks the host where the Ads and Google Analytics upgrades go, with the tab each sits on.
+	 *
+	 * @dataProvider provide_host_upgrade_answers
+	 *
+	 * @param mixed       $answer   What the host returns, or null to leave the upgrade as asked.
+	 * @param string|null $expected The URL Settings gets for both.
+	 */
+	#[DataProvider( 'provide_host_upgrade_answers' )]
+	public function test_host_upgrade_urls_follow_the_host_answer( $answer, $expected ) {
+		$asked  = array();
+		$filter = static function ( $upgrade, $slug ) use ( &$asked, $answer ) {
+			$asked[ $slug ] = $upgrade['back_url'];
+			return null === $answer ? $upgrade : $answer;
+		};
+		add_filter( 'jetpack_feature_upgrade', $filter, 10, 2 );
+		try {
+			$urls = Jetpack_Redux_State_Helper::get_initial_state()['siteData']['hostUpgradeUrls'];
+		} finally {
+			remove_filter( 'jetpack_feature_upgrade', $filter, 10 );
+		}
+
+		$this->assertSame(
+			array(
+				'ads'             => $expected,
+				'googleAnalytics' => $expected,
+			),
+			$urls
+		);
+		$this->assertSame(
+			array(
+				'monetize-dashboard' => admin_url( 'admin.php?page=jetpack-settings#/earn' ),
+				'google-analytics'   => admin_url( 'admin.php?page=jetpack-settings#/traffic' ),
+			),
+			$asked
+		);
+	}
+
+	/**
+	 * Host answers to `jetpack_feature_upgrade`.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_host_upgrade_answers() {
+		return array(
+			'no answer'          => array( null, null ),
+			'the host plans'     => array( array( 'url' => 'https://wordpress.com/setup/plan-upgrade?feature=x' ), 'https://wordpress.com/setup/plan-upgrade?feature=x' ),
+			'nothing to sell'    => array( array( 'url' => '' ), '' ),
+			'an unsafe address'  => array( array( 'url' => 'javascript:alert(1)' ), null ),
+			'not an upgrade map' => array( 'nope', null ),
+		);
 	}
 }
