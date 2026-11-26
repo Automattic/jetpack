@@ -12,13 +12,34 @@ require_once __DIR__ . '/parsely-prompts.php';
 require_once __DIR__ . '/parsely-signup-url.php';
 
 /**
- * Registers the Upgrade to Parse.ly card.
+ * Arranges for the Upgrade to Parse.ly card to be registered.
+ *
+ * The card's copy is translated, and the package boots on `plugins_loaded`, before the textdomain
+ * can load. The script data filter that publishes the promos runs later than `init`, so waiting
+ * costs the card nothing.
  *
  * @since $$next-version$$
  *
  * @return void
  */
 function configure_parsely_promo() {
+	if ( did_action( 'init' ) ) {
+		register_parsely_promo();
+
+		return;
+	}
+
+	add_action( 'init', __NAMESPACE__ . '\\register_parsely_promo' );
+}
+
+/**
+ * Registers the Upgrade to Parse.ly card.
+ *
+ * @since $$next-version$$
+ *
+ * @return void
+ */
+function register_parsely_promo() {
 	register_promo(
 		'parsely/settings-upgrade',
 		array(

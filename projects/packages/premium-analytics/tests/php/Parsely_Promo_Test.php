@@ -16,8 +16,10 @@ require_once dirname( __DIR__, 2 ) . '/src/parsely-prompts.php';
 
 /**
  * @covers ::Automattic\Jetpack\PremiumAnalytics\configure_parsely_promo
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\register_parsely_promo
  */
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\configure_parsely_promo' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\register_parsely_promo' )]
 class Parsely_Promo_Test extends BaseTestCase {
 
 	/**
@@ -25,6 +27,7 @@ class Parsely_Promo_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		remove_all_filters( OFFERS_PARSELY_PROMPTS_FILTER );
+		remove_all_actions( 'init' );
 
 		$instance = new \ReflectionProperty( Promo_Registry::class, 'instance' );
 		if ( PHP_VERSION_ID < 80100 ) {
@@ -41,9 +44,33 @@ class Parsely_Promo_Test extends BaseTestCase {
 	 * @return Promo|null
 	 */
 	private function register() {
-		configure_parsely_promo();
+		register_parsely_promo();
 
 		return Promo_Registry::get_instance()->get_all_registered()['parsely/settings-upgrade'] ?? null;
+	}
+
+	public function test_the_card_waits_for_init_before_translating_its_copy() {
+		$fired = $GLOBALS['wp_actions']['init'] ?? null;
+		unset( $GLOBALS['wp_actions']['init'] );
+
+		try {
+			configure_parsely_promo();
+
+			$this->assertSame( array(), Promo_Registry::get_instance()->get_all_registered() );
+			$this->assertNotFalse( has_action( 'init', __NAMESPACE__ . '\\register_parsely_promo' ) );
+		} finally {
+			if ( null !== $fired ) {
+				$GLOBALS['wp_actions']['init'] = $fired;
+			}
+		}
+	}
+
+	public function test_the_card_registers_at_once_when_init_has_already_run() {
+		do_action( 'init' );
+
+		configure_parsely_promo();
+
+		$this->assertArrayHasKey( 'parsely/settings-upgrade', Promo_Registry::get_instance()->get_all_registered() );
 	}
 
 	public function test_the_card_is_registered_for_the_settings_page() {
