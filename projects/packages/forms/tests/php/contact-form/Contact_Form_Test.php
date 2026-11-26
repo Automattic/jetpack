@@ -1330,6 +1330,24 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Required fields must use the boolean `required` attribute, not `required="true"` (W3C validation, #54086).
+	 */
+	public function test_required_fields_use_boolean_required_attribute() {
+		foreach ( array( 'name', 'telephone' ) as $type ) {
+			$html = $this->render_field(
+				array(
+					'label'    => 'Field',
+					'type'     => $type,
+					'required' => '1',
+				)
+			);
+
+			$this->assertMatchesRegularExpression( '/\brequired\s+aria-required=/', $html, $type );
+			$this->assertDoesNotMatchRegularExpression( '/\srequired=[\'"]true/', $html, $type );
+		}
+	}
+
+	/**
 	 * Tests that the field attributes remain the same when no escaping is necessary.
 	 *
 	 * @author tonykova

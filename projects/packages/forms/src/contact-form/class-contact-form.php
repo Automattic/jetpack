@@ -1807,7 +1807,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			// In new versions of the contact form block the button is an inner block
 			// so the button does not need to be constructed server-side.
 			if ( ! $has_submit_button_block ) {
-				$r .= "\t<p class='contact-submit'>\n";
+				$r .= "\t<div class='contact-submit'>\n";
 
 				$gutenberg_submit_button_classes = '';
 				if ( ! empty( $attributes['submitButtonClasses'] ) ) {
@@ -1862,7 +1862,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$r .= "\t\t<input type='hidden' name='contact-form-hash' value='" . esc_attr( $form->hash ) . "' />\n";
 
 			if ( ! $has_submit_button_block ) {
-				$r .= "\t</p>\n";
+				$r .= "\t</div>\n";
 			}
 
 			$r .= "</form>\n";

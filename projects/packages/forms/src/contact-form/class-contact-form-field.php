@@ -1336,7 +1336,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					data-wp-class--has-value='state.hasFieldValue'
 
 					" . $class . $placeholder . '
-					' . ( $required ? "required='true' aria-required='true' " : '' ) .
+					' . ( $required ? "required aria-required='true' " : '' ) .
 					$extra_attrs_string .
 					" />\n " . $this->get_field_descriptions( $id, $type ) . " \n";
 	}
@@ -1726,7 +1726,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					<?php echo $placeholder; ?>
 					type="tel"
 					<?php if ( $required ) { ?>
-						required="true"
+						required
 						aria-required="true"
 					<?php } ?>
 					id="<?php echo esc_attr( $link_label_id ); ?>"
