@@ -407,6 +407,17 @@ describe( 'ViewsOverYears widget', () => {
 		expect( ( await downloads.lines() ).at( -1 ) ).toBe( oldestYear );
 	} );
 
+	it( 'keeps the averages download while the first day with views revalidates', () => {
+		mockVisits(
+			visitsResult( ROWS ),
+			visitsResult( [ [ '2025-11-20', 4 ] ], { isFetching: true } )
+		);
+
+		const { declaredAction } = renderWidget( { metric: 'average' } );
+
+		expect( declaredAction( 'download-csv' ) ).toBeDefined();
+	} );
+
 	it.each( [
 		[ 'the site has no views', {}, visitsResult( [ [ '2026-03-01', 0 ] ] ), undefined ],
 		[
