@@ -385,8 +385,8 @@ class Admin_Shell {
 		$config = array(
 			'host'             => $host,
 			'members'          => array(),
-			// Saved headers are per site, user and release: subdirectory multisite sites share one origin.
-			'headerStorageKey' => sprintf( 'jetpack-admin-shell-header:%d:%d:%s:', get_current_blog_id(), get_current_user_id(), Admin_Menu::PACKAGE_VERSION ),
+			// Saved headers are per site, user, release and login: subdirectory multisite sites share one origin.
+			'headerStorageKey' => sprintf( 'jetpack-admin-shell-header:%d:%d:%s:%s:', get_current_blog_id(), get_current_user_id(), Admin_Menu::PACKAGE_VERSION, substr( wp_hash( wp_get_session_token() ), 0, 12 ) ),
 			'guestAssetsUrl'   => add_query_arg(
 				array(
 					'action' => self::GUEST_ACTION,
