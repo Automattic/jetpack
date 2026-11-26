@@ -378,6 +378,11 @@ class Analytics {
 		require_once __DIR__ . '/default-single-report-pages.php';
 		configure_single_report_pages_script_data();
 
+		// Reports page API, then the package's own pages registered through it.
+		require_once __DIR__ . '/reports-pages.php';
+		require_once __DIR__ . '/default-reports-pages.php';
+		configure_reports_pages_script_data();
+
 		// Default-on CSV export settings and server-side disable filter.
 		require_once __DIR__ . '/csv-exports.php';
 		configure_csv_exports();

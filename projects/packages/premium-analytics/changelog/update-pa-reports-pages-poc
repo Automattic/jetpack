@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Reports: Serve the All pages report as a page of widgets registered in PHP.

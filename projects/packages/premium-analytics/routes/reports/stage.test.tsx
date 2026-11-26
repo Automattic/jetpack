@@ -76,9 +76,21 @@ function MockScopeProbe() {
 
 const mockGetReportPage = jest.fn< typeof MockScopeProbe, [ string ] >( () => MockScopeProbe );
 const mockGetReportDefinition = jest.fn( () => ( { id: 'mock' } ) as Record< string, unknown > );
+const mockGetReportsPage = jest.fn< Record< string, unknown > | undefined, [] >();
 
 jest.mock( './registry', () => ( {
 	getReportDefinition: () => mockGetReportDefinition(),
+	getReportsPage: () => mockGetReportsPage(),
+} ) );
+
+jest.mock( '../single-report/components', () => ( {
+	READY_SUMMARY: {},
+	ReportPage: ( { page, routeFrom }: { page: { path: string }; routeFrom: string } ) => (
+		<>
+			<span>{ `widgets of ${ page.path } on ${ routeFrom }` }</span>
+			<MockScopeProbe />
+		</>
+	),
 } ) );
 
 jest.mock( './report-pages', () => ( {
@@ -90,8 +102,21 @@ describe( 'Report stage report scope', () => {
 		jest.mocked( isStatsFeatureLocked ).mockReturnValue( false );
 		jest.mocked( useStatsDateLimits ).mockReturnValue( { offersComparison: true } );
 		mockGetReportDefinition.mockReturnValue( { id: 'mock' } );
+		mockGetReportsPage.mockReset();
 		mockGetReportPage.mockClear();
 		delete window.JetpackScriptData;
+	} );
+
+	it( 'renders a registered reports page as a page of widgets, with no comparison', async () => {
+		mockGetReportsPage.mockReturnValue( { path: 'posts' } );
+
+		render( <ReportStage /> );
+
+		await expect(
+			screen.findByText( 'widgets of posts on /reports/$report' )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'no comparison' ) ).toBeInTheDocument();
+		expect( mockGetReportPage ).not.toHaveBeenCalled();
 	} );
 
 	it( 'shows the locked page instead of rendering a report the plan lacks', async () => {

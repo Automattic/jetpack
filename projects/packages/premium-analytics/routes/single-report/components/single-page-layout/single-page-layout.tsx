@@ -102,7 +102,7 @@ export function SinglePageLayout( {
 					pinned
 					titleRef={ title }
 					busy={ header.busy }
-					visual={ header.visual ?? <span /> }
+					visual={ header.visual === undefined ? <span /> : header.visual }
 					title={ header.title }
 					subTitle={ header.subTitle }
 				>

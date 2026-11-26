@@ -13,7 +13,6 @@ import DownloadsPage from './downloads/page';
 import EarningsPage from './earnings/page';
 import EmailsPage from './emails/page';
 import LocationsPage from './locations/page';
-import PostsPage from './posts/page';
 import ReferrersPage from './referrers/page';
 import SearchTermsPage from './search-terms/page';
 import TagsPage from './tags/page';
@@ -37,7 +36,6 @@ export const REPORT_PAGES: Record< string, ComponentType > = {
 	earnings: EarningsPage,
 	emails: EmailsPage,
 	locations: LocationsPage,
-	posts: PostsPage,
 	'search-terms': SearchTermsPage,
 	tags: TagsPage,
 	videos: VideosPage,

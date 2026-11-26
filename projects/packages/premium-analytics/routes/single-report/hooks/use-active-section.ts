@@ -3,12 +3,6 @@
  */
 import { useStagedSearch } from '@jetpack-premium-analytics/routing';
 import { useCallback } from '@wordpress/element';
-/**
- * Internal dependencies
- */
-import { route } from '../package.json';
-
-const ROUTE_FROM = route.path;
 
 type SectionSearch = {
 	section?: string;
@@ -19,14 +13,14 @@ type SectionSearch = {
  * deep-linkable model. Switching stages and commits at once: one history entry per change,
  * unless `replace` is set to normalize a deep link.
  *
+ * @param routeFrom - The path of the route the page is mounted on.
  * @return The section the URL names, and a setter.
  */
-export function useActiveSection(): [
-	string | undefined,
-	( slug: string, options?: { replace?: boolean } ) => void,
-] {
-	const { effective, stage, commit } = useStagedSearch< SectionSearch, typeof ROUTE_FROM >( {
-		from: ROUTE_FROM,
+export function useActiveSection(
+	routeFrom: string
+): [ string | undefined, ( slug: string, options?: { replace?: boolean } ) => void ] {
+	const { effective, stage, commit } = useStagedSearch< SectionSearch, string >( {
+		from: routeFrom,
 	} );
 
 	const setActiveSection = useCallback(

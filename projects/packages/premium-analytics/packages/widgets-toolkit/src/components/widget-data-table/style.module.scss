@@ -1,7 +1,11 @@
-/* DataViews supplies its own inline cell/footer inset, so widgets using this
- * table declare `presentation: "content-bleed"` and the host contributes no
- * body padding; otherwise the two stack and the table sits doubly inset. */
-.root {
-	min-inline-size: 0;
-	overflow: hidden;
+.container {
+	block-size: 100%;
+}
+
+// A copy of the DataViews footer styles. Not ideal: eventually
+// DataViews.Footer should accept more than Pagination as a child.
+.custom-footer {
+	border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+	flex-shrink: 0;
+	padding: var(--wpds-dimension-padding-md) var(--wpds-dimension-padding-2xl);
 }

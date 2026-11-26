@@ -40,6 +40,29 @@ declare module '@automattic/jetpack-script-data' {
 					controls: Array< Record< string, unknown > > | null;
 				} >;
 			} >;
+			// The reports pages registered as records of widgets, as `routes/reports/registry.ts` reads them. Absent from servers that predate them.
+			reports_pages?: Array< {
+				id: string;
+				entity?: {
+					kind: string;
+					name: string;
+					key?: string;
+				} | null;
+				path: string;
+				label: string;
+				dashboard_section: string | null;
+				feature: string | null;
+				icon: string | null;
+				controls: Array< Record< string, unknown > > | null;
+				preferences_scope: string;
+				default_layout: Array< Record< string, unknown > >;
+				sections: Array< {
+					slug: string;
+					label: string;
+					default_layout: Array< Record< string, unknown > >;
+					controls: Array< Record< string, unknown > > | null;
+				} >;
+			} >;
 			// Whether the reader may see Stats reports; a shop manager may see only the store's.
 			can_view_stats?: boolean;
 			// Where switching the dashboard off lands: the classic Stats page, or null while no plugin registers one.

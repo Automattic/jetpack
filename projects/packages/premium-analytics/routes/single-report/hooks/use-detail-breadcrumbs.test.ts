@@ -69,7 +69,20 @@ const validOrigins = [
 function setVideoPress( hasVideoPress: boolean ) {
 	Object.defineProperty( window, 'JetpackScriptData', {
 		configurable: true,
-		value: { premium_analytics: { has_videopress: hasVideoPress } },
+		value: {
+			premium_analytics: {
+				has_videopress: hasVideoPress,
+				reports_pages: [
+					{
+						path: 'posts',
+						label: 'All pages',
+						dashboard_section: 'traffic',
+						feature: 'top-posts',
+						sections: [ { slug: 'posts-pages' }, { slug: 'archives' } ],
+					},
+				],
+			},
+		},
 	} );
 }
 

@@ -130,6 +130,7 @@ export {
 export { VideoTitleLink, type VideoTitleLinkProps } from './video-title-link';
 export {
 	ViewLiveLink,
+	createViewLiveAction,
 	toViewLiveUrl,
 	type ViewLiveContent,
 	type ViewLiveLinkProps,

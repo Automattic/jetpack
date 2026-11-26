@@ -17,7 +17,7 @@ import CommentsReportPage from '../../routes/reports/comments/page';
 import DownloadsReportPage from '../../routes/reports/downloads/page';
 import EmailsReportPage from '../../routes/reports/emails/page';
 import LocationsReportPage from '../../routes/reports/locations/page';
-import PostsReportPage from '../../routes/reports/posts/page';
+import { postsHeaderActions } from '../../routes/reports/pages/posts/header-actions';
 import ReferrersReportPage from '../../routes/reports/referrers/page';
 import SearchTermsReportPage from '../../routes/reports/search-terms/page';
 import TagsReportPage from '../../routes/reports/tags/page';
@@ -344,6 +344,9 @@ const RESPONSES: Record< string, unknown | ( ( path: string ) => unknown ) > = {
 	},
 };
 
+// The All pages report downloads from its page header; the open section picks the file.
+const PostsReportActions = () => <>{ postsHeaderActions() }</>;
+
 const CASES: {
 	name: string;
 	Page: ComponentType;
@@ -352,13 +355,13 @@ const CASES: {
 }[] = [
 	{
 		name: 'Posts & pages',
-		Page: PostsReportPage,
+		Page: PostsReportActions,
 		widget: reportParams => <TopPostsWidget attributes={ { reportParams } } />,
 		tab: 'posts-pages',
 	},
 	{
 		name: 'Archives',
-		Page: PostsReportPage,
+		Page: PostsReportActions,
 		widget: reportParams => (
 			<TopPostsWidget attributes={ { contentView: 'archives', reportParams } } />
 		),
@@ -484,6 +487,7 @@ describe( 'Widget and report CSV parity', () => {
 		async ( { Page, widget, tab } ) => {
 			if ( tab ) {
 				mockUseSectionTab.mockReturnValue( [ tab, jest.fn() ] );
+				setMockRouteSearch( { ...REPORT_PARAMS, section: tab } );
 			}
 
 			const reportFile = await download( <Page /> );
@@ -496,7 +500,7 @@ describe( 'Widget and report CSV parity', () => {
 	);
 
 	it( 'reuses the report page cached rows for the widget download', async () => {
-		await download( <PostsReportPage /> );
+		await download( <PostsReportActions /> );
 
 		render( withProviders( CASES[ 0 ].widget( REPORT_PARAMS ) ) );
 		const action = await actionsHost.findDeclaredAction( 'download-csv' );
