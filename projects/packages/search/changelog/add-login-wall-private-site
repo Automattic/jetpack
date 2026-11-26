@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Instant Search: search through the site's own REST API on sites behind a login wall or coming-soon plugin, so logged-in visitors can still search.
