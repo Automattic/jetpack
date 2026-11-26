@@ -2,8 +2,7 @@ import { IconTooltip } from '@automattic/jetpack-components';
 import { image, pending } from '@wordpress/icons';
 import { Card, CollapsibleCard, Icon, Stack } from '@wordpress/ui';
 import { tooltipLayer } from '$features/module/tooltip-layer';
-import criticalCss from '$features/critical-css/critical-css-module/critical-css-module.module.scss';
-import tooltipStyles from '$features/premium-tooltip/premium-tooltip.module.scss';
+import fixtureStyles from './settings-tooltip-cards.module.scss';
 import UpgradeNotice from '$features/upgrade-cta/upgrade-notice';
 import styles from '../../../../app/assets/src/js/pages/settings/settings.module.scss';
 
@@ -34,8 +33,8 @@ const SettingsTooltip = () => (
 		title="Upgrade options"
 		label="Upgrade information"
 		placement="bottom"
-		className={ tooltipStyles.tooltip }
-		popoverClassName={ tooltipStyles.popover }
+		className={ fixtureStyles.tooltip }
+		popoverClassName={ fixtureStyles.popover }
 		{ ...tooltipLayer }
 		iconSize={ 22 }
 		wide
@@ -52,7 +51,7 @@ const Settings = () => (
 			description="Manage how your page content is loaded for visitors."
 			icon={ pending }
 		>
-			<div className={ criticalCss[ 'tooltip-wrapper' ] }>
+			<div className={ fixtureStyles.wrapper }>
 				<p>
 					<b>You should regenerate your Critical CSS</b> whenever you make changes to the HTML or
 					CSS structure of your site.

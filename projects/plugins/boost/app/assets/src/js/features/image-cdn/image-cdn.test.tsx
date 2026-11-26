@@ -5,10 +5,6 @@ import { useSingleModuleState } from '$features/module/lib/stores';
 import ImageCdn from './image-cdn';
 import type { ReactNode } from 'react';
 
-jest.mock(
-	'@automattic/jetpack-my-jetpack/components/product-interstitial/assets/boost.webp',
-	() => ''
-);
 jest.mock( '$features/module/module', () => ( {
 	__esModule: true,
 	default: ( { children }: { children: ReactNode } ) => <section>{ children }</section>,

@@ -8,10 +8,6 @@ import type { ReactNode } from 'react';
 const mockRegenerate = jest.fn();
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn( () => new Promise( () => {} ) ) );
-jest.mock(
-	'@automattic/jetpack-my-jetpack/components/product-interstitial/assets/boost.webp',
-	() => ''
-);
 jest.mock( '$features/module/module', () => ( {
 	__esModule: true,
 	default: ( {
@@ -35,7 +31,6 @@ jest.mock( '$features/critical-css/lib/stores/critical-css-state', () => ( {
 	useRegenerateCriticalCssAction: () => ( { mutate: mockRegenerate } ),
 } ) );
 jest.mock( '$lib/utils/analytics', () => ( { recordBoostEvent: jest.fn() } ) );
-jest.mock( '$lib/stores/pricing', () => ( { usePricing: () => null } ) );
 jest.mock( '$lib/stores/premium-features', () => ( { usePremiumFeatures: () => [] } ) );
 jest.mock( 'jetpackConfig', () => ( { consumer_slug: 'jetpack-boost' } ), { virtual: true } );
 

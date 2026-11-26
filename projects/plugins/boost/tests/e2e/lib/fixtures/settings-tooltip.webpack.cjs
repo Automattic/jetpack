@@ -33,10 +33,6 @@ module.exports = {
 				__dirname,
 				'settings-tooltip-cards.jsx'
 			),
-			[ path.join(
-				pluginRoot,
-				'app/assets/src/js/features/upgrade-cta/interstitial-modal-cta.tsx'
-			) ]: path.join( __dirname, 'settings-tooltip-upgrade-cta.jsx' ),
 		},
 		fallback: { ...config.resolve.fallback, url: false, https: false, http: false, os: false },
 	},
