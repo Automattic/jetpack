@@ -28,7 +28,7 @@ const Group = ( { title, description, icon, children } ) => (
 	</CollapsibleCard.Root>
 );
 
-// Stands in for a row tooltip holding a CTA, to exercise the portaled layer.
+// Stands in for a Settings tooltip holding a CTA, to exercise the portaled layer.
 const SettingsTooltip = () => (
 	<IconTooltip
 		title="Upgrade options"
