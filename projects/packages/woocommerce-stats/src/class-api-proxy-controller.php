@@ -147,7 +147,7 @@ class Api_Proxy_Controller {
 	 * @return bool
 	 */
 	public function check_permission() {
-		return Analytics_Dashboard::is_enabled() && Analytics_Dashboard::current_user_can_view_store_reports();
+		return Analytics_Dashboard::current_user_can_view_store_reports();
 	}
 
 	/**

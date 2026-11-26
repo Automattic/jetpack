@@ -4613,13 +4613,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/woocommerce-stats",
-                "reference": "4e29e14e99a9fa7ee2d6bb57344bede36467d7de"
+                "reference": "3606513ca7f762bfae9c01df20bddc20baa6b939"
             },
             "require": {
                 "automattic/jetpack-config": "@dev",
                 "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-feature-flags": "@dev",
                 "automattic/jetpack-premium-analytics": "@dev",
-                "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-sync": "@dev",
                 "automattic/woocommerce-analytics": "^0.18",
                 "php": ">=7.4"
