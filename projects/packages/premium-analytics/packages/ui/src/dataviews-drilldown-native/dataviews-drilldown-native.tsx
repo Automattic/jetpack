@@ -8,6 +8,7 @@ import { createContext, useCallback, useContext, useMemo, useState } from 'react
 /**
  * Internal dependencies
  */
+import { useRowBatches } from '../use-row-batches';
 import { collectAncestorIds, filterCollapsedRows, findParentIds } from './collapsible-rows';
 import styles from './dataviews-drilldown-native.module.scss';
 import { DrilldownToggle } from './drilldown-toggle';
@@ -143,6 +144,8 @@ export interface DataViewsDrilldownNativeProps< Item > {
 	searchLabel?: string;
 	/** Custom empty state. */
 	empty?: ReactNode;
+	/** A new value shows the first batch of rows again, scrolled to the top. */
+	batchResetKey?: string | number;
 }
 
 /**
@@ -163,6 +166,7 @@ export function DataViewsDrilldownNative< Item >( {
 	isLoading = false,
 	searchLabel,
 	empty,
+	batchResetKey,
 }: DataViewsDrilldownNativeProps< Item > ) {
 	const [ view, setView ] = useState< View >( () => {
 		const { fields: viewFieldIds, ...viewRest } = initialView ?? {};
@@ -250,6 +254,17 @@ export function DataViewsDrilldownNative< Item >( {
 		toggledIds,
 	] );
 
+	// Folding and unfolding keep the rows mounted so far; only a new order or match set starts over.
+	const rowBatchesResetKey = `${ JSON.stringify( [ view.sort, view.search, view.filters ] ) }:${
+		batchResetKey ?? ''
+	}`;
+	const { rowLimit, ref: rowBatchesRef } = useRowBatches(
+		rows.length,
+		rowBatchesResetKey,
+		isLoading
+	);
+	const mountedRows = useMemo( () => rows.slice( 0, rowLimit ), [ rows, rowLimit ] );
+
 	const handleToggle = useCallback( ( id: string ) => {
 		setToggledIds( current => {
 			const next = new Set( current );
@@ -307,12 +322,15 @@ export function DataViewsDrilldownNative< Item >( {
 
 	return (
 		<CollapseContext.Provider value={ collapseContextValue }>
-			<div className={ clsx( styles.root, hideLevelMarkers && styles.hideLevelMarkers ) }>
+			<div
+				ref={ rowBatchesRef }
+				className={ clsx( styles.root, hideLevelMarkers && styles.hideLevelMarkers ) }
+			>
 				<GenericDataViews< Item >
 					view={ view }
 					onChangeView={ handleChangeView }
 					fields={ displayFields }
-					data={ rows }
+					data={ mountedRows }
 					getItemId={ getItemId }
 					getItemLevel={ getItemLevel }
 					actions={ actions }

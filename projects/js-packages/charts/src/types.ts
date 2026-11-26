@@ -317,7 +317,7 @@ export type BarStyles = {
 };
 
 /**
- * How a bar chart places its series in a category. `grouped` puts each primary series in a slot of its own; `overlap` puts every primary in one slot and every comparison in a second, and overlaps the `group`s within each slot; `stacked` stacks every primary in one bar, the first series at the bottom.
+ * How a bar chart places its series in a category. `grouped` puts each primary series in a slot of its own; `overlap` puts every primary in one slot and every comparison in a second, and overlaps the `group`s within each slot; `stacked` stacks every primary in one bar, the first series at the bottom, and sums every comparison into one bar in a second slot.
  */
 export type BarChartLayout = 'grouped' | 'overlap' | 'stacked';
 
@@ -804,7 +804,8 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 	/**
 	 * Callback for Enter or Space on the point keyboard navigation has selected:
 	 * the keyboard counterpart of a click. `index` is the point's position in its
-	 * series and `key` the series label.
+	 * series and `key` the series label. A stacked bar chart's comparison total reports
+	 * `COMPARISON_TOTAL_KEY` and its summed point.
 	 */
 	onDatumActivate?: ( params: {
 		datum: DataPoint | DataPointDate;

@@ -9,7 +9,6 @@ import { isHeaderControlsEnabled } from '../../header-controls/slot';
 import OverviewBlogPosts from '../../overview-blog-posts';
 import ProductCardsSection from '../../product-cards-section';
 import OverviewSections from '../../product-cards-section/overview-sections';
-import SeoOptInCard from '../../seo-opt-in-card';
 import { A4AUpsell } from './a4a-upsell';
 import { TypedText, useOverviewLoadAnimation } from './load-animation';
 import loadAnimationStyles from './load-animation/style.module.scss';
@@ -62,9 +61,7 @@ export function OverviewContent( { beforeContent }: { beforeContent?: ReactNode 
 
 			{ currentUserCan( 'manage_options' ) ? (
 				<>
-					<div className={ styles[ 'jetpack-manage-upsell' ] }>
-						<SeoOptInCard />
-					</div>
+					<div className={ styles[ 'jetpack-manage-upsell' ] }></div>
 					<div className={ styles[ 'jetpack-manage-upsell' ] }>
 						<A4AUpsell />
 					</div>

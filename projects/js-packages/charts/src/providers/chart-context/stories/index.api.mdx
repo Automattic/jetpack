@@ -75,6 +75,7 @@ interface GlobalChartsContextValue {
 | Member | Note |
 | ------ | ---- |
 | `backgroundColor` | The chart background as an opaque hex, for colors that must keep contrast against it. Optional on the type, so a hand-built context value without it still type-checks; `GlobalChartsProvider` always supplies it. |
+| `comparisonColor` | The `--a8c-charts-color-comparison` role as an opaque hex. A stacked bar chart tones it to keep 3:1 against `backgroundColor` for the bar it sums comparison series into. |
 | `seedChartHiddenSeries` | Backs the `defaultHiddenSeries` prop. The provider records which chart IDs it has seeded, so a chart that unmounts and comes back keeps whatever the reader had shown or hidden. |
 | `isColorPaletteResolved` | `false` until the color cache has resolved from the DOM and painted. Use it to defer transitions that would otherwise interpolate from a fallback color. |
 | `formatting` | `{ locale?: string; timeZone?: string }`, from the provider's props. Read it with `useChartFormatting()`, which returns the runtime's own defaults outside a provider rather than throwing. |

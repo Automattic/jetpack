@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Bar chart: Sum comparison series into one bar beside each stack in the stacked layout, keyed `COMPARISON_TOTAL_KEY` and colored by the new `--a8c-charts-color-comparison` role.

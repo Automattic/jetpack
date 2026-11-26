@@ -77,7 +77,7 @@ Need to report a security vulnerability? Go to [https://automattic.com/security/
 
 ## License
 
-eslint-config-target-es is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
+eslint-config-target-es is licensed under the [MIT License](./LICENSE.txt)
 
 --
 

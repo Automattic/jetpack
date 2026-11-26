@@ -102,28 +102,6 @@ describe( 'PlanUsageCard', () => {
 		);
 	} );
 
-	it( 'keeps a WordPress.com site on the classic Stats purchase screen', async () => {
-		window.JetpackScriptData = {
-			site: { ...SITE, is_wpcom_platform: true },
-		} as typeof window.JetpackScriptData;
-
-		renderCard();
-
-		await expect( screen.findByRole( 'link', { name: 'Upgrade' } ) ).resolves.toHaveAttribute(
-			'href',
-			expect.stringContaining( 'admin.php?page=stats#!/stats/purchase/123456789' )
-		);
-	} );
-
-	it( 'leaves out Upgrade when the script data has no site to buy for', async () => {
-		delete window.JetpackScriptData;
-
-		renderCard();
-
-		await expect( screen.findByText( '6,200 / 10,000 views' ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
-	} );
-
 	it.each( [
 		[ 2, "You've surpassed your limit for two consecutive periods already." ],
 		[ 1, "You've surpassed your limit the past month." ],

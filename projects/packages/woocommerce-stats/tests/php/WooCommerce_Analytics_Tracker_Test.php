@@ -37,11 +37,11 @@ class WooCommerce_Analytics_Tracker_Test extends TestCase {
 		);
 	}
 
-	public function test_bootstrap_enables_clickhouse_and_proxy_filters() {
+	public function test_bootstrap_enables_clickhouse_and_leaves_proxy_tracking_to_the_host() {
 		WooCommerce_Analytics_Tracker::bootstrap();
 
 		$this->assertTrue( apply_filters( 'woocommerce_analytics_clickhouse_enabled', false ) );
-		$this->assertTrue( apply_filters( 'woocommerce_analytics_experimental_proxy_tracking_enabled', false ) );
+		$this->assertFalse( apply_filters( 'woocommerce_analytics_experimental_proxy_tracking_enabled', false ) );
 	}
 
 	/**
@@ -68,9 +68,6 @@ class WooCommerce_Analytics_Tracker_Test extends TestCase {
 			WooCommerce_Analytics_Tracker::bootstrap();
 		}
 
-		// Filters still resolve to true; the modern pipeline stays enabled and no
-		// error is raised by the second run.
 		$this->assertTrue( apply_filters( 'woocommerce_analytics_clickhouse_enabled', false ) );
-		$this->assertTrue( apply_filters( 'woocommerce_analytics_experimental_proxy_tracking_enabled', false ) );
 	}
 }

@@ -32,6 +32,8 @@ class Video_Authorization_Test extends BaseTestCase {
 	 */
 	protected function tear_down() {
 		wp_set_current_user( 0 );
+		remove_all_filters( 'stylesheet' );
+		remove_all_filters( 'get_the_terms' );
 		unset( $_COOKIE[ 'wp-postpass_' . COOKIEHASH ], $GLOBALS['__vp_memberships_access_level'], $GLOBALS['__vp_memberships_has_access'] );
 		unregister_post_type( 'vp_test_unlisted' );
 		\WorDBless\Posts::init()->clear_all_posts();
@@ -519,6 +521,55 @@ class Video_Authorization_Test extends BaseTestCase {
 				array( 'role' => null ),
 				true,
 			),
+		);
+	}
+
+	/**
+	 * @dataProvider block_template_provider
+	 * @param string      $theme    The theme the template belongs to.
+	 * @param string      $status   The template's post status.
+	 * @param string|null $role     The visitor's role, or null when logged out.
+	 * @param bool        $expected Whether playback is allowed.
+	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'block_template_provider' )]
+	public function test_private_video_in_block_template( $theme, $status, $role, $expected ) {
+		$guid = 'tEmPlt12';
+		$this->create_private_videopress_attachment( $guid );
+		$template_id = (int) wp_insert_post(
+			array(
+				'post_title'   => '404',
+				'post_name'    => '404',
+				'post_content' => '<!-- wp:videopress/video {"guid":"' . $guid . '"} /-->',
+				'post_status'  => $status,
+				'post_type'    => 'wp_template',
+			)
+		);
+		// WorDBless stores no terms and has no theme, so supply both.
+		add_filter( 'stylesheet', fn () => 'active-theme' );
+		add_filter(
+			'get_the_terms',
+			fn ( $terms, $post_id, $taxonomy ) => 'wp_theme' === $taxonomy && $template_id === $post_id ? array( (object) array( 'name' => $theme ) ) : $terms,
+			10,
+			3
+		);
+		if ( null !== $role ) {
+			$this->set_current_user_role( $role );
+		}
+
+		$this->assertSame( $expected, Access_Control::instance()->is_current_user_authed_for_video( $guid, $template_id ) );
+	}
+
+	/**
+	 * Template and visitor states for a private video placed in a block template.
+	 *
+	 * @return array
+	 */
+	public static function block_template_provider() {
+		return array(
+			'active theme, subscriber'     => array( 'active-theme', 'publish', 'subscriber', true ),
+			'active theme, logged out'     => array( 'active-theme', 'publish', null, false ),
+			'active theme, draft template' => array( 'active-theme', 'draft', 'subscriber', false ),
+			'inactive theme, subscriber'   => array( 'other-theme', 'publish', 'subscriber', false ),
 		);
 	}
 

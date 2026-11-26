@@ -59,13 +59,15 @@ function mockEndpoints(
 /**
  * Seeds the script data the notice reads the host and purchase URL from.
  *
- * @param host - The site's host, as script data reports it.
+ * @param host            - The site's host, as script data reports it.
+ * @param isWpcomPlatform - Whether the site runs on WordPress.com, Simple or Atomic.
  */
-function setHost( host: string ) {
+function setHost( host: string, isWpcomPlatform = false ) {
 	window.JetpackScriptData = {
 		site: {
 			admin_url: 'https://example.com/wp-admin/',
 			host,
+			is_wpcom_platform: isWpcomPlatform,
 			wpcom: { blog_id: 123456789 },
 		},
 	} as typeof window.JetpackScriptData;
@@ -274,8 +276,12 @@ describe( 'PlanLimitNotice', () => {
 		);
 	} );
 
-	it.each( [ 'wpcom', 'vip' ] )( 'says nothing on a %s site', async host => {
-		setHost( host );
+	it.each( [
+		[ 'wpcom', true ],
+		[ 'woa', true ],
+		[ 'vip', false ],
+	] )( 'says nothing on a %s site', async ( host, isWpcomPlatform ) => {
+		setHost( host, isWpcomPlatform );
 		mockEndpoints( { views_count: 11480, views_limit: 10000 } );
 
 		const { container } = await renderNotice();

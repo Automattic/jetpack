@@ -38,7 +38,7 @@ export function LockedReportPage( { label, feature }: LockedReportPageProps ): J
 			className={ reportPageStyles.page }
 			visual={ <Icon icon={ jetpack } /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label } ] } /> }
-			actions={ <StatsOptionsMenu /> }
+			actions={ <StatsOptionsMenu withPromo={ false } /> }
 		>
 			<ReportPageLayout title={ label }>
 				<LockedPage feature={ feature } />

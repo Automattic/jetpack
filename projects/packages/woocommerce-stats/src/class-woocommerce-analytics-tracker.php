@@ -10,9 +10,9 @@ namespace Automattic\Jetpack\WooCommerceStats;
 use Automattic\Woocommerce_Analytics;
 
 /**
- * Turns on the modern (ClickHouse + proxy) pipeline and triggers the vendored
- * WooCommerce Analytics tracker, unless the host turns store tracking off. The
- * tracker self-gates on WooCommerce + connection and is idempotent.
+ * Turns on ClickHouse and triggers the vendored WooCommerce Analytics tracker,
+ * unless the host turns store tracking off. Proxy tracking is the host's to turn on.
+ * The tracker self-gates on WooCommerce + connection and is idempotent.
  */
 class WooCommerce_Analytics_Tracker {
 
@@ -31,10 +31,10 @@ class WooCommerce_Analytics_Tracker {
 	}
 
 	/**
-	 * Enable the modern pipeline and trigger the tracker.
+	 * Turn on ClickHouse and trigger the tracker.
 	 *
-	 * On `after_setup_theme` the filters are in place before the package reads
-	 * them while localizing `window.wcAnalytics` at `wp_footer`.
+	 * On `after_setup_theme` the filter is in place before the package reads
+	 * it while localizing `window.wcAnalytics` at `wp_footer`.
 	 */
 	public static function bootstrap() {
 		/**
@@ -49,7 +49,6 @@ class WooCommerce_Analytics_Tracker {
 		}
 
 		add_filter( 'woocommerce_analytics_clickhouse_enabled', '__return_true' );
-		add_filter( 'woocommerce_analytics_experimental_proxy_tracking_enabled', '__return_true' );
 
 		// Guarded because the package ships with the Jetpack plugin or as a
 		// composer dependency, not with this package's own source.

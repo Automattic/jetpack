@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+VideoPress: Play private videos placed in a site template on pages without a post, such as a 404 page.

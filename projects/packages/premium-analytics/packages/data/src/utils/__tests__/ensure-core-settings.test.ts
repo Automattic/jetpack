@@ -1,30 +1,45 @@
-/**
- * Mock the WordPress data layer so ensure-core-settings can resolve without a
- * real store. `mockGetEntityRecord` is driven per-test to simulate
- * success/failure. The `mock` prefix is required for jest.mock hoisting.
- */
-const mockGetEntityRecord = jest.fn();
+// The real core-data store, so a failed resolution is replayed as it is in the browser.
+type FetchOptions = { path: string; method?: string };
+
+let settingsFail = false;
+const mockApiFetch = jest.fn( ( { method }: FetchOptions ) =>
+	! method && settingsFail
+		? Promise.reject( new Error( 'boom' ) )
+		: Promise.resolve( settingsResponse() )
+);
 const mockCurrentUserCan = jest.fn();
-const mockResolveSelect = jest.fn( () => ( { getEntityRecord: mockGetEntityRecord } ) );
+
+jest.mock( '@wordpress/api-fetch', () => ( {
+	__esModule: true,
+	default: ( options: FetchOptions ) => mockApiFetch( options ),
+} ) );
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	currentUserCan: ( capability: string ) => mockCurrentUserCan( capability ),
 } ) );
 
-jest.mock( '@wordpress/core-data', () => ( {
-	store: 'core',
-} ) );
+function settingsResponse() {
+	return {
+		json: () => Promise.resolve( { url: 'https://example.com' } ),
+		headers: new Headers(),
+	};
+}
 
-jest.mock( '@wordpress/data', () => ( {
-	resolveSelect: () => mockResolveSelect(),
-} ) );
+// GETs only: core-data also sends an OPTIONS to read the route's permissions.
+const settingsRequests = () =>
+	mockApiFetch.mock.calls.filter(
+		( [ { path, method } ] ) => ! method && path.startsWith( '/wp/v2/settings' )
+	);
+
+const flush = () => new Promise( resolve => setTimeout( resolve, 10 ) );
 
 describe( 'ensureCoreSettingsReady', () => {
 	beforeEach( () => {
-		// Reset modules so the module-level memo (`readyPromise`) starts empty.
+		// A fresh registry and memo per test. Yjs errors when it sees its own global flag on re-import.
 		jest.resetModules();
-		mockGetEntityRecord.mockReset();
-		mockResolveSelect.mockClear();
+		delete ( globalThis as Record< string, unknown > )[ '__ $YJS$ __' ];
+		mockApiFetch.mockClear();
+		settingsFail = false;
 		mockCurrentUserCan.mockReturnValue( true );
 	} );
 
@@ -34,11 +49,10 @@ describe( 'ensureCoreSettingsReady', () => {
 
 		await expect( ensureCoreSettingsReady() ).resolves.toBeUndefined();
 		expect( mockCurrentUserCan ).toHaveBeenCalledWith( 'manage_options' );
-		expect( mockGetEntityRecord ).not.toHaveBeenCalled();
+		expect( settingsRequests() ).toHaveLength( 0 );
 	} );
 
-	it( 'memoizes the resolved promise and fetches the site record only once', async () => {
-		mockGetEntityRecord.mockResolvedValue( {} );
+	it( 'memoizes the promise and fetches the site record only once', async () => {
 		const { ensureCoreSettingsReady } = await import( '../ensure-core-settings' );
 
 		const first = ensureCoreSettingsReady();
@@ -46,17 +60,39 @@ describe( 'ensureCoreSettingsReady', () => {
 
 		expect( first ).toBe( second );
 		await expect( first ).resolves.toBeUndefined();
-		expect( mockGetEntityRecord ).toHaveBeenCalledTimes( 1 );
-		expect( mockGetEntityRecord ).toHaveBeenCalledWith( 'root', 'site' );
+		expect( settingsRequests() ).toHaveLength( 1 );
 	} );
 
-	it( 'clears the memo on rejection so a later call asks core-data again', async () => {
-		mockGetEntityRecord.mockRejectedValueOnce( new Error( 'boom' ) );
+	it( 'does not refetch a record a reader already loaded', async () => {
 		const { ensureCoreSettingsReady } = await import( '../ensure-core-settings' );
+		const { store: coreStore } = await import( '@wordpress/core-data' );
+		const { select } = await import( '@wordpress/data' );
+
+		select( coreStore ).getEntityRecord( 'root', 'site' );
+		await flush();
+
+		await expect( ensureCoreSettingsReady() ).resolves.toBeUndefined();
+		expect( settingsRequests() ).toHaveLength( 1 );
+	} );
+
+	it( 'refetches on the next call after a failure, and not before', async () => {
+		settingsFail = true;
+		const { ensureCoreSettingsReady } = await import( '../ensure-core-settings' );
+		const { store: coreStore } = await import( '@wordpress/core-data' );
+		const { select } = await import( '@wordpress/data' );
 
 		await expect( ensureCoreSettingsReady() ).rejects.toThrow( 'boom' );
 
-		mockGetEntityRecord.mockResolvedValue( {} );
+		// Stands in for `useSiteHomeUrl()` selecting again.
+		select( coreStore ).getEntityRecord( 'root', 'site' );
+		await flush();
+		expect( settingsRequests() ).toHaveLength( 1 );
+
+		settingsFail = false;
 		await expect( ensureCoreSettingsReady() ).resolves.toBeUndefined();
+		expect( settingsRequests() ).toHaveLength( 2 );
+		expect( select( coreStore ).getEntityRecord( 'root', 'site' ) ).toMatchObject( {
+			url: 'https://example.com',
+		} );
 	} );
 } );

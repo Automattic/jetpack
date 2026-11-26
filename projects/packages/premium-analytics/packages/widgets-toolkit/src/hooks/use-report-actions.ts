@@ -75,8 +75,8 @@ export type ReportActionsOptions< TItem, TRow > = {
 	relevance?: WidgetRelevance;
 
 	/**
-	 * The CSV download, offered once the widget's rows settle: the linked report's, or for a
-	 * widget without a report, the rows it loaded.
+	 * The CSV download, offered once the widget has rows for the current range: the linked
+	 * report's, or for a widget without a report, the rows it loaded.
 	 */
 	csv?: ReportCsvActionOptions< TItem, TRow > | RowsCsvActionOptions< TRow >;
 

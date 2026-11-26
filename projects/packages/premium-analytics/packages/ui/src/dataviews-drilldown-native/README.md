@@ -28,7 +28,14 @@ The first field in the view's field list becomes the view's `titleField` — the
 - **Level markers, not indentation.** DataViews renders each row's level as a literal em-dash prefix (`— — google.com`) in an unstyled `dataviews-view-table__level` span. There is no upstream styling hook beyond that class; the `hideLevelMarkers` prop applies the one-line override (`visibility: hidden`) that turns the markers into plain whitespace indentation.
 - **No expand/collapse upstream.** Native level rendering is a static display — every row is always visible. The `collapsible` prop adds that locally; see [Collapsing branches](#collapsing-branches).
 - **Cell content styling is the consumer's.** DataViews renders whatever the field's `render` returns, so a per-row treatment is a plain field-render concern — no override of DataViews internals needed. The title column keeps DataViews' title weight at every depth; the chevron alone marks a parent.
-- **Flat search, filter, and sort.** DataViews' `filterSortAndPaginate` is hierarchy-blind: a matching child whose parent is filtered out renders indented but orphaned, a matching parent renders alone with the aggregate its (dropped) children explain, and sorting by any field re-orders the rows flat — visually breaking the grouping. This component re-runs that pipeline hierarchy-aware instead: it matches first, re-attaches each match's ancestors _and_ descendants (`withHierarchyContext`), sorts within levels, and lists every hierarchy-ordered row on one page. Leave `sort` out of the initial view to preserve hierarchy order.
+- **Flat search, filter, and sort.** DataViews' `filterSortAndPaginate` is hierarchy-blind: a matching child whose parent is filtered out renders indented but orphaned, a matching parent renders alone with the aggregate its (dropped) children explain, and sorting by any field re-orders the rows flat — visually breaking the grouping. This component re-runs that pipeline hierarchy-aware instead: it matches first, re-attaches each match's ancestors _and_ descendants (`withHierarchyContext`), sorts within levels, and lists the hierarchy-ordered rows with no pager (see [Mounting rows in batches](#mounting-rows-in-batches)). Leave `sort` out of the initial view to preserve hierarchy order.
+
+## Mounting rows in batches
+
+The table mounts its first 50 rows and grows by 50 as the page scrolls near their end
+(`useRowBatches`). Folding keeps the rows mounted so far; a new sort, search or filter starts over
+from the first batch, with the table's top in view. Data swapped in without a view change keeps them too, so
+pass `batchResetKey` a new value when that data is a new set, such as another period.
 
 ## Siblings
 

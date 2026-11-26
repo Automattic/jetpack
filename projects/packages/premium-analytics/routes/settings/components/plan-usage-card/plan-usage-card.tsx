@@ -12,10 +12,12 @@ import {
 	VisuallyHidden,
 } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
-import { useTrackEvent } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	useStatsUpgradeLinkProps,
+	useTrackEvent,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { usePlanUpgradeLinkProps } from '../../../use-plan-upgrade-link-props';
 import { getOverLimitMessage } from './plan-usage';
 import styles from './plan-usage-card.module.scss';
 import type { JSX } from 'react';
@@ -113,7 +115,7 @@ export function PlanUsageCard(): JSX.Element | null {
 	const overLimitMessage = getOverLimitMessage( isVip ? null : data?.over_limit_months );
 
 	const trackEvent = useTrackEvent();
-	const upgradeLink = usePlanUpgradeLinkProps();
+	const upgradeLink = useStatsUpgradeLinkProps( 'jetpack-premium-analytics' );
 	const retry = useCallback( () => refetch(), [ refetch ] );
 	const trackUpgrade = useCallback(
 		() => trackEvent( 'jetpack_premium_analytics_plan_upgrade_click' ),

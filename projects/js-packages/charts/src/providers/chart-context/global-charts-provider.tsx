@@ -28,6 +28,7 @@ import { ChartScopeContext } from '../chart-scope/chart-scope-context';
 import {
 	BACKGROUND_FALLBACK,
 	CATALOG_POINTERS,
+	COMPARISON_FALLBACK,
 	LABEL_FALLBACK,
 	LABEL_INVERSE_FALLBACK,
 } from './private/catalog-pointers';
@@ -42,6 +43,7 @@ import type { FC, ReactNode } from 'react';
 interface ColorCache {
 	colors: string[];
 	background: string;
+	comparison: string;
 	labelColors: string[];
 	colorAt: ( index: number ) => string;
 }
@@ -103,6 +105,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 	const [ colorCache, setColorCache ] = useState< ColorCache >( () => ( {
 		colors: [],
 		background: BACKGROUND_FALLBACK,
+		comparison: COMPARISON_FALLBACK,
 		labelColors: PLACEHOLDER_LABEL_COLORS,
 		colorAt: createPaletteGenerator(
 			[ SERIES_SLOT_1_FALLBACK ],
@@ -144,6 +147,8 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 		setColorCache( {
 			colors: resolvedColors,
 			background: backgroundHex,
+			comparison:
+				resolveOpaqueHex( CATALOG_POINTERS.comparison, resolveAtWrapper ) ?? COMPARISON_FALLBACK,
 			labelColors,
 			colorAt: createPaletteGenerator( resolvedColors, backgroundHex, labelColors ),
 		} );
@@ -372,6 +377,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 			formatting,
 			getElementStyles,
 			backgroundColor: colorCache.background,
+			comparisonColor: colorCache.comparison,
 			toggleSeriesVisibility,
 			setSeriesVisibility,
 			setChartHiddenSeries,
@@ -390,6 +396,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 			formatting,
 			getElementStyles,
 			colorCache.background,
+			colorCache.comparison,
 			toggleSeriesVisibility,
 			setSeriesVisibility,
 			setChartHiddenSeries,
