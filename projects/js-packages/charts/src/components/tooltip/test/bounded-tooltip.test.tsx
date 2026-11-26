@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import { useLayoutEffect } from 'react';
 import { BoundedTooltip, getBoundedPosition } from '../private/bounded-tooltip';
 
 const BOX = { width: 208, height: 36 };
@@ -298,6 +299,42 @@ describe( 'BoundedTooltip', () => {
 			);
 		}
 	);
+
+	// A box left where older content fit can overflow a scrolling card and flash a scrollbar under the chart.
+	test( 'keeps the box hidden at the wrapper origin until it is placed for its current content', () => {
+		const seen: string[] = [];
+		// Lays out before the box is placed, as another part's layout effect can.
+		const Probe = ( { label }: { label: string } ) => {
+			useLayoutEffect( () => {
+				const box = screen.getByTestId( 'box' );
+				seen.push( `${ box.style.transform } ${ box.style.visibility }` );
+			} );
+			return <>{ label }</>;
+		};
+		jest.spyOn( Element.prototype, 'getBoundingClientRect' ).mockImplementation( function (
+			this: Element
+		) {
+			return this.classList.contains( 'visx-tooltip' )
+				? rect( 0, 0, 208, 36 )
+				: rect( 0, 0, 400, 200 );
+		} );
+		const tooltip = ( label: string ) => (
+			<div style={ { overflow: 'auto' } }>
+				<div style={ { position: 'relative' } }>
+					<BoundedTooltip left={ 100 } top={ 50 } data-testid="box">
+						<Probe label={ label } />
+					</BoundedTooltip>
+				</div>
+			</div>
+		);
+
+		const { rerender } = render( tooltip( 'November 10' ) );
+		rerender( tooltip( 'November 18' ) );
+
+		expect( seen ).toEqual( [ 'translate(0px) hidden', 'translate(0px) hidden' ] );
+		expect( screen.getByTestId( 'box' ) ).toHaveStyle( { transform: 'translate(110px, 60px)' } );
+		expect( screen.getByTestId( 'box' ) ).not.toHaveStyle( { visibility: 'hidden' } );
+	} );
 
 	test( 'falls back to the viewport when nothing clips', () => {
 		jest.spyOn( Element.prototype, 'getBoundingClientRect' ).mockImplementation( function (

@@ -170,7 +170,17 @@ export const BoundedTooltip = ( {
 }: BoundedTooltipProps ) => {
 	const nodeRef = useRef< HTMLDivElement >( null );
 	const clipRef = useRef< { wrapper: Element; clip: Element | null } | null >( null );
-	const [ position, setPosition ] = useState< { x: number; y: number } | null >( null );
+	const [ position, setPosition ] = useState< {
+		x: number;
+		y: number;
+		inputs: unknown[];
+	} | null >( null );
+	const inputs = [ left, top, offsetLeft, offsetTop, children, placement ];
+	// A position fits only the content and anchor it was measured for; left in place, newer content can overflow a scrolling card.
+	const placed =
+		position && position.inputs.every( ( input, index ) => Object.is( input, inputs[ index ] ) )
+			? position
+			: null;
 
 	useLayoutEffect( () => {
 		const node = nodeRef.current;
@@ -204,14 +214,13 @@ export const BoundedTooltip = ( {
 				bottom: clipRect.bottom - wrapperRect.top,
 			},
 		} );
-		setPosition( current =>
-			current && current.x === next.x && current.y === next.y ? current : next
-		);
+		setPosition( { ...next, inputs: [ left, top, offsetLeft, offsetTop, children, placement ] } );
 		// `children` re-runs the measurement when the content, and so the box size, changes.
 	}, [ left, top, offsetLeft, offsetTop, children, placement ] );
 
-	const x = position?.x ?? left + offsetLeft;
-	const y = position?.y ?? top + ( placement === 'below-axis' ? POINTER_HEIGHT : offsetTop );
+	// Unplaced, the box waits hidden at the origin, which is also where the effect above measures it.
+	const x = placed?.x ?? 0;
+	const y = placed?.y ?? 0;
 
 	return (
 		<TooltipBox
@@ -225,6 +234,7 @@ export const BoundedTooltip = ( {
 				left: 0,
 				top: 0,
 				transform: `translate(${ x }px, ${ y }px)`,
+				...( ! placed && { visibility: 'hidden' } ),
 				...( ! unstyled && style ),
 			} }
 			{ ...rest }
