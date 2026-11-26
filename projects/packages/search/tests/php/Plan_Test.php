@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Search\TestCase as Search_TestCase;
 use Automattic\Jetpack\Status\Cache;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WP_Error;
 
 /**
@@ -55,6 +56,7 @@ class Plan_Test extends Search_TestCase {
 			do_action( 'jetpack_heartbeat' );
 			$this->assertSame( 0, $requests );
 			$this->assertFalse( get_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY ) );
+			$this->assertFalse( get_transient( Plan::PLAN_INFO_FETCH_FAILED_TRANSIENT ) );
 		} finally {
 			remove_filter( 'pre_http_request', $spy, 5 );
 			Cache::set( 'is_offline_mode', null );
@@ -76,6 +78,92 @@ class Plan_Test extends Search_TestCase {
 		} finally {
 			Cache::set( 'is_offline_mode', null );
 		}
+	}
+
+	/**
+	 * Failed lookup responses.
+	 *
+	 * @return array
+	 */
+	public static function provide_failed_lookup_responses() {
+		return array(
+			'401 from WPCOM'   => array(
+				array(
+					'response' => array(
+						'code'    => 401,
+						'message' => 'Unauthorized',
+					),
+					'body'     => '{"error":"invalid_token"}',
+				),
+			),
+			'transport error'  => array( new WP_Error( 'http_request_failed', 'cURL error 28' ) ),
+			'200 without plan' => array(
+				array(
+					'response' => array(
+						'code'    => 200,
+						'message' => 'ok',
+					),
+					'body'     => '{}',
+				),
+			),
+		);
+	}
+
+	/**
+	 * Test that a failed implicit lookup is not repeated, while a failed explicit refresh doesn't throttle.
+	 *
+	 * @dataProvider provide_failed_lookup_responses
+	 *
+	 * @param array|WP_Error $failure - Mocked HTTP response.
+	 */
+	#[DataProvider( 'provide_failed_lookup_responses' )]
+	public function test_failed_implicit_lookup_is_not_repeated( $failure ) {
+		// Whether the lookup lock was held when each plan request was sent.
+		$locked = array();
+		$mock   = function ( $preempt, $args, $url ) use ( &$locked, $failure ) {
+			if ( strpos( $url, '/jetpack-search/plan' ) === false ) {
+				return $preempt;
+			}
+			$locked[] = (bool) get_transient( Plan::PLAN_INFO_FETCH_FAILED_TRANSIENT );
+			return $failure;
+		};
+		// After the base fixture (priority 10), which would otherwise answer with a 200.
+		add_filter( 'pre_http_request', $mock, 20, 3 );
+
+		try {
+			static::$plan->get_plan_info_from_wpcom();
+			$this->assertFalse( get_transient( Plan::PLAN_INFO_FETCH_FAILED_TRANSIENT ) );
+
+			$this->assertFalse( static::$plan->get_plan_info() );
+			$this->assertFalse( static::$plan->supports_search() );
+			$this->assertSame( array( false, true ), $locked );
+		} finally {
+			remove_filter( 'pre_http_request', $mock, 20 );
+		}
+	}
+
+	/**
+	 * Test that a forced refresh ignores a recorded failure, and that its success clears it.
+	 */
+	public function test_forced_refresh_ignores_and_clears_failed_lookup() {
+		set_transient( Plan::PLAN_INFO_FETCH_FAILED_TRANSIENT, true, Plan::PLAN_INFO_FETCH_FAILED_TTL );
+		$this->assertFalse( static::$plan->get_plan_info() );
+
+		$plan_info = static::$plan->get_plan_info( true );
+
+		$this->assertTrue( $plan_info['supports_search'] );
+		$this->assertFalse( get_transient( Plan::PLAN_INFO_FETCH_FAILED_TRANSIENT ) );
+	}
+
+	/**
+	 * Test that changing the stored connection tokens clears a recorded failure.
+	 */
+	public function test_token_change_clears_failed_lookup() {
+		set_transient( Plan::PLAN_INFO_FETCH_FAILED_TRANSIENT, true, Plan::PLAN_INFO_FETCH_FAILED_TTL );
+
+		update_option( 'jetpack_private_options', array( 'blog_token' => 'fixed.token' ) );
+
+		$this->assertFalse( get_transient( Plan::PLAN_INFO_FETCH_FAILED_TRANSIENT ) );
 	}
 
 	/**

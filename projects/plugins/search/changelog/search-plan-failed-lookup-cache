@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Avoid requesting the Search plan from WordPress.com on every page load after a failed lookup.
