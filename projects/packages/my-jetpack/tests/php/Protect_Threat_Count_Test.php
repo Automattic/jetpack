@@ -5,7 +5,6 @@ namespace Automattic\Jetpack\My_Jetpack;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Protect\Dashboard_Threats;
-use Automattic\Jetpack\Protect_Models\Status_Model;
 use Automattic\Jetpack\Protect_Status\Plan;
 use Automattic\Jetpack\Protect_Status\Scan_Status;
 use Automattic\Jetpack\Protect_Status\Status;
@@ -114,8 +113,6 @@ class Protect_Threat_Count_Test extends TestCase {
 	}
 
 	public function test_is_null_without_a_stored_status() {
-		Status::$status = new Status_Model( array( 'error' => true ) );
-
 		$data = $this->get_data();
 
 		$this->assertNull( $data['threatCount'] );
