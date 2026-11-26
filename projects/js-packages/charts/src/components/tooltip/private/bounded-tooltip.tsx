@@ -5,6 +5,7 @@ import type { TooltipBoxProps } from '../tooltip-box';
 import type { ReactNode } from 'react';
 
 type Bounds = { left: number; top: number; right: number; bottom: number };
+type PlacementInputs = readonly [ number, number, number, number, ReactNode, TooltipPlacement ];
 type Size = { width: number; height: number };
 
 export type BoundedTooltipProps = Omit< TooltipBoxProps, 'children' > & {
@@ -173,9 +174,9 @@ export const BoundedTooltip = ( {
 	const [ position, setPosition ] = useState< {
 		x: number;
 		y: number;
-		inputs: unknown[];
+		inputs: PlacementInputs;
 	} | null >( null );
-	const inputs = [ left, top, offsetLeft, offsetTop, children, placement ];
+	const inputs: PlacementInputs = [ left, top, offsetLeft, offsetTop, children, placement ];
 	// A position fits only the content and anchor it was measured for; left in place, newer content can overflow a scrolling card.
 	const placed =
 		position && position.inputs.every( ( input, index ) => Object.is( input, inputs[ index ] ) )
