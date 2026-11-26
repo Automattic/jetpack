@@ -1,6 +1,6 @@
 <?php
 /**
- * Enable the WebMCP origin trial for Automatticians in the block editors.
+ * Enable the WebMCP origin trial in the block editors.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -12,10 +12,6 @@ add_action(
 	static function () {
 		$screen = get_current_screen();
 		if ( ! $screen || ! in_array( $screen->base, array( 'post', 'site-editor' ), true ) || ! $screen->is_block_editor() ) {
-			return;
-		}
-
-		if ( ! function_exists( 'is_automattician' ) || ! is_automattician() ) {
 			return;
 		}
 
