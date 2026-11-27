@@ -28,6 +28,7 @@ import {
 	AI_TOOL_CHAT_URLS,
 	buildWizardPayload,
 	canContinue,
+	connectedFooterLead,
 	dashboardIntegration,
 	firstScreen,
 	footerExit,
@@ -38,7 +39,7 @@ import {
 	isLastStep,
 	isReadOnlyAccess,
 	MCP_SETTINGS_URL,
-	TOTAL_STEPS,
+	progressFraction,
 	viewedStep,
 	type AiTool,
 	type WizardState,
@@ -144,7 +145,9 @@ export function Wizard( {
 	// After a failed attempt, "Allow full access" opens the MCP settings instead.
 	const [ allowFullAccessFailed, setAllowFullAccessFailed ] = useState( false );
 	const [ promptCopied, setPromptCopied ] = useState( false );
+	const [ otherConnected, setOtherConnected ] = useState( false );
 	const readOnly = readOnlyAccess && connectedTools.length > 0;
+	const footerLead = connectedFooterLead( connectedTools, otherConnected );
 	// The treatment opens on "Guide me" or "Build with AI" before the goals, unless the URL opened the AI tool view.
 	const [ choosing, setChoosing ] = useState( first === 'setup_choice' );
 	const [ setupChoice, setSetupChoice ] = useState< SetupChoice | null >( null );
@@ -195,8 +198,10 @@ export function Wizard( {
 		} );
 	}, [] );
 
-	// Connected is recorded once per tool, when it can build: on connecting, or once full access is allowed.
+	// Connected is recorded once per tool, another AI tool included, when it can build: on connecting, or once full
+	// access is allowed.
 	const connectedTracked = useRef< AiTool[] >( [] );
+	const otherConnectedTracked = useRef( false );
 	useEffect( () => {
 		if ( readOnly ) {
 			return;
@@ -211,7 +216,38 @@ export function Wizard( {
 					already_connected: alreadyConnected.current.includes( tool ),
 				} );
 			} );
-	}, [ readOnly, connectedTools, reportedVariation ] );
+		if ( otherConnected && ! otherConnectedTracked.current ) {
+			otherConnectedTracked.current = true;
+			trackWizardMcpConnectedViewed( {
+				goals_variation: reportedVariation,
+				integration: 'other',
+				already_connected: false,
+			} );
+		}
+	}, [ readOnly, connectedTools, otherConnected, reportedVariation ] );
+
+	const handleOtherConnected = useCallback( () => setOtherConnected( true ), [] );
+
+	// A connection removes the focused Connect or Copy prompt and swaps the footer, so focus would fall to the dialog.
+	useEffect( () => {
+		const doc = aiToolTitleRef.current?.ownerDocument;
+		const win = doc?.defaultView;
+		if ( ! showAiTool || footerLead === null || ! doc || ! win ) {
+			return;
+		}
+		// A frame later, so it runs after Base UI moves focus back to the dialog.
+		const frame = win.requestAnimationFrame( () => {
+			const active = doc.activeElement;
+			if ( active && active !== doc.body && ! active.matches( '[role="dialog"]' ) ) {
+				return;
+			}
+			const actions = doc.querySelectorAll< HTMLElement >(
+				'.ai-launchpad-wizard__connected-footer a[href], .ai-launchpad-wizard__connected-footer button'
+			);
+			actions[ actions.length - 1 ]?.focus();
+		} );
+		return () => win.cancelAnimationFrame( frame );
+	}, [ showAiTool, footerLead, connectedTools, otherConnected ] );
 
 	useEffect( () => {
 		if ( readOnly ) {
@@ -374,9 +410,8 @@ export function Wizard( {
 					<div className="ai-launchpad-wizard__progress" aria-hidden="true">
 						<div
 							className="ai-launchpad-wizard__progress-bar"
-							// The AI tool view ends its path, so it fills the bar.
 							style={ {
-								width: `${ ( showAiTool ? 1 : ( step + 1 ) / TOTAL_STEPS ) * 100 }%`,
+								width: `${ progressFraction( step, showAiTool, footerLead !== null ) * 100 }%`,
 							} }
 						/>
 					</div>
@@ -400,6 +435,8 @@ export function Wizard( {
 							onReadOnlyChange={ handleReadOnlyChange }
 							allowFullAccessFailed={ allowFullAccessFailed }
 							onPromptCopied={ () => setPromptCopied( true ) }
+							otherConnected={ otherConnected }
+							onOtherConnected={ handleOtherConnected }
 						/>
 					) }
 					{ step === 0 && ! showAiTool && ! choosing && (
@@ -425,16 +462,17 @@ export function Wizard( {
 						/>
 					) }
 				</Dialog.Content>
-				{ showAiTool && connectedTools.length > 0 ? (
-					// With read-only access, allowing full access leads; with one AI connected, opening it does; with
-					// both, the dashboard does.
+				{ showAiTool && footerLead !== null ? (
+					// With read-only access, allowing full access leads; with one AI connected, opening it does;
+					// otherwise the dashboard does.
 					<Stack
 						render={ <Dialog.Footer /> }
+						className="ai-launchpad-wizard__connected-footer"
 						align="center"
-						justify={ readOnly || connectedTools.length === 1 ? 'space-between' : 'flex-end' }
+						justify={ readOnly || footerLead !== 'dashboard' ? 'space-between' : 'flex-end' }
 						gap="md"
 					>
-						{ readOnly || connectedTools.length === 1 ? (
+						{ readOnly || footerLead !== 'dashboard' ? (
 							<>
 								<Button variant="minimal" onClick={ handleGoToDashboard }>
 									{ aiCopy.goToDashboard }

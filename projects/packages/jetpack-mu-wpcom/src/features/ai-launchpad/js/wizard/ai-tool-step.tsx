@@ -20,11 +20,27 @@ import {
 	isReadOnlyAccess,
 	MCP_POLL_TIMEOUT_MS,
 	mcpPollSchedule,
+	otherConnectionCount,
+	otherToolConnected,
+	otherWaitBaseline,
 	rewaitOnReturn,
+	rewaitOtherOnReturn,
 	type AiTool,
 	type GoalsVariation,
 } from './lib.ts';
 import type { Ref } from 'react';
+
+const MCP_CONNECTIONS_PATH = '/wpcom/v2/ai-launchpad/mcp-connections';
+
+// Also asks for the count of other AI tools, an extra lookup on Simple.
+const MCP_CONNECTIONS_WITH_OTHERS_PATH = `${ MCP_CONNECTIONS_PATH }?other_connections=1`;
+
+/** The GET /mcp-connections answer. */
+interface McpConnections {
+	connections?: string[];
+	access_level?: string | null;
+	other_connections?: unknown;
+}
 
 interface Props {
 	// The goals_variation the view's events report, or null to leave it out.
@@ -45,6 +61,10 @@ interface Props {
 	allowFullAccessFailed: boolean;
 	// Called each time the prompt for another AI tool is copied.
 	onPromptCopied: () => void;
+	// Whether another AI tool connected since its prompt was copied.
+	otherConnected: boolean;
+	// Called once another AI tool's new connection shows up.
+	onOtherConnected: () => void;
 	titleRef?: Ref< HTMLHeadingElement >;
 }
 
@@ -65,6 +85,8 @@ interface Props {
  * @param props.onReadOnlyChange      - Called on each check with the account's MCP access level.
  * @param props.allowFullAccessFailed - Whether allowing full access from the wizard failed.
  * @param props.onPromptCopied        - Called each time the prompt for another AI tool is copied.
+ * @param props.otherConnected        - Whether another AI tool connected since its prompt was copied.
+ * @param props.onOtherConnected      - Called once another AI tool's new connection shows up.
  * @param props.titleRef              - Ref to the view title, focused when the view opens.
  * @return The AI tool view.
  */
@@ -78,6 +100,8 @@ export default function AiToolStep( {
 	onReadOnlyChange,
 	allowFullAccessFailed,
 	onPromptCopied,
+	otherConnected,
+	onOtherConnected,
 	titleRef,
 }: Props ) {
 	const id = useId();
@@ -92,6 +116,14 @@ export default function AiToolStep( {
 	const [ copiedAt, setCopiedAt ] = useState( 0 );
 	// The tools that were connected before the view opened.
 	const [ existingTools, setExistingTools ] = useState< AiTool[] >( [] );
+	// Whether a copy is waiting for another AI tool to connect.
+	const [ waitingForOther, setWaitingForOther ] = useState( false );
+	// The count to beat while waiting: the first count read after the copy, lowered if it drops.
+	const [ otherBaseline, setOtherBaseline ] = useState< number | null >( null );
+	// When the prompt was last copied for a wait, so each copy restarts the wait's timeout.
+	const [ otherWaitStartedAt, setOtherWaitStartedAt ] = useState( 0 );
+	// The count the last timed-out wait for another AI tool started from.
+	const [ otherTimedOut, setOtherTimedOut ] = useState< number | null >( null );
 	const tools = [
 		{ tool: 'chatgpt' as const, icon: chatGptIcon },
 		{ tool: 'claude' as const, icon: claudeIcon },
@@ -126,13 +158,16 @@ export default function AiToolStep( {
 			return;
 		}
 		let stopped = false;
-		apiFetch< { connections?: string[]; access_level?: string | null } >( {
-			path: '/wpcom/v2/ai-launchpad/mcp-connections',
+		apiFetch< McpConnections >( {
+			path: MCP_CONNECTIONS_PATH,
 		} )
 			.then( data => {
+				if ( stopped ) {
+					return;
+				}
 				// Newest first from the endpoint, so reverse it to keep the most recent connection last.
 				const existing = ( ( data?.connections ?? [] ) as AiTool[] ).reverse();
-				if ( stopped || ! existing.length ) {
+				if ( ! existing.length ) {
 					return;
 				}
 				onReadOnlyChange( data?.access_level ?? null );
@@ -146,7 +181,7 @@ export default function AiToolStep( {
 	}, [ detectsConnections, onConnected, onReadOnlyChange ] );
 
 	useEffect( () => {
-		if ( ! waitingFor ) {
+		if ( ! waitingFor && ( ! waitingForOther || otherConnected ) ) {
 			return;
 		}
 		let stopped = false;
@@ -157,15 +192,26 @@ export default function AiToolStep( {
 				return;
 			}
 			inFlight = true;
-			apiFetch< { connections?: string[]; access_level?: string | null } >( {
-				path: '/wpcom/v2/ai-launchpad/mcp-connections',
+			apiFetch< McpConnections >( {
+				path: waitingForOther ? MCP_CONNECTIONS_WITH_OTHERS_PATH : MCP_CONNECTIONS_PATH,
 			} )
 				.then( data => {
 					if ( stopped ) {
 						return;
 					}
-					const readOnlyAccess = isReadOnlyAccess( data?.access_level );
 					onReadOnlyChange( data?.access_level ?? null );
+					const count = otherConnectionCount( data?.other_connections );
+					if ( waitingForOther && otherToolConnected( otherBaseline, count ) ) {
+						onOtherConnected();
+						setWaitingForOther( false );
+						setOtherBaseline( null );
+					} else if ( waitingForOther ) {
+						setOtherBaseline( current => otherWaitBaseline( current, count ) );
+					}
+					if ( ! waitingFor ) {
+						return;
+					}
+					const readOnlyAccess = isReadOnlyAccess( data?.access_level );
 					const newTools = findNewConnections(
 						data?.connections ?? [],
 						clicked,
@@ -197,10 +243,17 @@ export default function AiToolStep( {
 				check();
 			}
 		}, schedule.intervalMs );
-		// Measured from the latest click, since each click re-runs this effect.
+		// Restarts whenever this effect re-runs: a Connect click, a copy, or a change in what is waited for.
 		const timeout = setTimeout( () => {
-			setTimedOut( waitingFor );
-			setWaitingFor( null );
+			if ( waitingFor ) {
+				setTimedOut( waitingFor );
+				setWaitingFor( null );
+			}
+			if ( waitingForOther ) {
+				setOtherTimedOut( otherBaseline );
+				setWaitingForOther( false );
+				setOtherBaseline( null );
+			}
 		}, MCP_POLL_TIMEOUT_MS );
 		document.addEventListener( 'visibilitychange', onVisibilityChange );
 		if ( schedule.onFocus ) {
@@ -217,7 +270,19 @@ export default function AiToolStep( {
 			document.removeEventListener( 'visibilitychange', onVisibilityChange );
 			window.removeEventListener( 'focus', check );
 		};
-	}, [ waitingFor, pollsRemotely, clicked, connected, onConnected, onReadOnlyChange ] );
+	}, [
+		waitingFor,
+		waitingForOther,
+		otherBaseline,
+		otherWaitStartedAt,
+		otherConnected,
+		pollsRemotely,
+		clicked,
+		connected,
+		onConnected,
+		onOtherConnected,
+		onReadOnlyChange,
+	] );
 
 	// Like Copy prompt on /me/mcp, the label goes back after a moment.
 	useEffect( () => {
@@ -257,6 +322,54 @@ export default function AiToolStep( {
 			window.removeEventListener( 'focus', rewait );
 		};
 	}, [ readOnly, waitingFor, connected, timedOut, pollsRemotely ] );
+
+	useEffect( () => {
+		const baseline = waitingForOther
+			? null
+			: rewaitOtherOnReturn( { timedOut: otherTimedOut, otherConnected, pollsRemotely } );
+		if ( baseline === null ) {
+			return;
+		}
+		const rewait = () => {
+			setOtherBaseline( baseline );
+			setWaitingForOther( true );
+		};
+		const onVisibilityChange = () => {
+			if ( document.visibilityState === 'visible' ) {
+				rewait();
+			}
+		};
+		document.addEventListener( 'visibilitychange', onVisibilityChange );
+		window.addEventListener( 'focus', rewait );
+		return () => {
+			document.removeEventListener( 'visibilitychange', onVisibilityChange );
+			window.removeEventListener( 'focus', rewait );
+		};
+	}, [ waitingForOther, otherTimedOut, otherConnected, pollsRemotely ] );
+
+	// The level is account-wide, so read-only access shown for ChatGPT or Claude applies to the other tool too.
+	let otherDescription: string = copy.otherToolDescription;
+	let otherStatus = '';
+	if ( otherConnected ) {
+		otherDescription = readOnly ? copy.readOnlyDescription : copy.connectedToAccount;
+		otherStatus = readOnly ? copy.readOnly : copy.connected;
+	}
+
+	// Waits even when the count can't be read yet: the first count read becomes the baseline. A later copy keeps the
+	// lower count, so a tool connected after the first copy still counts.
+	const startOtherWait = () => {
+		setWaitingForOther( true );
+		setOtherTimedOut( null );
+		setOtherWaitStartedAt( Date.now() );
+		apiFetch< McpConnections >( { path: MCP_CONNECTIONS_WITH_OTHERS_PATH } )
+			.then( data => {
+				const count = otherConnectionCount( data?.other_connections );
+				if ( count !== null ) {
+					setOtherBaseline( current => otherWaitBaseline( current, count ) );
+				}
+			} )
+			.catch( () => {} );
+	};
 
 	return (
 		<Stack direction="column" gap="lg">
@@ -380,27 +493,44 @@ export default function AiToolStep( {
 							id={ `${ id }-other-description` }
 							className="ai-launchpad-wizard__card-description"
 						>
-							{ copy.otherToolDescription }
+							{ otherDescription }
 						</Text>
 					</Stack>
-					<Button
-						variant="outline"
-						aria-describedby={ `${ id }-other-title ${ id }-other-description` }
-						onClick={ () => {
-							navigator.clipboard
-								?.writeText( CONNECT_YOURSELF_PROMPT )
-								.then( () => {
-									trackWizardMcpPromptCopied( { goals_variation: variation } );
-									setCopiedAt( Date.now() );
-									speak( copy.copied );
-									onPromptCopied();
-								} )
-								.catch( () => {} );
-						} }
-					>
-						{ copiedAt ? copy.copied : copy.copyPrompt }
-						<Icon icon={ copySmall } />
-					</Button>
+					<span className="ai-launchpad-wizard__ai-tool-action">
+						<Text
+							variant="body-sm"
+							role="status"
+							className={
+								'ai-launchpad-wizard__ai-tool-status' +
+								( otherConnected && ! readOnly ? ' is-connected' : '' )
+							}
+						>
+							{ otherStatus }
+						</Text>
+						{ ! otherConnected && (
+							<Button
+								variant="outline"
+								aria-describedby={ `${ id }-other-title ${ id }-other-description` }
+								onClick={ () => {
+									navigator.clipboard
+										?.writeText( CONNECT_YOURSELF_PROMPT )
+										.then( () => {
+											trackWizardMcpPromptCopied( { goals_variation: variation } );
+											setCopiedAt( Date.now() );
+											speak( copy.copied );
+											onPromptCopied();
+											if ( detectsConnections ) {
+												startOtherWait();
+											}
+										} )
+										.catch( () => {} );
+								} }
+							>
+								{ copiedAt ? copy.copied : copy.copyPrompt }
+								<Icon icon={ copySmall } />
+							</Button>
+						) }
+					</span>
 				</div>
 			</Stack>
 		</Stack>
