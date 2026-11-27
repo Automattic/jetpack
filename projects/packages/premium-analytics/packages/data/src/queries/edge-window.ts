@@ -40,3 +40,28 @@ export function isEdgeWindowTooLong( params: Pick< ReportParams, 'from' | 'to' >
 		( Date.parse( end ) - Date.parse( start ) ) / MS_PER_DAY > EDGE_ROLLUP_MAX_DAYS
 	);
 }
+
+/** A report window, plus the page the edge templates count when it is scoped to one post. */
+export type EdgeScopeParams = ReportParams & {
+	/** The page's path, as the edge logs it: no scheme or host. */
+	url?: string;
+};
+
+/**
+ * The path the edge logs a page's requests under, from the page's permalink.
+ *
+ * @param permalink - The page's public URL.
+ * @return The path and query string, or undefined when the permalink cannot be read.
+ */
+export function toEdgePath( permalink: string | undefined ): string | undefined {
+	if ( ! permalink ) {
+		return undefined;
+	}
+
+	try {
+		const { pathname, search } = new URL( permalink );
+		return pathname + search;
+	} catch {
+		return undefined;
+	}
+}
