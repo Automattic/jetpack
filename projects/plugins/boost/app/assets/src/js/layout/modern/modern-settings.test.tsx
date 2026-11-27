@@ -37,9 +37,7 @@ jest.mock( '../../pages/settings/settings', () => {
 } );
 jest.mock( '$features/notice/manager', () => ( {
 	__esModule: true,
-	default: ( { modern }: { modern?: boolean } ) => (
-		<div>{ modern ? 'modern notices' : 'legacy notices' }</div>
-	),
+	default: () => <div>notices</div>,
 } ) );
 
 describe( 'ModernSettings', () => {
@@ -47,7 +45,7 @@ describe( 'ModernSettings', () => {
 		render( <ModernSettings /> );
 
 		expect( screen.getByText( 'settings body' ) ).toBeTruthy();
-		expect( screen.getByText( 'modern notices' ) ).toBeTruthy();
+		expect( screen.getByText( 'notices' ) ).toBeTruthy();
 	} );
 
 	it( 'hides itself without unmounting while a redirect is pending', () => {

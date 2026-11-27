@@ -21,7 +21,7 @@ const ModernSettings = ( { hidden = false, active = true }: ModernSettingsProps 
 			<div className={ clsx( 'jb-modern-settings', styles.settings ) } hidden={ hidden }>
 				<Settings active={ active && ! hidden } />
 
-				<NoticeManager modern />
+				<NoticeManager />
 			</div>
 			<div className="jb-modern-settings-popovers">
 				<Popover.Slot />
