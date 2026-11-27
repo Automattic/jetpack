@@ -140,7 +140,7 @@ const useConnectionErrorsNotice = (
 								render={ <ul /> }
 								direction="column"
 								gap="xs"
-								style={ { margin: 0, paddingInlineStart: 0 } }
+								style={ { paddingInlineStart: 0 } }
 							>
 								{ group.detailLines.map( line => (
 									<Text render={ <li /> } key={ line.key } variant="body-sm">
