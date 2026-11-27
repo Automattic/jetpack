@@ -727,6 +727,10 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 */
 	#[DataProvider( 'provide_built_in_section_layouts' )]
 	public function test_built_in_sections_serve_their_declared_layout( $id, $declared ) {
+		// Every AI widget is gated on the AI traffic surfaces, so without them the AI section would serve nothing to compare.
+		$this->set_admin_user();
+		add_filter( 'jetpack_feature_flag_enabled_' . AI_Traffic::FLAG, '__return_true' );
+		add_filter( AI_Traffic::AVAILABLE_FILTER, '__return_true' );
 		register_default_dashboard_sections();
 
 		$section = get_registered_dashboard_section( DASHBOARD_NAME, $id );
@@ -743,8 +747,13 @@ class Dashboard_Section_Test extends BaseTestCase {
 			)
 		);
 
-		$this->assertNotEmpty( $expected );
-		$this->assertSame( array_column( $expected, 'uuid' ), array_column( $section->get_default_layout(), 'uuid' ), 'A section serves its declared layout minus what the site cannot show.' );
+		try {
+			$this->assertNotEmpty( $expected );
+			$this->assertSame( array_column( $expected, 'uuid' ), array_column( $section->get_default_layout(), 'uuid' ), 'A section serves its declared layout minus what the site cannot show.' );
+		} finally {
+			remove_all_filters( AI_Traffic::AVAILABLE_FILTER );
+			remove_all_filters( 'jetpack_feature_flag_enabled_' . AI_Traffic::FLAG );
+		}
 	}
 
 	/**
