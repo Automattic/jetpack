@@ -123,6 +123,34 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
+	 * Runs $callback on an Atomic or self-hosted site, under a locale of its own so the definitions are rebuilt.
+	 *
+	 * @param bool     $is_atomic Whether the site is on WordPress.com Atomic.
+	 * @param string   $locale    A locale no other test uses.
+	 * @param callable $callback  What to run.
+	 * @return mixed What $callback returns.
+	 */
+	private function on_host( $is_atomic, $locale, callable $callback ) {
+		if ( $is_atomic ) {
+			Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
+			Constants::set_constant( 'ATOMIC_CLIENT_ID', 123 );
+			Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/tmp/wpcomsh/wpcomsh.php' );
+		}
+		StatusCache::clear();
+		$filter = static fn() => $locale;
+		add_filter( 'locale', $filter );
+		try {
+			return $callback();
+		} finally {
+			remove_filter( 'locale', $filter );
+			Constants::clear_single_constant( 'ATOMIC_SITE_ID' );
+			Constants::clear_single_constant( 'ATOMIC_CLIENT_ID' );
+			Constants::clear_single_constant( 'WPCOMSH__PLUGIN_FILE' );
+			StatusCache::clear();
+		}
+	}
+
+	/**
 	 * Every entry carries the fields a feature card needs.
 	 */
 	public function test_every_feature_carries_the_required_fields() {
@@ -1187,23 +1215,15 @@ class Main_Features_Test extends TestCase {
 	}
 
 	public function test_activity_log_names_no_bundle_on_wpcom() {
-		Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
-		Constants::set_constant( 'ATOMIC_CLIENT_ID', 123 );
-		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/tmp/wpcomsh/wpcomsh.php' );
-		StatusCache::clear();
-		$locale = static function () {
-			return 'activity_log_atomic';
-		};
-		add_filter( 'locale', $locale );
-		$this->set_pro_available( true );
-
-		$features = array_column( Main_Features::get_features(), null, 'slug' );
-
-		remove_filter( 'locale', $locale );
-		Constants::clear_single_constant( 'ATOMIC_SITE_ID' );
-		Constants::clear_single_constant( 'ATOMIC_CLIENT_ID' );
-		Constants::clear_single_constant( 'WPCOMSH__PLUGIN_FILE' );
-		StatusCache::clear();
+		$features = $this->on_host(
+			true,
+			'activity_log_atomic',
+			function () {
+				// After the locale switch: the products cache is per locale.
+				$this->set_pro_available( true );
+				return array_column( Main_Features::get_features(), null, 'slug' );
+			}
+		);
 		$this->assertSame( array( 'Filter events by activity type and date range' ), $features['activity-log']['paid_highlights'] );
 	}
 
