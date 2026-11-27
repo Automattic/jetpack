@@ -206,6 +206,31 @@ describe( 'Generate Critical CSS', () => {
 			);
 		} );
 
+		it( 'Keeps the search count steady as nesting increases without layer statements', () => {
+			jest.isolateModules( () => {
+				const find = jest.spyOn( require( 'css-tree' ), 'find' );
+				try {
+					const isolatedDedupe = require( '../../build/deduplicate-css.js' );
+					const [ shallowSearches, deepSearches ] = [ 16, 32 ].map( depth => {
+						const css = '@media screen{'.repeat( depth ) + '.top{color:red}' + '}'.repeat( depth );
+						find.mockClear();
+						expect( isolatedDedupe.deduplicateCss( css ) ).toBe( css );
+						return find.mock.calls.length;
+					} );
+					expect( find ).toHaveBeenCalled();
+					expect( deepSearches ).toBe( shallowSearches );
+				} finally {
+					find.mockRestore();
+				}
+			} );
+		} );
+
+		it( 'Moves a layer statement ahead of style rules in its group', () => {
+			expect(
+				deduplicateCss( '@media screen{.top{color:red}@layer alpha;.top{color:blue}}' )
+			).toBe( '@media screen{@layer alpha;.top{color:red}.top{color:blue}}' );
+		} );
+
 		it( 'Handles long layer names and conditional preludes without repeating context keys per rule', () => {
 			const rules = Array.from( { length: 5000 }, ( _, i ) => `.x${ i }{color:red}` ).join( '' );
 			for ( const context of [

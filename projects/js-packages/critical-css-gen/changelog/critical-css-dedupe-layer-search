@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Speed up deduplication for deeply nested stylesheets without cascade layers.
