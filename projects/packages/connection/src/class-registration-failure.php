@@ -359,8 +359,8 @@ class Registration_Failure {
 	/**
 	 * Fingerprint of the site addresses the stored failure refers to.
 	 *
-	 * Not Urls::site_url(): it follows the current request's scheme and writes its scheme
-	 * history on every call, so HTTP and HTTPS requests would disagree.
+	 * Not Urls::site_url(): it follows the current request's scheme and, on web requests,
+	 * writes its scheme history, so HTTP and HTTPS requests would disagree.
 	 *
 	 * @return string
 	 */
