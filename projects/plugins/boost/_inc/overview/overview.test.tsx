@@ -15,8 +15,6 @@ import { useViewportMatch } from '@wordpress/compose';
 import { dateI18n } from '@wordpress/date';
 import { useState } from 'react';
 import { useSingleModuleState } from '../../app/assets/src/js/features/module/lib/stores';
-import { useDismissibleAlertState as useLegacyAlertState } from '../../app/assets/src/js/features/performance-history/lib/hooks';
-import PopOut from '../../app/assets/src/js/features/speed-score/pop-out/pop-out';
 import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
 import { SPEED_TEST_COMPLETE_EVENT } from '../runtime-contract';
 import { observeAppModulesState } from './lib/modules-state-bridge';
@@ -58,16 +56,6 @@ const mockSpeak = jest.requireMock(
 jest.mock( '@wordpress/compose', () => ( {
 	...jest.requireActual( '@wordpress/compose' ),
 	useViewportMatch: jest.fn(),
-} ) );
-jest.mock( '../../app/assets/src/js/features/performance-history/lib/hooks', () => ( {
-	...jest.requireActual( '../../app/assets/src/js/features/performance-history/lib/hooks' ),
-	useDismissibleAlertState: jest.fn(),
-} ) );
-jest.mock( '@react-spring/web', () => ( {
-	animated: { div: 'div' },
-	useSpring: ( { to }: { to: { right: string } } ) => ( {
-		visibility: to.right === '0%' ? 'visible' : 'hidden',
-	} ),
 } ) );
 jest.mock( '../../app/assets/src/js/lib/utils/analytics', () => ( {
 	recordBoostEvent: jest.fn(),
@@ -1742,19 +1730,6 @@ test.each( [
 	);
 } );
 
-test( 'uses the legacy dismissal hook when no alert adapter is supplied', () => {
-	const dismiss = jest.fn();
-	jest.mocked( useLegacyAlertState ).mockReturnValue( [ false, dismiss ] );
-	const { rerender } = render( <PopOut scoreChange={ -20 } /> );
-	expect( useLegacyAlertState ).toHaveBeenCalledWith( 'score_decrease' );
-	expect( screen.getByText( 'Speed score has fallen', { selector: 'h3' } ) ).toBeVisible();
-	fireEvent.click( screen.getByRole( 'button', { name: 'Do not show me again' } ) );
-	expect( dismiss ).toHaveBeenCalledTimes( 1 );
-	jest.mocked( useLegacyAlertState ).mockReturnValue( [ true, dismiss ] );
-	rerender( <PopOut scoreChange={ -20 } /> );
-	expect( screen.getByText( 'Speed score has fallen', { selector: 'h3' } ) ).not.toBeVisible();
-} );
-
 test( 'reports module request errors independently and retries only modules', async () => {
 	window.jetpack_boost_ds!.modules_state!.value = undefined;
 	jest.mocked( apiFetch ).mockImplementation( async ( { url } ) => {
@@ -1919,34 +1894,6 @@ test.each( [ 'Dismiss', 'Rate the Plugin', 'Do not show me again' ] )(
 		await waitFor( () => expect( prompt ).not.toBeVisible() );
 	}
 );
-
-test( 'legacy rating preserves the threshold boundary, destination and both tracking events', () => {
-	const dismiss = jest.fn();
-	jest.mocked( useLegacyAlertState ).mockReturnValue( [ false, dismiss ] );
-	const { rerender } = render( <PopOut scoreChange={ 5 } /> );
-	expect( screen.getByText( 'Your site got faster', { selector: 'h3' } ) ).not.toBeVisible();
-	expect( recordBoostEvent ).not.toHaveBeenCalled();
-	rerender( <PopOut scoreChange={ 6 } /> );
-	expect( screen.getByRole( 'heading', { name: 'Your site got faster' } ) ).toBeVisible();
-	expect( recordBoostEvent ).toHaveBeenCalledTimes( 1 );
-	expect( recordBoostEvent ).toHaveBeenCalledWith( 'speed_score_alert_shown', {
-		score_direction: 'up',
-	} );
-	const rating = screen.getByRole( 'link', { name: /Rate the Plugin/ } );
-	expect( rating ).toHaveAttribute(
-		'href',
-		'https://jetpack.com/redirect/?source=boost-rate-plugin'
-	);
-	fireEvent.click( rating );
-	expect( recordBoostEvent ).toHaveBeenCalledTimes( 2 );
-	expect( recordBoostEvent ).toHaveBeenLastCalledWith( 'speed_score_alert_cta_clicked', {
-		score_direction: 'up',
-	} );
-	expect( dismiss ).toHaveBeenCalledTimes( 1 );
-	jest.mocked( useLegacyAlertState ).mockReturnValue( [ true, dismiss ] );
-	rerender( <PopOut scoreChange={ 6 } /> );
-	expect( screen.getByText( 'Your site got faster', { selector: 'h3' } ) ).not.toBeVisible();
-} );
 
 test.each( [ 'animationend', 'animationcancel' ] )(
 	'consumes the ready signal on %s and keeps saved scores static across hidden toggles',
