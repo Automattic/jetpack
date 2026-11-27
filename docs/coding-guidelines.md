@@ -84,6 +84,8 @@ For more information on how to use `$$next-version$$`, please see the [packages 
 
 ## Translations
 
+- Adding, changing or removing the context (`_x()`) of a string that is already translated, or changing its singular text (as turning `__( '%d items' )` into `_n( '%d item', '%d items', $n )` does), makes GlotPress import it as a new string. Its translations stop shipping until a translator re-approves them, so do it only for new strings or to fix a real translation problem.
+
 ### PHP
 
 - Where it applies, make strings available for translation.
