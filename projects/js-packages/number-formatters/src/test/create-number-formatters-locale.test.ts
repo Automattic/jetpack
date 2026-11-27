@@ -31,6 +31,61 @@ describe( 'createNumberFormatters() - locale resolution/fallback', () => {
 		expect( result ).toBe( '1\u202f234\u202f567' );
 	} );
 
+	it.each( [
+		[ 'zh_TW', 'keeps the region, so the compact unit is Traditional', 1620000, '162萬' ],
+		[
+			'pt_PT_ao90',
+			'drops a WordPress variant Intl does not know',
+			1234567,
+			'1\u00a0234\u00a0567',
+		],
+		[ 'de_CH_informal', 'keeps the region under a variant Intl accepts', 1234567, "1'234'567" ],
+	] )( 'resolves the WordPress locale %s: %s', ( locale, _why, value, expected ) => {
+		mockGetSettings.mockReturnValue( { l10n: { locale } } );
+
+		const numberFormatters = createNumberFormatters();
+
+		expect(
+			value >= 1000000 && expected.length < 6
+				? numberFormatters.formatNumberCompact( value, { decimals: 0 } )
+				: numberFormatters.formatNumber( value )
+		).toBe( expected );
+	} );
+
+	it( 'keeps a variant such as POSIX as given, so its conventions apply and forceLatin can still follow', () => {
+		const numberFormatters = createNumberFormatters();
+		numberFormatters.setLocale( 'en-US-posix' );
+
+		// POSIX groups nothing; the canonical `en-US-u-va-posix` would have fallen back to `en`.
+		expect( numberFormatters.formatNumber( 1234567.5, { decimals: 1 } ) ).toBe( '1234567.5' );
+	} );
+
+	it( 'resolves a locale given to setLocale() the same way', () => {
+		const numberFormatters = createNumberFormatters();
+		numberFormatters.setLocale( 'zh_TW' );
+
+		expect( numberFormatters.formatNumberCompact( 1620000, { decimals: 0 } ) ).toBe( '162萬' );
+	} );
+
+	it( 'falls through a WordPress locale Intl does not support at all', () => {
+		mockGetSettings.mockReturnValue( { l10n: { locale: 'ary' } } );
+
+		const nav = Object.getPrototypeOf( global.window.navigator );
+		const originalLanguageDescriptor = Object.getOwnPropertyDescriptor( nav, 'language' );
+		try {
+			Object.defineProperty( nav, 'language', {
+				...originalLanguageDescriptor,
+				get: () => 'de-DE',
+			} );
+
+			const numberFormatters = createNumberFormatters();
+
+			expect( numberFormatters.formatNumber( 1234567 ) ).toBe( '1.234.567' );
+		} finally {
+			Object.defineProperty( nav, 'language', originalLanguageDescriptor! );
+		}
+	} );
+
 	it( 'should fall back to browser locale when WordPress locale is not set', () => {
 		mockGetSettings.mockReturnValue( { l10n: { locale: '' } } );
 
