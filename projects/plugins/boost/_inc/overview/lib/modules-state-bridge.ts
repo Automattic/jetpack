@@ -11,8 +11,8 @@ export type ModulesStateChange = { key: string; data: unknown };
 export const ONBOARDING_SAVE_META = { dataSyncKey: 'getting_started' };
 export const MODULES_SAVE_META = { dataSyncKey: 'modules_state' };
 
-// Register in the legacy bundle, whose Data Sync cache is separate from the route bundle's cache.
-export function observeLegacyModulesState( client: QueryClient ) {
+// Register in the app bundle, whose Data Sync cache is separate from the route bundle's cache.
+export function observeAppModulesState( client: QueryClient ) {
 	let modulesHeld = false;
 	const isModulesSaving = () =>
 		client.isMutating( {
@@ -55,8 +55,8 @@ export function observeLegacyModulesState( client: QueryClient ) {
 	};
 }
 
-// Relays getting_started to the route bundle, which cannot read the legacy bundle's Data Sync cache.
-export function observeLegacyOnboarding( client: QueryClient ) {
+// Relays getting_started to the route bundle, which cannot read the app bundle's Data Sync cache.
+export function observeAppOnboarding( client: QueryClient ) {
 	let onboardingHeld = false;
 	const isOnboardingSaving = () =>
 		client.isMutating( {

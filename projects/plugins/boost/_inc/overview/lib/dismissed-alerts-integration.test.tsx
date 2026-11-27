@@ -1,14 +1,14 @@
-import { queryClient as legacyClient } from '@automattic/jetpack-react-data-sync-client';
+import { queryClient as appClient } from '@automattic/jetpack-react-data-sync-client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { createElement, type PropsWithChildren } from 'react';
-import { useDismissibleAlertState as useLegacyDismissal } from '../../../app/assets/src/js/features/performance-history/lib/hooks';
+import { useDismissibleAlertState as useAppDismissal } from '../../../app/assets/src/js/features/performance-history/lib/hooks';
 import { useDismissibleAlertState as useOverviewDismissal } from './use-performance-history';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
 
-it( 'preserves Overview dismissals when the separate legacy client dismisses a notice', async () => {
+it( 'preserves Overview dismissals when the separate app client dismisses a notice', async () => {
 	const overviewClient = new QueryClient( {
 		defaultOptions: { queries: { retry: false, gcTime: Infinity } },
 	} );
@@ -22,9 +22,9 @@ it( 'preserves Overview dismissals when the separate legacy client dismisses a n
 	}
 	let stored: Record< string, boolean > = { performance_history_fresh_start: true };
 	const writes: { url: string; value: Record< string, boolean > }[] = [];
-	let releaseLegacyWrite: () => void;
-	const legacyWrite = new Promise< void >( resolve => {
-		releaseLegacyWrite = resolve;
+	let releaseAppWrite: () => void;
+	const appWrite = new Promise< void >( resolve => {
+		releaseAppWrite = resolve;
 	} );
 	const respond = ( url: string, method?: string, value?: Record< string, boolean > ) => {
 		if ( method === 'POST' ) {
@@ -44,13 +44,13 @@ it( 'preserves Overview dismissals when the separate legacy client dismisses a n
 	jest.mocked( apiFetch ).mockImplementation( async ( { url, method, data } ) => {
 		const value = ( data as { JSON: Record< string, boolean > } )?.JSON;
 		if ( value?.legacy_minify_notice ) {
-			await legacyWrite;
+			await appWrite;
 		}
 		return respond( url, method, value );
 	} );
 	const fetchSpy = jest.spyOn( globalThis, 'fetch' ).mockImplementation( async ( url, options ) => {
 		if ( options.method === 'POST' ) {
-			await legacyWrite;
+			await appWrite;
 		}
 		const response = respond(
 			String( url ),
@@ -64,8 +64,8 @@ it( 'preserves Overview dismissals when the separate legacy client dismisses a n
 		( { children }: PropsWithChildren ) =>
 			createElement( QueryClientProvider, { client }, children );
 	try {
-		const { result: legacy } = renderHook( () => useLegacyDismissal( 'legacy_minify_notice' ), {
-			wrapper: wrapperFor( legacyClient ),
+		const { result: app } = renderHook( () => useAppDismissal( 'legacy_minify_notice' ), {
+			wrapper: wrapperFor( appClient ),
 		} );
 		const { result: overview } = renderHook( () => useOverviewDismissal( 'score_decrease' ), {
 			wrapper: wrapperFor( overviewClient ),
@@ -73,17 +73,17 @@ it( 'preserves Overview dismissals when the separate legacy client dismisses a n
 		await waitFor( () => expect( overviewClient.isFetching() ).toBe( 0 ) );
 		act( () => overview.current[ 1 ]() );
 		await waitFor( () => expect( stored.score_decrease ).toBe( true ) );
-		expect( legacyClient.getQueryData( [ 'dismissed_alerts' ] ) ).toEqual( {
+		expect( appClient.getQueryData( [ 'dismissed_alerts' ] ) ).toEqual( {
 			performance_history_fresh_start: true,
 		} );
-		act( () => legacy.current[ 1 ]() );
-		await waitFor( () => expect( legacy.current[ 0 ] ).toBe( true ) );
-		expect( legacyClient.getQueryData( [ 'dismissed_alerts' ] ) ).toEqual( {
+		act( () => app.current[ 1 ]() );
+		await waitFor( () => expect( app.current[ 0 ] ).toBe( true ) );
+		expect( appClient.getQueryData( [ 'dismissed_alerts' ] ) ).toEqual( {
 			performance_history_fresh_start: true,
 			legacy_minify_notice: true,
 		} );
-		await act( async () => releaseLegacyWrite() );
-		await waitFor( () => expect( legacyClient.isMutating() ).toBe( 0 ) );
+		await act( async () => releaseAppWrite() );
+		await waitFor( () => expect( appClient.isMutating() ).toBe( 0 ) );
 		expect( writes ).toEqual( [
 			{ url: expect.stringMatching( /\/merge$/ ), value: { score_decrease: true } },
 			{ url: expect.stringMatching( /\/merge$/ ), value: { legacy_minify_notice: true } },
@@ -94,8 +94,8 @@ it( 'preserves Overview dismissals when the separate legacy client dismisses a n
 			legacy_minify_notice: true,
 		} );
 	} finally {
-		releaseLegacyWrite();
-		legacyClient.clear();
+		releaseAppWrite();
+		appClient.clear();
 		overviewClient.clear();
 		fetchSpy.mockRestore();
 		if ( ! hadFetch ) {
@@ -106,7 +106,7 @@ it( 'preserves Overview dismissals when the separate legacy client dismisses a n
 } );
 
 it.each( [ 'success', 'failure', 'both failures' ] )(
-	'queues a second legacy dismissal until the first delayed %s settles',
+	'queues a second app dismissal until the first delayed %s settles',
 	async outcome => {
 		let stored: Record< string, boolean > = { performance_history_fresh_start: true };
 		let releaseFirst: () => void;
@@ -132,22 +132,22 @@ it.each( [ 'success', 'failure', 'both failures' ] )(
 			return { status: 'success', JSON: { ...stored } };
 		} );
 		const wrapper = ( { children }: PropsWithChildren ) =>
-			createElement( QueryClientProvider, { client: legacyClient }, children );
+			createElement( QueryClientProvider, { client: appClient }, children );
 		try {
 			const { result } = renderHook(
 				() => ( {
-					first: useLegacyDismissal( 'score_increase' ),
-					second: useLegacyDismissal( 'legacy_minify_notice' ),
+					first: useAppDismissal( 'score_increase' ),
+					second: useAppDismissal( 'legacy_minify_notice' ),
 				} ),
 				{ wrapper }
 			);
 			act( () => result.current.first[ 1 ]() );
 			await waitFor( () => expect( apiFetch ).toHaveBeenCalledTimes( 1 ) );
 			await act( async () => result.current.second[ 1 ]() );
-			expect( legacyClient.isMutating() ).toBe( 2 );
+			expect( appClient.isMutating() ).toBe( 2 );
 			expect( apiFetch ).toHaveBeenCalledTimes( 1 );
 			await act( async () => releaseFirst() );
-			await waitFor( () => expect( legacyClient.isMutating() ).toBe( 0 ) );
+			await waitFor( () => expect( appClient.isMutating() ).toBe( 0 ) );
 			expect( apiFetch ).toHaveBeenNthCalledWith(
 				2,
 				expect.objectContaining( {
@@ -161,10 +161,10 @@ it.each( [ 'success', 'failure', 'both failures' ] )(
 				...( outcome === 'both failures' ? {} : { legacy_minify_notice: true } ),
 			};
 			expect( stored ).toEqual( expected );
-			expect( legacyClient.getQueryData( [ 'dismissed_alerts' ] ) ).toEqual( expected );
+			expect( appClient.getQueryData( [ 'dismissed_alerts' ] ) ).toEqual( expected );
 		} finally {
 			releaseFirst();
-			legacyClient.clear();
+			appClient.clear();
 			jest.mocked( apiFetch ).mockReset();
 		}
 	}

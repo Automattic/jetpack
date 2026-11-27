@@ -88,8 +88,8 @@ To check for PHP code compatibility run:
 ## Typechecking the modern dashboard
 
 From `projects/plugins/boost`, run `pnpm typecheck` to check the modern dashboard TypeScript using
-[`tsconfig.dashboard.json`](../tsconfig.dashboard.json). This command does not
-check the full legacy application.
+[`tsconfig.dashboard.json`](../tsconfig.dashboard.json). It checks `_inc/`, `routes/` and
+`packages/init/`; code under `app/assets/src/js/` is checked only where the dashboard imports it.
 
 ## Linting Jetpack Boost JavaScript code
 
@@ -116,5 +116,5 @@ Notes:
 
 * The parameters only work for logged-in users with the `manage_options` capability (administrators); for everyone else they are ignored.
 * Handles may only contain alphanumerics, dashes, underscores and dots; anything else is discarded. Case is preserved, so enter the handle exactly as registered (handles are matched case-sensitively).
-* Nothing is persisted — the merged exclude list only applies to the current request. To make an exclusion permanent in the modern dashboard, expand the relevant Concatenate module's **Except** panel, enter the handles, and click **Save**. On the legacy dashboard, use Boost's Advanced Settings.
+* Nothing is persisted — the merged exclude list only applies to the current request. To make an exclusion permanent, expand the relevant Concatenate module's **Except** panel, enter the handles, and click **Save**.
 * This does not interact with Boost's Page Cache: logged-in users are never served cached pages, nor are their page views written to the cache.

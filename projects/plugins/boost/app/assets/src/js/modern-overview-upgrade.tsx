@@ -1,15 +1,15 @@
 import { queryClient } from '@automattic/jetpack-react-data-sync-client';
 import { createRoot } from '@wordpress/element';
 import {
-	observeLegacyModulesState,
-	observeLegacyOnboarding,
+	observeAppModulesState,
+	observeAppOnboarding,
 } from '../../../../_inc/overview/lib/modules-state-bridge';
 import { OVERVIEW_UPGRADE_EVENT } from '../../../../_inc/overview/lib/upgrade-bridge';
 import ModernUpgradeLink from './features/upgrade-cta/modern-upgrade-link';
 import type { UpgradeSlotRequest } from '../../../../_inc/overview/lib/upgrade-bridge';
 
-observeLegacyModulesState( queryClient );
-observeLegacyOnboarding( queryClient );
+observeAppModulesState( queryClient );
+observeAppOnboarding( queryClient );
 
 window.addEventListener( OVERVIEW_UPGRADE_EVENT, ( event: Event ) => {
 	const request = ( event as CustomEvent< UpgradeSlotRequest > ).detail;

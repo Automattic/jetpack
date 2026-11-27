@@ -2,7 +2,7 @@
 import 'jetpack-js-tools/jest/setup-jest-dom';
 import { act, render, screen, within } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import { observeLegacyOnboarding } from '../../_inc/overview/lib/modules-state-bridge';
+import { observeAppOnboarding } from '../../_inc/overview/lib/modules-state-bridge';
 import { ONBOARDING_CHANGE_EVENT } from '../../_inc/runtime-contract';
 import { stage as Stage } from './stage';
 import type { ReactNode } from 'react';
@@ -124,10 +124,10 @@ beforeEach( () => {
 const changeOnboarding = ( value: boolean ) =>
 	window.dispatchEvent( new CustomEvent( ONBOARDING_CHANGE_EVENT, { detail: value } ) );
 
-const observeLegacyGettingStarted = ( value: boolean ) => {
-	const legacy = new QueryClient();
-	legacy.setQueryData( [ 'getting_started' ], value );
-	return { legacy, stopObserving: observeLegacyOnboarding( legacy ) };
+const observeAppGettingStarted = ( value: boolean ) => {
+	const app = new QueryClient();
+	app.setQueryData( [ 'getting_started' ], value );
+	return { app, stopObserving: observeAppOnboarding( app ) };
 };
 
 const setGettingStarted = ( value: boolean ) => {
@@ -400,11 +400,11 @@ describe( 'Boost dashboard stage', () => {
 		async ( _, navigate ) => {
 			setGettingStarted( true );
 			window.history.replaceState( null, '', '/?page=jetpack-boost#/purchase-successful' );
-			const { legacy, stopObserving } = observeLegacyGettingStarted( true );
+			const { app, stopObserving } = observeAppGettingStarted( true );
 			render( <Stage /> );
 
 			await act( async () => {
-				await legacy.fetchQuery( { queryKey: [ 'getting_started' ], queryFn: async () => false } );
+				await app.fetchQuery( { queryKey: [ 'getting_started' ], queryFn: async () => false } );
 			} );
 			if ( navigate ) {
 				act( () => window.history.pushState( null, '', '/?page=jetpack-boost' ) );

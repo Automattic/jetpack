@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Rename leftover legacy-dashboard wording in comments, docs and tests; nothing user-facing changes.
+
+

@@ -64,7 +64,7 @@ describe( 'CornerstonePagesCard', () => {
 		expect( screen.queryByText( 'prerender' ) ).toBeNull();
 	} );
 
-	it( 'records the editor toggle like the legacy panel', () => {
+	it( 'records the editor toggle', () => {
 		const { recordBoostEvent } = jest.requireMock( '$lib/utils/analytics' );
 		render( <CornerstonePagesCard /> );
 
