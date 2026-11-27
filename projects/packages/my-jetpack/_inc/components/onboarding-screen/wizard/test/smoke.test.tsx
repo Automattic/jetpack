@@ -856,7 +856,7 @@ describe( 'Wizard shell', () => {
 			'href',
 			featuresUrl
 		);
-		expect( screen.getByRole( 'link', { name: 'Back to your WordPress site' } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'link', { name: 'Go to the Dashboard' } ) ).toHaveAttribute(
 			'href',
 			dashboardUrl
 		);
@@ -865,7 +865,7 @@ describe( 'Wizard shell', () => {
 		// stubbed out under Jest, which leaves the order as what can be asserted.
 		expect( screen.getAllByRole( 'link' ).map( link => link.textContent ) ).toEqual( [
 			'Go to Jetpack features',
-			'Back to your WordPress site',
+			'Go to the Dashboard',
 		] );
 	} );
 } );
@@ -1018,7 +1018,11 @@ describe( 'Leaving setup', () => {
 		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
-		await user.click( await screen.findByRole( 'link', { name: 'Back to your WordPress site' } ) );
+		// The rail's exit has the same name and records a skip, so wait for the finish step first.
+		await expect(
+			screen.findByRole( 'link', { name: 'Go to Jetpack features' } )
+		).resolves.toBeVisible();
+		await user.click( screen.getByRole( 'link', { name: 'Go to the Dashboard' } ) );
 
 		expect( mockApiFetch ).toHaveBeenCalledWith( {
 			path: '/my-jetpack/v1/site/onboarding/settled',
@@ -1125,7 +1129,7 @@ describe( 'Leaving setup', () => {
 		const { user } = setupWizard( { isUserConnected: true } );
 		await advance( user, 2 );
 
-		for ( const name of [ 'Go to Jetpack features', 'Back to your WordPress site' ] ) {
+		for ( const name of [ 'Go to Jetpack features', 'Go to the Dashboard' ] ) {
 			await user.pointer( { keys: '[MouseMiddle]', target: screen.getByRole( 'link', { name } ) } );
 		}
 
@@ -1523,7 +1527,7 @@ describe( 'What the wizard reports', () => {
 		await advance( user, 2 );
 
 		await user.click( screen.getByRole( 'link', { name: 'Go to Jetpack features' } ) );
-		await user.click( screen.getByRole( 'link', { name: 'Back to your WordPress site' } ) );
+		await user.click( screen.getByRole( 'link', { name: 'Go to the Dashboard' } ) );
 
 		const exits = mockRecordEvent.mock.calls.filter( ( [ name ] ) =>
 			/_wizard_(complete|skip)$/.test( name )
@@ -1844,9 +1848,7 @@ describe( 'Guards on the way through', () => {
 		await advance( user, 2 );
 
 		expect( screen.queryByRole( 'link', { name: 'Skip setup' } ) ).not.toBeInTheDocument();
-		expect(
-			screen.getByRole( 'link', { name: 'Back to your WordPress site' } )
-		).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Go to the Dashboard' } ) ).toBeInTheDocument();
 	} );
 
 	// Every switch reports its own outcome, so a rejection is the request layer

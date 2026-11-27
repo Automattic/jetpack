@@ -6,6 +6,7 @@ import {
 	__experimentalItem as Item, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalItemGroup as ItemGroup, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
+import { useMediaQuery } from '@wordpress/compose';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { border, chevronLeft, chevronRight, drafts, published } from '@wordpress/icons';
 import { ThemeProvider } from '@wordpress/theme';
@@ -148,6 +149,9 @@ export function Wizard( { exitUrl, featuresUrl, dashboardUrl }: WizardProps ) {
 	 * whose only button would register the site a second time.
 	 */
 	const firstStep = openingStep( isUserConnected );
+
+	// A touch screen never shows the rail exit's tooltip, so there it says where it goes.
+	const cannotHover = useMediaQuery( '(hover: none)' );
 
 	/*
 	 * Read once, at the top of the page load. A reload used to drop every answer
@@ -519,7 +523,9 @@ export function Wizard( { exitUrl, featuresUrl, dashboardUrl }: WizardProps ) {
 								onClick={ handleExit( 'skipped' ) }
 								aria-disabled={ busy || undefined }
 								className={ styles.exit }
-							/>
+							>
+								{ cannotHover && __( 'Dashboard', 'jetpack-my-jetpack' ) }
+							</SidebarButton>
 							<Stack direction="column" className={ styles[ 'rail-heading' ] }>
 								<Text variant="heading-xl" render={ <h2 /> } className={ styles[ 'rail-title' ] }>
 									{ wizardTitle }

@@ -86,22 +86,25 @@ class Initializer {
 	const ONBOARDING_WIZARD_FROM = 'my_jetpack_onboarding';
 
 	/**
-	 * Set while a wizard registration is waiting for the user to come back.
-	 *
-	 * Not autoloaded: it is read on the authorize return, not on every request.
-	 */
-	const ONBOARDING_DEFER_MODULES_OPTION = 'jetpack_my_jetpack_onboarding_defer_modules';
-
-	/**
-	 * Modules a fresh connection still needs, plus SEO, login protection and the activity log, which
-	 * stay on without a row. The features step offers the rest.
+	 * Default modules the wizard's connection keeps: what a fresh connection needs, SEO with its switch,
+	 * and what visitors never see. Of these, only SEO has a row in the features step.
 	 *
 	 * @var string[]
 	 */
-	const ONBOARDING_BACKGROUND_MODULES = array( 'blocks', 'json-api', 'seo-tools', 'protect', 'activity-log' );
+	const ONBOARDING_BACKGROUND_MODULES = array(
+		'blocks',
+		'json-api',
+		'seo-dashboard',
+		'seo-tools',
+		'verification-tools',
+		'protect',
+		'activity-log',
+		'notes',
+		'backup',
+	);
 
 	/**
-	 * Whether the current request is the wizard's registration call.
+	 * Whether Jetpack is switching its default modules on for the setup wizard.
 	 *
 	 * A worker handles more than one request, so this cannot outlive the one that set it.
 	 *
@@ -293,13 +296,14 @@ class Initializer {
 		// Track whether the user is an agency, for the Automattic for Agencies banner.
 		Jetpack_Manage::init();
 
-		// Get started registers the site, which is when Jetpack switches its defaults on.
+		// Get started registers the site, which usually switches on Jetpack's whole default list.
 		add_filter( 'rest_pre_dispatch', array( __CLASS__, 'note_onboarding_registration' ), 10, 3 );
 		// After Jetpack's own default-module filters, the last of which runs at 99.
 		add_filter( 'jetpack_get_default_modules', array( __CLASS__, 'limit_onboarding_default_modules' ), 100 );
-		// Jetpack's handler on this hook is what reads the list, so clear it afterwards.
-		add_action( 'jetpack_authorize_ending_authorized', array( __CLASS__, 'clear_onboarding_module_deferral' ), 100 );
-		add_action( 'shutdown', array( __CLASS__, 'forget_onboarding_registration_request' ) );
+		// Either side of Jetpack's handler at 10, which switches on the account modules registration left off.
+		add_action( 'jetpack_authorize_ending_authorized', array( __CLASS__, 'note_onboarding_authorize' ), 9 );
+		add_action( 'jetpack_authorize_ending_authorized', array( __CLASS__, 'forget_onboarding_module_limit' ), 100 );
+		add_action( 'shutdown', array( __CLASS__, 'forget_onboarding_module_limit' ) );
 
 		/**
 		 * Fires after the My Jetpack package is initialized
@@ -781,9 +785,6 @@ class Initializer {
 	/**
 	 * Remember a registration that came from the setup wizard.
 	 *
-	 * The user-connection half of the default modules activates on the way back
-	 * from WordPress.com, in a request that no longer carries `from`.
-	 *
 	 * @since $$next-version$$
 	 *
 	 * @param mixed            $result  Response to short-circuit with, or null.
@@ -796,15 +797,65 @@ class Initializer {
 			&& '/jetpack/v4/connection/register' === $request->get_route()
 			&& self::ONBOARDING_WIZARD_FROM === (string) $request->get_param( 'from' );
 
-		if ( self::$limit_onboarding_modules ) {
-			update_option( self::ONBOARDING_DEFER_MODULES_OPTION, '1', false );
-		}
-
 		return $result;
 	}
 
 	/**
-	 * Drop the user-facing default modules during a wizard registration.
+	 * Remember an account connection that returns to the setup wizard.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array|\ArrayAccess $data The authorize request: the browser's query, or WordPress.com's call.
+	 * @return void
+	 */
+	public static function note_onboarding_authorize( $data ) {
+		self::$limit_onboarding_modules = self::is_onboarding_return( $data ) && self::is_onboarding_wizard_enabled();
+	}
+
+	/**
+	 * Whether an authorize request sends the user back to the setup wizard.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array|\ArrayAccess $data The authorize request.
+	 * @return bool
+	 */
+	private static function is_onboarding_return( $data ) {
+		$returns = array();
+
+		// The browser's request carries the return address as `redirect`; WordPress.com's nests it in `redirect_uri`.
+		if ( isset( $data['redirect'] ) && is_string( $data['redirect'] ) ) {
+			$returns[] = $data['redirect'];
+		}
+
+		if ( isset( $data['redirect_uri'] ) && is_string( $data['redirect_uri'] ) ) {
+			parse_str( (string) wp_parse_url( $data['redirect_uri'], PHP_URL_QUERY ), $outer );
+			if ( isset( $outer['redirect'] ) && is_string( $outer['redirect'] ) ) {
+				$returns[] = $outer['redirect'];
+			}
+		}
+
+		foreach ( $returns as $return ) {
+			// Decoded until it stops changing, since a hop can encode it once more.
+			for ( $hops = 0; $hops < 3; $hops++ ) {
+				$decoded = rawurldecode( $return );
+				if ( $decoded === $return ) {
+					break;
+				}
+				$return = $decoded;
+			}
+
+			parse_str( (string) wp_parse_url( $return, PHP_URL_QUERY ), $query );
+			if ( isset( $query['page'] ) && isset( $query['step'] ) && 'my-jetpack' === $query['page'] && 'onboarding' === $query['step'] ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Drop the user-facing default modules while the setup wizard connects the site.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -812,7 +863,7 @@ class Initializer {
 	 * @return array
 	 */
 	public static function limit_onboarding_default_modules( $modules ) {
-		if ( ! is_array( $modules ) || ! self::should_limit_onboarding_default_modules() ) {
+		if ( ! is_array( $modules ) || ! self::$limit_onboarding_modules ) {
 			return $modules;
 		}
 
@@ -820,96 +871,13 @@ class Initializer {
 	}
 
 	/**
-	 * Whether this activation belongs to the wizard's registration.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return bool
-	 */
-	private static function should_limit_onboarding_default_modules() {
-		if ( self::$limit_onboarding_modules ) {
-			return true;
-		}
-
-		// The way back has no `from`. The option is the registration, the query is the wizard's return.
-		if ( ! get_option( self::ONBOARDING_DEFER_MODULES_OPTION ) ) {
-			return false;
-		}
-
-		return self::is_onboarding_authorize_return();
-	}
-
-	/**
-	 * Whether this request is WordPress.com sending the wizard's user back.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return bool
-	 */
-	private static function is_onboarding_authorize_return() {
-		if ( 'jetpack-connection-webhooks' !== self::onboarding_query_text( 'handler' ) ) {
-			return false;
-		}
-
-		if ( 'authorize' !== self::onboarding_query_text( 'action' ) ) {
-			return false;
-		}
-
-		// Once through PHP's query decode, and once more when the value is still encoded.
-		$redirect = rawurldecode( self::onboarding_query_text( 'redirect' ) );
-
-		return false !== strpos( $redirect, 'step=onboarding' );
-	}
-
-	/**
-	 * One query argument, as text.
-	 *
-	 * The authorize webhook checks its nonce before this activation runs.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param string $key Query argument name.
-	 * @return string
-	 */
-	private static function onboarding_query_text( $key ) {
-		if ( ! isset( $_GET[ $key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Verified by the connection webhook before activation.
-			return '';
-		}
-
-		$value = wp_unslash( $_GET[ $key ] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized after the type check.
-
-		if ( ! is_string( $value ) ) {
-			return '';
-		}
-
-		return sanitize_text_field( $value );
-	}
-
-	/**
-	 * Forget that a wizard registration is still waiting.
-	 *
-	 * Runs after the return trip has activated its modules, so a later connection
-	 * from anywhere else gets Jetpack's defaults again.
+	 * Give any later activation Jetpack's full defaults again.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @return void
 	 */
-	public static function clear_onboarding_module_deferral() {
-		self::$limit_onboarding_modules = false;
-		delete_option( self::ONBOARDING_DEFER_MODULES_OPTION );
-	}
-
-	/**
-	 * Drop the in-request flag at the end of the registration request.
-	 *
-	 * The option stays: the authorize return still needs it.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return void
-	 */
-	public static function forget_onboarding_registration_request() {
+	public static function forget_onboarding_module_limit() {
 		self::$limit_onboarding_modules = false;
 	}
 

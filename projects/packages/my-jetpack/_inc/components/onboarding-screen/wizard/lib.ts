@@ -230,7 +230,8 @@ export function wizardSteps(): WizardStepMeta[] {
 			title: __( 'What we recommend', 'jetpack-my-jetpack' ),
 			// Replaced by featuresDescription() once the site type is known; this is
 			// what someone who skipped the question or typed their own answer reads.
-			// Registration no longer switches these on, so the line cannot say to turn them off.
+			// After the wizard's own connection only SEO starts on, so the line is about
+			// switching on.
 			description: __(
 				'Switch on what you want. Anything already running stays on.',
 				'jetpack-my-jetpack'

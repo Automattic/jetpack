@@ -289,7 +289,7 @@ export function FinishStep( {
 						aria-disabled={ isLeaving || undefined }
 						className={ styles[ 'finish-secondary' ] }
 					>
-						{ __( 'Back to your WordPress site', 'jetpack-my-jetpack' ) }
+						{ __( 'Go to the Dashboard', 'jetpack-my-jetpack' ) }
 					</ButtonLink>
 				</Stack>
 			</Stack>

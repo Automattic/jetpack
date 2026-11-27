@@ -724,8 +724,7 @@ class Initializer_Test extends BaseTestCase {
 		remove_all_filters( 'jetpack_feature_flag_enabled_my-jetpack-onboarding-wizard' );
 		remove_all_filters( 'jetpack_feature_flag_enabled_my-jetpack-modules-to-features' );
 		remove_all_filters( 'jetpack_my_jetpack_offline_features' );
-		Initializer::clear_onboarding_module_deferral();
-		unset( $_GET['handler'], $_GET['action'], $_GET['redirect'] );
+		Initializer::forget_onboarding_module_limit();
 
 		// Connection_Manager memoizes is_connected() in a process-wide static that
 		// WorDBless teardown does not reset. The admin_init tests that depend on that
@@ -868,42 +867,24 @@ class Initializer_Test extends BaseTestCase {
 	 * Get started must not switch on the modules the features step is there to offer.
 	 */
 	public function test_wizard_registration_keeps_only_background_modules() {
-		$offered = array( 'stats', 'protect', 'blaze', 'blocks', 'json-api', 'seo-tools', 'subscriptions' );
+		$offered = array( 'stats', 'protect', 'blaze', 'blocks', 'json-api', 'seo-dashboard', 'seo-tools', 'subscriptions' );
 		$request = new \WP_REST_Request( 'POST', '/jetpack/v4/connection/register' );
 		$request->set_param( 'from', Initializer::ONBOARDING_WIZARD_FROM );
 
 		Initializer::note_onboarding_registration( null, rest_get_server(), $request );
 
 		$this->assertSame(
-			array( 'protect', 'blocks', 'json-api', 'seo-tools' ),
+			array( 'protect', 'blocks', 'json-api', 'seo-dashboard', 'seo-tools' ),
 			Initializer::limit_onboarding_default_modules( $offered )
 		);
-		$this->assertSame( '1', get_option( Initializer::ONBOARDING_DEFER_MODULES_OPTION ) );
 
-		// The user-connection half runs on the way back, which carries no `from`.
-		Initializer::forget_onboarding_registration_request();
-		$_GET['handler']  = 'jetpack-connection-webhooks';
-		$_GET['action']   = 'authorize';
-		$_GET['redirect'] = 'admin.php?page=my-jetpack&step=onboarding';
+		Initializer::forget_onboarding_module_limit();
 
-		$this->assertSame(
-			array( 'protect', 'blocks', 'json-api', 'seo-tools' ),
-			Initializer::limit_onboarding_default_modules( $offered )
-		);
-		// Notes, AI and Newsletter require a user, so they are this second list and nothing else.
-		$this->assertSame(
-			array(),
-			Initializer::limit_onboarding_default_modules( array( 'notes', 'ai', 'subscriptions' ) )
-		);
-
-		Initializer::clear_onboarding_module_deferral();
-
-		$this->assertFalse( get_option( Initializer::ONBOARDING_DEFER_MODULES_OPTION ) );
 		$this->assertSame( $offered, Initializer::limit_onboarding_default_modules( $offered ) );
 	}
 
 	/**
-	 * Another screen's registration, and a return that is not the wizard's, keep the full list.
+	 * Another screen's registration keeps the full list.
 	 */
 	public function test_other_registrations_keep_default_modules() {
 		$offered = array( 'stats', 'blocks', 'json-api' );
@@ -913,13 +894,61 @@ class Initializer_Test extends BaseTestCase {
 		Initializer::note_onboarding_registration( null, rest_get_server(), $request );
 
 		$this->assertSame( $offered, Initializer::limit_onboarding_default_modules( $offered ) );
-		$this->assertFalse( get_option( Initializer::ONBOARDING_DEFER_MODULES_OPTION ) );
+	}
 
-		update_option( Initializer::ONBOARDING_DEFER_MODULES_OPTION, '1', false );
-		$_GET['handler']  = 'jetpack-connection-webhooks';
-		$_GET['action']   = 'authorize';
-		$_GET['redirect'] = 'admin.php?page=jetpack';
+	/**
+	 * Data provider for the account connection, by where it sends the user back to.
+	 *
+	 * @return array
+	 */
+	public static function provide_account_authorize_cases() {
+		$webhook = 'https://example.org/wp-admin/admin.php?handler=jetpack-connection-webhooks&action=authorize&redirect=';
+		$wizard  = 'https://example.org/wp-admin/admin.php?page=my-jetpack&step=onboarding';
 
+		return array(
+			'wizard, from WordPress.com' => array( array( 'redirect_uri' => $webhook . rawurlencode( $wizard ) ), true, true ),
+			'wizard, in the browser'     => array( array( 'redirect' => $wizard ), true, true ),
+			'wizard, encoded twice'      => array( array( 'redirect_uri' => $webhook . rawurlencode( rawurlencode( $wizard ) ) ), true, true ),
+			'another screen'             => array( array( 'redirect_uri' => $webhook . rawurlencode( 'https://example.org/wp-admin/admin.php?page=my-jetpack' ) ), true, false ),
+			'another plugin\'s step'     => array( array( 'redirect_uri' => $webhook . rawurlencode( 'https://example.org/wp-admin/admin.php?page=acme&step=onboarding' ) ), true, false ),
+			'wizard flag off'            => array( array( 'redirect_uri' => $webhook . rawurlencode( $wizard ) ), false, false ),
+		);
+	}
+
+	/**
+	 * The wizard's own account connection keeps the user-connection modules off, and only while Jetpack's handler runs.
+	 *
+	 * @dataProvider provide_account_authorize_cases
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 *
+	 * @param array $data        The authorize request.
+	 * @param bool  $wizard_flag Whether the wizard's feature flag is on.
+	 * @param bool  $limited     Whether only the background modules survive.
+	 */
+	#[DataProvider( 'provide_account_authorize_cases' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_account_authorize_limits_only_the_wizard( $data, $wizard_flag, $limited ) {
+		$this->run_jetpack_plugin();
+		if ( $wizard_flag ) {
+			$this->enable_wizard_flag();
+		}
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		Initializer::init();
+		$offered = array( 'ai', 'backup', 'notes', 'activity-log', 'subscriptions' );
+		$modules = null;
+		// Where Jetpack's own handler asks for its defaults.
+		add_action(
+			'jetpack_authorize_ending_authorized',
+			function () use ( &$modules, $offered ) {
+				$modules = Initializer::limit_onboarding_default_modules( $offered );
+			}
+		);
+
+		do_action( 'jetpack_authorize_ending_authorized', $data );
+
+		$this->assertSame( $limited ? array( 'backup', 'notes', 'activity-log' ) : $offered, $modules );
 		$this->assertSame( $offered, Initializer::limit_onboarding_default_modules( $offered ) );
 	}
 
