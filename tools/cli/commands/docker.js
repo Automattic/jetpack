@@ -153,6 +153,7 @@ export const buildEnv = argv => {
 	}
 
 	envOpts.COMPOSE_PROJECT_NAME = getProjectName( argv );
+	envOpts.JETPACK_DOCKER_TYPE = argv.type;
 
 	// Add versions from versions.sh
 	const versions = envfile.parse(
@@ -1223,7 +1224,10 @@ export function dockerDefine( yargs ) {
 								[
 									'-rf',
 									`${ dockerFolder }/wordpress/`,
-									`${ dockerFolder }/wordpress-develop/*`,
+									// Only this instance's PHPUnit helpers, plus the shared layout's leftovers no instance uses now.
+									`${ dockerFolder }/wordpress-develop/${ project }/`,
+									`${ dockerFolder }/wordpress-develop/tests/`,
+									`${ dockerFolder }/wordpress-develop/wp-tests-config.php`,
 									`${ dockerFolder }/logs/${ project }/`,
 									`${ dockerFolder }/data/${ project }_mysql/`,
 								],
