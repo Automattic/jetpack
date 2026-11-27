@@ -738,7 +738,7 @@ class Scan_Status_Test extends BaseTestCase {
 			remove_filter( $hook, $filter, 11 );
 		}
 
-		$this->assertEqualsCanonicalizing( $listed, array_values( array_intersect( array_keys( $threats ), array( '71625245', 'malware', 'theme' ) ) ) );
+		$this->assertEqualsCanonicalizing( $listed, array_values( array_intersect( array_map( 'strval', array_keys( $threats ) ), array( '71625245', 'malware', 'theme' ) ) ) );
 		if ( isset( $threats['71625245'] ) ) {
 			$this->assertSame( $fixed_in ?? ( '0' !== $update_target ? $update_target : null ), $threats['71625245']->fixed_in );
 		}
