@@ -3029,10 +3029,6 @@ p {
 			Sync_Actions::do_only_first_initial_sync();
 		}
 
-		if ( ! defined( 'WC_ANALYTICS' ) && class_exists( 'Automattic\Woocommerce_Analytics' ) ) {
-			Woocommerce_Analytics::maybe_add_proxy_speed_module();
-		}
-
 		self::plugin_initialize();
 	}
 
