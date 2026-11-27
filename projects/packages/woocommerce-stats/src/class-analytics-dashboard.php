@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\WooCommerceStats;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\PremiumAnalytics\Dashboard_Section;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Local_Data_Status;
@@ -118,6 +119,11 @@ class Analytics_Dashboard {
 	);
 
 	/**
+	 * Feature flag that turns WooCommerce Stats on.
+	 */
+	const FLAG = 'jetpack-woocommerce-stats';
+
+	/**
 	 * Filter through which WooCommerce detection is resolved, for hosts and tests without the plugin.
 	 */
 	const WOOCOMMERCE_AVAILABLE_FILTER = 'jetpack_woocommerce_stats_woocommerce_available';
@@ -139,7 +145,7 @@ class Analytics_Dashboard {
 	const DASHBOARD_PAGE_INIT_ACTION = 'jetpack-premium-analytics-wp-admin_init';
 
 	/**
-	 * Register the sync opt-in and the store tracking bootstrap, then hook the section and widget-type registrants on the dashboard's registry
+	 * Register the feature flag, the sync opt-in and the store tracking bootstrap, then hook the section and widget-type registrants on the dashboard's registry
 	 * actions, the Bookings metric on the dashboard page, the reports proxy on REST requests and its cache reset on the end of the
 	 * initial sync, and the store currency on the script data.
 	 *
@@ -151,6 +157,15 @@ class Analytics_Dashboard {
 	 * @return void
 	 */
 	public static function init() {
+		Feature_Flags::register(
+			self::FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Offer WooCommerce Stats: the WooCommerce tab in Stats, its widgets and its store reports.',
+				'owner'       => 'jetpack-woocommerce-stats',
+			)
+		);
+
 		Sync_Configuration::register();
 		WooCommerce_Analytics_Tracker::configure();
 
@@ -468,6 +483,17 @@ class Analytics_Dashboard {
 	}
 
 	/**
+	 * Whether WooCommerce Stats is on for this site. For now it is off unless the host turns the flag on.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_enabled() {
+		return Feature_Flags::is_enabled( self::FLAG );
+	}
+
+	/**
 	 * Whether the WooCommerce tab is available: WooCommerce is active and the reader may see store
 	 * reports.
 	 *
@@ -497,12 +523,13 @@ class Analytics_Dashboard {
 
 	/**
 	 * Whether the current user may read the store reports, the rule the reports proxy enforces.
+	 * Nobody may while WooCommerce Stats is off.
 	 *
 	 * @return bool
 	 */
 	public static function current_user_can_view_store_reports() {
 		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- WooCommerce registers this capability.
-		return current_user_can( 'manage_options' ) || current_user_can( 'view_woocommerce_reports' );
+		return self::is_enabled() && ( current_user_can( 'manage_options' ) || current_user_can( 'view_woocommerce_reports' ) );
 	}
 
 	/**

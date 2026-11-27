@@ -7,6 +7,7 @@
 		"php": ">=7.4",
 		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-feature-flags": "@dev",
 		"automattic/jetpack-premium-analytics": "@dev",
 		"automattic/jetpack-sync": "@dev",
 		"automattic/woocommerce-analytics": "^0.19"

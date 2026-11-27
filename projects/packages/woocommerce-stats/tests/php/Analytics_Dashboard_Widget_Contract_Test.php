@@ -39,6 +39,7 @@ class Analytics_Dashboard_Widget_Contract_Test extends BaseTestCase {
 			define( 'Automattic\\Jetpack\\PremiumAnalytics\\WIDGET_API_VERSION', $version );
 		}
 		// WooCommerce and the reader are satisfied, so the contract alone decides.
+		add_filter( 'jetpack_feature_flag_enabled_' . Analytics_Dashboard::FLAG, '__return_true' );
 		add_filter( Analytics_Dashboard::WOOCOMMERCE_AVAILABLE_FILTER, '__return_true' );
 		wp_set_current_user(
 			wp_insert_user(

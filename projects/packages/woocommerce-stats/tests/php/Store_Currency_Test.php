@@ -18,7 +18,17 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass( Store_Currency::class )]
 class Store_Currency_Test extends TestCase {
 
+	const FLAG_FILTER = 'jetpack_feature_flag_enabled_' . Analytics_Dashboard::FLAG;
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_script_data_is_unchanged_without_woocommerce() {
+		add_filter( self::FLAG_FILTER, '__return_true' );
+
 		$data = array( 'premium_analytics' => array( 'csv_exports_enabled' => true ) );
 
 		$this->assertSame( $data, Store_Currency::add_script_data( $data ) );
@@ -32,6 +42,7 @@ class Store_Currency_Test extends TestCase {
 	#[PreserveGlobalState( false )]
 	public function test_script_data_adds_the_store_currency_beside_existing_keys() {
 		require_once __DIR__ . '/mocks/woocommerce-mock.php';
+		add_filter( self::FLAG_FILTER, '__return_true' );
 
 		$data = Store_Currency::add_script_data(
 			array( 'premium_analytics' => array( 'csv_exports_enabled' => true ) )
@@ -46,5 +57,19 @@ class Store_Currency_Test extends TestCase {
 			),
 			$data['premium_analytics']['store_currency']
 		);
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_script_data_is_unchanged_when_woocommerce_stats_is_disabled() {
+		require_once __DIR__ . '/mocks/woocommerce-mock.php';
+
+		$data = array( 'premium_analytics' => array( 'csv_exports_enabled' => true ) );
+
+		$this->assertSame( $data, Store_Currency::add_script_data( $data ) );
 	}
 }

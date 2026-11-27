@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\WooCommerceStats;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller as Dashboard_Proxy_Controller;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Default_Reports;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Capability;
 use Automattic\Jetpack\WooCommerceStats\Report_Execution\Report_Definition;
@@ -47,6 +48,8 @@ use WP_REST_Server;
 #[CoversClass( Wpcom_Report_Provider::class )]
 class Api_Proxy_Controller_Test extends BaseTestCase {
 
+	const FLAG_FILTER = 'jetpack_feature_flag_enabled_' . Analytics_Dashboard::FLAG;
+
 	/**
 	 * Requests that reached WordPress.com.
 	 *
@@ -72,6 +75,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		add_action( 'rest_api_init', array( Api_Proxy_Controller::class, 'init' ) );
 		do_action( 'rest_api_init' );
 		add_action( Report_Registry::REGISTER_ACTION, array( Default_Reports::class, 'register' ) );
+		add_filter( self::FLAG_FILTER, '__return_true' );
 
 		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 		\Jetpack_Options::update_option( 'id', 4242 );
@@ -91,7 +95,9 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	public function tear_down() {
 		remove_filter( 'pre_http_request', array( $this, 'answer_as_wordpress_com' ) );
 		remove_action( 'rest_api_init', array( Api_Proxy_Controller::class, 'init' ) );
+		remove_filter( 'rest_request_before_callbacks', array( Api_Proxy_Controller::class, 'refuse_dashboard_store_reports' ) );
 		remove_all_actions( Report_Registry::REGISTER_ACTION );
+		remove_all_filters( self::FLAG_FILTER );
 
 		\Jetpack_Options::delete_option( 'blog_token' );
 		\Jetpack_Options::delete_option( 'id' );
@@ -149,6 +155,68 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 			'stats reader'  => array( 'subscriber', 'view_stats', 403 ),
 			'shop manager'  => array( 'subscriber', 'view_woocommerce_reports', 200 ),
 			'administrator' => array( 'administrator', null, 200 ),
+		);
+	}
+
+	public function test_refuses_requests_when_woocommerce_stats_is_disabled() {
+		remove_all_filters( self::FLAG_FILTER );
+
+		$this->assertSame( 403, $this->get_report()->get_status() );
+		$this->assertSame( array(), $this->requests );
+	}
+
+	/**
+	 * @dataProvider data_dashboard_store_routes
+	 *
+	 * @param string $method HTTP method.
+	 * @param string $route  Route of the dashboard package.
+	 * @param array  $params Query params.
+	 */
+	#[DataProvider( 'data_dashboard_store_routes' )]
+	public function test_refuses_the_dashboard_store_reports_while_woocommerce_stats_is_off( $method, $route, array $params ) {
+		$this->register_dashboard_routes();
+		remove_all_filters( self::FLAG_FILTER );
+
+		$this->assertSame( 403, $this->dispatch_dashboard( $method, $route, $params )->get_status() );
+		$this->assertSame( array(), $this->requests );
+	}
+
+	/**
+	 * @return array<string, array{0: string, 1: string, 2: array}>
+	 */
+	public static function data_dashboard_store_routes() {
+		return array(
+			'the analytics group of the proxy' => array( 'GET', '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports/orders/by-date', array() ),
+			'a route in another letter case'   => array( 'GET', '/Jetpack-Premium-Analytics/v1/Proxy/v2/Analytics/reports/orders/by-date', array() ),
+			'a query-string endpoint'          => array( 'GET', '/jetpack-premium-analytics/v1/proxy/v2/stats/visits', array( 'endpoint' => 'analytics/reports/orders/by-date' ) ),
+			'the CSV export'                   => array( 'POST', '/jetpack-premium-analytics/v1/reports/csv-export', array() ),
+		);
+	}
+
+	/**
+	 * @dataProvider data_dashboard_routes_left_alone
+	 *
+	 * @param bool   $is_on Whether WooCommerce Stats is on.
+	 * @param string $route Route of the dashboard package.
+	 */
+	#[DataProvider( 'data_dashboard_routes_left_alone' )]
+	public function test_leaves_the_other_dashboard_requests_alone( $is_on, $route ) {
+		$this->register_dashboard_routes();
+		if ( ! $is_on ) {
+			remove_all_filters( self::FLAG_FILTER );
+		}
+
+		$this->assertSame( 200, $this->dispatch_dashboard( 'GET', $route )->get_status() );
+		$this->assertCount( 1, $this->requests );
+	}
+
+	/**
+	 * @return array<string, array{0: bool, 1: string}>
+	 */
+	public static function data_dashboard_routes_left_alone() {
+		return array(
+			'another group while off'      => array( false, '/jetpack-premium-analytics/v1/proxy/v1.1/stats/visits' ),
+			'the analytics group while on' => array( true, '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports/orders/by-date' ),
 		);
 	}
 
@@ -810,6 +878,38 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	 */
 	private function dispatch( $method, $path, array $params = array() ) {
 		$request = new WP_REST_Request( $method, '/' . Api_Proxy_Controller::REST_NAMESPACE . '/proxy/v2/' . $path );
+		$request->set_query_params( $params );
+
+		return rest_get_server()->dispatch( $request );
+	}
+
+	/**
+	 * Register the dashboard package's proxy, and a stand-in at the path of its CSV export, whose
+	 * controller needs WooCommerce to load.
+	 */
+	private function register_dashboard_routes() {
+		( new Dashboard_Proxy_Controller() )->register_routes();
+		register_rest_route(
+			'jetpack-premium-analytics/v1',
+			'/reports/csv-export',
+			array(
+				'methods'             => 'POST',
+				'callback'            => '__return_true',
+				'permission_callback' => '__return_true',
+			)
+		);
+	}
+
+	/**
+	 * Dispatch a request to a route of the dashboard package.
+	 *
+	 * @param string $method HTTP method.
+	 * @param string $route  Route.
+	 * @param array  $params Query params.
+	 * @return \WP_REST_Response
+	 */
+	private function dispatch_dashboard( $method, $route, array $params = array() ) {
+		$request = new WP_REST_Request( $method, $route );
 		$request->set_query_params( $params );
 
 		return rest_get_server()->dispatch( $request );

@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\WooCommerceStats;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\PremiumAnalytics\Dashboard_Section_Registry;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
 use Automattic\Jetpack\PremiumAnalytics\Widget_Type_Registry;
@@ -35,6 +36,8 @@ require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/w
 #[CoversClass( Analytics_Dashboard::class )]
 class Analytics_Dashboard_Test extends BaseTestCase {
 
+	const FLAG_FILTER = 'jetpack_feature_flag_enabled_' . Analytics_Dashboard::FLAG;
+
 	/**
 	 * Reset the dashboard registries and the hooks between tests.
 	 */
@@ -48,6 +51,9 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		remove_filter( 'jetpack_admin_js_script_data', array( Store_Currency::class, 'add_script_data' ), 20 );
 		remove_action( Analytics_Dashboard::DASHBOARD_PAGE_INIT_ACTION, array( Analytics_Dashboard::class, 'enqueue_store_performance_bookings' ) );
 		remove_action( 'after_setup_theme', array( WooCommerce_Analytics_Tracker::class, 'bootstrap' ) );
+		remove_all_filters( self::FLAG_FILTER );
+		remove_all_filters( Analytics_Dashboard::WOOCOMMERCE_AVAILABLE_FILTER );
+		Feature_Flags::reset();
 		delete_option( 'active_plugins' );
 		delete_option( Provider_Setting::OPTION );
 		\Jetpack_Options::delete_option( array( 'blog_token', 'id' ) );
@@ -232,6 +238,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	 * A reader who cannot see store reports gets no Bookings metric either, extension or not.
 	 */
 	public function test_leaves_the_bookings_metric_off_the_dashboard_without_the_store_reports_capability() {
+		add_filter( self::FLAG_FILTER, '__return_true' );
 		add_filter( Analytics_Dashboard::WOOCOMMERCE_AVAILABLE_FILTER, '__return_true' );
 		$this->activate_bookings();
 
@@ -407,6 +414,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	 */
 	public function test_section_stays_unavailable_without_woocommerce() {
 		wp_set_current_user( $this->create_admin() );
+		add_filter( self::FLAG_FILTER, '__return_true' );
 		add_filter( Analytics_Dashboard::WOOCOMMERCE_AVAILABLE_FILTER, '__return_false' );
 		Analytics_Dashboard::init();
 
@@ -494,6 +502,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	 */
 	public function test_registers_no_widget_types_without_woocommerce() {
 		wp_set_current_user( $this->create_admin() );
+		add_filter( self::FLAG_FILTER, '__return_true' );
 		add_filter( Analytics_Dashboard::WOOCOMMERCE_AVAILABLE_FILTER, '__return_false' );
 		$registry = new Widget_Type_Registry();
 
@@ -506,6 +515,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	 * A reader who cannot see store reports gets no type either: the widgets would only collect 403s.
 	 */
 	public function test_registers_no_widget_types_without_the_store_reports_capability() {
+		add_filter( self::FLAG_FILTER, '__return_true' );
 		add_filter( Analytics_Dashboard::WOOCOMMERCE_AVAILABLE_FILTER, '__return_true' );
 		wp_set_current_user(
 			wp_insert_user(
@@ -566,11 +576,40 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		update_option( 'active_plugins', array( 'woocommerce-bookings/woocommerce-bookings.php' ) );
 	}
 
+	public function test_woocommerce_stats_stays_off_until_the_flag_is_turned_on() {
+		Analytics_Dashboard::init();
+
+		$this->assertFalse( Feature_Flags::all()[ Analytics_Dashboard::FLAG ]['default'] );
+		$this->assertFalse( Analytics_Dashboard::is_enabled() );
+
+		add_filter( self::FLAG_FILTER, '__return_true' );
+
+		$this->assertTrue( Analytics_Dashboard::is_enabled() );
+	}
+
+	public function test_hides_section_widgets_and_bookings_while_the_flag_is_off() {
+		wp_set_current_user( $this->create_admin() );
+		add_filter( Analytics_Dashboard::WOOCOMMERCE_AVAILABLE_FILTER, '__return_true' );
+		$this->activate_bookings();
+		Analytics_Dashboard::init();
+
+		$section  = get_registered_dashboard_section( DASHBOARD_NAME, Analytics_Dashboard::SECTION_ID );
+		$registry = new Widget_Type_Registry();
+		Analytics_Dashboard::register_widget_types( $registry );
+		Analytics_Dashboard::enqueue_store_performance_bookings();
+
+		$this->assertNotNull( $section );
+		$this->assertFalse( $section->is_available() );
+		$this->assertSame( array(), $registry->get_all_registered() );
+		$this->assertNotContains( Analytics_Dashboard::STORE_PERFORMANCE_BOOKINGS_MODULE, wp_script_modules()->get_queue() );
+	}
+
 	/**
-	 * WooCommerce is treated as present, and the current user can read store reports.
+	 * WooCommerce is treated as present, WooCommerce Stats is on, and the current user can read store reports.
 	 */
 	private function enable_store() {
 		wp_set_current_user( $this->create_admin() );
+		add_filter( self::FLAG_FILTER, '__return_true' );
 		add_filter( Analytics_Dashboard::WOOCOMMERCE_AVAILABLE_FILTER, '__return_true' );
 	}
 

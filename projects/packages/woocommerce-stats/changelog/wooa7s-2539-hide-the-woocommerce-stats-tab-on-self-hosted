@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Hide the WooCommerce tab on self-hosted stores by default while keeping it available on WordPress.com sites.
