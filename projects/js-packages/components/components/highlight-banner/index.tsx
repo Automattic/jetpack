@@ -14,6 +14,7 @@ import type { FC } from 'react';
  */
 const HighlightBanner: FC< HighlightBannerProps > = ( {
 	className,
+	icon,
 	title,
 	description,
 	actions,
@@ -21,6 +22,11 @@ const HighlightBanner: FC< HighlightBannerProps > = ( {
 	dismissLabel,
 } ) => (
 	<div className={ clsx( 'jp-highlight-banner', className ) }>
+		{ icon && (
+			<div className="jp-highlight-banner__icon" aria-hidden="true">
+				{ icon }
+			</div>
+		) }
 		<div className="jp-highlight-banner__content">
 			<h2 className="jp-highlight-banner__title">{ title }</h2>
 			{ description && <p className="jp-highlight-banner__description">{ description }</p> }

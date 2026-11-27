@@ -1,6 +1,7 @@
 /**
- * MCP and Connectors hub — main view shown at wp-admin/admin.php?page=jetpack-ai.
- * Shows the connect card, the enable/disable toggle, and navigation to Read, Write, and Setup sub-views.
+ * Settings hub — the Settings tab's main view (view key `mcp`) at
+ * wp-admin/admin.php?page=jetpack-ai#/mcp. Leads with the connect card, then shows the
+ * enable/disable toggle and navigation to the Read and Write sub-views.
  */
 
 import {
@@ -123,7 +124,7 @@ function SummaryRow( { icon, title, badge, onClick } ) {
 }
 
 /**
- * MCP hub component.
+ * Settings hub component.
  *
  * @param {object}   props                       - Component props.
  * @param {object}   props.mcpAbilities          - Full mcp_abilities object from API.
@@ -233,7 +234,7 @@ export default function McpHub( {
 	const navigateToWrite = useCallback( () => onNavigate( 'write' ), [ onNavigate ] );
 
 	return (
-		<>
+		<Stack direction="column" gap="3xl">
 			<McpConnectCard
 				mcpEnabled={ isMcpEnabled }
 				onTurnOn={ handleTurnOn }
@@ -242,21 +243,23 @@ export default function McpHub( {
 			/>
 			<Card.Root className="jetpack-ai-mcp__access-card">
 				<Card.Header>
-					<Card.Title render={ <h2 /> }>{ __( 'External AI agent access', 'jetpack' ) }</Card.Title>
-				</Card.Header>
-				<Card.Content>
-					<Stack direction="column" gap="md">
+					<Stack direction="column" gap="xs">
+						<Card.Title render={ <h2 /> }>
+							{ __( 'External AI agent access', 'jetpack' ) }
+						</Card.Title>
 						<Text variant="muted">
 							{ __( 'Allow external AI agents to access this site via MCP.', 'jetpack' ) }
 						</Text>
-						<ToggleControl
-							__nextHasNoMarginBottom
-							checked={ isMcpEnabled }
-							disabled={ savingToolIds.has( '__site_level__' ) }
-							label={ __( 'Enable MCP access', 'jetpack' ) }
-							onChange={ handleMcpToggle }
-						/>
 					</Stack>
+				</Card.Header>
+				<Card.Content>
+					<ToggleControl
+						__nextHasNoMarginBottom
+						checked={ isMcpEnabled }
+						disabled={ savingToolIds.has( '__site_level__' ) }
+						label={ __( 'Enable MCP access', 'jetpack' ) }
+						onChange={ handleMcpToggle }
+					/>
 					{ isMcpEnabled && (
 						<Card.FullBleed className="jetpack-ai-mcp__summary-rows">
 							<SummaryRow
@@ -300,6 +303,6 @@ export default function McpHub( {
 					</a>
 				</Card.Root>
 			) }
-		</>
+		</Stack>
 	);
 }

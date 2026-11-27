@@ -29,6 +29,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 require_once dirname( __DIR__ ) . '/class-jetpack-ai-feature-flags.php';
 require_once dirname( __DIR__ ) . '/class-jetpack-ai-settings.php';
+require_once dirname( __DIR__ ) . '/class-jetpack-ai-skills-catalog.php';
 require_once __DIR__ . '/class-jetpack-wp-build-page.php';
 
 /**
@@ -378,8 +379,9 @@ class Jetpack_AI_Page {
 		$config = apply_filters(
 			'jetpack_ai_admin_config',
 			array(
-				// The Overview and Features views launch on self-hosted sites first.
-				// Keep this filterable so hosts can close them independently.
+				// The Overview tab and the MCP tab's AI features section launch on
+				// self-hosted sites first. Keep this filterable so hosts can close
+				// them independently.
 				'showGatedViews'    => ! $host->is_wpcom_platform() || ( $host->is_woa_site() && $is_internal_test ),
 				'showA12sBadge'     => $host->is_woa_site() && $is_internal_test,
 				// The same verdicts the feature-settings endpoint reports. That call
@@ -439,6 +441,8 @@ class Jetpack_AI_Page {
 
 		$plan_info = $show_gated_views ? self::get_ai_plan_info() : array( 'name' => '' );
 
+		$is_discover_enabled = Feature_Flags::is_enabled( Jetpack_AI_Feature_Flags::DISCOVER );
+
 		$settings = array(
 			'blogId'              => $blog_id ? (int) $blog_id : 0,
 			'activityLogUrl'      => $activity_log_url,
@@ -446,6 +450,8 @@ class Jetpack_AI_Page {
 			'seoSettingsUrl'      => $seo_settings_url,
 			'searchSettingsUrl'   => self::get_search_settings_url(),
 			'siteAdminUrl'        => admin_url(),
+			// The address the skill prompts name; admin_url() follows siteurl, not home.
+			'siteHomeUrl'         => home_url(),
 			'userConnectionUrl'   => esc_url_raw( $config['userConnectionUrl'] ?? '' ),
 			'manageUrl'           => esc_url_raw( $config['manageUrl'] ?? '' ),
 			'hasMyJetpack'        => ! empty( $config['hasMyJetpack'] ),
@@ -478,9 +484,10 @@ class Jetpack_AI_Page {
 			'planName'            => $plan_info['name'],
 			'showFeaturesView'    => $show_gated_views,
 			'showA12sBadge'       => ! empty( $config['showA12sBadge'] ),
-			// The tab and its Agents Manager sidebar ship disabled by default.
+			// Both tabs ship disabled by default.
 			'featureFlags'        => array(
 				Jetpack_AI_Feature_Flags::SCHEDULED_TASKS => $show_scheduled_tasks_view,
+				Jetpack_AI_Feature_Flags::DISCOVER        => $is_discover_enabled,
 			),
 			// The usage endpoint proxies as the current user, which needs
 			// their own WordPress.com account linked — not just the site.
@@ -496,6 +503,8 @@ class Jetpack_AI_Page {
 			'mcpSettingsApi'      => $config['mcpSettingsApi'] ?? array(),
 			'isSelfHosted'        => true === ( $config['isSelfHosted'] ?? false ),
 			'showSiteAbilities'   => true === ( $config['showSiteAbilities'] ?? false ),
+			// Fetched from the catalog at most once a day, so only when the Skills tab can show it.
+			'skills'              => $is_discover_enabled ? Jetpack_AI_Skills_Catalog::get_index() : null,
 		);
 
 		wp_add_inline_script(

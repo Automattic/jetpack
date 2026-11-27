@@ -1,5 +1,5 @@
 /**
- * "Connect an external AI agent" card shown at the top of the MCP hub.
+ * "Connect an external AI agent" card that leads the Settings tab.
  * Ported from client/dashboard/me/mcp/connect-card.tsx in wp-calypso.
  */
 
@@ -337,18 +337,20 @@ export default function McpConnectCard( { mcpEnabled, onTurnOn, isTurningOn, onN
 	return (
 		<Card.Root>
 			<Card.Header>
-				<Card.Title render={ <h2 /> }>
-					{ __( 'Connect an external AI agent', 'jetpack' ) }
-				</Card.Title>
-			</Card.Header>
-			<Card.Content>
-				<Stack direction="column" gap="lg">
-					<Text render={ <p /> } className="jetpack-ai-mcp__muted">
+				<Stack direction="column" gap="xs">
+					<Card.Title render={ <h2 /> }>
+						{ __( 'Connect an external AI agent', 'jetpack' ) }
+					</Card.Title>
+					<Text render={ <p /> } className="jetpack-ai-mcp__connect-description">
 						{ __(
 							'Add this site to your agent, then sign in with your WordPress.com account to approve the connection.',
 							'jetpack'
 						) }
 					</Text>
+				</Stack>
+			</Card.Header>
+			<Card.Content>
+				<Stack direction="column" gap="lg">
 					{ ! mcpEnabled && (
 						<AccessOffNotice onTurnOn={ handleTurnOn } isTurningOn={ isTurningOn } />
 					) }

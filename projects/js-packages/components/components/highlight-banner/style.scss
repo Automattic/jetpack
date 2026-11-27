@@ -28,6 +28,26 @@
 	max-inline-size: 520px;
 }
 
+// An optional mark before the copy, in the banner's own greens.
+.jp-highlight-banner__icon {
+	position: relative;
+	z-index: 1;
+	display: grid;
+	flex: none;
+	place-items: center;
+	inline-size: 44px;
+	block-size: 44px;
+	margin-inline-end: 16px;
+	border-radius: 8px;
+	background: rgba(72, 255, 80, 0.12);
+	color: #48ff50;
+
+	svg {
+		inline-size: 24px;
+		block-size: 24px;
+	}
+}
+
 // Two classes, to outweigh pages that style every h2 and p.
 .jp-highlight-banner .jp-highlight-banner__title {
 	margin: 0;

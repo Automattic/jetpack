@@ -3,6 +3,8 @@ import type { ReactNode } from 'react';
 export type HighlightBannerProps = {
 	/** Extra class for layout overrides, such as width or margins. */
 	className?: string;
+	/** A mark before the copy, such as an icon; hidden from assistive technology. */
+	icon?: ReactNode;
 	/** The banner's heading. */
 	title: ReactNode;
 	/** Supporting copy under the heading. */

@@ -1,0 +1,575 @@
+// Discover tab. Values are design tokens, except the filter pills, which copy
+// My Jetpack's Features pills value for value. The pills and tiles are the only
+// custom pieces, since the design system has no chip or icon tile yet. The
+// outlines (cards, toolbar) are @wordpress/ui Card.Root's: the regular
+// surface stroke at the xs width and the lg radius, as on the Overview tab.
+
+.jetpack-ai-discover {
+	// jetpack.com/prompts' hover green, which has no design-system token.
+	--jetpack-ai-discover-hover-green: #007117;
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xl);
+	container: discover / inline-size;
+
+	// The shared dark banner, compact: icon, a short title and copy on one
+	// line with the close, and only the top glow (the bottom orb would show
+	// as a solid sphere at this height). Doubled with the banner's class, so
+	// it wins whatever loads first.
+	&__banner.jp-highlight-banner {
+		align-items: center;
+		padding-block: var(--wpds-dimension-padding-xl);
+		padding-inline: var(--wpds-dimension-padding-xl) 56px;
+
+		// Level with the title, not centred on the copy.
+		.jp-highlight-banner__icon {
+			align-self: flex-start;
+		}
+
+		// A comfortable line length for the copy, with its lines evened out.
+		.jp-highlight-banner__content {
+			gap: var(--wpds-dimension-gap-xs);
+			max-inline-size: 750px;
+			text-wrap: balance;
+		}
+
+		.jp-highlight-banner__title {
+			font-size: 15px;
+			line-height: 20px;
+			font-weight: 600;
+		}
+
+		.jp-highlight-banner__orb--bottom {
+			display: none;
+		}
+	}
+
+	// The title and subtitle, with the suggest link at the end of the title's
+	// line. Baseline alignment reads the text column's first line, the title.
+	// Where the row can't hold both, the link wraps under the subtitle.
+	&__intro {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: var(--wpds-dimension-gap-sm) var(--wpds-dimension-gap-lg);
+	}
+
+	&__intro-text {
+		display: flex;
+		flex: 1 1 20rem;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-xs);
+		min-inline-size: 0;
+
+		h2,
+		p {
+			margin: 0;
+		}
+	}
+
+	&__muted {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	// Filter bar, styled after My Jetpack's Features toolbar: a sticky card
+	// with the pills on the start side, then search at the end. The parent's
+	// gap spaces it, so it carries no block margin of its own. Sticky from 783
+	// up; see the phone rule at the end.
+
+	// It sticks in AdminPage's scrolling middle, as My Jetpack's does, but
+	// under the hub's tab strip, which sticks at the top of that same
+	// scroller. At 0 it landed on the strip and covered it, beside the tabs.
+	// The offset is the strip's height, measured by use-toolbar-offset.js.
+	// The surface is opaque, so the cards pass under it unseen. Stuck, it
+	// hangs from the strip: the strip's bottom rule stands in for its top
+	// border, which would draw a second line right under it, and its top
+	// corners square off against that rule. The hook sets data-stuck.
+	&__toolbar {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--wpds-dimension-gap-md);
+		position: sticky;
+		inset-block-start: var(--jetpack-ai-discover-toolbar-offset, 0);
+		z-index: 10;
+		padding: var(--wpds-dimension-padding-md);
+		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+		border-radius: var(--wpds-border-radius-lg);
+		background: var(--wpds-color-background-surface-neutral-strong);
+		container: discover-toolbar / inline-size;
+
+		&[data-stuck] {
+			border-block-start-color: transparent;
+			border-start-start-radius: 0;
+			border-start-end-radius: 0;
+		}
+	}
+
+	// Gives up width, down to its floor, before anything wraps onto a second row.
+	&__search {
+		flex: 1 1 7rem;
+		margin-inline-start: auto;
+		min-inline-size: 7rem;
+		max-inline-size: 16rem;
+
+		// The icon sits close, as in My Jetpack's search: the input's own
+		// start padding would push the text a further 8px from it.
+		input[type="search"] {
+			padding-inline-start: var(--wpds-dimension-padding-xs);
+
+			// The clear button replaces the browser's own.
+			&::-webkit-search-cancel-button,
+			&::-webkit-search-decoration {
+				appearance: none;
+			}
+		}
+	}
+
+	// Mirrored in left-to-right, as SearchControl does, so the handle points
+	// toward the end of the line. Only the prefix, not the clear button.
+	&__search-icon svg:dir(ltr) {
+		transform: scaleX(-1);
+	}
+
+	&__suggest {
+		white-space: nowrap;
+	}
+
+	&__pills {
+		display: flex;
+		flex: 1 1 auto;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--wpds-dimension-gap-sm);
+		min-inline-size: 0;
+	}
+
+	// The pills are the wide layout; the select is the narrow one. Only ever one.
+	&__filter-select {
+		display: none;
+	}
+
+	// A capsule, not a button: WPDS has no full-round radius token, so the
+	// radius is literal and large enough that the height can change without
+	// squaring off. Size and type match My Jetpack's Features pills; the 6 and
+	// 14 padding are its values, with no token. The fills are interactive
+	// tokens in every state: at rest that is transparent, the toolbar's white.
+	&__pill {
+		display: inline-flex;
+		align-items: center;
+		padding-block: 0.375rem;
+		padding-inline: 0.875rem;
+		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-interactive-neutral);
+		border-radius: 999px;
+		background: var(--wpds-color-background-interactive-neutral-weak);
+		color: var(--wpds-color-foreground-interactive-neutral);
+		font-family: var(--wpds-typography-font-family-body);
+		font-size: var(--wpds-typography-font-size-md);
+		line-height: 1.4;
+		white-space: nowrap;
+		cursor: pointer;
+
+		svg {
+			fill: currentColor;
+		}
+
+		&:hover {
+			background: var(--wpds-color-background-interactive-neutral-weak-active);
+			color: var(--wpds-color-foreground-interactive-neutral-active);
+		}
+
+		// The design system's focus ring, as on every other control here.
+		&:focus-visible {
+			outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+			outline-offset: var(--wpds-border-width-focus);
+		}
+
+		&.is-active {
+			border-color: var(--wpds-color-background-interactive-neutral-strong);
+			background: var(--wpds-color-background-interactive-neutral-strong);
+			color: var(--wpds-color-foreground-interactive-neutral-strong);
+
+			&:hover {
+				border-color: var(--wpds-color-background-interactive-neutral-strong-active);
+				background: var(--wpds-color-background-interactive-neutral-strong-active);
+				color: var(--wpds-color-foreground-interactive-neutral-strong-active);
+			}
+		}
+
+		// The icon's own side bearing stands in for part of the padding.
+		&:has(> .jetpack-ai-discover__pill-icon) {
+			padding-inline-start: 0.625rem;
+		}
+
+		// The chevron's own side bearing stands in for part of the padding.
+		// The gap spaces the count too, so it drops its own margin.
+		&--more {
+			gap: var(--wpds-dimension-gap-xs);
+			padding-inline-end: 0.625rem;
+
+			.jetpack-ai-discover__pill-count {
+				margin-inline-start: 0;
+			}
+		}
+	}
+
+	// The icon and count take the pill's own color at less weight, so they
+	// read as secondary to the label in either state.
+	&__pill-icon {
+		flex: none;
+		margin-inline-end: var(--wpds-dimension-gap-xs);
+		fill: currentColor;
+		opacity: 0.6;
+	}
+
+	&__pill-count {
+		margin-inline-start: var(--wpds-dimension-gap-xs);
+		opacity: 0.6;
+		font-variant-numeric: tabular-nums;
+	}
+
+	// The unfiltered grid: a row per category, each paging sideways.
+	&__rows {
+		display: flex;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-2xl);
+	}
+
+	&__row {
+		display: flex;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-md);
+		min-inline-size: 0;
+	}
+
+	&__row-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--wpds-dimension-gap-md);
+		// The row's buttons' height, so a heading without them sits the same.
+		min-block-size: var(--wpds-dimension-size-md);
+	}
+
+	&__row-title {
+		margin: 0;
+	}
+
+	&__row-count {
+		margin-inline-start: var(--wpds-dimension-gap-sm);
+		color: var(--wpds-color-foreground-content-neutral-weak);
+		font-weight: var(--wpds-typography-font-weight-default);
+	}
+
+	// Paging buttons on a light stroke, as jetpack.com/prompts' carousel: the
+	// surface stroke at rest, fainter still where a row can't page further.
+	&__row-page {
+		--wp-ui-button-border-color: var(--wpds-color-stroke-surface-neutral);
+		--wp-ui-button-border-color-active: var(--wpds-color-stroke-interactive-neutral);
+		--wp-ui-button-border-color-disabled: var(--wpds-color-stroke-surface-neutral-weak);
+		--wp-ui-button-background-color: var(--wpds-color-background-surface-neutral-strong);
+		--wp-ui-button-background-color-disabled: var(--wpds-color-background-surface-neutral-strong);
+		border-radius: var(--wpds-border-radius-md);
+	}
+
+	&__row-actions {
+		display: flex;
+		flex-shrink: 0;
+		align-items: center;
+		gap: var(--wpds-dimension-gap-xs);
+
+		svg {
+			fill: currentColor;
+		}
+	}
+
+	// As many cards as the grid shows a row, at the grid's width; the rest are a
+	// page away. Snapping lands each page on a card's edge; the buttons stand
+	// in for the scrollbar.
+	&__row-track {
+		--jetpack-ai-row-columns: 1;
+		display: grid;
+		grid-auto-flow: column;
+		grid-auto-columns: calc((100% - (var(--jetpack-ai-row-columns) - 1) * var(--wpds-dimension-gap-lg)) / var(--jetpack-ai-row-columns));
+		gap: var(--wpds-dimension-gap-lg);
+		overflow-x: auto;
+		overscroll-behavior-x: contain;
+		scroll-snap-type: x mandatory;
+		scrollbar-width: none;
+
+		&::-webkit-scrollbar {
+			display: none;
+		}
+
+		> * {
+			scroll-snap-align: start;
+		}
+	}
+
+	// My Jetpack's Features grid. Grid items stretch, so the cards in a row
+	// share a height.
+	&__grid {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: var(--wpds-dimension-gap-lg);
+	}
+
+	// My Jetpack's Features card: the whole card opens the skill, so it takes
+	// the same hover and draws keyboard focus itself, unclipped by its radius.
+	&__card {
+		position: relative;
+		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+		border-radius: var(--wpds-border-radius-lg);
+		background: var(--wpds-color-background-surface-neutral-strong);
+		transition: background-color 0.2s cubic-bezier(0.23, 1, 0.32, 1), border-color 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+
+		// jetpack.com/prompts' card hover: a green wash and edge, and the arrow
+		// turns green and nudges outward. Jetpack greens with no design token.
+		&:hover {
+			background: #f5fbf5;
+			border-color: #87c688;
+
+			.jetpack-ai-discover__card-chevron {
+				color: var(--jetpack-ai-discover-hover-green);
+				transform: translate(2px, -2px);
+
+				&:dir(rtl) {
+					transform: translate(-2px, -2px);
+				}
+			}
+		}
+
+		// Only for the card's own link: Send to agent draws its own ring.
+		&:has(.jetpack-ai-discover__card-open:focus-visible) {
+			outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+			outline-offset: calc(var(--wpds-border-width-focus) * -1);
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			transition: none;
+		}
+	}
+
+	// The icon with the arrow across from it, then the text, then Send to
+	// agent under a rule, pinned to the bottom so it lines up across a row.
+	&__card-layout {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		grid-template-rows: auto 1fr auto;
+		grid-template-areas:
+			"tile chevron"
+			"text text"
+			"action action";
+		row-gap: var(--wpds-dimension-gap-lg);
+		block-size: 100%;
+		box-sizing: border-box;
+		padding: var(--wpds-dimension-padding-xl);
+
+		> .jetpack-ai-discover__tile {
+			grid-area: tile;
+		}
+	}
+
+	&__card-action {
+		grid-area: action;
+		padding-block-start: var(--wpds-dimension-padding-md);
+		border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+		// Above the title's stretched link, so the menu stays its own control.
+		position: relative;
+		z-index: 1;
+	}
+
+	&__card-chevron {
+		display: flex;
+		grid-area: chevron;
+		align-self: start;
+		color: var(--wpds-color-foreground-content-neutral-weak);
+		transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1), color 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+
+		@media (prefers-reduced-motion: reduce) {
+			transition: none;
+		}
+	}
+
+	// The card's own link, laid over all of it. The card draws its focus ring.
+	&__card-open {
+		position: absolute;
+		inset: 0;
+		border-radius: inherit;
+
+		&:focus,
+		&:focus-visible {
+			outline: none;
+			box-shadow: none;
+		}
+	}
+
+	&__card-text {
+		grid-area: text;
+		display: flex;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-xs);
+		min-inline-size: 0;
+
+		p {
+			margin: 0;
+		}
+	}
+
+	// A backstop for a catalog summary that runs long; the panel has it all.
+	&__card-summary {
+		padding-block-start: var(--wpds-dimension-gap-sm);
+		display: -webkit-box;
+		overflow: hidden;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+		line-clamp: 2;
+	}
+
+	// My Jetpack's card titles render at body size and weight, so this matches.
+	&__card-title {
+		margin: 0;
+		color: var(--wpds-color-foreground-content-neutral);
+	}
+
+	// No side padding, so the label lines up with the text above. Hovered or
+	// open it turns green, as the card does, instead of a fill hugging the label.
+	&__agent-trigger {
+		--wp-ui-button-padding-inline: 0;
+		--wp-ui-button-background-color-active: transparent;
+		--wp-ui-button-foreground-color-active: var(--jetpack-ai-discover-hover-green);
+		min-inline-size: 0;
+		white-space: nowrap;
+	}
+
+	// My Jetpack's Features icon tile: the Jetpack brand icon palette, which
+	// has no design-system token.
+	&__tile {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+		background: #003010;
+		color: #0ced57;
+
+		inline-size: 40px;
+		block-size: 40px;
+		border-radius: var(--wpds-border-radius-md);
+
+		svg {
+			fill: currentColor;
+		}
+	}
+
+	&__agent-menu-suffix {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--wpds-dimension-gap-sm);
+		margin-inline-start: var(--wpds-dimension-gap-lg);
+
+		svg {
+			fill: currentColor;
+			opacity: 0.6;
+		}
+	}
+
+	&__empty {
+		margin: var(--wpds-dimension-gap-3xl) auto;
+
+		// The root's narrow width would otherwise wrap each button's label.
+		a {
+			white-space: nowrap;
+		}
+	}
+}
+
+// A card's controls scrolled into view on focus stop below the stuck toolbar
+// as well as the tab strip (WCAG 2.4.11). Both heights come from
+// use-toolbar-offset.js; the toolbar's is 0 where it doesn't stick. Named in
+// full, so it outranks the hub's strip-only rule on the same controls.
+.jetpack-ai-discover :is(.jetpack-ai-discover__grid, .jetpack-ai-discover__rows) :is(a[href], button) {
+	scroll-margin-block-start: calc(var(--jetpack-ai-discover-toolbar-offset, 0px) + var(--jetpack-ai-discover-toolbar-height, 0px) + var(--wpds-dimension-gap-md));
+}
+
+// While the pills show (the toolbar is wider than 44.5rem inside, 46.13rem
+// outside), pills that don't fit wrap inside their group instead of pushing
+// the search onto a row of its own.
+@container discover (min-width: 46.13rem) {
+
+	.jetpack-ai-discover__toolbar {
+		flex-wrap: nowrap;
+	}
+}
+
+// The pills, with their icons, and More measure about 36.5rem in English beside
+// a minimum-width search, 44.5rem in all. The toolbar is 62.9rem inside at the
+// column's widest. Below this the select takes over.
+@container discover-toolbar (max-width: 44.5rem) {
+
+	.jetpack-ai-discover__pills {
+		display: none;
+	}
+
+	// The same basis as the search, not the selected label's width, so picking
+	// a category never reflows the row. The trigger shrinks to ellipsize.
+	.jetpack-ai-discover__filter-select {
+		display: block;
+		flex: 1 1 12rem;
+		min-inline-size: 0;
+
+		button {
+			min-inline-size: 0;
+		}
+	}
+
+	.jetpack-ai-discover__search {
+		flex-basis: 12rem;
+		margin-inline-start: 0;
+		min-inline-size: 12rem;
+		max-inline-size: none;
+	}
+}
+
+// Two cards a row once each gets about 260px, three on desktop.
+@container discover (min-width: 34rem) {
+
+	.jetpack-ai-discover__row-track {
+		--jetpack-ai-row-columns: 2;
+	}
+}
+
+@container discover (min-width: 50rem) {
+
+	.jetpack-ai-discover__grid {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
+	.jetpack-ai-discover__row-track {
+		--jetpack-ai-row-columns: 3;
+	}
+}
+
+// 782px is where wp-admin itself collapses the sidebar, and where My Jetpack's
+// Features grid drops to one column. The toolbar stops sticking there too: on
+// a phone it wraps to two rows and would hold about a seventh of the screen.
+@media (max-width: 782px) {
+
+	.jetpack-ai-discover__grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.jetpack-ai-discover__toolbar {
+		position: static;
+	}
+}
+
+// Beside an open skill panel or in a narrow window, a card under about 312px
+// can't fit Send to agent and a readable blurb, so the grid drops to one
+// column.
+@container discover (max-width: 40rem) {
+
+	.jetpack-ai-discover__grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}

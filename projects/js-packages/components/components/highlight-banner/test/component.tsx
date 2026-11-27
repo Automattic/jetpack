@@ -18,6 +18,15 @@ describe( 'HighlightBanner', () => {
 		expect( screen.getByRole( 'button', { name: 'Do it' } ) ).toBeInTheDocument();
 	} );
 
+	test( 'shows an icon before the copy, hidden from assistive technology', () => {
+		render(
+			<HighlightBanner title="Banner title" icon={ <svg role="img" aria-label="Mark" /> } />
+		);
+
+		expect( screen.queryByRole( 'img', { name: 'Mark' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'img', { name: 'Mark', hidden: true } ) ).toBeInTheDocument();
+	} );
+
 	test( 'has no close button without onDismiss', () => {
 		render( <HighlightBanner title="Banner title" /> );
 

@@ -42,7 +42,7 @@ export default function () {
 	const { isRegistered } = useMyJetpackConnection();
 
 	const videoTitleContentGeneration = __(
-		'Generate and edit content faster with Jetpack AI Assistant',
+		'Generate and edit content faster with Jetpack AI',
 		'jetpack-my-jetpack'
 	);
 	const videoTitleFeaturedImages = __(
