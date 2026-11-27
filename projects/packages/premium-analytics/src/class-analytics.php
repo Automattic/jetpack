@@ -246,11 +246,6 @@ class Analytics {
 
 		self::register_script_data();
 
-		// The flag registers here, not beside the feature it gates: it must be discoverable
-		// through Feature_Flags::all() on every request, not only the ones that render the
-		// dashboard, so `wp companion feature-flag` lists it.
-		Parsely_Prompts::register_feature_flag();
-
 		// Stats links elsewhere (post list table, admin bar, action bar) open this dashboard.
 		Stats_Links::register();
 

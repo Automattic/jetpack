@@ -36,28 +36,38 @@ const PARSELY_PROMPTS_VIEWS_THRESHOLD = 100000;
 const PARSELY_PROMPTS_TIERS = array( STATS_TIER_COMMERCIAL, STATS_TIER_PAID );
 
 /**
- * Transient holding the views figure the threshold is measured against.
+ * Stats usage field that opens the prompts for a site. Only an explicit `true` does.
  *
  * @var string
  */
-const PARSELY_PROMPTS_VIEWS_TRANSIENT = 'jetpack_premium_analytics_parsely_views';
+const PARSELY_PROMPTS_ENABLED_FIELD = 'parsely_prompts_enabled';
 
 /**
- * How long that figure stands. A promo can lag a site crossing the threshold.
+ * Transient holding what the Stats usage payload said: the views figure the threshold is measured
+ * against, and whether WordPress.com opens the prompts. Both come from one request.
+ *
+ * @var string
+ */
+const PARSELY_PROMPTS_USAGE_TRANSIENT = 'jetpack_premium_analytics_parsely_usage';
+
+/**
+ * How long that answer stands. Short because closing the prompts is incident response: a site
+ * holding a recent answer keeps showing them for this long after WordPress.com says stop. Going
+ * lower buys nothing, since WPCOM_Stats caches the same response for five minutes underneath.
  *
  * @var int
  */
-const PARSELY_PROMPTS_VIEWS_TTL = 12 * HOUR_IN_SECONDS;
+const PARSELY_PROMPTS_USAGE_TTL = MINUTE_IN_SECONDS;
 
 /**
  * How long a failed lookup stands, so one bad response does not hide the prompt all day.
  *
  * @var int
  */
-const PARSELY_PROMPTS_VIEWS_RETRY_TTL = HOUR_IN_SECONDS;
+const PARSELY_PROMPTS_USAGE_RETRY_TTL = HOUR_IN_SECONDS;
 
 /**
- * Configures the Upgrade to Parse.ly prompts. The flag registers earlier, at package boot.
+ * Configures the Upgrade to Parse.ly prompts.
  *
  * @since $$next-version$$
  *
@@ -97,18 +107,18 @@ function inject_parsely_prompts_script_data( array $data ): array {
  * @return bool
  */
 function offers_parsely_prompts() {
-	$offers = Parsely_Prompts::is_enabled()
-		&& current_user_can( 'manage_options' )
+	$offers = current_user_can( 'manage_options' )
 		// WordPress.com Simple cannot complete the one-step Parse.ly setup yet.
 		&& ! ( new Host() )->is_wpcom_simple()
 		&& in_array( get_stats_plan_tier(), PARSELY_PROMPTS_TIERS, true )
 		&& ! has_parsely_integration()
-		// Last, and behind the short circuit: this is the only condition that costs a request.
+		// Last, and behind the short circuit: these two share the one request this check costs.
+		&& prompts_enabled_by_wordpress_com()
 		&& get_monthly_stats_views() >= PARSELY_PROMPTS_VIEWS_THRESHOLD;
 
 	/**
 	 * Filters whether the site and user see the Upgrade to Parse.ly prompts. It runs after every
-	 * condition, the feature flag included, so returning true shows the prompts with the flag off.
+	 * condition, so returning true shows them to a site WordPress.com has not opened them for.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -146,51 +156,87 @@ function has_parsely_integration() {
  * @return int|null
  */
 function get_monthly_stats_views() {
-	$cached = get_transient( PARSELY_PROMPTS_VIEWS_TRANSIENT );
+	return get_parsely_prompts_usage()['views'];
+}
 
-	// A cache of any other shape is refetched rather than read, so a stale one heals itself.
-	if ( is_array( $cached ) && array_key_exists( 'views', $cached ) ) {
-		return $cached['views'];
+/**
+ * Whether WordPress.com opens the prompts for this site.
+ *
+ * @since $$next-version$$
+ *
+ * @return bool
+ */
+function prompts_enabled_by_wordpress_com() {
+	// Checked as strictly as it was stored: an object cache that hands back 1 for a stored true
+	// would otherwise open the prompts, and nothing here may fail open.
+	return true === get_parsely_prompts_usage()['enabled'];
+}
+
+/**
+ * What the Stats usage payload says, kept for the rest of the TTL so the two conditions that read
+ * it cost one request between them.
+ *
+ * @since $$next-version$$
+ *
+ * @return array{views: int|null, enabled: bool}
+ */
+function get_parsely_prompts_usage() {
+	$cached = get_transient( PARSELY_PROMPTS_USAGE_TRANSIENT );
+
+	// Callers index both keys, so a cache carrying either one alone is refetched, not read.
+	if ( is_array( $cached ) && array_key_exists( 'views', $cached ) && array_key_exists( 'enabled', $cached ) ) {
+		return $cached;
 	}
 
-	$views = fetch_monthly_stats_views();
+	$usage = fetch_parsely_prompts_usage();
 
 	/*
 	 * A failure is cached too: the stats client refuses to cache a connection failure, so without
 	 * this a site whose blog token has gone stale re-sends the request on every admin page render.
 	 */
 	set_transient(
-		PARSELY_PROMPTS_VIEWS_TRANSIENT,
-		array( 'views' => $views ),
-		null === $views ? PARSELY_PROMPTS_VIEWS_RETRY_TTL : PARSELY_PROMPTS_VIEWS_TTL
+		PARSELY_PROMPTS_USAGE_TRANSIENT,
+		$usage,
+		null === $usage['views'] ? PARSELY_PROMPTS_USAGE_RETRY_TTL : PARSELY_PROMPTS_USAGE_TTL
 	);
 
-	return $views;
+	return $usage;
 }
 
 /**
- * Ask WordPress.com for the site's views for a month.
+ * Ask WordPress.com for the site's views for a month, and whether it opens the prompts.
  *
  * @since $$next-version$$
  *
- * @return int|null
+ * @return array{views: int|null, enabled: bool}
  */
-function fetch_monthly_stats_views() {
+function fetch_parsely_prompts_usage() {
 	$stats = new WPCOM_Stats();
 
 	// Another plugin can load an older jetpack-stats, whose class has no usage endpoint.
 	if ( ! method_exists( $stats, 'get_stats_usage' ) ) {
-		return null;
+		return array(
+			'views'   => null,
+			'enabled' => false,
+		);
 	}
 
 	// An older copy of the package takes no request arguments and waits its own 20 seconds.
 	$usage = $stats->get_stats_usage( array( 'timeout' => 5 ) );
 
 	if ( is_wp_error( $usage ) ) {
-		return null;
+		return array(
+			'views'   => null,
+			'enabled' => false,
+		);
 	}
 
-	return quietest_monthly_views( is_array( $usage ) ? $usage : array() );
+	$usage = is_array( $usage ) ? $usage : array();
+
+	return array(
+		'views'   => quietest_monthly_views( $usage ),
+		'enabled' => true === ( $usage[ PARSELY_PROMPTS_ENABLED_FIELD ] ?? null ),
+	);
 }
 
 /**
