@@ -2,10 +2,13 @@
 
 namespace Automattic\Jetpack\My_Jetpack;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\My_Jetpack\Products\Protect;
 use Automattic\Jetpack\Protect_Status\Scan_Status;
 use Automattic\Jetpack\Protect_Status\Status;
+use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -29,6 +32,9 @@ class Protect_Needs_Attention_Test extends TestCase {
 		parent::setUp();
 
 		add_filter( 'pre_http_request', array( $this, 'block_http_request' ) );
+		// Connected, so a refresh reaches the Scan request that the filter fails.
+		( new Tokens() )->update_blog_token( 'test.test.1' );
+		Jetpack_Options::update_option( 'id', 123 );
 		// Other test classes leave a memoized status behind.
 		Status::$status = null;
 		Current_Plan::update_from_site_record(
@@ -76,6 +82,7 @@ class Protect_Needs_Attention_Test extends TestCase {
 			)
 		);
 		WorDBless_Options::init()->clear_options();
+		( new Connection_Manager() )->reset_connection_status();
 		parent::tearDown();
 	}
 
