@@ -744,10 +744,9 @@ export interface CompactWhenShortProps {
 
 export interface SeriesEmphasisProps {
 	/**
-	 * Label of the primary series to bring out. Every other series dims to
-	 * `DIMMED_SERIES_OPACITY`, comparison series along with the primary series they shadow.
+	 * Label of the series to bring out; every other series dims to `DIMMED_SERIES_OPACITY`.
 	 * Null leaves every series at full strength, as does a label no series carries, which
-	 * warns in development. Pass null rather than nothing while the emphasis can come and go.
+	 * warns in development.
 	 */
 	emphasizedSeries?: string | null;
 }

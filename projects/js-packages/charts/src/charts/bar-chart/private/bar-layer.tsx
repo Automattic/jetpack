@@ -27,8 +27,10 @@ type Props = Accessors & {
 	primaryEntries: { series: SeriesData; index: number }[];
 	primaryKeys: string[];
 	getBarBackground: ( index: number ) => ( datum: DataPointDate ) => string;
-	/** Reads a series' opacity under `emphasizedSeries`; undefined while the prop is omitted. */
-	getSeriesOpacity: GetSeriesOpacity | undefined;
+	/** Reads a bar's opacity under `emphasizedSeries`. */
+	getSeriesOpacity: GetSeriesOpacity;
+	/** Whether the host passes `emphasizedSeries`, so grouped bars draw here rather than in visx. */
+	drawsEmphasis: boolean;
 	barClassName: BarChartProps[ 'barClassName' ];
 	groupPadding: number;
 	horizontal: boolean;
@@ -76,6 +78,7 @@ const StackedBarGroup: FC< { horizontal: boolean; children: ReactNode } > = ( {
  * @param props.primaryKeys      - Their labels, in group order.
  * @param props.getBarBackground - Reads a series' bar fill.
  * @param props.getSeriesOpacity - Reads a series' opacity, or undefined for full strength.
+ * @param props.drawsEmphasis    - Whether the host passes `emphasizedSeries`.
  * @param props.barClassName     - Adds classes to a bar.
  * @param props.groupPadding     - The padding between the bars of a category.
  * @param props.horizontal       - Whether the bars run horizontally.
@@ -91,6 +94,7 @@ export const BarLayer: FC< Props > = ( {
 	primaryKeys,
 	getBarBackground,
 	getSeriesOpacity,
+	drawsEmphasis,
 	barClassName,
 	groupPadding,
 	horizontal,
@@ -109,7 +113,7 @@ export const BarLayer: FC< Props > = ( {
 						xAccessor={ xAccessor }
 						yAccessor={ yAccessor }
 						colorAccessor={ getBarBackground( index ) }
-						opacity={ getSeriesOpacity?.( series.label ) }
+						opacity={ getSeriesOpacity( series.label ) }
 						barClassName={ barClassName }
 						slotKeys={ barSlots.slotKeys }
 						slotKey={ barSlots.slotOf( series.label ) }
@@ -130,7 +134,7 @@ export const BarLayer: FC< Props > = ( {
 						xAccessor={ xAccessor }
 						yAccessor={ yAccessor }
 						colorAccessor={ getBarBackground( index ) }
-						opacity={ getSeriesOpacity?.( series.label ) }
+						opacity={ getSeriesOpacity( series.label ) }
 						barClassName={ barClassName }
 						slotKeys={ barSlots.slotKeys }
 						slotKey={ barSlots.slotOf( series.label ) }
@@ -140,8 +144,7 @@ export const BarLayer: FC< Props > = ( {
 				) ) }
 			</g>
 		);
-	} else if ( barClassName || getSeriesOpacity ) {
-		// visx's own bars take no per-series opacity, so an emphasis draws them here too.
+	} else if ( barClassName || drawsEmphasis ) {
 		bars = (
 			<g className="visx-bar-group">
 				{ primaryEntries.map( ( { series, index } ) => (
@@ -152,7 +155,7 @@ export const BarLayer: FC< Props > = ( {
 						xAccessor={ xAccessor }
 						yAccessor={ yAccessor }
 						colorAccessor={ getBarBackground( index ) }
-						opacity={ getSeriesOpacity?.( series.label ) }
+						opacity={ getSeriesOpacity( series.label ) }
 						barClassName={ barClassName ?? noBarClass }
 						primaryKeys={ primaryKeys }
 						groupPadding={ groupPadding }

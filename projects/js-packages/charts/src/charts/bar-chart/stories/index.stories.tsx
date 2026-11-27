@@ -70,6 +70,11 @@ const meta: Meta< StoryArgs > = {
 			description: 'Use patterns for bars',
 			table: { category: 'Visual Style' },
 		},
+		emphasizedSeries: {
+			control: 'text',
+			description: 'Label of the primary series to bring out; the others dim',
+			table: { category: 'Visual Style' },
+		},
 	},
 	render: args => {
 		const { seriesCount, ...chartProps } = args;

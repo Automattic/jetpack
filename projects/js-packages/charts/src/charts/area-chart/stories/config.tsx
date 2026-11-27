@@ -28,6 +28,11 @@ export const areaChartMetaArgs: Meta< StoryArgs > = {
 		...themeArgTypes,
 		...sharedChartArgTypes,
 		...lineChartTooltipArgTypes,
+		emphasizedSeries: {
+			control: 'text',
+			description: 'Label of the series to bring out; the others dim',
+			table: { category: 'Visual Style' },
+		},
 		data: {
 			control: { type: 'object' },
 			description: 'Array of series data to display in the chart',

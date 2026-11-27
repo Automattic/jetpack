@@ -471,7 +471,7 @@ For an overlay outside the chart, `onBandHighlightChange` reports the active dat
 
 ### Emphasized Series
 
-Set `emphasizedSeries` to the label of a primary series to bring it out: every other series dims to `DIMMED_SERIES_OPACITY` (0.2, exported by the package), and a comparison bar follows the series it shadows. The chart owns the drawing, so the dimming holds in every layout and survives a visx update. Drive it from your own control, such as a total or legend item the reader hovers or presses, and pass `null` to let the emphasis go. Keep passing `null` rather than dropping the prop while the emphasis can return, so the bars keep their identity. A label no series carries dims nothing and warns in development.
+Set `emphasizedSeries` to the label of a primary series to bring it out: every other series dims to `DIMMED_SERIES_OPACITY` (0.2, exported by the package). A comparison bar follows the primary it shadows in every layout, and the stacked layout's comparison total stays at full strength while the emphasized series has a comparison in it. Drive it from your own control, such as a total or legend item the reader hovers or presses, and pass `null` to let the emphasis go. A label no primary series carries dims nothing and warns in development.
 
 <Canvas of={ BarChartStories.EmphasizedSeries } />
 

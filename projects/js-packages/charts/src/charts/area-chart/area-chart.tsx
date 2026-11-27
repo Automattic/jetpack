@@ -397,7 +397,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 			isVisible,
 		}: ( typeof seriesWithVisibility )[ number ] ) => {
 			const { color, lineStyles } = getElementStyles( { data: seriesData, index } );
-			const opacity = getSeriesOpacity?.( seriesData.label );
+			const opacity = getSeriesOpacity( seriesData.label );
 			return (
 				<AnimatedAreaSeries
 					key={ seriesData?.label || index }
@@ -409,7 +409,11 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 					fillOpacity={ resolvedFillOpacity }
 					opacity={ opacity }
 					{ ...( stacked ? {} : { renderLine: resolvedWithStroke, curve } ) }
-					lineProps={ { stroke: color, ...lineStyles, opacity } }
+					lineProps={ {
+						stroke: color,
+						...lineStyles,
+						...( opacity === undefined ? {} : { opacity } ),
+					} }
 					data-testid={ `area-chart-series-${ index }` }
 				/>
 			);

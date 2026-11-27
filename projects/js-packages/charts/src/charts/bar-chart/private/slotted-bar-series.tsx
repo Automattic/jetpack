@@ -63,6 +63,7 @@ const SlottedBarSeries = ( {
 			return (
 				<rect
 					{ ...rect }
+					data-testid="bar-chart-bar"
 					className={ clsx( 'visx-bar', barClassName?.( datum ) ) }
 					fill={ color }
 					opacity={ opacity }

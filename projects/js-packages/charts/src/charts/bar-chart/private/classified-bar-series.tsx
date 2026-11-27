@@ -59,6 +59,7 @@ const ClassifiedBarSeries = ( {
 			const value = horizontal ? x : y;
 			return (
 				<rect
+					data-testid="bar-chart-bar"
 					className={ clsx( 'visx-bar', barClassName( datum ) ) }
 					// visx's own Bars makes a bar focusable on the same condition.
 					tabIndex={ onFocus || onBlur ? 0 : undefined }

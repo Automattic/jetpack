@@ -12,7 +12,7 @@ import { GlobalChartsProvider } from '../../../providers';
 import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/use-global-charts-context';
 import { steadyTrafficData } from '../../../stories/sample-data';
 import { selectedBarRingBounds } from '../../../test-utils/selected-bar-ring';
-import BarChart, { BarChartUnresponsive } from '../bar-chart';
+import BarChart, { BarChartUnresponsive, type BarChartProps } from '../bar-chart';
 import { useBarChartOptions } from '../private';
 import { useBarColors } from '../use-bar-colors';
 import type { GlobalChartsContextValue } from '../../../providers/chart-context/types';
@@ -3792,110 +3792,129 @@ describe( 'BarChart', () => {
 		} );
 	} );
 	describe( 'emphasizedSeries', () => {
+		const VIEWS = '#111111';
+		const VISITORS = '#222222';
+		const PREVIOUS_VIEWS = '#333333';
+		const colored = ( color: string, values: number[] ) =>
+			values.map( ( value, index ) => ( { label: [ 'Jan', 'Feb' ][ index ], value, color } ) );
 		const data: SeriesData[] = [
-			{
-				label: 'Views',
-				group: 'views',
-				data: [
-					{ label: 'Jan', value: 100 },
-					{ label: 'Feb', value: 120 },
-				],
-			},
-			{
-				label: 'Visitors',
-				group: 'visitors',
-				data: [
-					{ label: 'Jan', value: 60 },
-					{ label: 'Feb', value: 70 },
-				],
-			},
+			{ label: 'Views', group: 'views', data: colored( VIEWS, [ 100, 120 ] ) },
+			{ label: 'Visitors', group: 'visitors', data: colored( VISITORS, [ 60, 70 ] ) },
 			{
 				label: 'Views last year',
 				group: 'views',
 				options: { type: 'comparison' as const },
-				data: [
-					{ label: 'Jan', value: 80 },
-					{ label: 'Feb', value: 140 },
-				],
+				data: colored( PREVIOUS_VIEWS, [ 80, 140 ] ),
 			},
 		];
-		// eslint-disable-next-line testing-library/no-node-access -- visx renders the bars and takes no test id.
-		const allBars = () => Array.from( document.querySelectorAll( '.visx-bar' ) );
-		const shadows = () => screen.queryAllByTestId( /^bar-chart-comparison-\d+-\d+$/ );
 		const opacityOf = ( element: Element ) => element.getAttribute( 'opacity' );
+		const bars = () => screen.queryAllByTestId( /^bar-chart-(stacked-)?bar$/ );
+		const barsFilled = ( color: string ) =>
+			bars().filter( bar => bar.getAttribute( 'fill' ) === color );
+		const shadows = () => screen.queryAllByTestId( /^bar-chart-comparison-\d+-\d+$/ );
+		const renderChart = ( props: Partial< BarChartProps > ) =>
+			render(
+				<GlobalChartsProvider>
+					<BarChart data={ data } width={ 400 } height={ 300 } { ...props } />
+				</GlobalChartsProvider>
+			);
 
 		it.each( [ [ 'grouped' ], [ 'overlap' ], [ 'stacked' ] ] as const )(
-			'keeps the emphasized series at full strength and dims the rest, shadows included, in the %s layout',
+			'dims every bar but the emphasized series and the comparison that shadows it, in the %s layout',
 			layout => {
-				render(
-					<GlobalChartsProvider>
-						<BarChart
-							data={ data }
-							layout={ layout }
-							emphasizedSeries="Visitors"
-							width={ 400 }
-							height={ 300 }
-						/>
-					</GlobalChartsProvider>
-				);
+				renderChart( { layout, emphasizedSeries: 'Views' } );
 
-				const bars = allBars();
-				const full = bars.filter( bar => opacityOf( bar ) === null );
-				const dimmed = [ ...bars.filter( bar => ! full.includes( bar ) ), ...shadows() ];
-				// Visitors' two bars, in one color; Views, its shadow or the comparison total dim.
-				expect( full ).toHaveLength( 2 );
-				expect( new Set( full.map( bar => bar.getAttribute( 'fill' ) ) ).size ).toBe( 1 );
-				expect( dimmed.length ).toBeGreaterThanOrEqual( 4 );
-				expect( dimmed.map( opacityOf ) ).toEqual( dimmed.map( () => '0.2' ) );
+				expect( barsFilled( VIEWS ).map( opacityOf ) ).toEqual( [ null, null ] );
+				expect( barsFilled( VISITORS ).map( opacityOf ) ).toEqual( [ '0.2', '0.2' ] );
+				// Grouped draws the shadow in its own layer; overlap slots it; stacked sums it.
+				const shadow = [
+					...shadows(),
+					...barsFilled( PREVIOUS_VIEWS ),
+					...bars().filter(
+						bar =>
+							! [ VIEWS, VISITORS, PREVIOUS_VIEWS ].includes( bar.getAttribute( 'fill' ) ?? '' )
+					),
+				];
+				expect( shadow ).toHaveLength( 2 );
+				expect( shadow.map( opacityOf ) ).toEqual( [ null, null ] );
 			}
 		);
 
-		it( 'dims nothing for null, and for a label no series carries, which warns once', () => {
+		it( 'dims the stacked comparison total when the emphasized series has no comparison', () => {
+			renderChart( { layout: 'stacked', emphasizedSeries: 'Visitors' } );
+
+			const total = bars().filter(
+				bar => ! [ VIEWS, VISITORS ].includes( bar.getAttribute( 'fill' ) ?? '' )
+			);
+			expect( barsFilled( VISITORS ).map( opacityOf ) ).toEqual( [ null, null ] );
+			expect( barsFilled( VIEWS ).map( opacityOf ) ).toEqual( [ '0.2', '0.2' ] );
+			expect( total.map( opacityOf ) ).toEqual( [ '0.2', '0.2' ] );
+		} );
+
+		it.each( [
+			[ 'null', null, [] ],
+			[ 'a label no series carries', 'Sessions', [ 'emphasizedSeries "Sessions"' ] ],
+			[ "a comparison series' label", 'Views last year', [ 'emphasizedSeries "Views last year"' ] ],
+		] )(
+			'dims nothing for %s, warning once only for a label',
+			( _case, emphasizedSeries, warnings ) => {
+				const warn = jest.spyOn( console, 'warn' ).mockImplementation( () => {} );
+				try {
+					const { rerender } = renderChart( { emphasizedSeries } );
+					rerender(
+						<GlobalChartsProvider>
+							<BarChart
+								data={ data }
+								width={ 401 }
+								height={ 300 }
+								emphasizedSeries={ emphasizedSeries }
+							/>
+						</GlobalChartsProvider>
+					);
+
+					expect( bars() ).toHaveLength( 4 );
+					expect( bars().map( opacityOf ) ).toEqual( [ null, null, null, null ] );
+					expect( shadows().map( opacityOf ) ).toEqual( [ null, null ] );
+					expect( warn.mock.calls.map( ( [ message ] ) => String( message ) ) ).toEqual(
+						warnings.map( warning => expect.stringContaining( warning ) )
+					);
+				} finally {
+					warn.mockRestore();
+				}
+			}
+		);
+
+		it( 'holds the warning while the data is still empty', () => {
 			const warn = jest.spyOn( console, 'warn' ).mockImplementation( () => {} );
 			try {
-				const { rerender } = render(
-					<GlobalChartsProvider>
-						<BarChart data={ data } emphasizedSeries={ null } width={ 400 } height={ 300 } />
-					</GlobalChartsProvider>
-				);
-				expect( allBars().map( opacityOf ) ).toEqual( [ null, null, null, null ] );
-				expect( warn ).not.toHaveBeenCalled();
+				renderChart( { data: [], emphasizedSeries: 'Views' } );
 
-				rerender(
-					<GlobalChartsProvider>
-						<BarChart data={ data } emphasizedSeries="Sessions" width={ 400 } height={ 300 } />
-					</GlobalChartsProvider>
-				);
-				rerender(
-					<GlobalChartsProvider>
-						<BarChart data={ data } emphasizedSeries="Sessions" width={ 401 } height={ 300 } />
-					</GlobalChartsProvider>
-				);
-				expect( allBars().map( opacityOf ) ).toEqual( [ null, null, null, null ] );
-				expect( warn ).toHaveBeenCalledTimes( 1 );
-				expect( warn.mock.calls[ 0 ][ 0 ] ).toContain( 'emphasizedSeries "Sessions"' );
+				expect( warn ).not.toHaveBeenCalled();
 			} finally {
 				warn.mockRestore();
 			}
 		} );
 
-		it( 'keeps the grouped bars mounted while the emphasis comes and goes', () => {
-			const { rerender } = render(
-				<GlobalChartsProvider>
-					<BarChart data={ data } emphasizedSeries={ null } width={ 400 } height={ 300 } />
-				</GlobalChartsProvider>
-			);
-			const [ firstBar ] = allBars();
+		it( 'draws grouped bars itself once the prop is passed, and keeps them mounted as it changes', () => {
+			const { rerender } = renderChart( {} );
+			expect( bars() ).toHaveLength( 0 );
 
 			rerender(
 				<GlobalChartsProvider>
-					<BarChart data={ data } emphasizedSeries="Views" width={ 400 } height={ 300 } />
+					<BarChart data={ data } width={ 400 } height={ 300 } emphasizedSeries={ undefined } />
+				</GlobalChartsProvider>
+			);
+			const [ firstBar ] = bars();
+			expect( bars() ).toHaveLength( 4 );
+
+			rerender(
+				<GlobalChartsProvider>
+					<BarChart data={ data } width={ 400 } height={ 300 } emphasizedSeries="Views" />
 				</GlobalChartsProvider>
 			);
 
-			expect( allBars()[ 0 ] ).toBe( firstBar );
-			expect( opacityOf( firstBar ) ).toBeNull();
-			expect( opacityOf( allBars()[ 2 ] ) ).toBe( '0.2' );
+			expect( bars()[ 0 ] ).toBe( firstBar );
+			expect( barsFilled( VISITORS ).map( opacityOf ) ).toEqual( [ '0.2', '0.2' ] );
 		} );
 	} );
 } );
