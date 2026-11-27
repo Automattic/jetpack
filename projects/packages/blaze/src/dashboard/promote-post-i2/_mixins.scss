@@ -1,0 +1,72 @@
+@mixin promote-post-i2-font {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	font-weight: var(--wpds-typography-font-weight-default);
+	font-size: var(--wpds-typography-font-size-md);
+	font-style: normal;
+	line-height: 1.43;
+}
+
+@mixin blazepress-data-row-font-mobile {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	font-size: var(--wpds-typography-font-size-sm);
+	font-weight: var(--wpds-typography-font-weight-default);
+	line-height: 1.5;
+}
+
+@mixin blazepress-data-row-font-buttons-mobile {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	font-size: var(--wpds-typography-font-size-sm);
+	font-weight: var(--wpds-typography-font-weight-emphasis);
+	line-height: 1.5;
+}
+
+@mixin blazepress-data-row {
+
+	&data-row {
+		align-items: center;
+		display: flex;
+		width: 100%;
+
+		&-mobile {
+			display: none;
+			margin-block-start: 20px;
+
+			.post-item__actions-mobile {
+				display: flex;
+				align-items: flex-end;
+				justify-content: space-between;
+			}
+
+			.post-item__stats-mobile {
+
+				@include blazepress-data-row-font-mobile;
+				align-items: center;
+				display: flex;
+				justify-content: space-between;
+				width: 100%;
+			}
+
+			.campaign-item__stats-mobile {
+				align-self: start;
+
+				@include blazepress-data-row-font-mobile;
+			}
+		}
+	}
+}
+
+@mixin blazepress-animated-skeleton {
+	background-color: var(--wpds-color-background-surface-neutral-weak);
+	animation: skeleton-loading 1s linear infinite alternate;
+
+	@keyframes skeleton-loading {
+
+		0% {
+			opacity: 1;
+		}
+
+		100% {
+			opacity: 0.6;
+		}
+	}
+}

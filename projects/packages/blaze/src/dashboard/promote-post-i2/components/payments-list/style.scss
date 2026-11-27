@@ -1,0 +1,84 @@
+@import "@wordpress/base-styles/breakpoints";
+
+.payment-receipt-container {
+	padding: 0 24px 24px;
+	max-width: 1040px;
+	margin: 0 auto;
+
+	&__header {
+		margin-block-end: 24px;
+	}
+
+	&__back-button {
+		color: var(--wpds-color-foreground-interactive-brand);
+		background: none;
+		cursor: pointer;
+		font-size: var(--wpds-typography-font-size-md);
+		text-decoration: none;
+	}
+}
+
+.promote-post-i2 {
+
+	.payments-list__loading {
+		text-align: center;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 12px;
+
+		p {
+			margin: 0;
+			color: var(--wpds-color-foreground-content-neutral-weak);
+		}
+	}
+
+	.payments-list__info {
+		margin-block-end: 0;
+		font-size: var(--wpds-typography-font-size-md);
+		line-height: 1.5;
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	.promote-post-i2__table.payments-list__table {
+
+		td.payment-item__actions {
+			text-align: end;
+		}
+
+		@media (max-width: $break-medium) {
+
+			thead {
+
+				th.payment-item__payment-id,
+				th.payment-item__date,
+				th.payment-item__subtotal,
+				th.payment-item__credits {
+					display: none;
+				}
+
+				th.payment-item__status {
+					width: 45%;
+				}
+
+				th.payment-item__total {
+					width: 30%;
+				}
+
+				th.payment-item__actions {
+					width: 25%;
+				}
+			}
+
+			tbody {
+
+				td.payment-item__payment-id,
+				td.payment-item__date,
+				td.payment-item__subtotal,
+				td.payment-item__credits {
+					display: none;
+				}
+			}
+		}
+	}
+}

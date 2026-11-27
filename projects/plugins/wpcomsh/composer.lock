@@ -471,7 +471,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/blaze",
-                "reference": "4f1c22a6baf8dd7a7ee135b1ef3db9e0ebf95210"
+                "reference": "cf404fd36820925789188e7d472dc99152214036"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -482,6 +482,7 @@
                 "automattic/jetpack-redirect": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-sync": "@dev",
+                "automattic/jetpack-wp-build-polyfills": "@dev",
                 "php": ">=7.4"
             },
             "require-dev": {

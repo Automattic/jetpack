@@ -1,0 +1,19 @@
+.promoted-posts__payment-links-container .promoted-posts__payment-links {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+
+	.promoted-posts__payment-link-row {
+		display: grid;
+		grid-template-columns: 40% 40% 20%;
+
+		.payment-link__label {
+			font-size: var(--wpds-typography-font-size-md);
+			font-weight: var(--wpds-typography-font-weight-emphasis);
+		}
+
+		.payment-link__link {
+			justify-self: flex-end;
+		}
+	}
+}

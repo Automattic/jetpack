@@ -1,0 +1,2 @@
+// The Blaze page body: our class on a direct load, the screen ID in the shell.
+$blaze-page: ":is(body.jetpack-blaze-dashboard, body.jetpack_page_advertising, body.jetpack_page_wp-blaze)";

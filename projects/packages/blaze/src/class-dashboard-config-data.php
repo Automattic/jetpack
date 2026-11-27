@@ -73,6 +73,7 @@ class Dashboard_Config_Data {
 			'env_id'                   => 'production',
 			'google_analytics_key'     => 'UA-10673494-15',
 			'hostname'                 => wp_parse_url( get_site_url(), PHP_URL_HOST ),
+			'images_url'               => plugins_url( 'images/', __DIR__ ),
 			'i18n_default_locale_slug' => 'en',
 			'mc_analytics_enabled'     => false,
 			'meta'                     => array(),

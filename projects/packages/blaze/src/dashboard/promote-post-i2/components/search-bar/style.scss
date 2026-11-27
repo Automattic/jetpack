@@ -1,0 +1,52 @@
+@import "@wordpress/base-styles/breakpoints";
+
+.promote-post-i2__search-bar-wrapper {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 16px;
+
+	.promote-post-i2__search-bar-search {
+		flex: 0 1 264px;
+	}
+
+	.promote-post-i2__search-bar-options {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+	}
+
+	.promote-post-i2__search-bar-dropdown {
+
+		&.order-by {
+			min-width: 200px;
+		}
+
+		&.post-type,
+		&.campaigns-filter {
+			min-width: 160px;
+		}
+	}
+}
+
+@mixin blazepress-search-bar-mobile {
+
+	.promote-post-i2 .promote-post-i2__search-bar-wrapper {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 12px;
+
+		.promote-post-i2__search-bar-search {
+			flex-basis: auto;
+		}
+
+		.promote-post-i2__search-bar-options {
+			justify-content: space-between;
+		}
+	}
+}
+
+@media (max-width: $break-medium) {
+
+	@include blazepress-search-bar-mobile;
+}

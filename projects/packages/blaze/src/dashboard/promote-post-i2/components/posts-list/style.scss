@@ -1,0 +1,28 @@
+@import "@wordpress/base-styles/breakpoints";
+@import "../../mixins";
+
+.promote-post-i2 {
+
+	@include promote-post-i2-font;
+}
+
+// Fixed columns, so skeleton rows and loaded rows share one layout.
+@media (min-width: #{$break-medium + 1}) {
+
+	.promote-post-i2 table.posts-lists__table {
+		table-layout: fixed;
+		width: 100%;
+
+		th.post-item__post-data {
+			width: 36%;
+		}
+
+		th.post-item__post-view {
+			width: 72px;
+		}
+
+		th.post-item__post-promote {
+			width: 120px;
+		}
+	}
+}

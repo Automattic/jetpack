@@ -1,0 +1,63 @@
+@import "../../mixins";
+
+.campaigns-total-stats {
+
+	&__label {
+		font-size: var(--wpds-typography-font-size-md);
+		color: var(--wpds-color-foreground-content-neutral-weak);
+		font-weight: var(--wpds-typography-font-weight-default);
+	}
+
+	&__header {
+		padding: 16px;
+		border-block-end:
+			var(--wpds-border-width-xs) solid
+			var(--wpds-color-stroke-surface-neutral-weak);
+	}
+
+	&__title {
+		font-size: var(--wpds-typography-font-size-xl);
+		line-height: 28px;
+		color: var(--wpds-color-foreground-content-neutral);
+		font-weight: var(--wpds-typography-font-weight-default);
+	}
+
+	&__items {
+		display: flex;
+		flex-direction: row;
+	}
+
+	&__item {
+		font-size: 28px;
+		color: var(--wpds-color-foreground-content-neutral);
+		font-weight: var(--wpds-typography-font-weight-default);
+		padding-block: 32px;
+		padding-inline: 16px;
+		border-inline-end:
+			var(--wpds-border-width-xs) solid
+			var(--wpds-color-stroke-surface-neutral-weak);
+		flex: 1;
+
+		&:last-child {
+			border-inline-end: none;
+		}
+	}
+
+	&__flexible-skeleton {
+		border-radius: var(--wpds-border-radius-md);
+		display: inline-block;
+		overflow: hidden;
+		position: relative;
+		max-width: 250px;
+		height: 16px;
+		width: 100%;
+
+		@include blazepress-animated-skeleton;
+	}
+}
+
+// Holds the figure's line box, so the card keeps its height while loading.
+.campaigns-total-stats__placeholder {
+	inline-size: 64px;
+	block-size: 1lh;
+}

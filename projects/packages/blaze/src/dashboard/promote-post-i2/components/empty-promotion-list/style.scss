@@ -1,0 +1,5 @@
+// @wordpress/ui EmptyState caps its width and sits at the start; centre it.
+.promote-post-i2 .empty-promotion-list__container {
+	margin-block: 64px;
+	margin-inline: auto;
+}
