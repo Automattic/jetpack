@@ -1,4 +1,4 @@
-import { getAdminUrl } from '@automattic/jetpack-script-data';
+import { getAdminUrl, isWoASite } from '@automattic/jetpack-script-data';
 import { render, screen } from '@testing-library/react';
 import { isSettingsConsolidationEnabled } from 'lib/settings-consolidation';
 import { Main } from '../main';
@@ -12,6 +12,7 @@ jest.mock( '../security/protect-page', () => ( {
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	...jest.requireActual( '@automattic/jetpack-script-data' ),
 	getAdminUrl: jest.fn( path => `https://example.com/wp-admin/${ path }` ),
+	isWoASite: jest.fn( () => false ),
 } ) );
 
 jest.mock( 'lib/settings-consolidation', () => ( {
@@ -71,6 +72,7 @@ describe( 'Main #/security route', () => {
 describe( 'Main routes that leave Settings once settings move out', () => {
 	afterEach( () => {
 		isSettingsConsolidationEnabled.mockReturnValue( false );
+		isWoASite.mockReturnValue( false );
 		jest.clearAllMocks();
 	} );
 
@@ -105,6 +107,15 @@ describe( 'Main routes that leave Settings once settings move out', () => {
 		renderAt( route, false );
 
 		expect( screen.getByTestId( 'searchable-settings' ) ).toBeInTheDocument();
+	} );
+
+	it( 'sends #/reader to Features without a search on WoA, where the Reader row is hidden', () => {
+		isSettingsConsolidationEnabled.mockReturnValue( true );
+		isWoASite.mockReturnValue( true );
+		renderAt( '/reader', false, { remainingTabs: [] } );
+
+		expect( getAdminUrl ).toHaveBeenCalledWith( 'admin.php?page=my-jetpack#/features' );
+		expect( console ).toHaveErroredWith( 'Not implemented: navigation to another Document' );
 	} );
 
 	it( 'sends #/sharing to the Social page when it is registered', () => {

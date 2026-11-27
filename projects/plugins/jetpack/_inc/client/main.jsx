@@ -3,7 +3,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 // The extension is required: esbuild does not complete package `exports` subpaths.
 import ConnectScreenBody from '@automattic/jetpack-my-jetpack/components/connection-screen/body.tsx';
-import { getAdminUrl } from '@automattic/jetpack-script-data';
+import { getAdminUrl, isWoASite } from '@automattic/jetpack-script-data';
 import { withDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import jQuery from 'jquery';
@@ -308,9 +308,14 @@ export class Main extends Component {
 			// Falls through.
 			case '/reader':
 				// Once settings move out, the Reader's only setting is its switch in Features.
+				// WoA keeps the Reader on and hides its row, so a search there would find nothing.
 				if ( '/reader' === route && isSettingsConsolidationEnabled() ) {
 					window.location.replace(
-						getAdminUrl( 'admin.php?page=my-jetpack#/features?search=reader' )
+						getAdminUrl(
+							isWoASite()
+								? 'admin.php?page=my-jetpack#/features'
+								: 'admin.php?page=my-jetpack#/features?search=reader'
+						)
 					);
 					break;
 				}
