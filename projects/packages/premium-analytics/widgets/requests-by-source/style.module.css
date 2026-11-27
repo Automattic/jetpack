@@ -24,15 +24,46 @@
 	list-style: none;
 }
 
+.totalItem {
+	min-inline-size: 0;
+}
+
 .total {
 	display: flex;
 	flex-direction: column;
+	align-items: flex-start;
 	gap: var(--wpds-dimension-gap-xs);
+	inline-size: 100%;
 	min-inline-size: 0;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-radius: var(--wpds-border-radius-sm);
+	background: none;
+	color: inherit;
+	font: inherit;
+	text-align: start;
+	cursor: pointer;
 
 	/* The nearest clip box: a figure that no longer fits shortens
 	   instead of running into its neighbour. */
 	overflow: hidden;
+}
+
+.total:focus-visible {
+	outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+	outline-offset: var(--wpds-dimension-gap-xs);
+}
+
+.isDimmed {
+	opacity: 0.45;
+}
+
+@media not (prefers-reduced-motion) {
+
+	.total {
+		transition: opacity 150ms ease-out;
+	}
 }
 
 .label {

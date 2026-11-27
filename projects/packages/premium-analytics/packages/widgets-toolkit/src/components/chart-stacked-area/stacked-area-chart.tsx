@@ -3,7 +3,7 @@
  */
 import { AreaChart, Stack, getBucketInfo } from '@jetpack-premium-analytics/externals';
 import clsx from 'clsx';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useId, useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -17,6 +17,7 @@ import {
 } from '../../helpers';
 import { useChartName } from '../../hooks/use-chart-name';
 import { useSeriesStyles } from '../../hooks/use-series-styles';
+import { DIMMED_SERIES_OPACITY } from '../chart-emphasis';
 import { DatedTooltip, buildDatedTooltipModel } from '../chart-tooltip';
 import styles from './stacked-area-chart.module.scss';
 import type { BucketResolution } from '../../helpers';
@@ -58,6 +59,9 @@ export type StackedAreaChartProps = {
 
 	/** Drop the axes and grid while the chart is shorter than `theme.compactWhenShort.below`. */
 	compactWhenShort?: boolean;
+
+	/** Index of the part to bring out; the other parts dim. */
+	emphasizedIndex?: number | null;
 };
 
 /**
@@ -74,7 +78,16 @@ export function StackedAreaChart( {
 	dataFormat,
 	tickResolution,
 	compactWhenShort = false,
+	emphasizedIndex = null,
 }: StackedAreaChartProps ) {
+	const scope = useId();
+	// The stack draws its areas, then their outlines, each in series order.
+	const emphasisRule =
+		emphasizedIndex === null
+			? null
+			: `[data-chart-scope="${ scope }"] .visx-area-stack > path:not(:nth-child(${
+					series.length
+				}n + ${ emphasizedIndex + 1 })) { opacity: ${ DIMMED_SERIES_OPACITY }; }`;
 	const chartName = useChartName( chartTitle );
 	const libraryTickResolution = toTickResolution( tickResolution );
 	const { displayResolution } = getBucketInfo( series, libraryTickResolution );
@@ -115,7 +128,12 @@ export function StackedAreaChart( {
 	);
 
 	return (
-		<Stack direction="column" className={ clsx( styles.chart, className ) }>
+		<Stack
+			direction="column"
+			className={ clsx( styles.chart, className ) }
+			data-chart-scope={ scope }
+		>
+			{ emphasisRule && <style>{ emphasisRule }</style> }
 			<AreaChart
 				ariaLabel={ chartName }
 				className={ styles.chartContent }

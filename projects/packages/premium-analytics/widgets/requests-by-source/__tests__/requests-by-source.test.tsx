@@ -3,6 +3,7 @@
  */
 import { useStatsEdgeBotRequests } from '@jetpack-premium-analytics/data';
 import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
@@ -78,6 +79,26 @@ describe( 'RequestsBySource', () => {
 
 		const [ lastParams ] = mockUseStatsEdgeBotRequests.mock.lastCall ?? [];
 		expect( lastParams ).toMatchObject( params );
+	} );
+
+	it( 'brings out one source at a time, and lets it go on a second click', async () => {
+		mockUseStatsEdgeBotRequests.mockReturnValue(
+			requestsResult( { human: 600, ai: 250, other: 100, blocked: 50 } )
+		);
+		renderWidget( { from: '2026-11-01', to: '2026-11-07', interval: 'day' } );
+		const pressed = () =>
+			screen
+				.getAllByRole( 'button', { pressed: true } )
+				.map( button => button.textContent?.match( /^\D+/ )?.[ 0 ] );
+
+		await userEvent.click( screen.getByRole( 'button', { name: /AI bots/ } ) );
+		expect( pressed() ).toEqual( [ 'AI bots' ] );
+
+		await userEvent.click( screen.getByRole( 'button', { name: /Blocked/ } ) );
+		expect( pressed() ).toEqual( [ 'Blocked' ] );
+
+		await userEvent.click( screen.getByRole( 'button', { name: /Blocked/ } ) );
+		expect( screen.queryByRole( 'button', { pressed: true } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'shows the shared empty state rather than an empty chart', () => {
