@@ -46,6 +46,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 class WooCommerce_Analytics extends Module {
 
 	/**
+	 * Oldest WooCommerce version the module syncs from. Older versions do not store paid and completed dates.
+	 *
+	 * @var string
+	 */
+	const MIN_WOOCOMMERCE_VERSION = '7.5';
+
+	/**
 	 * Options required by WooCommerce Analytics Sync.
 	 *
 	 * @var string[]

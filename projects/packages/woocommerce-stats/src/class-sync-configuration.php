@@ -71,7 +71,7 @@ class Sync_Configuration {
 
 	/**
 	 * Entry point called from Analytics_Dashboard::init(), once per request however many plugins bundle the package. Schedules the Sync hookups on
-	 * plugins_loaded; the actual registration is a no-op unless WooCommerce is active
+	 * plugins_loaded; the actual registration is a no-op unless a supported WooCommerce is active
 	 * (see {@see configure_sync()}).
 	 *
 	 * Call it before plugins_loaded completes: the Config built in configure_sync() wires
@@ -105,13 +105,27 @@ class Sync_Configuration {
 	}
 
 	/**
-	 * Register the Jetpack Sync filters and ensure the Sync feature when WooCommerce
-	 * is active.
+	 * Whether the active WooCommerce is too old for the WooCommerce Analytics sync module.
+	 *
+	 * @return bool
+	 */
+	private static function is_woocommerce_too_old(): bool {
+		$min_version_constant = WooCommerce_Analytics_Module::class . '::MIN_WOOCOMMERCE_VERSION';
+		if ( ! defined( 'WC_VERSION' ) || ! defined( $min_version_constant ) ) {
+			return false;
+		}
+
+		return version_compare( WC_VERSION, constant( $min_version_constant ), '<' );
+	}
+
+	/**
+	 * Register the Jetpack Sync filters and ensure the Sync feature when a supported
+	 * WooCommerce is active.
 	 *
 	 * @return void
 	 */
 	public function configure_sync(): void {
-		if ( ! self::is_woocommerce_active() ) {
+		if ( ! self::is_woocommerce_active() || self::is_woocommerce_too_old() ) {
 			return;
 		}
 

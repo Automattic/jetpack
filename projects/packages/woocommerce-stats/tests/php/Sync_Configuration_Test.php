@@ -71,6 +71,45 @@ class Sync_Configuration_Test extends TestCase {
 	}
 
 	/**
+	 * WooCommerce-specific Sync hooks stay disabled on a WooCommerce older than the module supports.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_configure_sync_with_unsupported_woocommerce_is_a_no_op() {
+		require_once __DIR__ . '/mocks/woocommerce-active-mock.php';
+		define( 'WC_VERSION', '7.4.1' );
+
+		$configuration = new Sync_Configuration();
+		$configuration->configure_sync();
+
+		$this->assertFalse( has_filter( 'jetpack_sync_modules', array( $configuration, 'remove_duplicate_woocommerce_analytics_module' ) ) );
+		$this->assertFalse( has_filter( 'jetpack_full_sync_config', array( $configuration, 'expand_full_sync_config' ) ) );
+		$this->assertFalse( has_action( Lookup_Data_Backfill::START_HOOK ) );
+	}
+
+	/**
+	 * The Sync hooks register on the oldest WooCommerce the module supports.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_configure_sync_with_minimum_supported_woocommerce_registers_sync_hooks() {
+		require_once __DIR__ . '/mocks/woocommerce-active-mock.php';
+		define( 'WC_VERSION', WooCommerce_Analytics::MIN_WOOCOMMERCE_VERSION . '.0' );
+
+		$configuration = new Sync_Configuration();
+		$configuration->configure_sync();
+
+		$this->assertSame( 10, has_filter( 'jetpack_full_sync_config', array( $configuration, 'expand_full_sync_config' ) ) );
+		$this->assertContains( WooCommerce_Analytics::class, ( new Data_Settings() )->get_data_settings()['jetpack_sync_modules'] );
+	}
+
+	/**
 	 * With WooCommerce active, the Sync hooks and data settings register, and the module
 	 * filter runs last so another plugin's Analytics module is already in the list.
 	 *
