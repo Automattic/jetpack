@@ -24,11 +24,31 @@ const ENDPOINT = 'stats/ua-queries';
 
 const storyWidgetType = createStoryWidgetType( widgetManifest );
 
-// Distinct preset → own query-cache entry; see forceStatsMockState.
-function renderOnPreset( preset: PresetType, withComparison = false ) {
+interface RequestsBySourceStoryControls {
+	withComparison: boolean;
+}
+
+interface RequestsBySourceDashboardStoryProps
+	extends WidgetDashboardWithWidgetControls, RequestsBySourceStoryControls {}
+
+const WITH_COMPARISON_ARG_TYPE = {
+	control: 'boolean',
+	description: 'Include previous-period comparison report params.',
+} as const;
+
+function renderRequestsBySource( { withComparison }: RequestsBySourceStoryControls ) {
 	return (
 		<RequestsBySourceRender
-			attributes={ { reportParams: getDefaultQueryParams( withComparison, preset ) } }
+			attributes={ { reportParams: getDefaultQueryParams( withComparison, 'last-30-days' ) } }
+		/>
+	);
+}
+
+// Distinct preset → own query-cache entry; see forceStatsMockState.
+function renderOnPreset( preset: PresetType ) {
+	return (
+		<RequestsBySourceRender
+			attributes={ { reportParams: getDefaultQueryParams( false, preset ) } }
 		/>
 	);
 }
@@ -43,6 +63,9 @@ const meta = {
 	title: 'Packages/Premium Analytics/Widgets/RequestsBySource',
 	component: RequestsBySourceRender,
 	tags: [ 'autodocs' ],
+	argTypes: {
+		withComparison: WITH_COMPARISON_ARG_TYPE,
+	},
 	parameters: {
 		docs: {
 			description: {
@@ -51,20 +74,22 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< ComponentProps< typeof RequestsBySourceRender > >;
+} satisfies Meta< ComponentProps< typeof RequestsBySourceRender > & RequestsBySourceStoryControls >;
 
 export default meta;
 
 type Story = StoryObj< ComponentProps< typeof RequestsBySourceRender > >;
 
-export const Default: Story = {
-	render: () => renderOnPreset( 'last-30-days' ),
+export const Default: StoryObj< RequestsBySourceStoryControls > = {
+	render: renderRequestsBySource,
+	args: { withComparison: false },
 	decorators: [ withWidgetCanvas ],
 };
 
 /** With the comparison on, each total shows its change against the comparison period. */
-export const WithComparison: Story = {
-	render: () => renderOnPreset( 'last-30-days', true ),
+export const WithComparison: StoryObj< RequestsBySourceStoryControls > = {
+	render: renderRequestsBySource,
+	args: { withComparison: true },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -128,17 +153,17 @@ export const Empty: Story = {
 	},
 };
 
-export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
+export const WidgetDashboardWithWidget: StoryObj< RequestsBySourceDashboardStoryProps > = {
 	tags: [ 'widget-dashboard' ],
-	render: args => (
+	render: ( { withComparison, ...args } ) => (
 		<WidgetDashboardWithWidgetStory
 			{ ...args }
 			widgetType={ storyWidgetType }
 			renderModule={ RENDER_MODULE }
 			renderComponent={ DashboardRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { reportParams: getDefaultQueryParams( true ) } }
+			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
 		/>
 	),
-	args: DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-	argTypes: widgetDashboardWithWidgetArgTypes,
+	args: { ...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS, withComparison: true },
+	argTypes: { ...widgetDashboardWithWidgetArgTypes, withComparison: WITH_COMPARISON_ARG_TYPE },
 };
