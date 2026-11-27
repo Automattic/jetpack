@@ -1,5 +1,4 @@
 import FoldingElement from '$features/critical-css/folding-element/folding-element';
-import { useModuleSurface } from '$features/module/surface';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
@@ -122,7 +121,6 @@ const PageError = ( { url, error }: PageErrorProps ) => {
 
 export const ErrorDetails = () => {
 	const [ query ] = useLcpState();
-	const isModern = useModuleSurface() === 'row';
 	const lcpState = query?.data;
 
 	if ( lcpState?.status !== 'analyzed' ) {
@@ -144,7 +142,7 @@ export const ErrorDetails = () => {
 	);
 
 	return (
-		<Notice.Root intent="warning" className={ isModern ? styles[ 'is-modern' ] : undefined }>
+		<Notice.Root intent="warning" className={ styles.notice }>
 			<Notice.Title>{ __( 'LCP Optimization issues', 'jetpack-boost' ) }</Notice.Title>
 			<Notice.Description>
 				<div className={ styles.summary }>

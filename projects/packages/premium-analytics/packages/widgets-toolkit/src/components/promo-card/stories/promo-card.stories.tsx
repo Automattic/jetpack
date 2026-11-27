@@ -10,6 +10,7 @@ const basePromo: Promo = {
 	description: 'Turn readers into subscribers with tools that work alongside your dashboard.',
 	cta_label: 'Try Acme',
 	cta_url: 'https://example.com/acme',
+	cta_variant: 'primary',
 	dismissible: false,
 	snooze_days: 90,
 };
@@ -34,6 +35,16 @@ type Story = StoryObj< typeof PromoCard >;
 
 export const Default: Story = {
 	args: { promo: basePromo },
+};
+
+export const Outlined: Story = {
+	args: {
+		promo: {
+			...basePromo,
+			slug: 'storybook/outlined',
+			cta_variant: 'secondary',
+		},
+	},
 };
 
 export const Dismissible: Story = {

@@ -5,7 +5,7 @@ import { StatsSettingsPanel } from './stats-settings';
 const mockUsePlanUsage = jest.fn();
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
-	useStatsAppPlanUsage: () => mockUsePlanUsage(),
+	useStatsAppPlanUsage: ( options: unknown ) => mockUsePlanUsage( options ),
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
@@ -16,7 +16,9 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 } ) );
 
 jest.mock( '../consent-card', () => ( { ConsentCard: () => null } ) );
-jest.mock( '../plan-usage-card', () => ( { PlanUsageCard: () => null } ) );
+jest.mock( '../plan-usage-card', () => ( {
+	PlanUsageCard: () => <div data-testid="plan-usage-card" />,
+} ) );
 jest.mock( '../settings-form', () => ( {
 	SettingsForm: () => <div data-testid="settings-form" />,
 } ) );
@@ -24,9 +26,11 @@ jest.mock( '../settings-form', () => ( {
 const setScriptData = (
 	featuresUrl: string | null,
 	featuresScreen: 'features' | 'modules' | null = null,
-	promos: Array< Record< string, unknown > > = []
+	promos: Array< Record< string, unknown > > = [],
+	isWpcomPlatform = false
 ) => {
 	window.JetpackScriptData = {
+		site: { is_wpcom_platform: isWpcomPlatform },
 		premium_analytics: {
 			promos,
 			stats_settings: {
@@ -47,6 +51,7 @@ const settingsPromo = {
 	description: '',
 	cta_label: 'Go',
 	cta_url: 'https://example.com',
+	cta_variant: 'primary',
 	dismissible: true,
 	snooze_days: 7,
 };
@@ -102,6 +107,16 @@ describe( 'StatsSettingsPanel', () => {
 		render( <StatsSettingsPanel /> );
 
 		expect( screen.queryByTestId( 'promo-card' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'leaves out the plan usage card and asks for no usage on a WordPress.com site', () => {
+		setScriptData( null, null, [], true );
+
+		render( <StatsSettingsPanel /> );
+
+		expect( screen.queryByTestId( 'plan-usage-card' ) ).not.toBeInTheDocument();
+		expect( screen.getByTestId( 'settings-form' ) ).toBeInTheDocument();
+		expect( mockUsePlanUsage ).toHaveBeenCalledWith( { enabled: false } );
 	} );
 
 	it( 'draws no card while the plan usage loads, so the page does not shift when it arrives', () => {

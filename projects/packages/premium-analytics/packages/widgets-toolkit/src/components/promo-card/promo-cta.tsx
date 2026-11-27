@@ -3,13 +3,19 @@
  */
 import { ButtonLink } from '@jetpack-premium-analytics/externals';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
+import type { PromoCtaVariant } from '@jetpack-premium-analytics/data';
 import type { JSX } from 'react';
 
 export type PromoCtaProps = {
 	href: string;
 	label: string;
-	variant?: 'primary' | 'secondary';
+	variant?: PromoCtaVariant;
 	trackClick: () => void;
+};
+
+const BUTTON_VARIANTS: Record< PromoCtaVariant, 'solid' | 'outline' > = {
+	primary: 'solid',
+	secondary: 'outline',
 };
 
 /**
@@ -38,7 +44,7 @@ export function PromoCta( {
 	return (
 		<ButtonLink
 			href={ safeHref }
-			variant={ variant === 'primary' ? 'solid' : 'outline' }
+			variant={ BUTTON_VARIANTS[ variant ] }
 			openInNewTab
 			onClick={ trackClick }
 		>

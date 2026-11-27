@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Stop calling a WooCommerce Analytics method that no longer does anything on activation.
+
+

@@ -3,7 +3,7 @@
  */
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 type PostEntity = {
 	id?: number;
@@ -35,18 +35,10 @@ type EntityRecordsSelector = {
 		name: string,
 		query: Record< string, unknown >
 	) => unknown[] | null;
-	hasFinishedResolution: ( selectorName: string, args: unknown[] ) => boolean;
 };
 
-// WP REST rejects a larger `per_page` with a 400, so longer id lists are requested in batches.
-const MAX_IDS_PER_REQUEST = 100;
-
-function toBatches( ids: number[] ): number[][] {
-	const batches: number[][] = [];
-	for ( let start = 0; start < ids.length; start += MAX_IDS_PER_REQUEST ) {
-		batches.push( ids.slice( start, start + MAX_IDS_PER_REQUEST ) );
-	}
-	return batches;
+function sortedIds( ids: Iterable< number > ): number[] {
+	return Array.from( new Set( ids ) ).sort( ( a, b ) => a - b );
 }
 
 function getThumbnailUrl( media?: MediaEntity ): string | undefined {
@@ -100,43 +92,60 @@ export function usePostThumbnail(
 }
 
 /**
- * Resolve featured-image thumbnails for the post rows a table shows.
+ * Resolve featured-image thumbnails for the rows a table has mounted, keeping the URLs already
+ * resolved while new queries load.
  *
- * @param rows - Post rows after filtering and sorting.
+ * @param rows         - The mounted post rows, in display order.
+ * @param rowsPerQuery - The table's row batch size, so a new batch adds a query instead of changing
+ *                     resolved ones. At most 100, WP REST's `per_page` cap.
  * @return Thumbnail URLs keyed by post ID.
  */
-export function usePostThumbnails( rows: PostThumbnailSource[] ): PostThumbnailUrls {
+export function usePostThumbnails(
+	rows: PostThumbnailSource[],
+	rowsPerQuery: number
+): PostThumbnailUrls {
 	const postQueries = useMemo( () => {
-		const grouped = new Map< string, Set< number > >();
+		const queries: { type: string; query: Record< string, unknown > }[] = [];
 
-		for ( const row of rows ) {
-			const id = Number( row.id );
-			if (
-				typeof row.type !== 'string' ||
-				row.type === 'homepage' ||
-				! Number.isInteger( id ) ||
-				id <= 0
-			) {
-				continue;
+		for ( let start = 0; start < rows.length; start += rowsPerQuery ) {
+			const grouped = new Map< string, number[] >();
+
+			for ( const row of rows.slice( start, start + rowsPerQuery ) ) {
+				const id = Number( row.id );
+				if (
+					typeof row.type !== 'string' ||
+					row.type === 'homepage' ||
+					! Number.isInteger( id ) ||
+					id <= 0
+				) {
+					continue;
+				}
+
+				const ids = grouped.get( row.type );
+				if ( ids ) {
+					ids.push( id );
+				} else {
+					grouped.set( row.type, [ id ] );
+				}
 			}
 
-			const ids = grouped.get( row.type ) ?? new Set< number >();
-			ids.add( id );
-			grouped.set( row.type, ids );
+			// Sorted, so a run whose rows trade places keeps its query.
+			for ( const [ type, ids ] of grouped ) {
+				const include = sortedIds( ids );
+				queries.push( {
+					type,
+					query: {
+						include,
+						per_page: include.length,
+						context: 'view',
+						_fields: 'id,featured_media',
+					},
+				} );
+			}
 		}
 
-		return Array.from( grouped ).flatMap( ( [ type, ids ] ) =>
-			toBatches( Array.from( ids ).sort( ( a, b ) => a - b ) ).map( include => ( {
-				type,
-				query: {
-					include,
-					per_page: include.length,
-					context: 'view',
-					_fields: 'id,featured_media',
-				},
-			} ) )
-		);
-	}, [ rows ] );
+		return queries;
+	}, [ rows, rowsPerQuery ] );
 
 	const postRecordGroups = useSelect(
 		select => {
@@ -150,35 +159,23 @@ export function usePostThumbnails( rows: PostThumbnailSource[] ): PostThumbnailU
 		[ postQueries ]
 	);
 
-	const havePostQueriesResolved = useSelect(
-		select => {
-			const core = select( coreStore ) as unknown as EntityRecordsSelector;
-			return postQueries.every( ( { type, query } ) =>
-				core.hasFinishedResolution( 'getEntityRecords', [ 'postType', type, query ] )
-			);
-		},
-		[ postQueries ]
-	);
-
 	const postRecords = useMemo(
 		() => postRecordGroups.flatMap( records => records ?? [] ),
 		[ postRecordGroups ]
 	);
 
+	// One media query per resolved post query, so it too stays put as rows are added.
 	const mediaIdBatches = useMemo(
 		() =>
-			havePostQueriesResolved
-				? toBatches(
-						Array.from(
-							new Set(
-								postRecords
-									.map( post => post.featured_media )
-									.filter( ( id ): id is number => typeof id === 'number' && id > 0 )
-							)
-						).sort( ( a, b ) => a - b )
-					)
-				: [],
-		[ havePostQueriesResolved, postRecords ]
+			postRecordGroups.flatMap( records => {
+				const include = sortedIds(
+					( records ?? [] )
+						.map( post => post.featured_media )
+						.filter( ( id ): id is number => typeof id === 'number' && id > 0 )
+				);
+				return include.length ? [ include ] : [];
+			} ),
+		[ postRecordGroups ]
 	);
 
 	const mediaGroups = useSelect(
@@ -200,7 +197,7 @@ export function usePostThumbnails( rows: PostThumbnailSource[] ): PostThumbnailU
 
 	const media = useMemo( () => mediaGroups.flatMap( records => records ?? [] ), [ mediaGroups ] );
 
-	return useMemo( () => {
+	const resolvedUrls = useMemo( () => {
 		const mediaById = new Map( media.map( item => [ item.id, item ] ) );
 
 		return postRecords.reduce< PostThumbnailUrls >( ( urls, post ) => {
@@ -211,4 +208,24 @@ export function usePostThumbnails( rows: PostThumbnailSource[] ): PostThumbnailU
 			return urls;
 		}, {} );
 	}, [ postRecords, media ] );
+
+	// A grown or re-sorted row list is a new query that resolves empty first; keep the URLs already
+	// shown until their post resolves again, so thumbnails do not blink back to their placeholder.
+	const [ shownUrls, setShownUrls ] = useState( resolvedUrls );
+	const removedIds = postRecords
+		.filter( post => post.id && ! ( ( post.featured_media ?? 0 ) > 0 ) && post.id in shownUrls )
+		.map( post => post.id as number );
+	const hasNewUrl = Object.entries( resolvedUrls ).some(
+		( [ id, url ] ) => shownUrls[ Number( id ) ] !== url
+	);
+	if ( hasNewUrl || removedIds.length ) {
+		const urls = { ...shownUrls, ...resolvedUrls };
+		for ( const id of removedIds ) {
+			delete urls[ id ];
+		}
+		setShownUrls( urls );
+		return urls;
+	}
+
+	return shownUrls;
 }

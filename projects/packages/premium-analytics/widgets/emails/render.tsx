@@ -252,7 +252,7 @@ function EmailsReport( { attributes }: EmailsReportProps ) {
 	useReportActions( {
 		csv: {
 			exporter: emailsCsvExporter,
-			status: { isLoading, isFetching, isError: rows.length === 0 && isError },
+			status: { isLoading, isError: rows.length === 0 && isError },
 			rowCount: rows.length,
 		},
 	} );

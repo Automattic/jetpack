@@ -22,7 +22,7 @@ type ExporterCsvActionProps< TItem, TRow > = {
 	reportParams: ReportParams;
 };
 
-/** Report header action that saves the settled rows through the report's exporter. */
+/** Report header action that saves the loaded rows through the report's exporter. */
 export function ExporterCsvAction< TItem, TRow >( {
 	exporter,
 	items,

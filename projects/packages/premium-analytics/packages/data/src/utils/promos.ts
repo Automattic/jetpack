@@ -7,6 +7,8 @@ const DAY_MS = 86400000;
 
 export type PromoPlacement = 'options-menu' | 'settings';
 
+export type PromoCtaVariant = 'primary' | 'secondary';
+
 /**
  * A promo as `Promo::to_array()` publishes it; the server's availability rule is not part of it.
  */
@@ -18,6 +20,7 @@ export type Promo = {
 	description: string;
 	cta_label: string;
 	cta_url: string;
+	cta_variant: PromoCtaVariant;
 	dismissible: boolean;
 	snooze_days: number;
 };

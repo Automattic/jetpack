@@ -42,7 +42,7 @@ const NAVIGATION_PARAMS = {
 	compare_to: '2026-02-10',
 } as unknown as ReportParams;
 
-const SETTLED = { isLoading: false, isFetching: false, isError: false };
+const SETTLED = { isLoading: false, isError: false };
 
 const exporter = {
 	filenamePrefix: 'referrers',

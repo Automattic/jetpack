@@ -85,7 +85,7 @@ function VideoDetailViewsPerformanceInner( { chartType }: VideoDetailViewsPerfor
 			...csv,
 			filenamePrefix: `video-${ videoId }-performance`,
 			range: { from: reportParams.from, to: reportParams.to },
-			status: { isLoading, isFetching, isError, isPlaceholderData },
+			status: { isLoading, isError, isPlaceholderData },
 		},
 	} );
 	const groupLabel = __( 'Video metric', 'jetpack-premium-analytics-pkg' );

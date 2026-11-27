@@ -1,5 +1,4 @@
 import { __ } from '@wordpress/i18n';
-import { ToggleControl } from '@wordpress/components';
 import styles from './prerender.module.scss';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { createInterpolateElement } from '@wordpress/element';
@@ -9,13 +8,12 @@ import { Link } from '@wordpress/ui';
 import { getRedirectUrl, IconTooltip } from '@automattic/jetpack-components';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import ModuleRow from '$features/module/module-row';
-import { useModuleSurface, useTooltipLayer } from '$features/module/surface';
+import { tooltipLayer } from '$features/module/tooltip-layer';
 import { useNotices } from '$features/notice/context';
 const unsafeSpeculationRulesLink = getRedirectUrl( 'jetpack-boost-unsafe-speculation-rules' );
 import type { ReactNode } from 'react';
 
 const Prerender = () => {
-	const surface = useModuleSurface();
 	const { setNotice } = useNotices();
 	const [ moduleState, setModuleState ] = useSingleModuleState( 'speculation_rules', active => {
 		const activatedMessage = __( 'Prerender enabled', 'jetpack-boost' );
@@ -46,30 +44,13 @@ const Prerender = () => {
 		}
 	);
 
-	if ( surface === 'row' ) {
-		return (
-			<ModuleRow
-				testId="prerender-cornerstone-pages-title"
-				label={ title }
-				description={ description }
-				toggle={ { checked: speculationRulesEnabled, onChange: handleToggle } }
-			/>
-		);
-	}
-
 	return (
-		<div className={ styles.wrapper }>
-			<div className={ styles.title } data-testid="prerender-cornerstone-pages-title">
-				<h4>{ title }</h4>
-				<ToggleControl
-					className={ styles[ 'toggle-control' ] }
-					checked={ speculationRulesEnabled }
-					onChange={ handleToggle }
-					__nextHasNoMarginBottom={ true }
-				/>
-			</div>
-			<div className={ styles.description }>{ description }</div>
-		</div>
+		<ModuleRow
+			testId="prerender-cornerstone-pages-title"
+			label={ title }
+			description={ description }
+			toggle={ { checked: speculationRulesEnabled, onChange: handleToggle } }
+		/>
 	);
 };
 
@@ -78,8 +59,6 @@ type BypassPatternsExampleProps = {
 };
 
 const PrerenderWarningMessage = ( { children }: BypassPatternsExampleProps ) => {
-	const tooltipLayer = useTooltipLayer();
-
 	return (
 		<IconTooltip
 			trigger={ children }

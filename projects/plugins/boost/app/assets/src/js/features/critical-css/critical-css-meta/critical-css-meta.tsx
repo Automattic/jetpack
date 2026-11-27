@@ -1,9 +1,8 @@
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
-import { useModuleSurface } from '$features/module/surface';
 import ModernCriticalCssStatus from './modern-critical-css-status';
 import RefusedRegenerateNotice from './refused-regenerate-notice';
-import Status from '../status/status';
+import ShowStopperError from '../show-stopper-error/show-stopper-error';
 import ProgressBar from '$features/ui/progress-bar/progress-bar';
 import styles from './critical-css-meta.module.scss';
 import { criticalCssErrorState, useCriticalCssState } from '../lib/stores/critical-css-state';
@@ -16,10 +15,9 @@ import { isFatalError } from '../lib/critical-css-errors';
  * Settings page when the feature is enabled.
  */
 export default function CriticalCssMeta() {
-	const isModern = useModuleSurface() === 'row';
 	const [ cssState ] = useCriticalCssState();
 	const [ { data: regenerateReason } ] = useRegenerationReason();
-	const { isGenerating, progress, stoppedRun } = useLocalCriticalCssGenerator( ! isModern );
+	const { isGenerating, progress, stoppedRun } = useLocalCriticalCssGenerator();
 	const showFatalError = isFatalError( cssState );
 
 	if ( stoppedRun?.sessionExpired ) {
@@ -40,16 +38,12 @@ export default function CriticalCssMeta() {
 		return (
 			<>
 				<RefusedRegenerateNotice />
-				<Status
-					cssState={ criticalCssErrorState( stoppedRun.message ) }
-					isCloud={ false }
-					showFatalError={ true }
-				/>
+				<ShowStopperError cssState={ criticalCssErrorState( stoppedRun.message ) } />
 			</>
 		);
 	}
 
-	if ( isModern && ! showFatalError ) {
+	if ( ! showFatalError ) {
 		return (
 			<>
 				<RefusedRegenerateNotice />
@@ -89,20 +83,7 @@ export default function CriticalCssMeta() {
 	return (
 		<>
 			<RefusedRegenerateNotice />
-			<Status
-				cssState={ cssState }
-				isCloud={ false }
-				showFatalError={ showFatalError }
-				highlightRegenerateButton={ !! regenerateReason }
-				extraText={ __(
-					'Remember to regenerate each time you make changes that affect your HTML or CSS structure.',
-					'jetpack-boost'
-				) }
-			/>
-
-			{ ! showFatalError && (
-				<RegenerateCriticalCssSuggestion regenerateReason={ regenerateReason } />
-			) }
+			<ShowStopperError cssState={ cssState } />
 		</>
 	);
 }

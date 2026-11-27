@@ -350,11 +350,11 @@ class Initializer {
 		// and record the GUID actually being rendered: by render time WordPress has expanded
 		// synced patterns, templates, and template parts, so this covers embedding contexts
 		// the static content scan cannot see.
-		$post_id = $block->context['postId'] ?? get_the_ID();
-		if ( ! empty( $post_id ) && isset( $block_attributes['guid'] ) && is_string( $block_attributes['guid'] ) ) {
-			Access_Control::ensure_post_guids_cached( absint( $post_id ), $block_attributes['guid'] );
-		} elseif ( ! empty( $post_id ) ) {
-			Access_Control::build_and_cache_post_guids( absint( $post_id ) );
+		$post_id = Access_Control::get_embedding_post_id( $block );
+		if ( $post_id && isset( $block_attributes['guid'] ) && is_string( $block_attributes['guid'] ) ) {
+			Access_Control::ensure_post_guids_cached( $post_id, $block_attributes['guid'] );
+		} elseif ( $post_id ) {
+			Access_Control::build_and_cache_post_guids( $post_id );
 		}
 
 		// CSS classes.
@@ -1112,9 +1112,9 @@ class Initializer {
 		// Record the rendered GUIDs in the post's cached GUID list so private playlist
 		// entries pass the playback authorization check, including when the playlist
 		// sits inside a synced pattern, template, or template part.
-		$post_id = $block->context['postId'] ?? get_the_ID();
-		if ( ! empty( $post_id ) ) {
-			Access_Control::ensure_post_guids_cached( absint( $post_id ), array_column( $entries, 'guid' ) );
+		$post_id = Access_Control::get_embedding_post_id( $block );
+		if ( $post_id ) {
+			Access_Control::ensure_post_guids_cached( $post_id, array_column( $entries, 'guid' ) );
 		}
 
 		$enabled = function ( $key, $default_value = true ) use ( $block_attributes ) {

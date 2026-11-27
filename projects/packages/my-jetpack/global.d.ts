@@ -432,6 +432,10 @@ type ProtectData = {
 		themes: ScanItem[];
 		threats?: ThreatItem[];
 	};
+	// Protect's badge count, without threats fixed since the last scan; null when unknown.
+	threatCount: number | null;
+	// How many of those are critical; null when threatCount is.
+	criticalThreatCount: number | null;
 	// Fields marked optional are only sent to users with `manage_options`.
 	wafConfig: {
 		automatic_rules_available?: boolean;
@@ -550,7 +554,7 @@ type MainFeature = {
 	paid_highlights: string[];
 	pricing_notes?: string[];
 	// The My Jetpack route that sells the feature, such as `/add-akismet`, and the product it sells.
-	// A host may send it elsewhere instead, with an absolute `url`.
+	// A host may send it elsewhere instead, with an absolute `url`, or sell nothing, with an empty one.
 	upgrade: { path: string; name: string; url?: string };
 	// Whether the site already pays for the feature, directly or through a bundle.
 	included?: boolean;

@@ -102,11 +102,11 @@ class Jetpack_AI_Page {
 	 * @return array
 	 */
 	public function add_admin_shell_member( $members ) {
-		// Simple registers the page through mu-wpcom, and add_actions() only adds it once the site can use it.
+		// Simple registers the page through mu-wpcom.
 		if (
 			( new Host() )->is_wpcom_simple()
 			|| ! file_exists( JETPACK__PLUGIN_DIR . 'build/build.php' )
-			|| ( ! Jetpack::is_connection_ready() && ! ( new Status() )->is_offline_mode() )
+			|| ! $this->should_add_menu()
 		) {
 			return $members;
 		}
@@ -142,6 +142,21 @@ class Jetpack_AI_Page {
 	}
 
 	/**
+	 * Whether add_actions() registers the page, and so whether the admin shell may serve it.
+	 *
+	 * @return bool
+	 */
+	private function should_add_menu() {
+		$is_offline_mode = ( new Status() )->is_offline_mode();
+
+		if ( ! current_user_can( 'manage_options' ) && ( $is_offline_mode || ! Jetpack::is_connection_ready() ) ) {
+			return false;
+		}
+
+		return Jetpack::is_connection_ready() || $is_offline_mode;
+	}
+
+	/**
 	 * Register the page and its page-specific hooks.
 	 *
 	 * The AI Hub owns its full React layout, so it does not need the legacy
@@ -150,13 +165,7 @@ class Jetpack_AI_Page {
 	 * request-wide Jetpack_Admin_Page compatibility stub.
 	 */
 	public function add_actions() {
-		$is_offline_mode = ( new Status() )->is_offline_mode();
-
-		if ( ! current_user_can( 'manage_options' ) && ( $is_offline_mode || ! Jetpack::is_connection_ready() ) ) {
-			return;
-		}
-
-		if ( ! Jetpack::is_connection_ready() && ! $is_offline_mode ) {
+		if ( ! $this->should_add_menu() ) {
 			return;
 		}
 

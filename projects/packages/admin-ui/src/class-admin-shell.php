@@ -45,9 +45,14 @@ class Admin_Shell {
 	const CLIENT_MODULE = '@automattic/jetpack-admin-shell';
 
 	/**
+	 * The filter Script_Data builds `window.JetpackScriptData` with on admin pages, once per request.
+	 */
+	const SCRIPT_DATA_FILTER = 'jetpack_admin_js_script_data';
+
+	/**
 	 * Hooks where guests add their page data. On a host page, callbacks a guest adds here are removed: the guest endpoint runs them later.
 	 */
-	const DEFERRED_HOOKS = array( 'admin_enqueue_scripts', 'admin_print_scripts', 'admin_print_footer_scripts', 'jetpack_admin_js_script_data' );
+	const DEFERRED_HOOKS = array( 'admin_enqueue_scripts', 'admin_print_scripts', 'admin_print_footer_scripts', self::SCRIPT_DATA_FILTER );
 
 	/**
 	 * Whether init() has run.
@@ -115,7 +120,7 @@ class Admin_Shell {
 	/**
 	 * Member dashboards, keyed by admin page slug. Entries that don't match the contract are dropped.
 	 *
-	 * @return array<string, array{build_prefix: string, build_page: string, init_modules: string[], title: string, header: array{title: string, subtitle: string|null}|false|null, default_path: string|null, load: callable, capability: string, handles: string[], admin_menu: bool}>
+	 * @return array<string, array{build_prefix: string, build_page: string, init_modules: string[], title: string, header: array{title: string, subtitle: string|null}|false|null, default_path: string|null, load: callable, capability: string, handles: string[], data: callable|null, admin_menu: bool}>
 	 */
 	public static function get_members() {
 		/**
@@ -131,6 +136,7 @@ class Admin_Shell {
 		 * - load (callable)         Loads the build that defines `<build_prefix>_get_<build_page>_wp_admin_routes()`, leaving its page init action to the shell, registers the page's scripts and prints its initial data. Must be safe to run twice, and must not redirect, print or write options. Add print hook callbacks here, not from admin_enqueue_scripts: the guest endpoint drops what those print.
 		 * - capability (string)     Optional, default `manage_options`. Required to load the page into the shell.
 		 * - handles (string[])      Optional. Script and style handles the guest endpoint prints, with their dependencies; nothing else is enqueued.
+		 * - data (callable)         Optional. Returns the inline script that sets the page data its own page prints in the body, which the guest endpoint does not print. Called after `load` and admin_enqueue_scripts, on the guest endpoint only, and printed unescaped before the member's scripts, so encode any values with wp_json_encode().
 		 * - admin_menu (bool)       Optional, default false. Build the admin menu on the guest endpoint, after `load`, for page data read through menu_page_url(). What its callbacks print or hook is dropped.
 		 *
 		 * @since 0.14.15
@@ -251,10 +257,24 @@ class Admin_Shell {
 			}
 		);
 
-		$config = self::get_client_config( $host, $members, $guests );
+		$config      = self::get_client_config( $host, $members, $guests );
+		$script_data = array();
+		add_filter(
+			self::SCRIPT_DATA_FILTER,
+			static function ( $data ) use ( &$script_data ) {
+				$script_data = is_array( $data ) ? self::script_data_hashes( $data ) : array();
+				return $data;
+			},
+			PHP_INT_MAX
+		);
 		add_filter(
 			'script_module_data_' . self::CLIENT_MODULE,
-			static function () use ( $config ) {
+			static function () use ( $config, &$script_data ) {
+				// Read as the client config prints, after the page has added its script data.
+				$config['printed'] = array(
+					'scriptData' => (object) $script_data,
+					'inline'     => self::inline_hashes( array_merge( wp_scripts()->done, wp_scripts()->in_footer ) ),
+				);
 				return $config;
 			}
 		);
@@ -365,8 +385,8 @@ class Admin_Shell {
 		$config = array(
 			'host'             => $host,
 			'members'          => array(),
-			// Saved headers are per site, user and release: subdirectory multisite sites share one origin.
-			'headerStorageKey' => sprintf( 'jetpack-admin-shell-header:%d:%d:%s:', get_current_blog_id(), get_current_user_id(), Admin_Menu::PACKAGE_VERSION ),
+			// Saved headers are per site, user, release and login: subdirectory multisite sites share one origin.
+			'headerStorageKey' => sprintf( 'jetpack-admin-shell-header:%d:%d:%s:%s:', get_current_blog_id(), get_current_user_id(), Admin_Menu::PACKAGE_VERSION, substr( wp_hash( wp_get_session_token() ), 0, 12 ) ),
 			'guestAssetsUrl'   => add_query_arg(
 				array(
 					'action' => self::GUEST_ACTION,
@@ -614,8 +634,10 @@ class Admin_Shell {
 	public static function ajax_guest_assets() {
 		check_ajax_referer( self::GUEST_ACTION, 'nonce' );
 		$slug = self::requested_guest() ?? '';
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON, decoded and checked in printed_on_host().
+		$printed = isset( $_POST['printed'] ) && is_string( $_POST['printed'] ) ? self::printed_on_host( wp_unslash( $_POST['printed'] ) ) : array();
 
-		$html = self::guest_assets( $slug );
+		$html = self::guest_assets( $slug, $printed );
 		if ( is_int( $html ) ) {
 			wp_send_json_error( null, $html, JSON_UNESCAPED_SLASHES );
 		}
@@ -625,10 +647,11 @@ class Admin_Shell {
 	/**
 	 * The styles and scripts a member prints on its own page.
 	 *
-	 * @param string $slug Member page slug.
+	 * @param string $slug    Member page slug.
+	 * @param array  $printed Optional. What the host page printed, from printed_on_host(); none of it is sent again.
 	 * @return string|int The HTML, or an HTTP status: 404 for no such member while the shell is on, 403 when the user can't open it.
 	 */
-	public static function guest_assets( $slug ) {
+	public static function guest_assets( $slug, array $printed = array() ) {
 		$members = self::is_enabled() ? self::get_members() : array();
 		if ( ! isset( $members[ $slug ] ) ) {
 			return 404;
@@ -650,19 +673,43 @@ class Admin_Shell {
 
 		ob_start();
 		do_action( 'admin_enqueue_scripts', $hook_suffix ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core hook.
+		self::print_guest_data( $members[ $slug ] );
 		$handles = $members[ $slug ]['handles'];
 		// Only the member's own handles, and what they depend on, go back to the page. Printing them
 		// even when nothing enqueued them: a page can rely on another script pulling one in.
 		foreach ( array( wp_scripts(), wp_styles() ) as $dependencies ) {
 			$dependencies->queue = array_values( array_filter( $handles, array( $dependencies, 'query' ) ) );
 		}
-		self::guard_api_fetch_setup();
+		$host_script_data = $printed['scriptData'] ?? array();
+		$skip_host_keys   = static function ( $data ) use ( $host_script_data ) {
+			return is_array( $data ) ? array_diff_key( $data, array_intersect_assoc( self::script_data_hashes( $data ), $host_script_data ) ) : $data;
+		};
+		add_filter( self::SCRIPT_DATA_FILTER, $skip_host_keys, PHP_INT_MAX );
 		wp_print_styles();
 		self::fire_print_hook( 'admin_print_scripts', $own['admin_print_scripts'] );
+		remove_filter( self::SCRIPT_DATA_FILTER, $skip_host_keys, PHP_INT_MAX );
+		self::skip_inline_data( $printed['inline'] ?? array() );
+		self::guard_api_fetch_setup();
 		print_head_scripts();
 		print_footer_scripts();
 		self::fire_print_hook( 'admin_print_footer_scripts', $own['admin_print_footer_scripts'] );
 		return ob_get_clean();
+	}
+
+	/**
+	 * Print a member's page data, ahead of the scripts that read it.
+	 *
+	 * @param array $member Normalized member.
+	 * @return void
+	 */
+	private static function print_guest_data( $member ) {
+		if ( null === $member['data'] ) {
+			return;
+		}
+		$script = call_user_func( $member['data'] );
+		if ( is_string( $script ) && '' !== $script ) {
+			wp_print_inline_script_tag( $script );
+		}
 	}
 
 	/**
@@ -700,6 +747,115 @@ class Admin_Shell {
 				}
 			}
 		}
+	}
+
+	/**
+	 * A short hash of each top-level `JetpackScriptData` key's value, leaving out values that can't be encoded.
+	 *
+	 * @param array $data Script data.
+	 * @return array<string, string>
+	 */
+	private static function script_data_hashes( array $data ) {
+		$hashes = array();
+		foreach ( $data as $key => $value ) {
+			$json = wp_json_encode( $value, JSON_UNESCAPED_SLASHES );
+			if ( is_string( $json ) ) {
+				$hashes[ $key ] = self::short_hash( $json );
+			}
+		}
+		return $hashes;
+	}
+
+	/**
+	 * A short hash of a string; at 48 bits, collisions between the texts of one page are negligible.
+	 *
+	 * @param string $text Text.
+	 * @return string
+	 */
+	private static function short_hash( $text ) {
+		return substr( md5( $text ), 0, 12 );
+	}
+
+	/**
+	 * The inline data (localized, before and after) of each registered script handle given.
+	 *
+	 * Data printed after a script is hashed with its handle, since it can set up that script. Data printed before one
+	 * is not, so the same state on another handle matches: such data must be safe to skip once the host ran it.
+	 *
+	 * @param string[] $handles Script handles.
+	 * @return array<array{0: string, 1: string, 2: string, 3: int|null}> Hash, handle, position, and index into the position's list or null for the localized string.
+	 */
+	private static function inline_entries( array $handles ) {
+		$entries = array();
+		foreach ( array_unique( $handles ) as $handle ) {
+			$extra = wp_scripts()->registered[ $handle ]->extra ?? array();
+			if ( isset( $extra['data'] ) && is_string( $extra['data'] ) && '' !== $extra['data'] ) {
+				$entries[] = array( self::short_hash( $extra['data'] ), $handle, 'data', null );
+			}
+			foreach ( array( 'before', 'after' ) as $position ) {
+				foreach ( isset( $extra[ $position ] ) && is_array( $extra[ $position ] ) ? $extra[ $position ] : array() as $i => $text ) {
+					if ( is_string( $text ) && '' !== $text ) {
+						$entries[] = array( self::short_hash( 'after' === $position ? $handle . "\n" . $text : $text ), $handle, $position, $i );
+					}
+				}
+			}
+		}
+		return $entries;
+	}
+
+	/**
+	 * Hashes of the inline data of the given script handles.
+	 *
+	 * @param string[] $handles Script handles.
+	 * @return string[]
+	 */
+	private static function inline_hashes( array $handles ) {
+		return array_values( array_unique( array_column( self::inline_entries( $handles ), 0 ) ) );
+	}
+
+	/**
+	 * Drop the inline data the host page already printed, as the client would skip running it again.
+	 *
+	 * @param string[] $hashes Hashes from inline_hashes() on the host page.
+	 * @return void
+	 */
+	private static function skip_inline_data( array $hashes ) {
+		if ( ! $hashes ) {
+			return;
+		}
+		$hashes = array_flip( $hashes );
+		foreach ( self::inline_entries( array_keys( wp_scripts()->registered ) ) as list( $hash, $handle, $position, $i ) ) {
+			if ( ! isset( $hashes[ $hash ] ) ) {
+				continue;
+			}
+			if ( null === $i ) {
+				wp_scripts()->add_data( $handle, 'data', '' );
+				continue;
+			}
+			$list = wp_scripts()->get_data( $handle, $position );
+			// Keys kept, so the other indexes still point at their entries.
+			unset( $list[ $i ] );
+			wp_scripts()->add_data( $handle, $position, $list );
+		}
+	}
+
+	/**
+	 * What the client says the host page printed, as `printed` in its config, keeping only well-formed hashes.
+	 *
+	 * @param string $json JSON the client sent.
+	 * @return array{scriptData: array<string, string>, inline: string[]}
+	 */
+	private static function printed_on_host( $json ) {
+		$printed = json_decode( $json, true );
+		$is_hash = static function ( $value ) {
+			return is_string( $value ) && 1 === preg_match( '/^[0-9a-f]{12}$/', $value );
+		};
+		$data    = isset( $printed['scriptData'] ) && is_array( $printed['scriptData'] ) ? $printed['scriptData'] : array();
+		$inline  = isset( $printed['inline'] ) && is_array( $printed['inline'] ) ? $printed['inline'] : array();
+		return array(
+			'scriptData' => array_filter( $data, $is_hash ),
+			'inline'     => array_values( array_filter( $inline, $is_hash ) ),
+		);
 	}
 
 	/**
@@ -917,6 +1073,7 @@ class Admin_Shell {
 			'default_path' => null,
 			'capability'   => 'manage_options',
 			'handles'      => array(),
+			'data'         => null,
 			'admin_menu'   => false,
 		);
 
@@ -925,6 +1082,7 @@ class Admin_Shell {
 			|| ! self::is_string_list( $member['handles'] )
 			|| ! is_string( $member['capability'] ) || '' === $member['capability']
 			|| ! is_bool( $member['admin_menu'] )
+			|| ( null !== $member['data'] && ! is_callable( $member['data'] ) )
 			|| ( null !== $member['default_path'] && ! is_string( $member['default_path'] ) )
 		) {
 			return null;

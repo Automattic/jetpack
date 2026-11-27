@@ -7,6 +7,7 @@ use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -742,7 +743,7 @@ class Main_Features_Test extends TestCase {
 	 *
 	 * @param string[]    $owned    The products the site pays for.
 	 * @param string      $url      The URL the host sends.
-	 * @param string|null $expected The URL the feature carries, or null for none.
+	 * @param string|null $expected The URL the feature carries, '' when the host sells nothing, or null for none.
 	 */
 	#[DataProvider( 'provide_host_upgrade_urls' )]
 	public function test_host_upgrade_url( $owned, $url, $expected ) {
@@ -767,7 +768,8 @@ class Main_Features_Test extends TestCase {
 		return array(
 			'no plan'         => array( array(), 'https://example.com/plans', 'https://example.com/plans' ),
 			'owns Complete'   => array( array( 'jetpack_complete' ), 'https://example.com/plans', null ),
-			'javascript: URL' => array( array(), 'javascript:alert(1)', '' ),
+			'javascript: URL' => array( array(), 'javascript:alert(1)', null ),
+			'sells nothing'   => array( array(), '', '' ),
 		);
 	}
 
@@ -779,7 +781,7 @@ class Main_Features_Test extends TestCase {
 	 *
 	 * @param string[]    $owned       The products the site pays for.
 	 * @param string      $url         The URL the host sends.
-	 * @param string|null $feature_url The URL the feature carries, or null or empty for none.
+	 * @param string|null $feature_url The URL the feature carries, '' when the host sells nothing, or null for none.
 	 */
 	#[DataProvider( 'provide_host_upgrade_urls' )]
 	public function test_host_purchase_url_for_a_product( $owned, $url, $feature_url ) {
@@ -797,12 +799,11 @@ class Main_Features_Test extends TestCase {
 		$later_url  = Products\Backup::get_purchase_url();
 		remove_filter( 'jetpack_feature_upgrade', $send_to_host, 10 );
 
-		$expected = $feature_url ? $feature_url : null;
-		$this->assertSame( $expected, $info['purchase_url'] );
-		$this->assertSame( $expected, $info['host_purchase_url'] );
+		$this->assertSame( $feature_url, $info['purchase_url'] );
+		$this->assertSame( $feature_url, $info['host_purchase_url'] );
 		$this->assertNull( $bundle_url );
 		$this->assertSame( array( 'backup' => array( admin_url( 'admin.php?page=my-jetpack' ) ) ), $asked_once );
-		$this->assertSame( $expected, $later_url );
+		$this->assertSame( $feature_url, $later_url );
 		$this->assertCount( 2, $asked['backup'] ?? array() );
 	}
 
@@ -1015,6 +1016,8 @@ class Main_Features_Test extends TestCase {
 			'Atomic plan with podcasting'                  => array( true, 'podcasting', 'podcast', true ),
 			'self-hosted, where every site has podcasting' => array( false, 'podcasting', 'podcast', false ),
 			'Atomic plan with file uploads'                => array( true, 'field-file', 'jetpack-forms', true ),
+			'Atomic plan with paid newsletters'            => array( true, 'recurring-payments', 'newsletter', true ),
+			'self-hosted, where every site has payments'   => array( false, 'recurring-payments', 'newsletter', false ),
 		);
 	}
 
@@ -1051,6 +1054,40 @@ class Main_Features_Test extends TestCase {
 		Constants::clear_single_constant( 'WPCOMSH__PLUGIN_FILE' );
 		StatusCache::clear();
 		$this->assertSame( $expected, $included[ $slug ] );
+	}
+
+	/**
+	 * Newsletter states Jetpack's fees only off WordPress.com, where the plan sets the fee.
+	 *
+	 * @testWith [true, false]
+	 *           [false, true]
+	 *
+	 * @param bool $is_atomic Whether the site is on WordPress.com Atomic.
+	 * @param bool $has_fees  Whether the highlights name a fee.
+	 */
+	#[TestWith( array( true, false ) )]
+	#[TestWith( array( false, true ) )]
+	public function test_newsletter_fee_lines_only_off_wpcom( $is_atomic, $has_fees ) {
+		if ( $is_atomic ) {
+			Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
+			Constants::set_constant( 'ATOMIC_CLIENT_ID', 123 );
+			Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/tmp/wpcomsh/wpcomsh.php' );
+		}
+		StatusCache::clear();
+		$locale = static function () use ( $is_atomic ) {
+			return 'newsletter_fees_' . ( $is_atomic ? 'atomic' : 'self_hosted' );
+		};
+		add_filter( 'locale', $locale );
+
+		$newsletter = Main_Features::get_feature_definitions()['newsletter'];
+
+		remove_filter( 'locale', $locale );
+		Constants::clear_single_constant( 'ATOMIC_SITE_ID' );
+		Constants::clear_single_constant( 'ATOMIC_CLIENT_ID' );
+		Constants::clear_single_constant( 'WPCOMSH__PLUGIN_FILE' );
+		StatusCache::clear();
+		$fee_lines = preg_grep( '/fee/', array_merge( $newsletter['free_highlights'], $newsletter['paid_highlights'] ) );
+		$this->assertCount( $has_fees ? 2 : 0, $fee_lines );
 	}
 
 	/**

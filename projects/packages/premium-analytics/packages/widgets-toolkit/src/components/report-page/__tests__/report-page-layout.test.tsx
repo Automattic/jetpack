@@ -7,8 +7,12 @@ import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
+import { mockRowLayout, scrollRowsToEnd } from '../../../../../../tests/js/row-batches-test-utils';
+import { ReportDrilldownTable } from '../report-drilldown-table';
 import { ReportEmptyState } from '../report-empty-state';
 import { ReportPageLayout } from '../report-page-layout';
+import { ReportRecordsTable } from '../report-records-table';
+import type { Field } from '@jetpack-premium-analytics/externals';
 import type { ReportDateFilters } from '@jetpack-premium-analytics/routing';
 
 // Identifiable, and recording what the layout hands it.
@@ -120,5 +124,59 @@ describe( 'ReportPageLayout', () => {
 		render( <ReportPageLayout title="Emails">table</ReportPageLayout> );
 
 		expect( screen.queryByTestId( 'date-filters-panel' ) ).not.toBeInTheDocument();
+	} );
+} );
+
+type Row = { id: string; label: string };
+
+const ROWS: Row[] = Array.from( { length: 120 }, ( _, index ) => ( {
+	id: `row-${ index + 1 }`,
+	label: `Row ${ index + 1 }`,
+} ) );
+const FIELDS: Field< Row >[] = [
+	{ id: 'label', label: 'Label', getValue: ( { item } ) => item.label },
+];
+
+describe.each( [
+	[
+		'ReportRecordsTable',
+		() => (
+			<ReportRecordsTable< Row > data={ ROWS } fields={ FIELDS } getItemId={ item => item.id } />
+		),
+	],
+	[
+		'ReportDrilldownTable',
+		() => (
+			<ReportDrilldownTable< Row >
+				data={ ROWS }
+				fields={ FIELDS }
+				getItemId={ item => item.id }
+				getItemParentId={ () => null }
+			/>
+		),
+	],
+] )( '%s in a ReportPageLayout', ( _name, table ) => {
+	beforeEach( mockRowLayout );
+	afterEach( () => jest.restoreAllMocks() );
+
+	it( 'starts over on a new period, even one whose rows are cached', async () => {
+		const inPeriod = ( from: number ) => (
+			<ReportPageLayout
+				title="Report"
+				dateFilters={ {
+					...buildDateFilters(),
+					appliedRange: { ...APPLIED_RANGE, from: toLocalTZ( from, 'UTC' ) },
+				} }
+			>
+				{ table() }
+			</ReportPageLayout>
+		);
+		const { rerender } = render( inPeriod( Date.UTC( 2024, 0, 8 ) ) );
+		scrollRowsToEnd();
+		await expect( screen.findByText( 'Row 100' ) ).resolves.toBeInTheDocument();
+
+		rerender( inPeriod( Date.UTC( 2024, 0, 1 ) ) );
+
+		expect( screen.queryByText( 'Row 51' ) ).not.toBeInTheDocument();
 	} );
 } );

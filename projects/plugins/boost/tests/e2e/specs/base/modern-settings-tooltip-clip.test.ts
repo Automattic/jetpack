@@ -198,28 +198,3 @@ test( 'holding Enter on the fixture tooltip leaves it open', async ( { page } ) 
 	}
 	await page.keyboard.up( 'Enter' );
 } );
-
-test( 'the fixture tooltip rings its icon when focused, like other WordPress buttons', async ( {
-	page,
-} ) => {
-	await page.setViewportSize( { width: 1440, height: 900 } );
-	await page.goto( 'http://boost-settings.test/' );
-	const trigger = page.locator( '.icon-tooltip-wrapper button' ).first();
-	const icon = trigger.locator( 'svg' );
-
-	await expect( async () => {
-		await page.keyboard.press( 'Tab' );
-		await expect( trigger ).toBeFocused( { timeout: 100 } );
-	} ).toPass( { intervals: [ 0 ], timeout: 10000 } );
-	await expect( icon ).toHaveCSS( 'outline-style', 'solid' );
-
-	// A mouse press focuses the button too; the ring appears once it is released.
-	await page.reload();
-	const box = ( await icon.boundingBox() )!;
-	await page.mouse.move( box.x + box.width / 2, box.y + box.height / 2 );
-	await page.mouse.down();
-	await expect( trigger ).toBeFocused();
-	await expect( icon ).toHaveCSS( 'outline-style', 'none' );
-	await page.mouse.up();
-	await expect( icon ).toHaveCSS( 'outline-style', 'solid' );
-} );

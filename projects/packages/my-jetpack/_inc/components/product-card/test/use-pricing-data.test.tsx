@@ -208,6 +208,17 @@ describe( 'RecommendationActions', () => {
 		expect( Object.fromEntries( rendered ) ).toEqual( links );
 	} );
 
+	it.each( [
+		[ 'Jetpack sells', toBuy, true ],
+		[ 'its host sells nothing of', { ...toBuy, hostPurchaseUrl: '' }, false ],
+	] )( 'offers Purchase for a product %s', ( _name, overrides, offered ) => {
+		mockUseProduct.mockReturnValue( productState( featureDetail( overrides ) ) );
+
+		render( <RecommendationActions slug="search" /> );
+
+		expect( screen.queryByRole( 'button', { name: 'Purchase' } ) !== null ).toBe( offered );
+	} );
+
 	it( 'keeps an action that goes nowhere a button, and runs it', async () => {
 		mockUseProduct.mockReturnValue( productState( featureDetail( toBuy ) ) );
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Share one set of messages for failed requests to the site’s REST API between the connect screen and Safe Mode, worded to fit any request.

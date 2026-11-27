@@ -2,9 +2,7 @@ import { JetpackLogo, TermsOfService } from '@automattic/jetpack-components';
 import {
 	CONNECTION_FROM,
 	useConnection,
-	getConnectScreenErrorMessage,
-	getRegistrationErrorCode,
-	getRegistrationErrorSummary,
+	getRegistrationErrorDisplay,
 } from '@automattic/jetpack-connection';
 import { __, _x } from '@wordpress/i18n';
 import { ThemeProvider } from '@wordpress/theme';
@@ -61,13 +59,11 @@ export function StartStep( { titleId, title, description }: StartStepProps ) {
 	const isConnecting = siteIsRegistering || userIsConnecting;
 
 	// The summary falls back to the server's raw text, so only a mapped message says what to do.
-	const errorSummary = connectError
-		? getRegistrationErrorSummary( connectError, isOfflineMode )
+	const errorDisplay = connectError
+		? getRegistrationErrorDisplay( connectError, isOfflineMode )
 		: null;
-	const hasMappedMessage = Boolean(
-		connectError &&
-		getConnectScreenErrorMessage( getRegistrationErrorCode( connectError ), isOfflineMode )
-	);
+	const errorSummary = errorDisplay?.message ?? null;
+	const hasMappedMessage = errorDisplay?.isMapped ?? false;
 
 	// Named once: the terms sentence has to say the same words as the button it is about.
 	const primaryLabel = __( 'Get started', 'jetpack-my-jetpack' );

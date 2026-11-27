@@ -203,6 +203,7 @@ class Jetpack_Redux_State_Helper {
 				// Set when Jetpack or the Protect plugin registered the Protect page on this request.
 				'hasProtectPage'             => (bool) did_action( 'jetpack_protect_dashboard_initialized' ),
 				'hasSocialPage'              => self::has_social_page(),
+				'hostUpgradeUrls'            => self::get_host_upgrade_urls(),
 				'settingsTabs'               => Jetpack_Settings_React_Page::get_remaining_tabs(),
 				'dateFormat'                 => get_option( 'date_format' ),
 				'isSharingBlockAvailable'    => isset( $block_availability['sharing-buttons'] )
@@ -348,6 +349,56 @@ class Jetpack_Redux_State_Helper {
 	public static function get_release_post_data() {
 		_deprecated_function( __METHOD__, 'jetpack-16.2' );
 		return null;
+	}
+
+	/**
+	 * Where Settings' Ads and Google Analytics upgrades go when the host sends them to its own plans.
+	 *
+	 * Each is the host's URL, '' when the host sells nothing on this site, or null to keep Jetpack's checkout.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array{ads: ?string, googleAnalytics: ?string}
+	 */
+	public static function get_host_upgrade_urls() {
+		return array(
+			// The Monetize page's slug: both sell Jetpack Creator's ads.
+			'ads'             => self::get_host_upgrade_url( 'monetize-dashboard', 'Jetpack Creator', 'earn' ),
+			'googleAnalytics' => self::get_host_upgrade_url( 'google-analytics', 'Jetpack Security', 'traffic' ),
+		);
+	}
+
+	/**
+	 * Ask the host where one upgrade goes, as the Monetize page does.
+	 *
+	 * @param string $slug The feature slug passed to `jetpack_feature_upgrade`.
+	 * @param string $name The Jetpack product the upgrade sells. Product name, do not translate.
+	 * @param string $tab  The Settings tab the upgrade sits on, for the host flow to return to.
+	 * @return string|null
+	 */
+	private static function get_host_upgrade_url( $slug, $name, $tab ) {
+		/** This filter is documented in projects/packages/my-jetpack/src/class-main-features.php */
+		$upgrade = apply_filters(
+			'jetpack_feature_upgrade',
+			array(
+				'path'     => '',
+				'name'     => $name,
+				'back_url' => admin_url( 'admin.php?page=jetpack-settings#/' . $tab ),
+			),
+			$slug,
+			false
+		);
+
+		if ( ! is_array( $upgrade ) || ! isset( $upgrade['url'] ) ) {
+			return null;
+		}
+
+		if ( '' === $upgrade['url'] ) {
+			return '';
+		}
+
+		$url = esc_url_raw( (string) $upgrade['url'] );
+		return '' === $url ? null : $url;
 	}
 
 	/**

@@ -57,7 +57,7 @@ function SearchTermsInner() {
 	useReportActions( {
 		csv: {
 			exporter: searchTermsCsvExporter,
-			status: { isLoading, isFetching, isError: isPrimaryError },
+			status: { isLoading, isError: isPrimaryError },
 			rowCount: rows.length,
 		},
 	} );

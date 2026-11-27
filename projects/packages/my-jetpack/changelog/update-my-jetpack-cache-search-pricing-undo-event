@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Reuse the Search pricing for a day and the Backup undo event for five minutes, so a repeat visit makes fewer WordPress.com requests.

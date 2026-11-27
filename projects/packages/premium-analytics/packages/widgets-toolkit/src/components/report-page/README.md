@@ -45,15 +45,16 @@ const label = __( 'All pages' );
 - **`ReportLocationsMap`** — the Locations report's map of views by location,
   over the rows the records table already fetched. It renders the shared
   `LocationsGeoChart`, which the Locations dashboard widget also uses.
-- **`ReportRecordsTable`** — a Core DataViews table listing every one of the
-  module's summarized rows on one page; search, sorting, and column config run
+- **`ReportRecordsTable`** — a Core DataViews table over every one of the
+  module's summarized rows, with no pager: it mounts them in batches as the page
+  scrolls (`useRowBatches`). Search, sorting, and column config run
   client-side via `filterSortAndPaginate`.
 - **`ReportThumbnail`** — a records-table row thumbnail for the view's
   `mediaField`, falling back to `fallbackIcon` when there is none or it fails
   to load. DataViews draws it beside the `titleField` in its fixed 32px box.
 - **`REPORT_TITLE_LINK_CLASS_NAMES`** — the `classNames` to pass a
   `PostTitleLink` or `VideoTitleLink` rendered in a records table's
-  `titleField`, so a long title ellipsizes and keeps its outbound marker.
+  `titleField`, so a long title wraps and keeps its outbound marker.
 - **`ReportEmptyState`** — replaces the records table when the report returned
   no rows. `ReportRecordsTable` and `ReportDrilldownTable` render it
   themselves, from the `data` they get before their own search, so a search

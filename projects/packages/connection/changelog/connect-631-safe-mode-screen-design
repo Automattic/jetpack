@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Safe Mode: On the new screen, behind a feature flag, show connected plugins' logos, and reload the Connectors page on Close after an address update.

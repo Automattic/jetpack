@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Footer credit: Stop removing pipe separators and other content from footer widgets when replacing the theme credit.

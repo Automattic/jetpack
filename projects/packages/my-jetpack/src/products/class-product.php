@@ -566,7 +566,7 @@ abstract class Product {
 	 *
 	 * @since 6.19.0
 	 *
-	 * @return ?string Null when no host sells it or the site already has it.
+	 * @return ?string Null when no host sells it or the site already has it; '' when the host sells nothing here.
 	 */
 	public static function get_host_purchase_url() {
 		if ( isset( self::$host_purchase_urls[ static::$slug ] ) ) {
