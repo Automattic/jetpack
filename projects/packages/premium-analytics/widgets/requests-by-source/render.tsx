@@ -5,7 +5,7 @@ import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import {
 	ComparativeBarChart,
 	HEADLINE_COUNT_FORMAT,
-	MetricValue,
+	MetricWithComparison,
 	SeriesIndicator,
 	StackedAreaChart,
 	WidgetRoot,
@@ -95,10 +95,14 @@ function RequestsBySourceInner( { chartType }: { chartType: RequestsBySourceChar
 									/>
 									{ source.label }
 								</span>
-								<MetricValue
+								<MetricWithComparison
 									value={ source.total }
+									previousValue={ source.previousTotal }
 									dataFormat={ HEADLINE_COUNT_FORMAT }
 									fontSize="2xl"
+									// The figure's line box is shorter than its glyphs, so baseline alignment would let the delta grow the row.
+									align="end"
+									wrap="wrap"
 								/>
 								{ source.share !== null && (
 									<span className={ styles.share }>

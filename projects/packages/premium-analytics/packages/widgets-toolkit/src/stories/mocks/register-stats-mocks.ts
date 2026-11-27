@@ -1211,7 +1211,8 @@ function buildStatsLocationViewsResponse(
 
 /**
  * One row per bucket of the requested window, as ClickHouse answers: counts as
- * strings, and no row for a bucket without requests (every seventh here).
+ * strings, and no row for a bucket without requests (every seventh here). The
+ * counts follow the bucket's date, so a comparison window reads its own.
  *
  * @param query - The request's query string.
  * @return The `edge-bot-requests` rows.
@@ -1222,11 +1223,12 @@ function buildEdgeBotRequestsResponse( query: URLSearchParams ) {
 	const end = Date.parse( `${ query.get( 'end' ) }T00:00:00Z` );
 	const rows = [];
 
-	for ( let time = start, index = 0; time < end; time += step, index++ ) {
-		if ( index % 7 === 6 ) {
+	for ( let time = start; time < end; time += step ) {
+		const bucket = Math.floor( time / step );
+		if ( bucket % 7 === 6 ) {
 			continue;
 		}
-		const wave = 1 + 0.4 * Math.sin( index / 2 );
+		const wave = 1 + 0.4 * Math.sin( bucket / 2 );
 		rows.push( {
 			ts: new Date( time ).toISOString().slice( 0, 19 ).replace( 'T', ' ' ),
 			human_requests: String( Math.round( 5200 * wave ) ),

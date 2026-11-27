@@ -19,16 +19,20 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 
 const mockUseStatsEdgeBotRequests = jest.mocked( useStatsEdgeBotRequests );
 
-function requestsResult( summary: Record< string, number > ) {
+function report( day: string, summary: Record< string, number > ) {
 	return {
-		primary: {
-			data: {
-				summary,
-				data: [
-					{ date_start: '2026-11-01T00:00:00', date_end: '2026-11-01T23:59:59', ...summary },
-				],
-			},
-		},
+		summary,
+		data: [ { date_start: `${ day }T00:00:00`, date_end: `${ day }T23:59:59`, ...summary } ],
+	};
+}
+
+function requestsResult(
+	summary: Record< string, number >,
+	comparisonSummary?: Record< string, number >
+) {
+	return {
+		primary: { data: report( '2026-11-01', summary ) },
+		comparison: { data: comparisonSummary && report( '2026-10-31', comparisonSummary ) },
 		timezone: 'UTC',
 		isLoading: false,
 		isFetching: false,
@@ -62,6 +66,38 @@ describe( 'RequestsBySource', () => {
 			'Other bots10010% of requests',
 			'Blocked505% of requests',
 		] );
+	} );
+
+	it( 'shows the change on each source total against the comparison period', () => {
+		mockUseStatsEdgeBotRequests.mockReturnValue(
+			requestsResult(
+				{ human: 600, ai: 250, other: 100, blocked: 50 },
+				{ human: 400, ai: 250, other: 0, blocked: 100 }
+			)
+		);
+
+		renderWidget( { from: '2026-11-01', to: '2026-11-01', interval: 'day' } );
+
+		const totals = screen.getAllByRole( 'listitem' ).map( item => item.textContent );
+		expect( totals ).toEqual( [
+			'Human600+50%60% of requests',
+			'AI bots2500%25% of requests',
+			'Other bots100—10% of requests',
+			'Blocked50-50%5% of requests',
+		] );
+	} );
+
+	it( 'keeps the totals when only the comparison period had requests', () => {
+		mockUseStatsEdgeBotRequests.mockReturnValue(
+			requestsResult(
+				{ human: 0, ai: 0, other: 0, blocked: 0 },
+				{ human: 400, ai: 0, other: 0, blocked: 0 }
+			)
+		);
+
+		renderWidget( { from: '2026-11-01', to: '2026-11-01', interval: 'day' } );
+
+		expect( screen.getAllByRole( 'listitem' )[ 0 ] ).toHaveTextContent( 'Human0-100%' );
 	} );
 
 	it.each( [
