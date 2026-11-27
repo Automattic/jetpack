@@ -49,6 +49,19 @@ const report: StatsNormalizedReport< StatsTagsItem > = {
 					value: 1240,
 					link: 'https://example.com/recipes/',
 				},
+				{
+					label: [
+						{
+							label: 'vegan',
+							type: 'tag',
+							labelIcon: 'tag',
+							link: 'https://example.com/tag/vegan/',
+						},
+					],
+					labelText: 'vegan',
+					value: 980,
+					link: 'https://example.com/tag/vegan/',
+				},
 			],
 		},
 	],
@@ -76,11 +89,15 @@ describe( 'useTagsReportRecords', () => {
 		expect( mockUseStatsTags ).toHaveBeenCalledWith( { ...reportParams, max: 1000 } );
 	} );
 
-	it( 'returns the normalized rows', () => {
-		const { result } = renderHook( () => useTagsReportRecords( getDefaultQueryParams() ) );
+	it.each( [
+		[ undefined, [ 'Recipes', 'vegan' ] ],
+		[ 'tag', [ 'vegan' ] ],
+		[ 'category', [ 'Recipes' ] ],
+	] as const )( 'returns the %s rows', ( termType, labels ) => {
+		const { result } = renderHook( () =>
+			useTagsReportRecords( getDefaultQueryParams(), termType )
+		);
 
-		expect( result.current.rows ).toEqual( [
-			expect.objectContaining( { labelText: 'Recipes', value: 1240 } ),
-		] );
+		expect( result.current.rows.map( row => row.labelText ) ).toEqual( labels );
 	} );
 } );

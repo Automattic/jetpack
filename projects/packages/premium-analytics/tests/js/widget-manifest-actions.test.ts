@@ -15,7 +15,6 @@ import mostCommentedAuthors from '../../widgets/most-commented-authors/widget.js
 import mostCommentedPosts from '../../widgets/most-commented-posts/widget.json';
 import referrers from '../../widgets/referrers/widget.json';
 import searchTerms from '../../widgets/search-terms/widget.json';
-import tags from '../../widgets/tags/widget.json';
 
 type Manifest = { name: string; actions?: unknown };
 
@@ -32,7 +31,6 @@ const VIEW_ALL: Array< [ Manifest, string, Record< string, string > | undefined 
 	[ mostCommentedPosts, '/reports/comments', { section: 'posts' } ],
 	[ referrers, '/reports/referrers', undefined ],
 	[ searchTerms, '/reports/search-terms', undefined ],
-	[ tags, '/reports/tags', undefined ],
 ];
 
 describe( 'widget.json View all actions', () => {

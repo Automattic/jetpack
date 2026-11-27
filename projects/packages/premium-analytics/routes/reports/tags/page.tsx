@@ -3,15 +3,18 @@
  */
 import { Icon } from '@jetpack-premium-analytics/externals';
 import { jetpack } from '@jetpack-premium-analytics/icons';
-import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	ExporterCsvAction,
 	ReportPageLayout,
+	ReportPageTabs,
 	ReportErrorState,
 	ReportRecordsTable,
 	StatsOptionsMenu,
+	TAGS_TERM_TYPES,
 	tagsCsvExporter,
+	tagsCsvExportersByType,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Page } from '@wordpress/admin-ui';
 import { useMemo } from '@wordpress/element';
@@ -23,8 +26,14 @@ import { route } from '../package.json';
 import reportPageStyles from '../page.module.scss';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
-import { getTagRowId, getTagsFields, useTagsReportRecords } from './config';
-import type { StatsTagsItem } from '@jetpack-premium-analytics/data';
+import {
+	getReportTagsTabs,
+	getTagRowId,
+	getTagsFields,
+	resolveSection,
+	useTagsReportRecords,
+} from './config';
+import type { StatsTagsItem, StatsTagsTermType } from '@jetpack-premium-analytics/data';
 import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
@@ -44,18 +53,49 @@ const RECORDS_VIEW = {
 };
 
 /**
+ * The heading and search label for the rows on show.
+ *
+ * @param termType - The taxonomy the rows are narrowed to, if any.
+ * @return The page title and the table's search label.
+ */
+function getViewLabels( termType?: StatsTagsTermType ) {
+	if ( termType === 'tag' ) {
+		return {
+			title: __( 'Tags', 'jetpack-premium-analytics-pkg' ),
+			search: __( 'Search tags', 'jetpack-premium-analytics-pkg' ),
+		};
+	}
+
+	if ( termType === 'category' ) {
+		return {
+			title: __( 'Categories', 'jetpack-premium-analytics-pkg' ),
+			search: __( 'Search categories', 'jetpack-premium-analytics-pkg' ),
+		};
+	}
+
+	return {
+		title: REPORTS.tags.getLabel(),
+		search: __( 'Search tags and categories', 'jetpack-premium-analytics-pkg' ),
+	};
+}
+
+/**
  * Premium Analytics Tags & categories report page component.
  *
  * `stats/tags` returns one flat list ranked over the report window and reports no
- * comparison, so this page has date filters and the records table, with no tabs or
+ * comparison, so this page has tabs, date filters and the records table, with no
  * performance chart.
  *
  * @return The Tags & categories report page.
  */
 function TagsReport(): JSX.Element {
 	const reportParams = useReportParams();
-	const records = useTagsReportRecords( reportParams );
-	const fields = useMemo( () => getTagsFields(), [] );
+	const tabs = useMemo( () => getReportTagsTabs(), [] );
+	const [ activeTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveSection );
+	const termType = TAGS_TERM_TYPES[ activeTab ];
+	const records = useTagsReportRecords( reportParams, termType );
+	const fields = useMemo( () => getTagsFields( termType ), [ termType ] );
+	const labels = getViewLabels( termType );
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 
 	const { getLabel } = REPORTS.tags;
@@ -68,7 +108,7 @@ function TagsReport(): JSX.Element {
 			actions={
 				<>
 					<ExporterCsvAction
-						exporter={ tagsCsvExporter }
+						exporter={ termType ? tagsCsvExportersByType[ termType ] : tagsCsvExporter }
 						items={ records.rows }
 						status={ records }
 						reportParams={ reportParams }
@@ -77,7 +117,11 @@ function TagsReport(): JSX.Element {
 				</>
 			}
 		>
-			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>
+			<ReportPageLayout
+				title={ labels.title }
+				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
+				dateFilters={ dateFilters }
+			>
 				<ReportErrorState
 					status={ records }
 					retryDescription={ __(
@@ -85,14 +129,16 @@ function TagsReport(): JSX.Element {
 						'jetpack-premium-analytics-pkg'
 					) }
 				>
+					{ /* Keyed by tab so search, sort and page reset with the row set. */ }
 					<ReportRecordsTable< StatsTagsItem >
+						key={ activeTab }
 						data={ records.rows }
 						fields={ fields }
 						getItemId={ getTagRowId }
 						isLoading={ records.isLoading }
 						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
-						searchLabel={ __( 'Search tags and categories', 'jetpack-premium-analytics-pkg' ) }
+						searchLabel={ labels.search }
 					/>
 				</ReportErrorState>
 			</ReportPageLayout>

@@ -10,6 +10,7 @@ import {
 	WidgetRoot,
 	WidgetState,
 	buildLeaderboardRow,
+	getTagsReportSection,
 	resolveLeaderboardRowAction,
 	safeHttpUrl,
 	tagRowGlyph,
@@ -183,6 +184,8 @@ function TagsInner( { termType }: TagsInnerProps ) {
 	}, [ data, selectGroup, labels ] );
 
 	useReportActions( {
+		report: 'tags',
+		section: getTagsReportSection( termType ),
 		csv: {
 			exporter: termType ? tagsCsvExportersByType[ termType ] : tagsCsvExporter,
 			status: { isLoading, isError },

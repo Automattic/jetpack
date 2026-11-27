@@ -161,6 +161,28 @@ describe( 'TagsWidget', () => {
 		expect( screen.queryByText( 'chocolate' ) ).not.toBeInTheDocument();
 	} );
 
+	// `tags` stands in for a saved view the toggle does not offer.
+	it.each( [
+		[ undefined, 'all' ],
+		[ 'all', 'all' ],
+		[ 'tag', 'tags' ],
+		[ 'category', 'categories' ],
+		[ 'tags', 'all' ],
+	] )( 'opens the %s view on the %s report tab', ( termType, section ) => {
+		const { declaredLink } = renderWithActionsHost(
+			<TagsWidget
+				attributes={ {
+					reportParams: getDefaultQueryParams(),
+					termType: termType as TagsAttributes[ 'termType' ],
+				} }
+			/>
+		);
+
+		const href = decodeURIComponent( declaredLink( 'view-all' )?.href ?? '' );
+		expect( href ).toContain( '/reports/tags' );
+		expect( href ).toContain( `section=${ section }` );
+	} );
+
 	// The same module in Jetpack Stats prints the count in full, and the two are read side
 	// by side, so a compacted "1.2K" reads as different data, not rounding (WOOA7S-2018).
 	it( 'prints view counts in full rather than compacting them', async () => {
