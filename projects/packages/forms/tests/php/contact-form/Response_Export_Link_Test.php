@@ -230,6 +230,7 @@ class Response_Export_Link_Test extends BaseTestCase {
 		);
 		add_filter(
 			'wp_redirect',
+			/** @return never */
 			static function ( $location ) {
 				throw new \RuntimeException( $location );
 			}
