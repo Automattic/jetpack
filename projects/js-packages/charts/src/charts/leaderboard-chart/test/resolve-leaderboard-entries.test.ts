@@ -143,4 +143,23 @@ describe( 'resolveLeaderboardEntries', () => {
 
 		expect( entry ).toMatchObject( { id: 'a', label: 'A', onClick } );
 	} );
+	it( "derives the second figure's delta on its own, and leaves it out without a second figure", () => {
+		const result = resolveLeaderboardEntries(
+			toEntries( [
+				{ currentValue: 50, secondaryValue: 20, secondaryPreviousValue: 10 },
+				{ currentValue: 25, secondaryValue: 5, secondaryPreviousValue: 0 },
+				{ currentValue: 10, secondaryValue: 3, secondaryDelta: 12 },
+				{ currentValue: 5 },
+			] ),
+			{ includePrevious: false }
+		);
+
+		expect( result.map( ( { secondaryDelta } ) => secondaryDelta ) ).toEqual( [
+			100,
+			undefined,
+			12,
+			undefined,
+		] );
+		expect( result.map( ( { currentShare } ) => currentShare ) ).toEqual( [ 100, 50, 20, 10 ] );
+	} );
 } );

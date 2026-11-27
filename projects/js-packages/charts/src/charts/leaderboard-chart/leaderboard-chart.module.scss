@@ -40,6 +40,16 @@ $hover-reserve: var(--wpds-dimension-gap-2xl);
 	&--comparison {
 		grid-template-columns: minmax(0, 1fr) auto auto;
 	}
+
+	// A second figure takes a track after the value, and its change one more
+	// after the delta.
+	&--secondary {
+		grid-template-columns: minmax(0, 1fr) auto auto;
+	}
+
+	&--comparison#{&}--secondary {
+		grid-template-columns: minmax(0, 1fr) auto auto auto auto;
+	}
 }
 
 .barWithLabelContainer {
@@ -167,6 +177,10 @@ $hover-reserve: var(--wpds-dimension-gap-2xl);
 
 .deltaPlaceholder {
 	text-align: center;
+}
+
+.secondaryValue {
+	font-variant-numeric: tabular-nums;
 }
 
 .overlayLabel {

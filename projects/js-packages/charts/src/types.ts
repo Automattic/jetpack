@@ -228,6 +228,20 @@ type LeaderboardEntryFields = {
 	 * Percentage change. Derived from the values when omitted; a passed value wins.
 	 */
 	delta?: number;
+	/**
+	 * A second figure, drawn in a column after the value, e.g. the requests blocked next to the
+	 * requests served. Rows without one leave the column blank.
+	 */
+	secondaryValue?: number;
+	/**
+	 * The second figure in the previous period. Omit when the row has no match there.
+	 */
+	secondaryPreviousValue?: number;
+	/**
+	 * Percentage change of the second figure. Derived from its values when omitted; a passed
+	 * value wins.
+	 */
+	secondaryDelta?: number;
 
 	/**
 	 * Optional color for the entry's image/icon

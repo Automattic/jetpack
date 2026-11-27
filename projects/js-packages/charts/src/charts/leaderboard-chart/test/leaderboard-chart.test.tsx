@@ -54,6 +54,8 @@ const testValueFormatter = ( value: number ) => `${ value }$`;
  */
 const testDeltaFormatter = ( value: number ) => `${ value }delta`;
 
+const testSecondaryValueFormatter = ( value: number ) => `${ value } blocked`;
+
 describe( 'LeaderboardChart', () => {
 	afterEach( () => {
 		const { useParentSize } = jest.requireMock( '@visx/responsive' );
@@ -843,5 +845,65 @@ describe( 'LeaderboardChart', () => {
 				expect( grid() ).not.toHaveClass( 'grid--comparison' );
 			}
 		);
+	} );
+	describe( 'secondaryValue', () => {
+		const withSecondary: LeaderboardEntry[] = [
+			{ ...mockData[ 0 ], secondaryValue: 62, secondaryPreviousValue: 21 },
+			{ ...mockData[ 1 ], secondaryValue: 6 },
+		];
+		const grid = () => screen.getByRole( 'list' );
+
+		it( 'draws the second figure in a column of its own, with its change when comparing', () => {
+			render(
+				<GlobalChartsProvider>
+					<LeaderboardChart
+						data={ withSecondary }
+						withComparison
+						valueFormatter={ testValueFormatter }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			expect( grid() ).toHaveClass( 'grid--comparison', 'grid--secondary' );
+			expect( screen.getByText( '62$' ) ).toBeInTheDocument();
+			expect( screen.getByText( '+195%' ) ).toHaveClass( 'deltaValue--up' );
+			// The second row has no previous second figure, so its change is a placeholder.
+			expect( screen.getByText( '6$' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'No comparison data' ) ).toBeInTheDocument();
+		} );
+
+		it( 'formats the second figure with its own formatter, and the value formatter otherwise', () => {
+			const { rerender } = render(
+				<GlobalChartsProvider>
+					<LeaderboardChart
+						data={ withSecondary }
+						valueFormatter={ testValueFormatter }
+						secondaryValueFormatter={ testSecondaryValueFormatter }
+					/>
+				</GlobalChartsProvider>
+			);
+			expect( screen.getByText( '62 blocked' ) ).toBeInTheDocument();
+			expect( screen.getByText( '12500$' ) ).toBeInTheDocument();
+
+			rerender(
+				<GlobalChartsProvider>
+					<LeaderboardChart data={ withSecondary } valueFormatter={ testValueFormatter } />
+				</GlobalChartsProvider>
+			);
+			expect( screen.getByText( '62$' ) ).toBeInTheDocument();
+			expect( grid() ).toHaveClass( 'grid--secondary' );
+			expect( grid() ).not.toHaveClass( 'grid--comparison' );
+		} );
+
+		it( 'adds no column while no entry carries a second figure', () => {
+			render(
+				<GlobalChartsProvider>
+					<LeaderboardChart data={ mockData } withComparison />
+				</GlobalChartsProvider>
+			);
+
+			expect( grid() ).toHaveClass( 'grid--comparison' );
+			expect( grid() ).not.toHaveClass( 'grid--secondary' );
+		} );
 	} );
 } );

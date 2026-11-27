@@ -21,6 +21,7 @@ Main chart component for displaying ranked data with optional comparison values.
 | `secondaryColor` | `string` | second palette slot | Secondary color for comparison period bars |
 | `valueFormatter` | `(value: number) => ReactNode` | `defaultValueFormatter` | Custom formatter for values; may return an element, e.g. to attach a tooltip |
 | `deltaFormatter` | `(value: number) => string` | `defaultDeltaFormatter` | Custom formatter for delta values |
+| `secondaryValueFormatter` | `(value: number) => ReactNode` | `valueFormatter` | Formatter for the second figure, when entries carry a `secondaryValue` |
 | `loading` | `boolean` | `false` | Whether the chart is in loading state |
 | `fitRows` | `boolean` | `false` | Show only complete rows that fit the chart height instead of scrolling. Needs a height-constrained container; refits are debounced on the responsive export. |
 | `animation` | `boolean` | `false` | Enable entry animation on initial render. Bars stretch from left to right. Automatically respects user's `prefers-reduced-motion` system setting |
@@ -48,6 +49,9 @@ interface LeaderboardEntry {
 	currentShare?: number;       // Current bar width (0-100, or -100-100 for negative values); derived from the values when omitted
 	previousShare?: number;      // Previous bar width (same range as currentShare); derived from previousValue when omitted
 	delta?: number;              // Percentage change; derived from the values when omitted, unset when unavailable
+	secondaryValue?: number;     // A second figure, drawn in a column after the value; rows without one leave it blank
+	secondaryPreviousValue?: number; // The second figure in the previous period; omit when there is none
+	secondaryDelta?: number;     // Its percentage change; derived from the two when omitted, unset when unavailable
 	imageColor?: string;         // Optional color for the entry's image/icon
 	onClick?: ( event: MouseEvent ) => void; // Optional. Makes the whole row an interactive button (click + keyboard); the consumer supplies the action.
 	ariaLabel?: string;          // Optional. Accessible name for the row button when onClick is set; use for image-only JSX labels.
@@ -61,6 +65,7 @@ An entry that omits `currentShare`, `previousShare` or `delta` gets them from `c
 
 - **Shares**: `value / max * 100`, where `max` is the largest absolute value across all rows. Previous values count toward `max` only when comparison bars draw (`withComparison` without `withOverlayLabel`). A `max` of `0` gives a share of `0`. `previousShare` is derived only when the entry has a `previousValue`. With `negativeBars="clamp"`, `max` is the largest positive value and every share, passed or derived, is at least `0`.
 - **Delta**: `(currentValue - previousValue) / abs(previousValue) * 100`. It stays unset when the entry has no `previousValue`, or when `previousValue` is `0` and `currentValue` is not. Both values `0` gives `0`.
+- **Secondary delta**: the same rule over `secondaryValue` and `secondaryPreviousValue`, derived only when the entry has a `secondaryValue`.
 
 ## CustomProperties Type
 
