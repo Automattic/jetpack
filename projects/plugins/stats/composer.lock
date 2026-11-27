@@ -2416,16 +2416,16 @@
         },
         {
             "name": "automattic/woocommerce-analytics",
-            "version": "0.19.0",
+            "version": "0.19.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/woocommerce-analytics.git",
-                "reference": "1f2528d4c0b8648c409f65a3fcba82d2c8bd5257"
+                "reference": "cc7c6418d3faa889909ee13b0ecdd467b995c7af"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/woocommerce-analytics/zipball/1f2528d4c0b8648c409f65a3fcba82d2c8bd5257",
-                "reference": "1f2528d4c0b8648c409f65a3fcba82d2c8bd5257",
+                "url": "https://api.github.com/repos/Automattic/woocommerce-analytics/zipball/cc7c6418d3faa889909ee13b0ecdd467b995c7af",
+                "reference": "cc7c6418d3faa889909ee13b0ecdd467b995c7af",
                 "shasum": ""
             },
             "require": {
@@ -2463,10 +2463,10 @@
             ],
             "description": "Enhanced analytics for WooCommerce users.",
             "support": {
-                "source": "https://github.com/Automattic/woocommerce-analytics/tree/v0.19.0"
+                "source": "https://github.com/Automattic/woocommerce-analytics/tree/v0.19.1"
             },
-            "time": "2026-11-27T02:56:19+00:00",
-            "published-time": "2026-11-27T02:56:34+00:00"
+            "time": "2026-11-27T06:41:49+00:00",
+            "published-time": "2026-11-27T06:42:04+00:00"
         }
     ],
     "packages-dev": [
