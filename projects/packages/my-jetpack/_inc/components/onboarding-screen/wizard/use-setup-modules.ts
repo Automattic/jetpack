@@ -1,0 +1,280 @@
+import { store as modulesStore } from '@automattic/jetpack-shared-stores';
+import apiFetch from '@wordpress/api-fetch';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { bell, chartBar, envelope, postCommentsForm, search, share } from '@wordpress/icons';
+import { useCallback, useMemo, useState } from 'react';
+import { requestModuleSwitch } from '../../../data/module-switch';
+import { queueActivationRequest } from '../../../data/queue-activation-request';
+import {
+	getHiddenFeatures,
+	getMyJetpackWindowInitialState,
+} from '../../../data/utils/get-my-jetpack-window-state';
+import {
+	PRODUCT_MODULES,
+	isAiModuleToggleShown,
+} from '../../my-jetpack-tab-panel/features/mappings';
+import { aiSparkles } from './ai-sparkles';
+import { isWanted } from './lib';
+import type { MyJetpackModule } from '../../../types';
+import type { ReactElement } from 'react';
+
+/**
+ * What the wizard offers, in order.
+ *
+ * Jetpack modules rather than My Jetpack's feature cards, which is not a detail:
+ * the Protect card installs the standalone Protect plugin, and some of these
+ * have no card at all. Modules keep one control for all of them and install nothing.
+ */
+export const SETUP_MODULES = [
+	'stats',
+	'seo-tools',
+	'contact-form',
+	'publicize',
+	'ai',
+	'subscriptions',
+	'monitor',
+] as const;
+
+export type SetupModuleSlug = ( typeof SETUP_MODULES )[ number ];
+
+// Stable, so a disabled read doesn't hand back a new object each render.
+const NO_MODULES: Record< string, MyJetpackModule > = {};
+
+/*
+ * The order they are read in, by what the site is for. Every site is still
+ * offered all of them: the answer changes what is at the top of the list, not what
+ * is in it. featuresDescriptions() in lib.ts names the top two, so move both.
+ */
+const SETUP_MODULE_ORDER: Record< string, readonly SetupModuleSlug[] > = {
+	blog: [ 'stats', 'subscriptions', 'publicize', 'seo-tools', 'ai', 'contact-form', 'monitor' ],
+	store: [ 'monitor', 'stats', 'seo-tools', 'publicize', 'contact-form', 'ai', 'subscriptions' ],
+	portfolio: [
+		'contact-form',
+		'stats',
+		'publicize',
+		'seo-tools',
+		'ai',
+		'monitor',
+		'subscriptions',
+	],
+	business: [ 'contact-form', 'monitor', 'seo-tools', 'stats', 'publicize', 'ai', 'subscriptions' ],
+};
+
+/**
+ * The modules a site is offered, in the order that site should read them.
+ *
+ * Sorted rather than reordered by hand: the sort is total whatever the order
+ * says, and it is stable, so anything the order forgets keeps its place instead
+ * of disappearing. A slug typed wrong costs the list its order, not a row.
+ *
+ * @param siteType - The answer to the site-type question, if there was one.
+ * @param slugs    - The modules this site actually has.
+ * @return The same slugs, ordered.
+ */
+export function orderSetupModules(
+	siteType: string | undefined,
+	slugs: readonly SetupModuleSlug[]
+): SetupModuleSlug[] {
+	const order = SETUP_MODULE_ORDER[ siteType ?? '' ];
+	const rank = ( slug: SetupModuleSlug ) => {
+		const at = order?.indexOf( slug ) ?? -1;
+
+		return at === -1 ? SETUP_MODULES.length : at;
+	};
+
+	return slugs.slice().sort( ( a, b ) => rank( a ) - rank( b ) );
+}
+
+// A glyph per module, which modules don't carry: `@wordpress/icons`, and AI's own sparkles where those have none.
+const SETUP_MODULE_ICONS: Record< SetupModuleSlug, ReactElement > = {
+	stats: chartBar,
+	'seo-tools': search,
+	'contact-form': postCommentsForm,
+	publicize: share,
+	ai: aiSparkles,
+	subscriptions: envelope,
+	monitor: bell,
+};
+
+export type SetupModule = {
+	slug: SetupModuleSlug;
+	// Jetpack's own name and line for the module, already translated.
+	name: string;
+	description: string;
+	icon: ReactElement;
+	// Whether the site runs it now, which is also where its switch starts.
+	activated: boolean;
+	// The host forces it on or off, so its switch is shown but cannot move.
+	locked: boolean;
+};
+
+/**
+ * What became of one module when the choices were applied.
+ */
+export type SetupModuleResult = {
+	slug: SetupModuleSlug;
+	name: string;
+	// What the user asked for.
+	wanted: boolean;
+	// Whether the site now agrees. False is the case the finish screen must not hide.
+	ok: boolean;
+	// Whether this run asked the site to change it. Leaving it as it was is not a change.
+	changed: boolean;
+};
+
+/**
+ * The modules the wizard offers, with whatever the site says about them.
+ *
+ * @param siteType - What the site is for, which sets the order they are read in.
+ * @param enabled  - Whether to read them yet: only a connected user reaches the step that lists them.
+ * @return The modules in order, and whether their state is still being read.
+ */
+export function useSetupModules(
+	siteType?: string,
+	enabled = true
+): {
+	modules: SetupModule[];
+	isLoading: boolean;
+} {
+	const { modules, isLoading } = useSelect(
+		select => {
+			if ( ! enabled ) {
+				return { modules: NO_MODULES, isLoading: true };
+			}
+
+			const store = select( modulesStore ) as {
+				getJetpackModules: () => Record< string, MyJetpackModule >;
+				areModulesLoading: () => boolean;
+				hasFinishedResolution: ( selector: string ) => boolean;
+			};
+
+			return {
+				modules: store.getJetpackModules(),
+				// The loading flag is still false on the render before the request starts.
+				isLoading:
+					store.areModulesLoading() || ! store.hasFinishedResolution( 'getJetpackModules' ),
+			};
+		},
+		[ enabled ]
+	);
+
+	return useMemo( () => {
+		const seoPlugin = getMyJetpackWindowInitialState( 'onboardingWizard' )?.seoPlugin;
+		const showAi = isAiModuleToggleShown();
+		// A host hides a feature by its module slug or by the card that switches it.
+		const hidden = new Set( getHiddenFeatures() );
+		const hiddenCards = Object.entries( PRODUCT_MODULES ).filter( ( [ card ] ) =>
+			hidden.has( card )
+		);
+		const offered = ( slug: SetupModuleSlug ) =>
+			! hidden.has( slug ) &&
+			! hiddenCards.some( ( [ , module ] ) => module === slug ) &&
+			( slug !== 'seo-tools' || ! seoPlugin ) &&
+			( slug !== 'ai' || showAi );
+
+		return {
+			isLoading,
+			// A module Jetpack does not have on this site is left out rather than rendered as a
+			// row that cannot be switched, and so is one the host hid or Features does not offer.
+			modules: orderSetupModules(
+				siteType,
+				SETUP_MODULES.filter( slug => modules?.[ slug ] && offered( slug ) )
+			).map( slug => ( {
+				slug,
+				name: modules[ slug ].name,
+				description: modules[ slug ].description,
+				icon: SETUP_MODULE_ICONS[ slug ],
+				activated: Boolean( modules[ slug ].activated ),
+				locked: Boolean( modules[ slug ].override ),
+			} ) ),
+		};
+	}, [ modules, isLoading, siteType ] );
+}
+
+// How long a read-back waits behind a switch still running before giving up on it.
+const READ_BACK_WAIT_MS = 10_000;
+
+/**
+ * Whether the site runs a module right now, read from the site rather than the store.
+ *
+ * Queued so it waits for a switch the queue stopped waiting on. Only the list route
+ * carries `activated`; the per-module route leaves it out.
+ *
+ * @param slug - The module's slug.
+ * @return Its state, or null when the site could not be asked.
+ */
+export async function readModuleActive( slug: string ): Promise< boolean | null > {
+	let timer: ReturnType< typeof setTimeout > | undefined;
+	try {
+		const modules = await Promise.race( [
+			queueActivationRequest( () =>
+				apiFetch< Record< string, { activated?: boolean } > >( { path: '/jetpack/v4/module/all' } )
+			),
+			// A switch that hung once usually hangs on, so don't hold the wizard another full timeout.
+			new Promise< null >(
+				resolve => ( timer = setTimeout( () => resolve( null ), READ_BACK_WAIT_MS ) )
+			),
+		] );
+		const activated = modules?.[ slug ]?.activated;
+
+		return typeof activated === 'boolean' ? activated : null;
+	} catch {
+		return null;
+	} finally {
+		clearTimeout( timer );
+	}
+}
+
+/**
+ * Switch the chosen modules on, and the unchosen ones off.
+ *
+ * Every switch is reported, including the ones that did not take. The bulk route
+ * would be fewer requests, but it answers for plugins and cards this screen does
+ * not use, and `requestModuleSwitch` already returns a plain yes or no per module
+ * through the same activation queue the rest of My Jetpack switches through.
+ *
+ * @return The handler, and whether it is running.
+ */
+export function useApplySetupModules() {
+	const { updateJetpackModuleStatus: toggleModule } = useDispatch( modulesStore ) as {
+		updateJetpackModuleStatus: ( args: { name: string; active: boolean } ) => Promise< unknown >;
+	};
+	const [ isApplying, setIsApplying ] = useState( false );
+
+	const apply = useCallback(
+		async ( modules: SetupModule[], wanted: Record< string, boolean > ) => {
+			setIsApplying( true );
+
+			const results: SetupModuleResult[] = [];
+
+			try {
+				// One at a time: the queue serializes them anyway, and a module that fails
+				// should not be reported against whatever a parallel request did next.
+				for ( const module of modules ) {
+					const want = isWanted( wanted, module );
+					// A module already in the wanted state is not asked to change, and must
+					// not be counted as though it had: the finish screen reports what this
+					// run did, and a run that sent no request did nothing.
+					const changed = want !== module.activated;
+					let ok = changed ? await requestModuleSwitch( toggleModule, module.slug, want ) : true;
+
+					// False can mean the store's follow-up read failed or the queue gave up on a
+					// request still running, so ask the site before reporting "Not changed".
+					if ( ! ok ) {
+						ok = ( await readModuleActive( module.slug ) ) === want;
+					}
+
+					results.push( { slug: module.slug, name: module.name, wanted: want, ok, changed } );
+				}
+			} finally {
+				// Left true, the busy wizard would hold both exits on the finish screen.
+				setIsApplying( false );
+			}
+
+			return results;
+		},
+		[ toggleModule ]
+	);
+
+	return { apply, isApplying };
+}

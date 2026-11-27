@@ -724,6 +724,7 @@ class Initializer_Test extends BaseTestCase {
 		remove_all_filters( 'jetpack_feature_flag_enabled_my-jetpack-onboarding-wizard' );
 		remove_all_filters( 'jetpack_feature_flag_enabled_my-jetpack-modules-to-features' );
 		remove_all_filters( 'jetpack_my_jetpack_offline_features' );
+		Initializer::forget_onboarding_module_limit();
 
 		// Connection_Manager memoizes is_connected() in a process-wide static that
 		// WorDBless teardown does not reset. The admin_init tests that depend on that
@@ -813,13 +814,142 @@ class Initializer_Test extends BaseTestCase {
 	}
 
 	/**
-	 * With its flag on, the wizard runs on a self-hosted site.
+	 * Load the mock Jetpack plugin. Only from a separate process: a class cannot be unloaded.
 	 */
-	public function test_wizard_is_enabled_on_self_hosted_with_the_flag_on() {
-		$this->enable_wizard_flag();
+	private function run_jetpack_plugin() {
+		require_once __DIR__ . '/assets/jetpack-mock-plugin.txt';
+	}
 
-		$this->assertTrue( Initializer::is_onboarding_wizard_enabled() );
-		$this->assertNotNull( Initializer::get_onboarding_wizard_state() );
+	/**
+	 * Everything the wizard needs on a self-hosted site: the flag and the Jetpack plugin.
+	 */
+	private function enable_wizard() {
+		$this->enable_wizard_flag();
+		$this->run_jetpack_plugin();
+	}
+
+	/**
+	 * Data provider for the wizard with and without the Jetpack plugin.
+	 *
+	 * @return array
+	 */
+	public static function provide_jetpack_plugin_cases() {
+		return array(
+			'with the Jetpack plugin' => array( true ),
+			// Its features step switches modules only the Jetpack plugin has.
+			'standalone plugins only' => array( false ),
+		);
+	}
+
+	/**
+	 * With the flag on, a self-hosted site gets the wizard only when the Jetpack plugin runs.
+	 *
+	 * @dataProvider provide_jetpack_plugin_cases
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 *
+	 * @param bool $with_jetpack Whether the Jetpack plugin is active, and so whether the wizard runs.
+	 */
+	#[DataProvider( 'provide_jetpack_plugin_cases' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_the_wizard_needs_the_jetpack_plugin( $with_jetpack ) {
+		$this->enable_wizard_flag();
+		if ( $with_jetpack ) {
+			$this->run_jetpack_plugin();
+		}
+
+		$this->assertSame( $with_jetpack, Initializer::is_onboarding_wizard_enabled() );
+		$this->assertSame( $with_jetpack, null !== Initializer::get_onboarding_wizard_state() );
+	}
+
+	/**
+	 * Get started must not switch on the modules the features step is there to offer.
+	 */
+	public function test_wizard_registration_keeps_only_background_modules() {
+		$offered = array( 'stats', 'protect', 'blaze', 'blocks', 'json-api', 'seo-dashboard', 'seo-tools', 'subscriptions' );
+		$request = new \WP_REST_Request( 'POST', '/jetpack/v4/connection/register' );
+		$request->set_param( 'from', Initializer::ONBOARDING_WIZARD_FROM );
+
+		Initializer::note_onboarding_registration( null, rest_get_server(), $request );
+
+		$this->assertSame(
+			array( 'protect', 'blocks', 'json-api', 'seo-dashboard', 'seo-tools' ),
+			Initializer::limit_onboarding_default_modules( $offered )
+		);
+
+		Initializer::forget_onboarding_module_limit();
+
+		$this->assertSame( $offered, Initializer::limit_onboarding_default_modules( $offered ) );
+	}
+
+	/**
+	 * Another screen's registration keeps the full list.
+	 */
+	public function test_other_registrations_keep_default_modules() {
+		$offered = array( 'stats', 'blocks', 'json-api' );
+		$request = new \WP_REST_Request( 'POST', '/jetpack/v4/connection/register' );
+		$request->set_param( 'from', 'jetpack-onboarding' );
+
+		Initializer::note_onboarding_registration( null, rest_get_server(), $request );
+
+		$this->assertSame( $offered, Initializer::limit_onboarding_default_modules( $offered ) );
+	}
+
+	/**
+	 * Data provider for the account connection, by where it sends the user back to.
+	 *
+	 * @return array
+	 */
+	public static function provide_account_authorize_cases() {
+		$webhook = 'https://example.org/wp-admin/admin.php?handler=jetpack-connection-webhooks&action=authorize&redirect=';
+		$wizard  = 'https://example.org/wp-admin/admin.php?page=my-jetpack&step=onboarding';
+
+		return array(
+			'wizard, from WordPress.com' => array( array( 'redirect_uri' => $webhook . rawurlencode( $wizard ) ), true, true ),
+			'wizard, in the browser'     => array( array( 'redirect' => $wizard ), true, true ),
+			'wizard, encoded twice'      => array( array( 'redirect_uri' => $webhook . rawurlencode( rawurlencode( $wizard ) ) ), true, true ),
+			'another screen'             => array( array( 'redirect_uri' => $webhook . rawurlencode( 'https://example.org/wp-admin/admin.php?page=my-jetpack' ) ), true, false ),
+			'another plugin\'s step'     => array( array( 'redirect_uri' => $webhook . rawurlencode( 'https://example.org/wp-admin/admin.php?page=acme&step=onboarding' ) ), true, false ),
+			'wizard flag off'            => array( array( 'redirect_uri' => $webhook . rawurlencode( $wizard ) ), false, false ),
+		);
+	}
+
+	/**
+	 * The wizard's own account connection keeps the user-connection modules off, and only while Jetpack's handler runs.
+	 *
+	 * @dataProvider provide_account_authorize_cases
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 *
+	 * @param array $data        The authorize request.
+	 * @param bool  $wizard_flag Whether the wizard's feature flag is on.
+	 * @param bool  $limited     Whether only the background modules survive.
+	 */
+	#[DataProvider( 'provide_account_authorize_cases' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_account_authorize_limits_only_the_wizard( $data, $wizard_flag, $limited ) {
+		$this->run_jetpack_plugin();
+		if ( $wizard_flag ) {
+			$this->enable_wizard_flag();
+		}
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		Initializer::init();
+		$offered = array( 'ai', 'backup', 'notes', 'activity-log', 'subscriptions' );
+		$modules = null;
+		// Where Jetpack's own handler asks for its defaults.
+		add_action(
+			'jetpack_authorize_ending_authorized',
+			function () use ( &$modules, $offered ) {
+				$modules = Initializer::limit_onboarding_default_modules( $offered );
+			}
+		);
+
+		do_action( 'jetpack_authorize_ending_authorized', $data );
+
+		$this->assertSame( $limited ? array( 'backup', 'notes', 'activity-log' ) : $offered, $modules );
+		$this->assertSame( $offered, Initializer::limit_onboarding_default_modules( $offered ) );
 	}
 
 	/**
@@ -833,9 +963,16 @@ class Initializer_Test extends BaseTestCase {
 	/**
 	 * The wizard never runs on WordPress.com Simple, even with its flag on: the
 	 * platform owns the connection and nobody chose to install Jetpack there.
+	 *
+	 * With the Jetpack plugin running, so only the platform check can say no.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_wizard_is_disabled_on_wpcom_simple() {
-		$this->enable_wizard_flag();
+		$this->enable_wizard();
 		Constants::set_constant( 'IS_WPCOM', true );
 		StatusCache::clear();
 
@@ -848,9 +985,16 @@ class Initializer_Test extends BaseTestCase {
 	 *
 	 * Note this deliberately differs from is_onboarding_available(), which stays
 	 * true on WoA — only the wizard is gated, the existing takeover is untouched.
+	 *
+	 * With the Jetpack plugin running, so only the platform check can say no.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_wizard_is_disabled_on_woa() {
-		$this->enable_wizard_flag();
+		$this->enable_wizard();
 		Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
 		Constants::set_constant( 'ATOMIC_CLIENT_ID', 123 );
 		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/tmp/wpcomsh/wpcomsh.php' );
@@ -1150,7 +1294,7 @@ class Initializer_Test extends BaseTestCase {
 	public function test_admin_init_keeps_a_connected_user_on_the_wizard() {
 		$user_id = $this->log_in_as_admin();
 		$this->connect_owner( $user_id );
-		$this->enable_wizard_flag();
+		$this->enable_wizard();
 		$_GET['step'] = 'onboarding';
 
 		$this->assertNull( $this->capture_onboarding_redirect() );
@@ -1253,7 +1397,7 @@ class Initializer_Test extends BaseTestCase {
 		$this->assertArrayHasKey( '/my-jetpack/v1/site/onboarding/settled', $this->capture_rest_routes() );
 		$this->assertFalse( REST_Onboarding::permissions_callback() );
 
-		$this->enable_wizard_flag();
+		$this->enable_wizard();
 
 		$this->assertTrue( REST_Onboarding::permissions_callback() );
 	}
@@ -1392,7 +1536,7 @@ class Initializer_Test extends BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_the_wizard_runs_for_a_standalone_plugin_user() {
-		$this->enable_wizard_flag();
+		$this->enable_wizard();
 		// A blog ID with no token: registered by a standalone plugin, not connected now.
 		Jetpack_Options::update_option( 'id', 1234 );
 		( new Connection_Manager() )->reset_connection_status();
@@ -1400,6 +1544,35 @@ class Initializer_Test extends BaseTestCase {
 		$this->assertTrue( Initializer::has_never_registered_jetpack() );
 		$this->assertTrue( Initializer::is_onboarding_wizard_enabled() );
 		$this->assertNotNull( Initializer::get_onboarding_wizard_state() );
+	}
+
+	/**
+	 * The run is stored per site and per user, so two admins sharing a browser tab,
+	 * or two subdirectory sites on one domain, never resume each other's.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_the_wizard_scopes_its_run_to_the_user() {
+		$this->enable_wizard();
+		$this->log_in_as_admin();
+		$scope = Initializer::get_onboarding_wizard_state()['runScope'];
+
+		$this->assertMatchesRegularExpression( '/^[0-9a-f]{12}$/', $scope );
+		$this->assertSame( $scope, Initializer::get_onboarding_wizard_state()['runScope'] );
+
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'second_admin',
+					'user_pass'  => 'pass',
+					'role'       => 'administrator',
+				)
+			)
+		);
+		$this->assertNotSame( $scope, Initializer::get_onboarding_wizard_state()['runScope'] );
 	}
 
 	/**
@@ -1411,7 +1584,7 @@ class Initializer_Test extends BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_a_previous_jetpack_registration_closes_the_wizard() {
-		$this->enable_wizard_flag();
+		$this->enable_wizard();
 		Jetpack_Options::update_option( 'unique_registrations', 2 );
 
 		$this->assertFalse( Initializer::has_never_registered_jetpack() );
@@ -1433,7 +1606,7 @@ class Initializer_Test extends BaseTestCase {
 	#[PreserveGlobalState( false )]
 	public function test_connecting_mid_run_does_not_close_the_wizard() {
 		$user_id = $this->log_in_as_admin();
-		$this->enable_wizard_flag();
+		$this->enable_wizard();
 		$this->connect_owner( $user_id );
 		Jetpack_Options::update_option( 'unique_registrations', 1 );
 
@@ -1455,7 +1628,7 @@ class Initializer_Test extends BaseTestCase {
 	#[PreserveGlobalState( false )]
 	public function test_admin_init_sends_a_site_only_connection_back_into_setup() {
 		$this->log_in_as_admin();
-		$this->enable_wizard_flag();
+		$this->enable_wizard();
 		$this->connect_site_only();
 
 		$this->assertTrue( ( new Connection_Manager() )->is_connected() );
@@ -1494,7 +1667,7 @@ class Initializer_Test extends BaseTestCase {
 	#[PreserveGlobalState( false )]
 	public function test_a_skip_needs_the_site_connection( $site_connected, $expect_redirect ) {
 		$user_id = $this->log_in_as_admin();
-		$this->enable_wizard_flag();
+		$this->enable_wizard();
 		if ( $site_connected ) {
 			$this->connect_site_only();
 		}

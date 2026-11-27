@@ -78,6 +78,41 @@ class Initializer {
 	const ONBOARDING_COMPLETED_OPTION = 'jetpack_my_jetpack_onboarding_completed';
 
 	/**
+	 * `from` the setup wizard sends when it registers the site.
+	 *
+	 * Same string as the wizard's connect link. That request is what switches
+	 * Jetpack's default modules on, before the features step has asked.
+	 */
+	const ONBOARDING_WIZARD_FROM = 'my_jetpack_onboarding';
+
+	/**
+	 * Default modules the wizard's connection keeps: what a fresh connection needs, SEO with its switch,
+	 * and what visitors never see. Of these, only SEO has a row in the features step.
+	 *
+	 * @var string[]
+	 */
+	const ONBOARDING_BACKGROUND_MODULES = array(
+		'blocks',
+		'json-api',
+		'seo-dashboard',
+		'seo-tools',
+		'verification-tools',
+		'protect',
+		'activity-log',
+		'notes',
+		'backup',
+	);
+
+	/**
+	 * Whether Jetpack is switching its default modules on for the setup wizard.
+	 *
+	 * A worker handles more than one request, so this cannot outlive the one that set it.
+	 *
+	 * @var bool
+	 */
+	private static $limit_onboarding_modules = false;
+
+	/**
 	 * Handle for the classic script that carries the React initial state.
 	 *
 	 * Plugins that render My Jetpack components on their own pages (Boost) depend on this name.
@@ -260,6 +295,15 @@ class Initializer {
 
 		// Track whether the user is an agency, for the Automattic for Agencies banner.
 		Jetpack_Manage::init();
+
+		// Get started registers the site, which usually switches on Jetpack's whole default list.
+		add_filter( 'rest_pre_dispatch', array( __CLASS__, 'note_onboarding_registration' ), 10, 3 );
+		// After Jetpack's own default-module filters, the last of which runs at 99.
+		add_filter( 'jetpack_get_default_modules', array( __CLASS__, 'limit_onboarding_default_modules' ), 100 );
+		// Either side of Jetpack's handler at 10, which switches on the account modules registration left off.
+		add_action( 'jetpack_authorize_ending_authorized', array( __CLASS__, 'note_onboarding_authorize' ), 9 );
+		add_action( 'jetpack_authorize_ending_authorized', array( __CLASS__, 'forget_onboarding_module_limit' ), 100 );
+		add_action( 'shutdown', array( __CLASS__, 'forget_onboarding_module_limit' ) );
 
 		/**
 		 * Fires after the My Jetpack package is initialized
@@ -672,6 +716,11 @@ class Initializer {
 			return false;
 		}
 
+		// Its features step switches Jetpack modules, whose routes only the Jetpack plugin has.
+		if ( ! class_exists( 'Jetpack' ) ) {
+			return false;
+		}
+
 		// The wizard registers the site at its own first step, which writes the marker
 		// below, so asking again on the way back from WordPress.com would drop someone
 		// out of a run already under way.
@@ -703,19 +752,133 @@ class Initializer {
 	 *
 	 * @since 6.11.0
 	 *
-	 * @return array{exitUrl: string, dashboardUrl: string}|null
+	 * @return array{exitUrl: string, featuresUrl: string, dashboardUrl: string, runScope: string, seoPlugin: string|null}|null
 	 */
 	public static function get_onboarding_wizard_state() {
 		if ( ! self::is_onboarding_wizard_enabled() ) {
 			return null;
 		}
 
+		/** This filter is documented in projects/packages/seo/src/class-seo-tools.php */
+		$seo_plugin = apply_filters( 'jetpack_seo_conflicting_plugin', null );
+
 		return array(
 			// Where skipping the wizard lands: the admin menu is hidden, so leaving is always one click.
 			'exitUrl'      => admin_url( 'admin.php?page=my-jetpack' ),
+			// Where finishing lands: Features, as a full page load so it leaves the takeover.
+			'featuresUrl'  => add_query_arg(
+				array(
+					'page' => 'my-jetpack',
+					'p'    => rawurlencode( '/features' ),
+				),
+				admin_url( 'admin.php' )
+			),
 			// Where leaving Jetpack altogether lands: wp-admin's own dashboard.
 			'dashboardUrl' => admin_url(),
+			// Keys the run in session storage, which subdirectory sites on one domain share.
+			'runScope'     => substr( md5( admin_url() . '|' . get_current_user_id() ), 0, 12 ),
+			// Jetpack's SEO switches itself off beside another SEO plugin, so the wizard leaves its row out.
+			'seoPlugin'    => is_string( $seo_plugin ) && '' !== trim( $seo_plugin ) ? trim( $seo_plugin ) : null,
 		);
+	}
+
+	/**
+	 * Remember a registration that came from the setup wizard.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param mixed            $result  Response to short-circuit with, or null.
+	 * @param \WP_REST_Server  $server  Server instance.
+	 * @param \WP_REST_Request $request Request used to generate the response.
+	 * @return mixed
+	 */
+	public static function note_onboarding_registration( $result, $server, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- WordPress REST filter signature.
+		self::$limit_onboarding_modules = $request instanceof \WP_REST_Request
+			&& '/jetpack/v4/connection/register' === $request->get_route()
+			&& self::ONBOARDING_WIZARD_FROM === (string) $request->get_param( 'from' );
+
+		return $result;
+	}
+
+	/**
+	 * Remember an account connection that returns to the setup wizard.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array|\ArrayAccess $data The authorize request: the browser's query, or WordPress.com's call.
+	 * @return void
+	 */
+	public static function note_onboarding_authorize( $data ) {
+		self::$limit_onboarding_modules = self::is_onboarding_return( $data ) && self::is_onboarding_wizard_enabled();
+	}
+
+	/**
+	 * Whether an authorize request sends the user back to the setup wizard.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array|\ArrayAccess $data The authorize request.
+	 * @return bool
+	 */
+	private static function is_onboarding_return( $data ) {
+		$returns = array();
+
+		// The browser's request carries the return address as `redirect`; WordPress.com's nests it in `redirect_uri`.
+		if ( isset( $data['redirect'] ) && is_string( $data['redirect'] ) ) {
+			$returns[] = $data['redirect'];
+		}
+
+		if ( isset( $data['redirect_uri'] ) && is_string( $data['redirect_uri'] ) ) {
+			parse_str( (string) wp_parse_url( $data['redirect_uri'], PHP_URL_QUERY ), $outer );
+			if ( isset( $outer['redirect'] ) && is_string( $outer['redirect'] ) ) {
+				$returns[] = $outer['redirect'];
+			}
+		}
+
+		foreach ( $returns as $return ) {
+			// Decoded until it stops changing, since a hop can encode it once more.
+			for ( $hops = 0; $hops < 3; $hops++ ) {
+				$decoded = rawurldecode( $return );
+				if ( $decoded === $return ) {
+					break;
+				}
+				$return = $decoded;
+			}
+
+			parse_str( (string) wp_parse_url( $return, PHP_URL_QUERY ), $query );
+			if ( isset( $query['page'] ) && isset( $query['step'] ) && 'my-jetpack' === $query['page'] && 'onboarding' === $query['step'] ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Drop the user-facing default modules while the setup wizard connects the site.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $modules Modules Jetpack would otherwise switch on.
+	 * @return array
+	 */
+	public static function limit_onboarding_default_modules( $modules ) {
+		if ( ! is_array( $modules ) || ! self::$limit_onboarding_modules ) {
+			return $modules;
+		}
+
+		return array_values( array_intersect( $modules, self::ONBOARDING_BACKGROUND_MODULES ) );
+	}
+
+	/**
+	 * Give any later activation Jetpack's full defaults again.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function forget_onboarding_module_limit() {
+		self::$limit_onboarding_modules = false;
 	}
 
 	/**
@@ -1077,6 +1240,7 @@ class Initializer {
 				'planUrls'               => self::get_plan_urls(),
 				'adminUrl'               => esc_url( admin_url() ),
 				'assetsUrl'              => self::get_assets_url(),
+				'webpackPublicPath'      => self::get_build_url(),
 				'IDCContainerID'         => static::get_idc_container_id(),
 				'userIsAdmin'            => current_user_can( 'manage_options' ),
 				// wp_localize_script() decodes the HTML entities WordPress stores names with.
@@ -1457,6 +1621,17 @@ class Initializer {
 	}
 
 	/**
+	 * Get the base URL of the package's build directory, with a trailing slash.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string
+	 */
+	private static function get_build_url() {
+		return trailingslashit( Assets::normalize_path( plugins_url( '../build/', __FILE__ ) ) );
+	}
+
+	/**
 	 * Get the base URL of the package's built images, with a trailing slash.
 	 *
 	 * @since 6.3.0
@@ -1464,7 +1639,7 @@ class Initializer {
 	 * @return string
 	 */
 	public static function get_assets_url() {
-		return trailingslashit( Assets::normalize_path( plugins_url( '../build/images/', __FILE__ ) ) );
+		return self::get_build_url() . 'images/';
 	}
 
 	/**

@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Onboarding: Offer SEO in the setup wizard and keep it on when the wizard connects a site, leaving it out where another SEO plugin runs.
