@@ -209,23 +209,22 @@ class Jetpack_Boost {
 			jetpack_boost_minify_activation();
 		}
 
-		if ( ! get_option( 'jetpack_boost_page_cache_uri_keys' ) ) {
-			$home_url  = home_url();
-			$home_host = wp_parse_url( $home_url, PHP_URL_HOST );
-			if ( is_string( $home_host ) ) {
-				$home_port = wp_parse_url( $home_url, PHP_URL_PORT );
-				if ( is_int( $home_port ) ) {
-					$home_host .= ':' . $home_port;
-				}
-				( new Boost_Cache( new File_Storage( strtolower( $home_host ) ) ) )->delete_recursive( $home_url );
-			}
-			update_option( 'jetpack_boost_page_cache_uri_keys', 1, false );
-		}
+		delete_option( 'jetpack_boost_page_cache_uri_keys' );
 
 		$page_cache = new Module( new Page_Cache() );
 		if ( $page_cache->is_enabled() ) {
-			// Schedule the cronjob to preload the cache for Cornerstone Pages.
+			// Schedule the recurring preload first so a one-off from the purge cannot block it.
 			( new Cache_Preload() )->schedule_cornerstone_cronjob();
+		}
+
+		$home_url  = home_url();
+		$home_host = wp_parse_url( $home_url, PHP_URL_HOST );
+		if ( is_string( $home_host ) ) {
+			$home_port = wp_parse_url( $home_url, PHP_URL_PORT );
+			if ( is_int( $home_port ) ) {
+				$home_host .= ':' . $home_port;
+			}
+			( new Boost_Cache( new File_Storage( strtolower( $home_host ) ) ) )->delete_recursive( $home_url );
 		}
 
 		// Setup a cleanup job

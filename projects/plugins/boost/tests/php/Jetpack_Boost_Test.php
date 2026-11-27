@@ -14,6 +14,8 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Lcp\LCP_State;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_Common;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Cache_Preload;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
@@ -142,6 +144,18 @@ class Jetpack_Boost_Test extends BaseTestCase {
 
 		$this->assertFileDoesNotExist( $files[0] );
 		$this->assertFileDoesNotExist( $files[1] );
+	}
+
+	public function test_version_change_restores_missing_recurring_cornerstone_preload() {
+		$boost = new Jetpack_Boost();
+		$boost->setup_cron_schedules();
+		( new Cache_Preload() )->setup();
+		( new Status( Page_Cache::get_slug() ) )->set( true );
+		wp_clear_scheduled_hook( 'jetpack_boost_preload_cornerstone' );
+
+		$boost->handle_version_change();
+
+		$this->assertSame( 'twicehourly', wp_get_schedule( 'jetpack_boost_preload_cornerstone' ) );
 	}
 
 	/**

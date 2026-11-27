@@ -418,23 +418,19 @@ class Filesystem_Utils_Test extends TestCase {
 		}
 	}
 
-	public function test_version_change_clears_old_cache_without_a_request_host() {
+	public function test_each_version_change_clears_the_home_host_cache() {
 		Functions\when( 'delete_site_option' )->justReturn( true );
+		Functions\when( 'delete_option' )->justReturn( true );
 		Functions\when( 'get_site_option' )->justReturn( JETPACK_BOOST_MINIFY_CACHE_RULES_VERSION );
 		Functions\when( 'jetpack_boost_ds_get' )->justReturn( false );
 		Functions\when( 'jetpack_boost_minify_is_enabled' )->justReturn( false );
 		Functions\when( 'home_url' )->justReturn( 'https://example.com:8080' );
 		Functions\when( 'wp_parse_url' )->alias( 'parse_url' );
-		$options = array( 'jetpack_boost_page_cache_uri_keys' => false );
+		// Flag left set: the purge must not depend on it.
+		$options = array( 'jetpack_boost_page_cache_uri_keys' => 1 );
 		Functions\when( 'get_option' )->alias(
 			function ( $name, $default = false ) use ( &$options ) {
 				return $options[ $name ] ?? $default;
-			}
-		);
-		Functions\expect( 'update_option' )->once()->with( 'jetpack_boost_page_cache_uri_keys', 1, false )->andReturnUsing(
-			function ( $name, $value ) use ( &$options ) {
-				$options[ $name ] = $value;
-				return true;
 			}
 		);
 		Functions\when( 'wp_next_scheduled' )->justReturn( true );
@@ -461,13 +457,6 @@ class Filesystem_Utils_Test extends TestCase {
 		$this->assertFalse( $storage->read( '/', array() ) );
 		$this->assertFalse( $storage->read( '/page/', array() ) );
 		$this->assertSame( 'other', $other->read( '/', array() ) );
-		$this->assertSame( 1, $options['jetpack_boost_page_cache_uri_keys'] );
-
-		$storage->write( '/', array(), 'new root' );
-		$storage->write( '/page/', array(), 'new page' );
-		$plugin->handle_version_change();
-		$this->assertSame( 'new root', $storage->read( '/', array() ) );
-		$this->assertSame( 'new page', $storage->read( '/page/', array() ) );
 
 		if ( ! defined( 'JETPACK_BOOST_VERSION' ) ) {
 			define( 'JETPACK_BOOST_VERSION', '1.0.0' );
@@ -476,6 +465,10 @@ class Filesystem_Utils_Test extends TestCase {
 		$storage->write( '/', array(), 'new' );
 		$plugin->schedule_version_change();
 		$this->assertSame( 'new', $storage->read( '/', array() ) );
+
+		$plugin->handle_version_change();
+		$this->assertFalse( $storage->read( '/', array() ) );
+		$this->assertSame( 'other', $other->read( '/', array() ) );
 	}
 
 	public function test_targeted_path_purge_preserves_unrelated_pages_with_repeated_leading_slashes() {
