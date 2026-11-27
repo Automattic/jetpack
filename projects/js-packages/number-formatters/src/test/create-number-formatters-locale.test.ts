@@ -39,7 +39,7 @@ describe( 'createNumberFormatters() - locale resolution/fallback', () => {
 			1234567,
 			'1\u00a0234\u00a0567',
 		],
-		[ 'de_DE_formal', 'keeps a variant Intl accepts', 1234567, '1.234.567' ],
+		[ 'de_CH_informal', 'keeps the region under a variant Intl accepts', 1234567, "1'234'567" ],
 	] )( 'resolves the WordPress locale %s: %s', ( locale, _why, value, expected ) => {
 		mockGetSettings.mockReturnValue( { l10n: { locale } } );
 
