@@ -46,11 +46,18 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 	const SITE_ID = 1234;
 
 	/**
-	 * The filter that opens the production environment.
+	 * The API-managed buttons flag.
 	 *
 	 * @var string
 	 */
-	const PRODUCTION_FLAG_FILTER = 'jetpack_feature_flag_enabled_' . WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding::PRODUCTION_FLAG;
+	const FLAG = 'paypal-payments-api-managed-buttons';
+
+	/**
+	 * Kill option (network option `wpcom_paypal_buttons_kill_switch`). A literal. Renaming the rollout's constant fails here.
+	 *
+	 * @var string
+	 */
+	const KILL_SWITCH_OPTION = 'wpcom_paypal_buttons_kill_switch';
 
 	/**
 	 * Log entries recorded by spy_log().
@@ -60,12 +67,13 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 	private $logged = array();
 
 	/**
-	 * The transient remembering that MERCHANT1 was referred by SITE_ID on sandbox.
+	 * The transient remembering that MERCHANT1 was referred by SITE_ID.
 	 *
+	 * @param string $environment 'sandbox' or 'production'.
 	 * @return string
 	 */
-	private function merchant_binding_transient() {
-		return 'paypal_platform_merchant_' . md5( 'sandbox|' . self::SITE_ID . '|MERCHANT1' );
+	private function merchant_binding_transient( $environment = 'sandbox' ) {
+		return 'paypal_platform_merchant_' . md5( $environment . '|' . self::SITE_ID . '|MERCHANT1' );
 	}
 
 	/**
@@ -88,14 +96,16 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 		Constants::clear_constants();
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'is_jetpack_authorized_for_site' );
-		remove_all_filters( self::PRODUCTION_FLAG_FILTER );
+		remove_all_filters( 'wpcom_paypal_buttons_kill_switch' );
+		remove_filter( 'jetpack_feature_flag_enabled_' . self::FLAG, '__return_false' );
+		delete_site_option( self::KILL_SWITCH_OPTION );
 		unset( $GLOBALS['wpcom_paypal_platform_test_token'] );
 		unset( $GLOBALS['wpcom_paypal_platform_test_suspended'] );
 		$GLOBALS['blog_id'] = $this->original_blog_id;
 		foreach ( array( 'sandbox', 'production' ) as $environment ) {
 			delete_transient( WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding::token_cache_key( $environment ) );
+			delete_transient( $this->merchant_binding_transient( $environment ) );
 		}
-		delete_transient( $this->merchant_binding_transient() );
 
 		// Drop the REST server so the next test re-runs rest_api_init.
 		global $wp_rest_server;
@@ -131,10 +141,10 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 	}
 
 	/**
-	 * Open the production environment, which stays closed until the flag filter says otherwise.
+	 * Open the production environment, even if KILLED ships true.
 	 */
 	private function enable_production() {
-		add_filter( self::PRODUCTION_FLAG_FILTER, '__return_true' );
+		add_filter( 'wpcom_paypal_buttons_kill_switch', '__return_false' );
 	}
 
 	/**
@@ -413,17 +423,70 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 	}
 
 	/**
-	 * Production is refused before credentials are even looked at, so provisioning
-	 * the live constants on WordPress.com cannot open it by accident.
+	 * Test that every platform route refuses production only while the kill switch is on.
+	 *
+	 * The flag is off in every case.
+	 *
+	 * @param string $environment 'sandbox' or 'production'.
+	 * @param bool   $killed      Whether the kill option is set.
+	 * @param bool   $refused     Whether the routes refuse.
+	 * @dataProvider provide_kill_switch
 	 */
-	public function test_production_is_refused_until_the_flag_opens_it() {
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provide_kill_switch' )]
+	public function test_production_is_refused_only_while_killed( $environment, $killed, $refused ) {
+		$this->sign_request_as( self::SITE_ID );
 		$this->store_platform_credentials();
+		add_filter( 'jetpack_feature_flag_enabled_' . self::FLAG, '__return_false' );
+		if ( $killed ) {
+			update_site_option( self::KILL_SWITCH_OPTION, '1' );
+		} else {
+			$this->enable_production();
+		}
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'                 => $this->token_response(),
+				'/v2/customer/partner-referrals'   => $this->referral_response(),
+				'/merchant-integrations/MERCHANT1' => $this->merchant_integration_response(),
+				'/v1/checkout/payment-resources'   => $this->http_response( 201, array( 'id' => 'PLB-NEW' ) ),
+			)
+		);
 
-		$result = $this->endpoint->generate_signup_link( $this->signup_link_request( 'production' ) );
+		$results = array(
+			'signup-link'          => $this->endpoint->generate_signup_link( $this->signup_link_request( $environment ) ),
+			'merchant-integration' => $this->endpoint->get_merchant_integration_status(
+				$this->merchant_integration_request(
+					array(
+						'environment' => $environment,
+						'merchant_id' => 'MERCHANT1',
+					)
+				)
+			),
+			'request'              => $this->endpoint->forward_request( $this->forward_request( array( 'environment' => $environment ) ) ),
+		);
 
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'platform_production_not_enabled', $result->get_error_code() );
-		$this->assertSame( 403, $result->get_error_data()['status'] );
+		$expected = $refused
+			? array( 'platform_production_not_enabled', 'PayPal is temporarily unavailable. Please try again later.', array( 'status' => 403 ) )
+			: null;
+		foreach ( $results as $route => $result ) {
+			$this->assertSame(
+				$expected,
+				is_wp_error( $result ) ? array( $result->get_error_code(), $result->get_error_message(), $result->get_error_data() ) : null,
+				$route
+			);
+		}
+	}
+
+	/**
+	 * Environments and kill switch states for test_production_is_refused_only_while_killed().
+	 *
+	 * @return array<string, array{0:string, 1:bool, 2:bool}>
+	 */
+	public static function provide_kill_switch() {
+		return array(
+			'production, kill on'  => array( 'production', true, true ),
+			'production, kill off' => array( 'production', false, false ),
+			'sandbox, kill on'     => array( 'sandbox', true, false ),
+		);
 	}
 
 	/**
