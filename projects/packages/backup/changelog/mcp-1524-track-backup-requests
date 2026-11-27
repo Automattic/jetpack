@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Abilities: Return a request ID when starting an on-demand backup and expose its status.
