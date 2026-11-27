@@ -4,6 +4,7 @@ import useProductStatusAction from '../use-product-status-action';
 
 const mockUseProduct = jest.fn();
 const mockNavigate = jest.fn();
+const mockActivate = jest.fn();
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	...jest.requireActual( '@automattic/jetpack-script-data' ),
@@ -23,7 +24,7 @@ jest.mock( '../../../hooks/use-forced-off-reason', () => {
 	return { __esModule: true, default: () => result };
 } );
 jest.mock( '../../../data/products/use-activate-plugins', () => {
-	const result = { activate: () => {}, isPending: false };
+	const result = { activate: () => mockActivate(), isPending: false };
 	return { __esModule: true, default: () => result };
 } );
 jest.mock( '../../../data/products/use-install-plugins', () => {
@@ -39,9 +40,9 @@ jest.mock( '../../../hooks/use-my-jetpack-navigate', () => ( {
 	default: ( route: string ) => () => mockNavigate( route ),
 } ) );
 
-const withStatus = ( status: string ) =>
+const withStatus = ( status: string, isActivated = false ) =>
 	mockUseProduct.mockReturnValue( {
-		detail: { status, requiresUserConnection: true },
+		detail: { status, isActivated, requiresUserConnection: true },
 		isLoading: false,
 		isRefetching: false,
 	} );
@@ -84,5 +85,36 @@ describe( 'useProductStatusAction connect links', () => {
 
 		expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
 		expect( mockNavigate ).toHaveBeenCalledWith( `/connection?from=${ from }&skip_pricing=true` );
+	} );
+} );
+
+describe( 'useProductStatusAction without an account', () => {
+	it.each( [
+		[ 'search', true, true, 'View' ],
+		[ 'videopress', false, true, 'Activate' ],
+		[ 'backup', true, true, 'Connect' ],
+		[ 'search', true, false, 'Connect' ],
+	] )(
+		'%s, switched on: %s, showing its state: %s, offers %s',
+		( slug, isActivated, showStateWithoutAccount, label ) => {
+			withStatus( PRODUCT_STATUSES.USER_CONNECTION_ERROR, isActivated );
+			const { result } = renderHook( () =>
+				useProductStatusAction( slug as JetpackModule, { showStateWithoutAccount } )
+			);
+
+			expect( result.current.action.label ).toBe( label );
+		}
+	);
+
+	it( '"Activate" switches the product on instead of asking for an account', () => {
+		withStatus( PRODUCT_STATUSES.USER_CONNECTION_ERROR );
+		const { result } = renderHook( () =>
+			useProductStatusAction( 'search', { showStateWithoutAccount: true } )
+		);
+
+		result.current.action.onClick( undefined );
+
+		expect( mockActivate ).toHaveBeenCalledTimes( 1 );
+		expect( mockNavigate ).not.toHaveBeenCalled();
 	} );
 } );

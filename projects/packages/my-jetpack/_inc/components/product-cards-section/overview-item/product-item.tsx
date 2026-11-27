@@ -4,6 +4,7 @@ import useProduct from '../../../data/products/use-product';
 import useAnalytics from '../../../hooks/use-analytics';
 import { hostSellsNothing } from '../../../utils/host-sells-nothing';
 import useOverviewLoadEvent from './use-overview-load-event';
+import useOverviewStatus from './use-overview-status';
 import useStatusAction from './use-status-action';
 import OverviewItem, { isHealthyStatus } from '.';
 import type { OverviewItemLink, OverviewItemProps } from '.';
@@ -46,7 +47,8 @@ const ProductOverviewItem: FC< ProductOverviewItemProps > = ( {
 	error,
 } ) => {
 	const { detail, isLoading: isProductLoading } = useProduct( slug );
-	const { name: productName = '', status, manageUrl, purchaseUrl, hostPurchaseUrl } = detail || {};
+	const { name: productName = '', manageUrl, purchaseUrl, hostPurchaseUrl } = detail || {};
+	const status = useOverviewStatus( slug );
 	const name = nameOverride ?? productName;
 	const isLoading = isProductLoading || isValueLoading;
 	const { recordEvent } = useAnalytics();
