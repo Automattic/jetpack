@@ -3,6 +3,7 @@ import { dashboard, shield, trendingUp } from '@wordpress/icons';
 import clsx from 'clsx';
 import { PRODUCT_STATUSES } from '../../../constants';
 import { PRODUCT_SLUGS } from '../../../data/constants';
+import { useAllProducts } from '../../../data/products/use-all-products';
 import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useFilteredProducts from '../../../hooks/use-filtered-products';
@@ -40,6 +41,10 @@ const OverviewSections: FC< { className?: string } > = ( { className = '' } ) =>
 		statsDetail?.status === PRODUCT_STATUSES.CAN_UPGRADE;
 	const statsPeriod = useStatsPeriod();
 	const owns = ( slug: JetpackModule ) => slugs.includes( slug );
+	const { data: products } = useAllProducts();
+	// A row that is only the account Connect action is left to the connection notice.
+	const showsStatus = ( slug: JetpackModule ) =>
+		owns( slug ) && products?.[ slug ]?.status !== PRODUCT_STATUSES.USER_CONNECTION_ERROR;
 	const protectedItems = [
 		owns( PRODUCT_SLUGS.ANTI_SPAM ) && (
 			<ProductOverviewItem
@@ -53,8 +58,8 @@ const OverviewSections: FC< { className?: string } > = ( { className = '' } ) =>
 		owns( PRODUCT_SLUGS.PROTECT ) && <ProtectOverviewItem key="protect" admin={ admin } />,
 	].filter( Boolean );
 	const statusItems = [
-		owns( PRODUCT_SLUGS.BOOST ) && <BoostOverviewItem key="boost" admin={ admin } />,
-		owns( PRODUCT_SLUGS.JETPACK_AI ) && (
+		showsStatus( PRODUCT_SLUGS.BOOST ) && <BoostOverviewItem key="boost" admin={ admin } />,
+		showsStatus( PRODUCT_SLUGS.JETPACK_AI ) && (
 			<ProductOverviewItem
 				key="jetpack-ai"
 				slug={ PRODUCT_SLUGS.JETPACK_AI }
@@ -65,7 +70,7 @@ const OverviewSections: FC< { className?: string } > = ( { className = '' } ) =>
 				upgradeLabel={ __( 'Increase usage', 'jetpack-my-jetpack' ) }
 			/>
 		),
-		owns( PRODUCT_SLUGS.SEARCH ) && (
+		showsStatus( PRODUCT_SLUGS.SEARCH ) && (
 			<ProductOverviewItem
 				key="search"
 				slug={ PRODUCT_SLUGS.SEARCH }
@@ -73,8 +78,10 @@ const OverviewSections: FC< { className?: string } > = ( { className = '' } ) =>
 				actionLabel={ __( 'More about Search', 'jetpack-my-jetpack' ) }
 			/>
 		),
-		owns( PRODUCT_SLUGS.VIDEOPRESS ) && <VideoPressOverviewItem key="videopress" admin={ admin } />,
-		owns( PRODUCT_SLUGS.CRM ) && (
+		showsStatus( PRODUCT_SLUGS.VIDEOPRESS ) && (
+			<VideoPressOverviewItem key="videopress" admin={ admin } />
+		),
+		showsStatus( PRODUCT_SLUGS.CRM ) && (
 			<ProductOverviewItem
 				key="crm"
 				slug={ PRODUCT_SLUGS.CRM }
@@ -82,7 +89,7 @@ const OverviewSections: FC< { className?: string } > = ( { className = '' } ) =>
 				actionLabel={ __( 'Manage CRM', 'jetpack-my-jetpack' ) }
 			/>
 		),
-		owns( PRODUCT_SLUGS.SOCIAL ) && (
+		showsStatus( PRODUCT_SLUGS.SOCIAL ) && (
 			<ProductOverviewItem
 				key="social"
 				slug={ PRODUCT_SLUGS.SOCIAL }
