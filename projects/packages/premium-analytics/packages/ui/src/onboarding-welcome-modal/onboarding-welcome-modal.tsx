@@ -42,7 +42,8 @@ type Slide = {
 function slidesFor( variant: OnboardingWelcomeVariant ): Slide[] {
 	const stats: Slide = {
 		illustration: <WidgetGridAnimation />,
-		title: __( 'Welcome to the new Stats', 'jetpack-premium-analytics-pkg' ),
+		// No "new": a first-time reader never saw the Stats this replaced (UNI-1071).
+		title: __( 'Welcome to Stats', 'jetpack-premium-analytics-pkg' ),
 		description: __(
 			"It's built from widgets you can move and resize, so the page can match how you read your site. This is an early version and we'll keep adding new tabs and features in regular updates.",
 			'jetpack-premium-analytics-pkg'
