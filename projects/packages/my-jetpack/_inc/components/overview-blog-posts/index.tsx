@@ -80,9 +80,11 @@ const OverviewBlogPosts: FC = () => {
 						</li>
 					) ) }
 				</ul>
-				<Link href="https://jetpack.com/resources/" openInNewTab>
-					{ __( 'See all Jetpack news', 'jetpack-my-jetpack' ) }
-				</Link>
+				<Text variant="heading-md" render={ <div /> }>
+					<Link href="https://jetpack.com/resources/" openInNewTab>
+						{ __( 'See all Jetpack news', 'jetpack-my-jetpack' ) }
+					</Link>
+				</Text>
 			</Stack>
 		</OverviewSection>
 	);

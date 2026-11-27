@@ -1,5 +1,5 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { Link, Stack } from '@wordpress/ui';
+import { Link, Stack, Text } from '@wordpress/ui';
 import { useCallback, useMemo } from 'react';
 import { PRODUCT_STATUSES } from '../../../constants';
 import { PRODUCT_SLUGS } from '../../../data/constants';
@@ -96,11 +96,11 @@ const StatsOverviewItem: FC< StatsOverviewItemProps > = ( { admin, period } ) =>
 					onDetailedStatsClick={ onDetailedStatsClick }
 				/>
 				{ detailedStatsHref && (
-					<div>
+					<Text variant="heading-md" render={ <div /> }>
 						<Link href={ detailedStatsHref } onClick={ onDetailedStatsClick }>
 							{ __( 'More stats', 'jetpack-my-jetpack' ) }
 						</Link>
-					</div>
+					</Text>
 				) }
 			</Stack>
 		);
