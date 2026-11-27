@@ -31,4 +31,15 @@ class Jetpack_Activity_Log {
 
 		return add_submenu_page( 'jetpack', 'Activity Log', 'Activity Log', 'manage_options', 'jetpack-activity-log', '__return_null' );
 	}
+
+	/**
+	 * Adds the page to the admin shell's members.
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public static function add_admin_shell_member( $members ) {
+		$members['jetpack-activity-log'] = array( 'build_page' => 'jetpack-activity-log-dashboard' );
+		return $members;
+	}
 }
