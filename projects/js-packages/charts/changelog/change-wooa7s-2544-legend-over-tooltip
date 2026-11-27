@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep a hidden legend item from showing through a tooltip that covers it in bar, line and area charts.

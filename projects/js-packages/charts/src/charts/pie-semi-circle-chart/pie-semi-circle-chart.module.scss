@@ -1,7 +1,4 @@
 .pie-semi-circle-chart {
-	// Keeps the tooltip's z-index inside the chart, as `.xy-plot` does.
-	isolation: isolate;
-
 	// Anchors the tooltip, which renders next to the SVG in here.
 	&__plot {
 		position: relative;

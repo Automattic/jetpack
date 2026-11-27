@@ -1,3 +1,9 @@
+// Keeps the z-index of the plot, tooltip and overlays inside the chart, so page
+// chrome such as a sticky header still paints over them.
+.chart-layout {
+	isolation: isolate;
+}
+
 // Shared content area for charts using the render prop.
 // Wraps render prop output and handles measurement.
 .chart-layout__content {
