@@ -203,7 +203,14 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 				return next;
 			} );
 			try {
-				await deleteEntityRecord( 'root', 'comment', commentId, {}, { throwOnError: true } );
+				// Notes have no Trash view to restore them from, so delete them outright.
+				await deleteEntityRecord(
+					'root',
+					'comment',
+					commentId,
+					{ force: true },
+					{ throwOnError: true }
+				);
 				createSuccessNotice( __( 'Note deleted.', 'jetpack-forms' ) );
 				// Remove deleted comment from local lists so UI updates immediately.
 				setLoadedComments( prev => prev.filter( c => c.id !== commentId ) );
