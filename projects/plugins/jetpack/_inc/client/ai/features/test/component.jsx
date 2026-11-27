@@ -494,20 +494,6 @@ describe( 'AiFeatures rendering', () => {
 		expect( analytics.tracks.recordEvent ).not.toHaveBeenCalled();
 	} );
 
-	test( 'Feature Clip does not render even when the endpoint reports it', () => {
-		// The Clip row was dropped from the view; the backend key may still
-		// arrive from the endpoint and must not produce a row.
-		renderFeatures( {
-			features: {
-				image_editor: { enabled: true },
-				feature_clip: { enabled: true, available: true },
-			},
-		} );
-
-		expect( screen.queryByRole( 'checkbox', { name: /Feature Clip/ } ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'checkbox', { name: /Image Editor/ } ) ).toBeInTheDocument();
-	} );
-
 	test( 'docs links open a new tab; wp-admin action links stay same-tab', () => {
 		render(
 			<AiFeatures

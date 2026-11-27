@@ -714,12 +714,10 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 
 		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
 		update_option( 'jetpack_ai_image_editor_enabled', 0 );
-		update_option( 'jetpack_ai_feature_clip_enabled', 0 );
 		update_option( 'jetpack_ai_seo_enabled', 0 );
 
 		$this->assertTrue( Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' ) );
 		$this->assertTrue( Jetpack_AI_Settings::is_feature_enabled( 'image_editor' ) );
-		$this->assertTrue( Jetpack_AI_Settings::is_feature_enabled( 'feature_clip' ) );
 		$this->assertTrue( Jetpack_AI_Settings::is_feature_enabled( 'ai_seo' ) );
 	}
 
@@ -732,12 +730,10 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 
 		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
 		update_option( 'jetpack_ai_image_editor_enabled', 0 );
-		update_option( 'jetpack_ai_feature_clip_enabled', 0 );
 		update_option( 'jetpack_ai_seo_enabled', 0 );
 
 		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' ) );
 		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'image_editor' ) );
-		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'feature_clip' ) );
 		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'ai_seo' ) );
 	}
 
