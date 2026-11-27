@@ -1,7 +1,8 @@
 /* ==========================================================================
    Cookie Consent Styles
    Aligned with WooCommerce Bookings modal pattern for UI consistency.
-   Uses :where() selectors for low specificity (theme-friendly).
+   Design tokens use :where() so themes can override them; panel layout rules
+   use plain classes so a theme reset (`* { padding: 0 }`) cannot strip them.
 
    Design tokens (--jp-cookie-consent--*) drive spacing, color, and z-index.
    They are namespaced (not theme presets like --wp--preset--*) so themes
@@ -120,7 +121,7 @@
 }
 
 /* Modal Overlay - Aligned with WooCommerce Bookings modal pattern */
-:where(.jetpack-cookie-consent__modal-overlay) {
+.jetpack-cookie-consent__modal-overlay {
 	background-color: rgba(95, 95, 95, 0.35);
 	bottom: 0;
 	box-sizing: border-box;
@@ -133,7 +134,7 @@
 	z-index: var(--jp-cookie-consent--z-index, 999999);
 }
 
-:where(.jetpack-cookie-consent__modal-overlay[hidden]) {
+.jetpack-cookie-consent__modal-overlay[hidden] {
 	display: block;
 	left: -10000px;
 	opacity: 0;
@@ -144,12 +145,12 @@
 		display 0s 0.3s;
 }
 
-:where(.jetpack-cookie-consent__modal-overlay--visible) {
+.jetpack-cookie-consent__modal-overlay--visible {
 	opacity: 1;
 }
 
 /* Modal - Aligned with WooCommerce Bookings modal pattern */
-:where(.jetpack-cookie-consent__modal) {
+.jetpack-cookie-consent__modal {
 	background-color: var(--jp-cookie-consent--color-background, #fff);
 	border: 0;
 	bottom: 0;
@@ -167,13 +168,13 @@
 	z-index: calc(var(--jp-cookie-consent--z-index, 999999) + 1);
 }
 
-:where(.jetpack-cookie-consent__modal[hidden]) {
+.jetpack-cookie-consent__modal[hidden] {
 	display: block;
 	opacity: 0;
 	pointer-events: none;
 }
 
-:where(.jetpack-cookie-consent__modal--visible) {
+.jetpack-cookie-consent__modal--visible {
 	opacity: 1;
 	pointer-events: auto;
 	transform: translateY(0);
@@ -184,7 +185,7 @@
 	outline-width: 0;
 }
 
-:where(.jetpack-cookie-consent__modal-header) {
+.jetpack-cookie-consent__modal-header {
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
@@ -192,7 +193,7 @@
 	padding: 25px 25px 0 25px;
 }
 
-:where(.jetpack-cookie-consent__modal-title) {
+.jetpack-cookie-consent__modal-title {
 	margin: 0;
 	font-size: 22px;
 	font-weight: 500;
@@ -200,7 +201,7 @@
 	color: var(--jp-cookie-consent--color-text, #1e1e1e);
 }
 
-:where(.jetpack-cookie-consent__modal-close) {
+.jetpack-cookie-consent__modal-close {
 
 	/* !important defeats classic-theme button fills (e.g. Twenty Twenty-One's
 	   `button:not(:hover):not(:active)`) that would otherwise paint this icon
@@ -218,7 +219,7 @@
 	}
 }
 
-:where(.jetpack-cookie-consent__modal-close:hover) svg {
+.jetpack-cookie-consent__modal-close:hover svg {
 	opacity: 0.66;
 }
 
@@ -227,7 +228,7 @@
 	outline-offset: 2px;
 }
 
-:where(.jetpack-cookie-consent__modal-body) {
+.jetpack-cookie-consent__modal-body {
 	display: flex;
 	gap: 25px;
 	flex-direction: column;
@@ -235,7 +236,7 @@
 	flex: 1;
 }
 
-:where(.jetpack-cookie-consent__modal-content) {
+.jetpack-cookie-consent__modal-content {
 	max-height: 60vh;
 	overflow-y: auto;
 	overflow-x: hidden;
@@ -514,28 +515,28 @@ input[type="checkbox"]:focus-visible + label
 	}
 
 	/* Modal - mobile adjustments (hard-coded like Bookings) */
-	:where(.jetpack-cookie-consent__modal) {
+	.jetpack-cookie-consent__modal {
 		display: flex;
 		flex-direction: column;
 		max-height: 95vh;
 		top: 5vh;
 	}
 
-	:where(.jetpack-cookie-consent__modal-content) {
+	.jetpack-cookie-consent__modal-content {
 		flex: 1;
 		max-height: none;
 		overflow-y: auto;
 	}
 
-	:where(.jetpack-cookie-consent__modal-header) {
+	.jetpack-cookie-consent__modal-header {
 		padding: 20px 20px 0 20px;
 	}
 
-	:where(.jetpack-cookie-consent__modal-body) {
+	.jetpack-cookie-consent__modal-body {
 		padding: 20px;
 	}
 
-	:where(.jetpack-cookie-consent__modal-footer) {
+	.jetpack-cookie-consent__modal-footer {
 		flex-direction: column;
 		align-items: stretch;
 		padding: 20px;
