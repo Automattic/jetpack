@@ -1,9 +1,5 @@
 /* eslint-disable testing-library/prefer-user-event */
 import { fireEvent, render, screen } from '@testing-library/react';
-import {
-	fasterMessage,
-	VanillaPopOut,
-} from '../../app/assets/src/js/features/speed-score/pop-out/pop-out';
 import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
 import { useDismissibleAlertState } from './lib/use-performance-history';
 import ScoreAlert from './score-alert';
@@ -13,12 +9,6 @@ jest.mock( './lib/use-performance-history', () => ( {
 } ) );
 jest.mock( '../../app/assets/src/js/lib/utils/analytics', () => ( {
 	recordBoostEvent: jest.fn(),
-} ) );
-jest.mock( '@react-spring/web', () => ( {
-	animated: { div: 'div' },
-	useSpring: ( { to }: { to: { right: string } } ) => ( {
-		visibility: to.right === '0%' ? 'visible' : 'hidden',
-	} ),
 } ) );
 
 const dismissAlert = jest.fn();
@@ -111,30 +101,6 @@ test( 'permanently dismissed prompts remain hidden and do not record impressions
 	render( <ScoreAlert scoreChange={ 10 } isVisible /> );
 	expect( screen.queryByRole( 'link', { name: /Rate the Plugin/ } ) ).not.toBeInTheDocument();
 	expect( recordBoostEvent ).not.toHaveBeenCalled();
-} );
-
-test( 'the legacy pop out retains the legacy close link and action callbacks', () => {
-	const close = jest.fn();
-	render(
-		<VanillaPopOut
-			message={ fasterMessage }
-			onClose={ close }
-			onDismiss={ dismissAlert }
-			isVisible
-		/>
-	);
-	fireEvent.click( screen.getByRole( 'link', { name: 'Dismiss' } ) );
-	expect( close ).toHaveBeenCalledTimes( 1 );
-	expect( dismissAlert ).not.toHaveBeenCalled();
-	const rating = screen.getByRole( 'link', { name: /Rate the Plugin/ } );
-	expect( rating ).toHaveAttribute(
-		'href',
-		'https://jetpack.com/redirect/?source=boost-rate-plugin'
-	);
-	expect( rating ).toHaveAttribute( 'target', '_blank' );
-	fireEvent.click( rating );
-	fireEvent.click( screen.getByRole( 'button', { name: 'Do not show me again' } ) );
-	expect( dismissAlert ).toHaveBeenCalledTimes( 2 );
 } );
 
 test( 'politely announces only qualifying prompts while Overview is visible', () => {
