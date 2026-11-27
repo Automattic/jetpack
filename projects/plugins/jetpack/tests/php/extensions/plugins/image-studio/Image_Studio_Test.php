@@ -1869,45 +1869,13 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * The deprecated filter warns when hooked and never reaches the page data.
+	 * The removed video clip filter is in Jetpack's deprecated hooks list.
 	 */
 	public function test_video_clips_filter_is_deprecated() {
 		$this->setExpectedDeprecated( 'jetpack_image_studio_can_generate_video_clips' );
 		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_true' );
-
-		$this->enable_and_enqueue_block_editor();
-
-		$data = $this->get_image_studio_inline_data();
-		$this->assertIsArray( $data );
-		$this->assertArrayNotHasKey( 'canGenerateVideoClips', $data );
-	}
-
-	/**
-	 * The deprecated meta registration no longer registers the meta.
-	 */
-	public function test_register_feature_clip_post_meta_is_deprecated_no_op() {
-		$this->setExpectedDeprecated( 'Automattic\Jetpack\Extensions\ImageStudio\register_feature_clip_post_meta' );
-
-		// @phan-suppress-next-line PhanDeprecatedFunction -- The deprecated wrapper is the subject under test.
-		ImageStudio\register_feature_clip_post_meta();
-
-		$this->assertFalse( registered_meta_key_exists( 'post', ImageStudio\FEATURE_CLIP_META_KEY ) );
-	}
-
-	/**
-	 * The deprecated meta permission check still requires edit_post.
-	 */
-	public function test_feature_clip_meta_auth_callback_is_deprecated() {
-		$this->setExpectedDeprecated( 'Automattic\Jetpack\Extensions\ImageStudio\feature_clip_meta_auth_callback' );
-		$post_id = self::factory()->post->create();
-
-		wp_set_current_user( self::factory()->user->create( array( 'role' => 'subscriber' ) ) );
-		// @phan-suppress-next-line PhanDeprecatedFunction -- The deprecated wrapper is the subject under test.
-		$this->assertFalse( ImageStudio\feature_clip_meta_auth_callback( true, ImageStudio\FEATURE_CLIP_META_KEY, $post_id ) );
-
-		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
-		// @phan-suppress-next-line PhanDeprecatedFunction -- The deprecated wrapper is the subject under test.
-		$this->assertTrue( ImageStudio\feature_clip_meta_auth_callback( false, ImageStudio\FEATURE_CLIP_META_KEY, $post_id ) );
+		\Jetpack::init()->deprecated_hooks();
+		remove_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_true' );
 	}
 
 	// -------------------------------------------------------------------------

@@ -1,4 +1,4 @@
 Significance: patch
 Type: other
 
-AI image editor: Deprecate the video clip capability check, its filter and the feature clip post meta, and remove the related setting.
+AI image editor: Remove the video clip setting, post meta and flag, and deprecate the video clip capability check and its filter.

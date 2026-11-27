@@ -5961,6 +5961,10 @@ endif;
 				'replacement' => null,
 				'version'     => 'jetpack-13.4.0',
 			),
+			'jetpack_image_studio_can_generate_video_clips' => array(
+				'replacement' => null,
+				'version'     => 'jetpack-16.5',
+			),
 			// jetpack_implode_frontend_css has been removed, but is not listed here. The updated behavior is exactly the only use of the filter.
 			// We can reassess formally deprecating it here later; for now, it would be noise with no functional difference.
 		);
