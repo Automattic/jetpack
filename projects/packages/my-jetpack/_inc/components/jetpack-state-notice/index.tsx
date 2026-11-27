@@ -65,13 +65,7 @@ function getErrorMessage( code: string ): ReactNode {
 					'jetpack-my-jetpack'
 				),
 				{
-					a: (
-						<Link
-							href={ getRedirectUrl( 'jetpack-cancelled-connection' ) }
-							openInNewTab
-							rel="noopener noreferrer"
-						/>
-					),
+					a: <Link href={ getRedirectUrl( 'jetpack-cancelled-connection' ) } openInNewTab />,
 					p: <p />,
 				}
 			);

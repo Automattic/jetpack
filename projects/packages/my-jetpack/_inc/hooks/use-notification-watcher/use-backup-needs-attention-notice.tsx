@@ -8,7 +8,6 @@ import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import { applyTimezone } from '../../utils/apply-timezone';
 import createCookie from '../../utils/create-cookie';
-import preventWidows from '../../utils/prevent-widows';
 import useAnalytics from '../use-analytics';
 import useGetReadableFailedBackupReason from './use-get-readable-failed-backup-reason';
 import type { NoticeHookType } from './types';
@@ -71,23 +70,17 @@ const useBackupNeedsAttentionNotice: NoticeHookType = ( redBubbleAlerts, isLoadi
 		const noticeMessage = (
 			<Stack direction="column" gap="sm">
 				<Text render={ <p /> }>
-					{ preventWidows(
-						sprintf(
-							// Translators: %1$s is the date the last backup took place, i.e.- "Dec 7, 2024"
-							__( 'The last backup attempted on %1$s was unsuccessful.', 'jetpack-my-jetpack' ),
-							backupStatusLastUpdatedDate
-						)
+					{ sprintf(
+						// Translators: %1$s is the date the last backup took place, i.e.- "Dec 7, 2024"
+						__( 'The last backup attempted on %1$s was unsuccessful.', 'jetpack-my-jetpack' ),
+						backupStatusLastUpdatedDate
 					) }
 				</Text>
-				{ ! isLoading && errorDescription && (
-					<Text render={ <p /> }>{ preventWidows( errorDescription as string ) }</Text>
-				) }
+				{ ! isLoading && errorDescription && <Text render={ <p /> }>{ errorDescription }</Text> }
 				<Text render={ <p /> }>
-					{ preventWidows(
-						__(
-							'Check out our troubleshooting guide or contact your hosting provider to resolve the issue.',
-							'jetpack-my-jetpack'
-						)
+					{ __(
+						'Check out our troubleshooting guide or contact your hosting provider to resolve the issue.',
+						'jetpack-my-jetpack'
 					) }
 				</Text>
 			</Stack>

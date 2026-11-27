@@ -7,7 +7,6 @@ import { NOTICE_PRIORITY_MEDIUM } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import useProduct from '../../data/products/use-product';
 import createCookie from '../../utils/create-cookie';
-import preventWidows from '../../utils/prevent-widows';
 import useAnalytics from '../use-analytics';
 import type { NoticeHookType } from './types';
 import type { NoticeOptions } from '../../context/notices/types';
@@ -73,23 +72,19 @@ const useProtectThreatsDetectedNotice: NoticeHookType = ( redBubbleAlerts, isLoa
 		const noticeMessage = (
 			<Stack direction="column" gap="sm">
 				<Text render={ <p /> }>
-					{ preventWidows(
-						__(
-							'We’ve detected some security threats that need your attention.',
-							'jetpack-my-jetpack'
-						)
+					{ __(
+						'We’ve detected some security threats that need your attention.',
+						'jetpack-my-jetpack'
 					) }
 				</Text>
 				<Text render={ <p /> }>
-					{ preventWidows(
-						sprintf(
-							// translators: %s is the product name. Can be either "Scan" or "Protect".
-							__(
-								'Visit the %s dashboard to view threat details, auto-fix threats, and keep your site safe.',
-								'jetpack-my-jetpack'
-							),
-							hasPaidPlanForProduct && isStandaloneActive ? 'Protect' : 'Scan'
-						)
+					{ sprintf(
+						// translators: %s is the product name. Can be either "Scan" or "Protect".
+						__(
+							'Visit the %s dashboard to view threat details, auto-fix threats, and keep your site safe.',
+							'jetpack-my-jetpack'
+						),
+						hasPaidPlanForProduct && isStandaloneActive ? 'Protect' : 'Scan'
 					) }
 				</Text>
 			</Stack>
