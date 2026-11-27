@@ -16,6 +16,8 @@ return make_phan_config(
 		'+stubs'             => array( 'wpcom' ),
 		'exclude_file_regex' => array(
 			'build/',
+			// A test stand-in for the wp_html_to_markdown() of the html-to-md library.
+			'tests/php/socialspec/fixtures/',
 		),
 		'parse_file_list'    => array(
 			// Reference files to handle code checking for stuff from Jetpack-the-plugin or other in-monorepo plugins.

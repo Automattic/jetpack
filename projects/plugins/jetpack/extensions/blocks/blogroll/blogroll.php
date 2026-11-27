@@ -303,3 +303,130 @@ function print_opml_link() {
 	);
 }
 add_action( 'wp_head', __NAMESPACE__ . '\print_opml_link' );
+
+/**
+ * The IDs of the published posts that may show a blogroll, also through a synced pattern.
+ *
+ * Capped and cached. Access is not decided here, see add_following().
+ *
+ * @return int[]
+ */
+function get_following_post_ids() {
+	global $wpdb;
+
+	$ids = get_transient( 'jetpack_blogroll_following_posts' );
+	if ( is_array( $ids ) ) {
+		return $ids;
+	}
+
+	$types = array_values( get_post_types( array( 'exclude_from_search' => false ) ) );
+	$likes = array( '%' . $wpdb->esc_like( 'wp:jetpack/blogroll' ) . '%' );
+
+	// Not a WP_Query search: search plugins replace the results of those.
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Cached below, with the posts.
+	$patterns = $wpdb->get_col(
+		$wpdb->prepare(
+			"SELECT ID FROM $wpdb->posts WHERE post_type = 'wp_block' AND post_status = 'publish' AND post_content LIKE %s LIMIT 10",
+			$likes[0]
+		)
+	);
+	foreach ( $patterns as $pattern ) {
+		// With the closing character, so pattern 12 does not match pattern 123.
+		$likes[] = '%' . $wpdb->esc_like( '"ref":' . (int) $pattern . '}' ) . '%';
+		$likes[] = '%' . $wpdb->esc_like( '"ref":' . (int) $pattern . ',' ) . '%';
+	}
+
+	$ids = array();
+	if ( $types ) {
+		$type_placeholders = implode( ', ', array_fill( 0, count( $types ), '%s' ) );
+		$like_placeholders = implode( ' OR ', array_fill( 0, count( $likes ), 'post_content LIKE %s' ) );
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Both are generated lists of placeholders.
+		$sql = "SELECT ID FROM $wpdb->posts
+				WHERE post_status = 'publish'
+					AND post_type IN ( $type_placeholders )
+					AND ( $like_placeholders )
+				ORDER BY post_date ASC
+				LIMIT 100";
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Cached right below.
+		$ids = $wpdb->get_col(
+			$wpdb->prepare(
+				$sql, // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Prepared right here.
+				array_merge( $types, $likes )
+			)
+		);
+	}
+
+	$ids = array_map( 'intval', $ids );
+	set_transient( 'jetpack_blogroll_following_posts', $ids, HOUR_IN_SECONDS );
+
+	return $ids;
+}
+
+/**
+ * Forget the posts with a blogroll when a published post with one is saved.
+ *
+ * A post that only shows a blogroll through a synced pattern is found when the cache expires.
+ *
+ * @param int      $post_id Post ID.
+ * @param \WP_Post $post    Post object.
+ */
+function clear_following_post_ids( $post_id, $post ) {
+	if ( 'publish' === $post->post_status && has_block( 'jetpack/blogroll', $post ) ) {
+		delete_transient( 'jetpack_blogroll_following_posts' );
+	}
+}
+add_action( 'save_post', __NAMESPACE__ . '\clear_following_post_ids', 10, 2 );
+
+/**
+ * Add the public blogrolls of the site to its SocialSpec following list, /.well-known/following.opml.
+ *
+ * The Publicize package serves that list, see Automattic\Jetpack\Publicize\Socialspec\Following.
+ *
+ * @param array[] $outlines OPML outline attributes.
+ * @return array[]
+ */
+function add_following( $outlines ) {
+	$outlines = is_array( $outlines ) ? $outlines : array();
+	$ids      = get_following_post_ids();
+	$items    = array();
+
+	// With meta: the paywall check reads the access level of every post.
+	_prime_post_caches( $ids, false, true );
+
+	foreach ( $ids as $id ) {
+		$post = get_post( $id );
+		// Decided on every request, not cached. Stricter than has_opml(): a visitor who knows a post's password gets the same list.
+		if ( ! $post instanceof \WP_Post || '' !== $post->post_password || ! is_post_publicly_viewable( $post ) ) {
+			continue;
+		}
+
+		/**
+		 * Filters whether the blogroll of a post is listed in the site's SocialSpec following list.
+		 *
+		 * Lets a plugin that restricts access to a post keep its blogroll out of the public list.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool     $listed Whether the blogroll is listed. Only public posts get here.
+		 * @param \WP_Post $post   The post.
+		 */
+		if ( apply_filters( 'jetpack_blogroll_in_following', true, $post ) ) {
+			$items = get_opml_items( get_public_blocks( $post ), $items );
+		}
+	}
+
+	foreach ( $items as $item ) {
+		$outlines[] = array(
+			'type'    => 'rss',
+			'text'    => $item['name'],
+			'xmlUrl'  => $item['feed_url'],
+			'htmlUrl' => $item['url'],
+		);
+	}
+
+	return $outlines;
+}
+add_filter( 'jetpack_social_following', __NAMESPACE__ . '\add_following' );

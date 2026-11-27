@@ -33,7 +33,7 @@ Social Plugin (or Jetpack Plugin)
 
 1. Consumer plugin calls `Config::ensure('publicize')` during `plugins_loaded`
 2. `Publicize_Setup::configure()` registers the `jetpack_feature_publicize_enabled` hook
-3. `Publicize_Setup::pre_initialization()` always loads assets and admin page (regardless of feature state)
+3. `Publicize_Setup::pre_initialization()` always loads assets, the admin page and the SocialSpec router (regardless of feature state)
 4. `Publicize_Setup::on_jetpack_feature_publicize_enabled()` initializes REST controllers, SIG, and UI
 
 ### WPCOM Simple vs Jetpack Sites
@@ -78,6 +78,10 @@ Auto-generates share images from post content. Key classes:
 - `Settings` / `Post_Settings` — Global and per-post SIG configuration
 - `Templates` — Image template definitions
 - `REST_Settings_Controller` / `REST_Token_Controller` — API endpoints
+
+### SocialSpec (`src/socialspec/`)
+
+Publishes the [SocialSpec](https://socialspec.org/) documents at `/.well-known/` once the site owner turns the profile on, whether auto-sharing is on or not (`jetpack_social_socialspec_settings`, registered by `Socialspec`; the switch and the About page picker are in `_inc/components/settings-tab/socialspec-card.tsx`, the promotion in `_inc/components/overview-tab/socialspec-promo.tsx`). `Socialspec` routes the request and serves a `Document` (`Contact`, `Following`, `About`) in place of the 404 template. The following list is filled through the `jetpack_social_following` filter. The About page is the page from the settings, or the one at `/about` until one is picked (the picker pre-selects it), converted with the `wp_html_to_markdown()` of the html-to-md library where the site has it, and with `Lib\Markdown` (`src/lib/`) otherwise.
 
 ### Jetpack Social Settings (`src/jetpack-social-settings/`)
 

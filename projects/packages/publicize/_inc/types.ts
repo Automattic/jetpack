@@ -3,6 +3,7 @@ import {
 	UtmSettingsConfig,
 	SocialStoreState,
 	SocialNotesSettings,
+	SocialspecSettings,
 } from './social-store/types';
 
 export interface SocialUrls {
@@ -40,6 +41,7 @@ export type SocialSettings = {
 	socialNotes: SocialNotesSettings;
 	showPricingPage: boolean;
 	messageTemplate: string;
+	socialspec: SocialspecSettings;
 };
 
 export type PluginInfo = Record< 'social' | 'jetpack', { version: string | null } >;

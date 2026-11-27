@@ -13,6 +13,7 @@ use Automattic\Jetpack\Plans;
 use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings;
 use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
 use Automattic\Jetpack\Publicize\Services as Publicize_Services;
+use Automattic\Jetpack\Publicize\Socialspec\Socialspec;
 use Automattic\Jetpack\Status\Host;
 
 /**
@@ -216,6 +217,11 @@ class Publicize_Script_Data {
 			),
 			'showPricingPage'      => $settings->should_show_pricing_page(),
 			'messageTemplate'      => $settings->get_message_template(),
+			'socialspec'           => Socialspec::get_settings() + array(
+				'available'          => Socialspec::is_available(),
+				// Pre-selected in the page picker until the site owner picks a page.
+				'default_about_page' => Socialspec::get_about_page_id(),
+			),
 		);
 	}
 

@@ -292,6 +292,90 @@ class Blogroll_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * The following list takes the public feeds of every blogroll on the site, each feed once.
+	 */
+	public function test_add_following() {
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Another filter callback may return anything.
+		$this->assertSame( array(), Blogroll\add_following( 'not a list' ) );
+
+		$blogroll = static function ( $name ) {
+			return self::blogroll(
+				self::item(
+					array(
+						'name'     => $name,
+						'url'      => "https://$name.example/",
+						'feed_url' => "https://$name.example/feed/",
+					)
+				)
+			);
+		};
+
+		$page    = self::factory()->post->create(
+			array(
+				'post_type'    => 'page',
+				'post_name'    => 'links',
+				'post_content' => $blogroll( 'page' ),
+			)
+		);
+		$post    = self::factory()->post->create( array( 'post_content' => $blogroll( 'page' ) . $blogroll( 'post' ) ) );
+		$pattern = self::factory()->post->create(
+			array(
+				'post_type'    => 'wp_block',
+				'post_content' => $blogroll( 'pattern' ),
+			)
+		);
+		self::factory()->post->create( array( 'post_content' => '<!-- wp:block {"ref":' . $pattern . '} /-->' ) );
+		self::factory()->post->create(
+			array(
+				'post_status'  => 'private',
+				'post_content' => $blogroll( 'private' ),
+			)
+		);
+		self::factory()->post->create(
+			array(
+				'post_password' => 'secret',
+				'post_content'  => $blogroll( 'password' ),
+			)
+		);
+
+		$this->assertEqualsCanonicalizing(
+			array( 'https://page.example/feed/', 'https://post.example/feed/', 'https://pattern.example/feed/' ),
+			wp_list_pluck( Blogroll\add_following( array() ), 'xmlUrl' )
+		);
+
+		// A visitor who has entered the password of a post gets the same list as everyone.
+		require_once ABSPATH . WPINC . '/class-phpass.php';
+		$hasher                                 = new PasswordHash( 8, true );
+		$_COOKIE[ 'wp-postpass_' . COOKIEHASH ] = $hasher->HashPassword( 'secret' );
+		$this->assertCount( 3, Blogroll\add_following( array() ) );
+		unset( $_COOKIE[ 'wp-postpass_' . COOKIEHASH ] );
+
+		// A blogroll that is no longer public is dropped although its post is still cached.
+		wp_update_post(
+			array(
+				'ID'            => $post,
+				'post_content'  => 'Hi',
+				'post_password' => 'secret',
+			)
+		);
+		$this->assertEqualsCanonicalizing(
+			array( 'https://page.example/feed/', 'https://pattern.example/feed/' ),
+			wp_list_pluck( Blogroll\add_following( array() ), 'xmlUrl' )
+		);
+
+		// Another plugin can keep a post's blogroll out of the list.
+		$exclude = static function ( $listed, $post ) use ( $page ) {
+			return $post->ID === $page ? false : $listed;
+		};
+		add_filter( 'jetpack_blogroll_in_following', $exclude, 10, 2 );
+		$this->assertSame(
+			array( 'https://pattern.example/feed/' ),
+			wp_list_pluck( Blogroll\add_following( array() ), 'xmlUrl' )
+		);
+		remove_filter( 'jetpack_blogroll_in_following', $exclude );
+	}
+
+	/**
 	 * Output of print_opml_link().
 	 *
 	 * @return string

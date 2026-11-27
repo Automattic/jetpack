@@ -268,6 +268,17 @@ export type SocialModuleSettings = {
 	publicize: boolean;
 };
 
+export type SocialspecSettings = {
+	enabled: boolean;
+	/** The page shared as About text; 0 until one is picked, the server then uses the page at /about. */
+	about_page: number;
+	promo_dismissed: boolean;
+	/** False while another plugin serves the same documents. Only in the script data. */
+	available?: boolean;
+	/** The page the server uses while none is picked, 0 if there is none. Only in the script data. */
+	default_about_page?: number;
+};
+
 export type SocialSettingsFields = {
 	jetpack_social_image_generator_settings: SocialImageGeneratorConfig;
 	jetpack_social_utm_settings: UtmSettingsConfig;
@@ -275,6 +286,7 @@ export type SocialSettingsFields = {
 	jetpack_social_notes_config: SocialNotesConfig;
 	[ 'jetpack-social_show_pricing_page' ]: boolean;
 	jetpack_social_message_template: string;
+	jetpack_social_socialspec_settings: SocialspecSettings;
 };
 
 export type ScheduledShare = {

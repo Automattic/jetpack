@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Publicize\Socialspec\Socialspec;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -92,6 +93,13 @@ class Publicize_Setup {
 		 * endpoint that broadcasts the result to the opener, so it must always be available.
 		 */
 		Keyring_Result_Handler::init();
+
+		/**
+		 * The SocialSpec documents are public and do not depend on Publicize being enabled.
+		 */
+		if ( class_exists( Socialspec::class ) ) {
+			Socialspec::init();
+		}
 
 		if ( ! $is_wpcom_simple ) {
 			/**

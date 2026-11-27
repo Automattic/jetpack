@@ -10,6 +10,7 @@ jest.mock( '../../../social-store', () => ( { store: 'jetpack-social' } ) );
 // Stub the heavy children so this test isolates OverviewTab's gating — what
 // renders for admins vs non-admins.
 jest.mock( '../traffic-chart-card', () => () => <div data-testid="traffic-chart-card" /> );
+jest.mock( '../socialspec-promo', () => () => <div data-testid="socialspec-promo" /> );
 jest.mock( '../../connection-management', () => () => <div data-testid="connection-management" /> );
 jest.mock( '../../manage-connections-modal', () => ( {
 	ThemedConnectionsModal: () => <div data-testid="connections-modal" />,
@@ -66,6 +67,7 @@ describe( 'OverviewTab', () => {
 
 		expect( screen.getByTestId( 'traffic-chart-card' ) ).toBeInTheDocument();
 		expect( screen.getByTestId( 'connection-management' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'socialspec-promo' ) ).toBeInTheDocument();
 	} );
 
 	it( 'hides the traffic chart from non-admins but keeps connection management', () => {
@@ -74,6 +76,7 @@ describe( 'OverviewTab', () => {
 		render( <OverviewTab /> );
 
 		expect( screen.queryByTestId( 'traffic-chart-card' ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'socialspec-promo' ) ).not.toBeInTheDocument();
 		expect( screen.getByTestId( 'connection-management' ) ).toBeInTheDocument();
 	} );
 } );
