@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Stats: Hide subscriber email addresses from users who can view Stats but are not admins, and commenter email addresses from those who also cannot moderate comments.

@@ -169,6 +169,10 @@ The `jetpack-stats` write is the one body the proxy rewrites: it gains the submi
 `user_email` (`inject_user_email`), because the blog token names no user and WPCOM would
 otherwise attribute the feedback to the first administrator it finds.
 
+The one response rewrite is `redact`: `stats/followers` drops subscriber addresses for readers
+without `manage_options`, and `stats/comments` unlinks guest commenters for readers without
+`moderate_comments`. It runs after the cache, which is per site, so never redact before caching.
+
 ### Notices
 
 `GET|POST /jetpack-premium-analytics/v1/notices` (`{ id, status, postponed_for }`). Not proxied
