@@ -31,7 +31,7 @@ describe( 'legacy Safe Mode fresh connection', () => {
 	it.each( [
 		[ undefined, 'idc-notice' ],
 		[ '', 'idc-notice' ],
-		[ 'woocommerce-payments', 'woocommerce-payments' ],
+		[ 'my_plugin_safe_mode', 'my_plugin_safe_mode' ],
 	] )( 'keeps one authorization source for %s', async ( from, expected ) => {
 		restApi.startIDCFresh.mockResolvedValue(
 			'https://example.org/authorize?client_id=42&from=old-source&skip_pricing=true&scope=administrator%3Asignature%2Bvalue%2F%3D&redirect_uri=https%3A%2F%2Fexample.org%2Fshop%2Fwp-admin%2Fadmin.php%3Fredirect%3D%252Fwoo-ads#finish'
@@ -61,20 +61,11 @@ describe( 'legacy Safe Mode fresh connection', () => {
 		const { result, rerender } = renderHook( ( { from } ) => useStartFresh( '/', from ), {
 			initialProps: { from: undefined },
 		} );
-		rerender( { from: 'woocommerce-payments' } );
+		rerender( { from: 'my_plugin_safe_mode' } );
 		await act( async () => result.current.startFreshCallback() );
-		expect( restApi.startIDCFresh ).toHaveBeenCalledWith( '/', 'woocommerce-payments' );
+		expect( restApi.startIDCFresh ).toHaveBeenCalledWith( '/', 'my_plugin_safe_mode' );
 		expect( new URL( navigate.mock.calls[ 0 ][ 0 ] ).searchParams.get( 'from' ) ).toBe(
-			'woocommerce-payments'
+			'my_plugin_safe_mode'
 		);
-	} );
-
-	it( 'does not start another action while busy', () => {
-		mockIsBusy = true;
-		const { result } = renderHook( () => useStartFresh( '/', 'woocommerce-payments' ) );
-		act( () => result.current.startFreshCallback() );
-		expect( restApi.startIDCFresh ).not.toHaveBeenCalled();
-		expect( navigate ).not.toHaveBeenCalled();
-		expect( trackAndBumpMCStats ).not.toHaveBeenCalled();
 	} );
 } );

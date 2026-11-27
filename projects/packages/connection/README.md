@@ -45,7 +45,13 @@ $config->ensure( 'identity_crisis', array(
 ```
 
 The selected consumer's source is passed to registration and authorization.
-Use its existing authorization source when it selects a branded connection flow.
+Use a distinct Safe Mode source in the standard `owner_surface[_detail]` format
+to keep recovery connections separate from normal connections in reports. See
+[Adding a connect button](../../js-packages/connection/README.md#adding-a-connect-button)
+for source naming guidance. Reuse an existing source only when WordPress.com
+requires that exact value to select the consumer's branded flow. In that case,
+registration and authorization counts share that source with normal connections;
+the screen's recovery events still distinguish the Safe Mode action.
 Consumers that omit it keep the default source for the selected Safe Mode screen.
 This setting does not change permissions, recovery choices, return destinations,
 or the screen's recovery events.

@@ -91,7 +91,7 @@ describe( 'Safe Mode screen', () => {
 		expect( createRoot ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	it.each( [ undefined, '', 'woocommerce-payments' ] )(
+	it.each( [ undefined, '', 'my_plugin_safe_mode' ] )(
 		'passes the optional consumer source to the legacy screen: %s',
 		from => {
 			window.JP_IDENTITY_CRISIS__INITIAL_STATE.consumerData = { from };
@@ -103,10 +103,10 @@ describe( 'Safe Mode screen', () => {
 
 	it( 'passes an opted-in consumer source to the new screen', () => {
 		mockIdentityCrisis = { useNewScreen: true };
-		window.JP_IDENTITY_CRISIS__INITIAL_STATE.consumerData = { from: 'woocommerce-payments' };
+		window.JP_IDENTITY_CRISIS__INITIAL_STATE.consumerData = { from: 'my_plugin_safe_mode' };
 		addElement( 'jp-identity-crisis-container' );
 		act( () => onLoad() );
-		expect( mockScreenProps.from ).toBe( 'woocommerce-payments' );
+		expect( mockScreenProps.from ).toBe( 'my_plugin_safe_mode' );
 	} );
 
 	it( 'renders once into a container added after the page loads', async () => {
