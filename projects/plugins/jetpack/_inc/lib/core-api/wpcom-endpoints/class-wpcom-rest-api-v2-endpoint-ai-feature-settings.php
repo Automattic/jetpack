@@ -259,10 +259,6 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 			'features'          => array(
 				'writing_assistant' => array( 'enabled' => $stored['writing_assistant'] ),
 				'image_editor'      => array( 'enabled' => $stored['image_editor'] ),
-				'feature_clip'      => array(
-					'enabled'   => $stored['feature_clip'],
-					'available' => $this->is_feature_clip_available(),
-				),
 				'ai_seo'            => array(
 					'enabled'    => $stored['ai_seo'],
 					'available'  => $this->is_ai_seo_available(),
@@ -308,31 +304,6 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 		}
 
 		return Current_Plan::supports( 'ai-seo-enhancer' ) && Ai_Seo::has_reachable_surface();
-	}
-
-	/**
-	 * Whether Feature Clip can operate on this site, so the settings page can
-	 * grey out its nested row where the feature can't run.
-	 *
-	 * Feature Clip is nested under the image editor: it reports available only
-	 * when Image Studio is enabled — the shared environment (host and master
-	 * gates plus platform checks) AND the `image_editor` toggle. With the image
-	 * editor off the clip row greys out rather than hides, so the settings page
-	 * keys that greyed state off this field.
-	 *
-	 * The extension file that defines the predicate isn't loaded in every
-	 * context this endpoint is (on WordPress.com the endpoint loads from the
-	 * synced jetpack-endpoints directory), so a partial load defaults to
-	 * available rather than greying a row that works.
-	 *
-	 * @return bool
-	 */
-	private function is_feature_clip_available() {
-		if ( ! function_exists( '\Automattic\Jetpack\Extensions\ImageStudio\is_image_studio_enabled' ) ) {
-			return true;
-		}
-
-		return (bool) \Automattic\Jetpack\Extensions\ImageStudio\is_image_studio_enabled();
 	}
 }
 

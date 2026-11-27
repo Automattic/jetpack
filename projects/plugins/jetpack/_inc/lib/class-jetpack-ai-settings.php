@@ -94,7 +94,6 @@ class Jetpack_AI_Settings {
 	const FEATURE_OPTIONS = array(
 		'writing_assistant' => 'jetpack_ai_writing_assistant_enabled',
 		'image_editor'      => 'jetpack_ai_image_editor_enabled',
-		'feature_clip'      => 'jetpack_ai_feature_clip_enabled',
 		'ai_seo'            => 'jetpack_ai_seo_enabled',
 		'ai_search'         => 'jetpack_search_ai_answers_enabled',
 	);
@@ -108,7 +107,6 @@ class Jetpack_AI_Settings {
 	const FEATURE_DEFAULTS = array(
 		'writing_assistant' => true,
 		'image_editor'      => true,
-		'feature_clip'      => true,
 		'ai_seo'            => true,
 		'ai_search'         => false,
 	);
@@ -119,7 +117,7 @@ class Jetpack_AI_Settings {
 	 *
 	 * @var array
 	 */
-	const OWNED_FEATURES = array( 'writing_assistant', 'image_editor', 'feature_clip', 'ai_seo' );
+	const OWNED_FEATURES = array( 'writing_assistant', 'image_editor', 'ai_seo' );
 
 	/**
 	 * Whether init() has already run.
@@ -210,7 +208,6 @@ class Jetpack_AI_Settings {
 			self::MASTER_OPTION                        => __( 'Whether Jetpack AI is enabled on this site.', 'jetpack' ),
 			self::FEATURE_OPTIONS['writing_assistant'] => __( 'Whether the Jetpack AI writing assistant is enabled.', 'jetpack' ),
 			self::FEATURE_OPTIONS['image_editor']      => __( 'Whether the Jetpack AI image editor is enabled.', 'jetpack' ),
-			self::FEATURE_OPTIONS['feature_clip']      => __( 'Whether Jetpack AI video clip generation is enabled.', 'jetpack' ),
 			self::FEATURE_OPTIONS['ai_seo']            => __( 'Whether the Jetpack AI SEO features are enabled.', 'jetpack' ),
 		);
 

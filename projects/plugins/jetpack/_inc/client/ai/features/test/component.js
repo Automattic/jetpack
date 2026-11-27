@@ -264,20 +264,20 @@ describe( 'visibleSections', () => {
 			features: [ { key: 'writing_assistant' }, { key: 'image_editor' } ],
 		},
 		{
-			key: 'media',
-			features: [ { key: 'feature_clip' } ],
+			key: 'seo',
+			features: [ { key: 'ai_seo' } ],
 		},
 	];
 
 	test( 'keeps only the rows present in the settings response', () => {
 		const sections = visibleSections( SECTIONS, {
 			writing_assistant: { enabled: true },
-			feature_clip: { enabled: false },
+			ai_seo: { enabled: false },
 		} );
 
 		expect( sections.map( s => s.features.map( f => f.key ) ) ).toEqual( [
 			[ 'writing_assistant' ],
-			[ 'feature_clip' ],
+			[ 'ai_seo' ],
 		] );
 	} );
 
@@ -293,12 +293,12 @@ describe( 'visibleSections', () => {
 		const sections = visibleSections( SECTIONS, {
 			writing_assistant: { enabled: true },
 			image_editor: { enabled: false, available: false },
-			feature_clip: { enabled: true, available: true },
+			ai_seo: { enabled: true, available: true },
 		} );
 
 		expect( sections.map( s => s.features.map( f => f.key ) ) ).toEqual( [
 			[ 'writing_assistant' ],
-			[ 'feature_clip' ],
+			[ 'ai_seo' ],
 		] );
 	} );
 

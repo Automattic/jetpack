@@ -19,11 +19,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
-// Defines the is_image_studio_enabled() predicate the feature_clip availability
-// reads (shared environment plus the image editor toggle). The endpoint falls
-// back to available when it is absent, so it has to be loaded here for these
-// assertions to exercise the predicate at all.
-require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
 
 /**
  * Class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test
@@ -348,66 +343,6 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 	}
 
 	/**
-	 * Read `features.feature_clip.available` off a fresh GET.
-	 *
-	 * @return bool
-	 */
-	private function get_feature_clip_available() {
-		return $this->dispatch( 'GET' )->get_data()['features']['feature_clip']['available'];
-	}
-
-	/**
-	 * A normal environment — connected owner, master switch on — offers Feature
-	 * Clip, so the row is available.
-	 */
-	public function test_feature_clip_available_in_normal_environment() {
-		wp_set_current_user( self::$admin_id );
-		self::connect_owner();
-		self::set_ai_module_active( true );
-
-		$this->assertTrue( $this->get_feature_clip_available() );
-	}
-
-	/**
-	 * The master switch is the first check inside the Image Studio environment
-	 * predicate: with it off nothing about Image Studio loads, so the row is
-	 * unavailable.
-	 */
-	public function test_feature_clip_unavailable_when_environment_gate_fails() {
-		wp_set_current_user( self::$admin_id );
-		self::connect_owner();
-
-		// Master enforcement only runs on internal testing environments.
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
-
-		// Off-Simple the master is the `ai` module; turn it off.
-		self::set_ai_module_active( false );
-
-		$this->assertFalse( $this->get_feature_clip_available() );
-	}
-
-	/**
-	 * Feature Clip is nested under the image editor: with the image editor
-	 * toggle off, availability reports false. The settings page keys the greyed
-	 * (but still visible) nested clip row off this field.
-	 */
-	public function test_feature_clip_unavailable_when_image_editor_off() {
-		wp_set_current_user( self::$admin_id );
-		self::connect_owner();
-		self::set_ai_module_active( true );
-
-		// The owned toggles only apply on internal testing environments.
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
-
-		update_option( Jetpack_AI_Settings::FEATURE_OPTIONS['image_editor'], false );
-
-		$data = $this->dispatch( 'GET' )->get_data();
-
-		$this->assertFalse( $data['features']['image_editor']['enabled'] );
-		$this->assertFalse( $data['features']['feature_clip']['available'] );
-	}
-
-	/**
 	 * Dispatch a request against the endpoint.
 	 *
 	 * @param string     $method HTTP method.
@@ -501,6 +436,8 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 		// The automatic-generation option keeps its own surfaces; the settings
 		// page only carries the AI SEO row.
 		$this->assertArrayNotHasKey( 'seo_enhancer', $features );
+		// Video clip generation was removed.
+		$this->assertArrayNotHasKey( 'feature_clip', $features );
 		$this->assertFalse( $features['ai_search']['enabled'] );
 		// No paid Search product in the test environment.
 		$this->assertTrue( $features['ai_search']['requires_upgrade'] );
