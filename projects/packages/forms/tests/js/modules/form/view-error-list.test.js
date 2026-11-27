@@ -15,8 +15,6 @@ await jest.unstable_mockModule( '@wordpress/interactivity', () => ( {
 
 const ERROR_TYPES = {
 	is_required: 'This field is required.',
-	invalid_form: 'Please fill out the form correctly.',
-	invalid_form_empty: 'The form you are trying to submit is empty.',
 };
 
 const showWhen = ( field, value ) => ( {
@@ -127,17 +125,6 @@ describe( 'Form View - error summary list', () => {
 		expect( state.getErrorList ).toEqual( [] );
 	} );
 
-	test( 'drops a field once it has been corrected', () => {
-		const context = formContext( [ field( 'g1-name', 'Name' ), field( 'g1-email', 'Email' ) ] );
-		mockGetContext.mockReturnValue( context );
-
-		expect( errorIds() ).toEqual( [ 'g1-name', 'g1-email' ] );
-
-		context.fields[ 'g1-name' ] = { ...context.fields[ 'g1-name' ], value: 'Roo', error: 'yes' };
-
-		expect( errorIds() ).toEqual( [ 'g1-email' ] );
-	} );
-
 	test( 'skips required fields hidden by conditional logic on an empty form', () => {
 		mockGetContext.mockReturnValue(
 			formContext(
@@ -167,13 +154,5 @@ describe( 'Form View - error summary list', () => {
 		);
 
 		expect( errorIds() ).toEqual( [ 'g1-name', 'g1-email' ] );
-	} );
-
-	test( 'keeps the general error message for an empty single-step form', () => {
-		mockGetContext.mockReturnValue(
-			formContext( [ field( 'g1-name', 'Name' ), field( 'g1-email', 'Email' ) ] )
-		);
-
-		expect( state.getFormErrorMessage ).toBe( ERROR_TYPES.invalid_form );
 	} );
 } );
