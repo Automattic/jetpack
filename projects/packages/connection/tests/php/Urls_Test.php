@@ -81,7 +81,7 @@ class Urls_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A web request without a Host header still records its scheme, so a client can't opt out of the history.
+	 * A web request without a Host header still records its scheme.
 	 */
 	public function test_web_request_without_host_header_records_scheme() {
 		Constants::set_constant( 'WP_HOME', 'https://example.com' );
