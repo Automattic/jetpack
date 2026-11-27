@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+MCP: Mark tools that require individual approval and keep their settings when using "Enable all".

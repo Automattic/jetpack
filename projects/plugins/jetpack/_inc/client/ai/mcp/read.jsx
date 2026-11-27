@@ -6,18 +6,13 @@
  * Individual tool toggles are collapsed behind a per-group chevron.
  */
 
-import {
-	Card,
-	CardBody,
-	SearchControl,
-	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
+import { SearchControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
+import { Card, Stack, Text } from '@wordpress/ui';
 import { getGroupDomId } from './anchors';
 import { isWriteTool } from './categories';
-import { getOverridesToMatch } from './group-intents';
+import { getOrdinaryTools, getOverridesToMatch } from './group-intents';
 import { groupToolsByGroup } from './groups';
 import McpGroupCard, { McpToolSections } from './mcp-group-card';
 import McpToolbar from './mcp-toolbar';
@@ -29,11 +24,16 @@ import { recordMcpTracksEvent } from './tracks';
 import useToolSearch from './use-tool-search';
 import {
 	getAccountMcpAbilities,
+	getBulkToggleDescription,
 	getGroupDescriptors,
+	getRemoteAbilitiesDefaultEnabled,
+	getRemoteAbilityCategory,
 	getSiteContextToolIds,
 	getSiteLevelEnabled,
 	getSiteMcpAbilities,
 	getSiteRemoteGroups,
+	hasSavedSubscriberChoiceBeforeOptIn,
+	isRemoteAbilityOptIn,
 	mergeSiteMcpAbilities,
 } from './utils';
 
@@ -74,13 +74,18 @@ export default function McpRead( {
 
 	const allTools = Object.entries( mergedAbilities ).filter( ( [ , t ] ) => t.visible !== false );
 	const readTools = allTools.filter( ( [ id, t ] ) => ! isWriteTool( id, t ) );
+	const ordinaryTools = getOrdinaryTools( readTools );
 
 	const groupDescriptors = getGroupDescriptors( mcpAbilities ?? {} );
 	const { query, setQuery, isSearching, isVisible } = useToolSearch();
 	const groups = groupToolsByGroup( readTools, groupDescriptors );
 
 	const visibleGroups = groups
-		.map( g => ( { ...g, visibleTools: g.tools.filter( isVisible ) } ) )
+		.map( g => ( {
+			...g,
+			visibleTools: g.tools.filter( isVisible ),
+			bulkTools: getOrdinaryTools( g.tools ),
+		} ) )
 		.filter( g => g.visibleTools.length > 0 );
 
 	const handleToolChange = useCallback(
@@ -102,25 +107,39 @@ export default function McpRead( {
 		[ blogId, onUpdate ]
 	);
 
-	const toolsAllEnabled = readTools.length > 0 && readTools.every( ( [ , t ] ) => t.enabled );
+	const remoteDefaultEnabled = getRemoteAbilitiesDefaultEnabled( readTools );
+	const publishedAbilities = remoteAbilities?.abilities ?? [];
+	const savedRemoteGroups = getSiteRemoteGroups( mcpAbilities, blogId );
+	const remoteOptIn = mcpAbilities?.remote_abilities_requiring_opt_in;
+	const remoteKeys = collectRemoteKeys(
+		publishedAbilities,
+		savedRemoteGroups,
+		'read',
+		remoteOptIn
+	);
+	const remoteOptInCount = publishedAbilities.filter(
+		ability =>
+			getRemoteAbilityCategory( ability.name, ability.meta?.annotations ) === 'read' &&
+			isRemoteAbilityOptIn( ability.name, remoteOptIn )
+	).length;
+	const hasBulkTools = ordinaryTools.length > 0 || ( remoteAbilities && remoteKeys.length > 0 );
 	const pageAllEnabled =
-		toolsAllEnabled &&
+		hasBulkTools &&
+		( ordinaryTools.length === 0 || remoteDefaultEnabled ) &&
 		areRemoteGroupsEnabled(
-			remoteAbilities?.abilities ?? [],
-			getSiteRemoteGroups( mcpAbilities, blogId ),
+			publishedAbilities,
+			savedRemoteGroups,
 			'read',
-			toolsAllEnabled
+			remoteDefaultEnabled,
+			remoteOptIn
 		);
-	const isSavingAny = readTools.some( ( [ id ] ) => savingToolIds.has( id ) );
+	const isSavingAny =
+		readTools.some( ( [ id ] ) => savingToolIds.has( id ) ) ||
+		remoteKeys.some( key => savingToolIds.has( key ) );
 
 	const handlePageToggle = useCallback(
 		enabled => {
-			const overrides = getOverridesToMatch( readTools, enabled );
-			const remoteKeys = collectRemoteKeys(
-				remoteAbilities?.abilities ?? [],
-				getSiteRemoteGroups( mcpAbilities, blogId ),
-				'read'
-			);
+			const overrides = getOverridesToMatch( ordinaryTools, enabled );
 			if ( ! overrides && remoteKeys.length === 0 ) {
 				return;
 			}
@@ -141,7 +160,7 @@ export default function McpRead( {
 				],
 			} );
 		},
-		[ blogId, readTools, mcpAbilities, remoteAbilities, onUpdate ]
+		[ blogId, ordinaryTools, remoteKeys, onUpdate ]
 	);
 
 	const handleGroupEnableAll = useCallback(
@@ -172,7 +191,11 @@ export default function McpRead( {
 		<Stack direction="column" gap="md">
 			<McpToolbar
 				allEnabled={ pageAllEnabled }
-				isDisabled={ isSavingAny || readTools.length === 0 }
+				isDisabled={ isSavingAny || ! hasBulkTools }
+				bulkDescription={ getBulkToggleDescription(
+					readTools.length - ordinaryTools.length + remoteOptInCount,
+					hasSavedSubscriberChoiceBeforeOptIn( savedRemoteGroups, remoteOptIn )
+				) }
 				onEnableAll={ handlePageToggle }
 			>
 				<SearchControl
@@ -186,7 +209,7 @@ export default function McpRead( {
 			{ visibleGroups.length > 0 ? (
 				<Stack direction="column" gap="md">
 					{ visibleGroups.map(
-						( { group: descriptor, label, tools: groupTools, visibleTools } ) => (
+						( { group: descriptor, label, tools: groupTools, visibleTools, bulkTools } ) => (
 							<McpGroupCard
 								key={ descriptor?.name ?? '__other__' }
 								id={ getGroupDomId( descriptor?.name ) }
@@ -194,10 +217,11 @@ export default function McpRead( {
 								anchorToolId={ groupTools.some( ( [ id ] ) => id === anchor ) ? anchor : null }
 								label={ label }
 								description={ descriptor?.description }
-								allEnabled={ groupTools.every( ( [ , t ] ) => t.enabled ) }
+								allEnabled={ bulkTools.every( ( [ , t ] ) => t.enabled ) }
 								isSaving={ groupTools.some( ( [ id ] ) => savingToolIds.has( id ) ) }
-								group={ { name: descriptor?.name ?? null, tools: groupTools } }
-								onEnableAll={ handleGroupEnableAll }
+								group={ { name: descriptor?.name ?? null, tools: bulkTools } }
+								bulkDescription={ getBulkToggleDescription( groupTools.length - bulkTools.length ) }
+								onEnableAll={ bulkTools.length ? handleGroupEnableAll : undefined }
 							>
 								<McpToolSections
 									tools={ visibleTools }
@@ -210,15 +234,15 @@ export default function McpRead( {
 					) }
 				</Stack>
 			) : (
-				<Card>
-					<CardBody>
-						<Text variant="muted">
+				<Card.Root>
+					<Card.Content>
+						<Text className="jetpack-ai-mcp__muted">
 							{ isSearching
 								? __( 'No tools match your search.', 'jetpack' )
 								: __( 'No read tools available.', 'jetpack' ) }
 						</Text>
-					</CardBody>
-				</Card>
+					</Card.Content>
+				</Card.Root>
 			) }
 
 			{ remoteAbilities && (
@@ -227,7 +251,7 @@ export default function McpRead( {
 					mcpAbilities={ mcpAbilities }
 					blogId={ blogId }
 					remoteAbilities={ remoteAbilities }
-					defaultEnabled={ toolsAllEnabled }
+					defaultEnabled={ remoteDefaultEnabled }
 					query={ query }
 					anchor={ anchor }
 					savingToolIds={ savingToolIds }

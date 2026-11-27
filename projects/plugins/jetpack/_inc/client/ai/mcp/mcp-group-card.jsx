@@ -2,13 +2,14 @@
  * Collapsible card shared by the MCP Read and Write views.
  */
 
-import { Button } from '@wordpress/components';
+import { Button, Icon } from '@wordpress/components';
 import { Fragment, useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { chevronDown, chevronUp } from '@wordpress/icons';
-import { Card, Stack, SwitchControl, Text } from '@wordpress/ui';
+import { chevronDown, chevronUp, lock } from '@wordpress/icons';
+import { Badge, Card, Stack, SwitchControl, Text, VisuallyHidden } from '@wordpress/ui';
 import AnchorCopyButton from './anchor-copy-button';
 import { getToolDomId } from './anchors';
+import { requiresOptIn } from './group-intents';
 import { groupToolsBySubCategory } from './groups';
 
 const LABEL_SHOW_OPERATIONS = __( 'Show operations', 'jetpack' );
@@ -19,24 +20,52 @@ const LABEL_HIDE_OPERATIONS = __( 'Hide operations', 'jetpack' );
  *
  * @param {object}   props               - Component props.
  * @param {string}   props.toolId        - Tool identifier.
+ * @param {string}   [props.settingKey]  - Saved permission key when it differs from the tool ID.
  * @param {object}   props.tool          - Tool descriptor from the API.
  * @param {string}   props.view          - View path for the copy link, e.g. `mcp/read`.
  * @param {Set}      props.savingToolIds - Set of toolIds currently being saved.
- * @param {Function} props.onToggle      - Called with (toolId, enabled).
+ * @param {Function} props.onToggle      - Called with (settingKey, enabled).
  * @return {object} Component markup.
  */
-export function ToolToggle( { toolId, tool, view, savingToolIds, onToggle } ) {
-	const handleChange = useCallback( checked => onToggle( toolId, checked ), [ toolId, onToggle ] );
+export function ToolToggle( { toolId, settingKey = toolId, tool, view, savingToolIds, onToggle } ) {
+	const handleChange = useCallback(
+		checked => onToggle( settingKey, checked ),
+		[ settingKey, onToggle ]
+	);
+	const optIn = requiresOptIn( tool );
 	return (
 		<div id={ getToolDomId( toolId ) } className="jetpack-ai-mcp__tool-row">
-			<SwitchControl
-				className="jetpack-ai-mcp__tool-switch"
-				checked={ tool.enabled }
-				disabled={ savingToolIds.has( toolId ) }
-				label={ tool.title }
-				description={ tool.description }
-				onCheckedChange={ handleChange }
-			/>
+			<Stack direction="column" gap="xs">
+				<SwitchControl
+					className="jetpack-ai-mcp__tool-switch"
+					checked={ tool.enabled }
+					disabled={ savingToolIds.has( toolId ) }
+					label={ tool.title }
+					description={
+						optIn ? (
+							<>
+								{ tool.description }{ ' ' }
+								<VisuallyHidden render={ <span /> }>
+									{ __( 'Enable all skips this tool. Turn it on or off individually.', 'jetpack' ) }
+								</VisuallyHidden>
+							</>
+						) : (
+							tool.description
+						)
+					}
+					onCheckedChange={ handleChange }
+				/>
+				{ optIn && (
+					<div>
+						<Badge intent="draft">
+							<span className="jetpack-ai-mcp__badge-content">
+								<Icon icon={ lock } size={ 14 } aria-hidden="true" />
+								{ __( 'Turn on individually', 'jetpack' ) }
+							</span>
+						</Badge>
+					</div>
+				) }
+			</Stack>
 			<AnchorCopyButton view={ view } anchor={ toolId } />
 		</div>
 	);
@@ -79,19 +108,20 @@ export function McpToolSections( { tools, view, savingToolIds, onToolChange } ) 
 }
 
 /**
- * Collapsible card with a group-wide "Enable all" toggle.
+ * Collapsible card with a group-wide "Enable all" toggle, unless onEnableAll is omitted.
  *
- * @param {object}   props                - Component props.
- * @param {string}   [props.id]           - DOM id for the card.
- * @param {string}   props.label          - Group title.
- * @param {string}   [props.description]  - Muted text under the title.
- * @param {boolean}  props.allEnabled     - Whether every tool in the group is on.
- * @param {boolean}  props.isSaving       - Disables the toggle while a save is in flight.
- * @param {boolean}  [props.forceOpen]    - Keep the card open regardless of the chevron.
- * @param {string}   [props.anchorToolId] - Tool in this card to open and scroll to.
- * @param {*}        [props.group]        - Opaque value handed back to onEnableAll.
- * @param {Function} props.onEnableAll    - Called with (enabled, group).
- * @param {object}   props.children       - Card body, rendered while open.
+ * @param {object}   props                   - Component props.
+ * @param {string}   [props.id]              - DOM id for the card.
+ * @param {string}   props.label             - Group title.
+ * @param {string}   [props.description]     - Muted text under the title.
+ * @param {boolean}  [props.allEnabled]      - Whether every tool in the group is on.
+ * @param {boolean}  [props.isSaving]        - Disables the toggle while a save is in flight.
+ * @param {string}   [props.bulkDescription] - Explanation of which tools the toggle skips.
+ * @param {boolean}  [props.forceOpen]       - Keep the card open regardless of the chevron.
+ * @param {string}   [props.anchorToolId]    - Tool in this card to open and scroll to.
+ * @param {*}        [props.group]           - Opaque value handed back to onEnableAll.
+ * @param {Function} [props.onEnableAll]     - Called with (enabled, group).
+ * @param {object}   props.children          - Card body, rendered while open.
  * @return {object} Component markup.
  */
 export default function McpGroupCard( {
@@ -100,6 +130,7 @@ export default function McpGroupCard( {
 	description,
 	allEnabled,
 	isSaving,
+	bulkDescription,
 	forceOpen = false,
 	anchorToolId = null,
 	group,
@@ -143,14 +174,17 @@ export default function McpGroupCard( {
 							</Text>
 						) }
 					</Stack>
-					<div className="jetpack-ai-mcp__group-toggle">
-						<SwitchControl
-							checked={ allEnabled }
-							disabled={ isSaving }
-							label={ __( 'Enable all', 'jetpack' ) }
-							onCheckedChange={ handleEnableAll }
-						/>
-					</div>
+					{ onEnableAll && (
+						<div className="jetpack-ai-mcp__group-toggle">
+							<SwitchControl
+								checked={ allEnabled }
+								disabled={ isSaving }
+								label={ __( 'Enable all', 'jetpack' ) }
+								description={ bulkDescription }
+								onCheckedChange={ handleEnableAll }
+							/>
+						</div>
+					) }
 					<Button
 						className="jetpack-ai-mcp__group-chevron"
 						icon={ isOpen ? chevronUp : chevronDown }

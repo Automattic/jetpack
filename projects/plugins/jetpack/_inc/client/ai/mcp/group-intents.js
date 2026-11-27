@@ -33,3 +33,24 @@ export function getOverridesToMatch( scopedTools, enabled ) {
 	} );
 	return Object.keys( overrides ).length > 0 ? overrides : undefined;
 }
+
+/**
+ * Whether a tool can only be turned on by its own switch. Any truthy value
+ * counts, so an unexpected encoding fails closed.
+ *
+ * @param {object} tool - Tool from the API.
+ * @return {boolean} True when the tool needs individual approval.
+ */
+export function requiresOptIn( tool ) {
+	return Boolean( tool?.requires_opt_in );
+}
+
+/**
+ * The tools a bulk switch acts on. Opt-in tools only change through their own switches.
+ *
+ * @param {Array<[string, object]>} tools - Tools, each as [toolId, ability].
+ * @return {Array<[string, object]>} The tools that don't require opt-in.
+ */
+export function getOrdinaryTools( tools ) {
+	return tools.filter( ( [ , tool ] ) => ! requiresOptIn( tool ) );
+}

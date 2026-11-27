@@ -6,7 +6,12 @@ import McpHub from '../index';
 jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { virtual: true } );
 
 const mcpAbilities = siteLevelEnabled => ( {
-	account: { some_tool: { title: 'Some tool', enabled: true, readonly: true } },
+	account: {
+		some_tool: { title: 'Some tool', enabled: true, readonly: true },
+		write_tool: { title: 'Write tool', enabled: false, readonly: false },
+		opt_in_tool: { enabled: false, requires_opt_in: true },
+		hidden_tool: { enabled: false, visible: false },
+	},
 	sites: [ { blog_id: 1, site_level_enabled: siteLevelEnabled } ],
 } );
 
@@ -24,6 +29,26 @@ const renderHub = ( { siteLevelEnabled = true, activityLogFiltered = false } = {
 	);
 
 describe( 'McpHub connect card', () => {
+	test( 'summary badge uses the API state for an opt-in tool with no override', () => {
+		render(
+			<McpHub
+				mcpAbilities={ {
+					account: {
+						read: { readonly: true, enabled: true },
+						read_opt_in: { readonly: true, enabled: false, requires_opt_in: true },
+					},
+					site_level_enabled_default: true,
+				} }
+				blogId={ 1 }
+				savingToolIds={ new Set() }
+				onNavigate={ jest.fn() }
+				onUpdate={ jest.fn() }
+			/>
+		);
+
+		expect( screen.getByRole( 'button', { name: /Read/ } ) ).toHaveTextContent( '1 of 2 enabled' );
+	} );
+
 	test( 'sits above the access card, and replaces the setup row', () => {
 		renderHub();
 
@@ -53,7 +78,7 @@ describe( 'McpHub connect card', () => {
 		await userEvent.click( screen.getByRole( 'button', { name: 'Turn on MCP access' } ) );
 
 		expect( onUpdate ).toHaveBeenCalledWith( {
-			sites: [ expect.objectContaining( { blog_id: 1, site_level_enabled: true } ) ],
+			sites: [ { blog_id: 1, site_level_enabled: true, abilities: { some_tool: true } } ],
 		} );
 		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
 			'jetpack_mcp_enabled_toggled',
@@ -63,10 +88,22 @@ describe( 'McpHub connect card', () => {
 
 	test( 'the toggle records its own source', async () => {
 		analytics.tracks.recordEvent.mockClear();
-		renderHub( { siteLevelEnabled: false } );
+		const onUpdate = jest.fn();
+		render(
+			<McpHub
+				mcpAbilities={ mcpAbilities( false ) }
+				blogId={ 1 }
+				savingToolIds={ new Set() }
+				onNavigate={ jest.fn() }
+				onUpdate={ onUpdate }
+			/>
+		);
 
 		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Enable MCP access' } ) );
 
+		expect( onUpdate ).toHaveBeenCalledWith( {
+			sites: [ { blog_id: 1, site_level_enabled: true, abilities: { some_tool: true } } ],
+		} );
 		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
 			'jetpack_mcp_enabled_toggled',
 			expect.objectContaining( { enabled: true, source: 'toggle' } )

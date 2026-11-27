@@ -26,10 +26,11 @@ const abilitiesWithTool = ( { readonly, enabled = false } ) => ( {
 			description: 'List your posts.',
 			enabled,
 			readonly,
+			requires_opt_in: true,
 			category: 'posts',
 		},
 	},
-	sites: [],
+	sites: [ { blog_id: BLOG_ID, site_level_enabled: true } ],
 } );
 
 const allowlistUpdatedCalls = () =>
@@ -60,7 +61,9 @@ describe( 'jetpack_mcp_allowlist_updated', () => {
 
 			// Individual tool toggles sit behind the group's "Show operations" chevron.
 			await userEvent.click( screen.getByRole( 'button', { name: 'Show operations' } ) );
-			await userEvent.click( screen.getByRole( 'switch', { name: 'List posts' } ) );
+			const toolSwitch = screen.getByRole( 'switch', { name: 'List posts' } );
+			expect( toolSwitch ).not.toBeChecked();
+			await userEvent.click( toolSwitch );
 
 			// toEqual pins the whole property bag: ability_name present, no tool_id,
 			// plus the AI-product-standard audience properties (AIINT-586). This
@@ -82,4 +85,93 @@ describe( 'jetpack_mcp_allowlist_updated', () => {
 			} );
 		}
 	);
+} );
+
+describe.each( [
+	{ view: 'read', Component: McpRead, readonly: true },
+	{ view: 'write', Component: McpWrite, readonly: false },
+] )( '$view bulk tool updates', ( { Component, readonly } ) => {
+	test.each( [
+		{ scope: 'page', toggleIndex: 0 },
+		{ scope: 'group', toggleIndex: 1 },
+	] )( '$scope "Enable all" leaves opt-in tools alone both ways', async ( { toggleIndex } ) => {
+		const onUpdate = jest.fn();
+		const settings = ( enabled, optInEnabled = enabled ) => ( {
+			account: {
+				ordinary: { title: 'Ordinary tool', readonly, enabled, group: 'site' },
+				opt_in: {
+					title: 'Opt-in tool',
+					readonly,
+					enabled: optInEnabled,
+					requires_opt_in: true,
+					group: 'site',
+				},
+			},
+			groups: [ { name: 'site', label: 'Site' } ],
+			sites: [
+				{ blog_id: BLOG_ID, site_level_enabled: enabled, abilities: { opt_in: optInEnabled } },
+			],
+		} );
+		const props = { blogId: BLOG_ID, savingToolIds: new Set(), onUpdate };
+		const { rerender } = render( <Component { ...props } mcpAbilities={ settings( false ) } /> );
+
+		const bulkSwitch = () => screen.getAllByRole( 'switch', { name: 'Enable all' } )[ toggleIndex ];
+		expect( bulkSwitch() ).toHaveAccessibleDescription(
+			'Skips 1 locked tool. Turn it on or off individually.'
+		);
+		await userEvent.click( bulkSwitch() );
+		expect( onUpdate ).toHaveBeenLastCalledWith( {
+			sites: [ { blog_id: BLOG_ID, abilities: { ordinary: true } } ],
+		} );
+
+		rerender( <Component { ...props } mcpAbilities={ settings( true, false ) } /> );
+		expect( bulkSwitch() ).toBeChecked();
+
+		rerender( <Component { ...props } mcpAbilities={ settings( true ) } /> );
+		await userEvent.click( bulkSwitch() );
+		expect( onUpdate ).toHaveBeenLastCalledWith( {
+			sites: [ { blog_id: BLOG_ID, abilities: { ordinary: false } } ],
+		} );
+	} );
+
+	test( 'an opt-in-only group keeps its label and individual switch', async () => {
+		const onUpdate = jest.fn();
+		render(
+			<Component
+				blogId={ BLOG_ID }
+				savingToolIds={ new Set() }
+				onUpdate={ onUpdate }
+				mcpAbilities={ {
+					account: {
+						opt_in: {
+							title: 'Opt-in tool',
+							readonly,
+							enabled: false,
+							requires_opt_in: true,
+							group: 'site',
+						},
+					},
+					groups: [ { name: 'site', label: 'Site' } ],
+					sites: [ { blog_id: BLOG_ID, site_level_enabled: true, abilities: { opt_in: false } } ],
+				} }
+			/>
+		);
+
+		// The only "Enable all" left is the page's, and it has nothing to act on.
+		expect( screen.getByRole( 'switch', { name: 'Enable all' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		expect( screen.getByText( 'Site' ) ).toBeInTheDocument();
+		await userEvent.click( screen.getByRole( 'button', { name: 'Show operations' } ) );
+		expect( screen.getByText( 'Turn on individually' ) ).toBeVisible();
+		const toolSwitch = screen.getByRole( 'switch', { name: 'Opt-in tool' } );
+		expect( toolSwitch ).toHaveAccessibleDescription(
+			'Enable all skips this tool. Turn it on or off individually.'
+		);
+		await userEvent.click( toolSwitch );
+		expect( onUpdate ).toHaveBeenCalledWith( {
+			sites: [ { blog_id: BLOG_ID, abilities: { opt_in: true } } ],
+		} );
+	} );
 } );

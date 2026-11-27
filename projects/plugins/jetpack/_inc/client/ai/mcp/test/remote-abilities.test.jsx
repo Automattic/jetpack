@@ -22,11 +22,11 @@ const onUpdate = jest.fn();
 
 beforeEach( () => onUpdate.mockClear() );
 
-const renderSection = ( { view = 'write', saved = {}, state = {} } = {} ) => {
+const renderSection = ( { view = 'write', saved = {}, remoteOptIn, state = {} } = {} ) => {
 	render(
 		<RemoteAbilitiesSection
 			view={ view }
-			mcpAbilities={ withSaved( saved ) }
+			mcpAbilities={ { ...withSaved( saved ), remote_abilities_requiring_opt_in: remoteOptIn } }
 			blogId={ 1 }
 			remoteAbilities={ { abilities: CATALOG, isLoading: false, isError: false, ...state } }
 			query=""
@@ -91,6 +91,43 @@ describe( 'RemoteAbilitiesSection', () => {
 		expect( screen.getByText( 'Akismet' ) ).toBeInTheDocument();
 		expect( screen.getByText( /can’t be loaded right now/ ) ).toBeInTheDocument();
 	} );
+
+	test( 'an unsaved subscriber list follows namespace access before opt-in enforcement', async () => {
+		renderSection( {
+			view: 'read',
+			saved: { 'read:jetpack-stats': true },
+			state: {
+				abilities: [
+					{
+						name: 'jetpack-stats/get-subscribers',
+						label: 'List remote subscribers',
+						meta: { annotations: { readonly: true } },
+					},
+				],
+			},
+		} );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Show operations' } ) );
+		expect( screen.getByRole( 'switch', { name: 'List remote subscribers' } ) ).toBeChecked();
+		expect( screen.queryByText( 'Turn on individually' ) ).not.toBeInTheDocument();
+		await userEvent.click( screen.getByRole( 'switch', { name: 'Enable all' } ) );
+		expect( sentGroups() ).toEqual( { 'read:jetpack-stats': false } );
+	} );
+
+	test( 'can revoke a saved individual grant when the catalog cannot be loaded', async () => {
+		const name = 'example/delete-post';
+		const key = `destructive:${ name }`;
+		renderSection( {
+			saved: { [ key ]: true },
+			remoteOptIn: [ name ],
+			state: { abilities: [], isError: true },
+		} );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Show operations' } ) );
+		const toggle = screen.getByRole( 'switch', { name } );
+		expect( toggle ).toBeChecked();
+		expect( screen.queryByRole( 'switch', { name: 'Enable all' } ) ).not.toBeInTheDocument();
+		await userEvent.click( toggle );
+		expect( sentGroups() ).toEqual( { [ key ]: false } );
+	} );
 } );
 
 describe( 'McpHub badges', () => {
@@ -134,17 +171,156 @@ describe( 'McpHub badges', () => {
 describe( 'remote_groups settings payload', () => {
 	test( 'is read from user_overrides and sent back on update', () => {
 		const response = normalizeWpcomMcpSettings(
-			{ has_mcp_plan: true, user_overrides: { remote_groups: { 'read:akismet': true } } },
+			{
+				has_mcp_plan: true,
+				remote_abilities_requiring_opt_in: [ 'example/individual' ],
+				user_overrides: { remote_groups: { 'read:akismet': true } },
+			},
 			1
 		);
 		expect( response.mcp_abilities.sites[ 0 ].remote_groups ).toEqual( { 'read:akismet': true } );
+		expect( response.mcp_abilities.remote_abilities_requiring_opt_in ).toEqual( [
+			'example/individual',
+		] );
 		expect(
 			prepareWpcomMcpUpdate( { sites: [ { remote_groups: { 'read:akismet': false } } ] } )
 		).toEqual( { remote_groups: { 'read:akismet': false } } );
 	} );
 } );
 
+describe.each( [
+	{ view: 'Read', Component: McpRead, readonly: true },
+	{ view: 'Write', Component: McpWrite, readonly: false },
+] )( '$view remote defaults', ( { view, Component, readonly } ) => {
+	test.each( [
+		{ ordinary: [ true, true ], optInEnabled: false, expected: true, badge: '3 of 4 enabled' },
+		{ ordinary: [ true, true ], optInEnabled: true, expected: true, badge: 'All enabled' },
+		{ ordinary: [ true, false ], optInEnabled: false, expected: false, badge: '1 of 4 enabled' },
+		{ ordinary: [ true, false ], optInEnabled: true, expected: false, badge: '2 of 4 enabled' },
+		{ ordinary: [ false, false ], optInEnabled: true, expected: false, badge: '1 of 4 enabled' },
+		{ ordinary: [ false, false ], optInEnabled: false, expected: false, badge: 'Disabled' },
+	] )(
+		'are on only when every ordinary tool in the same category is on: %j',
+		async ( { ordinary, optInEnabled, expected, badge } ) => {
+			const props = {
+				mcpAbilities: {
+					account: {
+						ordinary_a: { title: 'Ordinary tool A', readonly, enabled: ordinary[ 0 ] },
+						ordinary_b: { title: 'Ordinary tool B', readonly, enabled: ordinary[ 1 ] },
+						opt_in: {
+							title: 'Opt-in tool',
+							readonly,
+							enabled: optInEnabled,
+							requires_opt_in: true,
+						},
+						opposite: { readonly: ! readonly, enabled: true },
+					},
+					sites: [
+						{
+							blog_id: 1,
+							site_level_enabled: true,
+							abilities: {
+								ordinary_a: ordinary[ 0 ],
+								ordinary_b: ordinary[ 1 ],
+								opt_in: optInEnabled,
+							},
+						},
+					],
+				},
+				blogId: 1,
+				savingToolIds: new Set(),
+				onUpdate,
+				remoteAbilities: {
+					abilities: [
+						{
+							name: 'example/remote-tool',
+							label: 'Remote tool',
+							meta: { annotations: { readonly } },
+						},
+					],
+					isLoading: false,
+					isError: false,
+				},
+			};
+			const { unmount } = render( <Component { ...props } /> );
+			for ( const button of screen.getAllByRole( 'button', { name: 'Show operations' } ) ) {
+				await userEvent.click( button );
+			}
+			expect(
+				screen.getByRole( 'switch', { name: 'Remote tool', checked: expected } )
+			).toBeInTheDocument();
+			unmount();
+
+			render( <McpHub { ...props } onNavigate={ jest.fn() } /> );
+			expect( screen.getByRole( 'button', { name: new RegExp( view ) } ) ).toHaveTextContent(
+				badge
+			);
+		}
+	);
+} );
+
 describe( 'page-level Enable all', () => {
+	test.each( [
+		{ scope: 'page', toggleIndex: 0, individual: true, enforced: true },
+		{ scope: 'namespace', toggleIndex: 2, individual: undefined, enforced: true },
+		{ scope: 'page before enforcement', toggleIndex: 0, individual: true, enforced: false },
+		{ scope: 'namespace before enforcement', toggleIndex: 2, individual: false, enforced: false },
+	] )(
+		'$scope skips the saved subscriber choice',
+		async ( { toggleIndex, individual, enforced } ) => {
+			const abilities = [
+				[ 'get-subscribers', 'List remote subscribers' ],
+				[ 'get-views', 'Get views' ],
+			].map( ( [ name, label ] ) => ( {
+				name: `jetpack-stats/${ name }`,
+				label,
+				meta: { annotations: { readonly: true } },
+			} ) );
+			render(
+				<McpRead
+					mcpAbilities={ {
+						account: { ordinary: { title: 'Ordinary tool', enabled: true, readonly: true } },
+						remote_abilities_requiring_opt_in: enforced
+							? [ 'jetpack-stats/get-subscribers' ]
+							: undefined,
+						sites: [
+							{
+								blog_id: 1,
+								site_level_enabled: true,
+								remote_groups: {
+									'read:jetpack-stats': true,
+									...( individual !== undefined && {
+										'read:jetpack-stats/get-subscribers': individual,
+									} ),
+								},
+							},
+						],
+					} }
+					blogId={ 1 }
+					savingToolIds={ new Set() }
+					onUpdate={ onUpdate }
+					remoteAbilities={ { abilities, isLoading: false, isError: false } }
+				/>
+			);
+			for ( const expand of screen.getAllByRole( 'button', { name: 'Show operations' } ) ) {
+				await userEvent.click( expand );
+			}
+			expect(
+				screen.getByRole( 'switch', {
+					name: 'List remote subscribers',
+					checked: Boolean( individual ),
+				} )
+			).toBeInTheDocument();
+			expect(
+				screen.queryAllByText( 'Keeps the saved choice for the Stats subscriber list.' )
+			).toHaveLength( enforced ? 0 : 2 );
+			await userEvent.click(
+				screen.getAllByRole( 'switch', { name: 'Enable all' } )[ toggleIndex ]
+			);
+			expect( sentGroups() ).toEqual( { 'read:jetpack-stats': false } );
+		}
+	);
+
 	test.each( [
 		[ 'read', McpRead, true, { 'read:akismet': false } ],
 		[ 'write', McpWrite, false, { 'write:akismet': false, 'destructive:akismet': false } ],
@@ -198,5 +374,33 @@ describe( 'page-level Enable all', () => {
 			/>
 		);
 		expect( screen.getAllByRole( 'switch', { name: 'Enable all' } )[ 0 ] ).not.toBeChecked();
+	} );
+
+	test( 'can turn off saved site-published tools when all WordPress.com tools are locked', async () => {
+		render(
+			<McpRead
+				mcpAbilities={ {
+					account: { opt_in: { readonly: true, requires_opt_in: true } },
+					sites: [
+						{
+							blog_id: 1,
+							site_level_enabled: true,
+							remote_groups: { 'read:akismet/get-stats': true },
+						},
+					],
+				} }
+				blogId={ 1 }
+				savingToolIds={ new Set() }
+				onUpdate={ onUpdate }
+				remoteAbilities={ { abilities: [], isLoading: false, isError: true } }
+			/>
+		);
+
+		const pageToggle = screen.getAllByRole( 'switch', { name: 'Enable all' } )[ 0 ];
+		expect( pageToggle ).toBeChecked();
+		await userEvent.click( pageToggle );
+		expect( onUpdate ).toHaveBeenCalledWith( {
+			sites: [ { blog_id: 1, remote_groups: { 'read:akismet/get-stats': false } } ],
+		} );
 	} );
 } );

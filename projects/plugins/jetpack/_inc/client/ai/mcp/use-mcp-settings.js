@@ -59,6 +59,7 @@ export function normalizeWpcomMcpSettings( data, blogId ) {
 			],
 			site_level_enabled_default: siteLevelEnabled,
 			groups: data?.groups ?? [],
+			remote_abilities_requiring_opt_in: data.remote_abilities_requiring_opt_in ?? [],
 		},
 	};
 }

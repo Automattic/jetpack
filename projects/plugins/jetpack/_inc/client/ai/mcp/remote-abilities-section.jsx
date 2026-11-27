@@ -10,11 +10,15 @@ import McpGroupCard, { ToolToggle } from './mcp-group-card';
 import { recordMcpTracksEvent } from './tracks';
 import { matchesQuery } from './use-tool-search';
 import {
+	getBulkToggleDescription,
 	getRemoteAbilityCategory,
 	getRemoteAbilityGroupKey,
 	getRemoteAbilityKey,
 	getSiteRemoteGroups,
+	hasSavedSubscriberChoiceBeforeOptIn,
 	isRemoteAbilityEnabled,
+	isRemoteAbilityExcludedFromBulk,
+	isRemoteAbilityOptIn,
 } from './utils';
 
 /**
@@ -35,12 +39,13 @@ function formatNamespace( namespace ) {
  * the abilities listed under it. Saved keys always get a card, so settings stay
  * visible when the site is unreachable or has stopped publishing an ability.
  *
- * @param {Array}                   abilities   - Published abilities.
- * @param {Record<string, boolean>} savedGroups - Saved allowlist.
- * @param {'read'|'write'}          view        - View to collect for.
+ * @param {Array}                   abilities     - Published abilities.
+ * @param {Record<string, boolean>} savedGroups   - Saved allowlist.
+ * @param {'read'|'write'}          view          - View to collect for.
+ * @param {string[]}                [remoteOptIn] - Opt-in ability names from the settings service.
  * @return {Map<string, {keys: string[], abilityKeys: string[], abilities: Array}>} Namespaces, sorted.
  */
-export function collectNamespaces( abilities, savedGroups, view ) {
+export function collectNamespaces( abilities, savedGroups, view, remoteOptIn ) {
 	const namespaces = new Map();
 	const entry = namespace => {
 		const group = namespaces.get( namespace ) ?? { keys: [], abilityKeys: [], abilities: [] };
@@ -53,6 +58,7 @@ export function collectNamespaces( abilities, savedGroups, view ) {
 		}
 	};
 
+	const publishedNames = new Set( abilities.map( ability => ability.name ) );
 	for ( const ability of abilities ) {
 		const annotations = ability.meta?.annotations;
 		if ( getRemoteAbilityCategory( ability.name, annotations ) !== view ) {
@@ -70,25 +76,61 @@ export function collectNamespaces( abilities, savedGroups, view ) {
 			continue;
 		}
 		const [ namespace, abilityPath ] = rest.split( '/' );
-		addKey( abilityPath ? entry( namespace ).abilityKeys : entry( namespace ).keys, savedKey );
+		const group = entry( namespace );
+		addKey( abilityPath ? group.abilityKeys : group.keys, savedKey );
+		if (
+			abilityPath &&
+			! publishedNames.has( rest ) &&
+			isRemoteAbilityExcludedFromBulk( rest, savedGroups, remoteOptIn )
+		) {
+			// Keep individual grants editable if the site no longer publishes their catalog entries.
+			group.abilities.push( {
+				name: rest,
+				meta: { annotations: { readonly: kind === 'read', destructive: kind === 'destructive' } },
+				savedOnly: true,
+			} );
+		}
 	}
 
 	return new Map( [ ...namespaces ].sort( ( [ a ], [ b ] ) => a.localeCompare( b ) ) );
 }
 
 /**
- * Every allowlist key a view's remote cards write: group keys and ability-level keys.
+ * Keys a remote namespace can change in bulk.
  *
- * @param {Array}                   abilities   - Published abilities.
- * @param {Record<string, boolean>} savedGroups - Saved allowlist.
- * @param {'read'|'write'}          view        - View to collect for.
+ * @param {{keys: string[], abilityKeys: string[], abilities: Array}} group       - Namespace entry.
+ * @param {Record<string, boolean>}                                   savedGroups - Saved remote permissions.
+ * @param {string[]}                                                  remoteOptIn - Opt-in ability names from the settings service.
  * @return {string[]} Allowlist keys.
  */
-export function collectRemoteKeys( abilities, savedGroups, view ) {
-	return [ ...collectNamespaces( abilities, savedGroups, view ).values() ].flatMap( group => [
-		...group.keys,
-		...group.abilityKeys,
-	] );
+function getRemoteBulkKeys( group, savedGroups, remoteOptIn ) {
+	const individualKeys = group.abilityKeys.filter(
+		key => ! isRemoteAbilityExcludedFromBulk( key.split( ':' )[ 1 ], savedGroups, remoteOptIn )
+	);
+	const publishedAbilities = group.abilities.filter( ability => ! ability.savedOnly );
+	const skipsAllPublishedAbilities =
+		publishedAbilities.length > 0 &&
+		publishedAbilities.every( ability =>
+			isRemoteAbilityExcludedFromBulk( ability.name, savedGroups, remoteOptIn )
+		);
+	return skipsAllPublishedAbilities && individualKeys.length === 0
+		? []
+		: [ ...group.keys, ...individualKeys ];
+}
+
+/**
+ * Every allowlist key a view's remote cards write in bulk.
+ *
+ * @param {Array}                   abilities     - Published abilities.
+ * @param {Record<string, boolean>} savedGroups   - Saved allowlist.
+ * @param {'read'|'write'}          view          - View to collect for.
+ * @param {string[]}                [remoteOptIn] - Opt-in ability names from the settings service.
+ * @return {string[]} Allowlist keys.
+ */
+export function collectRemoteKeys( abilities, savedGroups, view, remoteOptIn ) {
+	return [ ...collectNamespaces( abilities, savedGroups, view ).values() ].flatMap( group =>
+		getRemoteBulkKeys( group, savedGroups, remoteOptIn )
+	);
 }
 
 /**
@@ -97,16 +139,22 @@ export function collectRemoteKeys( abilities, savedGroups, view ) {
  * @param {{keys: string[], abilityKeys: string[], abilities: Array}} group          - Namespace entry.
  * @param {Record<string, boolean>}                                   savedGroups    - Saved allowlist.
  * @param {boolean}                                                   defaultEnabled - State when nothing is saved.
+ * @param {string[]}                                                  [remoteOptIn]  - Opt-in ability names from the settings service.
  * @return {boolean} True when everything in the card is enabled.
  */
-export function isNamespaceAllEnabled( group, savedGroups, defaultEnabled ) {
+export function isNamespaceAllEnabled( group, savedGroups, defaultEnabled, remoteOptIn ) {
+	const keys = getRemoteBulkKeys( group, savedGroups, remoteOptIn );
 	return (
-		group.keys.length > 0 &&
-		[ ...group.keys, ...group.abilityKeys ].every(
-			key => ( savedGroups[ key ] ?? defaultEnabled ) === true
-		) &&
-		group.abilities.every( ability =>
-			isRemoteAbilityEnabled( savedGroups, ability.name, ability.meta?.annotations, defaultEnabled )
+		keys.every( key => ( savedGroups[ key ] ?? defaultEnabled ) === true ) &&
+		group.abilities.every(
+			ability =>
+				isRemoteAbilityExcludedFromBulk( ability.name, savedGroups, remoteOptIn ) ||
+				isRemoteAbilityEnabled(
+					savedGroups,
+					ability.name,
+					ability.meta?.annotations,
+					defaultEnabled
+				)
 		)
 	);
 }
@@ -118,11 +166,18 @@ export function isNamespaceAllEnabled( group, savedGroups, defaultEnabled ) {
  * @param {Record<string, boolean>} savedGroups    - Saved allowlist.
  * @param {'read'|'write'}          view           - View to check.
  * @param {boolean}                 defaultEnabled - State when nothing is saved.
+ * @param {string[]}                [remoteOptIn]  - Opt-in ability names from the settings service.
  * @return {boolean} True when all remote cards are enabled.
  */
-export function areRemoteGroupsEnabled( abilities, savedGroups, view, defaultEnabled ) {
+export function areRemoteGroupsEnabled(
+	abilities,
+	savedGroups,
+	view,
+	defaultEnabled,
+	remoteOptIn
+) {
 	return [ ...collectNamespaces( abilities, savedGroups, view ).values() ].every( group =>
-		isNamespaceAllEnabled( group, savedGroups, defaultEnabled )
+		isNamespaceAllEnabled( group, savedGroups, defaultEnabled, remoteOptIn )
 	);
 }
 
@@ -154,12 +209,14 @@ export default function RemoteAbilitiesSection( {
 } ) {
 	const { abilities, isLoading, isError } = remoteAbilities;
 	const savedGroups = getSiteRemoteGroups( mcpAbilities, blogId );
+	const remoteOptIn = mcpAbilities?.remote_abilities_requiring_opt_in;
 	const searchText = query.trim();
 
-	const namespaces = collectNamespaces( abilities, savedGroups, view );
+	const allNamespaces = collectNamespaces( abilities, savedGroups, view, remoteOptIn );
+	const namespaces = new Map( allNamespaces );
 	if ( searchText ) {
 		for ( const [ namespace, group ] of namespaces ) {
-			group.abilities = group.abilities.filter( ability =>
+			const matches = group.abilities.filter( ability =>
 				matchesQuery(
 					{
 						title: ability.label ?? ability.name,
@@ -177,8 +234,10 @@ export default function RemoteAbilitiesSection( {
 					getRemoteAbilityGroupKey( ability.name, ability.meta?.annotations ).split( ':' )[ 1 ] ===
 					namespace
 			);
-			if ( group.abilities.length === 0 && ( hadAbilities || ! nameMatches ) ) {
+			if ( matches.length === 0 && ( hadAbilities || ! nameMatches ) ) {
 				namespaces.delete( namespace );
+			} else {
+				namespaces.set( namespace, { ...group, abilities: matches } );
 			}
 		}
 	}
@@ -207,14 +266,9 @@ export default function RemoteAbilitiesSection( {
 		( enabled, { namespace, keys } ) => save( keys, enabled, `${ view }:${ namespace }` ),
 		[ save, view ]
 	);
-
 	const handleToolChange = useCallback(
-		( toolId, enabled ) => {
-			const ability = abilities.find( item => item.name === toolId );
-			const abilityKey = getRemoteAbilityKey( toolId, ability?.meta?.annotations );
-			save( [ abilityKey ], enabled, abilityKey );
-		},
-		[ abilities, save ]
+		( key, enabled ) => save( [ key ], enabled, key ),
+		[ save ]
 	);
 
 	if ( namespaces.size === 0 && ! isLoading ) {
@@ -258,8 +312,17 @@ export default function RemoteAbilitiesSection( {
 						} )
 						.map( ability => ability.name )
 				);
-				const intentKeys = [ ...group.keys, ...group.abilityKeys ];
-				const allEnabled = isNamespaceAllEnabled( group, savedGroups, defaultEnabled );
+				const bulkGroup = allNamespaces.get( namespace );
+				const intentKeys = getRemoteBulkKeys( bulkGroup, savedGroups, remoteOptIn );
+				const allEnabled = isNamespaceAllEnabled(
+					bulkGroup,
+					savedGroups,
+					defaultEnabled,
+					remoteOptIn
+				);
+				const optInCount = bulkGroup.abilities.filter( ability =>
+					isRemoteAbilityOptIn( ability.name, remoteOptIn )
+				).length;
 
 				return (
 					<McpGroupCard
@@ -267,27 +330,36 @@ export default function RemoteAbilitiesSection( {
 						id={ getGroupDomId( `remote-${ namespace }` ) }
 						label={ formatNamespace( namespace ) }
 						allEnabled={ allEnabled }
+						bulkDescription={ getBulkToggleDescription(
+							optInCount,
+							view === 'read' &&
+								namespace === 'jetpack-stats' &&
+								hasSavedSubscriberChoiceBeforeOptIn( savedGroups, remoteOptIn )
+						) }
 						isSaving={ intentKeys.some( isSavingKey ) }
 						forceOpen={ searchText !== '' }
 						anchorToolId={
 							group.abilities.some( ability => ability.name === anchor ) ? anchor : null
 						}
 						group={ { namespace, keys: intentKeys } }
-						onEnableAll={ handleEnableAll }
+						onEnableAll={ intentKeys.length > 0 ? handleEnableAll : undefined }
 					>
 						<Stack direction="column" gap="md" className="jetpack-ai-mcp__group-body">
 							{ group.abilities.map( ability => (
 								<ToolToggle
-									key={ ability.name }
+									key={ getRemoteAbilityKey( ability.name, ability.meta?.annotations ) }
 									toolId={ ability.name }
+									settingKey={ getRemoteAbilityKey( ability.name, ability.meta?.annotations ) }
 									tool={ {
 										title: ability.label || ability.name,
 										description: ability.description,
+										requires_opt_in: isRemoteAbilityOptIn( ability.name, remoteOptIn ),
 										enabled: isRemoteAbilityEnabled(
 											savedGroups,
 											ability.name,
 											ability.meta?.annotations,
-											defaultEnabled
+											defaultEnabled,
+											remoteOptIn
 										),
 									} }
 									view={ `mcp/${ view }` }

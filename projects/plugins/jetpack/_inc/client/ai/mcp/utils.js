@@ -5,6 +5,41 @@
  * Provides helpers for reading and merging MCP ability data from user settings.
  */
 
+import { __, _n, sprintf } from '@wordpress/i18n';
+import { isWriteTool } from './categories';
+import { getOrdinaryTools, requiresOptIn } from './group-intents';
+
+const REMOTE_SUBSCRIBER_LIST = 'jetpack-stats/get-subscribers';
+
+/**
+ * Describe which tools the bulk switch leaves untouched.
+ *
+ * @param {number}  count                - Number of tools that require individual approval.
+ * @param {boolean} keepSubscriberChoice - Whether the bulk switch preserves a saved subscriber choice before opt-in is enforced.
+ * @return {string|undefined} Switch description, if any tools are skipped.
+ */
+export function getBulkToggleDescription( count, keepSubscriberChoice = false ) {
+	const descriptions = [];
+	if ( count > 0 ) {
+		descriptions.push(
+			sprintf(
+				/* translators: %d: number of MCP tools that require individual approval. */
+				_n(
+					'Skips %d locked tool. Turn it on or off individually.',
+					'Skips %d locked tools. Turn them on or off individually.',
+					count,
+					'jetpack'
+				),
+				count
+			)
+		);
+	}
+	if ( keepSubscriberChoice ) {
+		descriptions.push( __( 'Keeps the saved choice for the Stats subscriber list.', 'jetpack' ) );
+	}
+	return descriptions.join( ' ' ) || undefined;
+}
+
 /**
  * Get account-level MCP abilities from user settings.
  *
@@ -109,6 +144,46 @@ export function getRemoteAbilityKey( name, annotations = {} ) {
 }
 
 /**
+ * Check whether a remote ability needs individual opt-in.
+ *
+ * @param {string}   name          - Ability name.
+ * @param {string[]} [remoteOptIn] - Opt-in ability names from the settings service.
+ * @return {boolean} Whether the ability requires opt-in.
+ */
+export function isRemoteAbilityOptIn( name, remoteOptIn = [] ) {
+	return remoteOptIn.includes( name );
+}
+
+/**
+ * Preserve the saved subscriber choice before WordPress.com starts enforcing individual opt-in.
+ *
+ * @param {string}                  name          - Ability name.
+ * @param {Record<string, boolean>} savedGroups   - Saved remote permissions.
+ * @param {string[]}                [remoteOptIn] - Opt-in ability names from the settings service.
+ * @return {boolean} Whether bulk controls skip the individual setting.
+ */
+export function isRemoteAbilityExcludedFromBulk( name, savedGroups, remoteOptIn ) {
+	return (
+		isRemoteAbilityOptIn( name, remoteOptIn ) ||
+		( name === REMOTE_SUBSCRIBER_LIST && savedGroups[ `read:${ name }` ] !== undefined )
+	);
+}
+
+/**
+ * Whether a saved remote subscriber choice needs a separate bulk switch explanation.
+ *
+ * @param {Record<string, boolean>} savedGroups   - Saved remote permissions.
+ * @param {string[]}                [remoteOptIn] - Opt-in ability names from the settings service.
+ * @return {boolean} Whether the subscriber choice is saved and opt-in is not yet enforced.
+ */
+export function hasSavedSubscriberChoiceBeforeOptIn( savedGroups, remoteOptIn ) {
+	return (
+		savedGroups[ `read:${ REMOTE_SUBSCRIBER_LIST }` ] !== undefined &&
+		! isRemoteAbilityOptIn( REMOTE_SUBSCRIBER_LIST, remoteOptIn )
+	);
+}
+
+/**
  * Whether a remote ability is enabled: the ability-level key when saved, else the group
  * key, else the default.
  *
@@ -116,39 +191,60 @@ export function getRemoteAbilityKey( name, annotations = {} ) {
  * @param {string}                  name             - Ability name.
  * @param {object}                  [annotations]    - Published annotations.
  * @param {boolean}                 [defaultEnabled] - State when neither key is saved.
+ * @param {string[]}                [remoteOptIn]    - Opt-in ability names from the settings service.
  * @return {boolean} True when enabled.
  */
 export function isRemoteAbilityEnabled(
 	savedGroups,
 	name,
 	annotations = {},
-	defaultEnabled = false
+	defaultEnabled = false,
+	remoteOptIn = []
 ) {
+	const individual = savedGroups[ getRemoteAbilityKey( name, annotations ) ];
+	if ( isRemoteAbilityOptIn( name, remoteOptIn ) ) {
+		return individual === true;
+	}
 	return (
-		savedGroups[ getRemoteAbilityKey( name, annotations ) ] ??
-		savedGroups[ getRemoteAbilityGroupKey( name, annotations ) ] ??
-		defaultEnabled
+		individual ?? savedGroups[ getRemoteAbilityGroupKey( name, annotations ) ] ?? defaultEnabled
 	);
+}
+
+/**
+ * Default remote access, matching the server: on only when every ordinary tool in the
+ * category is on. Tools that require opt-in don't count either way.
+ *
+ * @param {Array<[string, object]>} scopedTools - Tools in the Read or Write category.
+ * @return {boolean} Whether unsaved remote abilities are enabled.
+ */
+export function getRemoteAbilitiesDefaultEnabled( scopedTools ) {
+	const ordinaryTools = getOrdinaryTools( scopedTools );
+	return ordinaryTools.length > 0 && ordinaryTools.every( ( [ , tool ] ) => tool.enabled );
 }
 
 /**
  * Merge account-level abilities with site-level overrides.
  *
- * @param {Record<string, Object>}  accountAbilities - Account-level tool definitions.
+ * @param {Record<string, Object>}  accountAbilities - Tool definitions from the API.
  * @param {Record<string, boolean>} siteAbilities    - Explicit per-site overrides by tool ID (only tools the user has explicitly set).
- * @param {boolean|null}            defaultEnabled   - Fallback enabled state for tools not in siteAbilities (typically site_level_enabled). When null, falls back to the account-level tool.enabled value.
+ * @param {boolean|null}            defaultEnabled   - Site fallback for ordinary Read tools with no override.
  * @return {Record<string, Object>} Merged abilities with site overrides applied.
  */
 export function mergeSiteMcpAbilities( accountAbilities, siteAbilities, defaultEnabled = null ) {
 	return Object.fromEntries(
-		Object.entries( accountAbilities ).map( ( [ toolId, tool ] ) => [
-			toolId,
-			{
-				...tool,
-				enabled:
-					toolId in siteAbilities ? siteAbilities[ toolId ] : ( defaultEnabled ?? tool.enabled ),
-			},
-		] )
+		Object.entries( accountAbilities ).map( ( [ toolId, tool ] ) => {
+			const fallbackEnabled =
+				! isWriteTool( toolId, tool ) && ! requiresOptIn( tool )
+					? ( defaultEnabled ?? tool.enabled )
+					: tool.enabled;
+			return [
+				toolId,
+				{
+					...tool,
+					enabled: toolId in siteAbilities ? siteAbilities[ toolId ] : fallbackEnabled,
+				},
+			];
+		} )
 	);
 }
 
