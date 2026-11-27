@@ -1079,7 +1079,8 @@ class Manager {
 	}
 
 	/**
-	 * Unbind the WordPress.com user ID of any user whose token is new.
+	 * Drop the stored WordPress.com identity of any user whose token is new: the bound user ID, the
+	 * saved Tracks ID, and the cached user data either would be re-resolved from.
 	 *
 	 * Every path that changes a user's token writes the `user_tokens` option, so this covers
 	 * authorize, remote connect and the REST endpoint alike. A token that is added or replaced can
@@ -1089,6 +1090,7 @@ class Manager {
 	 *
 	 * @internal Hooked on `pre_update_jetpack_option_user_tokens`, which fires before the write.
 	 * @since 9.2.0
+	 * @since $$next-version$$ Also drops the saved Tracks ID and the cached user data.
 	 *
 	 * @param string $name  The option name.
 	 * @param mixed  $value The tokens about to be written.
@@ -1108,6 +1110,9 @@ class Manager {
 		foreach ( $value as $user_id => $token ) {
 			if ( ( $previous[ $user_id ] ?? null ) !== $token ) {
 				Utils::delete_wpcom_user_id( $user_id );
+				delete_user_meta( $user_id, 'jetpack_tracks_wpcom_id' );
+				// Otherwise both IDs can be re-resolved from the previous account's cached data.
+				delete_transient( "jetpack_connected_user_data_$user_id" );
 			}
 		}
 	}
