@@ -23,6 +23,8 @@ header( 'Content-Type: ' . get_bloginfo( 'html_type' ) . '; charset=' . get_blog
 	<title><?php bloginfo( 'name' ); ?></title>
 
 	<?php
+	print_rest_api_discovery_link();
+
 	wp_enqueue_style( 'recoleta-font', '//s1.wp.com/i/fonts/recoleta/css/400.min.css', array(), WPCOMSH_VERSION );
 	wp_enqueue_style( 'wpcomsh-coming-soon-style', plugins_url( 'style.css', __FILE__ ), array(), WPCOMSH_VERSION );
 	do_action( 'login_enqueue_scripts' );

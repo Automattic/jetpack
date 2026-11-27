@@ -12,6 +12,8 @@ use Automattic\Jetpack\Connection\Rest_Authentication;
 use Jetpack;
 use WP_Error;
 use WP_REST_Request;
+use WP_REST_Response;
+use WP_REST_Server;
 use function esc_html_e;
 use function get_current_blog_id;
 use function get_option;
@@ -101,6 +103,9 @@ function init() {
 
 	// Scrutinize REST API requests.
 	add_filter( 'rest_dispatch_request', '\Private_Site\rest_dispatch_request', 10, 3 );
+
+	// Serve logged-out visitors a minimal REST index, for auth discovery.
+	add_filter( 'rest_pre_dispatch', '\Private_Site\rest_pre_dispatch', 10, 3 );
 
 	// Prevent Pinterest pinning.
 	add_action( 'wp_head', '\Private_Site\private_no_pinning' );
@@ -446,8 +451,38 @@ function send_access_denied_error_response() {
 		);
 	}
 
+	// Advertise the REST API root, which tells clients how to authenticate.
+	$link_header = rest_api_discovery_link_header();
+	if ( '' !== $link_header && ! headers_sent() ) {
+		header( $link_header, false );
+	}
+
 	require access_denied_template_path();
 	exit( 0 );
+}
+
+/**
+ * The `Link:` header advertising the REST API root, or '' when there is none.
+ *
+ * Not `rest_output_link_header()`: after the main query, that also adds an `alternate` link
+ * naming the private resource.
+ *
+ * @return string
+ */
+function rest_api_discovery_link_header() {
+	$api_root = get_rest_url();
+
+	return empty( $api_root ) ? '' : sprintf( 'Link: <%s>; rel="https://api.w.org/"', sanitize_url( $api_root ) );
+}
+
+/**
+ * Print the REST API discovery `<link>` tag for the access-denied templates.
+ */
+function print_rest_api_discovery_link() {
+	$api_root = get_rest_url();
+	if ( ! empty( $api_root ) ) {
+		printf( '<link rel="https://api.w.org/" href="%s" />', esc_url( $api_root ) );
+	}
 }
 
 /**
@@ -560,6 +595,91 @@ function rest_dispatch_request( $dispatch_result, $request, $route ) {
 	}
 
 	return null;
+}
+
+/**
+ * Answer a logged-out read of the REST index with only what a client needs to authenticate.
+ *
+ * Runs before core's `get_index()`, so the route table is never built for anonymous visitors.
+ *
+ * @param mixed           $result  Response to replace the requested version with.
+ * @param WP_REST_Server  $server  Server instance.
+ * @param WP_REST_Request $request Request used to generate the response.
+ * @return mixed
+ */
+function rest_pre_dispatch( $result, $server, $request ) {
+	if (
+		null !== $result
+		|| '/' !== $request->get_route()
+		// Core serves HEAD with the GET handler, but `get_method()` still reports HEAD.
+		|| ! in_array( $request->get_method(), array( 'GET', 'HEAD' ), true )
+		|| ! should_prevent_site_access()
+	) {
+		return $result;
+	}
+
+	// Shaped like core's index for `rest_index` filters; `routes` is the costly part, so it stays empty.
+	$seed = new WP_REST_Response(
+		array(
+			'name'           => masked_site_name(),
+			'description'    => '',
+			'url'            => get_option( 'siteurl' ),
+			'home'           => home_url(),
+			'gmt_offset'     => 0,
+			'namespaces'     => $server->get_namespaces(),
+			'authentication' => array(),
+			'routes'         => array(),
+		)
+	);
+
+	/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
+	$index = apply_filters( 'rest_index', $seed, $request );
+
+	return build_minimal_rest_index( $index );
+}
+
+/**
+ * Rebuild a REST index from an allowlist, so nothing a `rest_index` filter adds is served unless named here.
+ *
+ * @param WP_REST_Response $response REST index response, after the `rest_index` filters.
+ * @return WP_REST_Response
+ */
+function build_minimal_rest_index( $response ) {
+	$data = $response instanceof WP_REST_Response ? $response->get_data() : array();
+	$data = is_array( $data ) ? $data : array();
+
+	// `authentication` and `routes` are maps, so empty ones must serialize as {}, not [].
+	$authentication = ! empty( $data['authentication'] ) && is_array( $data['authentication'] )
+		? $data['authentication']
+		: (object) array();
+
+	$minimal = new WP_REST_Response(
+		array(
+			'name'           => masked_site_name(),
+			'description'    => '',
+			'url'            => get_option( 'siteurl' ),
+			'home'           => home_url(),
+			'gmt_offset'     => 0,
+			'namespaces'     => array(),
+			'authentication' => $authentication,
+			'routes'         => (object) array(),
+		)
+	);
+
+	// Short-lived so a cached copy ages out soon after launch. Not `no-store`: the edge never
+	// replaces an entry it already holds with an uncacheable response.
+	$minimal->header( 'Cache-Control', 'max-age=60, must-revalidate' );
+
+	return $minimal;
+}
+
+/**
+ * The site name as core's index serves it, masked like the HTML page ('Private Site' unless coming soon).
+ *
+ * @return string
+ */
+function masked_site_name() {
+	return mask_site_name( get_option( 'blogname' ), 'name' );
 }
 
 /**
