@@ -28,7 +28,7 @@ export type RowsCsvActionOptions< TRow > = {
 	 */
 	status: ReportCsvExportStatus & {
 		/**
-		 * Whether the rows are a previous range's, which a query with no fetch coming keeps while not loading.
+		 * Whether the rows are a previous range's (React Query's `isPlaceholderData`), fetching or not.
 		 */
 		isPlaceholderData: boolean;
 	};
