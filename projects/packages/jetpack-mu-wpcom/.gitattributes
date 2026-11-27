@@ -20,6 +20,7 @@ src/**/tsconfig.*.json     production-exclude
 verbum.webpack.config.js   production-exclude
 webpack.config.modules.js  production-exclude
 webpack-plugins/**         production-exclude
+phpunit-sqlite.*.xml.dist  production-exclude
 /routes/**                 production-exclude
 
 src/features/jetpack-global-styles/README-DATA.md  production-exclude

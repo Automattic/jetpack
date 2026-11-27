@@ -1683,7 +1683,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "cc758a54fea2f122bfb69f50683298eb232581b7"
+                "reference": "bf3a93be783609fe129062bd84b93e3b1fc82901"
             },
             "require": {
                 "automattic/block-delimiter": "@dev",
@@ -1755,6 +1755,9 @@
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
+                "phpunit-sqlite": [
+                    "phpunit-select-config phpunit-sqlite.#.xml.dist --colors=always"
+                ],
                 "test-js": [
                     "pnpm run test"
                 ],
@@ -1762,10 +1765,12 @@
                     "pnpm run test-coverage"
                 ],
                 "test-php": [
-                    "@composer phpunit"
+                    "@composer phpunit",
+                    "@composer phpunit-sqlite"
                 ],
                 "test-php-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"",
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit-sqlite.#.xml.dist --coverage-php \"$COVERAGE_DIR/php-sqlite.cov\""
                 ],
                 "build-production": [
                     "pnpm run build-production-js"
