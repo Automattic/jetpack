@@ -5,6 +5,7 @@ use Automattic\Jetpack\Sync\Modules\WooCommerce_Analytics;
 use Automattic\Jetpack\Sync\Replicastore\Table_Checksum;
 use Automattic\WooCommerce\Admin\API\Reports\Orders\Stats\DataStore as OrderStatsDataStore;
 use Automattic\WooCommerce\Caches\OrderCache;
+use Automattic\WooCommerce\Internal\Admin\Schedulers\OrdersScheduler;
 use Automattic\WooCommerce\Utilities\OrderUtil;
 use PHPUnit\Framework\Attributes\Group;
 
@@ -259,27 +260,71 @@ class Jetpack_Sync_WooCommerce_Analytics_Test extends Jetpack_Sync_TestBase {
 		$order->update_status( 'processing' );
 		$refund = $this->refund( $order, 10 );
 
-		$module  = $this->enable_analytics_module();
-		$handler = array( $this->listener, 'action_handler' );
-		$module->init_listeners( $handler );
-		$this->server_event_storage->reset();
+		$synced_ids = $this->get_ids_synced_by(
+			static function () use ( $order ) {
+				self::import_into_analytics( $order->get_id() );
+			}
+		);
 
-		$synced_ids = array();
-		try {
-			do_action( 'woocommerce_order_scheduler_after_import_order', $order->get_id() );
-			$this->sender->do_sync();
-			$synced_ids = array_map(
-				static function ( $event ) {
-					return $event->args['order_stats']['order_id'];
-				},
-				$this->server_event_storage->get_all_events( 'woocommerce_analytics_sync_reports_data' )
-			);
-		} finally {
-			$this->remove_analytics_module_listeners( $module, $handler );
-		}
+		$this->assertEqualsCanonicalizing( array( $order->get_id(), $refund->get_id() ), $synced_ids );
+	}
 
-		$this->assertContains( $order->get_id(), $synced_ids );
-		$this->assertContains( $refund->get_id(), $synced_ids );
+	/**
+	 * Importing a refund on its own syncs only that refund.
+	 */
+	public function test_importing_a_refund_syncs_only_the_refund() {
+		$this->skip_before_woocommerce( '10.3' );
+
+		$order = $this->create_refundable_order();
+		$order->update_status( 'processing' );
+		$refund = $this->refund( $order, 10 );
+
+		$synced_ids = $this->get_ids_synced_by(
+			static function () use ( $refund ) {
+				self::import_into_analytics( $refund->get_id() );
+			}
+		);
+
+		$this->assertSame( array( $refund->get_id() ), $synced_ids );
+	}
+
+	/**
+	 * A refund the import left without a stats row is not resent with its order.
+	 */
+	public function test_importing_an_order_skips_refunds_without_a_stats_row() {
+		global $wpdb;
+
+		$this->skip_before_woocommerce( '10.3' );
+
+		$order = $this->create_refundable_order();
+		$order->update_status( 'processing' );
+		$refund = $this->refund( $order, 10 );
+		OrderStatsDataStore::sync_order( $order->get_id() );
+		$wpdb->delete( "{$wpdb->prefix}wc_order_stats", array( 'order_id' => $refund->get_id() ) );
+
+		$synced_ids = $this->get_ids_synced_by(
+			static function () use ( $order ) {
+				do_action( 'woocommerce_order_scheduler_after_import_order', $order->get_id() );
+			}
+		);
+
+		$this->assertSame( array( $order->get_id() ), $synced_ids );
+	}
+
+	/**
+	 * Without the stats table's fulfillment column, the fulfillment status comes from the order.
+	 */
+	public function test_fulfillment_status_syncs_without_the_stats_column() {
+		$this->skip_before_woocommerce( '10.1' );
+
+		update_option( 'woocommerce_order_stats_has_fulfillment_column', 'no' );
+		$order = $this->create_refundable_order();
+		$order->update_meta_data( '_fulfillment_status', 'partially_fulfilled' );
+		$order->save();
+
+		$synced = ( new WooCommerce_Analytics() )->get_object_by_id( 'order', $order->get_id() )['order_stats'];
+
+		$this->assertSame( 'partially_fulfilled', $synced['fulfillment_status'] );
 	}
 
 	/**
@@ -490,6 +535,45 @@ class Jetpack_Sync_WooCommerce_Analytics_Test extends Jetpack_Sync_TestBase {
 		$this->set_sync_modules( $modules );
 
 		return $module;
+	}
+
+	/**
+	 * Get the order IDs the Analytics module syncs while running the given import.
+	 *
+	 * @param callable $import Runs the import.
+	 * @return int[]
+	 */
+	private function get_ids_synced_by( $import ) {
+		$module  = $this->enable_analytics_module();
+		$handler = array( $this->listener, 'action_handler' );
+		$module->init_listeners( $handler );
+		$this->server_event_storage->reset();
+
+		$events = array();
+		try {
+			$import();
+			$this->sender->do_sync();
+			$events = $this->server_event_storage->get_all_events( 'woocommerce_analytics_sync_reports_data' );
+		} finally {
+			$this->remove_analytics_module_listeners( $module, $handler );
+		}
+
+		return array_map(
+			static function ( $event ) {
+				return (int) $event->args['order_stats']['order_id'];
+			},
+			$events
+		);
+	}
+
+	/**
+	 * Run WooCommerce's own Analytics import for an order or refund.
+	 *
+	 * @param int $order_id Order or refund ID.
+	 */
+	private static function import_into_analytics( $order_id ) {
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Internal class absent from the WooCommerce stubs; callers skip before WooCommerce 10.3.
+		OrdersScheduler::import( $order_id );
 	}
 
 	/**

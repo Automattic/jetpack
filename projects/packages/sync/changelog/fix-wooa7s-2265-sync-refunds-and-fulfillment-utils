@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-WooCommerce Analytics: Resend an order's refunds when WooCommerce re-imports the order, and sync fulfillment statuses on WooCommerce 11.0 and later.
+WooCommerce Analytics: Resend an order's refunds when WooCommerce re-imports the order, and sync fulfillment statuses on WooCommerce 10.7 and later.

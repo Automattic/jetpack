@@ -487,11 +487,11 @@ class WooCommerce_Analytics extends Module {
 	}
 
 	/**
-	 * Sync an order WooCommerce has just imported, and the refunds the import rewrote with it.
+	 * Sync a record WooCommerce has just imported, plus an imported order's refunds.
 	 *
-	 * Importing an order rewrites its refunds' stats rows too, but the action fires only for the order.
+	 * Importing an order rewrites its refunds' stats rows, but fires the action only once, for the order.
 	 *
-	 * @param int $order_id The order or refund ID.
+	 * @param int $order_id The imported order or refund ID.
 	 * @return void
 	 */
 	public function sync_imported_analytics_reports_data( $order_id ) {
@@ -502,8 +502,20 @@ class WooCommerce_Analytics extends Module {
 			return;
 		}
 
-		foreach ( $order->get_refunds() as $refund ) {
-			$this->sync_analytics_reports_data( $refund->get_id() );
+		$refund_ids = array_map(
+			static function ( $refund ) {
+				return $refund->get_id();
+			},
+			$order->get_refunds()
+		);
+		if ( ! $refund_ids ) {
+			return;
+		}
+
+		// A refund the import excluded or deleted has no row, and resending it would add one core does not have.
+		$stored_ids = array_map( 'intval', wp_list_pluck( (array) $this->get_order_stats_items( $refund_ids ), 'order_id' ) );
+		foreach ( array_intersect( $refund_ids, $stored_ids ) as $refund_id ) {
+			$this->sync_analytics_reports_data( $refund_id );
 		}
 	}
 
@@ -824,7 +836,7 @@ class WooCommerce_Analytics extends Module {
 	}
 
 	/**
-	 * Get WooCommerce's order fulfillment status function, which moved namespace in WooCommerce 11.0.
+	 * Get WooCommerce's order fulfillment status function, which moved namespace in WooCommerce 10.7.
 	 *
 	 * @return callable|null
 	 */
