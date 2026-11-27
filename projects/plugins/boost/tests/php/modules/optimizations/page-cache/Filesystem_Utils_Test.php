@@ -426,7 +426,7 @@ class Filesystem_Utils_Test extends TestCase {
 		Functions\when( 'jetpack_boost_minify_is_enabled' )->justReturn( false );
 		Functions\when( 'home_url' )->justReturn( 'https://example.com:8080' );
 		Functions\when( 'wp_parse_url' )->alias( 'parse_url' );
-		// Keep the old flag set so this fails if the purge becomes a one-time migration again.
+		// Flag left set: the purge must not depend on it.
 		$options = array( 'jetpack_boost_page_cache_uri_keys' => 1 );
 		Functions\when( 'get_option' )->alias(
 			function ( $name, $default = false ) use ( &$options ) {
