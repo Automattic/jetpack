@@ -84,7 +84,8 @@ export default function useGlobalStyleNoticeActions( { isSiteEditor, context = '
 			noDefaultClasses: true,
 		},
 		reset: {
-			label: __( 'Remove premium styles', 'jetpack-mu-wpcom' ),
+			/* translators: Resets the site styles. Site styles are the sitewide changes made in the Styles panel (Global Styles). Visitors only see them on a paid plan. */
+			label: __( 'Reset site styles', 'jetpack-mu-wpcom' ),
 			onClick: resetGlobalStyles,
 			variant: 'secondary',
 			noDefaultClasses: true,

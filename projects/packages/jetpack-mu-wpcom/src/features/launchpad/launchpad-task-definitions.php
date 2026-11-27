@@ -1790,8 +1790,9 @@ function wpcom_launchpad_get_plan_selected_subtitle() {
 	}
 
 	return wpcom_global_styles_in_use() && wpcom_should_limit_global_styles()
+		/* translators: Launchpad task subtitle. Site styles are the sitewide changes made in the Styles panel (Global Styles). Visitors only see them on a paid plan. */
 		? __(
-			'Your site contains premium styles. Upgrade now to publish them and unlock tons of other features.',
+			'Upgrade now to publish your sitewide styles and unlock tons of other features.',
 			'jetpack-mu-wpcom'
 		) : '';
 }
