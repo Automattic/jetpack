@@ -122,14 +122,6 @@ const setConnectionErrors = connectionErrors => {
 	return { type: SET_CONNECTION_ERRORS, connectionErrors };
 };
 
-/**
- * No-op kept for older bundles that still call it against this shared store.
- *
- * @deprecated 2.10.0 Connection health-check errors are no longer surfaced in notices.
- * @return {Function} Thunk resolving with an empty error map.
- */
-const runConnectionHealthCheck = () => async () => ( {} );
-
 const setIsOfflineMode = isOfflineMode => {
 	return { type: SET_IS_OFFLINE_MODE, isOfflineMode };
 };
@@ -270,7 +262,6 @@ const actions = {
 	refreshConnectedPlugins,
 	refreshConnectionStatus,
 	setConnectionErrors,
-	runConnectionHealthCheck,
 	setIsOfflineMode,
 };
 
