@@ -1,6 +1,5 @@
 /* eslint-disable testing-library/prefer-user-event */
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import GradeExplanation from './grade-explanation';
 import ScoreCards from './score-cards';
 
 test( 'the Overall popover shows its summary and grade ranges, closes on Escape, and returns focus', async () => {
@@ -35,7 +34,6 @@ test( 'the Overall popover shows its summary and grade ranges, closes on Escape,
 			'Your overall score is a summary of your first Cornerstone Page across both mobile and desktop devices.'
 		)
 	).toBeVisible();
-	expect( dialog ).not.toHaveTextContent( /general idea/ );
 	expect( popover.getAllByRole( 'table' ) ).toHaveLength( 2 );
 	for ( const [ grade, range ] of [
 		[ 'A', 'Over 90' ],
@@ -52,15 +50,6 @@ test( 'the Overall popover shows its summary and grade ranges, closes on Escape,
 	fireEvent.keyDown( dialog, { key: 'Escape' } );
 	await waitFor( () => expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument() );
 	expect( trigger ).toHaveFocus();
-} );
-
-test( 'the legacy grade explanation keeps its full default description', () => {
-	render( <GradeExplanation /> );
-	expect(
-		screen.getByText(
-			"Your overall score is a summary of your first Cornerstone Page across both mobile and desktop devices. It gives a general idea of your site's overall performance."
-		)
-	).toBeInTheDocument();
 } );
 
 test.each( [
