@@ -171,7 +171,7 @@ otherwise attribute the feedback to the first administrator it finds.
 
 The one response rewrite is `redact`: `stats/followers` drops subscriber addresses for readers
 without `manage_options`, and `stats/comments` unlinks guest commenters for readers without
-`moderate_comments`. It runs after the cache, which is per site, so never redact before caching.
+`moderate_comments`. See `redact_emails()` for why it runs after the cache.
 
 ### Notices
 

@@ -129,7 +129,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 *                  Reads only; the group's `capability` still gates the local request.
 	 *  - `redact`     (array, optional) Sub-path => `capability` and `redactor` method. A reader
 	 *                  without the capability gets the response with its email addresses removed by
-	 *                  the redactor. It runs after the cache, which is per site; see `redact_emails()`.
+	 *                  the redactor; see `redact_emails()`.
 	 *
 	 * Maintaining endpoints (this table is the only edit needed for a pass-through endpoint):
 	 *  - ADD a group:   add a key with at least `capability`. Reads work immediately at
