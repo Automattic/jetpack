@@ -35,6 +35,8 @@
 
 	&__annotations-overlay {
 		position: absolute;
+		// Ties with `.xy-plot`; coming after it in the DOM keeps it on top.
+		z-index: 1;
 		left: 0;
 		top: 0;
 		overflow: visible;

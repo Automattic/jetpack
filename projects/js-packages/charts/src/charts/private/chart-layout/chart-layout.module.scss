@@ -1,4 +1,5 @@
-// Keeps the plot's z-index inside the chart, so page chrome paints over it.
+// Keeps the z-index of the plot, tooltip and overlays inside the chart, so page
+// chrome such as a sticky header still paints over them.
 .chart-layout {
 	isolation: isolate;
 }
