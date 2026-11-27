@@ -179,7 +179,9 @@ $hover-reserve: var(--wpds-dimension-gap-2xl);
 	text-align: center;
 }
 
+// Set apart from the first figure's pair, so two columns of numbers read as two.
 .secondaryValue {
+	margin-inline-start: var(--wpds-dimension-gap-md);
 	font-variant-numeric: tabular-nums;
 }
 
