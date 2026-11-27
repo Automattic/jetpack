@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Load the front-end stylesheet of a block registered with jetpack_register_block() only where the block renders, on sites that turn off on-demand block assets.
