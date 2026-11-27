@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Search\TestCase as Search_TestCase;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -204,6 +205,17 @@ class Dashboard_Wp_Build_Test extends Search_TestCase {
 			'hover request'       => array( true, true ),
 			'another member page' => array( true, false ),
 		);
+	}
+
+	/**
+	 * WordPress.com Simple serves the page from a subclass of this dashboard, through the same guest load.
+	 */
+	public function test_search_joins_the_admin_shell_on_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$members = $this->dashboard_on_the_search_page()->add_admin_shell_member( array() );
+		Constants::clear_single_constant( 'IS_WPCOM' );
+
+		$this->assertArrayHasKey( 'jetpack-search', $members );
 	}
 
 	public function test_the_constants_match_the_wp_build_page_definition() {

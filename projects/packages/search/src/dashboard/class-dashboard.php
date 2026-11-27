@@ -12,7 +12,6 @@ use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
@@ -143,7 +142,7 @@ class Dashboard {
 	 * @return array
 	 */
 	public function add_admin_shell_member( $members ) {
-		if ( ( new Host() )->is_wpcom_simple() || ! file_exists( $this->wp_build_index() ) ) {
+		if ( ! file_exists( $this->wp_build_index() ) ) {
 			return $members;
 		}
 
