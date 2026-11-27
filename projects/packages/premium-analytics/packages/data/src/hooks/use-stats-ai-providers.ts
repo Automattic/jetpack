@@ -8,6 +8,8 @@ import type { StatsAiProvidersReport } from '../processing/stats';
 import type { StatsReportParams } from '../queries/stats-query';
 import type { ReportParams } from '../utils/search';
 
+export { isAiProvidersRangeTooLong } from '../queries/stats-ai-providers-query';
+
 export function useStatsAiProviders( params: ReportParams, options?: UseStatsOptions ) {
 	return useStatsReport< StatsReportParams, StatsAiProvidersReport >(
 		statsAiProvidersQuery,

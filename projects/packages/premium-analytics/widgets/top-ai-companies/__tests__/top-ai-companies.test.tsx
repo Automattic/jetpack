@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
+import {
+	getDefaultQueryParams,
+	queryClient,
+	type ReportParams,
+} from '@jetpack-premium-analytics/data';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
@@ -24,12 +28,8 @@ const PROVIDERS_RESPONSE = [
 	{ bot_owner: '', bot_name: 'Unknown', bot_type: '', total: '50' },
 ];
 
-function renderWidget() {
-	return render(
-		<TopAiCompanies
-			attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
-		/>
-	);
+function renderWidget( reportParams = getDefaultQueryParams( false, 'last-7-days' ) ) {
+	return render( <TopAiCompanies attributes={ { reportParams } } /> );
 }
 
 describe( 'TopAiCompanies', () => {
@@ -82,23 +82,60 @@ describe( 'TopAiCompanies', () => {
 		).resolves.toBeInTheDocument();
 	} );
 
-	it( 'says there were no requests rather than drawing an empty list', async () => {
+	it( 'shows the shared empty state rather than an empty list', async () => {
 		mockApiFetch.mockResolvedValue( [] );
 
 		renderWidget();
 
 		await expect(
-			screen.findByText( 'No requests from AI bots in this period.' )
+			screen.findByText( 'We couldn’t find results for this time period.' )
 		).resolves.toBeInTheDocument();
 	} );
 
-	it( 'offers a retry when the companies cannot be loaded', async () => {
+	it( 'names the folded row by what it opens', async () => {
+		mockApiFetch.mockResolvedValue(
+			Array.from( { length: 12 }, ( _, index ) => ( {
+				bot_owner: `Company ${ index }`,
+				bot_name: `Bot ${ index }`,
+				bot_type: 'AI Crawler',
+				total: String( 120 - index ),
+			} ) )
+		);
+
+		renderWidget();
+
+		await expect(
+			screen.findByRole( 'button', { name: 'View the other companies' } )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'View the bots of Company 0' } ) ).toBeVisible();
+	} );
+
+	it( 'asks for a shorter period instead of a request the table refuses', () => {
+		// No preset: the widget root would read the range back from it.
+		renderWidget( { from: '2023-11-08', to: '2026-11-07', interval: 'month' } as ReportParams );
+
+		expect( screen.getByText( /Choose a shorter period\./ ) ).toBeVisible();
+		expect( mockApiFetch ).not.toHaveBeenCalled();
+	} );
+
+	it( 'says the data is off limits on a 403, with nothing to retry', async () => {
 		mockApiFetch.mockRejectedValue( { status: 403 } );
+
+		renderWidget();
+
+		await expect(
+			screen.findByText( "You don't have access to this data." )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'offers a retry for a failure that can heal, and loads the companies on it', async () => {
+		mockApiFetch.mockRejectedValueOnce( { status: 403, code: 'no_connection' } );
 
 		renderWidget();
 
 		await userEvent.click( await screen.findByRole( 'button', { name: 'Retry' } ) );
 
-		expect( mockApiFetch ).toHaveBeenCalledTimes( 2 );
+		await expect( screen.findByText( 'OpenAI' ) ).resolves.toBeInTheDocument();
 	} );
 } );

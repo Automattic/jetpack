@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { edgeWindow } from './edge-window';
+import { edgeWindow, isEdgeWindowTooLong } from './edge-window';
 import { statsProxyQuery, type StatsReportQueryOptions } from './stats-query';
 import type { ReportParams } from '../utils/search';
 
@@ -24,7 +24,17 @@ export const statsAiProvidersQuery = (
 		endpoint: 'stats/ua-queries',
 		params: { template: 'ai-providers-with-drill', start, end, table: 'rollup' },
 		sanitizer: 'aiProviders',
-		enabled: !! ( start && end ),
+		enabled: !! ( start && end ) && ! isAiProvidersRangeTooLong( params ),
 		windowEnd: params.to || null,
 	} );
 };
+
+/**
+ * Whether the window is longer than the pre-aggregated table serves, so no request is worth sending.
+ *
+ * @param params - The report window.
+ * @return True when the endpoint would refuse the range.
+ */
+export function isAiProvidersRangeTooLong( params: Pick< ReportParams, 'from' | 'to' > ): boolean {
+	return isEdgeWindowTooLong( params );
+}

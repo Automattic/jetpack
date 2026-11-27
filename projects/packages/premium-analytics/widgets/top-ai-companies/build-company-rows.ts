@@ -5,6 +5,9 @@ import { AI_PROVIDER_UNKNOWN, type StatsAiProvider } from '@jetpack-premium-anal
 import { __ } from '@wordpress/i18n';
 import type { LeaderboardRowInput } from '@jetpack-premium-analytics/widgets-toolkit';
 
+/** The row the companies past the list's slots fold into. */
+export const OTHER_COMPANIES_ID = 'other-companies';
+
 function toCompanyRow( provider: StatsAiProvider ): LeaderboardRowInput {
 	return {
 		id: provider.name,
@@ -42,7 +45,7 @@ export function buildCompanyRows(
 	if ( folds ) {
 		const rest = companies.slice( slots - 1 );
 		rows.push( {
-			id: 'other-companies',
+			id: OTHER_COMPANIES_ID,
 			label: __( 'Other companies', 'jetpack-premium-analytics-pkg' ),
 			value: rest.reduce( ( sum, provider ) => sum + provider.requests, 0 ),
 			children: rest.map( toCompanyRow ),
