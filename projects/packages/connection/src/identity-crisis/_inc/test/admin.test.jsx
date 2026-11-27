@@ -94,7 +94,7 @@ describe( 'Safe Mode screen', () => {
 	it.each(
 		[
 			[ 'matched consumer page', 'my_plugin_safe_mode' ],
-			[ 'sole consumer on a shared page', 'my_plugin_safe_mode' ],
+			[ 'sole consumer on a shared page', undefined ],
 			[ 'ambiguous shared page', undefined ],
 			[ 'consumer without a source', '' ],
 		].flatMap( ( [ context, from ] ) =>

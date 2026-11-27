@@ -44,13 +44,10 @@ $config->ensure( 'identity_crisis', array(
 ) );
 ```
 
-The consumer's source is passed to registration and authorization when its
-`admin_page` matches the current request. On other pages, it applies only when
-it is the only registered consumer and its `slug` identifies the only connected
-plugin returned by `Manager::get_connected_plugins()`. Other connected plugins
-count even when they do not register a notice consumer. An unavailable or empty
-plugin list also keeps the screen's default source. Notice branding still follows
-the existing consumer selection.
+The consumer's source is passed to registration and authorization only when its
+`admin_page` matches the current request. On other pages, both screens keep
+their default source, even if there is only one registered consumer. Notice
+branding still follows the existing consumer selection.
 Use a distinct Safe Mode source in the standard `owner_surface[_detail]` format
 to keep recovery connections separate from normal connections in reports. See
 [Adding a connect button](../../js-packages/connection/README.md#adding-a-connect-button)

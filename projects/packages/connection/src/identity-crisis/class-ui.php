@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\IdentityCrisis;
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -232,12 +231,9 @@ class UI {
 
 		static::$consumers = $consumer_chosen ? $consumer_chosen : $consumers[0];
 
-		if ( ! $consumer_chosen && isset( static::$consumers['from'] ) ) {
-			// Plugins can enable Safe Mode without registering a notice consumer.
-			$plugins = ( new Connection_Manager() )->get_connected_plugins();
-			if ( count( $consumers ) > 1 || ! is_array( $plugins ) || count( $plugins ) !== 1 || ! isset( $plugins[ static::$consumers['slug'] ?? '' ] ) ) {
-				unset( static::$consumers['from'] );
-			}
+		// A priority fallback selects notice branding, not the owner of a shared-page connection.
+		if ( ! $consumer_chosen ) {
+			unset( static::$consumers['from'] );
 		}
 
 		return static::$consumers;

@@ -250,27 +250,12 @@ class UI_Test extends TestCase {
 	 * @param string      $uri Current admin request.
 	 * @param string      $expected_slug Selected notice consumer.
 	 * @param string|null $expected_from Eligible authorization source.
-	 * @param array|null  $plugins Connected plugins, or null for unconfigured storage.
 	 */
 	#[DataProvider( 'consumer_source_provider' )]
-	public function test_consumer_authorization_source( $consumers, $uri, $expected_slug, $expected_from, $plugins ) {
-		$filter  = static function () use ( $consumers ) {
+	public function test_consumer_authorization_source( $consumers, $uri, $expected_slug, $expected_from ) {
+		$filter = static function () use ( $consumers ) {
 			return $consumers;
 		};
-		$storage = new ReflectionClass( Plugin_Storage::class );
-		$saved   = array();
-		foreach ( array(
-			'configured'      => null !== $plugins,
-			'plugins'         => $plugins ?? array(),
-			'current_blog_id' => get_current_blog_id(),
-		) as $name => $value ) {
-			$property = $storage->getProperty( $name );
-			if ( PHP_VERSION_ID < 80100 ) {
-				$property->setAccessible( true );
-			}
-			$saved[ $name ] = array( $property, $property->getValue() );
-			$property->setValue( null, $value );
-		}
 		add_filter( 'jetpack_idc_consumers', $filter, 20 );
 		$_SERVER['REQUEST_URI'] = $uri;
 		try {
@@ -282,6 +267,40 @@ class UI_Test extends TestCase {
 			$this->assertSame( $result, UI::get_consumer_data(), 'The cached selection keeps the same source policy.' );
 		} finally {
 			remove_filter( 'jetpack_idc_consumers', $filter, 20 );
+		}
+	}
+
+	/** A standalone plugin cannot claim a connection initiated on Plugins. */
+	public function test_single_connected_consumer_keeps_default_on_shared_page() {
+		$storage = new ReflectionClass( Plugin_Storage::class );
+		$saved   = array();
+		foreach ( array(
+			'configured'      => true,
+			'plugins'         => array( 'standalone' => array() ),
+			'current_blog_id' => get_current_blog_id(),
+		) as $name => $value ) {
+			$property = $storage->getProperty( $name );
+			if ( PHP_VERSION_ID < 80100 ) {
+				$property->setAccessible( true );
+			}
+			$saved[] = array( $property, $property->getValue() );
+			$property->setValue( null, $value );
+		}
+		$filter = static function () {
+			return array(
+				array(
+					'slug'       => 'standalone',
+					'admin_page' => '/wp-admin/admin.php?page=standalone',
+					'from'       => 'standalone_safe_mode',
+				),
+			);
+		};
+		add_filter( 'jetpack_idc_consumers', $filter, 20 );
+		$_SERVER['REQUEST_URI'] = '/wp-admin/plugins.php';
+		try {
+			$this->assertArrayNotHasKey( 'from', UI::get_consumer_data() );
+		} finally {
+			remove_filter( 'jetpack_idc_consumers', $filter, 20 );
 			foreach ( $saved as list( $property, $value ) ) {
 				$property->setValue( null, $value );
 			}
@@ -289,7 +308,7 @@ class UI_Test extends TestCase {
 	}
 
 	/**
-	 * Shared-page recovery needs a sole consumer that is also the sole connected plugin.
+	 * Only a matching consumer page identifies the owner of a recovery connection.
 	 *
 	 * @return array
 	 */
@@ -313,32 +332,16 @@ class UI_Test extends TestCase {
 		$without_source = $second;
 		unset( $without_source['from'] );
 
-		$both_plugins = array(
-			'first'  => array(),
-			'second' => array(),
+		return array(
+			'matched page beats priority'                 => array( array( $first, $second ), '/wp-admin/admin.php?page=second', 'second', 'second_safe_mode' ),
+			'single consumer on its own page'             => array( array( $second ), '/wp-admin/admin.php?page=second', 'second', 'second_safe_mode' ),
+			'single consumer on Marketing'                => array( array( $second ), '/wp-admin/admin.php?page=wc-admin&path=/marketing', 'second', null ),
+			'single consumer on Plugins'                  => array( array( $second ), '/wp-admin/plugins.php', 'second', null ),
+			'single consumer on another plugin dashboard' => array( array( $second ), '/wp-admin/admin.php?page=jetpack-backup', 'second', null ),
+			'multiple consumers on Plugins'               => array( array( $first, $second ), '/wp-admin/plugins.php', 'first', null ),
+			'multiple consumers on Marketing'             => array( array( $first, $second ), '/wp-admin/admin.php?page=wc-admin&path=/marketing', 'first', null ),
+			'consumer without source still counts'        => array( array( $first, $without_source ), '/wp-admin/index.php', 'first', null ),
+			'matched consumer without source keeps default' => array( array( $first, $without_source ), '/wp-admin/admin.php?page=second', 'second', null ),
 		);
-		$sole_plugin  = array( 'second' => array() );
-
-		$cases = array(
-			'matched page beats priority'                 => array( array( $first, $second ), '/wp-admin/admin.php?page=second', 'second', 'second_safe_mode', $both_plugins ),
-			'sole plugin on Marketing'                    => array( array( $second ), '/wp-admin/admin.php?page=wc-admin&path=/marketing', 'second', 'second_safe_mode', $sole_plugin ),
-			'sole plugin on Plugins'                      => array( array( $second ), '/wp-admin/plugins.php', 'second', 'second_safe_mode', $sole_plugin ),
-			'no match on Plugins'                         => array( array( $first, $second ), '/wp-admin/plugins.php', 'first', null, $both_plugins ),
-			'no match on Marketing'                       => array( array( $first, $second ), '/wp-admin/admin.php?page=wc-admin&path=/marketing', 'first', null, $both_plugins ),
-			'consumer without source still counts'        => array( array( $first, $without_source ), '/wp-admin/index.php', 'first', null, array( 'first' => array() ) ),
-			'matched consumer without source keeps default' => array( array( $first, $without_source ), '/wp-admin/admin.php?page=second', 'second', null, $both_plugins ),
-			'empty connected plugins'                     => array( array( $second ), '/wp-admin/plugins.php', 'second', null, array() ),
-			'different sole plugin'                       => array( array( $second ), '/wp-admin/plugins.php', 'second', null, array( 'other' => array() ) ),
-			'unconfigured connected plugins'              => array( array( $second ), '/wp-admin/plugins.php', 'second', null, null ),
-			'matched page before plugin storage is ready' => array( array( $second ), '/wp-admin/admin.php?page=second', 'second', 'second_safe_mode', null ),
-		);
-
-		foreach ( array( 'jetpack-backup', 'jetpack-boost', 'jetpack-protect' ) as $slug ) {
-			$plugins = $sole_plugin + array( $slug => array() );
-			$cases[ 'unregistered notice consumer: ' . $slug ] = array( array( $second ), '/wp-admin/admin.php?page=' . $slug, 'second', null, $plugins );
-			$cases[ 'matched page with ' . $slug ]             = array( array( $second ), '/wp-admin/admin.php?page=second', 'second', 'second_safe_mode', $plugins );
-		}
-
-		return $cases;
 	}
 }
