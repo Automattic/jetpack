@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-WooCommerce Analytics: Add the oldest WooCommerce version the module syncs from, 7.5.
+WooCommerce Analytics: Add a check for whether the active WooCommerce is 7.5 or later, the oldest version the module supports.

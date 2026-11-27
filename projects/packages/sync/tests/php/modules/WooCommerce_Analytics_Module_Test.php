@@ -104,6 +104,40 @@ class WooCommerce_Analytics_Module_Test extends BaseTestCase {
 	}
 
 	/**
+	 * WooCommerce 7.5 is the oldest supported version, and an unknown version is not supported.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 * @dataProvider provide_woocommerce_versions
+	 *
+	 * @param string|null $version  WC_VERSION to define, or null for none.
+	 * @param bool        $expected Whether that version is supported.
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	#[DataProvider( 'provide_woocommerce_versions' )]
+	public function test_is_woocommerce_supported( $version, $expected ) {
+		if ( null !== $version ) {
+			define( 'WC_VERSION', $version );
+		}
+
+		$this->assertSame( $expected, Modules\WooCommerce_Analytics::is_woocommerce_supported() );
+	}
+
+	/**
+	 * Data provider for test_is_woocommerce_supported.
+	 *
+	 * @return array
+	 */
+	public static function provide_woocommerce_versions() {
+		return array(
+			'no version' => array( null, false ),
+			'7.4.1'      => array( '7.4.1', false ),
+			'7.5.0'      => array( '7.5.0', true ),
+		);
+	}
+
+	/**
 	 * The module name is a cross-repo contract (WPCOM dispatcher, Premium Analytics
 	 * tracker and JS, the standalone WooCommerce Analytics plugin). It must never change.
 	 */

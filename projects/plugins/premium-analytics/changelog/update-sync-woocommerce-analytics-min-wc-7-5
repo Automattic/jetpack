@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Hide the WooCommerce tab on WooCommerce versions older than 7.5, which do not store the order dates the tab needs.

@@ -10,6 +10,11 @@
 
 // phpcs:disable WordPress.Files.FileName
 
+// A test that needs another version defines it before requiring this file.
+if ( ! defined( 'WC_VERSION' ) ) {
+	define( 'WC_VERSION', '10.0.0' );
+}
+
 if ( ! class_exists( 'WooCommerce' ) ) {
 	/**
 	 * Stub of the WooCommerce main class.

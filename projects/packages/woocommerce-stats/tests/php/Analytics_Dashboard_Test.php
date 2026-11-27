@@ -123,7 +123,6 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		$this->assertSame( 'WooCommerce', $section->label );
 		$this->assertSame( 5, $section->order );
 		$this->assertTrue( $section->requires_sync );
-		$this->assertTrue( $section->is_available() );
 		$this->assertSame(
 			array(
 				Analytics_Dashboard::STORE_PERFORMANCE_TYPE,
@@ -399,6 +398,39 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 			'disconnected, wpcom,local'           => array( false, 'wpcom,local', true, false ),
 			'disconnected, local, no WooCommerce' => array( false, 'local', false, false ),
 			'connected, local'                    => array( true, 'local', true, false ),
+		);
+	}
+
+	/**
+	 * The section is available only on a WooCommerce the sync supports.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 * @dataProvider provide_woocommerce_versions
+	 *
+	 * @param string $version   WC_VERSION of the active WooCommerce.
+	 * @param bool   $available Whether the section is available.
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	#[DataProvider( 'provide_woocommerce_versions' )]
+	public function test_section_is_available_only_on_a_supported_woocommerce( $version, $available ) {
+		define( 'WC_VERSION', $version );
+		$this->enable_store();
+		Analytics_Dashboard::init();
+
+		$this->assertSame( $available, get_registered_dashboard_section( DASHBOARD_NAME, Analytics_Dashboard::SECTION_ID )->is_available() );
+	}
+
+	/**
+	 * Data provider for test_section_is_available_only_on_a_supported_woocommerce.
+	 *
+	 * @return array
+	 */
+	public static function provide_woocommerce_versions() {
+		return array(
+			'WooCommerce 7.4.1' => array( '7.4.1', false ),
+			'WooCommerce 7.5.0' => array( '7.5.0', true ),
 		);
 	}
 
