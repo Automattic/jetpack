@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Premium Analytics: Keep the Download CSV button on report pages while the report refreshes, so it no longer blinks or drops keyboard focus.

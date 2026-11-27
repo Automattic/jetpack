@@ -278,7 +278,6 @@ function EmailBreakdownReport( { view, metric, showMap }: EmailBreakdownReportPr
 			hasDateRange: false,
 			status: {
 				isLoading,
-				isFetching,
 				isError: csvIsError,
 				isPlaceholderData: csvIsPlaceholderData,
 			},

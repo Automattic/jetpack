@@ -234,7 +234,7 @@ function ClicksInner() {
 	useReportActions( {
 		csv: {
 			exporter: clicksCsvExporter,
-			status: { isLoading, isFetching, isError: primary.isError },
+			status: { isLoading, isError: primary.isError },
 			rowCount: rows.length,
 		},
 	} );

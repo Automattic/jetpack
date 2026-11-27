@@ -81,7 +81,7 @@ function PostAllTimeTrafficInner( { metric }: { metric: MonthlyHeatmapMetric } )
 					? `post-${ postId }-daily-average-all-time-traffic`
 					: `post-${ postId }-all-time-traffic`,
 			hasDateRange: false,
-			status: { isLoading, isFetching, isError, isPlaceholderData },
+			status: { isLoading, isError, isPlaceholderData },
 		},
 	} );
 
