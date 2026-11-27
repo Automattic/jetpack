@@ -6,6 +6,7 @@ import {
 } from '../api';
 import {
 	sanitizeStatsAiProvidersResponse,
+	sanitizeStatsBotActivityResponse,
 	sanitizeStatsClicksResponse,
 	sanitizeStatsDevicesResponse,
 	sanitizeStatsEdgeBotRequestsResponse,
@@ -75,6 +76,7 @@ type StatsReportQuerySettings = {
 const statsSanitizers = {
 	passthrough: sanitizeStatsPassthroughResponse,
 	aiProviders: sanitizeStatsAiProvidersResponse,
+	botActivity: sanitizeStatsBotActivityResponse,
 	author: sanitizeStatsAuthorResponse,
 	post: sanitizeStatsPostResponse,
 	postComments: sanitizeStatsPostCommentsResponse,

@@ -9,3 +9,4 @@ import '../../packages/data/src/utils/__tests__/refetch-interval.test';
 import '../../packages/data/src/utils/__tests__/text.test';
 import '../../packages/data/src/processing/stats/__tests__/edge-bot-requests.test';
 import '../../packages/data/src/processing/stats/__tests__/ai-providers.test';
+import '../../packages/data/src/processing/stats/__tests__/bot-activity.test';

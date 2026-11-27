@@ -1235,6 +1235,50 @@ const MOCK_AI_PROVIDERS = [
 	total: String( total ),
 } ) );
 
+/** Bots per group for 30 days, in the `bot-activity` template's display order. */
+const MOCK_BOT_ACTIVITY: [ string, [ string, number ][] ][] = [
+	[
+		'ai_training',
+		[
+			[ 'GPTBot', 41220 ],
+			[ 'ClaudeBot', 23480 ],
+			[ 'meta-externalagent', 9105 ],
+		],
+	],
+	[
+		'ai_search',
+		[
+			[ 'Applebot', 61840 ],
+			[ 'OAI-SearchBot', 12210 ],
+		],
+	],
+	[
+		'ai_assistants_agents',
+		[
+			[ 'ChatGPT-User', 8640 ],
+			[ 'Perplexity-User', 1550 ],
+		],
+	],
+	[
+		'search_engines',
+		[
+			[ 'Googlebot', 459020 ],
+			[ 'bingbot', 88310 ],
+		],
+	],
+	[
+		'other_known',
+		[
+			[ 'facebookexternalhit', 98420 ],
+			[ 'Generic Feed Fetcher', 55570 ],
+			[ 'WordPress', 31240 ],
+			[ 'AhrefsBot', 24740 ],
+			[ 'axios', 11020 ],
+		],
+	],
+	[ 'unidentified', [ [ 'Generic Bot', 209800 ] ] ],
+];
+
 /**
  * One row per bucket of the requested window, as ClickHouse answers: counts as
  * strings, and no row for a bucket without requests (every seventh here).
@@ -1315,6 +1359,28 @@ export function getStatsMock( path: string ): unknown | null {
 
 	if ( subPath === '/ua-queries' && query.get( 'template' ) === 'ai-providers-with-drill' ) {
 		return MOCK_AI_PROVIDERS;
+	}
+
+	if ( subPath === '/ua-queries' && query.get( 'template' ) === 'bot-activity' ) {
+		const days =
+			( Date.parse( query.get( 'end' ) ?? '' ) - Date.parse( query.get( 'start' ) ?? '' ) ) /
+			( 24 * 60 * 60 * 1000 );
+		// A different start gives different figures, so a comparison period never mirrors the current one.
+		const startDay = Date.parse( query.get( 'start' ) ?? '' ) / ( 24 * 60 * 60 * 1000 );
+
+		return MOCK_BOT_ACTIVITY.flatMap( ( [ bot_group, bots ], index ) => {
+			const drift = 1 + 0.25 * Math.sin( startDay / 5 + index );
+			const scale = ( requests: number ) => Math.round( ( requests * days * drift ) / 30 );
+			const group_total = bots.reduce( ( sum, [ , requests ] ) => sum + scale( requests ), 0 );
+
+			return bots.map( ( [ bot_name, requests ] ) => ( {
+				bot_group,
+				group_order: index + 1,
+				bot_name,
+				total: scale( requests ),
+				group_total,
+			} ) );
+		} );
 	}
 
 	if ( subPath === '/ua-queries' && query.get( 'template' ) === 'edge-bot-requests' ) {

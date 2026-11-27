@@ -1,0 +1,11 @@
+{
+	"name": "ai-traffic/bot-activity",
+	"icon": "jpa/category",
+	"title": "Bot activity",
+	"description": "The bots that requested your site, in six groups from AI training to unidentified bots.",
+	"help": {
+		"content": "Bot requests by group: AI training, AI search, AI assistants and agents, search engines, other known bots, and unidentified bots. Open a group to see the bots in it."
+	},
+	"category": "traffic",
+	"presentation": "framed"
+}
