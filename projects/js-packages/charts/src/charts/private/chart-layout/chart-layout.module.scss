@@ -1,3 +1,8 @@
+// Keeps the plot's z-index inside the chart, so page chrome paints over it.
+.chart-layout {
+	isolation: isolate;
+}
+
 // Shared content area for charts using the render prop.
 // Wraps render prop output and handles measurement.
 .chart-layout__content {

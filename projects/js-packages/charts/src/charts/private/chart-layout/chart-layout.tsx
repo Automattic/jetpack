@@ -1,4 +1,5 @@
 import { Stack } from '@wordpress/ui';
+import clsx from 'clsx';
 import { useEffect, useState } from 'react';
 import { useElementSize, useIsomorphicLayoutEffect } from '../../../hooks';
 import { renderLegendSlot } from '../chart-composition';
@@ -99,7 +100,7 @@ export const ChartLayout = ( {
 			ref={ rootRef }
 			direction="column"
 			gap={ gap }
-			className={ className }
+			className={ clsx( styles[ 'chart-layout' ], className ) }
 			style={ { ...style, ...visibilityStyle } }
 			data-testid={ dataTestId }
 			data-chart-id={ dataChartId }

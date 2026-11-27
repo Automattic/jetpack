@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stop a hidden legend item, such as the previous period, from showing through chart tooltips.
