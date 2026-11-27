@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: Fix invalid HTML in the contact form markup.
