@@ -23,6 +23,13 @@ class Identity_Crisis_Test extends BaseTestCase {
 	const TEST_URL = 'https://www.example.org/test';
 
 	/**
+	 * Requests the remote validation made since set_up_checked_crisis().
+	 *
+	 * @var int
+	 */
+	private $check_requests = 0;
+
+	/**
 	 * Set up tests.
 	 */
 	public function set_up() {
@@ -280,6 +287,22 @@ class Identity_Crisis_Test extends BaseTestCase {
 
 		$this->assertFalse( Identity_Crisis::validate_sync_error_idc_option() );
 		$this->assertFalse( Jetpack_Options::get_option( 'sync_error_idc' ) );
+	}
+
+	/**
+	 * Safe Mode that ends because the site is back at the address WordPress.com has takes its confirmation with it.
+	 */
+	public function test_sync_error_idc_validation_cleanup_clears_confirmation() {
+		$option                  = Identity_Crisis::get_sync_error_idc_option();
+		$option['wpcom_home']    = $option['home'];
+		$option['wpcom_siteurl'] = $option['siteurl'];
+		Jetpack_Options::update_option( 'sync_error_idc', $option );
+		Jetpack_Options::update_option( 'safe_mode_confirmed', true );
+
+		Identity_Crisis::validate_sync_error_idc_option();
+
+		$this->assertFalse( Jetpack_Options::get_option( 'sync_error_idc' ) );
+		$this->assertFalse( Jetpack_Options::get_option( 'safe_mode_confirmed', false ) );
 	}
 
 	/**
@@ -1926,6 +1949,59 @@ class Identity_Crisis_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Clearing a confirmation from the admin bar runs the check it paused, with the backoff restarted.
+	 *
+	 * @dataProvider provide_admin_bar_clicks
+	 *
+	 * @param bool $was_confirmed    Whether Safe Mode was confirmed before the click.
+	 * @param int  $next_check_delay The wait the last check left.
+	 */
+	#[DataProvider( 'provide_admin_bar_clicks' )]
+	public function test_wordpress_init_clearing_confirmation_restarts_the_check( $was_confirmed, $next_check_delay ) {
+		$this->set_up_checked_crisis( $next_check_delay, false );
+		Jetpack_Options::update_option( 'safe_mode_confirmed', $was_confirmed );
+		$this->set_current_user( true );
+		$this->set_clear_confirmation_request();
+
+		Identity_Crisis::init()->wordpress_init();
+
+		$this->assertSame( $was_confirmed ? 1 : 0, $this->check_requests );
+		$this->assertSame(
+			$was_confirmed ? 2 * Identity_Crisis::IDC_VALIDATION_INITIAL_DELAY : $next_check_delay,
+			Jetpack_Options::get_option( 'sync_error_idc' )['next_check_delay']
+		);
+	}
+
+	/**
+	 * Data provider for test_wordpress_init_clearing_confirmation_restarts_the_check.
+	 *
+	 * @return array
+	 */
+	public static function provide_admin_bar_clicks() {
+		return array(
+			'confirmed, before the wait is over'  => array( true, 4 * Identity_Crisis::IDC_VALIDATION_INITIAL_DELAY ),
+			'confirmed, after the checks stopped' => array( true, Identity_Crisis::IDC_VALIDATION_MAX_DELAY ),
+			'not confirmed, keeps its schedule'   => array( false, 4 * Identity_Crisis::IDC_VALIDATION_INITIAL_DELAY ),
+		);
+	}
+
+	/**
+	 * When the check the admin bar link restarts passes, Safe Mode is over and the page gets no admin bar item.
+	 */
+	public function test_wordpress_init_ends_safe_mode_when_the_restarted_check_passes() {
+		$this->set_up_checked_crisis( Identity_Crisis::IDC_VALIDATION_MAX_DELAY, true );
+		Jetpack_Options::update_option( 'safe_mode_confirmed', true );
+		$this->set_current_user( true );
+		$this->set_clear_confirmation_request();
+
+		$idc = Identity_Crisis::init();
+		$idc->wordpress_init();
+
+		$this->assertFalse( Jetpack_Options::get_option( 'sync_error_idc' ) );
+		$this->assertFalse( has_action( 'admin_bar_menu', array( $idc, 'display_admin_bar_button' ) ) );
+	}
+
+	/**
 	 * Admins get a visible admin bar item whether or not Safe Mode is confirmed.
 	 *
 	 * @param bool $is_confirmed Whether Safe Mode is confirmed.
@@ -2250,6 +2326,47 @@ class Identity_Crisis_Test extends BaseTestCase {
 			$user->add_cap( 'jetpack_disconnect' );
 		}
 		wp_set_current_user( $user_id );
+	}
+
+	/**
+	 * Put the connected site in an identity crisis a check found a minute ago, and answer the checks that follow.
+	 *
+	 * @param int  $next_check_delay The wait that check left.
+	 * @param bool $resolved         Whether WordPress.com answers that the crisis is over.
+	 */
+	private function set_up_checked_crisis( $next_check_delay, $resolved ) {
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		Jetpack_Options::update_option( 'id', 12345 );
+		Jetpack_Options::update_option( 'blog_token', 'test.token' );
+		$this->reset_connection_status();
+
+		$idc_detected                   = array(
+			'error_code'    => 'jetpack_url_mismatch',
+			'wpcom_home'    => 'https://wpcom.example.com',
+			'wpcom_siteurl' => 'https://wpcom.example.com',
+		);
+		$sync_error                     = Identity_Crisis::get_sync_error_idc_option( $idc_detected );
+		$sync_error['last_checked']     = time() - MINUTE_IN_SECONDS;
+		$sync_error['next_check_delay'] = $next_check_delay;
+		Jetpack_Options::update_option( 'sync_error_idc', $sync_error );
+
+		$this->check_requests = 0;
+		add_filter(
+			'pre_http_request',
+			function () use ( $resolved, $idc_detected ) {
+				++$this->check_requests;
+				return array(
+					'headers'  => array(),
+					'body'     => wp_json_encode( $resolved ? array( 'is_healthy' => true ) : array( 'idc_detected' => $idc_detected ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
+					'response' => array(
+						'code'    => 200,
+						'message' => 'OK',
+					),
+					'cookies'  => array(),
+					'filename' => null,
+				);
+			}
+		);
 	}
 
 	/**

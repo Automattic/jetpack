@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Safe Mode: Check again whether the site still needs Safe Mode when an admin reopens it from the admin bar, and don't treat a later Safe Mode as already confirmed after the site left an earlier one by changing its address.

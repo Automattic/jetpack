@@ -193,7 +193,7 @@ class REST_Endpoints {
 		self::flush_sync_error_idc_cache();
 
 		if ( Jetpack_Options::get_option( 'sync_error_idc' ) ) {
-			Jetpack_Options::delete_option( 'sync_error_idc' );
+			Jetpack_Options::delete_option( array( 'sync_error_idc', 'safe_mode_confirmed' ) );
 
 			// delete_option() returns false both when the write fails and when
 			// there is nothing to delete, so re-read (cache-busted) and only treat
