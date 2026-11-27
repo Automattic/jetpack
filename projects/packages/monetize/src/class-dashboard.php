@@ -112,8 +112,8 @@ class Dashboard {
 		Feature_Flags::register(
 			self::FEATURE_FLAG,
 			array(
-				'default'     => false,
-				'description' => 'Make the Monetize dashboard available while it is built.',
+				'default'     => true,
+				'description' => 'Make the Monetize dashboard available. Turn it off to hide the page and its module.',
 				'owner'       => 'jetpack',
 			)
 		);

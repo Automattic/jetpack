@@ -10,7 +10,9 @@ The page is a `@wordpress/build` route in `routes/dashboard`, rendered under the
 
 WoA loads the page from the `monetize` module and adds its sidebar item, as a self-hosted site does, so admins who aren't WordPress.com users can reach it too. Simple has no modules to load, so jetpack-mu-wpcom calls `init()` there itself, and `init()` adds no sidebar item there: jetpack-mu-wpcom builds the Jetpack menu and calls `Dashboard::add_wp_admin_submenu()` once the page is loaded. That call does nothing where the item already exists.
 
-The dashboard is behind the `jetpack-monetize-dashboard` feature flag while it is built. Hosts register it with `Dashboard::register_feature_flag()` and check it with `Dashboard::is_enabled()`.
+The page has five tabs, picked with `?tab=` on its single route: Overview, Payments, Paid subscribers, Ads and Settings.
+
+The `jetpack-monetize-dashboard` feature flag is on by default and works as a kill switch: turning it off hides the page and its module. Hosts register it with `Dashboard::register_feature_flag()` and check it with `Dashboard::is_enabled()`.
 
 ## Using this package in your WordPress plugin
 
