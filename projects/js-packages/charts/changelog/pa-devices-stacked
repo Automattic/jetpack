@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Tooltips: Stop a tooltip near the edge of a scrolling card from flashing scrollbars that resize the chart as it appears or changes.
+Tooltips: Stop a tooltip at the edge of a scrolling card from adding scrollbars that resize the chart, as it appears, changes, or sits flush with the edge.

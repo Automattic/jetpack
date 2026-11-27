@@ -65,6 +65,20 @@ describe( 'getBoundedPosition', () => {
 		).toEqual( { x: 138, y: 60 } );
 	} );
 
+	test( 'rounds a box pinned to a fractional edge inward, so it never pokes past it', () => {
+		// Rounded to the nearest pixel, 85.59 would end the box 0.41px past the edge and scroll the card.
+		expect(
+			getBoundedPosition( {
+				left: 100,
+				top: 50,
+				...OFFSETS,
+				box: { width: 302.59, height: 100 },
+				wrapper: { left: 0, top: 0, right: 388.18, bottom: 300 },
+				bounds: { left: 0, top: 0, right: 388.18, bottom: 300 },
+			} )
+		).toEqual( { x: 85, y: 60 } );
+	} );
+
 	test( 'may leave the wrapper as long as it stays inside the clipping ancestor', () => {
 		// Neither side fits the 346px wrapper, and the clipping card ends 14px
 		// past its right edge, so the box keeps the near side and stops there.

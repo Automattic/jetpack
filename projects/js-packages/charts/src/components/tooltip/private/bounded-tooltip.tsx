@@ -24,8 +24,12 @@ export const DEFAULT_OFFSET = 10;
 export const TOOLTIP_Z_INDEX = 3;
 const POINTER_HEIGHT = 6;
 
+// Whole pixels, rounded inward: rounding out by a fraction is enough to scroll a card the box sits flush in.
 const clamp = ( position: number, min: number, max: number, size: number ) =>
-	Math.min( Math.max( position, min ), Math.max( min, max - size ) );
+	Math.min(
+		Math.max( Math.round( position ), Math.ceil( min ) ),
+		Math.max( Math.ceil( min ), Math.floor( max - size ) )
+	);
 
 const isClipping = ( element: Element ) => {
 	const { overflow, overflowX, overflowY } = getComputedStyle( element );
@@ -98,7 +102,7 @@ export const getBoundedPosition = ( {
 } ) => {
 	if ( placement === 'below-axis' ) {
 		return {
-			x: Math.round( clamp( left - box.width / 2, bounds.left, bounds.right, box.width ) ),
+			x: clamp( left - box.width / 2, bounds.left, bounds.right, box.width ),
 			y: top + POINTER_HEIGHT,
 		};
 	}
@@ -115,7 +119,7 @@ export const getBoundedPosition = ( {
 	const leftX = left - offsetLeft - box.width;
 	const rightOverflow = rightX + box.width - fit.right;
 	const leftOverflow = fit.left - leftX;
-	let x = rightOverflow > 0 && rightOverflow > leftOverflow ? leftX : rightX;
+	const x = rightOverflow > 0 && rightOverflow > leftOverflow ? leftX : rightX;
 
 	const downY = top + offsetTop;
 	const upY = top - offsetTop - box.height;
@@ -126,12 +130,9 @@ export const getBoundedPosition = ( {
 		y = downOverflow > 0 && downOverflow > upOverflow ? upY : downY;
 	}
 
-	x = clamp( x, bounds.left, bounds.right, box.width );
-	y = clamp( y, bounds.top, bounds.bottom, box.height );
-
 	return {
-		x: Math.round( x ),
-		y: Math.round( y ),
+		x: clamp( x, bounds.left, bounds.right, box.width ),
+		y: clamp( y, bounds.top, bounds.bottom, box.height ),
 	};
 };
 
