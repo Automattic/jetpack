@@ -29,7 +29,7 @@ import {
 	useRef,
 } from '@wordpress/element';
 import '@wordpress/format-library';
-import { unregisterFormatType } from '@wordpress/rich-text';
+import { unregisterFormatType, type RichTextData } from '@wordpress/rich-text';
 import { registerEmbedBlock } from './embed';
 import { history } from './history';
 import { registerImageBlock } from './image';
@@ -120,6 +120,33 @@ const FocusOnMount = ( { offset }: { offset: () => number } ) => {
 	return null;
 };
 
+// A block stays selected without focus, so its toolbar shows before the reader clicks in.
+const SelectWithoutFocus = () => {
+	const { selectionChange } = useDispatch( blockEditorStore );
+	const { last, end, selected } = useSelect( select => {
+		const { getBlockOrder, getBlockAttributes, getSelectedBlockClientId } =
+			select( blockEditorStore );
+		const clientId = getBlockOrder().at( -1 );
+		const content = clientId
+			? ( getBlockAttributes( clientId )?.content as RichTextData | undefined )
+			: undefined;
+
+		return {
+			last: clientId,
+			end: content?.text?.length ?? 0,
+			selected: getSelectedBlockClientId(),
+		};
+	}, [] );
+
+	useEffect( () => {
+		if ( last && ! selected ) {
+			selectionChange( last, 'content', end, end );
+		}
+	}, [ last, end, selected, selectionChange ] );
+
+	return null;
+};
+
 // Before paint, once the provider has handed its blocks to the store and they are drawn.
 const ReadyWhenDrawn = ( { onReady }: { onReady: () => void } ) => {
 	const drawn = useSelect( select => select( blockEditorStore ).getBlockCount() > 0, [] );
@@ -156,6 +183,7 @@ const Editor = ( {
 	initialContent,
 	labels,
 	focus,
+	showToolbar,
 	onChange,
 	onReady,
 }: Omit< EditorProps, 'onError' | 'placeholder' > ) => {
@@ -234,6 +262,7 @@ const Editor = ( {
 			>
 				{ onReady && <ReadyWhenDrawn onReady={ onReady } /> }
 				{ focus && <FocusOnMount offset={ offset } /> }
+				{ showToolbar && <SelectWithoutFocus /> }
 				<WritingArea undo={ undo } redo={ redo }>
 					<div className="jetpack-comments__toolbar">
 						<BlockToolbar labels={ labels } />

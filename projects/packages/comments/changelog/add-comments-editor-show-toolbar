@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Comments editor: Add a `showToolbar` option that shows the toolbar before the editor has focus.
