@@ -7,6 +7,7 @@ import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
+import { isAiProvidersRangeTooLong, statsAiProvidersQuery } from '../stats-ai-providers-query';
 import { statsAppNoticesQuery, updateStatsAppNotice } from '../stats-app-notices-query';
 import { statsAppPurchasesQuery } from '../stats-app-purchases-query';
 import { statsAppProxyQuery } from '../stats-app-query';
@@ -1692,6 +1693,32 @@ describe( 'Stats query factories', () => {
 			endpoint: 'stats/referrers/spam/delete',
 			method: 'POST',
 			params: { domain: 'spam.example' },
+		} );
+	} );
+
+	describe( 'statsAiProvidersQuery', () => {
+		it( 'asks the rollup table for the window as whole days with an exclusive end', () => {
+			const query = statsAiProvidersQuery( {
+				from: '2026-11-01T00:00:00+08:00',
+				to: '2026-11-07T23:59:59+08:00',
+				interval: 'day',
+			} );
+
+			expect( query.enabled ).toBe( true );
+			expect( query.queryKey[ 5 ] ).toEqual( {
+				template: 'ai-providers-with-drill',
+				start: '2026-11-01',
+				end: '2026-11-08',
+				table: 'rollup',
+			} );
+		} );
+
+		it( 'sends nothing for a window longer than the table serves', () => {
+			const tooLong = { from: '2025-11-01', to: '2026-11-07', interval: 'day' } as const;
+
+			expect( isAiProvidersRangeTooLong( tooLong ) ).toBe( true );
+			expect( statsAiProvidersQuery( tooLong ).enabled ).toBe( false );
+			expect( isAiProvidersRangeTooLong( { from: '2025-11-08', to: '2026-11-07' } ) ).toBe( false );
 		} );
 	} );
 } );

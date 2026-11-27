@@ -196,6 +196,7 @@ export type {
 	StatsDevicesComparisonItem,
 	StatsDevicesItem,
 	EdgeRequestSource,
+	StatsAiProvider,
 	StatsFileDownloadsComparisonItem,
 	StatsFileDownloadsItem,
 	StatsFollowersItem,
@@ -247,7 +248,11 @@ export type {
 	StatsVideoPlaysComparisonItem,
 	StatsVideoPlaysItem,
 } from './processing/stats';
-export { compareEmailBreakdownItems, EDGE_REQUEST_SOURCES } from './processing/stats';
+export {
+	AI_PROVIDER_UNKNOWN,
+	compareEmailBreakdownItems,
+	EDGE_REQUEST_SOURCES,
+} from './processing/stats';
 export type { StatsReportParams } from './queries/stats-query';
 export {
 	getStatsPeriodFromInterval,

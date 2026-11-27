@@ -1209,6 +1209,32 @@ function buildStatsLocationViewsResponse(
 	};
 }
 
+/** One row per bot, as the `ai-providers-with-drill` template answers, counts as strings. */
+const MOCK_AI_PROVIDERS = [
+	[ 'OpenAI', 'GPTBot', 'AI Crawler', 18420 ],
+	[ 'OpenAI', 'ChatGPT-User', 'AI Assistant', 6310 ],
+	[ 'OpenAI', 'OAI-SearchBot', 'AI Search', 2204 ],
+	[ 'Anthropic', 'ClaudeBot', 'AI Crawler', 12950 ],
+	[ 'Anthropic', 'Claude-User', 'AI Assistant', 1876 ],
+	[ 'Meta', 'meta-externalagent', 'AI Crawler', 9480 ],
+	[ 'Perplexity', 'PerplexityBot', 'AI Search', 5120 ],
+	[ 'Perplexity', 'Perplexity-User', 'AI Assistant', 940 ],
+	[ 'Amazon', 'Amazonbot', 'AI Crawler', 4730 ],
+	[ 'ByteDance', 'Bytespider', 'AI Crawler', 3890 ],
+	[ 'Google', 'Google-Extended', 'AI Crawler', 3105 ],
+	[ 'Apple', 'Applebot-Extended', 'AI Crawler', 2260 ],
+	[ 'Mistral', 'MistralAI-User', 'AI Assistant', 1430 ],
+	[ 'Cohere', 'cohere-ai', 'AI Crawler', 870 ],
+	[ 'DuckDuckGo', 'DuckAssistBot', 'AI Assistant', 612 ],
+	[ 'You.com', 'YouBot', 'AI Search', 405 ],
+	[ 'Unknown', 'Unknown', 'AI Crawler', 1290 ],
+].map( ( [ bot_owner, bot_name, bot_type, total ] ) => ( {
+	bot_owner,
+	bot_name,
+	bot_type,
+	total: String( total ),
+} ) );
+
 /**
  * One row per bucket of the requested window, as ClickHouse answers: counts as
  * strings, and no row for a bucket without requests (every seventh here).
@@ -1285,6 +1311,10 @@ export function getStatsMock( path: string ): unknown | null {
 		}
 
 		return { top_utm_values: {}, top_posts: {} };
+	}
+
+	if ( subPath === '/ua-queries' && query.get( 'template' ) === 'ai-providers-with-drill' ) {
+		return MOCK_AI_PROVIDERS;
 	}
 
 	if ( subPath === '/ua-queries' && query.get( 'template' ) === 'edge-bot-requests' ) {
