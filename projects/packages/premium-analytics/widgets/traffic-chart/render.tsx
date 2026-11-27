@@ -101,7 +101,6 @@ function TrafficChartInner( { chartType, interval }: TrafficChartInnerProps ) {
 			hasDateRange: true,
 			status: {
 				isLoading,
-				isFetching,
 				isError: csvIsError,
 				isPlaceholderData: csvIsPlaceholderData,
 			},

@@ -42,7 +42,7 @@ const NAVIGATION_PARAMS = {
 	compare_to: '2026-02-10',
 } as unknown as ReportParams;
 
-const SETTLED = { isLoading: false, isFetching: false, isError: false };
+const SETTLED = { isLoading: false, isError: false };
 
 const exporter = {
 	filenamePrefix: 'referrers',
@@ -201,22 +201,6 @@ describe( 'useReportActions', () => {
 			await runDownload( declaredActions().find( action => action.id === 'download-csv' ) );
 
 			expect( mockSaveCsv ).toHaveBeenCalledWith( filename, '"Date","Views"\n"2026-03-01","3"' );
-		} );
-
-		const REVALIDATING = { ...ROWS_SETTLED, isFetching: true };
-
-		it.each( [
-			[ "the linked report's", { exporter, rowCount: 3, status: REVALIDATING } ],
-			[
-				'the loaded rows',
-				{ rows: ROWS, columns, filenamePrefix: 'things', hasDateRange: true, status: REVALIDATING },
-			],
-		] )( 'keeps %s download while unchanged params revalidate', ( _, csv ) => {
-			const { wrapper, declaredActions } = setUp();
-
-			renderHook( () => useReportActions( { csv } ), { wrapper } );
-
-			expect( declaredActions().map( action => action.id ) ).toEqual( [ 'download-csv' ] );
 		} );
 
 		it( 'offers no download while the rows are a previous range kept as placeholder', () => {

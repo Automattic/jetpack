@@ -37,7 +37,7 @@ return [
         'src/products/class-product.php' => ['PhanAbstractStaticMethodCallInStatic', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault'],
         'src/products/class-protect.php' => ['PhanTypeMismatchPropertyDefault'],
         'src/products/class-scan.php' => ['PhanTypeMismatchArgumentNullable'],
-        'src/products/class-search.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchReturnNullable'],
+        'src/products/class-search.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault'],
         'src/products/class-security.php' => ['PhanTypeMismatchArgumentNullable'],
         'src/products/class-social.php' => ['PhanTypeMismatchPropertyDefault'],
         'src/products/class-starter.php' => ['PhanTypeMismatchArgumentNullable'],

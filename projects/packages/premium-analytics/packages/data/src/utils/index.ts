@@ -24,6 +24,7 @@ export {
 	isPromoDismissed,
 	pickPromo,
 	type Promo,
+	type PromoCtaVariant,
 	type PromoDismissal,
 	type PromoPlacement,
 } from './promos';

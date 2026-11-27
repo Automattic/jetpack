@@ -1,5 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { Link } from '@wordpress/ui';
+import ExternalLink from './external-link';
 import type { ReactNode } from 'react';
 
 /** Which support page a link opens. */
@@ -25,10 +25,5 @@ export default function SupportLink( {
 	children?: ReactNode;
 	topic?: SupportTopic;
 } ): ReactNode {
-	return (
-		// `Link` sets no `rel` for a new tab.
-		<Link href={ getRedirectUrl( REDIRECTS[ topic ] ) } openInNewTab rel="noopener noreferrer">
-			{ children }
-		</Link>
-	);
+	return <ExternalLink href={ getRedirectUrl( REDIRECTS[ topic ] ) }>{ children }</ExternalLink>;
 }

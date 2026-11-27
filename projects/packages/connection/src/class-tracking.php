@@ -290,6 +290,7 @@ class Tracking {
 	public function tracks_get_identity( $user_id ) {
 
 		// Meta is set, and user is still connected. Use WPCOM ID.
+		// Manager::unbind_wpcom_user_ids_for_new_tokens() deletes this meta when the user's token changes.
 		$wpcom_id = get_user_meta( $user_id, 'jetpack_tracks_wpcom_id', true );
 		if ( $wpcom_id && is_string( $wpcom_id ) && $this->connection->is_user_connected( $user_id ) ) {
 			return array(

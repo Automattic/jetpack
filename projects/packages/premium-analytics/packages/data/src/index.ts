@@ -49,6 +49,7 @@ export {
 	getStatsChartBucketKey,
 	getStatsReportItems,
 	selectStatsCommentsRows,
+	selectStatsTagsItemsByType,
 	STATS_CHART_BUCKET_PERIODS,
 } from './processing/stats';
 export type { FlattenStatsLeavesContext, FlattenStatsLeavesOptions } from './processing/stats';
@@ -130,6 +131,7 @@ export {
 	isPromoDismissed,
 	pickPromo,
 	type Promo,
+	type PromoCtaVariant,
 	type PromoDismissal,
 	type PromoPlacement,
 } from './utils/promos';
@@ -229,6 +231,7 @@ export type {
 	StatsTagsRawItem,
 	StatsTagsRawResponse,
 	StatsTagsRawTag,
+	StatsTagsTermType,
 	StatsTimeSeriesDataPoint,
 	StatsTimeSeriesReport,
 	StatsTopAuthorsComparisonItem,

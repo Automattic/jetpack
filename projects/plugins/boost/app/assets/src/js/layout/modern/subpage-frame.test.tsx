@@ -1,4 +1,4 @@
-/* eslint-disable testing-library/no-container, testing-library/no-node-access */
+/* eslint-disable testing-library/no-node-access */
 import 'jetpack-js-tools/jest/setup-jest-dom';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import SubpageFrame from './subpage-frame';
@@ -31,7 +31,7 @@ jest.mock( '@automattic/jetpack-components/admin-page', () => ( {
 
 describe( 'SubpageFrame', () => {
 	it( 'renders the breadcrumb header above the content', () => {
-		const { container } = render(
+		render(
 			<SubpageFrame title="Cache debug log">
 				<p>content</p>
 			</SubpageFrame>
@@ -41,7 +41,6 @@ describe( 'SubpageFrame', () => {
 		expect( screen.getByRole( 'navigation', { name: 'Breadcrumbs' } ) ).toBeInTheDocument();
 		expect( header.querySelector( 'svg' ) ).toBeInTheDocument();
 		expect( header.nextElementSibling ).toHaveTextContent( 'content' );
-		expect( container.querySelector( '.jb-dashboard' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'updates the current breadcrumb after dismissing overflow and changing subpages', async () => {

@@ -95,14 +95,21 @@ const addStylesheet = node =>
  *
  * Resolves after the guest's stylesheets load, so the app never renders unstyled.
  *
- * @param {string} endpoint - Guest endpoint URL, nonce included.
- * @param {string} slug     - Guest page slug.
+ * @param {string} endpoint  - Guest endpoint URL, nonce included.
+ * @param {string} slug      - Guest page slug.
+ * @param {object} [printed] - What the host page printed, from the shell config, for the endpoint to leave out.
  * @return {Promise<object>} How many scripts and styles were added, and how many the page already had.
  */
-export async function applyGuestAssets( endpoint, slug ) {
+export async function applyGuestAssets( endpoint, slug, printed ) {
 	const url = new URL( endpoint, location.href );
 	url.searchParams.set( 'member', slug );
-	const response = await fetch( url, { credentials: 'same-origin' } );
+	const response = await fetch( url, {
+		credentials: 'same-origin',
+		...( printed && {
+			method: 'POST',
+			body: new URLSearchParams( { printed: JSON.stringify( printed ) } ),
+		} ),
+	} );
 	const body = await response.json();
 	if ( ! response.ok || ! body?.success ) {
 		throw new Error( `Admin shell: no page data for ${ slug } (HTTP ${ response.status })` );
@@ -122,16 +129,18 @@ export async function applyGuestAssets( endpoint, slug ) {
 	const inlineTexts = new Set(
 		[ ...document.querySelectorAll( 'script:not([src])' ) ].map( script => script.textContent )
 	);
-	let printed = {};
+	let pageHandles = {};
 	try {
-		printed = JSON.parse( document.getElementById( 'jetpack-page-handles' )?.textContent ?? '{}' );
+		pageHandles = JSON.parse(
+			document.getElementById( 'jetpack-page-handles' )?.textContent ?? '{}'
+		);
 	} catch {
 		// The ids alone decide.
 	}
 	const wasPrinted = node =>
 		node.tagName === 'LINK'
-			? printed.styles?.includes( node.id.replace( /-css$/, '' ) )
-			: Boolean( node.src ) && printed.scripts?.includes( node.id.replace( /-js$/, '' ) );
+			? pageHandles.styles?.includes( node.id.replace( /-css$/, '' ) )
+			: Boolean( node.src ) && pageHandles.scripts?.includes( node.id.replace( /-js$/, '' ) );
 	for ( const node of nodes ) {
 		const existing = node.id && ( document.getElementById( node.id ) || wasPrinted( node ) );
 		if ( node.tagName !== 'SCRIPT' ) {

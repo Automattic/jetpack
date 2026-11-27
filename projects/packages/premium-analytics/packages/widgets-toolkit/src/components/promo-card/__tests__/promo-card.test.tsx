@@ -12,6 +12,7 @@ import { store as preferencesStore } from '@wordpress/preferences';
  */
 import { resetPromoDismissalForTesting } from '../../../hooks';
 import { PromoCard, resetPromoViewsForTesting } from '../promo-card';
+import type { ComponentProps } from 'react';
 
 jest.mock(
 	'@automattic/jetpack-script-data',
@@ -22,6 +23,25 @@ jest.mock(
 	'@automattic/jetpack-analytics',
 	() => jest.requireActual( '../../../../../../tests/js/analytics-test-utils' ).mockJetpackAnalytics
 );
+
+jest.mock( '@jetpack-premium-analytics/externals', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/externals' ),
+	ButtonLink: ( {
+		variant,
+		openInNewTab,
+		children,
+		...props
+	}: ComponentProps< 'a' > & { variant: string; openInNewTab?: boolean } ) => (
+		<a
+			data-variant={ variant }
+			data-opens-in-new-tab={ openInNewTab ? 'true' : undefined }
+			target={ openInNewTab ? '_blank' : undefined }
+			{ ...props }
+		>
+			{ children }
+		</a>
+	),
+} ) );
 
 const recordEvent = jest.mocked( jetpackAnalytics.tracks.recordEvent );
 
@@ -75,6 +95,7 @@ const makePromo = ( overrides: Partial< Promo > = {} ): Promo => ( {
 	description: 'Reach more readers.',
 	cta_label: 'Try Acme',
 	cta_url: 'https://example.com/acme',
+	cta_variant: 'primary',
 	dismissible: true,
 	snooze_days: 90,
 	...overrides,
@@ -110,11 +131,27 @@ describe( 'PromoCard', () => {
 
 		expect( screen.getByText( 'Grow with Acme' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Reach more readers.' ) ).toBeInTheDocument();
+		const link = screen.getByRole( 'link', { name: /Try Acme/ } );
+		expect( link ).toHaveAttribute( 'href', 'https://example.com/acme' );
+		expect( link ).toHaveAttribute( 'data-opens-in-new-tab', 'true' );
+	} );
+
+	it( 'renders a filled call to action by default', () => {
+		render( <PromoCard promo={ makePromo() } /> );
+
 		expect( screen.getByRole( 'link', { name: /Try Acme/ } ) ).toHaveAttribute(
-			'href',
-			'https://example.com/acme'
+			'data-variant',
+			'solid'
 		);
-		expect( screen.getByRole( 'img', { name: '(opens in a new tab)' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders an outlined call to action when the promo asks for one', () => {
+		render( <PromoCard promo={ makePromo( { cta_variant: 'secondary' } ) } /> );
+
+		expect( screen.getByRole( 'link', { name: /Try Acme/ } ) ).toHaveAttribute(
+			'data-variant',
+			'outline'
+		);
 	} );
 
 	it( 'renders no close control when the promo is not dismissible', () => {

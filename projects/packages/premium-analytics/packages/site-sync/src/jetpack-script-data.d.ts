@@ -122,6 +122,7 @@ declare module '@automattic/jetpack-script-data' {
 				description: string;
 				cta_label: string;
 				cta_url: string;
+				cta_variant: 'primary' | 'secondary';
 				dismissible: boolean;
 				snooze_days: number;
 			} >;

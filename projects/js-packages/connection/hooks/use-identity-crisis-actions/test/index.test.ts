@@ -15,14 +15,15 @@ const errorClass = ( name: string ) =>
 	};
 const clientErrors = {
 	FetchNetworkError: errorClass( 'FetchNetworkError' ),
-	JsonParseError: errorClass( 'JsonParseError' ),
-	JsonParseAfterRedirectError: errorClass( 'JsonParseAfterRedirectError' ),
-	Api404Error: errorClass( 'Api404Error' ),
-	Api404AfterRedirectError: errorClass( 'Api404AfterRedirectError' ),
 };
 jest.unstable_mockModule( '@automattic/jetpack-api', () => ( {
 	__esModule: true,
 	default: { migrateIDC, startIDCFresh, confirmIDCSafeMode },
+} ) );
+const recordEvent = jest.fn< ( event: string, props: Record< string, unknown > ) => void >();
+jest.unstable_mockModule( '@automattic/jetpack-analytics', () => ( {
+	__esModule: true,
+	default: { tracks: { recordEvent } },
 } ) );
 
 const useIdentityCrisisActions = ( await import( '../index' ) ).default;
@@ -33,23 +34,82 @@ const { getIdentityCrisisErrorCause, getIdentityCrisisErrorCode } =
  * An error shaped like the client's `ApiError`, which carries the REST error body.
  *
  * @param code   - The REST error code.
- * @param status - The HTTP status.
+ * @param status - The HTTP status, if any.
  * @param data   - More of the error's `data`.
  * @return The error.
  */
-function apiError( code: string, status: number, data: Record< string, unknown > = {} ): Error {
+function apiError( code: string, status?: number, data: Record< string, unknown > = {} ): Error {
 	return Object.assign( new Error( code ), {
 		name: 'ApiError',
-		response: { code, data: { status, ...data } },
+		response: { code, data: status === undefined ? data : { status, ...data } },
 	} );
 }
+
+/** Each method's `action` in the events, and its start event's suffix. */
+const EVENT_ACTIONS = {
+	migrate: 'migrate',
+	startFresh: 'start_fresh',
+	confirmSafeMode: 'confirm_safe_mode',
+} as const;
 
 describe( 'useIdentityCrisisActions', () => {
 	beforeEach( () => {
 		migrateIDC.mockReset();
 		startIDCFresh.mockReset();
 		confirmIDCSafeMode.mockReset();
+		recordEvent.mockReset();
 	} );
+
+	afterEach( () => {
+		delete window.JetpackScriptData;
+	} );
+
+	it.each( [
+		[ 'migrate', {}, migrateIDC, {} ],
+		[
+			'startFresh',
+			{ new_blog_id: 456 },
+			startIDCFresh,
+			'https://jetpack.wordpress.com/jetpack.authorize/1/?client_id=456&from=connection_safe_mode',
+		],
+		[ 'startFresh', {}, startIDCFresh, 'https://jetpack.wordpress.com/jetpack.authorize/1/' ],
+		[ 'confirmSafeMode', {}, confirmIDCSafeMode, {} ],
+	] as const )(
+		'records %s starting before its request, then its success, adding %j',
+		async ( method, successProps, request, response ) => {
+			// Start fresh's `new_blog_id` must come from the connect URL, not this old blog id.
+			window.JetpackScriptData = {
+				site: { wpcom: { blog_id: 123 } },
+			} as typeof window.JetpackScriptData;
+			request.mockResolvedValue( response );
+			const { result } = renderHook( () =>
+				useIdentityCrisisActions( { context: 'my-jetpack', isDevelopmentSite: false } )
+			);
+
+			await act( async () => {
+				await result.current[ method ]( { entry: 'main', path: 'copyof>yes' } );
+			} );
+
+			const props = {
+				path: 'copyof>yes',
+				is_development_site: false,
+				screen_version: 2,
+				placement: 'page_modal',
+				context: 'my-jetpack',
+				blog_id: 123,
+			};
+			expect( recordEvent.mock.calls ).toStrictEqual( [
+				[ `jetpack_idc_${ EVENT_ACTIONS[ method ] }`, props ],
+				[
+					'jetpack_idc_action_success',
+					{ action: EVENT_ACTIONS[ method ], ...props, use_beacon: true, ...successProps },
+				],
+			] );
+			expect( recordEvent.mock.invocationCallOrder[ 0 ] ).toBeLessThan(
+				request.mock.invocationCallOrder[ 0 ]
+			);
+		}
+	);
 
 	it( 'reports Migrate as busy until it succeeds, then as migrated', async () => {
 		let resolve: ( value: unknown ) => void = () => {};
@@ -70,32 +130,61 @@ describe( 'useIdentityCrisisActions', () => {
 		expect( result.current.isMigrated ).toBe( true );
 	} );
 
+	const nonce = 'rest_cookie_invalid_nonce';
 	it.each( [
-		[ 'migrate', 'migrate', false ],
-		[ 'confirmSafeMode', 'confirm-safe-mode', false ],
-		[ 'startFresh', 'start-fresh', null ],
-	] as const )( 'records which action failed and why: %s', async ( method, action, failed ) => {
-		const rejection = apiError( 'rest_cookie_invalid_nonce', 403 );
-		migrateIDC.mockRejectedValue( rejection );
-		confirmIDCSafeMode.mockRejectedValue( rejection );
-		startIDCFresh.mockRejectedValue( rejection );
-		const { result } = renderHook( () => useIdentityCrisisActions() );
+		[ 'migrate', nonce, 'migrate', false, apiError( nonce, 403 ), 'session', nonce ],
+		[
+			'confirmSafeMode',
+			nonce,
+			'confirm-safe-mode',
+			false,
+			apiError( nonce, 403 ),
+			'session',
+			nonce,
+		],
+		[ 'startFresh', nonce, 'start-fresh', null, apiError( nonce, 403 ), 'session', nonce ],
+		[ 'migrate', 'unknown', 'migrate', false, new Error( 'boom' ), 'server', undefined ],
+		[
+			'migrate',
+			'other',
+			'migrate',
+			false,
+			apiError( '<b>Fatal</b>', 500 ),
+			'server',
+			'<b>Fatal</b>',
+		],
+	] as const )(
+		'records %s failing with error_code %s',
+		async ( method, errorCode, action, failed, rejection, cause, code ) => {
+			migrateIDC.mockRejectedValue( rejection );
+			confirmIDCSafeMode.mockRejectedValue( rejection );
+			startIDCFresh.mockRejectedValue( rejection );
+			const { result } = renderHook( () => useIdentityCrisisActions() );
 
-		await act( async () => {
-			// The path for CONNECT-620's events is accepted on every action.
-			await expect(
-				result.current[ method ]( { entry: 'main', path: 'original>safe' } )
-			).resolves.toBe( failed );
-		} );
+			await act( async () => {
+				await expect(
+					result.current[ method ]( { entry: 'main', path: 'original>safe' } )
+				).resolves.toBe( failed );
+			} );
 
-		expect( result.current.error ).toEqual( {
-			action,
-			cause: 'session',
-			code: 'rest_cookie_invalid_nonce',
-		} );
-		expect( result.current.busyAction ).toBeNull();
-		expect( result.current.isMigrated ).toBe( false );
-	} );
+			expect( result.current.error ).toEqual( { action, cause, code } );
+			expect( result.current.busyAction ).toBeNull();
+			expect( result.current.isMigrated ).toBe( false );
+			const props = { path: 'original>safe', screen_version: 2, context: null };
+			expect( recordEvent.mock.calls ).toStrictEqual( [
+				[ `jetpack_idc_${ EVENT_ACTIONS[ method ] }`, props ],
+				[
+					'jetpack_idc_action_error',
+					{
+						action: EVENT_ACTIONS[ method ],
+						...props,
+						error_code: errorCode,
+						error_cause: cause,
+					},
+				],
+			] );
+		}
+	);
 
 	it( 'sends no second request while an action is in flight', async () => {
 		let resolve: ( value: unknown ) => void = () => {};
@@ -116,6 +205,10 @@ describe( 'useIdentityCrisisActions', () => {
 		} );
 		expect( migrateIDC ).toHaveBeenCalledTimes( 1 );
 		expect( result.current.error ).toBeNull();
+		expect( recordEvent.mock.calls.map( ( [ event ] ) => event ) ).toEqual( [
+			'jetpack_idc_migrate',
+			'jetpack_idc_action_success',
+		] );
 	} );
 
 	it( 'returns the connect URL from Start fresh and stays busy while the host leaves', async () => {
@@ -229,23 +322,18 @@ describe( 'useIdentityCrisisActions', () => {
 
 describe( 'getIdentityCrisisErrorCause and getIdentityCrisisErrorCode', () => {
 	it.each( [
+		// One shared row: the rest is covered by `getSiteRequestFailureCause()`'s own test.
 		[ new clientErrors.FetchNetworkError(), 'offline', 'FetchNetworkError' ],
-		[ new clientErrors.JsonParseError(), 'output', 'JsonParseError' ],
-		[ new clientErrors.JsonParseAfterRedirectError(), 'output', 'JsonParseAfterRedirectError' ],
-		[ new clientErrors.Api404Error(), 'blocked', 'Api404Error' ],
-		[ apiError( 'rest_disabled', 403 ), 'blocked', 'rest_disabled' ],
-		[ apiError( 'rest_cookie_invalid_nonce', 403 ), 'session', 'rest_cookie_invalid_nonce' ],
-		[
-			apiError( 'invalid_user_permission_identity_crisis', 403 ),
-			'permission',
-			'invalid_user_permission_identity_crisis',
-		],
 		[
 			apiError( 'invalid_user_permission_identity_crisis', 401 ),
 			'session',
 			'invalid_user_permission_identity_crisis',
 		],
-		[ apiError( 'some_plugin_error', 403 ), 'permission', 'some_plugin_error' ],
+		[
+			apiError( 'invalid_user_permission_identity_crisis' ),
+			'permission',
+			'invalid_user_permission_identity_crisis',
+		],
 		[ apiError( 'error', 500 ), 'server', 'error' ],
 		[ apiError( 'start_fresh_not_in_safe_mode', 409 ), 'resolved', 'start_fresh_not_in_safe_mode' ],
 		[

@@ -160,6 +160,7 @@ class Admin_Shell_Test extends TestCase {
 			'default_path' => '/responses',
 			'capability'   => 'edit_posts',
 			'handles'      => array( 'jetpack-forms-dashboard' ),
+			'data'         => '__return_empty_string',
 			'admin_menu'   => true,
 			'header'       => array(
 				'title'    => 'Forms',
@@ -172,6 +173,7 @@ class Admin_Shell_Test extends TestCase {
 			'default_path' => null,
 			'capability'   => 'manage_options',
 			'handles'      => array(),
+			'data'         => null,
 			'admin_menu'   => false,
 			'header'       => null,
 		);
@@ -239,6 +241,7 @@ class Admin_Shell_Test extends TestCase {
 			'handles holds non-text' => array( 'jetpack-forms', array( 'handles' => array( 1 ) ) + $valid ),
 			'empty capability'       => array( 'jetpack-forms', array( 'capability' => '' ) + $valid ),
 			'default_path not text'  => array( 'jetpack-forms', array( 'default_path' => 1 ) + $valid ),
+			'data not callable'      => array( 'jetpack-forms', array( 'data' => 'jetpack_no_such_function' ) + $valid ),
 		);
 	}
 
@@ -1028,6 +1031,31 @@ class Admin_Shell_Test extends TestCase {
 	}
 
 	/**
+	 * A member's data script prints before the scripts that read it.
+	 *
+	 * @return void
+	 */
+	public function test_guest_assets_prints_the_members_data_first() {
+		$this->unhook_emoji_styles = remove_action( 'wp_print_styles', 'print_emoji_styles' );
+		wp_register_script( 'shell-test-guest', 'https://example.com/guest.js', array(), '1', true );
+		$this->start_host_page(
+			'__return_null',
+			'manage_options',
+			array( 'shell-test-guest' ),
+			array(
+				'data' => static function () {
+					return 'window.guestState = 1;';
+				},
+			)
+		);
+
+		$html = Admin_Shell::guest_assets( 'guest-page' );
+
+		$this->assertIsString( $html );
+		$this->assertMatchesRegularExpression( '/window\.guestState = 1;.*guest\.js/s', $html );
+	}
+
+	/**
 	 * Script module data the test guest passes.
 	 *
 	 * @return array
@@ -1062,6 +1090,119 @@ class Admin_Shell_Test extends TestCase {
 
 		$this->assertIsString( $html );
 		$this->assertMatchesRegularExpression( '/id="jetpack-script-data-js-before">[^<]*window\.JetpackScriptData = /', $html );
+	}
+
+	/**
+	 * What the host page printed, as its client config reports it, is left out of the guest's response.
+	 *
+	 * @return void
+	 */
+	public function test_guest_assets_leaves_out_what_the_host_printed() {
+		$this->unhook_emoji_styles = remove_action( 'wp_print_styles', 'print_emoji_styles' );
+		$register                  = static function () {
+			wp_register_script( 'shell-test-shared', 'https://example.com/shared.js', array(), '1', true );
+			wp_add_inline_script( 'shell-test-shared', 'var sharedState = 1;', 'before' );
+			wp_add_inline_script( 'shell-test-shared', 'sharedSetup();' );
+			wp_localize_script( 'shell-test-shared', 'sharedL10n', array( 'save' => 'Save' ) );
+			wp_register_script( 'shell-test-guest', 'https://example.com/guest.js', array( 'shell-test-shared' ), '1', true );
+			wp_localize_script( 'shell-test-guest', 'guestL10n', array( 'save' => 'Save' ) );
+			wp_add_inline_script( 'shell-test-guest', 'var sharedState = 1;', 'before' );
+			wp_add_inline_script( 'shell-test-guest', 'var guestOnly = 1;', 'before' );
+			wp_add_inline_script( 'shell-test-guest', 'sharedSetup();' );
+		};
+		$this->start_host_page(
+			static function () {
+				$GLOBALS['jetpack_shell_test_guest_page_routes_data'] = array( array( 'path' => '/' ) );
+			},
+			'manage_options',
+			array( 'shell-test-guest' )
+		);
+		Admin_Shell::setup();
+		$register();
+		wp_scripts()->done = array( 'shell-test-shared' );
+		apply_filters(
+			Admin_Shell::SCRIPT_DATA_FILTER,
+			array(
+				'site'       => array( 'id' => 1 ),
+				'newsletter' => array( 'on' => false ),
+			)
+		);
+		$config  = apply_filters( 'script_module_data_' . Admin_Shell::CLIENT_MODULE, array() ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Core's filter.
+		$printed = json_decode( (string) wp_json_encode( $config['printed'], JSON_UNESCAPED_SLASHES ), true );
+
+		// The guest endpoint is a request of its own.
+		$GLOBALS['wp_scripts'] = null;
+		unset( $_GET['page'] );
+		$register();
+		$this->add_action(
+			'admin_print_scripts',
+			static function () {
+				$data = apply_filters(
+					Admin_Shell::SCRIPT_DATA_FILTER,
+					array(
+						'site'       => array( 'id' => 1 ),
+						'newsletter' => array( 'on' => true ),
+					)
+				);
+				wp_add_inline_script( 'shell-test-guest', 'window.JetpackScriptData = ' . wp_json_encode( $data, JSON_UNESCAPED_SLASHES ) . ';', 'before' );
+			},
+			1
+		);
+		$html = Admin_Shell::guest_assets( 'guest-page', $printed );
+
+		$this->assertIsString( $html );
+		$this->assertStringContainsString( 'window.JetpackScriptData = {"newsletter":{"on":true}};', $html, 'only the script data keys that differ from the host' );
+		$this->assertStringNotContainsString( 'sharedState', $html, 'data the host printed before a script, on any handle' );
+		$this->assertStringNotContainsString( 'sharedL10n', $html, 'localized data the host printed' );
+		$this->assertStringContainsString( 'var guestL10n = ', $html );
+		$this->assertStringContainsString( 'var guestOnly = 1;', $html );
+		$this->assertSame( 1, substr_count( $html, 'sharedSetup();' ), 'data printed after a script is skipped only on the handle the host printed it on' );
+		$this->assertMatchesRegularExpression( '/id="shell-test-guest-js-after">\s*sharedSetup\(\);/', $html );
+	}
+
+	/**
+	 * Data provider for test_printed_on_host_keeps_only_hashes.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_printed_requests() {
+		$empty = array(
+			'scriptData' => array(),
+			'inline'     => array(),
+		);
+		return array(
+			'not JSON'      => array( '{', $empty ),
+			'wrong shapes'  => array( '{"scriptData":"x","inline":{"a":1}}', $empty ),
+			'mixed entries' => array(
+				'{"scriptData":{"site":"0123456789ab","user":"0123","seo":["0123456789ab"]},"inline":["0123456789ab","0123456789AB",1]}',
+				array(
+					'scriptData' => array( 'site' => '0123456789ab' ),
+					'inline'     => array( '0123456789ab' ),
+				),
+			),
+		);
+	}
+
+	/**
+	 * What the client sends as the host's printed data keeps only well-formed hashes, whatever it holds.
+	 *
+	 * @dataProvider provide_printed_requests
+	 * @param string $json     Request value.
+	 * @param array  $expected Parsed value.
+	 * @return void
+	 */
+	#[DataProvider( 'provide_printed_requests' )]
+	public function test_printed_on_host_keeps_only_hashes( $json, $expected ) {
+		$parse = \Closure::bind(
+			static function ( $json ) {
+				// @phan-suppress-next-line PhanAccessMethodPrivate -- Bound to Admin_Shell's scope.
+				return Admin_Shell::printed_on_host( $json );
+			},
+			null,
+			Admin_Shell::class
+		);
+
+		$this->assertSame( $expected, $parse( $json ) );
 	}
 
 	/**

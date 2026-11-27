@@ -91,14 +91,23 @@ class Initial_State {
 	 * @return void
 	 */
 	public static function attach_to( $handle ) {
-		wp_add_inline_script( $handle, ( new self() )->render(), 'before' );
+		wp_add_inline_script( $handle, self::get_script(), 'before' );
+	}
 
+	/**
+	 * The initial-state payload and the connection state, as one inline script.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string
+	 */
+	public static function get_script() {
 		// Hydrate the JP connection store (`window.JP_CONNECTION_INITIAL_STATE`)
 		// so shared connection-aware hooks — notably
 		// `useProductCheckoutWorkflow`, which powers the upgrade CTA — work on
 		// the modernized dashboard exactly as they do on the legacy one. This
 		// also sets `window.jpTracksContext.blog_id` for `@automattic/jetpack-analytics`.
-		Connection_Initial_State::render_script( $handle );
+		return ( new self() )->render() . "\n" . Connection_Initial_State::render();
 	}
 
 	/**

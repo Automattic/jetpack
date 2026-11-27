@@ -89,7 +89,6 @@ function DevicesInner() {
 			hasDateRange: true,
 			status: {
 				isLoading,
-				isFetching,
 				isError: csvIsError,
 				isPlaceholderData: csvIsPlaceholderData,
 			},

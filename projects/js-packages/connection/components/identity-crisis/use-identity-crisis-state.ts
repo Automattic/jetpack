@@ -5,7 +5,13 @@ import { STORE_ID } from '../../state/store';
 import type { ConnectedPlugin } from '../../helpers/site-words';
 import type { IdentityCrisisState } from '../../types';
 
-type StoreSelector = ( storeId: string ) => Record< string, ( ...args: unknown[] ) => unknown >;
+/** Optional: an older copy of the store may be registered first. */
+interface StoreSelectors {
+	getIdentityCrisis?: () => unknown;
+	getConnectedPlugins?: () => unknown;
+}
+
+type StoreSelector = ( storeId: string ) => StoreSelectors;
 
 interface IdentityCrisisStoreState {
 	/** Null outside Safe Mode. */
@@ -37,8 +43,8 @@ export default function useIdentityCrisisState(): IdentityCrisisStoreState {
 	// Raw values only: a list built inside `useSelect` would be new on every call.
 	const { state, plugins } = useSelect(
 		( select: StoreSelector ) => ( {
-			state: select( STORE_ID ).getIdentityCrisis(),
-			plugins: select( STORE_ID ).getConnectedPlugins(),
+			state: select( STORE_ID ).getIdentityCrisis?.(),
+			plugins: select( STORE_ID ).getConnectedPlugins?.(),
 		} ),
 		[]
 	);

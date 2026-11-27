@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Connection: Show clearer messages when the connect request to your site fails, for example because its REST API is disabled or a PHP error broke the response.

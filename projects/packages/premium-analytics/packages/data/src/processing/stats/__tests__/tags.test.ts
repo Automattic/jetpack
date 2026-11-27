@@ -1,4 +1,4 @@
-import { sanitizeStatsTagsResponse } from '..';
+import { sanitizeStatsTagsResponse, selectStatsTagsItemsByType } from '..';
 import { tagsFixture } from '../__fixtures__/tags';
 
 describe( 'Stats tags normalizer', () => {
@@ -16,6 +16,7 @@ describe( 'Stats tags normalizer', () => {
 						label: [
 							{
 								label: 'News',
+								type: 'category',
 								labelIcon: 'folder',
 								link: 'https://example.com/category/news/',
 							},
@@ -28,11 +29,13 @@ describe( 'Stats tags normalizer', () => {
 						label: [
 							{
 								label: 'Announcements',
+								type: 'category',
 								labelIcon: 'folder',
 								link: null,
 							},
 							{
 								label: 'Release',
+								type: 'tag',
 								labelIcon: 'tag',
 								link: null,
 							},
@@ -43,6 +46,7 @@ describe( 'Stats tags normalizer', () => {
 						children: [
 							expect.objectContaining( {
 								label: 'Announcements',
+								type: 'category',
 								labelIcon: 'folder',
 								value: null,
 								link: 'https://example.com/category/announcements/',
@@ -50,6 +54,7 @@ describe( 'Stats tags normalizer', () => {
 							} ),
 							expect.objectContaining( {
 								label: 'Release',
+								type: 'tag',
 								labelIcon: 'tag',
 								value: null,
 								link: 'https://example.com/tag/release/',
@@ -66,6 +71,64 @@ describe( 'Stats tags normalizer', () => {
 		expect( sanitizeStatsTagsResponse( { tags: [] } ) ).toMatchObject( {
 			summary: {},
 			data: [],
+		} );
+	} );
+
+	describe( 'selectStatsTagsItemsByType', () => {
+		const items = sanitizeStatsTagsResponse( {
+			tags: [
+				{ tags: [ { type: 'category', name: 'News', link: '/category/news/' } ], views: 18 },
+				{
+					tags: [
+						{ type: 'category', name: 'Announcements', link: '/category/announcements/' },
+						{ type: 'tag', name: 'Release', link: '/tag/release/' },
+						{ type: 'tag', name: 'Beta', link: '/tag/beta/' },
+					],
+					views: 7,
+				},
+				{
+					tags: [
+						{ type: 'category', name: 'Guides', link: '/category/guides/' },
+						{ type: 'category', name: 'Updates', link: '/category/updates/' },
+					],
+					views: 5,
+				},
+				{ tags: [ { type: 'tag', name: 'Draft', link: '/tag/draft/' } ], views: 3 },
+			],
+		} ).data[ 0 ].items;
+
+		it.each( [
+			[
+				'category',
+				[
+					{ labelText: 'News', value: 18, link: '/category/news/' },
+					// A lone survivor of a group becomes a linked row carrying the group's views.
+					{ labelText: 'Announcements', value: 7, link: '/category/announcements/' },
+					{ labelText: 'Guides, Updates', value: 5, link: null },
+				],
+			],
+			[
+				'tag',
+				[
+					{ labelText: 'Release, Beta', value: 7, link: null },
+					{ labelText: 'Draft', value: 3, link: '/tag/draft/' },
+				],
+			],
+		] as const )( "keeps each row's %s members, in rank order", ( type, expected ) => {
+			expect( selectStatsTagsItemsByType( items, type ) ).toEqual(
+				expected.map( row => expect.objectContaining( row ) )
+			);
+		} );
+
+		it( 'keeps a drill-down only for a narrowed row left with several members', () => {
+			const [ group ] = selectStatsTagsItemsByType( items, 'tag' );
+			const [ , lone ] = selectStatsTagsItemsByType( items, 'category' );
+
+			expect( group.children?.map( child => [ child.label, child.link ] ) ).toEqual( [
+				[ 'Release', '/tag/release/' ],
+				[ 'Beta', '/tag/beta/' ],
+			] );
+			expect( lone.children ).toBeUndefined();
 		} );
 	} );
 } );
