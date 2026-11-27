@@ -130,7 +130,7 @@ describe( 'Settings event context', () => {
 		document.body.append( element );
 		await recordBoostEvent( 'cornerstone_pages_panel_toggle', {
 			boost_version: 'caller-version',
-			dashboard_variant: 'legacy',
+			dashboard_variant: 'caller-variant',
 			panel_scope: 'section',
 			status: 'close',
 		} );
@@ -139,7 +139,7 @@ describe( 'Settings event context', () => {
 			'click',
 			{
 				boost_version: 'caller-version',
-				dashboard_variant: 'legacy',
+				dashboard_variant: 'caller-variant',
 				panel_scope: 'section',
 				status: 'close',
 			}
