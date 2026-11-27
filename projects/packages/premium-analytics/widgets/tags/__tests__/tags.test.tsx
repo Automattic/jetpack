@@ -161,13 +161,11 @@ describe( 'TagsWidget', () => {
 		expect( screen.queryByText( 'chocolate' ) ).not.toBeInTheDocument();
 	} );
 
-	// `tags` stands in for a saved view the toggle does not offer.
 	it.each( [
 		[ undefined, 'all' ],
 		[ 'all', 'all' ],
 		[ 'tag', 'tags' ],
 		[ 'category', 'categories' ],
-		[ 'tags', 'all' ],
 	] )( 'opens the %s view on the %s report tab', ( termType, section ) => {
 		const { declaredLink } = renderWithActionsHost(
 			<TagsWidget

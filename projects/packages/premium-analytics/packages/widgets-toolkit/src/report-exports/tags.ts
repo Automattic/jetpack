@@ -34,6 +34,7 @@ export const TAGS_TERM_TYPES: Record< TagsReportSection, StatsTagsTermType | und
 	categories: 'category',
 };
 
+/** The Tags report tab that lists a widget's taxonomy, or `all` for both. */
 export function getTagsReportSection( termType?: StatsTagsTermType ): TagsReportSection {
 	return termType ? SECTIONS_BY_TERM_TYPE[ termType ] : 'all';
 }

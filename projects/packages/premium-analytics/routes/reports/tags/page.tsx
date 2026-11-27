@@ -75,8 +75,7 @@ function getSearchLabel( termType?: StatsTagsTermType ): string {
  * Premium Analytics Tags & categories report page component.
  *
  * `stats/tags` returns one flat list ranked over the report window and reports no
- * comparison, so this page has tabs, date filters and the records table, with no
- * performance chart.
+ * comparison, so there is no performance chart; the tabs narrow that list.
  *
  * @return The Tags & categories report page.
  */

@@ -2,13 +2,15 @@
  * External dependencies
  */
 import { useSectionTab } from '@jetpack-premium-analytics/routing';
-import { ReportRecordsTable } from '@jetpack-premium-analytics/widgets-toolkit';
-import { render, screen } from '@testing-library/react';
+import { ReportPageTabs, ReportRecordsTable } from '@jetpack-premium-analytics/widgets-toolkit';
+import { act, render, screen } from '@testing-library/react';
+import { useState } from 'react';
 /**
  * Internal dependencies
  */
 import { useTagsReportRecords } from './config';
 import TagsReportPage from './page';
+import type { TagsReportTabId } from './config';
 import type { ReactNode } from 'react';
 
 jest.mock( './config', () => ( {
@@ -32,14 +34,23 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
 	ExporterCsvAction: () => null,
 	StatsOptionsMenu: () => null,
-	ReportPageLayout: ( { title, children }: { title: string; children: ReactNode } ) => (
+	ReportPageLayout: ( {
+		title,
+		tabs,
+		children,
+	}: {
+		title: string;
+		tabs: ReactNode;
+		children: ReactNode;
+	} ) => (
 		<>
 			<h1>{ title }</h1>
+			{ tabs }
 			{ children }
 		</>
 	),
-	ReportPageTabs: () => null,
-	ReportRecordsTable: jest.fn( () => null ),
+	ReportPageTabs: jest.fn( () => null ),
+	ReportRecordsTable: jest.fn( () => <div data-testid="records-table" /> ),
 } ) );
 
 jest.mock( '@wordpress/admin-ui', () => ( {
@@ -53,6 +64,7 @@ jest.mock(
 
 const useRecordsMock = jest.mocked( useTagsReportRecords );
 const useSectionTabMock = jest.mocked( useSectionTab );
+const reportPageTabsMock = jest.mocked( ReportPageTabs );
 const reportRecordsTableMock = jest.mocked( ReportRecordsTable );
 
 describe( 'TagsReportPage', () => {
@@ -73,7 +85,7 @@ describe( 'TagsReportPage', () => {
 		[ 'tags', 'tag', 'Tags', 'Tag', 'Search tags' ],
 		[ 'categories', 'category', 'Categories', 'Category', 'Search categories' ],
 	] as const )(
-		'narrows the %s tab to its rows and names them',
+		'titles and labels the %s tab and asks for its rows',
 		( section, termType, heading, column, search ) => {
 			useSectionTabMock.mockReturnValue( [ section, jest.fn() ] );
 
@@ -87,4 +99,23 @@ describe( 'TagsReportPage', () => {
 			expect( props?.searchLabel ).toBe( search );
 		}
 	);
+
+	it( 'switches tabs through the tab strip and starts the table afresh', () => {
+		useSectionTabMock.mockImplementation(
+			() => useState< TagsReportTabId >( 'all' ) as ReturnType< typeof useSectionTab >
+		);
+
+		render( <TagsReportPage /> );
+		const table = screen.getByTestId( 'records-table' );
+		const { tabs, value, onChange } = reportPageTabsMock.mock.lastCall![ 0 ];
+
+		expect( tabs.map( tab => tab.id ) ).toEqual( [ 'all', 'tags', 'categories' ] );
+		expect( value ).toBe( 'all' );
+
+		act( () => onChange( 'categories' ) );
+
+		expect( reportPageTabsMock.mock.lastCall?.[ 0 ].value ).toBe( 'categories' );
+		expect( useRecordsMock ).toHaveBeenLastCalledWith( expect.anything(), 'category' );
+		expect( screen.getByTestId( 'records-table' ) ).not.toBe( table );
+	} );
 } );
