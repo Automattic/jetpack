@@ -1,6 +1,6 @@
 import { speak } from '@wordpress/a11y';
 import apiFetch from '@wordpress/api-fetch';
-import { useCallback, useEffect, useId, useState } from '@wordpress/element';
+import { useCallback, useEffect, useId, useRef, useState } from '@wordpress/element';
 import { comment, copySmall } from '@wordpress/icons';
 import { Button, ButtonLink, Dialog, Icon, Stack, Text, Tooltip } from '@wordpress/ui';
 import {
@@ -156,9 +156,16 @@ export default function AiToolStep( {
 		subtitle = copy.allowFullAccessFailed;
 	}
 
+	// Only the first read that succeeds counts, so a slow open-time read can't overwrite what a check found first.
+	const existingRecorded = useRef( false );
+
 	// Tools connected before the view opened show as connected from the start.
 	const recordExisting = useCallback(
 		( existing: AiTool[] ) => {
+			if ( existingRecorded.current ) {
+				return;
+			}
+			existingRecorded.current = true;
 			setExistingKnown( true );
 			if ( ! existing.length ) {
 				return;
@@ -199,7 +206,7 @@ export default function AiToolStep( {
 			path: MCP_CONNECTIONS_PATH,
 		} )
 			.then( data => {
-				if ( stopped ) {
+				if ( stopped || existingRecorded.current ) {
 					return;
 				}
 				// Sent as the view opens, so every tool it returns was connected before then.
