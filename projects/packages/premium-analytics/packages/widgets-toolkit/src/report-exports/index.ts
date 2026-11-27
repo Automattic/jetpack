@@ -34,7 +34,7 @@ export {
 export { annualInsightsCsvExporter } from './annual-insights';
 export { commentsAuthorsCsvExporter, commentsPostsCsvExporter, toCommentRows } from './comments';
 export { EMAILS_REPORT_ROW_LIMIT, emailsCsvExporter } from './emails';
-export { TAGS_REPORT_ROW_LIMIT, tagsCsvExporter } from './tags';
+export { TAGS_REPORT_ROW_LIMIT, tagsCsvExporter, tagsCsvExportersByType } from './tags';
 export {
 	LOCATIONS_GEO_MODES,
 	buildLocationRows,
