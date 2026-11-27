@@ -37,6 +37,8 @@ class Backup_Abilities extends Registrar {
 	const PER_PAGE_DEFAULT = 20;
 	const PER_PAGE_MAX     = 100;
 
+	private const BACKUP_REQUEST_ID_PATTERN = '/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/D';
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -381,6 +383,7 @@ class Backup_Abilities extends Registrar {
 					'type'       => 'object',
 					'properties' => array(
 						'enqueued'     => array( 'type' => 'boolean' ),
+						'message'      => array( 'type' => 'string' ),
 						'request_id'   => array( 'type' => 'string' ),
 						'status'       => array(
 							'type' => 'string',
@@ -815,7 +818,7 @@ class Backup_Abilities extends Registrar {
 			);
 		}
 		if ( ! is_string( $result['request_id'] ?? null )
-			|| '' === $result['request_id']
+			|| ! preg_match( self::BACKUP_REQUEST_ID_PATTERN, $result['request_id'] )
 			|| ! in_array( $result['status'] ?? null, array( 'queued', 'running', 'completed', 'failed' ), true )
 			|| ! is_string( $result['requested_at'] ?? null ) ) {
 			return new WP_Error(
@@ -826,6 +829,7 @@ class Backup_Abilities extends Registrar {
 
 		return array(
 			'enqueued'     => true,
+			'message'      => __( 'Backup enqueued. Poll jetpack-backup/get-backup-request-status using request_id.', 'jetpack-backup-pkg' ),
 			'request_id'   => $result['request_id'],
 			'status'       => $result['status'],
 			'requested_at' => $result['requested_at'],
@@ -839,8 +843,10 @@ class Backup_Abilities extends Registrar {
 	 * @return array|WP_Error
 	 */
 	public static function execute_get_backup_request_status( $input = null ) {
-		if ( ! is_array( $input ) || empty( $input['request_id'] ) || ! is_string( $input['request_id'] ) ) {
-			return new WP_Error( 'jetpack_backup_invalid_request', __( 'A backup request ID is required.', 'jetpack-backup-pkg' ) );
+		if ( ! is_array( $input )
+			|| ! is_string( $input['request_id'] ?? null )
+			|| ! preg_match( self::BACKUP_REQUEST_ID_PATTERN, $input['request_id'] ) ) {
+			return new WP_Error( 'jetpack_backup_invalid_request', __( 'A valid backup request ID is required.', 'jetpack-backup-pkg' ) );
 		}
 
 		$response = Jetpack_Backup::get_backup_request_status( $input['request_id'] );

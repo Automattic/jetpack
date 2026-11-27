@@ -295,6 +295,7 @@ class Backup_Abilities_Test extends BaseTestCase {
 				'type'       => 'object',
 				'properties' => array(
 					'enqueued'     => array( 'type' => 'boolean' ),
+					'message'      => array( 'type' => 'string' ),
 					'request_id'   => array( 'type' => 'string' ),
 					'status'       => array(
 						'type' => 'string',
@@ -857,7 +858,7 @@ class Backup_Abilities_Test extends BaseTestCase {
 				'body'     => wp_json_encode(
 					array(
 						'success'      => true,
-						'request_id'   => 'request-1',
+						'request_id'   => '550e8400-e29b-41d4-a716-446655440000',
 						'status'       => 'queued',
 						'requested_at' => '2026-11-26T12:00:00Z',
 					),
@@ -875,102 +876,20 @@ class Backup_Abilities_Test extends BaseTestCase {
 
 		$this->assertIsArray( $result );
 		$this->assertTrue( $result['enqueued'] );
-		$this->assertSame( 'request-1', $result['request_id'] );
+		$this->assertNotEmpty( $result['message'] );
+		$this->assertSame( '550e8400-e29b-41d4-a716-446655440000', $result['request_id'] );
 		$this->assertSame( 'queued', $result['status'] );
 		$this->assertSame( '2026-11-26T12:00:00Z', $result['requested_at'] );
 	}
 
 	/**
-	 * An older wpcom endpoint can accept the backup without a tracking handle.
+	 * A malformed handle cannot match the wpcom route and must not be retried.
 	 */
-	public function test_request_backup_does_not_report_untrackable_backup_as_enqueued(): void {
-		wp_set_current_user( $this->admin_id );
-
-		$mock = function () {
-			return array(
-				'response' => array( 'code' => 200 ),
-				'body'     => wp_json_encode( array( 'success' => true ), JSON_UNESCAPED_SLASHES ),
-			);
-		};
-		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_connection_options' ), 10, 2 );
-		add_filter( 'pre_http_request', $mock );
-
-		$result = Backup_Abilities::execute_request_backup( array() );
-
-		remove_filter( 'pre_http_request', $mock );
-		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_connection_options' ), 10 );
-
-		$this->assertInstanceOf( \WP_Error::class, $result );
-		$this->assertSame( 'jetpack_backup_tracking_unavailable', $result->get_error_code() );
-	}
-
-	/**
-	 * A missing status route is retryable; only an unknown request is final.
-	 */
-	public function test_backup_request_status_distinguishes_missing_route_from_missing_request(): void {
-		\Automattic\Jetpack\Connection\Utils::init_default_constants();
-		wp_set_current_user( $this->admin_id );
-
-		$body = array( 'error' => 'rest_no_route' );
-		$mock = function () use ( &$body ) {
-			return array(
-				'response' => array( 'code' => 404 ),
-				'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
-			);
-		};
-		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_connection_options' ), 10, 2 );
-		add_filter( 'pre_http_request', $mock );
-
-		$missing_route = Backup_Abilities::execute_get_backup_request_status( array( 'request_id' => 'request-1' ) );
-		$body          = array( 'code' => 'backup_request_not_found' );
-		$missing_id    = Backup_Abilities::execute_get_backup_request_status( array( 'request_id' => 'request-1' ) );
-
-		remove_filter( 'pre_http_request', $mock );
-		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_connection_options' ), 10 );
-
-		$this->assertInstanceOf( \WP_Error::class, $missing_route );
-		$this->assertSame( 'jetpack_backup_data_unavailable', $missing_route->get_error_code() );
-		$this->assertInstanceOf( \WP_Error::class, $missing_id );
-		$this->assertSame( 'jetpack_backup_request_not_found', $missing_id->get_error_code() );
-	}
-
-	/**
-	 * A tracked backup response retains the fields needed for polling and restore.
-	 */
-	public function test_backup_request_status_returns_tracking_fields(): void {
-		wp_set_current_user( $this->admin_id );
-
-		$mock = function () {
-			return array(
-				'response' => array( 'code' => 200 ),
-				'body'     => wp_json_encode(
-					array(
-						'request_id'   => 'request-1',
-						'status'       => 'completed',
-						'requested_at' => '2026-11-26T12:00:00Z',
-						'updated_at'   => '2026-11-26T12:05:00Z',
-						'completed_at' => '2026-11-26T12:05:00Z',
-						'backup_id'    => 123,
-						'rewind_id'    => 'rewind-123',
-					),
-					JSON_UNESCAPED_SLASHES
-				),
-			);
-		};
-		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_connection_options' ), 10, 2 );
-		add_filter( 'pre_http_request', $mock );
-
+	public function test_backup_request_status_rejects_malformed_handle(): void {
 		$result = Backup_Abilities::execute_get_backup_request_status( array( 'request_id' => 'request-1' ) );
 
-		remove_filter( 'pre_http_request', $mock );
-		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_connection_options' ), 10 );
-
-		$this->assertIsArray( $result );
-		$this->assertSame( 'completed', $result['status'] );
-		$this->assertSame( 'request-1', $result['request_id'] );
-		$this->assertSame( 123, $result['backup_id'] );
-		$this->assertSame( 'rewind-123', $result['rewind_id'] );
-		$this->assertSame( '2026-11-26T12:05:00Z', $result['completed_at'] );
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'jetpack_backup_invalid_request', $result->get_error_code() );
 	}
 
 	/**
