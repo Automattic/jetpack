@@ -3,22 +3,21 @@
  */
 import {
 	EDGE_REQUEST_SOURCES,
-	STATS_CHART_BUCKET_PERIODS,
-	defaultPeriodForInterval,
-	getDaysBetweenInclusive,
+	chartInterval,
 	isEdgeBotRequestsRangeTooLong,
+	useScopeLockedIntervals,
 	useStatsEdgeBotRequests,
 	type EdgeRequestSource,
 	type ReportParams,
-	type StatsChartBucketPeriod,
 } from '@jetpack-premium-analytics/data';
 import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
+/**
+ * Internal dependencies
+ */
+import { REQUESTS_BY_SOURCE_PERIODS, type RequestsBySourcePeriod } from './widget';
 import type { StackedAreaSeries } from '@jetpack-premium-analytics/widgets-toolkit';
-
-/** A window this short is drawn by the hour, since two daily points make no area. */
-const HOURLY_MAX_DAYS = 2;
 
 const BLOCKED_STROKE = 'var(--a8c-charts-color-trend-down)';
 
@@ -45,14 +44,20 @@ function sourceLabels(): Record< EdgeRequestSource, string > {
  * share and its points over time.
  *
  * @param reportParams - The dashboard range.
+ * @param interval     - The widget's saved bucket size, if any.
  * @return The sources, the bucket size drawn and the request's state.
  */
-export default function useRequestsBySource( reportParams: ReportParams ) {
-	// The AI tab has no interval control, so the range and the page's interval pick the bucket.
-	const period: 'hour' | StatsChartBucketPeriod =
-		getDaysBetweenInclusive( reportParams.from, reportParams.to ) <= HOURLY_MAX_DAYS
-			? 'hour'
-			: defaultPeriodForInterval( reportParams.interval, STATS_CHART_BUCKET_PERIODS );
+export default function useRequestsBySource(
+	reportParams: ReportParams,
+	interval?: RequestsBySourcePeriod
+) {
+	const lockedIntervals = useScopeLockedIntervals();
+	// The saved bucket, clamped to what the range allows, as the widget's interval control lists it.
+	const period = chartInterval(
+		{ ...reportParams, interval },
+		REQUESTS_BY_SOURCE_PERIODS,
+		lockedIntervals
+	);
 	const params = useMemo( () => ( { ...reportParams, period } ), [ reportParams, period ] );
 	const isRangeTooLong = isEdgeBotRequestsRangeTooLong( params );
 	const { primary, timezone, isLoading, isFetching, isError, error, refetch } =
