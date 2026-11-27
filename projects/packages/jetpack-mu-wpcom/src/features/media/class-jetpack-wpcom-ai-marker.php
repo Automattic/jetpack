@@ -80,6 +80,23 @@ class Jetpack_WPCOM_AI_Marker {
 	}
 
 	/**
+	 * Writes the source's AI type into an edited copy, unless the copy already has an AI type.
+	 *
+	 * @param string $source Path or URL of the source image.
+	 * @param string $edited Path of the edited image.
+	 */
+	public function copy( $source, $edited ) {
+		if ( '' !== $this->read( $edited ) ) {
+			return;
+		}
+
+		$digital_source_type = $this->read( $source );
+		if ( '' !== $digital_source_type ) {
+			$this->write( $edited, $digital_source_type );
+		}
+	}
+
+	/**
 	 * Writes the type with exiftool.
 	 *
 	 * @param string $filename            Path of the image.
