@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Premium Analytics: Hide the Subscribers tab in Stats v2, since its Newsletter feature needs the Jetpack plugin.

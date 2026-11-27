@@ -159,6 +159,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 */
 	private function enable_every_section() {
 		$this->set_admin_user();
+		add_filter( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
 	}
 
 	/**
@@ -377,7 +378,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * The built-in Insights section offers the year date filter; the rest keep the range.
 	 */
 	public function test_built_in_sections_declare_their_date_filters() {
-		$this->set_admin_user();
+		$this->enable_every_section();
 
 		register_default_dashboard_sections();
 
@@ -478,7 +479,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * Insights and Subscribers move their date control to widgets and disable comparison.
 	 */
 	public function test_built_in_sections_declare_their_date_filter_options() {
-		$this->set_admin_user();
+		$this->enable_every_section();
 
 		register_default_dashboard_sections();
 
@@ -517,7 +518,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * The site sections render at once. Store data waits on the sync from its own package.
 	 */
 	public function test_built_in_sections_do_not_require_the_sync() {
-		$this->set_admin_user();
+		$this->enable_every_section();
 
 		register_default_dashboard_sections();
 
@@ -544,7 +545,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * The analytics sections carry their own heading.
 	 */
 	public function test_built_in_sections_declare_their_headings() {
-		$this->set_admin_user();
+		$this->enable_every_section();
 
 		register_default_dashboard_sections();
 
@@ -1120,7 +1121,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * Built-in Premium Analytics sections are registered in the expected order.
 	 */
 	public function test_registers_built_in_dashboard_sections() {
-		$this->set_admin_user();
+		$this->enable_every_section();
 
 		register_default_dashboard_sections();
 
@@ -1230,17 +1231,18 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A site without a local module system keeps the tab.
+	 * A site without the Jetpack plugin, such as one running only Jetpack Stats, hides the tab.
 	 */
-	public function test_registers_subscribers_dashboard_section_without_a_module_system() {
+	public function test_omits_subscribers_dashboard_section_without_jetpack() {
 		$this->set_admin_user();
+		$this->activate_module( 'subscriptions' );
 		register_default_dashboard_sections();
 
 		$subscribers = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/subscribers' );
 
 		$this->assertInstanceOf( Dashboard_Section::class, $subscribers );
-		$this->assertTrue( $subscribers->is_available() );
-		$this->assertContains( 'analytics/subscribers', $this->available_section_ids() );
+		$this->assertFalse( $subscribers->is_available() );
+		$this->assertNotContains( 'analytics/subscribers', $this->available_section_ids() );
 	}
 
 	/**
@@ -1314,18 +1316,19 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Consumers can refuse the section through its availability filter.
+	 * Consumers can offer the section without Jetpack through its availability filter.
 	 */
 	public function test_subscribers_availability_filter_overrides_the_module_state() {
-		add_filter( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
+		$this->set_admin_user();
+		add_filter( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
 
 		register_default_dashboard_sections();
 
 		$subscribers = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/subscribers' );
 
 		$this->assertInstanceOf( Dashboard_Section::class, $subscribers );
-		$this->assertFalse( $subscribers->is_available() );
-		$this->assertNotContains( 'analytics/subscribers', $this->available_section_ids() );
+		$this->assertTrue( $subscribers->is_available() );
+		$this->assertContains( 'analytics/subscribers', $this->available_section_ids() );
 	}
 
 	/**
@@ -1610,7 +1613,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * The sections route drops the Subscribers tab once it is unavailable.
 	 */
 	public function test_sections_route_reflects_subscribers_availability() {
-		$this->set_admin_user();
+		$this->enable_every_section();
 
 		register_default_dashboard_sections();
 
