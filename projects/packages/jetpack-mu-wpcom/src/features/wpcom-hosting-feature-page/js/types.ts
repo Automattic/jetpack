@@ -133,9 +133,3 @@ export type FeatureConfig = {
 		holdsHeading: string;
 	};
 };
-
-declare global {
-	interface Window {
-		wpcomHostingFeatureInitialState?: InitialState;
-	}
-}

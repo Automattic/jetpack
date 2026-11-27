@@ -9,6 +9,9 @@
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
+use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
 require_once __DIR__ . '/wp-build-script-translations.php';
@@ -59,6 +62,12 @@ abstract class WPCOM_WP_Build_Page {
 	 * Whether the page loads WordPress.com Tracks.
 	 */
 	const ENQUEUE_TRACKS = false;
+
+	/**
+	 * Whether the admin shell builds the admin menu before reading the page's data on its guest endpoint,
+	 * which runs on admin-ajax and so has no menu otherwise.
+	 */
+	const ADMIN_SHELL_NEEDS_MENU = false;
 
 	/**
 	 * Whether each page registered its slug on this request, keyed by class.
@@ -123,6 +132,9 @@ abstract class WPCOM_WP_Build_Page {
 		}
 
 		add_action( 'admin_menu', array( static::class, 'register_page' ), static::REGISTER_PRIORITY );
+
+		// After the Jetpack packages at 10, so a package that serves the same slug keeps it.
+		add_filter( 'jetpack_admin_shell_members', array( static::class, 'add_admin_shell_member' ), 20 );
 
 		if ( ! static::is_page_request() ) {
 			return;
@@ -366,28 +378,121 @@ abstract class WPCOM_WP_Build_Page {
 		// wp-build has no `jetpackConfig` external, so @automattic/jetpack-config reads this global.
 		wp_add_inline_script( $handle, 'window.jetpackConfig = ' . wp_json_encode( array( 'consumer_slug' => 'jetpack-mu-wpcom' ), JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES ) . ';', 'before' );
 
-		if ( '' !== static::INITIAL_STATE_VAR ) {
-			// Inline JSON rather than wp_localize_script(), which stringifies top-level scalars.
-			$state = wp_json_encode( static::get_initial_state(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES );
-
-			// Every `before` script shares one tag, so a bare `= ;` would also break the translations.
-			if ( false !== $state ) {
-				wp_add_inline_script( $handle, 'window.' . static::INITIAL_STATE_VAR . ' = ' . $state . ';', 'before' );
-			}
+		// Every `before` script shares one tag, so a bare `= ;` would also break the translations.
+		$state = static::get_initial_state_script();
+		if ( '' !== $state ) {
+			wp_add_inline_script( $handle, $state, 'before' );
 		}
 
 		if ( static::ENQUEUE_TRACKS ) {
 			Common\wpcom_enqueue_tracking_scripts( $handle );
 		}
 
-		$constants = static::build_dir() . '/constants.php';
-		if ( file_exists( $constants ) ) {
-			$build_constants = require $constants;
-			$translations    = wpcom_wp_build_script_translations( static::build_dir() . '/i18n-manifest.json', $build_constants['build_url'], static::get_routes() );
-
-			if ( null !== $translations ) {
-				wp_add_inline_script( $handle, $translations, 'before' );
-			}
+		$translations = static::get_translations_script();
+		if ( '' !== $translations ) {
+			wp_add_inline_script( $handle, $translations, 'before' );
 		}
+	}
+
+	/**
+	 * The script that sets INITIAL_STATE_VAR, or '' for none.
+	 *
+	 * @return string
+	 */
+	public static function get_initial_state_script() {
+		if ( '' === static::INITIAL_STATE_VAR ) {
+			return '';
+		}
+
+		// Inline JSON rather than wp_localize_script(), which stringifies top-level scalars.
+		$state = wp_json_encode( static::get_initial_state(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES );
+
+		return false === $state ? '' : 'window.' . static::INITIAL_STATE_VAR . ' = ' . $state . ';';
+	}
+
+	/**
+	 * The script that loads the page's translation catalogs, or '' for none.
+	 *
+	 * @return string
+	 */
+	public static function get_translations_script() {
+		$constants = static::build_dir() . '/constants.php';
+		if ( ! file_exists( $constants ) ) {
+			return '';
+		}
+
+		$build_constants = require $constants;
+		$translations    = wpcom_wp_build_script_translations( static::build_dir() . '/i18n-manifest.json', $build_constants['build_url'], static::get_routes() );
+
+		return $translations ?? '';
+	}
+
+	/**
+	 * Add the page to the dashboards that share the Jetpack admin shell, on Simple only.
+	 *
+	 * Elsewhere the Jetpack plugin can claim the slug, which admin-ajax, where the shell loads guests,
+	 * can't tell, as it never builds the menu.
+	 *
+	 * @param array $members Member definitions keyed by admin page slug.
+	 * @return array
+	 */
+	public static function add_admin_shell_member( $members ) {
+		if ( ! is_array( $members ) || isset( $members[ static::MENU_SLUG ] ) || ! ( new Host() )->is_wpcom_simple() ) {
+			return $members;
+		}
+
+		$handles = array( 'wp-jp-i18n-loader' );
+		if ( static::ENQUEUE_TRACKS ) {
+			$handles[] = 'jp-tracks-functions';
+		}
+
+		$members[ static::MENU_SLUG ] = array(
+			'build_prefix' => 'jetpack_mu_wpcom',
+			'build_page'   => static::WP_BUILD_PAGE,
+			'title'        => static::get_page_title(),
+			'capability'   => static::CAPABILITY,
+			'handles'      => $handles,
+			'load'         => array( static::class, 'load_as_admin_shell_guest' ),
+			'data'         => array( static::class, 'get_admin_shell_guest_data' ),
+			'admin_menu'   => static::ADMIN_SHELL_NEEDS_MENU,
+		);
+
+		return $members;
+	}
+
+	/**
+	 * Ready the page's routes while another dashboard's page is open.
+	 *
+	 * Safe to run twice, and on a host page built from this package too: the build loads once.
+	 *
+	 * @return void
+	 */
+	public static function load_as_admin_shell_guest() {
+		static::load_wp_build();
+
+		// wp-build registers its modules on wp_default_scripts, which has fired by the time the shell loads a guest.
+		if ( function_exists( 'jetpack_mu_wpcom_register_script_modules' ) ) {
+			jetpack_mu_wpcom_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php.
+		}
+
+		if ( static::ENQUEUE_TRACKS ) {
+			Tracking::register_tracks_functions_scripts( true );
+		}
+	}
+
+	/**
+	 * The page data enqueue_page_data() adds on the page's own request, for the shell's guest endpoint.
+	 *
+	 * Leaves out `window.jetpackConfig`, which belongs to the host page.
+	 *
+	 * @return string
+	 */
+	public static function get_admin_shell_guest_data() {
+		$scripts = array( static::get_initial_state_script(), static::get_translations_script() );
+		if ( static::ENQUEUE_TRACKS && class_exists( Connection_Initial_State::class ) ) {
+			$scripts[] = Connection_Initial_State::render();
+		}
+
+		return implode( "\n", array_filter( $scripts ) );
 	}
 }

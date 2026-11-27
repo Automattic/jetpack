@@ -39,6 +39,11 @@ class WPCOM_Scan extends WPCOM_Hosting_Feature_Page {
 	const WP_BUILD_PAGE = 'wpcom-scan';
 
 	/**
+	 * Its own global, as the admin shell can hold Backup and Protect in one document.
+	 */
+	const INITIAL_STATE_VAR = 'wpcomScanInitialState';
+
+	/**
 	 * Product name, do not translate.
 	 */
 	const PAGE_TITLE = 'Jetpack Protect';

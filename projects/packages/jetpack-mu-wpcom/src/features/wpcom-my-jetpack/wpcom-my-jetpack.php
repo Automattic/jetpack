@@ -46,6 +46,11 @@ class WPCOM_My_Jetpack extends WPCOM_WP_Build_Page {
 	const ENQUEUE_TRACKS = true;
 
 	/**
+	 * The tools list reads the Jetpack menu, which the admin shell's guest endpoint doesn't build unless asked.
+	 */
+	const ADMIN_SHELL_NEEDS_MENU = true;
+
+	/**
 	 * Whether this page should claim its slug: everywhere but P2s, which drop the Jetpack menu.
 	 *
 	 * @return bool

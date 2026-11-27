@@ -3,7 +3,14 @@ import { shield } from '@wordpress/icons';
 import { useMemo } from 'react';
 import { HostingFeaturePage } from '../../wpcom-hosting-feature-page/js/page.tsx';
 import { scanCalloutIllustration } from './illustration.ts';
-import type { FeatureConfig } from '../../wpcom-hosting-feature-page/js/types.ts';
+import type { FeatureConfig, InitialState } from '../../wpcom-hosting-feature-page/js/types.ts';
+
+declare global {
+	interface Window {
+		/** WPCOM_Scan::INITIAL_STATE_VAR. */
+		wpcomScanInitialState?: InitialState;
+	}
+}
 
 /**
  * The Scan page's copy, imagery and Tracks IDs.
@@ -99,5 +106,5 @@ function getScanConfig(): FeatureConfig {
 export function App() {
 	const config = useMemo( getScanConfig, [] );
 
-	return <HostingFeaturePage config={ config } />;
+	return <HostingFeaturePage config={ config } initialState={ window.wpcomScanInitialState } />;
 }

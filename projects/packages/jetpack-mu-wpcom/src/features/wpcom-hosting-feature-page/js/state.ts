@@ -21,10 +21,11 @@ const FALLBACK: InitialState = {
 };
 
 /**
- * Read the state PHP localized onto the page.
+ * The state PHP printed for the page.
  *
+ * @param state - The page's global, as its app read it.
  * @return The initial state, or a safe fallback if the global is absent.
  */
-export function getInitialState(): InitialState {
-	return window.wpcomHostingFeatureInitialState ?? FALLBACK;
+export function getInitialState( state: InitialState | undefined ): InitialState {
+	return state ?? FALLBACK;
 }

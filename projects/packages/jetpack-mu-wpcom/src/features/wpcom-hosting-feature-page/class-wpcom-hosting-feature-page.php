@@ -45,11 +45,6 @@ abstract class WPCOM_Hosting_Feature_Page extends WPCOM_WP_Build_Page {
 	const TRANSFER_CONTEXT = 'jetpack_product_activation';
 
 	/**
-	 * Shared by every hosting feature page, whose boot code is shared too.
-	 */
-	const INITIAL_STATE_VAR = 'wpcomHostingFeatureInitialState';
-
-	/**
 	 * The pages record their prompts in Tracks.
 	 */
 	const ENQUEUE_TRACKS = true;

@@ -6,6 +6,13 @@ import { DownloadPanel } from './download-panel.tsx';
 import { backupsCalloutIllustration } from './illustration.ts';
 import type { FeatureConfig, InitialState } from '../../wpcom-hosting-feature-page/js/types.ts';
 
+declare global {
+	interface Window {
+		/** WPCOM_Backup::INITIAL_STATE_VAR. */
+		wpcomBackupInitialState?: InitialState;
+	}
+}
+
 /**
  * Offers the backup a reverted transfer left, if there is one.
  *
@@ -83,5 +90,5 @@ function getBackupConfig(): FeatureConfig {
 export function App() {
 	const config = useMemo( getBackupConfig, [] );
 
-	return <HostingFeaturePage config={ config } />;
+	return <HostingFeaturePage config={ config } initialState={ window.wpcomBackupInitialState } />;
 }
