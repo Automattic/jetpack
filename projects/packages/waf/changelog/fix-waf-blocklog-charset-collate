@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WAF: Create the block log table with the site's database charset and collation.

@@ -148,6 +148,43 @@ final class WafBlocklogManagerTest extends PHPUnit\Framework\TestCase {
 	}
 
 	/**
+	 * The block log table is created with the site's charset and collation, as core does for its own tables.
+	 *
+	 * @runInSeparateProcess
+	 */
+	#[RunInSeparateProcess]
+	public function testCreateBlocklogTableUsesSiteCharsetCollate() {
+		$abspath = sys_get_temp_dir() . '/waf-blocklog-abspath-' . uniqid() . '/';
+		mkdir( $abspath . 'wp-admin/includes', 0777, true );
+		file_put_contents(
+			$abspath . 'wp-admin/includes/upgrade.php',
+			'<?php function dbDelta( $sql ) { $GLOBALS["waf_test_dbdelta_sql"] = $sql; return array(); }'
+		);
+		define( 'ABSPATH', $abspath );
+
+		$GLOBALS['wpdb'] = new class() {
+			/** @var string */
+			public $prefix = 'wp_';
+
+			/** @return string */
+			public function get_charset_collate() {
+				return 'DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci';
+			}
+		};
+
+		Waf_Blocklog_Manager::create_blocklog_table();
+		$sql = $GLOBALS['waf_test_dbdelta_sql'];
+
+		unlink( $abspath . 'wp-admin/includes/upgrade.php' );
+		rmdir( $abspath . 'wp-admin/includes' );
+		rmdir( $abspath . 'wp-admin' );
+		rmdir( $abspath );
+
+		$this->assertStringContainsString( 'CREATE TABLE wp_jetpack_waf_blocklog', $sql );
+		$this->assertMatchesRegularExpression( '/\)\s+DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci;/', $sql );
+	}
+
+	/**
 	 * Only a block that isn't the firewall's own test, made in normal mode, marks the site as having blocked a request.
 	 *
 	 * @runInSeparateProcess

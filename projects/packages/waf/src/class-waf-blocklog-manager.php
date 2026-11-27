@@ -101,6 +101,8 @@ class Waf_Blocklog_Manager {
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
+		$charset_collate = $wpdb->get_charset_collate();
+
 		$sql = "
 		CREATE TABLE {$wpdb->prefix}jetpack_waf_blocklog (
 			log_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -109,7 +111,7 @@ class Waf_Blocklog_Manager {
 			reason longtext NOT NULL,
 			PRIMARY KEY (log_id),
 			KEY timestamp (timestamp)
-		)
+		) $charset_collate;
 		";
 
 		dbDelta( $sql );
