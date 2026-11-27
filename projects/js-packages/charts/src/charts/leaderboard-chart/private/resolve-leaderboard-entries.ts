@@ -42,12 +42,18 @@ export function resolveLeaderboardEntries(
 		const previousShare =
 			passedOrDerivedPrevious !== undefined ? clamp( passedOrDerivedPrevious ) : undefined;
 		const delta = entry.delta ?? toDelta( entry.currentValue, entry.previousValue );
+		const secondaryDelta =
+			entry.secondaryDelta ??
+			( entry.secondaryValue != null
+				? toDelta( entry.secondaryValue, entry.secondaryPreviousValue )
+				: undefined );
 
 		return {
 			...entry,
 			currentShare: clamp( entry.currentShare ?? toShare( entry.currentValue, max ) ),
 			...( previousShare !== undefined && { previousShare } ),
 			...( delta !== undefined && { delta } ),
+			...( secondaryDelta !== undefined && { secondaryDelta } ),
 		};
 	} );
 }

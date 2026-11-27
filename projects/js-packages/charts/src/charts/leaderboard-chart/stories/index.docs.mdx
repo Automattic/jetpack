@@ -155,6 +155,23 @@ Customize how values are displayed using the `valueFormatter` prop:
 	/>` }
 />
 
+### Second Figure
+
+Give entries a `secondaryValue` to draw a second figure in a column after the value, with `secondaryPreviousValue` for its change after the delta when comparing. The columns line up on the grid like the value and delta, so the figures stay in a column whatever width each takes. Rows without a second figure leave their cells blank. `secondaryValueFormatter` formats it; it falls back to `valueFormatter`.
+
+<Canvas of={ LeaderboardChartStories.WithSecondaryFigure } />
+
+<Source
+	language="tsx"
+	code={ `<LeaderboardChart
+		data={ [
+			{ id: 'google', label: 'Google', currentValue: 3200000, previousValue: 2540000, secondaryValue: 62, secondaryPreviousValue: 21 },
+		] }
+		withComparison
+		secondaryValueFormatter={ value => formatMetricValue( value, 'number', { useMultipliers: true } ) }
+	/>` }
+/>
+
 ### Number Formatting
 
 For non-currency values, use number formatting:

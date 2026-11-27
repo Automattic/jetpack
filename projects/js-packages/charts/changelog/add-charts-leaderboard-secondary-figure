@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Leaderboard chart: Draw a second figure and its change in columns after the value, from `secondaryValue` and `secondaryPreviousValue` on an entry.

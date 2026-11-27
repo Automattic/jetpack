@@ -55,6 +55,11 @@ export interface LeaderboardChartProps extends Pick<
 	 * Formatter for delta values
 	 */
 	deltaFormatter?: ( value: number ) => string;
+	/**
+	 * Formatter for the second figure, when entries carry a `secondaryValue`. Defaults to
+	 * `valueFormatter`.
+	 */
+	secondaryValueFormatter?: ( value: number ) => ReactNode;
 
 	/**
 	 * Whether the chart is in loading state

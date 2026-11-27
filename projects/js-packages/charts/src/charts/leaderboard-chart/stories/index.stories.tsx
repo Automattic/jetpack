@@ -180,6 +180,33 @@ export const WithoutComparison: Story = {
 	},
 };
 
+const blockedBySource: Record< string, [ number, number ] > = {
+	direct: [ 62, 21 ],
+	social: [ 26700, 2444 ],
+	search: [ 0, 0 ],
+	email: [ 5, 1 ],
+};
+
+export const WithSecondaryFigure: Story = {
+	args: {
+		...Default.args,
+		data: sampleData.map( entry => {
+			const [ secondaryValue, secondaryPreviousValue ] = blockedBySource[ entry.id ] ?? [];
+			return secondaryValue === undefined
+				? entry
+				: { ...entry, secondaryValue, secondaryPreviousValue };
+		} ),
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Entries with a `secondaryValue` get a column after the value, and its change after the delta when comparing. "Referral" carries none, so its cells stay blank.',
+			},
+		},
+	},
+};
+
 export const WithOverlayLabel: Story = {
 	args: {
 		data: sampleData,

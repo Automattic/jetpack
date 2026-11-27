@@ -86,6 +86,55 @@ const hasDeltaValue = (
 } => hasPreviousValue( entry ) && entry.delta != null;
 
 /**
+ * A figure's change, or a placeholder that says why there is none.
+ *
+ * @param props                  - Component props.
+ * @param props.delta            - The percentage change, or undefined when there is none to show.
+ * @param props.hasPreviousValue - Whether the figure had a previous value, which tells the two placeholders apart.
+ * @param props.deltaFormatter   - Formats the change.
+ * @return The cell.
+ */
+const DeltaCell = ( {
+	delta,
+	hasPreviousValue: hasPrevious,
+	deltaFormatter,
+}: {
+	delta: number | undefined;
+	hasPreviousValue: boolean;
+	deltaFormatter: ( value: number ) => string;
+} ) => {
+	if ( delta !== undefined ) {
+		// Math.sign gives -1/0/1.
+		return (
+			<Text
+				className={ clsx(
+					styles.deltaValue,
+					styles[ DELTA_TREND_CLASS[ Math.sign( delta ) + 1 ] ]
+				) }
+			>
+				{ deltaFormatter( delta ) }
+			</Text>
+		);
+	}
+	return (
+		<Text
+			className={ clsx(
+				styles.deltaValue,
+				styles.deltaPlaceholder,
+				styles[ DELTA_TREND_CLASS[ 1 ] ]
+			) }
+		>
+			<span aria-hidden="true">—</span>
+			<VisuallyHidden render={ <span /> }>
+				{ hasPrevious
+					? __( 'Percentage change unavailable', 'jetpack-charts' )
+					: __( 'No comparison data', 'jetpack-charts' ) }
+			</VisuallyHidden>
+		</Text>
+	);
+};
+
+/**
  * A layered row's cell that takes pointer events of its own (a value tooltip)
  * sits above the row button; pass its clicks on so they still drill down.
  *
@@ -229,29 +278,30 @@ const BarWithLabel = ( {
  * LeaderboardChart component displays a ranked list of data with progress bars
  * and optional comparison values.
  *
- * @param props                  - Component props
- * @param props.data             - Array of leaderboard entries to display
- * @param props.chartId          - Optional unique identifier for the chart
- * @param props.width            - Optional width of the chart container in pixels
- * @param props.height           - Optional height of the chart container in pixels
- * @param props.withComparison   - Whether to show comparison data
- * @param props.withOverlayLabel - Whether to overlay the label on top of the bar
- * @param props.negativeBars     - How a negative value draws: from a shared zero point, or as an empty bar
- * @param props.primaryColor     - Primary color for current period bars
- * @param props.secondaryColor   - Secondary color for comparison period bars
- * @param props.valueFormatter   - Custom formatter for values
- * @param props.deltaFormatter   - Custom formatter for delta values
- * @param props.loading          - Whether the chart is in loading state
- * @param props.fitRows          - Whether to show only the rows that fit the chart's height
- * @param props.animation        - Whether the chart should animate on load
- * @param props.showLegend       - Whether to show legend
- * @param props.legend           - Legend configuration (orientation, position, alignment, shape, shapeStyles, interactive)
- * @param props.legendLabels     - Custom labels for legend items
- * @param props.gap              - Spacing between legend and chart content
- * @param props.children         - Child components for composition API
- * @param props.className        - Additional CSS class name
- * @param props.style            - Custom styling for the chart container
- * @param props.ariaLabel        - Accessible name for the list, defaulting to "Leaderboard chart"
+ * @param props                         - Component props
+ * @param props.data                    - Array of leaderboard entries to display
+ * @param props.chartId                 - Optional unique identifier for the chart
+ * @param props.width                   - Optional width of the chart container in pixels
+ * @param props.height                  - Optional height of the chart container in pixels
+ * @param props.withComparison          - Whether to show comparison data
+ * @param props.withOverlayLabel        - Whether to overlay the label on top of the bar
+ * @param props.negativeBars            - How a negative value draws: from a shared zero point, or as an empty bar
+ * @param props.primaryColor            - Primary color for current period bars
+ * @param props.secondaryColor          - Secondary color for comparison period bars
+ * @param props.valueFormatter          - Custom formatter for values
+ * @param props.deltaFormatter          - Custom formatter for delta values
+ * @param props.secondaryValueFormatter - Formats the second figure; defaults to `valueFormatter`
+ * @param props.loading                 - Whether the chart is in loading state
+ * @param props.fitRows                 - Whether to show only the rows that fit the chart's height
+ * @param props.animation               - Whether the chart should animate on load
+ * @param props.showLegend              - Whether to show legend
+ * @param props.legend                  - Legend configuration (orientation, position, alignment, shape, shapeStyles, interactive)
+ * @param props.legendLabels            - Custom labels for legend items
+ * @param props.gap                     - Spacing between legend and chart content
+ * @param props.children                - Child components for composition API
+ * @param props.className               - Additional CSS class name
+ * @param props.style                   - Custom styling for the chart container
+ * @param props.ariaLabel               - Accessible name for the list, defaulting to "Leaderboard chart"
  * @return JSX element representing the leaderboard chart
  */
 const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
@@ -266,6 +316,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	secondaryColor,
 	valueFormatter = defaultValueFormatter,
 	deltaFormatter = defaultDeltaFormatter,
+	secondaryValueFormatter = valueFormatter,
 	animation,
 	loading = false,
 	fitRows = false,
@@ -395,6 +446,9 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	// of their own; with either series hidden the grid keeps its two tracks.
 	const showComparisonColumn = withComparison && isComparisonVisible;
 	const hasDeltaColumn = showComparisonColumn && isPrimaryVisible;
+	// A second figure adds a track of its own, and another for its change when comparing.
+	const hasSecondaryColumn =
+		isPrimaryVisible && resolvedData.some( entry => entry.secondaryValue != null );
 
 	// Handle empty or undefined data
 	if ( ! data || data.length === 0 ) {
@@ -491,6 +545,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 							data-leaderboard-grid
 							className={ clsx( styles.grid, {
 								[ styles[ 'grid--comparison' ] ]: hasDeltaColumn,
+								[ styles[ 'grid--secondary' ] ]: hasSecondaryColumn,
 							} ) }
 						>
 							{ resolvedData.map( ( entry, rowIndex ) => {
@@ -503,13 +558,6 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 										: undefined;
 								const hasPreviousPeriodValue = hasPreviousValue( entry );
 								const hasDelta = hasDeltaValue( entry );
-								const showComparisonValue = showComparisonColumn && hasDelta;
-								const showComparisonPlaceholder = showComparisonColumn && ! hasDelta;
-								// Math.sign gives -1/0/1; the placeholder has no delta to read, so it takes neutral.
-								const deltaTrendClass =
-									styles[
-										DELTA_TREND_CLASS[ showComparisonValue ? Math.sign( entry.delta ) + 1 : 1 ]
-									];
 
 								const rowCells = (
 									<>
@@ -534,27 +582,27 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 										>
 											{ isPrimaryVisible && <Text>{ valueFormatter( entry.currentValue ) }</Text> }
 
-											{ showComparisonValue && (
-												<Text className={ clsx( styles.deltaValue, deltaTrendClass ) }>
-													{ deltaFormatter( entry.delta ) }
+											{ showComparisonColumn && (
+												<DeltaCell
+													delta={ hasDelta ? entry.delta : undefined }
+													hasPreviousValue={ hasPreviousPeriodValue }
+													deltaFormatter={ deltaFormatter }
+												/>
+											) }
+
+											{ hasSecondaryColumn && (
+												<Text className={ styles.secondaryValue }>
+													{ entry.secondaryValue != null &&
+														secondaryValueFormatter( entry.secondaryValue ) }
 												</Text>
 											) }
 
-											{ showComparisonPlaceholder && (
-												<Text
-													className={ clsx(
-														styles.deltaValue,
-														styles.deltaPlaceholder,
-														deltaTrendClass
-													) }
-												>
-													<span aria-hidden="true">—</span>
-													<VisuallyHidden render={ <span /> }>
-														{ hasPreviousPeriodValue
-															? __( 'Percentage change unavailable', 'jetpack-charts' )
-															: __( 'No comparison data', 'jetpack-charts' ) }
-													</VisuallyHidden>
-												</Text>
+											{ hasSecondaryColumn && showComparisonColumn && (
+												<DeltaCell
+													delta={ entry.secondaryDelta }
+													hasPreviousValue={ entry.secondaryPreviousValue != null }
+													deltaFormatter={ deltaFormatter }
+												/>
 											) }
 										</div>
 									</>
