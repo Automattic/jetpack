@@ -256,6 +256,17 @@ class Admin_UI {
 	}
 
 	/**
+	 * Whether wpcom-admin-menu.php registers the dashboard page on Simple, and so whether the admin shell may serve it there.
+	 *
+	 * @return bool
+	 */
+	private static function should_add_wp_admin_submenu() {
+		return function_exists( 'wpcom_site_has_feature' )
+			&& wpcom_site_has_feature( 'videopress' )
+			&& null !== self::get_dashboard_render_callback();
+	}
+
+	/**
 	 * Initializes the "Jetpack > VideoPress" menu item when VideoPress is not active.
 	 *
 	 * This method is called by the Initializer class instead of init() when the
@@ -397,11 +408,8 @@ class Admin_UI {
 	 * @return array
 	 */
 	public static function add_admin_shell_member( $members ) {
-		if (
-			( new Host() )->is_wpcom_simple()
-			|| ! self::should_add_dashboard_menu()
-			|| ! file_exists( dirname( __DIR__ ) . '/build/build.php' )
-		) {
+		$registers_page = ( new Host() )->is_wpcom_simple() ? self::should_add_wp_admin_submenu() : self::should_add_dashboard_menu();
+		if ( ! $registers_page || ! file_exists( dirname( __DIR__ ) . '/build/build.php' ) ) {
 			return $members;
 		}
 

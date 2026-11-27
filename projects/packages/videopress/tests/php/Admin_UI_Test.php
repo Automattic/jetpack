@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
@@ -422,5 +423,53 @@ class Admin_UI_Test extends BaseTestCase {
 		} finally {
 			remove_filter( 'gettext', $translate, 10 );
 		}
+	}
+
+	/**
+	 * Sites with VideoPress feature flags, and whether each joins the admin shell on Simple.
+	 *
+	 * @return array
+	 */
+	public static function provide_simple_site_features() {
+		return array(
+			'with the VideoPress feature'    => array( array( 'videopress' ), true ),
+			'without the VideoPress feature' => array( array(), false ),
+		);
+	}
+
+	/**
+	 * On Simple, the dashboard joins the shell exactly when wpcom-admin-menu.php registers its page.
+	 *
+	 * @dataProvider provide_simple_site_features
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 *
+	 * @param string[] $features Site features.
+	 * @param bool     $expected Whether VideoPress joins the shell.
+	 */
+	#[DataProvider( 'provide_simple_site_features' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_add_admin_shell_member_on_simple_follows_the_videopress_feature( $features, $expected ) {
+		require_once __DIR__ . '/mocks/wpcom-site-has-feature.php';
+		Constants::set_constant( 'IS_WPCOM', true );
+		$GLOBALS['videopress_test_site_features'] = $features;
+		// CI runs unbuilt, and the member needs the build; a stand-in is only made, and removed, when there is none.
+		$build    = dirname( __DIR__, 2 ) . '/build/build.php';
+		$stand_in = ! file_exists( $build );
+		if ( $stand_in ) {
+			wp_mkdir_p( dirname( $build ) );
+			file_put_contents( $build, '<?php' );
+		}
+
+		try {
+			$members = Admin_UI::add_admin_shell_member( array() );
+		} finally {
+			if ( $stand_in ) {
+				wp_delete_file( $build );
+			}
+		}
+
+		$this->assertSame( $expected, isset( $members[ Admin_UI::ADMIN_PAGE_SLUG ] ) );
 	}
 }
