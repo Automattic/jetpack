@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+PayPal Payment Buttons: Load the block stylesheet only on pages that show the block.

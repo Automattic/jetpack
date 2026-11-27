@@ -105,7 +105,6 @@ class PayPal_Payment_Buttons {
 			$dist_dir,
 			array(
 				'render_callback' => array( Jetpack_PayPal_Payment_Buttons::class, 'render_block' ),
-				'style'           => Jetpack_PayPal_Payment_Buttons::STYLE_HANDLE,
 			)
 		);
 	}
