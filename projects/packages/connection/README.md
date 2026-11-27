@@ -31,6 +31,25 @@ Package is published in [Packagist](https://packagist.org/packages/automattic/je
 
 If you plan on using this package in your WordPress plugin, we would recommend that you use [Jetpack Autoloader](https://packagist.org/packages/automattic/jetpack-autoloader) as your autoloader. This will allow for maximum interoperability with other plugins that use this package as well.
 
+## Safe Mode authorization source
+
+A consumer can set an optional `from` value in its `identity_crisis` configuration
+to identify itself when the merchant creates a separate connection:
+
+```php
+$config->ensure( 'identity_crisis', array(
+    'slug'       => 'my-plugin',
+    'admin_page' => '/wp-admin/admin.php?page=my-plugin',
+    'from'       => 'my_plugin_safe_mode',
+) );
+```
+
+The selected consumer's source is passed to registration and authorization.
+Use its existing authorization source when it selects a branded connection flow.
+Consumers that omit it keep the default source for the selected Safe Mode screen.
+This setting does not change permissions, recovery choices, return destinations,
+or the screen's recovery events.
+
 ## Security
 
 Need to report a security vulnerability? Go to [https://automattic.com/security/](https://automattic.com/security/) or directly to our security bug bounty site [https://hackerone.com/automattic](https://hackerone.com/automattic).

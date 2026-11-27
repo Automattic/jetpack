@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Safe Mode: Allow consumers to select the authorization source for a separate connection.

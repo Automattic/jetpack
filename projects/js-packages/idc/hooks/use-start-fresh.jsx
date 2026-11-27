@@ -1,16 +1,19 @@
 import restApi from '@automattic/jetpack-api';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { addQueryArgs } from '@wordpress/url';
 import { useCallback, useState } from 'react';
 import { STORE_ID } from '../state/store';
+import navigate from '../tools/navigate';
 import trackAndBumpMCStats from '../tools/tracking';
 
 /**
  * Custom hook to handle the migration action.
  *
  * @param {string} redirectUri - WP-admin URI to redirect user to after reconnecting.
+ * @param {string} from        - Optional consumer source for registration and authorization.
  * @return {{isStartingFresh: boolean, startFreshCallback: ((function(): void)|*)}} Hook values.
  */
-export default redirectUri => {
+export default ( redirectUri, from ) => {
 	const [ isStartingFresh, setIsStartingFresh ] = useState( false );
 
 	const isActionInProgress = useSelect( select => select( STORE_ID ).getIsActionInProgress(), [] );
@@ -28,9 +31,9 @@ export default redirectUri => {
 			clearErrorType();
 
 			restApi
-				.startIDCFresh( redirectUri )
+				.startIDCFresh( redirectUri, from )
 				.then( connectUrl => {
-					window.location.href = connectUrl + '&from=idc-notice';
+					navigate( addQueryArgs( connectUrl, { from: from || 'idc-notice' } ) );
 				} )
 				.catch( error => {
 					setIsActionInProgress( false );
@@ -45,6 +48,7 @@ export default redirectUri => {
 		isActionInProgress,
 		setIsActionInProgress,
 		redirectUri,
+		from,
 		setErrorType,
 		clearErrorType,
 	] );
