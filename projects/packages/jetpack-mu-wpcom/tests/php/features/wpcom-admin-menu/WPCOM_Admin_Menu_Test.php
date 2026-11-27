@@ -516,6 +516,19 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * The package skips the shell on Simple, so this package adds the page, and only while it shows the native page.
+	 */
+	public function test_activity_log_joins_the_admin_shell_with_the_native_page() {
+		require_once __DIR__ . '/fixtures/class-jetpack-activity-log.php';
+
+		$this->assertArrayHasKey( 'jetpack-activity-log', wpcom_add_activity_log_admin_shell_member( array() ) );
+
+		add_filter( 'jetpack_feature_flag_enabled_' . WPCOM_NATIVE_ACTIVITY_LOG_FLAG, '__return_false' );
+		$this->assertSame( array(), wpcom_add_activity_log_admin_shell_member( array() ) );
+		remove_filter( 'jetpack_feature_flag_enabled_' . WPCOM_NATIVE_ACTIVITY_LOG_FLAG, '__return_false' );
+	}
+
+	/**
 	 * Exactly one Backup entry shows: wp-admin's once the flag is on and the page exists, else Calypso's.
 	 *
 	 * @dataProvider provide_backup_entry_cases
