@@ -250,6 +250,39 @@ class Jetpack_Sync_WooCommerce_Analytics_Test extends Jetpack_Sync_TestBase {
 	}
 
 	/**
+	 * Importing an order also syncs its refunds, whose stats rows the import rewrote.
+	 */
+	public function test_importing_an_order_also_syncs_its_refunds() {
+		$this->skip_before_woocommerce( '10.3' );
+
+		$order = $this->create_refundable_order();
+		$order->update_status( 'processing' );
+		$refund = $this->refund( $order, 10 );
+
+		$module  = $this->enable_analytics_module();
+		$handler = array( $this->listener, 'action_handler' );
+		$module->init_listeners( $handler );
+		$this->server_event_storage->reset();
+
+		$synced_ids = array();
+		try {
+			do_action( 'woocommerce_order_scheduler_after_import_order', $order->get_id() );
+			$this->sender->do_sync();
+			$synced_ids = array_map(
+				static function ( $event ) {
+					return $event->args['order_stats']['order_id'];
+				},
+				$this->server_event_storage->get_all_events( 'woocommerce_analytics_sync_reports_data' )
+			);
+		} finally {
+			$this->remove_analytics_module_listeners( $module, $handler );
+		}
+
+		$this->assertContains( $order->get_id(), $synced_ids );
+		$this->assertContains( $refund->get_id(), $synced_ids );
+	}
+
+	/**
 	 * Full sync reads a real Analytics order-stats row and expands its order payload.
 	 */
 	public function test_full_sync_chunk_contains_real_order_payload() {
@@ -467,7 +500,7 @@ class Jetpack_Sync_WooCommerce_Analytics_Test extends Jetpack_Sync_TestBase {
 	 */
 	private function remove_analytics_module_listeners( $module, $handler ) {
 		remove_action( 'woocommerce_analytics_delete_order_stats', array( $module, 'sync_deleted_analytics_data' ) );
-		remove_action( 'woocommerce_order_scheduler_after_import_order', array( $module, 'sync_analytics_reports_data' ) );
+		remove_action( 'woocommerce_order_scheduler_after_import_order', array( $module, 'sync_imported_analytics_reports_data' ) );
 		remove_action( 'woocommerce_analytics_update_order_stats', array( $module, 'sync_analytics_reports_data' ) );
 		remove_action( 'woocommerce_analytics_sync_reports_data', $handler );
 		remove_action( 'woocommerce_analytics_delete_reports_data', $handler );

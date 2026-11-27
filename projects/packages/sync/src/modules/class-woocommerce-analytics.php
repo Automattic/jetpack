@@ -24,7 +24,6 @@ namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\WooCommerce\Admin\API\Reports\Coupons\DataStore as CouponsDataStore;
 use Automattic\WooCommerce\Admin\API\Reports\Orders\Stats\DataStore as OrderStatsDataStore;
-use Automattic\WooCommerce\Internal\Fulfillments\FulfillmentUtils;
 use Automattic\WooCommerce\Utilities\FeaturesUtil;
 use Automattic\WooCommerce\Utilities\OrderUtil;
 use DateTimeZone;
@@ -145,7 +144,7 @@ class WooCommerce_Analytics extends Module {
 
 		// In WooCommerce 10.3+ the new action is available.
 		if ( defined( 'WC_VERSION' ) && version_compare( WC_VERSION, '10.3', '>=' ) ) {
-			add_action( 'woocommerce_order_scheduler_after_import_order', array( $this, 'sync_analytics_reports_data' ) );
+			add_action( 'woocommerce_order_scheduler_after_import_order', array( $this, 'sync_imported_analytics_reports_data' ) );
 		} else {
 			add_action( 'woocommerce_analytics_update_order_stats', array( $this, 'sync_analytics_reports_data' ) );
 		}
@@ -488,6 +487,27 @@ class WooCommerce_Analytics extends Module {
 	}
 
 	/**
+	 * Sync an order WooCommerce has just imported, and the refunds the import rewrote with it.
+	 *
+	 * Importing an order rewrites its refunds' stats rows too, but the action fires only for the order.
+	 *
+	 * @param int $order_id The order or refund ID.
+	 * @return void
+	 */
+	public function sync_imported_analytics_reports_data( $order_id ) {
+		$this->sync_analytics_reports_data( $order_id );
+
+		$order = wc_get_order( $order_id );
+		if ( ! $order instanceof WC_Order ) {
+			return;
+		}
+
+		foreach ( $order->get_refunds() as $refund ) {
+			$this->sync_analytics_reports_data( $refund->get_id() );
+		}
+	}
+
+	/**
 	 * Handle syncing of analytics deletion data.
 	 *
 	 * @param int $order_id The order ID.
@@ -685,9 +705,12 @@ class WooCommerce_Analytics extends Module {
 		if ( is_callable( array( OrderStatsDataStore::class, 'has_fulfillment_status_column' ) ) && OrderStatsDataStore::has_fulfillment_status_column() ) {
 			$order_stats_item         = $this->get_order_stats_item( $order->get_id() );
 			$order_fulfillment_status = $order_stats_item['fulfillment_status'] ?? null;
-		} elseif ( is_callable( array( FulfillmentUtils::class, 'get_order_fulfillment_status' ) ) && $order instanceof WC_Order ) {
-			$fulfillment_status       = FulfillmentUtils::get_order_fulfillment_status( $order );
-			$order_fulfillment_status = 'no_fulfillments' !== $fulfillment_status ? $fulfillment_status : null;
+		} elseif ( $order instanceof WC_Order ) {
+			$get_fulfillment_status = self::get_fulfillment_status_callback();
+			if ( $get_fulfillment_status ) {
+				$fulfillment_status       = call_user_func( $get_fulfillment_status, $order );
+				$order_fulfillment_status = 'no_fulfillments' !== $fulfillment_status ? $fulfillment_status : null;
+			}
 		}
 
 		$order_stats_data = array(
@@ -798,6 +821,25 @@ class WooCommerce_Analytics extends Module {
 		$order_total  = wc_format_decimal( (float) $parent_order->get_total() );
 
 		return $refund_total === $order_total;
+	}
+
+	/**
+	 * Get WooCommerce's order fulfillment status function, which moved namespace in WooCommerce 11.0.
+	 *
+	 * @return callable|null
+	 */
+	private static function get_fulfillment_status_callback() {
+		$classes = array(
+			'Automattic\WooCommerce\Admin\Features\Fulfillments\FulfillmentUtils',
+			'Automattic\WooCommerce\Internal\Fulfillments\FulfillmentUtils',
+		);
+		foreach ( $classes as $class ) {
+			if ( is_callable( array( $class, 'get_order_fulfillment_status' ) ) ) {
+				return array( $class, 'get_order_fulfillment_status' );
+			}
+		}
+
+		return null;
 	}
 
 	/**

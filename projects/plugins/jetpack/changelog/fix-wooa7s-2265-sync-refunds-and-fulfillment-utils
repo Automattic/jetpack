@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+Comment: Add a WooCommerce Analytics sync test for refunds resent on order import; no production change.
+
