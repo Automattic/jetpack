@@ -935,6 +935,45 @@ class Backup_Abilities_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A tracked backup response retains the fields needed for polling and restore.
+	 */
+	public function test_backup_request_status_returns_tracking_fields(): void {
+		wp_set_current_user( $this->admin_id );
+
+		$mock = function () {
+			return array(
+				'response' => array( 'code' => 200 ),
+				'body'     => wp_json_encode(
+					array(
+						'request_id'   => 'request-1',
+						'status'       => 'completed',
+						'requested_at' => '2026-11-26T12:00:00Z',
+						'updated_at'   => '2026-11-26T12:05:00Z',
+						'completed_at' => '2026-11-26T12:05:00Z',
+						'backup_id'    => 123,
+						'rewind_id'    => 'rewind-123',
+					),
+					JSON_UNESCAPED_SLASHES
+				),
+			);
+		};
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_connection_options' ), 10, 2 );
+		add_filter( 'pre_http_request', $mock );
+
+		$result = Backup_Abilities::execute_get_backup_request_status( array( 'request_id' => 'request-1' ) );
+
+		remove_filter( 'pre_http_request', $mock );
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_connection_options' ), 10 );
+
+		$this->assertIsArray( $result );
+		$this->assertSame( 'completed', $result['status'] );
+		$this->assertSame( 'request-1', $result['request_id'] );
+		$this->assertSame( 123, $result['backup_id'] );
+		$this->assertSame( 'rewind-123', $result['rewind_id'] );
+		$this->assertSame( '2026-11-26T12:05:00Z', $result['completed_at'] );
+	}
+
+	/**
 	 * End-to-end for JETPACK-2372 and its schedule twin: `/size`, `/policies` and
 	 * `/scheduled` answer with the bodies WordPress.com actually sends.
 	 *

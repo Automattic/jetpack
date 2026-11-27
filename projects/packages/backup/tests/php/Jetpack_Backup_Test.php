@@ -310,6 +310,38 @@ class Jetpack_Backup_Test extends TestCase {
 	}
 
 	/**
+	 * The status helper preserves a tracked response and distinguishes an unknown
+	 * request from a missing status route on an older WordPress.com backend.
+	 */
+	public function test_get_backup_request_status_distinguishes_response_types() {
+		$this->sign_in_as_connected_admin();
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_response' ) );
+
+		$this->wpcom_body = wp_json_encode(
+			array(
+				'request_id'   => 'request-1',
+				'status'       => 'queued',
+				'requested_at' => '2026-11-26T12:00:00Z',
+				'updated_at'   => '2026-11-26T12:00:00Z',
+			)
+		);
+		$queued = Jetpack_Backup::get_backup_request_status( 'request-1' );
+		$this->assertInstanceOf( WP_REST_Response::class, $queued );
+		$this->assertSame( 'queued', $queued->get_data()['status'] );
+
+		$this->wpcom_status = 404;
+		$this->wpcom_body   = '{"error":"rest_no_route"}';
+		$missing_route      = Jetpack_Backup::get_backup_request_status( 'request-1' );
+		$this->assertInstanceOf( WP_Error::class, $missing_route );
+		$this->assertNotSame( 'jetpack_backup_request_not_found', $missing_route->get_error_code() );
+
+		$this->wpcom_body = '{"code":"backup_request_not_found"}';
+		$unknown_request  = Jetpack_Backup::get_backup_request_status( 'request-1' );
+		$this->assertInstanceOf( WP_Error::class, $unknown_request );
+		$this->assertSame( 'jetpack_backup_request_not_found', $unknown_request->get_error_code() );
+	}
+
+	/**
 	 * The route callbacks, keyed by route so a failure names the endpoint.
 	 *
 	 * @return array[]
