@@ -1894,6 +1894,291 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Notes on responses are always stored held, whatever core or Akismet decided.
+	 *
+	 * @dataProvider provide_note_approvals
+	 *
+	 * @param string     $post_type Post type the comment is left on.
+	 * @param int|string $approved  Approval status core computed.
+	 * @param int|string $expected  Approval status that should be stored.
+	 */
+	#[DataProvider( 'provide_note_approvals' )]
+	public function test_feedback_notes_are_held( $post_type, $approved, $expected ) {
+		Contact_Form_Plugin::init();
+		$post_id = wp_insert_post(
+			array(
+				'post_type'   => $post_type,
+				'post_status' => 'publish',
+			)
+		);
+
+		$result = apply_filters( 'pre_comment_approved', $approved, array( 'comment_post_ID' => $post_id ) );
+
+		$this->assertSame( $expected, $result );
+	}
+
+	/**
+	 * Post type, computed approval and the approval that should be stored.
+	 *
+	 * @return array
+	 */
+	public static function provide_note_approvals() {
+		return array(
+			'approved note is held'          => array( 'feedback', 1, 0 ),
+			'Akismet spam verdict is held'   => array( 'feedback', 'spam', 0 ),
+			'regular post comment untouched' => array( 'post', 1, 1 ),
+			'regular post spam untouched'    => array( 'post', 'spam', 'spam' ),
+		);
+	}
+
+	/**
+	 * Comments on responses get the note type, and stay held after Akismet's REST verdict.
+	 *
+	 * @dataProvider provide_note_type_cases
+	 *
+	 * @param string     $hook              Filter the comment data passes through.
+	 * @param string     $post_type         Post type the comment is left on.
+	 * @param string     $expected_type     Comment type that should be stored.
+	 * @param int|string $expected_approved Approval status that should be stored.
+	 */
+	#[DataProvider( 'provide_note_type_cases' )]
+	public function test_feedback_notes_get_note_type( $hook, $post_type, $expected_type, $expected_approved ) {
+		Contact_Form_Plugin::init();
+		$post_id = wp_insert_post(
+			array(
+				'post_type'   => $post_type,
+				'post_status' => 'publish',
+			)
+		);
+
+		$data = apply_filters(
+			$hook,
+			array(
+				'comment_post_ID'  => $post_id,
+				'comment_type'     => 'comment',
+				'comment_approved' => 'spam',
+			),
+			null
+		);
+
+		$this->assertSame( array( $expected_type, $expected_approved ), array( $data['comment_type'], $data['comment_approved'] ) );
+	}
+
+	/**
+	 * Hook, post type, and the comment type and approval that should be stored.
+	 *
+	 * @return array
+	 */
+	public static function provide_note_type_cases() {
+		return array(
+			'REST note'          => array( 'rest_pre_insert_comment', 'feedback', Feedback::NOTE_COMMENT_TYPE, 0 ),
+			'classic note'       => array( 'preprocess_comment', 'feedback', Feedback::NOTE_COMMENT_TYPE, 0 ),
+			'REST post comment'  => array( 'rest_pre_insert_comment', 'post', 'comment', 'spam' ),
+			'classic post reply' => array( 'preprocess_comment', 'post', 'comment', 'spam' ),
+		);
+	}
+
+	/**
+	 * Core stores `comment_type` in a varchar(20) column, and MySQL rejects the whole insert when it's longer.
+	 */
+	public function test_note_comment_type_fits_core_column() {
+		$this->assertLessThanOrEqual( 20, strlen( Feedback::NOTE_COMMENT_TYPE ) );
+	}
+
+	/**
+	 * Comment queries leave notes out unless they ask for them, so wp-admin's Comments screens never list or count them.
+	 *
+	 * @dataProvider provide_note_query_cases
+	 *
+	 * @param array $args     Comment query arguments.
+	 * @param bool  $excluded Whether notes should be excluded.
+	 */
+	#[DataProvider( 'provide_note_query_cases' )]
+	public function test_comment_queries_exclude_feedback_notes( $args, $excluded ) {
+		Contact_Form_Plugin::init();
+		$query = new \WP_Comment_Query();
+		$query->parse_query( $args );
+
+		do_action_ref_array( 'pre_get_comments', array( &$query ) );
+
+		$this->assertSame( $excluded, in_array( Feedback::NOTE_COMMENT_TYPE, (array) $query->query_vars['type__not_in'], true ) );
+	}
+
+	/**
+	 * Query arguments and whether notes should be excluded.
+	 *
+	 * @return array
+	 */
+	public static function provide_note_query_cases() {
+		return array(
+			'default query'           => array( array(), true ),
+			'pending comments count'  => array(
+				array(
+					'status' => 'hold',
+					'count'  => true,
+				),
+				true,
+			),
+			'other excluded types'    => array( array( 'type__not_in' => array( 'pings' ) ), true ),
+			'notes requested by type' => array( array( 'type' => Feedback::NOTE_COMMENT_TYPE ), false ),
+			'notes in type__in'       => array( array( 'type__in' => array( Feedback::NOTE_COMMENT_TYPE ) ), false ),
+			'all types requested'     => array( array( 'type' => 'all' ), false ),
+		);
+	}
+
+	/**
+	 * Cache a comment so get_comment() finds it without a database.
+	 *
+	 * @param int    $id   Comment ID.
+	 * @param string $type Comment type.
+	 * @return \WP_Comment
+	 */
+	private function cache_comment( $id, $type ) {
+		$comment = new \WP_Comment(
+			(object) array(
+				'comment_ID'       => $id,
+				'comment_post_ID'  => 1,
+				'comment_type'     => $type,
+				'comment_approved' => 'spam',
+			)
+		);
+		wp_cache_set( $id, $comment, 'comment' );
+
+		return $comment;
+	}
+
+	/**
+	 * A note marked as spam, e.g. by Akismet's bulk recheck, goes back on hold; other comments stay spam.
+	 *
+	 * @dataProvider provide_note_and_regular_comment
+	 *
+	 * @param string $type    Comment type.
+	 * @param bool   $is_note Whether the comment is a note.
+	 */
+	#[DataProvider( 'provide_note_and_regular_comment' )]
+	public function test_feedback_notes_are_kept_out_of_spam( $type, $is_note ) {
+		Contact_Form_Plugin::init();
+		$comment  = $this->cache_comment( 9001, $type );
+		$statuses = array();
+		// Report the write as failed so core stops before re-reading the comment from a database we don't have.
+		$spy = function ( $result, $table, $data ) use ( &$statuses ) {
+			$statuses[] = $data['comment_approved'] ?? null;
+			return false;
+		};
+		add_filter( 'wordbless_wpdb_update', $spy, 10, 3 );
+
+		do_action( 'transition_comment_status', 'spam', 'unapproved', $comment );
+		remove_filter( 'wordbless_wpdb_update', $spy, 10 );
+
+		$this->assertSame( $is_note ? array( '0' ) : array(), $statuses );
+	}
+
+	/**
+	 * A note and a regular comment.
+	 *
+	 * @return array
+	 */
+	public static function provide_note_and_regular_comment() {
+		return array(
+			'note'            => array( Feedback::NOTE_COMMENT_TYPE, true ),
+			'regular comment' => array( 'comment', false ),
+		);
+	}
+
+	/**
+	 * Moderators aren't emailed about held notes, but still are about other held comments.
+	 *
+	 * @dataProvider provide_note_and_regular_comment
+	 *
+	 * @param string $type    Comment type.
+	 * @param bool   $is_note Whether the comment is a note.
+	 */
+	#[DataProvider( 'provide_note_and_regular_comment' )]
+	public function test_moderators_are_not_emailed_about_feedback_notes( $type, $is_note ) {
+		Contact_Form_Plugin::init();
+		$this->cache_comment( 9002, $type );
+
+		$this->assertSame( ! $is_note, apply_filters( 'notify_moderator', true, 9002 ) );
+	}
+
+	/**
+	 * Only people who manage responses can read one; wp-admin's Comments screen shows a note to anyone who can.
+	 *
+	 * @dataProvider provide_response_readers
+	 *
+	 * @param string $role     Role of the user.
+	 * @param bool   $can_read Whether the user can read a published response.
+	 */
+	#[DataProvider( 'provide_response_readers' )]
+	public function test_only_response_managers_can_read_responses( $role, $can_read ) {
+		Contact_Form_Plugin::init();
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type'   => 'feedback',
+				'post_status' => 'publish',
+			)
+		);
+		$user_id     = wp_insert_user(
+			array(
+				'user_login' => 'response_reader_' . $role,
+				'user_pass'  => 'password',
+				'role'       => $role,
+			)
+		);
+
+		$this->assertSame( $can_read, user_can( $user_id, 'read_post', $feedback_id ) );
+	}
+
+	/**
+	 * Roles and whether each can read a response.
+	 *
+	 * @return array
+	 */
+	public static function provide_response_readers() {
+		return array(
+			'contributor' => array( 'contributor', false ),
+			'author'      => array( 'author', false ),
+			'editor'      => array( 'editor', true ),
+		);
+	}
+
+	/**
+	 * The registered notes exporter and eraser run core's comment callbacks against notes only, and leave other queries alone after.
+	 *
+	 * @dataProvider provide_notes_privacy_callbacks
+	 *
+	 * @param string $register Contact_Form_Plugin method that registers the callback.
+	 */
+	#[DataProvider( 'provide_notes_privacy_callbacks' )]
+	public function test_notes_privacy_callbacks_query_notes_only( $register ) {
+		$plugin     = Contact_Form_Plugin::init();
+		$registered = $plugin->$register( array() );
+		$types      = array();
+		$probe      = function ( $query ) use ( &$types ) {
+			$types[] = $query->query_vars['type'];
+		};
+		add_action( 'pre_get_comments', $probe, 6 );
+
+		call_user_func( $registered['jetpack-feedback-notes']['callback'], 'someone@example.com', 1 );
+		get_comments( array( 'number' => 1 ) );
+		remove_action( 'pre_get_comments', $probe, 6 );
+
+		$this->assertSame( array( Feedback::NOTE_COMMENT_TYPE, '' ), $types );
+	}
+
+	/**
+	 * Privacy callbacks for notes.
+	 *
+	 * @return array
+	 */
+	public static function provide_notes_privacy_callbacks() {
+		return array(
+			'exporter' => array( 'register_personal_data_exporter' ),
+			'eraser'   => array( 'register_personal_data_eraser' ),
+		);
+	}
+
+	/**
 	 * Test track_feedback_status_change sets spam meta when transitioning to spam
 	 */
 	public function test_track_feedback_status_change_sets_spam_meta() {
