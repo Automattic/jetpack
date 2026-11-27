@@ -122,7 +122,8 @@ const renderTooltip = params => {
 		seriesStyles,
 		extras: tooltipExtras,
 		dataFormat,
-		formatDate: point => formatBucketTooltipDate( point, displayResolution ),
+		formatDate: ( point, form ) =>
+			formatBucketTooltipDate( point, displayResolution, undefined, form ),
 	} );
 
 	return model && <DatedTooltip model={ model } indicatorType="line" />;
@@ -131,12 +132,14 @@ const renderTooltip = params => {
 
 ## Model
 
-`buildDatedTooltipModel()` groups the reported rows: a comparison series joins its group's current-period row as `previous` (one with no current series in its group, or no group, joins the first series). A comparison whose metric the chart did not report (a series the legend hid) is dropped with it. Extras are read at the hovered date from their own `data` and `previous` points; an extra with a reading in either period gets a row, and one that names a drawn series keeps that series' row. The header reads a current-period point's axis `date`, so a nearer comparison point cannot swap in its own; the `realDate` of a comparison point on the hovered bucket heads the comparison column, named by `formatDate`, which the charts point at `formatBucketTooltipDate` so a week reads as its span.
+`buildDatedTooltipModel()` groups the reported rows: a comparison series joins its group's current-period row as `previous` (one with no current series in its group, or no group, joins the first series). A comparison whose metric the chart did not report (a series the legend hid) is dropped with it. Extras are read at the hovered date from their own `data` and `previous` points; an extra with a reading in either period gets a row, and one that names a drawn series keeps that series' row. The header reads a current-period point's axis `date`, so a nearer comparison point cannot swap in its own; the `realDate` of a comparison point on the hovered bucket heads the comparison column, named by `formatDate`, which the charts point at `formatBucketTooltipDate` so a week reads as its span. `formatDate` is asked for a `compact` form too, kept as `compactDate` and `compactPreviousDate` where it is shorter; a widget narrower than the `md` breakpoint shows those instead. A date that still does not fit wraps, at its dash where it can.
 
 | Field            | Type                                    | Description                                                                              |
 | ---------------- | --------------------------------------- | ---------------------------------------------------------------------------------------- |
 | `date`           | `string`                                | The hovered bucket's date, formatted                                                     |
 | `previousDate`   | `string \| undefined`                   | The comparison bucket's date, when a comparison point sits on the hovered bucket         |
+| `compactDate`    | `string \| undefined`                   | `date` with abbreviated months, when that is shorter                                     |
+| `compactPreviousDate` | `string \| undefined`              | `previousDate` with abbreviated months, when that is shorter                             |
 | `rows[].name`    | `string`                                | The metric's name, read as the value's unit                                              |
 | `rows[].countLabel` | `CountLabel \| undefined`           | The metric's plural-aware unit, from the series or extra                                 |
 | `rows[].dataFormat` | `DataFormat`                         | The extra's own format, else the chart's                                                 |

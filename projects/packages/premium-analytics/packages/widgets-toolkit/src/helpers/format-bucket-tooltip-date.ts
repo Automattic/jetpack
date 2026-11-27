@@ -2,7 +2,12 @@
  * External dependencies
  */
 import { isRepeatedHour, localTZDate } from '@jetpack-premium-analytics/datetime';
-import { formatDate, formatDateRange, isWholePeriod } from '@jetpack-premium-analytics/formatters';
+import {
+	formatDate,
+	formatDateRange,
+	formatDateRangeCompact,
+	isWholePeriod,
+} from '@jetpack-premium-analytics/formatters';
 import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -13,6 +18,9 @@ import type { BucketInfo } from '@jetpack-premium-analytics/externals';
 
 type BucketDatum = { date: Date; realDate?: Date; endDate?: Date };
 
+/** `compact` abbreviates the months of a span, for a tooltip in a narrow card. */
+export type TooltipDateForm = 'full' | 'compact';
+
 /**
  * The date a tooltip row names for a point: the days its own bucket covers when a
  * date-labelled bucket spans several (a week, a quarter) or the range cuts a month or
@@ -21,12 +29,14 @@ type BucketDatum = { date: Date; realDate?: Date; endDate?: Date };
  * @param datum             - The point; a comparison point's own dates are in `realDate`.
  * @param displayResolution - The resolution the chart labels its buckets at.
  * @param bucket            - The chart's declared bucket size, when it has one.
+ * @param form              - How long a span reads.
  * @return The formatted date or span.
  */
 export function formatBucketTooltipDate(
 	datum: BucketDatum,
 	displayResolution: BucketInfo[ 'displayResolution' ],
-	bucket?: BucketResolution
+	bucket?: BucketResolution,
+	form: TooltipDateForm = 'full'
 ): string {
 	const start = datum.realDate ?? datum.date;
 	const { endDate } = datum;
@@ -41,7 +51,7 @@ export function formatBucketTooltipDate(
 			( ( displayResolution === 'month' || displayResolution === 'year' ) &&
 				! isWholePeriod( range, displayResolution ) )
 		) {
-			return formatDateRange( range );
+			return form === 'compact' ? formatDateRangeCompact( range ) : formatDateRange( range );
 		}
 	}
 

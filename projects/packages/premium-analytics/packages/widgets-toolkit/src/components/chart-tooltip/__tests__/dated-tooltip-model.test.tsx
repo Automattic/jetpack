@@ -91,6 +91,29 @@ describe( 'buildDatedTooltipModel', () => {
 		] );
 	} );
 
+	it( 'keeps a compact form of each header date only where it is shorter', () => {
+		const model = buildDatedTooltipModel( {
+			tooltipData: {
+				datumByKey: Object.fromEntries( [
+					entry( 'Views', { date: JULY_1, value: 100 } ),
+					entry( 'Views · previous period', COMPARISON_POINT ),
+				] ),
+			},
+			series: SERIES,
+			seriesStyles: STYLES,
+			dataFormat: DATA_FORMAT,
+			formatDate: ( point, form ) =>
+				form === 'compact' && ! point.realDate ? 'Jul 1' : formatDate( point ),
+		} );
+
+		expect( model ).toMatchObject( {
+			date: '2026-07-01',
+			compactDate: 'Jul 1',
+			previousDate: '2026-06-01',
+		} );
+		expect( model ).not.toHaveProperty( 'compactPreviousDate' );
+	} );
+
 	// A shorter comparison period has no point for the last bucket, so visx hands over
 	// the dashed line's nearest point from the bucket before.
 	it( 'reads a comparison point from another bucket as no data, under the current date', () => {

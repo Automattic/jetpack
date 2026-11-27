@@ -54,6 +54,19 @@ function NoData() {
 	);
 }
 
+/** A header date; a narrow card swaps in the compact form, and only the shown one is read out. */
+function DateLabel( { full, compact }: { full?: string; compact?: string } ) {
+	if ( compact === undefined ) {
+		return <>{ full }</>;
+	}
+	return (
+		<>
+			<span className={ styles.fullDate }>{ full }</span>
+			<span className={ styles.compactDate }>{ compact }</span>
+		</>
+	);
+}
+
 function formatValue( row: DatedTooltipRow, value: number ): string {
 	const format = exactFormatOf( row.dataFormat );
 	return formatMetricValue( value, format.type, format.options );
@@ -112,7 +125,9 @@ export function DatedTooltip( { model, indicatorType }: DatedTooltipProps ) {
 	if ( noteOnly ) {
 		return (
 			<div className={ styles.table }>
-				<div className={ styles.header }>{ model.date }</div>
+				<div className={ styles.header }>
+					<DateLabel full={ model.date } compact={ model.compactDate } />
+				</div>
 				<div className={ styles.note }>{ model.note }</div>
 			</div>
 		);
@@ -122,8 +137,14 @@ export function DatedTooltip( { model, indicatorType }: DatedTooltipProps ) {
 		<table className={ styles.table }>
 			<thead>
 				<tr>
-					<th scope="col">{ model.date }</th>
-					{ hasPrevious && <th scope="col">{ model.previousDate }</th> }
+					<th scope="col">
+						<DateLabel full={ model.date } compact={ model.compactDate } />
+					</th>
+					{ hasPrevious && (
+						<th scope="col">
+							<DateLabel full={ model.previousDate } compact={ model.compactPreviousDate } />
+						</th>
+					) }
 				</tr>
 			</thead>
 			<tbody>

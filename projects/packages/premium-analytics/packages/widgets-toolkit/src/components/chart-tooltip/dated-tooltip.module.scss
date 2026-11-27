@@ -1,3 +1,5 @@
+@use "../../styles/widget-container" as *;
+
 // A table, so each metric's current and comparison readings share a row and
 // the two dates head their columns.
 .table {
@@ -22,6 +24,26 @@
 .header {
 	padding-block-end: var(--wpds-dimension-gap-xs);
 	font-weight: var(--wpds-typography-font-weight-emphasis);
+	// Only the dates wrap, where a narrow chart cannot fit them; balanced, a range
+	// breaks at its dash.
+	white-space: normal;
+	text-wrap: balance;
+}
+
+.compactDate {
+	display: none;
+}
+
+// Below this, two full spans side by side outgrow the card.
+@include widget-query( md, max-width ) {
+
+	.fullDate {
+		display: none;
+	}
+
+	.compactDate {
+		display: inline;
+	}
 }
 
 .table tr + tr th,

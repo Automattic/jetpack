@@ -19,7 +19,7 @@ import { useChartName } from '../../hooks/use-chart-name';
 import { useSeriesStyles } from '../../hooks/use-series-styles';
 import { DatedTooltip, buildDatedTooltipModel } from '../chart-tooltip';
 import styles from './stacked-area-chart.module.scss';
-import type { BucketResolution } from '../../helpers';
+import type { BucketResolution, TooltipDateForm } from '../../helpers';
 import type { DataFormat } from '../../types';
 import type {
 	ComparativeDatePointDate,
@@ -81,8 +81,8 @@ export function StackedAreaChart( {
 	const seriesStyles = useSeriesStyles( series );
 
 	const formatTooltipBucket = useCallback(
-		( point: ComparativeDatePointDate ) =>
-			formatBucketTooltipDate( point, displayResolution, tickResolution ),
+		( point: ComparativeDatePointDate, form?: TooltipDateForm ) =>
+			formatBucketTooltipDate( point, displayResolution, tickResolution, form ),
 		[ displayResolution, tickResolution ]
 	);
 

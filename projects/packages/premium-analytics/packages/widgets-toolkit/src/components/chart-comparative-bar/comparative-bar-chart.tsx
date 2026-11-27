@@ -29,6 +29,7 @@ import {
 	formatBucketTooltipDate,
 	toTickResolution,
 	type BucketResolution,
+	type TooltipDateForm,
 } from '../../helpers';
 import { resolvePrimarySeriesByGroup } from '../../helpers/resolve-series-names';
 import { useChartName } from '../../hooks/use-chart-name';
@@ -385,8 +386,8 @@ export function ComparativeBarChart( {
 	] );
 
 	const formatTooltipBucket = useCallback(
-		( point: ComparativeDatePointDate ) =>
-			formatBucketTooltipDate( point, displayResolution, tickResolution ),
+		( point: ComparativeDatePointDate, form?: TooltipDateForm ) =>
+			formatBucketTooltipDate( point, displayResolution, tickResolution, form ),
 		[ displayResolution, tickResolution ]
 	);
 

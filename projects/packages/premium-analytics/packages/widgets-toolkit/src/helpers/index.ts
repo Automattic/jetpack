@@ -67,5 +67,5 @@ export { monthlyHeatmapLifeStart } from './monthly-heatmap-life-start';
 export { bucketRange, monthRange, yearRange, type PeriodBounds } from './period-range';
 export { siteChartFormatting } from './site-chart-formatting';
 export { formatComparisonSeriesLabel } from './format-comparison-series-label';
-export { formatBucketTooltipDate } from './format-bucket-tooltip-date';
+export { formatBucketTooltipDate, type TooltipDateForm } from './format-bucket-tooltip-date';
 export { toTickResolution, type BucketResolution } from './bucket-resolution';
