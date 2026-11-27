@@ -279,7 +279,6 @@ abstract class Product {
 			'disclaimers'                     => static::get_disclaimers(),
 			'is_bundle'                       => static::is_bundle_product(),
 			'is_plugin_active'                => static::is_plugin_active(),
-			'is_activated'                    => static::is_activated(),
 			'is_upgradable_by_bundle'         => static::is_upgradable_by_bundle(),
 			'is_feature'                      => static::$is_feature,
 			'supported_products'              => static::get_supported_products(),
@@ -343,6 +342,7 @@ abstract class Product {
 
 		$product_data = array(
 			'status'                        => static::get_status(),
+			'is_activated'                  => static::is_activated(),
 			'pricing_for_ui'                => static::get_pricing_for_ui(),
 			'is_upgradable'                 => static::is_upgradable(),
 			'description'                   => static::get_description(),
