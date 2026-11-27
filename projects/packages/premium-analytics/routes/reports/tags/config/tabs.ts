@@ -25,6 +25,9 @@ const tagsReportTabs = defineReportTabs< TagsReportTabId >(
  */
 export const getReportTagsTabs = tagsReportTabs.getTabs;
 
+/** Get the translated label for a tab, which also heads its section. */
+export const getTabLabel = tagsReportTabs.getTabLabel;
+
 /**
  * Resolve a raw section value to a Tags report tab.
  */

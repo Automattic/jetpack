@@ -302,13 +302,18 @@ const RESPONSES: Record< string, unknown | ( ( path: string ) => unknown ) > = {
 			link: `https://example.com/post-${ index }/`,
 		} ) ),
 	},
+	// Half tags, half categories, so each narrowed view has rows of its own.
 	'stats/tags': {
-		tags: Array.from( { length: 12 }, ( _, index ) => ( {
-			tags: [
-				{ type: 'tag', name: `tag-${ index }`, link: `https://example.com/tag/${ index }/` },
-			],
-			views: ( ( index * 5 ) % 12 ) + 1,
-		} ) ),
+		tags: Array.from( { length: 24 }, ( _, index ) => {
+			const type = index % 2 ? 'category' : 'tag';
+
+			return {
+				tags: [
+					{ type, name: `${ type }-${ index }`, link: `https://example.com/${ type }/${ index }/` },
+				],
+				views: ( ( index * 5 ) % 24 ) + 1,
+			};
+		} ),
 	},
 	// Honors `max` as the endpoint does, so a download reusing the widget's 10-row query fails.
 	'stats/utm/': ( path: string ) => {
@@ -524,17 +529,26 @@ describe( 'Widget and report CSV parity', () => {
 	);
 
 	// Dated like the CASES above, but with no comparison to fail.
-	it( 'downloads the same tags-and-categories CSV from the widget as from the report page', async () => {
-		const reportFile = await download( <TagsReportPage /> );
-		queryClient.clear();
-		const widgetFile = await download(
-			<TagsWidget attributes={ { reportParams: REPORT_PARAMS } } />
-		);
+	it.each( [
+		[ 'all', undefined, 'tags-and-categories', 25 ],
+		[ 'tags', 'tag', 'tags', 13 ],
+		[ 'categories', 'category', 'categories', 13 ],
+	] as const )(
+		'downloads the same CSV from the widget as from the %s tab of the Tags report',
+		async ( section, termType, prefix, lines ) => {
+			mockUseSectionTab.mockReturnValue( [ section, jest.fn() ] );
 
-		expect( widgetFile ).toEqual( reportFile );
-		expect( widgetFile.filename ).toBe( 'tags-and-categories-2026-03-01_2026-03-10.csv' );
-		expect( widgetFile.csv.replace( '\ufeff', '' ).split( '\n' ).length ).toBeGreaterThan( 11 );
-	} );
+			const reportFile = await download( <TagsReportPage /> );
+			queryClient.clear();
+			const widgetFile = await download(
+				<TagsWidget attributes={ { reportParams: REPORT_PARAMS, termType } } />
+			);
+
+			expect( widgetFile ).toEqual( reportFile );
+			expect( widgetFile.filename ).toBe( `${ prefix }-2026-03-01_2026-03-10.csv` );
+			expect( widgetFile.csv.replace( '\ufeff', '' ).split( '\n' ) ).toHaveLength( lines );
+		}
+	);
 
 	it.each( [
 		[ 'annual-insights.csv', AnnualInsightsReportPage, AnnualHighlightsWidget, undefined ],

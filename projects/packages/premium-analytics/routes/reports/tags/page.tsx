@@ -28,6 +28,7 @@ import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
 import {
 	getReportTagsTabs,
+	getTabLabel,
 	getTagRowId,
 	getTagsFields,
 	resolveSection,
@@ -53,30 +54,21 @@ const RECORDS_VIEW = {
 };
 
 /**
- * The heading and search label for the rows on show.
+ * The table's search label for the rows on show.
  *
  * @param termType - The taxonomy the rows are narrowed to, if any.
- * @return The page title and the table's search label.
+ * @return The search label.
  */
-function getViewLabels( termType?: StatsTagsTermType ) {
+function getSearchLabel( termType?: StatsTagsTermType ): string {
 	if ( termType === 'tag' ) {
-		return {
-			title: __( 'Tags', 'jetpack-premium-analytics-pkg' ),
-			search: __( 'Search tags', 'jetpack-premium-analytics-pkg' ),
-		};
+		return __( 'Search tags', 'jetpack-premium-analytics-pkg' );
 	}
 
 	if ( termType === 'category' ) {
-		return {
-			title: __( 'Categories', 'jetpack-premium-analytics-pkg' ),
-			search: __( 'Search categories', 'jetpack-premium-analytics-pkg' ),
-		};
+		return __( 'Search categories', 'jetpack-premium-analytics-pkg' );
 	}
 
-	return {
-		title: REPORTS.tags.getLabel(),
-		search: __( 'Search tags and categories', 'jetpack-premium-analytics-pkg' ),
-	};
+	return __( 'Search tags and categories', 'jetpack-premium-analytics-pkg' );
 }
 
 /**
@@ -95,7 +87,6 @@ function TagsReport(): JSX.Element {
 	const termType = TAGS_TERM_TYPES[ activeTab ];
 	const records = useTagsReportRecords( reportParams, termType );
 	const fields = useMemo( () => getTagsFields( termType ), [ termType ] );
-	const labels = getViewLabels( termType );
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 
 	const { getLabel } = REPORTS.tags;
@@ -118,7 +109,8 @@ function TagsReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout
-				title={ labels.title }
+				// "All" would be a bare heading, so that tab keeps the report's name.
+				title={ activeTab === 'all' ? getLabel() : getTabLabel( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 				dateFilters={ dateFilters }
 			>
@@ -138,7 +130,7 @@ function TagsReport(): JSX.Element {
 						isLoading={ records.isLoading }
 						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
-						searchLabel={ labels.search }
+						searchLabel={ getSearchLabel( termType ) }
 					/>
 				</ReportErrorState>
 			</ReportPageLayout>
