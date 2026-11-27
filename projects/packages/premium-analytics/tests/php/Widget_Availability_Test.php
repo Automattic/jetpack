@@ -244,6 +244,75 @@ class Widget_Availability_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The AI widgets are available exactly where the AI and bot traffic surfaces are.
+	 *
+	 * @dataProvider provide_ai_traffic_support
+	 *
+	 * @param bool     $has_ai_traffic Whether the site and reader get the AI traffic surfaces.
+	 * @param string[] $expected       The AI widget types left available.
+	 */
+	#[DataProvider( 'provide_ai_traffic_support' )]
+	public function test_type_policy_gates_ai_widgets_on_ai_traffic( $has_ai_traffic, $expected ) {
+		$candidates = array_map(
+			static function ( $name ) {
+				return array(
+					'name'     => $name,
+					'category' => 'traffic',
+				);
+			},
+			AI_TRAFFIC_WIDGET_TYPES
+		);
+
+		$this->assertSame(
+			$expected,
+			array_column(
+				remove_unsupported_widget_items(
+					$candidates,
+					'name',
+					array(
+						'is_wpcom_simple' => true,
+						'has_videopress'  => true,
+						'has_ai_traffic'  => $has_ai_traffic,
+					)
+				),
+				'name'
+			)
+		);
+	}
+
+	/**
+	 * Data provider for test_type_policy_gates_ai_widgets_on_ai_traffic.
+	 *
+	 * @return array
+	 */
+	public static function provide_ai_traffic_support() {
+		return array(
+			'with the AI traffic surfaces'    => array( true, AI_TRAFFIC_WIDGET_TYPES ),
+			'without the AI traffic surfaces' => array( false, array() ),
+		);
+	}
+
+	/**
+	 * Every widget in the `ai-traffic` namespace is gated, so a new one can't reach sites without edge data.
+	 */
+	public function test_ai_traffic_widget_types_match_the_manifest() {
+		$ai_names = array_values(
+			array_filter(
+				$this->manifest_widget_names(),
+				static function ( $name ) {
+					return str_starts_with( $name, 'ai-traffic/' );
+				}
+			)
+		);
+
+		$gated = AI_TRAFFIC_WIDGET_TYPES;
+		sort( $gated );
+		sort( $ai_names );
+
+		$this->assertSame( $gated, $ai_names, 'Every ai-traffic widget must be listed in AI_TRAFFIC_WIDGET_TYPES.' );
+	}
+
+	/**
 	 * The registry callback drops the video widgets when VideoPress is absent.
 	 */
 	public function test_registry_callback_removes_video_widgets_without_videopress() {

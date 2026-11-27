@@ -53,5 +53,6 @@ export const postStatsFixture: StatsPostRawResponse = {
 		post_date_gmt: '2026-06-22 18:00:00',
 		post_status: 'publish',
 		comment_count: 8,
+		permalink: 'https://example.com/2026/06/22/hello-world/',
 	},
 };

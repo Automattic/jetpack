@@ -25,7 +25,7 @@ function get_author_single_report_page_default_layout() {
 }
 
 /**
- * The Post traffic section of the post page: highlights, views, likes, comments, UTM, all-time traffic.
+ * The Post traffic section of the post page: highlights, views, likes, comments, UTM, top AI companies, all-time traffic.
  *
  * @return array
  */
@@ -47,7 +47,8 @@ function get_post_traffic_single_report_section_default_layout() {
 				'showReportLink' => false,
 			)
 		),
-		get_dashboard_default_widget_instance( 'post-all-time-traffic', 'jpa/post-all-time-traffic', 6, 3, 2 ),
+		get_dashboard_default_widget_instance( 'post-top-ai-companies', 'ai-traffic/top-ai-companies', 6, 2, 2 ),
+		get_dashboard_default_widget_instance( 'post-all-time-traffic', 'jpa/post-all-time-traffic', 7, 3, 2 ),
 	);
 }
 

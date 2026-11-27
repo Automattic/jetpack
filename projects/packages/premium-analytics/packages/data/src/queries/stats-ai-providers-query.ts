@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { edgeWindow, isEdgeWindowTooLong } from './edge-window';
+import { edgeWindow, isEdgeWindowTooLong, type EdgeScopeParams } from './edge-window';
 import { statsProxyQuery, type StatsReportQueryOptions } from './stats-query';
 import type { ReportParams } from '../utils/search';
 
@@ -10,11 +10,11 @@ import type { ReportParams } from '../utils/search';
  *
  * Read from the pre-aggregated table, the one that serves a year.
  *
- * @param params - The report window.
+ * @param params - The report window, and the page's path when it is scoped to one.
  * @return The query options.
  */
 export const statsAiProvidersQuery = (
-	params: ReportParams
+	params: EdgeScopeParams
 ): StatsReportQueryOptions< 'aiProviders' > => {
 	const { start, end } = edgeWindow( params );
 
@@ -22,7 +22,13 @@ export const statsAiProvidersQuery = (
 		name: 'ai-providers',
 		version: '1.1',
 		endpoint: 'stats/ua-queries',
-		params: { template: 'ai-providers-with-drill', start, end, table: 'rollup' },
+		params: {
+			template: 'ai-providers-with-drill',
+			start,
+			end,
+			table: 'rollup',
+			...( params.url ? { url: params.url } : {} ),
+		},
 		sanitizer: 'aiProviders',
 		enabled: !! ( start && end ) && ! isAiProvidersRangeTooLong( params ),
 		windowEnd: params.to || null,
