@@ -58,6 +58,7 @@ describe( 'Stats post normalizer', () => {
 				post_date_gmt: '2026-06-22 18:00:00',
 				post_status: 'publish',
 				comment_count: 8,
+				permalink: 'https://example.com/2026/06/22/hello-world/',
 			},
 		} );
 	} );
@@ -102,6 +103,12 @@ describe( 'Stats post normalizer', () => {
 				{ date: '2026-07-01', views: 42 },
 				{ date: '2026-07-02', views: 17 },
 			],
+		} );
+	} );
+
+	it( 'drops a permalink that is not a string', () => {
+		expect( sanitizeStatsPostResponse( { post: { ID: 41, permalink: false } } ) ).toStrictEqual( {
+			post: { ID: 41 },
 		} );
 	} );
 
