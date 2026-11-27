@@ -24,21 +24,31 @@ const VIDEOPRESS_WIDGET_TYPES = array(
 );
 
 /**
+ * Widget types that read edge request data, which only exists where the AI and bot traffic surfaces are available.
+ */
+const AI_TRAFFIC_WIDGET_TYPES = array(
+	'ai-traffic/bot-activity',
+	'ai-traffic/requests-by-source',
+	'ai-traffic/top-ai-companies',
+);
+
+/**
  * Returns the current widget support context.
  *
- * @return array{is_wpcom_simple:bool,has_videopress:bool} Widget support context.
+ * @return array{is_wpcom_simple:bool,has_videopress:bool,has_ai_traffic:bool} Widget support context.
  */
 function get_widget_support_context() {
 	return array(
 		'is_wpcom_simple' => ( new Host() )->is_wpcom_simple(),
 		'has_videopress'  => is_videopress_available(),
+		'has_ai_traffic'  => AI_Traffic::is_available(),
 	);
 }
 
 /**
  * Returns unsupported widget types for a context.
  *
- * @param array{is_wpcom_simple?:bool,has_videopress?:bool} $context Widget support context; a missing key reads as false.
+ * @param array{is_wpcom_simple?:bool,has_videopress?:bool,has_ai_traffic?:bool} $context Widget support context; a missing key reads as false.
  * @return string[] Unsupported widget type names.
  */
 function get_unsupported_widget_types( $context ) {
@@ -60,15 +70,19 @@ function get_unsupported_widget_types( $context ) {
 		$unsupported = array_merge( $unsupported, VIDEOPRESS_WIDGET_TYPES );
 	}
 
+	if ( empty( $context['has_ai_traffic'] ) ) {
+		$unsupported = array_merge( $unsupported, AI_TRAFFIC_WIDGET_TYPES );
+	}
+
 	return $unsupported;
 }
 
 /**
  * Removes unsupported widget records.
  *
- * @param array                                             $items    Widget records.
- * @param string                                            $type_key Record key containing the widget type.
- * @param array{is_wpcom_simple?:bool,has_videopress?:bool} $context  Widget support context; a missing key reads as false.
+ * @param array                                                                  $items    Widget records.
+ * @param string                                                                 $type_key Record key containing the widget type.
+ * @param array{is_wpcom_simple?:bool,has_videopress?:bool,has_ai_traffic?:bool} $context  Widget support context; a missing key reads as false.
  * @return array Filtered and re-indexed widget records.
  */
 function remove_unsupported_widget_items( $items, $type_key, $context ) {

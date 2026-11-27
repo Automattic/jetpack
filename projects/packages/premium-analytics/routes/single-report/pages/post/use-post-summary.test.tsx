@@ -152,6 +152,19 @@ describe( 'usePostSummary', () => {
 		expect( result.current.url ).toBe( 'https://example.com/hidden-post/' );
 	} );
 
+	it( 'falls back to the Stats permalink when the route carries no URL', () => {
+		mockStatsPost( {
+			post_title: 'A hidden post type',
+			post_type: 'hidden-type',
+			permalink: 'https://example.com/hidden-post/',
+		} );
+		mockEntities( {} );
+
+		const { result } = renderHook( () => usePostSummary( String( POST_ID ) ) );
+
+		expect( result.current.url ).toBe( 'https://example.com/hidden-post/' );
+	} );
+
 	it.each( [
 		[ 'a URL on another origin', 'https://attacker.example/hidden-post/' ],
 		[ 'an unsafe URL', 'javascript:alert(1)' ],

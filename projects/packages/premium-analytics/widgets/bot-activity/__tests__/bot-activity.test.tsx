@@ -105,6 +105,33 @@ describe( 'BotActivity', () => {
 		);
 	} );
 
+	it.each( [
+		[ 'https://example.com/2026/11/21/hello-world/', '%2F2026%2F11%2F21%2Fhello-world%2F' ],
+		[ 'https://example.com/?p=41', '%2F%3Fp%3D41' ],
+	] )( 'on the page of the post at %s, counts only its path', async ( permalink, encodedPath ) => {
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+			Promise.resolve( path.includes( 'stats/post/41' ) ? { post: { permalink } } : RESPONSE )
+		);
+
+		render(
+			<BotActivity
+				attributes={ { reportParams: { ...getDefaultQueryParams( false ), post_id: 41 } } }
+			/>
+		);
+
+		await expect(
+			screen.findByRole( 'button', { name: 'View the bots in AI training' } )
+		).resolves.toBeInTheDocument();
+		const edgePaths = mockApiFetch.mock.calls
+			.map( ( [ { path } ] ) => path as string )
+			.filter( path => path.includes( 'ua-queries' ) );
+		// The site's totals must never be requested while the post's path is unknown.
+		expect( edgePaths ).not.toHaveLength( 0 );
+		expect(
+			edgePaths.every( path => new RegExp( `[?&]url=${ encodedPath }(&|$)` ).test( path ) )
+		).toBe( true );
+	} );
+
 	it( 'shows that the reader has no access instead of offering a retry', async () => {
 		mockApiFetch.mockRejectedValue( ACCESS_DENIED );
 

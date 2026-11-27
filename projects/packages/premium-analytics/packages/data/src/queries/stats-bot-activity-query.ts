@@ -1,7 +1,12 @@
 /**
  * Internal dependencies
  */
-import { EDGE_RAW_MAX_DAYS, edgeWindow, isEdgeWindowTooLong } from './edge-window';
+import {
+	EDGE_RAW_MAX_DAYS,
+	edgeWindow,
+	isEdgeWindowTooLong,
+	type EdgeScopeParams,
+} from './edge-window';
 import {
 	statsProxyQuery,
 	type StatsReportParams,
@@ -28,11 +33,11 @@ function edgeTable( start: string, end: string ): 'raw' | 'rollup' {
 /**
  * The bots that requested the site, in the template's groups, each with its top bots.
  *
- * @param params - The report window.
+ * @param params - The report window, and the page's path when it is scoped to one.
  * @return The query options.
  */
 export const statsBotActivityQuery = (
-	params: StatsReportParams
+	params: StatsReportParams & EdgeScopeParams
 ): StatsReportQueryOptions< 'botActivity' > => {
 	const { start, end } = edgeWindow( params );
 
@@ -45,6 +50,7 @@ export const statsBotActivityQuery = (
 			start,
 			end,
 			table: start && end ? edgeTable( start, end ) : undefined,
+			...( params.url ? { url: params.url } : {} ),
 		},
 		sanitizer: 'botActivity',
 		enabled: !! ( start && end ) && ! isEdgeWindowTooLong( params ),
