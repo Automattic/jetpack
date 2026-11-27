@@ -680,8 +680,13 @@ class WooCommerce_Analytics extends Module {
 		}
 
 		$core_row = self::get_core_order_stats_row( $order );
-		if ( null !== $core_row ) {
-			return $core_row ? $this->build_order_stats_data_from_core_row( $order, $core_row ) : false;
+		if ( $core_row ) {
+			return $this->build_order_stats_data_from_core_row( $order, $core_row );
+		}
+		if ( false === $core_row ) {
+			// Core skips the order now, but a row it stored earlier (a test order imported before
+			// core excluded them) is still in the local table the checksum compares against.
+			return $this->get_order_stats_data_from_db( $order->get_id() );
 		}
 
 		$order_stats_item         = null;
@@ -780,6 +785,7 @@ class WooCommerce_Analytics extends Module {
 			return null;
 		}
 
+		// @phan-suppress-next-line PhanUndeclaredStaticMethodInCallable -- Guarded by is_callable(); added in WooCommerce 11.5, so absent from the WooCommerce stubs.
 		$row = call_user_func( $callback, $order );
 		return is_array( $row ) ? $row : false;
 	}
@@ -796,8 +802,8 @@ class WooCommerce_Analytics extends Module {
 			$row,
 			array(
 				'date_created'   => self::datetime_to_object( new WC_DateTime( $row['date_created_gmt'], new DateTimeZone( 'UTC' ) ) ),
-				'date_paid'      => self::local_date_to_object( $row['date_paid'] ),
-				'date_completed' => self::local_date_to_object( $row['date_completed'] ),
+				'date_paid'      => self::row_date_to_object( $row['date_paid'], $order instanceof WC_Order ? $order->get_date_paid() : $order->get_date_created() ),
+				'date_completed' => self::row_date_to_object( $row['date_completed'], $order instanceof WC_Order ? $order->get_date_completed() : $order->get_date_created() ),
 				'total_fees'     => $order->get_total_fees(),
 				'total_fees_tax' => self::get_total_fees_tax( $order ),
 				'shipping_tax'   => $order->get_shipping_tax(),
@@ -809,10 +815,6 @@ class WooCommerce_Analytics extends Module {
 		// Core leaves the column out when the fulfillments feature or column is missing.
 		if ( ! array_key_exists( 'fulfillment_status', $data ) ) {
 			$data['fulfillment_status'] = null;
-			if ( is_callable( array( FulfillmentUtils::class, 'get_order_fulfillment_status' ) ) && $order instanceof WC_Order ) {
-				$fulfillment_status         = FulfillmentUtils::get_order_fulfillment_status( $order );
-				$data['fulfillment_status'] = 'no_fulfillments' !== $fulfillment_status ? $fulfillment_status : null;
-			}
 		}
 
 		// The WooCommerce Analytics plugin rewrites a stored refund's status after the write, and older
@@ -830,15 +832,25 @@ class WooCommerce_Analytics extends Module {
 	}
 
 	/**
-	 * Convert a site-local date string from wc_order_stats to an object for encoding.
+	 * Convert a site-local date from core's row to an object for encoding.
 	 *
-	 * Parsed in the site's own timezone, not the current fixed offset, so dates across a DST change keep their instant.
+	 * Uses the order's own date when the row holds it unchanged, because a local time inside the hour a DST
+	 * change repeats does not say which instant it was. Otherwise parses it in the site's own timezone.
 	 *
-	 * @param string|null $date Date as 'Y-m-d H:i:s' in the site's timezone.
+	 * @param string|null      $date       Date as 'Y-m-d H:i:s' in the site's timezone.
+	 * @param WC_DateTime|null $order_date The order's date the row was built from.
 	 * @return object|null
 	 */
-	private static function local_date_to_object( $date ) {
-		return $date ? self::datetime_to_object( new WC_DateTime( $date, wp_timezone() ) ) : null;
+	private static function row_date_to_object( $date, $order_date ) {
+		if ( ! $date ) {
+			return null;
+		}
+
+		if ( $order_date instanceof WC_DateTime && $order_date->date( 'Y-m-d H:i:s' ) === $date ) {
+			return self::datetime_to_object( clone $order_date );
+		}
+
+		return self::datetime_to_object( new WC_DateTime( $date, wp_timezone() ) );
 	}
 
 	/**
@@ -927,7 +939,7 @@ class WooCommerce_Analytics extends Module {
 	/**
 	 * Get the total fees tax from an order.
 	 *
-	 * @param WC_Order $order WC_Order object.
+	 * @param WC_Abstract_Order $order Order or refund.
 	 * @return float
 	 */
 	protected static function get_total_fees_tax( $order ) {

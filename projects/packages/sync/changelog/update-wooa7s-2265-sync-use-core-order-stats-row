@@ -1,4 +1,4 @@
 Significance: minor
-Type: changed
+Type: fixed
 
-WooCommerce Analytics: Build the synced order stats row with WooCommerce's own calculation when it is available.
+WooCommerce Analytics: Sync refund statuses and order stats filter changes the way WooCommerce stores them, on WooCommerce versions that can build the row.
