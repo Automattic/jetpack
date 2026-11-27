@@ -44,7 +44,10 @@ $config->ensure( 'identity_crisis', array(
 ) );
 ```
 
-The selected consumer's source is passed to registration and authorization.
+The consumer's source is passed to registration and authorization when its
+`admin_page` matches the current request, or when it is the only registered
+consumer. With multiple consumers and no matching page, both screens keep their
+default source, even if priority selects a consumer for the notice's branding.
 Use a distinct Safe Mode source in the standard `owner_surface[_detail]` format
 to keep recovery connections separate from normal connections in reports. See
 [Adding a connect button](../../js-packages/connection/README.md#adding-a-connect-button)
@@ -53,8 +56,7 @@ requires that exact value to select the consumer's branded flow. In that case,
 registration and authorization counts share that source with normal connections;
 the screen's recovery events still distinguish the Safe Mode action.
 Consumers that omit it keep the default source for the selected Safe Mode screen.
-This setting does not change permissions, recovery choices, return destinations,
-or the screen's recovery events.
+This setting does not change permissions, recovery choices, or return destinations.
 
 ## Security
 

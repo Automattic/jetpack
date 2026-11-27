@@ -229,7 +229,12 @@ class UI {
 		}
 		unset( $consumer );
 
-		static::$consumers = $consumer_chosen ? $consumer_chosen : array_shift( $consumers );
+		static::$consumers = $consumer_chosen ? $consumer_chosen : $consumers[0];
+
+		// A priority fallback can brand the notice, but must not attribute shared-page connections to an arbitrary consumer.
+		if ( ! $consumer_chosen && count( $consumers ) > 1 ) {
+			unset( static::$consumers['from'] );
+		}
 
 		return static::$consumers;
 	}

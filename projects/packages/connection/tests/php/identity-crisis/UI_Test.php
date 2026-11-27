@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\IdentityCrisis;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -237,6 +238,70 @@ class UI_Test extends TestCase {
 			$expected,
 			$result,
 			'Should return the consumer with customContent unchanged when it is not callable'
+		);
+	}
+
+	/**
+	 * Priority-only selection must not attribute shared-page recovery to another plugin.
+	 *
+	 * @dataProvider consumer_source_provider
+	 * @param array       $consumers Registered consumers.
+	 * @param string      $uri Current admin request.
+	 * @param string      $expected_slug Selected notice consumer.
+	 * @param string|null $expected_from Eligible authorization source.
+	 */
+	#[DataProvider( 'consumer_source_provider' )]
+	public function test_consumer_authorization_source( $consumers, $uri, $expected_slug, $expected_from ) {
+		$filter = static function () use ( $consumers ) {
+			return $consumers;
+		};
+		add_filter( 'jetpack_idc_consumers', $filter, 20 );
+		$_SERVER['REQUEST_URI'] = $uri;
+		try {
+			$result = UI::get_consumer_data();
+			$this->assertSame( $expected_slug, $result['slug'] );
+			$this->assertSame( $expected_from, $result['from'] ?? null );
+			$this->assertSame( $expected_slug, $result['logo'] );
+			$this->assertSame( array( 'headerText' => $expected_slug ), $result['customContent'] );
+			$this->assertSame( $result, UI::get_consumer_data(), 'The cached selection keeps the same source policy.' );
+		} finally {
+			remove_filter( 'jetpack_idc_consumers', $filter, 20 );
+		}
+	}
+
+	/**
+	 * Recoveries on generic pages have an owner only when there is one consumer.
+	 *
+	 * @return array
+	 */
+	public static function consumer_source_provider() {
+		$first          = array(
+			'slug'          => 'first',
+			'admin_page'    => '/wp-admin/admin.php?page=first',
+			'priority'      => 1,
+			'from'          => 'first_safe_mode',
+			'logo'          => 'first',
+			'customContent' => array( 'headerText' => 'first' ),
+		);
+		$second         = array(
+			'slug'          => 'second',
+			'admin_page'    => '/wp-admin/admin.php?page=second',
+			'priority'      => 20,
+			'from'          => 'second_safe_mode',
+			'logo'          => 'second',
+			'customContent' => array( 'headerText' => 'second' ),
+		);
+		$without_source = $second;
+		unset( $without_source['from'] );
+
+		return array(
+			'matched page beats priority'          => array( array( $first, $second ), '/wp-admin/admin.php?page=second', 'second', 'second_safe_mode' ),
+			'sole consumer on Marketing'           => array( array( $second ), '/wp-admin/admin.php?page=wc-admin&path=/marketing', 'second', 'second_safe_mode' ),
+			'sole consumer on Plugins'             => array( array( $second ), '/wp-admin/plugins.php', 'second', 'second_safe_mode' ),
+			'no match on Plugins'                  => array( array( $first, $second ), '/wp-admin/plugins.php', 'first', null ),
+			'no match on Marketing'                => array( array( $first, $second ), '/wp-admin/admin.php?page=wc-admin&path=/marketing', 'first', null ),
+			'consumer without source still counts' => array( array( $first, $without_source ), '/wp-admin/index.php', 'first', null ),
+			'matched consumer without source keeps default' => array( array( $first, $without_source ), '/wp-admin/admin.php?page=second', 'second', null ),
 		);
 	}
 }

@@ -91,22 +91,27 @@ describe( 'Safe Mode screen', () => {
 		expect( createRoot ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	it.each( [ undefined, '', 'my_plugin_safe_mode' ] )(
-		'passes the optional consumer source to the legacy screen: %s',
-		from => {
-			window.JP_IDENTITY_CRISIS__INITIAL_STATE.consumerData = { from };
-			addElement( 'jp-identity-crisis-container' );
-			act( () => onLoad() );
-			expect( mockLegacyScreenProps.from ).toBe( from );
-		}
-	);
-
-	it( 'passes an opted-in consumer source to the new screen', () => {
-		mockIdentityCrisis = { useNewScreen: true };
-		window.JP_IDENTITY_CRISIS__INITIAL_STATE.consumerData = { from: 'my_plugin_safe_mode' };
+	it.each(
+		[
+			[ 'matched consumer page', 'my_plugin_safe_mode' ],
+			[ 'sole consumer on a shared page', 'my_plugin_safe_mode' ],
+			[ 'ambiguous shared page', undefined ],
+			[ 'consumer without a source', '' ],
+		].flatMap( ( [ context, from ] ) =>
+			[ false, true ].map( useNewScreen => [
+				`${ context } (${ useNewScreen ? 'new' : 'legacy' } screen)`,
+				from,
+				useNewScreen,
+			] )
+		)
+	)( 'uses the server-selected source for %s', ( context, from, useNewScreen ) => {
+		mockIdentityCrisis = { useNewScreen };
+		window.JP_IDENTITY_CRISIS__INITIAL_STATE.consumerData = { from };
 		addElement( 'jp-identity-crisis-container' );
 		act( () => onLoad() );
-		expect( mockScreenProps.from ).toBe( 'my_plugin_safe_mode' );
+		const props = useNewScreen ? mockScreenProps : mockLegacyScreenProps;
+		const expected = useNewScreen ? from || 'connection_safe_mode_notice' : from;
+		expect( props.from ).toBe( expected );
 	} );
 
 	it( 'renders once into a container added after the page loads', async () => {
