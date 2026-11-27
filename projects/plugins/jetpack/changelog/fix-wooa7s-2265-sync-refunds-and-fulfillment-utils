@@ -1,4 +1,4 @@
 Significance: patch
-Type: other
-Comment: Add WooCommerce Analytics sync tests for refunds resent on order import and fulfillment status; no production change.
+Type: bugfix
 
+Premium Analytics: Fix refunds in the WooCommerce reports going out of date after their order changes, and fix missing fulfillment statuses on WooCommerce 10.7 and later.

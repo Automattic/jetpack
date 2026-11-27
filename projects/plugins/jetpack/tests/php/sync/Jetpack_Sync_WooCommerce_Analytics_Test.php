@@ -7,6 +7,7 @@ use Automattic\WooCommerce\Admin\API\Reports\Orders\Stats\DataStore as OrderStat
 use Automattic\WooCommerce\Caches\OrderCache;
 use Automattic\WooCommerce\Internal\Admin\Schedulers\OrdersScheduler;
 use Automattic\WooCommerce\Utilities\OrderUtil;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 
 require_once __DIR__ . '/Jetpack_Sync_TestBase.php';
@@ -313,18 +314,38 @@ class Jetpack_Sync_WooCommerce_Analytics_Test extends Jetpack_Sync_TestBase {
 
 	/**
 	 * Without the stats table's fulfillment column, the fulfillment status comes from the order.
+	 *
+	 * @dataProvider provide_fulfillment_status_meta
+	 * @param string|null $meta     The order's `_fulfillment_status` meta, or null for none.
+	 * @param string|null $expected The synced fulfillment status.
 	 */
-	public function test_fulfillment_status_syncs_without_the_stats_column() {
+	#[DataProvider( 'provide_fulfillment_status_meta' )]
+	#[DataProvider( 'provide_fulfillment_status_meta' )]
+	public function test_fulfillment_status_syncs_without_the_stats_column( $meta, $expected ) {
 		$this->skip_before_woocommerce( '10.1' );
 
 		update_option( 'woocommerce_order_stats_has_fulfillment_column', 'no' );
 		$order = $this->create_refundable_order();
-		$order->update_meta_data( '_fulfillment_status', 'partially_fulfilled' );
-		$order->save();
+		if ( null !== $meta ) {
+			$order->update_meta_data( '_fulfillment_status', $meta );
+			$order->save();
+		}
 
 		$synced = ( new WooCommerce_Analytics() )->get_object_by_id( 'order', $order->get_id() )['order_stats'];
 
-		$this->assertSame( 'partially_fulfilled', $synced['fulfillment_status'] );
+		$this->assertSame( $expected, $synced['fulfillment_status'] );
+	}
+
+	/**
+	 * Data provider for test_fulfillment_status_syncs_without_the_stats_column.
+	 *
+	 * @return array
+	 */
+	public static function provide_fulfillment_status_meta() {
+		return array(
+			array( 'partially_fulfilled', 'partially_fulfilled' ),
+			array( null, null ),
+		);
 	}
 
 	/**
