@@ -27,7 +27,7 @@ export type AiTool = keyof typeof AI_TOOL_URLS;
 /** How often the AI tool view checks for a connection while waiting, when checks are local. */
 export const MCP_POLL_INTERVAL_MS = 4000;
 
-/** How long after a Connect click the AI tool view keeps checking. */
+/** How long a wait after a Connect click or a prompt copy keeps checking before it times out. */
 export const MCP_POLL_TIMEOUT_MS = 10 * 60 * 1000;
 
 /** How often the AI tool view checks while waiting when each check asks WordPress.com over the network. */
@@ -80,28 +80,115 @@ export function rewaitOnReturn( {
 }
 
 /**
- * The newly connected AI tools: tools the user clicked Connect on, not yet shown as connected, that have an active
- * connection. An existing connection counts, because a user who already connected is not sent through a new
- * approval. The most recently clicked tool comes last, so it is the latest connection.
+ * Whether to check for connections once on return to the tab: only while a tool can still connect and no wait
+ * runs or is about to restart, since a wait checks by itself.
  *
- * @param connections - The connected integrations the endpoint returned.
- * @param clicked     - The tools the user clicked Connect on.
- * @param latest      - The tool clicked most recently.
- * @param connected   - The tools already shown as connected.
- * @return The newly connected tools.
+ * @param state                 - The view's state.
+ * @param state.waitingFor      - The tool waited for, if any.
+ * @param state.waitingForOther - Whether a copy is waiting for another AI tool.
+ * @param state.otherConnected  - Whether another AI tool shows as connected.
+ * @param state.readOnly        - Whether a connected tool has only read-only access.
+ * @param state.connected       - The AI tools shown as connected, in the order they connected.
+ * @param state.timedOut        - The tool whose wait last timed out, if any.
+ * @param state.otherTimedOut   - The count the last timed-out wait for another AI tool started from, if any.
+ * @param state.pollsRemotely   - Whether each check asks WordPress.com over the network.
+ * @return True to check on return.
  */
-export function findNewConnections(
-	connections: string[],
-	clicked: AiTool[],
-	latest: AiTool,
-	connected: AiTool[]
-): AiTool[] {
-	const matches = ( connections as AiTool[] ).filter(
-		tool => clicked.includes( tool ) && ! connected.includes( tool )
+export function checkOnReturn( {
+	waitingFor,
+	waitingForOther,
+	otherConnected,
+	readOnly,
+	connected,
+	timedOut,
+	otherTimedOut,
+	pollsRemotely,
+}: {
+	waitingFor: AiTool | null;
+	waitingForOther: boolean;
+	otherConnected: boolean;
+	readOnly: boolean;
+	connected: AiTool[];
+	timedOut: AiTool | null;
+	otherTimedOut: number | null;
+	pollsRemotely: boolean;
+} ): boolean {
+	if ( waitingFor || ( waitingForOther && ! otherConnected ) || connected.length === 2 ) {
+		return false;
+	}
+	return (
+		! rewaitOnReturn( { readOnly, connected, timedOut, pollsRemotely } ) &&
+		rewaitOtherOnReturn( { timedOut: otherTimedOut, otherConnected, pollsRemotely } ) === null
 	);
-	return matches.includes( latest )
-		? [ ...matches.filter( tool => tool !== latest ), latest ]
+}
+
+/**
+ * The ChatGPT and Claude connections the endpoint returned, oldest first.
+ *
+ * @param connections - The connected integrations, newest first as the endpoint returns them.
+ * @return The AI tools.
+ */
+function aiTools( connections: string[] ): AiTool[] {
+	return connections
+		.filter( ( tool ): tool is AiTool => Object.hasOwn( AI_TOOL_URLS, tool ) )
+		.reverse();
+}
+
+/**
+ * The newly connected AI tools: any ChatGPT or Claude connection not yet shown, the tool waited for last.
+ * Until the tools connected before the view opened are known, only clicked tools count, so those don't read as new.
+ *
+ * @param state               - The check's state.
+ * @param state.connections   - The connected integrations the endpoint returned, newest first.
+ * @param state.clicked       - The tools the user clicked Connect on.
+ * @param state.waitingFor    - The tool waited for, if any.
+ * @param state.connected     - The tools already shown as connected.
+ * @param state.existingKnown - Whether the tools connected before the view opened are known.
+ * @return The newly connected tools, oldest first and the tool waited for last.
+ */
+export function findNewConnections( {
+	connections,
+	clicked,
+	waitingFor,
+	connected,
+	existingKnown,
+}: {
+	connections: string[];
+	clicked: AiTool[];
+	waitingFor: AiTool | null;
+	connected: AiTool[];
+	existingKnown: boolean;
+} ): AiTool[] {
+	const matches = aiTools( connections ).filter(
+		tool => ( existingKnown || clicked.includes( tool ) ) && ! connected.includes( tool )
+	);
+	return waitingFor && matches.includes( waitingFor )
+		? [ ...matches.filter( tool => tool !== waitingFor ), waitingFor ]
 		: matches;
+}
+
+/**
+ * The tools to record as connected before the view opened. A clicked tool counts as new instead, and a tool already
+ * shown stays as it is.
+ *
+ * @param state             - The read's state.
+ * @param state.connections - The connected integrations the endpoint returned, newest first.
+ * @param state.clicked     - The tools the user clicked Connect on.
+ * @param state.connected   - The tools already shown as connected.
+ * @return The tools, oldest first.
+ */
+export function existingConnections( {
+	connections,
+	clicked,
+	connected,
+}: {
+	connections: string[];
+	clicked: AiTool[];
+	connected: AiTool[];
+} ): AiTool[] {
+	return aiTools( connections ).filter(
+		tool => ! clicked.includes( tool ) && ! connected.includes( tool )
+	);
 }
 
 /**

@@ -1,6 +1,6 @@
 import { speak } from '@wordpress/a11y';
 import apiFetch from '@wordpress/api-fetch';
-import { useEffect, useId, useState } from '@wordpress/element';
+import { useCallback, useEffect, useId, useRef, useState } from '@wordpress/element';
 import { comment, copySmall } from '@wordpress/icons';
 import { Button, ButtonLink, Dialog, Icon, Stack, Text, Tooltip } from '@wordpress/ui';
 import {
@@ -14,8 +14,10 @@ import {
 	AI_TOOL_URLS,
 	aiToolRowStatus,
 	aiToolView,
+	checkOnReturn,
 	CONNECT_YOURSELF_PROMPT,
 	COPIED_RESET_MS,
+	existingConnections,
 	findNewConnections,
 	isReadOnlyAccess,
 	MCP_POLL_TIMEOUT_MS,
@@ -72,8 +74,8 @@ interface Props {
  * The "Which AI do you use?" view, shown when Continue is clicked on "Build with AI".
  *
  * After a Connect click it waits for the new connection, checking when the tab is shown again and on
- * `mcpPollSchedule()`'s timer, then shows the tool as connected. With read-only access it keeps checking, so
- * allowing full access shows the tool as connected.
+ * `mcpPollSchedule()`'s timer; with no wait running it checks once on each return to the tab or window. With read-only
+ * access it keeps checking, so allowing full access shows the tool as connected.
  *
  * @param props                       - Component props.
  * @param props.variation             - The goals_variation the view's events report.
@@ -116,6 +118,8 @@ export default function AiToolStep( {
 	const [ copiedAt, setCopiedAt ] = useState( 0 );
 	// The tools that were connected before the view opened.
 	const [ existingTools, setExistingTools ] = useState< AiTool[] >( [] );
+	// Whether the tools connected before the view opened are known.
+	const [ existingKnown, setExistingKnown ] = useState( false );
 	// Whether a copy is waiting for another AI tool to connect.
 	const [ waitingForOther, setWaitingForOther ] = useState( false );
 	// The count to beat while waiting: the first count read after the copy, lowered if it drops.
@@ -152,7 +156,47 @@ export default function AiToolStep( {
 		subtitle = copy.allowFullAccessFailed;
 	}
 
+	// Only the first read that succeeds counts, so a slow open-time read can't overwrite what a check found first.
+	const existingRecorded = useRef( false );
+
 	// Tools connected before the view opened show as connected from the start.
+	const recordExisting = useCallback(
+		( existing: AiTool[] ) => {
+			if ( existingRecorded.current ) {
+				return;
+			}
+			existingRecorded.current = true;
+			setExistingKnown( true );
+			if ( ! existing.length ) {
+				return;
+			}
+			setExistingTools( existing );
+			existing.forEach( tool => onConnected( tool, true ) );
+		},
+		[ onConnected ]
+	);
+
+	// Until the open-time read succeeds, the first check that does stands in for it.
+	const recordConnections = useCallback(
+		( data: McpConnections, waitedFor: AiTool | null ) => {
+			onReadOnlyChange( data?.access_level ?? null );
+			const connections = data?.connections ?? [];
+			if ( ! existingKnown ) {
+				recordExisting( existingConnections( { connections, clicked, connected } ) );
+			}
+			const newTools = findNewConnections( {
+				connections,
+				clicked,
+				waitingFor: waitedFor,
+				connected,
+				existingKnown,
+			} );
+			newTools.forEach( tool => onConnected( tool ) );
+			return newTools;
+		},
+		[ clicked, connected, existingKnown, onConnected, onReadOnlyChange, recordExisting ]
+	);
+
 	useEffect( () => {
 		if ( ! detectsConnections ) {
 			return;
@@ -162,23 +206,25 @@ export default function AiToolStep( {
 			path: MCP_CONNECTIONS_PATH,
 		} )
 			.then( data => {
-				if ( stopped ) {
+				if ( stopped || existingRecorded.current ) {
 					return;
 				}
-				// Newest first from the endpoint, so reverse it to keep the most recent connection last.
-				const existing = ( ( data?.connections ?? [] ) as AiTool[] ).reverse();
-				if ( ! existing.length ) {
-					return;
+				// Sent as the view opens, so every tool it returns was connected before then.
+				const existing = existingConnections( {
+					connections: data?.connections ?? [],
+					clicked: [],
+					connected: [],
+				} );
+				if ( existing.length ) {
+					onReadOnlyChange( data?.access_level ?? null );
 				}
-				onReadOnlyChange( data?.access_level ?? null );
-				setExistingTools( existing );
-				existing.forEach( tool => onConnected( tool, true ) );
+				recordExisting( existing );
 			} )
 			.catch( () => {} );
 		return () => {
 			stopped = true;
 		};
-	}, [ detectsConnections, onConnected, onReadOnlyChange ] );
+	}, [ detectsConnections, onReadOnlyChange, recordExisting ] );
 
 	useEffect( () => {
 		if ( ! waitingFor && ( ! waitingForOther || otherConnected ) ) {
@@ -199,7 +245,7 @@ export default function AiToolStep( {
 					if ( stopped ) {
 						return;
 					}
-					onReadOnlyChange( data?.access_level ?? null );
+					const newTools = recordConnections( data, waitingFor );
 					const count = otherConnectionCount( data?.other_connections );
 					if ( waitingForOther && otherToolConnected( otherBaseline, count ) ) {
 						onOtherConnected();
@@ -208,19 +254,10 @@ export default function AiToolStep( {
 					} else if ( waitingForOther ) {
 						setOtherBaseline( current => otherWaitBaseline( current, count ) );
 					}
-					if ( ! waitingFor ) {
-						return;
-					}
 					const readOnlyAccess = isReadOnlyAccess( data?.access_level );
-					const newTools = findNewConnections(
-						data?.connections ?? [],
-						clicked,
-						waitingFor,
-						connected
-					);
-					newTools.forEach( tool => onConnected( tool ) );
 					// Read-only access keeps the wait going until full access is allowed.
 					if (
+						waitingFor &&
 						! readOnlyAccess &&
 						( newTools.includes( waitingFor ) || connected.includes( waitingFor ) )
 					) {
@@ -243,7 +280,7 @@ export default function AiToolStep( {
 				check();
 			}
 		}, schedule.intervalMs );
-		// Restarts whenever this effect re-runs: a Connect click, a copy, or a change in what is waited for.
+		// Restarts whenever this effect re-runs: a Connect click, a copy, or any other change to what it reads.
 		const timeout = setTimeout( () => {
 			if ( waitingFor ) {
 				setTimedOut( waitingFor );
@@ -277,12 +314,55 @@ export default function AiToolStep( {
 		otherWaitStartedAt,
 		otherConnected,
 		pollsRemotely,
-		clicked,
 		connected,
-		onConnected,
 		onOtherConnected,
-		onReadOnlyChange,
+		recordConnections,
 	] );
+
+	const checkingOnReturn =
+		detectsConnections &&
+		checkOnReturn( {
+			waitingFor,
+			waitingForOther,
+			otherConnected,
+			readOnly,
+			connected,
+			timedOut,
+			otherTimedOut,
+			pollsRemotely,
+		} );
+
+	// One check per return, for a connection made without Connect, such as from a copied link in another browser.
+	useEffect( () => {
+		if ( ! checkingOnReturn ) {
+			return;
+		}
+		let stopped = false;
+		let inFlight = false;
+		const check = () => {
+			if ( inFlight || document.visibilityState !== 'visible' ) {
+				return;
+			}
+			inFlight = true;
+			apiFetch< McpConnections >( { path: MCP_CONNECTIONS_PATH } )
+				.then( data => {
+					if ( ! stopped ) {
+						recordConnections( data, null );
+					}
+				} )
+				.catch( () => {} )
+				.finally( () => {
+					inFlight = false;
+				} );
+		};
+		document.addEventListener( 'visibilitychange', check );
+		window.addEventListener( 'focus', check );
+		return () => {
+			stopped = true;
+			document.removeEventListener( 'visibilitychange', check );
+			window.removeEventListener( 'focus', check );
+		};
+	}, [ checkingOnReturn, recordConnections ] );
 
 	// Like Copy prompt on /me/mcp, the label goes back after a moment.
 	useEffect( () => {

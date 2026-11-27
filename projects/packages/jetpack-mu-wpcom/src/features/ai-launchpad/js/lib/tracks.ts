@@ -285,7 +285,8 @@ interface McpConnectedProps< Extra extends string = never > extends TrackEventPr
 
 /**
  * Records an AI tool showing as connected, once the wizard sees the new connection.
- * `already_connected` is true for a tool that was connected before the AI tool view opened.
+ * `already_connected` is true for a tool connected before the AI tool view opened or, if a check gets there before
+ * that read, for an unclicked tool the first successful check finds.
  *
  * @param props - The event properties.
  */

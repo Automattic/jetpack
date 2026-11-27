@@ -4,9 +4,11 @@ import {
 	aiToolRowStatus,
 	aiToolView,
 	dashboardIntegration,
+	existingConnections,
 	BRING_YOUR_AI_TOOL,
 	buildWizardPayload,
 	canContinue,
+	checkOnReturn,
 	connectedFooterLead,
 	findNewConnections,
 	firstScreen,
@@ -26,7 +28,6 @@ import {
 	rewaitOtherOnReturn,
 	showsSetupChoice,
 	viewedStep,
-	type AiTool,
 	type WizardState,
 } from './lib.ts';
 
@@ -156,6 +157,42 @@ describe( 'waiting again for another AI tool on return to the tab', () => {
 	}
 } );
 
+describe( 'checking once on return to the tab', () => {
+	const idle = {
+		waitingFor: null,
+		waitingForOther: false,
+		otherConnected: false,
+		readOnly: false,
+		connected: [],
+		timedOut: null,
+		otherTimedOut: null,
+		pollsRemotely: false,
+	};
+	for ( const [ name, state, checks ] of [
+		[ 'with nothing waited for', {}, true ],
+		[ 'after a local wait timed out', { timedOut: 'claude' }, true ],
+		[ 'once another AI tool connected', { waitingForOther: true, otherConnected: true }, true ],
+		[ 'while waiting for a tool', { waitingFor: 'claude' }, false ],
+		[ 'once both tools connected', { connected: [ 'chatgpt', 'claude' ] }, false ],
+		[ 'while waiting for another AI tool', { waitingForOther: true }, false ],
+		[ 'while read-only waits again', { readOnly: true, connected: [ 'chatgpt' ] }, false ],
+		[ 'when a remote wait waits again', { timedOut: 'claude', pollsRemotely: true }, false ],
+		[ 'after a local wait for another AI tool timed out', { otherTimedOut: 1 }, true ],
+		[
+			'when a remote wait for another AI tool waits again',
+			{ otherTimedOut: 0, pollsRemotely: true },
+			false,
+		],
+	] as const ) {
+		it( `checks ${ checks } ${ name }`, () => {
+			assert.equal(
+				checkOnReturn( { ...idle, ...state, connected: [ ...( state.connected ?? [] ) ] } ),
+				checks
+			);
+		} );
+	}
+} );
+
 describe( 'AI tool connection checks', () => {
 	for ( const [ remote, schedule ] of [
 		[ false, { intervalMs: 4000, whileHidden: true, onStart: false, onFocus: false } ],
@@ -168,47 +205,99 @@ describe( 'AI tool connection checks', () => {
 } );
 
 describe( 'AI tool connection', () => {
-	it( 'counts an existing connection to a clicked tool', () => {
-		assert.deepEqual( findNewConnections( [ 'chatgpt' ], [ 'chatgpt' ], 'chatgpt', [] ), [
-			'chatgpt',
-		] );
-	} );
+	const none = {
+		connections: [],
+		clicked: [],
+		waitingFor: null,
+		connected: [],
+		existingKnown: true,
+	};
+	for ( const [ name, state, expected ] of [
+		[ 'a tool nobody clicked Connect on', { connections: [ 'claude' ] }, [ 'claude' ] ],
+		[
+			'only clicked tools before the open-time read',
+			{
+				connections: [ 'claude', 'chatgpt' ],
+				clicked: [ 'chatgpt' ],
+				waitingFor: 'chatgpt',
+				existingKnown: false,
+			},
+			[ 'chatgpt' ],
+		],
+		[ 'nothing for an unknown integration', { connections: [ 'cursor' ] }, [] ],
+		[
+			'the tool waited for last, even if older',
+			{
+				connections: [ 'chatgpt', 'claude' ],
+				clicked: [ 'chatgpt', 'claude' ],
+				waitingFor: 'claude',
+			},
+			[ 'chatgpt', 'claude' ],
+		],
+		[
+			'an unclicked tool before the tool waited for',
+			{ connections: [ 'claude', 'chatgpt' ], clicked: [ 'chatgpt' ], waitingFor: 'chatgpt' },
+			[ 'claude', 'chatgpt' ],
+		],
+		[
+			'the newest last when nothing is waited for',
+			{ connections: [ 'chatgpt', 'claude' ] },
+			[ 'claude', 'chatgpt' ],
+		],
+		[
+			'only tools not yet shown',
+			{
+				connections: [ 'chatgpt', 'claude' ],
+				clicked: [ 'chatgpt', 'claude' ],
+				waitingFor: 'chatgpt',
+				connected: [ 'chatgpt' ],
+			},
+			[ 'claude' ],
+		],
+	] as const ) {
+		it( `counts ${ name }`, () => {
+			assert.deepEqual(
+				findNewConnections( {
+					...none,
+					...state,
+					connections: [ ...( state.connections ?? [] ) ],
+					clicked: [ ...( 'clicked' in state ? state.clicked : [] ) ],
+					connected: [ ...( 'connected' in state ? state.connected : [] ) ],
+				} ),
+				[ ...expected ]
+			);
+		} );
+	}
 
-	it( 'ignores tools the user never clicked Connect on, and unknown integrations', () => {
-		assert.deepEqual(
-			findNewConnections( [ 'claude', 'cursor' ], [ 'chatgpt' ], 'chatgpt', [] ),
-			[]
-		);
-		assert.deepEqual( findNewConnections( [], [ 'chatgpt' ], 'chatgpt', [] ), [] );
-	} );
-
-	it( 'returns every clicked tool that connected, the most recently clicked last', () => {
-		const connections = [ 'chatgpt', 'claude' ];
-		const clicked: AiTool[] = [ 'chatgpt', 'claude' ];
-		assert.deepEqual( findNewConnections( connections, clicked, 'claude', [] ), [
-			'chatgpt',
-			'claude',
-		] );
-		assert.deepEqual( findNewConnections( connections, clicked, 'chatgpt', [] ), [
-			'claude',
-			'chatgpt',
-		] );
-	} );
-
-	it( 'falls back to another clicked tool that connected', () => {
-		assert.deepEqual( findNewConnections( [ 'chatgpt' ], [ 'chatgpt', 'claude' ], 'claude', [] ), [
-			'chatgpt',
-		] );
-	} );
-
-	it( 'skips tools already shown as connected', () => {
-		const clicked: AiTool[] = [ 'chatgpt', 'claude' ];
-		assert.deepEqual(
-			findNewConnections( [ 'chatgpt', 'claude' ], clicked, 'chatgpt', [ 'chatgpt' ] ),
-			[ 'claude' ]
-		);
-		assert.deepEqual( findNewConnections( [ 'chatgpt' ], clicked, 'claude', [ 'chatgpt' ] ), [] );
-	} );
+	for ( const [ name, state, expected ] of [
+		[
+			'every tool, oldest first',
+			{ connections: [ 'chatgpt', 'claude' ] },
+			[ 'claude', 'chatgpt' ],
+		],
+		[
+			'no clicked tool',
+			{ connections: [ 'chatgpt', 'claude' ], clicked: [ 'claude' ] },
+			[ 'chatgpt' ],
+		],
+		[
+			'no tool already shown',
+			{ connections: [ 'chatgpt', 'claude' ], connected: [ 'chatgpt' ] },
+			[ 'claude' ],
+		],
+		[ 'no unknown integrations', { connections: [ 'cursor', 'claude' ] }, [ 'claude' ] ],
+	] as const ) {
+		it( `records as connected before the view opened ${ name }`, () => {
+			assert.deepEqual(
+				existingConnections( {
+					connections: [ ...state.connections ],
+					clicked: [ ...( 'clicked' in state ? state.clicked : [] ) ],
+					connected: [ ...( 'connected' in state ? state.connected : [] ) ],
+				} ),
+				[ ...expected ]
+			);
+		} );
+	}
 
 	it( 'treats only read_only access as read only', () => {
 		assert.equal( isReadOnlyAccess( 'read_only' ), true );

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+AI Launchpad: Show a ChatGPT or Claude connection in "Which AI do you use?" on return to the tab, even when it was made without clicking Connect.
