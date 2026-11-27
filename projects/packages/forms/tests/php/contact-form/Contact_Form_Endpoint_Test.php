@@ -1925,15 +1925,16 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 	}
 
 	/**
-	 * Only users who can manage responses may read a response's notes, using the dashboard's query.
+	 * Only users who can manage responses may read a response's notes.
 	 *
 	 * @dataProvider provide_note_readers
 	 *
 	 * @param string|null $role            Role of the requesting user, or null when logged out.
+	 * @param bool        $panel_query     Whether to send the dashboard's `status` and `type` params, which core reserves for `edit_posts`.
 	 * @param int         $expected_status Expected HTTP status.
 	 */
 	#[DataProvider( 'provide_note_readers' )]
-	public function test_feedback_notes_are_readable_only_by_response_managers( $role, $expected_status ) {
+	public function test_feedback_notes_are_readable_only_by_response_managers( $role, $panel_query, $expected_status ) {
 		$feedback_id = wp_insert_post(
 			array(
 				'post_type'   => 'feedback',
@@ -1954,13 +1955,14 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 		wp_set_current_user( $user_id );
 
 		$request = new WP_REST_Request( 'GET', '/wp/v2/comments' );
-		$request->set_query_params(
-			array(
-				'post'   => $feedback_id,
+		$params  = array( 'post' => $feedback_id );
+		if ( $panel_query ) {
+			$params += array(
 				'status' => 'all',
 				'type'   => Feedback::NOTE_COMMENT_TYPE,
-			)
-		);
+			);
+		}
+		$request->set_query_params( $params );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertSame( $expected_status, $response->get_status() );
@@ -1973,11 +1975,11 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 	 */
 	public static function provide_note_readers() {
 		return array(
-			'logged out'    => array( null, 401 ),
-			'subscriber'    => array( 'subscriber', 403 ),
-			'author'        => array( 'author', 403 ),
-			'editor'        => array( 'editor', 200 ),
-			'administrator' => array( 'administrator', 200 ),
+			'logged out'    => array( null, false, 401 ),
+			'subscriber'    => array( 'subscriber', false, 403 ),
+			'author'        => array( 'author', true, 403 ),
+			'editor'        => array( 'editor', true, 200 ),
+			'administrator' => array( 'administrator', true, 200 ),
 		);
 	}
 }

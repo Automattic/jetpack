@@ -290,6 +290,8 @@ class Contact_Form_Plugin {
 					'edit_post'           => 'edit_page',
 					'delete_post'         => 'delete_page',
 					'read_post'           => 'read_page',
+					// Only people who manage responses may read them, or the notes on them.
+					'read'                => 'edit_pages',
 				),
 				'map_meta_cap'           => true,
 			)

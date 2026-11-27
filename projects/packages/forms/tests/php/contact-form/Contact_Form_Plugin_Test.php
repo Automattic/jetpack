@@ -2102,6 +2102,47 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Only people who manage responses can read one; wp-admin's Comments screen shows a note to anyone who can.
+	 *
+	 * @dataProvider provide_response_readers
+	 *
+	 * @param string $role     Role of the user.
+	 * @param bool   $can_read Whether the user can read a published response.
+	 */
+	#[DataProvider( 'provide_response_readers' )]
+	public function test_only_response_managers_can_read_responses( $role, $can_read ) {
+		Contact_Form_Plugin::init();
+		$feedback_id = wp_insert_post(
+			array(
+				'post_type'   => 'feedback',
+				'post_status' => 'publish',
+			)
+		);
+		$user_id     = wp_insert_user(
+			array(
+				'user_login' => 'response_reader_' . $role,
+				'user_pass'  => 'password',
+				'role'       => $role,
+			)
+		);
+
+		$this->assertSame( $can_read, user_can( $user_id, 'read_post', $feedback_id ) );
+	}
+
+	/**
+	 * Roles and whether each can read a response.
+	 *
+	 * @return array
+	 */
+	public static function provide_response_readers() {
+		return array(
+			'contributor' => array( 'contributor', false ),
+			'author'      => array( 'author', false ),
+			'editor'      => array( 'editor', true ),
+		);
+	}
+
+	/**
 	 * The registered notes exporter and eraser run core's comment callbacks against notes only, and leave other queries alone after.
 	 *
 	 * @dataProvider provide_notes_privacy_callbacks
