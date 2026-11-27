@@ -2,6 +2,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { PRODUCT_STATUSES } from '../../../constants';
 import useProduct from '../../../data/products/use-product';
 import useAnalytics from '../../../hooks/use-analytics';
+import { hostSellsNothing } from '../../../utils/host-sells-nothing';
 import useOverviewLoadEvent from './use-overview-load-event';
 import useStatusAction from './use-status-action';
 import OverviewItem, { isHealthyStatus } from '.';
@@ -45,7 +46,7 @@ const ProductOverviewItem: FC< ProductOverviewItemProps > = ( {
 	error,
 } ) => {
 	const { detail, isLoading: isProductLoading } = useProduct( slug );
-	const { name: productName = '', status, manageUrl, purchaseUrl } = detail || {};
+	const { name: productName = '', status, manageUrl, purchaseUrl, hostPurchaseUrl } = detail || {};
 	const name = nameOverride ?? productName;
 	const isLoading = isProductLoading || isValueLoading;
 	const { recordEvent } = useAnalytics();
@@ -69,7 +70,7 @@ const ProductOverviewItem: FC< ProductOverviewItemProps > = ( {
 						recordEvent( 'jetpack_myjetpack_product_card_manage_click', { product: slug } ),
 				}
 			: undefined;
-		if ( status === PRODUCT_STATUSES.CAN_UPGRADE ) {
+		if ( status === PRODUCT_STATUSES.CAN_UPGRADE && ! hostSellsNothing( hostPurchaseUrl ) ) {
 			upgrade = {
 				label: upgradeLabel,
 				href: purchaseUrl || `#/add-${ slug }`,

@@ -59,15 +59,26 @@ class Post_Schema_Node {
 
 	/**
 	 * Default Schema type for a post when the user has not set an override:
-	 * Article for standard posts, none for pages, attachments, or custom types.
+	 * Article for standard posts and post types opted in through the filter.
 	 *
 	 * @param WP_Post $post The post.
 	 * @return string
 	 */
 	private static function default_schema_for_post( WP_Post $post ) {
-		// Only standard posts get Article schema by default; everything else
-		// (pages, attachments, custom post types) requires an explicit override.
-		return 'post' === $post->post_type ? 'article' : '';
+		$default = 'post' === $post->post_type ? 'article' : '';
+
+		/**
+		 * Filters the default schema type for a post without a saved override.
+		 * Return 'article' to emit Article schema. Other values emit no default schema.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string  $default `article`, or '' for none.
+		 * @param WP_Post $post    The post.
+		 */
+		$type = apply_filters( 'jetpack_seo_default_schema_type', $default, $post );
+
+		return 'article' === $type ? 'article' : '';
 	}
 
 	/**

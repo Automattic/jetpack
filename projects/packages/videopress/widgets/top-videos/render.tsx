@@ -135,7 +135,7 @@ function TopVideosReport() {
 	useReportActions( {
 		csv: {
 			report: 'videos',
-			status: { isLoading: isInitialLoading, isFetching, isError: primary.isError },
+			status: { isLoading: isInitialLoading, isError: primary.isError },
 			rowCount: rows.length,
 		},
 	} );

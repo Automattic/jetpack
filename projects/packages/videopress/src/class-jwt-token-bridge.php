@@ -72,6 +72,9 @@ class Jwt_Token_Bridge {
 	public static function enqueue_jwt_token_bridge() {
 		global $post;
 		$post_id = isset( $post->ID ) ? absint( $post->ID ) : 0;
+		if ( ! $post_id && ! is_admin() ) {
+			$post_id = Access_Control::get_current_template_post_id();
+		}
 
 		$bridge_url = self::get_bridge_url();
 

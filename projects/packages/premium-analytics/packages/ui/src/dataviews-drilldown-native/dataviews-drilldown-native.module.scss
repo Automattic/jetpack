@@ -24,22 +24,41 @@
 	visibility: hidden;
 }
 
-/* Keep the fold control on the title's baseline. */
+/* Keep the fold control on the title's first line. */
 .titleCell {
 	display: inline-flex;
 	gap: var(--wpds-dimension-gap-xs);
-	align-items: center;
+	align-items: flex-start;
 
 	/* A flex item's `min-width: auto` would otherwise pin this to its content. */
 	min-inline-size: 0;
 }
 
-/* DataViews caps this cell and asks for an ellipsis but never clips, so a
-   long title would otherwise push the fold control out of the clipped card. */
-.titleContent {
-	min-inline-size: 0;
-	overflow: hidden;
-	white-space: nowrap;
-	text-overflow: ellipsis;
+/* DataViews keeps a title on one line, so a long one widened the table past
+   its card and pushed the other columns under the sticky actions column.
+   The `a` rule outranks DataViews' single-line title links. */
+.titleContent,
+.root .titleContent a {
+	white-space: normal;
+	overflow-wrap: anywhere;
 }
 
+/* The padding puts a wrapped title's first line where DataViews centers a
+   one-line title, level with the other columns' values. */
+.titleContent {
+	min-inline-size: 0;
+	padding-block: calc((var(--wpds-dimension-size-md) - 1lh) / 2);
+}
+
+/* Beside a wrapped title the marker would shrink and pull the row off its
+   siblings' indent. */
+.root :global(.dataviews-view-table__level) {
+	flex-shrink: 0;
+	white-space: nowrap;
+}
+
+/* DataViews holds every column at 15ch, more than a number needs, and the
+   title pays for it on a phone. Remove with WordPress/gutenberg#87226. */
+.root :global(.dataviews-view-table tbody .dataviews-view-table__cell-content-wrapper.dataviews-view-table__cell-align-end) {
+	min-inline-size: 0;
+}

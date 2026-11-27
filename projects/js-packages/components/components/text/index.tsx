@@ -8,6 +8,8 @@ import type { FC, ReactElement } from 'react';
 /**
  * Text component.
  *
+ * @deprecated Use `Text` from `@wordpress/ui` instead.
+ *
  * @param {TextProps} props - Component props.
  * @return {ReactElement} - JSX.Element
  */
@@ -43,19 +45,9 @@ Text.displayName = 'Text';
 export default Text;
 
 /**
- * Heading component - Medium size.
- *
- * @param {TextProps} props - Component props.
- * @return {ReactElement} - JSX.Element
- */
-export const H2: FC< TextProps > = ( { children, ...componentProps } ) => (
-	<Text variant="headline-medium" mb={ 3 } { ...componentProps }>
-		{ children }
-	</Text>
-);
-
-/**
  * Heading component - Small size,
+ *
+ * @deprecated Use `Text` from `@wordpress/ui` instead.
  *
  * @param {H3Props} props - Component props.
  * @return {ReactElement} - JSX.Element
@@ -74,6 +66,8 @@ export const H3: FC< H3Props > = ( { children, weight = 'bold', ...componentProp
 
 /**
  * Title component, based on Text component.
+ *
+ * @deprecated Use `Text` from `@wordpress/ui` instead.
  *
  * @param {TitleProps} props - Component props.
  * @return {ReactElement} - JSX.Element

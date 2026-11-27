@@ -8,6 +8,7 @@ import { createContext, useCallback, useContext, useMemo, useState } from 'react
 /**
  * Internal dependencies
  */
+import { useRowBatches } from '../use-row-batches';
 import { collectAncestorIds, filterCollapsedRows, findParentIds } from './collapsible-rows';
 import styles from './dataviews-drilldown-native.module.scss';
 import { DrilldownToggle } from './drilldown-toggle';
@@ -70,15 +71,15 @@ const GenericDataViews = DataViews as unknown as < Item >( props: {
 } ) => ReturnType< typeof DataViews >;
 
 /**
- * The title field's cell with the fold control appended. Module-level on
- * purpose: a `render` rebuilt per render would remount the cell and take the
- * focused toggle with it.
+ * The title field's cell: the title in a wrapper that lets it wrap, plus the
+ * fold control on a group row. Module-level on purpose: a `render` rebuilt per
+ * render would remount the cell and take the focused toggle with it.
  */
-function CollapsibleTitleCell< Item >( props: DataViewRenderFieldProps< Item > ) {
+function TitleCell< Item >( props: DataViewRenderFieldProps< Item > ) {
 	const collapse = useContext( CollapseContext );
 
 	if ( ! collapse ) {
-		throw new Error( 'CollapsibleTitleCell must be rendered within CollapseContext.' );
+		throw new Error( 'TitleCell must be rendered within CollapseContext.' );
 	}
 
 	const { titleField, getItemId } = collapse as unknown as {
@@ -94,7 +95,7 @@ function CollapsibleTitleCell< Item >( props: DataViewRenderFieldProps< Item > )
 
 	// A trailing control needs no placeholder on a childless row.
 	if ( ! collapse.parentIds.has( id ) ) {
-		return <>{ title }</>;
+		return <span className={ styles.titleContent }>{ title }</span>;
 	}
 
 	return (
@@ -143,6 +144,8 @@ export interface DataViewsDrilldownNativeProps< Item > {
 	searchLabel?: string;
 	/** Custom empty state. */
 	empty?: ReactNode;
+	/** A new value shows the first batch of rows again, scrolled to the top. */
+	batchResetKey?: string | number;
 }
 
 /**
@@ -163,6 +166,7 @@ export function DataViewsDrilldownNative< Item >( {
 	isLoading = false,
 	searchLabel,
 	empty,
+	batchResetKey,
 }: DataViewsDrilldownNativeProps< Item > ) {
 	const [ view, setView ] = useState< View >( () => {
 		const { fields: viewFieldIds, ...viewRest } = initialView ?? {};
@@ -250,6 +254,17 @@ export function DataViewsDrilldownNative< Item >( {
 		toggledIds,
 	] );
 
+	// Folding and unfolding keep the rows mounted so far; only a new order or match set starts over.
+	const rowBatchesResetKey = `${ JSON.stringify( [ view.sort, view.search, view.filters ] ) }:${
+		batchResetKey ?? ''
+	}`;
+	const { rowLimit, ref: rowBatchesRef } = useRowBatches(
+		rows.length,
+		rowBatchesResetKey,
+		isLoading
+	);
+	const mountedRows = useMemo( () => rows.slice( 0, rowLimit ), [ rows, rowLimit ] );
+
 	const handleToggle = useCallback( ( id: string ) => {
 		setToggledIds( current => {
 			const next = new Set( current );
@@ -278,17 +293,15 @@ export function DataViewsDrilldownNative< Item >( {
 		[ isExpanded, parentIds, forcedIds, handleToggle, titleField, getItemId ]
 	);
 
-	// The fold control belongs to the title cell — the only column DataViews
-	// renders levels on — so it's grafted on rather than asked for per field.
-	const displayFields = useMemo( () => {
-		if ( ! collapsible ) {
-			return fields;
-		}
-
-		return fields.map( field =>
-			field.id === view.titleField ? { ...field, render: CollapsibleTitleCell } : field
-		);
-	}, [ collapsible, fields, view.titleField ] );
+	// The wrapper and the fold control belong to the title cell — the only column
+	// DataViews renders levels on — so it's grafted on rather than asked for per field.
+	const displayFields = useMemo(
+		() =>
+			fields.map( field =>
+				field.id === view.titleField ? { ...field, render: TitleCell } : field
+			),
+		[ fields, view.titleField ]
+	);
 
 	// Resolved by id: DataViews clones each record internally, so the items
 	// reaching `getItemLevel` are never the objects the hierarchy walk saw.
@@ -307,12 +320,15 @@ export function DataViewsDrilldownNative< Item >( {
 
 	return (
 		<CollapseContext.Provider value={ collapseContextValue }>
-			<div className={ clsx( styles.root, hideLevelMarkers && styles.hideLevelMarkers ) }>
+			<div
+				ref={ rowBatchesRef }
+				className={ clsx( styles.root, hideLevelMarkers && styles.hideLevelMarkers ) }
+			>
 				<GenericDataViews< Item >
 					view={ view }
 					onChangeView={ handleChangeView }
 					fields={ displayFields }
-					data={ rows }
+					data={ mountedRows }
 					getItemId={ getItemId }
 					getItemLevel={ getItemLevel }
 					actions={ actions }

@@ -12,7 +12,7 @@ const FOOTER_LAYOUT = {
 	justify: 'space-between',
 	align: 'baseline',
 	gap: 'md',
-	className: styles.footer,
+	className: styles.divider,
 } as const;
 
 interface StepFooterProps {

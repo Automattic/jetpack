@@ -959,6 +959,45 @@ export const Stacked: Story = {
 	},
 };
 
+// The same devices over the four weeks before, each paired with its current series by `group`.
+const deviceViewsWithPrevious: SeriesData[] = [
+	...deviceViewsData.map( series => ( { ...series, group: series.label } ) ),
+	...deviceViewsData.map( ( series, index ) => ( {
+		label: `Previous ${ series.label.toLowerCase() }`,
+		group: series.label,
+		options: { type: 'comparison' as const },
+		data: series.data.map( ( point, day ) => ( {
+			...point,
+			value: Math.round( Number( point.value ) * ( 0.75 + ( ( day + index ) % 5 ) * 0.1 ) ),
+		} ) ),
+	} ) ),
+];
+
+export const StackedComparison: Story = {
+	args: {
+		...Default.args,
+		layout: 'stacked',
+		data: deviceViewsWithPrevious,
+		showLegend: true,
+		legendInteractive: true,
+		gridVisibility: 'x',
+	},
+	render: args => (
+		<BarChart
+			{ ...args }
+			legend={ { ...extractLegendConfig( args ), comparisonItem: 'Prev. 28 days' } }
+		/>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"Each device is paired by `group` with its previous four weeks, and those are summed into one bar beside each stack, in the `--a8c-charts-color-comparison` role toned to keep 3:1 against the background. Hover a bar, or tab in and use the arrow keys, to read each device, the total, then the previous period's total; each day has a second stop on the gray bar. Hide a device from the legend and its previous period leaves the gray bar too, so both bars sum the same devices; `legend.comparisonItem` names that bar in the legend and the tooltip.",
+			},
+		},
+	},
+};
+
 export const StackedHorizontal: Story = {
 	args: {
 		...Default.args,

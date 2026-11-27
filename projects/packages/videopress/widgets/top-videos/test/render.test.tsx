@@ -249,7 +249,7 @@ describe( 'Top videos widget', () => {
 		expect( mockReportActions ).toHaveBeenLastCalledWith( {
 			csv: {
 				report: 'videos',
-				status: { isLoading: false, isFetching: false, isError: false },
+				status: { isLoading: false, isError: false },
 				rowCount: 2,
 			},
 		} );
@@ -284,7 +284,7 @@ describe( 'Top videos widget', () => {
 		expect( mockReportActions ).toHaveBeenLastCalledWith( {
 			csv: {
 				report: 'videos',
-				status: { isLoading: false, isFetching: false, isError: false },
+				status: { isLoading: false, isError: false },
 				rowCount: 0,
 			},
 		} );

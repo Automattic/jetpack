@@ -54,7 +54,7 @@ export type RowsCsvActionOptions< TRow > = {
 	  }
 );
 
-/** A download of the widget's loaded rows, or null until they settle. */
+/** A download of the widget's loaded rows, or null until they answer the current range. */
 export function useRowsCsvAction< TRow >(
 	options?: RowsCsvActionOptions< TRow >
 ): CsvDownloadAction | null {

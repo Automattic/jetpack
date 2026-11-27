@@ -4,6 +4,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { Fragment, useCallback, useContext, useState, useRef, useMemo } from 'react';
 import { Legend } from '../../components/legend';
+import { getComparisonItemLabel } from '../../components/legend/hooks/use-chart-legend-items';
 import { XYChartTooltip, useKeyboardNavigation } from '../../components/tooltip';
 import {
 	useXYChartTheme,
@@ -43,6 +44,8 @@ import {
 	MAX_GROUP_PADDING,
 	COMPARISON_TICK_GAP_FACTOR,
 	BASE_BAND_PADDING_INNER,
+	COMPARISON_SLOT,
+	isComparisonSeries,
 	isBarRendered,
 	SlotTooltipMembers,
 	useBarStops,
@@ -50,7 +53,6 @@ import {
 	getSelectedSlot,
 	isSameCategory,
 	membersAt,
-	getDrawnSeries,
 } from './private';
 import { useBarColors } from './use-bar-colors';
 import { useBarLegendItems } from './use-bar-legend-items';
@@ -146,12 +148,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			'BarChart: showZeroValues has no effect in a stacked layout.'
 		);
 	}
-	if ( layout === 'stacked' && data?.some( series => series.options?.type === 'comparison' ) ) {
-		warnOnce(
-			'bar-chart-stacked-comparison',
-			'BarChart: a stacked layout does not draw comparison series yet.'
-		);
-	}
 	const valueScaleOptions = orientation === 'horizontal' ? options.xScale : options.yScale;
 	if ( layout === 'stacked' && valueScaleOptions?.type && valueScaleOptions.type !== 'linear' ) {
 		warnOnce(
@@ -163,6 +159,13 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		warnOnce(
 			'bar-chart-stacked-zero',
 			'BarChart: every stack starts at zero, so zero: false has no effect in a stacked layout.'
+		);
+	}
+
+	if ( layout === 'stacked' && legend.comparisonSeriesItems ) {
+		warnOnce(
+			'bar-chart-stacked-comparison-series-items',
+			'BarChart: a stacked layout sums its comparisons into one bar, so legend.comparisonSeriesItems is ignored; name that bar with legend.comparisonItem.'
 		);
 	}
 
@@ -188,12 +191,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	);
 	const theme = useXYChartTheme( data );
 
-	const transformedData = useChartDataTransform( data );
-	// A stacked layout does not draw comparisons yet, so they must not shade a primary's color or join the legend either.
-	const dataSorted = useMemo(
-		() => getDrawnSeries( transformedData, layout ),
-		[ layout, transformedData ]
-	);
+	const dataSorted = useChartDataTransform( data );
 
 	// Transform data to add a small value for zero bars to make them visible
 	// For vertical bars, height determines bar pixel height; for horizontal bars, width does
@@ -201,18 +199,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		enabled: showZeroValues && ! isStacked,
 		valueAxisLength: horizontal ? width : height,
 	} );
-
-	// Create legend items using the reusable hook
-	const legendOptions = useMemo(
-		() => ( {
-			collapseGroups: legendCollapseGroups,
-			comparisonItem: legendComparisonItem,
-			comparisonSeriesItems: legendComparisonSeriesItems,
-			layout,
-		} ),
-		[ legendCollapseGroups, legendComparisonItem, legendComparisonSeriesItems, layout ]
-	);
-	const legendItems = useBarLegendItems( dataSorted, legendOptions );
 
 	const { getElementStyles, theme: providerTheme } = useGlobalChartsContext();
 	const getBarColors = useBarColors();
@@ -271,11 +257,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		[ dataWithVisibleZeros, isSeriesRendered ]
 	);
 
-	// Check if all series are hidden
-	const allSeriesHidden = useMemo( () => {
-		return seriesWithVisibility.every( ( { isVisible } ) => ! isVisible );
-	}, [ seriesWithVisibility ] );
-
 	// Derive primary vs comparison entries for comparison mode support.
 	const primaryEntries = useMemo(
 		() =>
@@ -286,6 +267,32 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	);
 
 	const barSlots = useBarSlots( layout, seriesWithVisibility );
+
+	// A stack's comparisons leave with their primaries, so it is empty once it draws nothing.
+	const allSeriesHidden =
+		barSlots?.kind === 'stacked'
+			? barSlots.entries.length === 0
+			: seriesWithVisibility.every( ( { isVisible } ) => ! isVisible );
+
+	// A stack's comparison item names its total bar, so it leaves the legend whenever that bar does.
+	const hasComparisonTotal = !! barSlots?.slotKeys.includes( COMPARISON_SLOT );
+	const legendOptions = useMemo(
+		() => ( {
+			collapseGroups: legendCollapseGroups,
+			comparisonItem: isStacked && ! hasComparisonTotal ? false : legendComparisonItem,
+			comparisonSeriesItems: legendComparisonSeriesItems,
+			layout,
+		} ),
+		[
+			legendCollapseGroups,
+			legendComparisonItem,
+			legendComparisonSeriesItems,
+			layout,
+			isStacked,
+			hasComparisonTotal,
+		]
+	);
+	const legendItems = useBarLegendItems( dataSorted, legendOptions );
 
 	const chartOptions = useBarChartOptions(
 		dataWithVisibleZeros,
@@ -361,7 +368,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	);
 
 	const comparisonEntries = useMemo( () => {
-		// An overlap layout draws its comparisons as slotted bars, and a stacked one does not draw them yet.
+		// An overlap layout draws its comparisons as slotted bars, and a stacked one sums them into one.
 		if ( barSlots ) {
 			return [];
 		}
@@ -485,7 +492,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		[ chartOptions.tooltip, dataSorted ]
 	);
 
-	// Lists the stack last series first, a null reading as "No data", then the total.
+	const comparisonTotalLabel = getComparisonItemLabel( legendComparisonItem );
+	// Lists the stack last series first, a null reading as "No data", then the total and the comparison total.
 	const renderStackedTooltip = useCallback(
 		( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
 			const nearestDatum = tooltipData?.nearestDatum?.datum;
@@ -498,10 +506,17 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				[]
 			);
 
-			const rows = [ ...barSlots.entries ].reverse().flatMap( ( { series } ) => {
+			const datumOf = ( { series }: { series: SeriesData } ) => {
 				const datum = datumByKey[ series.label ]?.datum;
 				return datum ? [ { label: series.label, datum } ] : [];
-			} );
+			};
+			const isPrimary = ( { series }: { series: SeriesData } ) =>
+				barSlots.slotOf( series.label ) !== COMPARISON_SLOT;
+			const rows = barSlots.entries.filter( isPrimary ).reverse().flatMap( datumOf );
+			const comparisonRows = barSlots.entries
+				.filter( entry => ! isPrimary( entry ) )
+				.flatMap( datumOf )
+				.filter( ( { datum } ) => isBarRendered( datum ) );
 			const readings = rows.filter( ( { datum } ) => isBarRendered( datum ) ).length;
 			const [ negative, positive ] = barSlots.stack.extentAt( nearestDatum );
 
@@ -518,10 +533,15 @@ const BarChartInternal: FC< BarChartProps > = ( {
 							__( 'Total', 'jetpack-charts' ),
 							formatReading( negative + positive )
 						) }
+					{ comparisonRows.map( ( { label, datum } ) => (
+						<Fragment key={ label }>
+							{ renderTooltipRow( comparisonTotalLabel, formatReading( datum.value ) ) }
+						</Fragment>
+					) ) }
 				</div>
 			);
 		},
-		[ chartOptions.tooltip, barSlots ]
+		[ chartOptions.tooltip, barSlots, comparisonTotalLabel ]
 	);
 
 	const renderDefaultTooltip = useCallback(
@@ -568,9 +588,20 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		[ chartOptions.tooltip, comparisonEntries ]
 	);
 
+	// A stack patterns its primaries by their place among the primaries, as it colors them, and its total next.
+	const patternTypes = useMemo( () => {
+		const primaries = dataSorted.filter( series => ! isComparisonSeries( series ) );
+		return dataSorted.map( ( series, index ) => {
+			if ( ! isStacked ) {
+				return index;
+			}
+			return isComparisonSeries( series ) ? primaries.length : primaries.indexOf( series );
+		} );
+	}, [ dataSorted, isStacked ] );
+
 	const renderPattern = useCallback(
 		( index: number, color: string ) => {
-			const patternType = index % 4;
+			const patternType = ( patternTypes[ index ] ?? index ) % 4;
 			const id = getPatternId( chartId, index );
 			const commonProps = {
 				id,
@@ -601,7 +632,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 					return <PatternHexagons key={ id } { ...commonProps } size={ 8 } height={ 3 } />;
 			}
 		},
-		[ chartId ]
+		[ chartId, patternTypes ]
 	);
 
 	const createPatternBorderStyle = useCallback(

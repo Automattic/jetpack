@@ -181,7 +181,7 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 			section: reportSection,
 			csv: {
 				exporter: utmCsvExporters[ reportSection ],
-				status: { isLoading, isFetching, isError },
+				status: { isLoading, isError },
 				rowCount: data.length,
 			},
 		} ),

@@ -195,7 +195,12 @@ function useSiteViewsOverYears(
 		isLoading: isLoading || awaitingFirstDay,
 		isFetching: isFetching || firstMonthDays.isFetching,
 		isError,
-		csvIsError: isError || ( metric === 'average' && firstMonthDays.isError ),
+		// Retrying a failed first day clears its error but brings no data back yet.
+		csvIsError:
+			isError ||
+			( metric === 'average' &&
+				( firstMonthDays.isError ||
+					( firstMonthDays.isFetching && ! firstMonthDays.primary.data ) ) ),
 		isPlaceholderData: primary.isPlaceholderData,
 		error,
 		refetch,

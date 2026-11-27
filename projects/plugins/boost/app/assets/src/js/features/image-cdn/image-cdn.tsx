@@ -1,4 +1,3 @@
-import { useModuleSurface } from '$features/module/surface';
 import { __ } from '@wordpress/i18n';
 import ImageCdnLiar from '$features/image-cdn/image-cdn-liar/image-cdn-liar';
 import QualitySettings from '$features/image-cdn/quality-settings/quality-settings';
@@ -7,15 +6,6 @@ import Module from '$features/module/module';
 import UpgradeNotice from '$features/upgrade-cta/upgrade-notice';
 
 const ImageCdn = () => {
-	const legacyDescription = __(
-		"Deliver images from Jetpack's Content Delivery Network. Automatically resizes your images to an appropriate size, converts them to modern efficient formats like WebP, and serves them from a worldwide network of servers.",
-		'jetpack-boost'
-	);
-	const modernDescription = __(
-		"Optimizes and delivers images through Jetpack's global network, with control over image quality.",
-		'jetpack-boost'
-	);
-	const isModern = useModuleSurface() === 'row';
 	const [ imageCdnQualityState ] = useSingleModuleState( 'image_cdn_quality' );
 	const [ imageCdnLiarState ] = useSingleModuleState( 'image_cdn_liar' );
 
@@ -26,7 +16,14 @@ const ImageCdn = () => {
 			slug="image_cdn"
 			title={ __( 'Image CDN', 'jetpack-boost' ) }
 			worksOffline={ false }
-			description={ <p>{ isModern ? modernDescription : legacyDescription }</p> }
+			description={
+				<p>
+					{ __(
+						"Optimizes and delivers images through Jetpack's global network, with control over image quality.",
+						'jetpack-boost'
+					) }
+				</p>
+			}
 		>
 			{ ! hasPremiumCdnFeatures && (
 				<UpgradeNotice

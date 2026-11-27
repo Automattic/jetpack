@@ -1,10 +1,11 @@
 import { configureHeaders, rememberHeader, showHeader } from '../../../src/admin-shell/header';
 
-const PREFIX = 'jetpack-admin-shell-header:1:7:0.15.0:';
+const PREFIX = 'jetpack-admin-shell-header:1:7:0.15.0:abc:';
 
 beforeEach( () => {
 	document.head.innerHTML = '';
 	localStorage.clear();
+	sessionStorage.clear();
 	document.body.innerHTML = '<section id="app"></section>';
 	configureHeaders( PREFIX, MEMBERS );
 } );
@@ -14,20 +15,40 @@ const MEMBERS = {
 	newsletter: { bodyClass: 'jetpack_page_newsletter' },
 };
 
-const save = ( slug, html, css = '' ) =>
-	localStorage.setItem( PREFIX + slug, JSON.stringify( { html, css } ) );
+const stored = () => JSON.parse( sessionStorage.getItem( PREFIX ) ) ?? { pieces: {}, pages: {} };
+
+const save = ( slug, html, css = '' ) => {
+	const { pieces, pages } = stored();
+	pieces[ slug ] = css;
+	pages[ slug ] = { html, css: [ slug ], styles: [] };
+	sessionStorage.setItem( PREFIX, JSON.stringify( { pieces, pages } ) );
+};
 
 describe( 'header stand-in', () => {
-	it( 'drops headers an earlier release saved for this site and user, and no one else’s', () => {
+	it( 'drops headers saved for another site, release or login, and those earlier releases kept for good', () => {
+		sessionStorage.setItem( PREFIX, '{}' );
+		sessionStorage.setItem( PREFIX + 'forms', '{}' );
+		sessionStorage.setItem( 'jetpack-admin-shell-header:1:7:0.15.0:old:', '{}' );
+		sessionStorage.setItem( 'jetpack-admin-shell-header:2:7:0.15.0:abc:', '{}' );
 		localStorage.setItem( 'jetpack-admin-shell-header:1:7:0.14.0:forms', '{}' );
-		localStorage.setItem( 'jetpack-admin-shell-header:1:8:0.14.0:forms', '{}' );
-		localStorage.setItem( 'jetpack-admin-shell-header:forms', '{}' );
+		localStorage.setItem( 'jetpack-admin-shell-loader-offset', '40' );
 
 		configureHeaders( PREFIX );
 
-		expect( Object.keys( localStorage ) ).toEqual( [
-			'jetpack-admin-shell-header:1:8:0.14.0:forms',
-		] );
+		expect( Object.keys( sessionStorage ) ).toEqual( [ PREFIX ] );
+		expect( Object.keys( localStorage ) ).toEqual( [ 'jetpack-admin-shell-loader-offset' ] );
+	} );
+
+	it( 'drops the headers of pages the shell no longer has, and the pieces only they used', () => {
+		save( 'forms', '<div><h1>Forms</h1></div>', '.a{}' );
+		save( 'blaze', '<div><h1>Blaze</h1></div>', '.b{}' );
+
+		configureHeaders( PREFIX, MEMBERS );
+
+		expect( stored() ).toEqual( {
+			pieces: { forms: '.a{}' },
+			pages: { forms: { html: '<div><h1>Forms</h1></div>', css: [ 'forms' ], styles: [] } },
+		} );
 	} );
 
 	it( 'shows a copy that cannot run anything', () => {
@@ -187,7 +208,7 @@ describe( 'header stand-in', () => {
 		rememberHeader( 'boost', app );
 		jest.runAllTimers();
 
-		expect( Object.keys( localStorage ) ).toEqual( [] );
+		expect( sessionStorage.getItem( PREFIX ) ).toBeNull();
 		jest.useRealTimers();
 	} );
 
@@ -208,6 +229,129 @@ describe( 'header stand-in', () => {
 		expect( css ).toContain( 'body.jetpack_page_forms-x .x__header-title' );
 		document.head.innerHTML = '';
 		jest.useRealTimers();
+	} );
+
+	it( 'keeps one copy of what pages share, and drops it once no page uses it', () => {
+		jest.useFakeTimers();
+		document.head.innerHTML = '<style>.x__title{color:red}</style>';
+		const app = document.getElementById( 'app' );
+		const header = ( title, style ) =>
+			`<div style="${ style }"><div class="admin-ui-navigable-region"><header><h1 class="x__title">${ title }</h1></header></div></div>`;
+		const pieces = () => Object.values( stored().pieces );
+
+		for ( const slug of [ 'forms', 'newsletter' ] ) {
+			app.innerHTML = header( slug, '--x-color: blue;' );
+			rememberHeader( slug, app );
+			jest.runAllTimers();
+		}
+		expect( pieces() ).toHaveLength( 2 );
+
+		app.innerHTML = header( 'newsletter', '--x-color: green;' );
+		rememberHeader( 'newsletter', app );
+		jest.runAllTimers();
+		app.innerHTML = header( 'forms', '--x-color: green;' );
+		rememberHeader( 'forms', app );
+		jest.runAllTimers();
+		app.innerHTML = '';
+		showHeader( 'forms', app );
+
+		expect( pieces() ).toHaveLength( 2 );
+		expect( pieces().join() ).not.toContain( 'blue' );
+		expect( document.querySelector( '[data-shell-header="forms"] div' ) ).toHaveStyle( {
+			'--x-color': 'green',
+		} );
+		jest.useRealTimers();
+	} );
+
+	it( 'keeps an anonymous layer’s rules in one layer', () => {
+		jest.useFakeTimers();
+		document.head.innerHTML =
+			'<style>@layer { .x__title.big{color:red} .x__title{color:blue} }</style>';
+		const app = document.getElementById( 'app' );
+		app.innerHTML =
+			'<div class="admin-ui-navigable-region"><header><h1 class="x__title big">Forms</h1></header></div>';
+
+		rememberHeader( 'forms', app );
+		jest.runAllTimers();
+		app.innerHTML = '';
+		showHeader( 'forms', app );
+
+		const css = document.querySelector( '[data-shell-header="forms"] style' ).textContent;
+		expect( css.match( /@layer/g ) ).toHaveLength( 1 );
+		jest.useRealTimers();
+	} );
+
+	// The module as a new document loads it, with nothing remembered from earlier saves.
+	const freshHeader = () => {
+		let header;
+		jest.isolateModules( () => {
+			header = require( '../../../src/admin-shell/header' );
+		} );
+		header.configureHeaders( PREFIX, MEMBERS );
+		return header;
+	};
+
+	it( 'does not save an unchanged header again in a new document', () => {
+		jest.useFakeTimers();
+		const app = document.getElementById( 'app' );
+		const region = document.createElement( 'div' );
+		region.className = 'admin-ui-navigable-region';
+		region.style.color = 'red';
+		// A div inside a p: the HTML parser would move it out, so the saved copy reads back different.
+		region.innerHTML = '<header><h1>Forms</h1><p class="x__header-subtitle"></p></header>';
+		region.querySelector( 'p' ).append( document.createElement( 'div' ) );
+		app.append( region );
+		freshHeader().rememberHeader( 'forms', app );
+		jest.runAllTimers();
+		const setItem = jest.spyOn( Storage.prototype, 'setItem' );
+
+		freshHeader().rememberHeader( 'forms', app );
+		jest.runAllTimers();
+
+		expect( setItem ).not.toHaveBeenCalled();
+		setItem.mockRestore();
+		jest.useRealTimers();
+	} );
+
+	it( 'saves a header again when its saved pieces are missing', () => {
+		jest.useFakeTimers();
+		const html = style =>
+			`<div class="admin-ui-navigable-region" style="${ style }"><header><h1>Forms</h1></header></div>`;
+		sessionStorage.setItem(
+			PREFIX,
+			JSON.stringify( {
+				pieces: {},
+				pages: { forms: { html: html( '0' ), css: [], styles: [ '0' ] } },
+			} )
+		);
+		const app = document.getElementById( 'app' );
+		app.innerHTML = html( 'color: red;' );
+
+		freshHeader().rememberHeader( 'forms', app );
+		jest.runAllTimers();
+
+		expect( Object.values( stored().pieces ) ).toEqual( [ 'color: red;' ] );
+		jest.useRealTimers();
+	} );
+
+	it.each( [
+		[ 'no pages', { pages: null } ],
+		[ 'a page without CSS', { pages: { forms: { html: '<div><h1>Forms</h1></div>' } } } ],
+		[ 'a donor without markup', { pages: { other: { css: [], styles: [] } } } ],
+		[
+			'a page naming pieces it lacks',
+			{
+				pieces: {},
+				pages: {
+					forms: { html: '<div style="9"><h1>Forms</h1></div>', css: [ '9' ], styles: [ '9' ] },
+				},
+			},
+		],
+	] )( 'shows what it can of a store with %s, without failing', ( _, store ) => {
+		sessionStorage.setItem( PREFIX, JSON.stringify( store ) );
+
+		expect( () => showHeader( 'forms', document.getElementById( 'app' ), 'Forms' ) ).not.toThrow();
+		expect( document.body.innerHTML ).not.toContain( 'undefined' );
 	} );
 
 	it( 'gives the app back after a few seconds, even if it never shows a heading', () => {

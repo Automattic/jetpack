@@ -146,6 +146,22 @@ export const useGetErrorContent = ( licenseError: string, errorType: LicenseErro
 					</>
 				),
 			};
+		case LICENSE_ERRORS.JETPACK_PRO_LOWER_LIMITS:
+			return {
+				errorMessage: __(
+					'This site has a Jetpack product that includes more than Jetpack Pro, so Pro can’t replace it. You can use this license on another site, or contact us.',
+					'jetpack-licensing'
+				),
+				errorInfo: <p>{ needHelpGetInTouchLink }</p>,
+			};
+		case LICENSE_ERRORS.JETPACK_PRO_OTHER_OWNER:
+			return {
+				errorMessage: __(
+					'A Jetpack product on this site belongs to another WordPress.com account, so Jetpack Pro can’t be activated here. Contact us and we’ll help you sort it out.',
+					'jetpack-licensing'
+				),
+				errorInfo: <p>{ needHelpGetInTouchLink }</p>,
+			};
 		case LICENSE_ERRORS.REVOKED_LICENSE:
 			return {
 				errorMessage: __(

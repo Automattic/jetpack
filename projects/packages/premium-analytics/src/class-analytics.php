@@ -386,6 +386,18 @@ class Analytics {
 		require_once __DIR__ . '/stats-plan-gates.php';
 		configure_stats_plan_gates();
 
+		// Whether this site and user see the Upgrade to Parse.ly prompts.
+		require_once __DIR__ . '/parsely-prompts.php';
+		configure_parsely_prompts();
+
+		// The promo slot, for the options menu and Settings.
+		require_once __DIR__ . '/promos.php';
+		configure_promos();
+
+		// The Upgrade to Parse.ly prompts, registered into that slot.
+		require_once __DIR__ . '/parsely-promo.php';
+		configure_parsely_promos();
+
 		// The purchase a Stats checkout returned with, for the thank-you notice.
 		require_once __DIR__ . '/purchase-success.php';
 		configure_purchase_success();

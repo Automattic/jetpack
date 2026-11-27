@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Safe Mode: Attribute the new Safe Mode screen's Tracks events in the admin notice to the viewer, and record a disconnect from it on the Connectors card.

@@ -1,4 +1,5 @@
 import BoostAdminPage from '$layout/boost-admin-page/boost-admin-page';
+import PageFrame from '$layout/page-frame/page-frame';
 import BackButton from '$features/ui/back-button/back-button';
 import JetpackLogo from '$svg/jetpack-green';
 import clsx from 'clsx';
@@ -20,7 +21,7 @@ const CardPage = ( {
 }: CardPageProps ) => {
 	return (
 		<BoostAdminPage>
-			<div id="jb-dashboard" className="jb-dashboard">
+			<PageFrame>
 				<div className={ styles.body }>
 					<div className={ 'jb-container jb-container--fixed mt-2' }>
 						{ showBackButton && <BackButton /> }
@@ -35,7 +36,7 @@ const CardPage = ( {
 						{ footerNote && <footer className={ styles[ 'footer-note' ] }>{ footerNote }</footer> }
 					</div>
 				</div>
-			</div>
+			</PageFrame>
 		</BoostAdminPage>
 	);
 };

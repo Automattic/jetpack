@@ -2,7 +2,6 @@
 /* eslint-disable jest-dom/prefer-in-document, jest-dom/prefer-to-have-attribute, jest-dom/prefer-checked, testing-library/prefer-user-event */
 import { fireEvent, render, screen } from '@testing-library/react';
 import { recordBoostEvent } from '$lib/utils/analytics';
-import { ModuleSurfaceProvider } from '$features/module/surface';
 import PageCacheMeta from './meta';
 
 const mockLoggingMutate = jest.fn();
@@ -21,13 +20,6 @@ jest.mock( '$lib/stores/page-cache', () => ( {
 jest.mock( '$features/ui', () => ( { useMutationNotice: jest.fn() } ) );
 jest.mock( '$lib/utils/analytics', () => ( { recordBoostEvent: jest.fn() } ) );
 
-const renderModern = () =>
-	render(
-		<ModuleSurfaceProvider value="row">
-			<PageCacheMeta />
-		</ModuleSurfaceProvider>
-	);
-
 beforeEach( () => {
 	mockLogging = false;
 	mockClear.isPending = false;
@@ -37,8 +29,7 @@ beforeEach( () => {
 } );
 
 it( 'clears the cache from a visible Clear cache button', () => {
-	renderModern();
-	expect( screen.queryByRole( 'button', { name: 'Show Options' } ) ).toBeNull();
+	render( <PageCacheMeta /> );
 	fireEvent.click( screen.getByRole( 'button', { name: 'Clear cache' } ) );
 	expect( mockClear.mutate ).toHaveBeenCalledTimes( 1 );
 	expect( recordBoostEvent ).toHaveBeenCalledWith( 'page_cache_clear_clicked', {} );
@@ -46,7 +37,7 @@ it( 'clears the cache from a visible Clear cache button', () => {
 
 it( 'disables Clear cache while the cache is clearing', () => {
 	mockClear.isPending = true;
-	renderModern();
+	render( <PageCacheMeta /> );
 	const button = screen.getByRole( 'button', { name: /Clear cache/ } );
 	expect(
 		button.hasAttribute( 'disabled' ) || button.getAttribute( 'aria-disabled' ) === 'true'
@@ -55,7 +46,7 @@ it( 'disables Clear cache while the cache is clearing', () => {
 } );
 
 it( 'enables logging from the logging toggle and hides See logs until it is on', () => {
-	renderModern();
+	render( <PageCacheMeta /> );
 	expect( screen.queryByRole( 'link', { name: 'See logs' } ) ).toBeNull();
 	const toggle = screen.getByRole< HTMLInputElement >( 'checkbox', { name: 'Enable logging' } );
 	expect( toggle.checked ).toBe( false );
@@ -67,7 +58,7 @@ it( 'enables logging from the logging toggle and hides See logs until it is on',
 
 it( 'links to the Cache Log when logging is on', () => {
 	mockLogging = true;
-	renderModern();
+	render( <PageCacheMeta /> );
 	expect(
 		screen.getByRole< HTMLInputElement >( 'checkbox', { name: 'Enable logging' } ).checked
 	).toBe( true );
@@ -78,38 +69,9 @@ it( 'links to the Cache Log when logging is on', () => {
 	expect( recordBoostEvent ).toHaveBeenCalledWith( 'page_cache_see_logs_clicked', {} );
 } );
 
-it( 'keeps the legacy Clear Cache link and logging checkbox', () => {
-	mockLogging = true;
+const openExamples = () => {
 	render( <PageCacheMeta /> );
-	expect( screen.getByText( 'Logging activated.', { exact: false } ) ).toBeTruthy();
-	fireEvent.click( screen.getByRole( 'button', { name: 'Clear Cache' } ) );
-	expect( mockClear.mutate ).toHaveBeenCalledTimes( 1 );
-	fireEvent.click( screen.getByRole( 'button', { name: 'Show Options' } ) );
-	expect( recordBoostEvent ).toHaveBeenCalledWith( 'page_cache_exceptions_panel_toggle', {
-		panel_scope: 'all_options',
-		status: 'open',
-	} );
-	expect(
-		screen.getByRole( 'checkbox', { name: 'Activate logging to track all your cache events.' } )
-	).toBeTruthy();
-	expect( screen.getByRole( 'link', { name: 'See Logs' } ) ).toBeTruthy();
-} );
-
-const renderMeta = ( row: boolean ) =>
-	render(
-		row ? (
-			<ModuleSurfaceProvider value="row">
-				<PageCacheMeta />
-			</ModuleSurfaceProvider>
-		) : (
-			<PageCacheMeta />
-		)
-	);
-
-// The exceptions live behind the Except panel on the modern surface, Show Options on the other.
-const openExamples = ( row: boolean ) => {
-	renderMeta( row );
-	fireEvent.click( screen.getByRole( 'button', { name: row ? 'Except None' : 'Show Options' } ) );
+	fireEvent.click( screen.getByRole( 'button', { name: 'Except None' } ) );
 	const trigger = screen.getByRole( 'button', { name: 'See examples' } );
 	fireEvent.click( trigger );
 	return trigger;
@@ -123,8 +85,8 @@ const focusExceptions = () => {
 };
 
 describe( 'Page Cache example tooltip', () => {
-	it.each( [ false, true ] )( 'opens from the trigger and closes with Escape (row: %s)', row => {
-		const trigger = openExamples( row );
+	it( 'opens from the trigger and closes with Escape', () => {
+		const trigger = openExamples();
 		expect( screen.getByText( 'Examples:' ) ).toBeTruthy();
 		expect( trigger.getAttribute( 'aria-expanded' ) ).toBe( 'true' );
 		fireEvent.keyDown( trigger, { key: 'Escape' } );
@@ -132,28 +94,25 @@ describe( 'Page Cache example tooltip', () => {
 		expect( trigger.getAttribute( 'aria-expanded' ) ).toBe( 'false' );
 	} );
 
-	it.each( [ false, true ] )( 'stays open when the Exceptions field is clicked (row: %s)', row => {
-		openExamples( row );
+	it( 'stays open when the Exceptions field is clicked', () => {
+		openExamples();
 		focusExceptions();
 		expect( screen.getByText( 'Examples:' ) ).toBeTruthy();
 	} );
 
-	it.each( [ false, true ] )( 'closes when something else is clicked (row: %s)', row => {
-		openExamples( row );
+	it( 'closes when something else is clicked', () => {
+		openExamples();
 		const elsewhere = screen.getByRole( 'button', { name: /^Clear cache$/i } );
 		fireEvent.pointerDown( elsewhere );
 		elsewhere.focus();
 		expect( screen.queryByText( 'Examples:' ) ).toBeNull();
 	} );
 
-	it.each( [ false, true ] )(
-		'still closes with Escape once focus has moved into the Exceptions field (row: %s)',
-		row => {
-			openExamples( row );
-			const exceptions = focusExceptions();
-			expect( screen.getByText( 'Examples:' ) ).toBeTruthy();
-			fireEvent.keyDown( exceptions, { key: 'Escape' } );
-			expect( screen.queryByText( 'Examples:' ) ).toBeNull();
-		}
-	);
+	it( 'still closes with Escape once focus has moved into the Exceptions field', () => {
+		openExamples();
+		const exceptions = focusExceptions();
+		expect( screen.getByText( 'Examples:' ) ).toBeTruthy();
+		fireEvent.keyDown( exceptions, { key: 'Escape' } );
+		expect( screen.queryByText( 'Examples:' ) ).toBeNull();
+	} );
 } );

@@ -200,6 +200,17 @@ describe( 'the product card primary action', () => {
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 	} );
 
+	it.each( [
+		[ 'Upgrade', PRODUCT_STATUSES.CAN_UPGRADE, undefined ],
+		[ 'View', PRODUCT_STATUSES.CAN_UPGRADE, '' ],
+		[ 'Get plan', PRODUCT_STATUSES.NEEDS_PLAN, undefined ],
+		[ 'View', PRODUCT_STATUSES.NEEDS_PLAN, '' ],
+	] )( 'offers "%s" for %s when the host answers %p', ( label, status, hostPurchaseUrl ) => {
+		expect( primaryActionFor( status, true, hostPurchaseUrl ) ).toHaveTextContent(
+			exactly( label )
+		);
+	} );
+
 	it( 'keeps the action busy until it is known whether the host forced the module off', () => {
 		mockUseForcedOffReason.mockReturnValue( { reason: null, isPending: true } );
 

@@ -250,7 +250,7 @@ class Menu_Visibility {
 	/**
 	 * Whether the admin shell should offer to turn a gate's feature on: it can, and the Features tab lists it, so My Jetpack has its card.
 	 *
-	 * A page with no card, such as SEO's, keeps its own way to turn its feature back on.
+	 * A page with no card keeps its own way to turn its feature back on.
 	 *
 	 * @param array $args The item's visibility declaration.
 	 * @return bool

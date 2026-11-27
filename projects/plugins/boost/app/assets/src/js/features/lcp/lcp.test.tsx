@@ -1,9 +1,7 @@
 /* eslint-disable jest-dom/prefer-in-document, jest-dom/prefer-enabled-disabled -- This Jest project does not load jest-dom. */
 import { fireEvent, render, screen, within } from '@testing-library/react';
-import { ModuleSurfaceProvider } from '$features/module/surface';
 import { useLcpState, useOptimizeLcpAction } from './lib/stores/lcp-state';
 import Lcp from './lcp';
-import styles from './status/status.module.scss';
 import type { LcpState } from './lib/stores/lcp-state-types';
 import type { ReactNode } from 'react';
 
@@ -31,11 +29,7 @@ const mockState = ( state: LcpState | undefined ) => {
 
 const renderState = ( state: LcpState | undefined ) => {
 	mockState( state );
-	render(
-		<ModuleSurfaceProvider value="row">
-			<Lcp />
-		</ModuleSurfaceProvider>
-	);
+	render( <Lcp /> );
 };
 
 test.each( [
@@ -91,18 +85,5 @@ test( 'keeps the issues notice and its expandable details beside the analyzed st
 		within( screen.getByRole( 'list' ) ).getByText(
 			/The page took too long to load during analysis/
 		)
-	).toBeTruthy();
-} );
-
-test( 'keeps the status container without a well on the default legacy surface', () => {
-	mockState( { status: 'pending', pages: [] } );
-	const { container } = render( <Lcp /> );
-
-	// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- The legacy container has no role or test ID.
-	expect( container.querySelector( `.${ styles.status }` ) ).toBeTruthy();
-	expect( screen.queryByTestId( 'lcp-status-well' ) ).toBeNull();
-	expect( screen.queryByRole( 'progressbar' ) ).toBeNull();
-	expect(
-		screen.getByText( "Jetpack Boost is optimizing your Cornerstone Page's LCP for you." )
 	).toBeTruthy();
 } );

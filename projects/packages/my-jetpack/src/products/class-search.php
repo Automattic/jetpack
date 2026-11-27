@@ -45,6 +45,27 @@ class Search extends Hybrid_Product {
 	const SEARCH_NEW_PRICING_VERSION = '202208';
 
 	/**
+	 * Prefix of the transient that keeps a successful WPCOM pricing response, one per site, locale and currency
+	 *
+	 * @var string
+	 */
+	const PRICING_TRANSIENT_PREFIX = 'my_jetpack_search_pricing_';
+
+	/**
+	 * How long, in seconds, a successful WPCOM pricing response is reused
+	 *
+	 * @var int
+	 */
+	const PRICING_CACHE_DURATION = DAY_IN_SECONDS;
+
+	/**
+	 * Pricing responses and failures already seen in this request, keyed by record count
+	 *
+	 * @var array
+	 */
+	private static $pricings = array();
+
+	/**
 	 * The product slug
 	 *
 	 * @var string
@@ -274,26 +295,40 @@ class Search extends Hybrid_Product {
 	 * @return array|WP_Error
 	 */
 	public static function get_pricing_from_wpcom( $record_count ) {
-		static $pricings = array();
-		$connection      = new Connection_Manager();
-		$blog_id         = \Jetpack_Options::get_option( 'id' );
+		$connection = new Connection_Manager();
+		$blog_id    = \Jetpack_Options::get_option( 'id' );
 
-		if ( isset( $pricings[ $record_count ] ) ) {
-			return $pricings[ $record_count ];
+		if ( isset( self::$pricings[ $record_count ] ) ) {
+			return self::$pricings[ $record_count ];
 		}
 
-		// If the site is connected, request pricing with the blog token
+		$locale   = get_user_locale();
+		$currency = '';
 		if ( $blog_id ) {
-			$endpoint = sprintf( '/jetpack-search/pricing?record_count=%1$d&locale=%2$s', $record_count, get_user_locale() );
+			$endpoint = sprintf( '/jetpack-search/pricing?record_count=%1$d&locale=%2$s', $record_count, $locale );
 
 			// If available in the user data, set the user's currency as one of the params
 			if ( $connection->is_user_connected() ) {
 				$user_details = $connection->get_connected_user_data();
 				if ( ! empty( $user_details['user_currency'] ) && $user_details['user_currency'] !== 'USD' ) {
-					$endpoint .= sprintf( '&currency=%s', $user_details['user_currency'] );
+					$currency  = $user_details['user_currency'];
+					$endpoint .= sprintf( '&currency=%s', $currency );
 				}
 			}
+		} else {
+			$endpoint = sprintf( Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ) . '/wpcom/v2/jetpack-search/pricing?record_count=%1$d&locale=%2$s', $record_count, $locale );
+		}
 
+		// One row per site, locale and currency; a row stored for another record count is a miss.
+		$transient_key = self::PRICING_TRANSIENT_PREFIX . md5( $locale . '|' . $currency . '|' . (int) $blog_id );
+		$cached        = get_transient( $transient_key );
+		if ( is_array( $cached ) && ( $cached['endpoint'] ?? null ) === $endpoint && is_array( $cached['pricing'] ?? null ) ) {
+			self::$pricings[ $record_count ] = $cached['pricing'];
+			return self::$pricings[ $record_count ];
+		}
+
+		// If the site is connected, request pricing with the blog token
+		if ( $blog_id ) {
 			$response = Client::wpcom_json_api_request_as_blog(
 				$endpoint,
 				'2',
@@ -302,22 +337,29 @@ class Search extends Hybrid_Product {
 				'wpcom'
 			);
 		} else {
-			$response = wp_remote_get(
-				sprintf( Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ) . '/wpcom/v2/jetpack-search/pricing?record_count=%1$d&locale=%2$s', $record_count, get_user_locale() ),
-				array( 'timeout' => 5 )
-			);
+			$response = wp_remote_get( $endpoint, array( 'timeout' => 5 ) );
 		}
 
 		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			// Cache the failure too: get_pricing_for_ui() reaches this twice per request
 			// (once via has_trial_support(), once directly), and each miss is a 5s timeout.
-			$pricings[ $record_count ] = new WP_Error( 'search_pricing_fetch_failed' );
-			return $pricings[ $record_count ];
+			self::$pricings[ $record_count ] = new WP_Error( 'search_pricing_fetch_failed' );
+			return self::$pricings[ $record_count ];
 		}
 
-		$body                      = wp_remote_retrieve_body( $response );
-		$pricings[ $record_count ] = json_decode( $body, true );
-		return $pricings[ $record_count ];
+		$body                            = wp_remote_retrieve_body( $response );
+		self::$pricings[ $record_count ] = json_decode( $body, true );
+		if ( is_array( self::$pricings[ $record_count ] ) ) {
+			set_transient(
+				$transient_key,
+				array(
+					'endpoint' => $endpoint,
+					'pricing'  => self::$pricings[ $record_count ],
+				),
+				self::PRICING_CACHE_DURATION
+			);
+		}
+		return self::$pricings[ $record_count ];
 	}
 
 	/**

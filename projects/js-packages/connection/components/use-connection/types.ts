@@ -73,7 +73,7 @@ export interface UserConnectionData {
 
 export interface RegistrationError {
 	message?: string;
-	response?: { code?: string; message?: string };
+	response?: { code?: string; message?: string; data?: unknown };
 	[ key: string ]: unknown;
 }
 

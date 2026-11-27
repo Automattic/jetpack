@@ -4,7 +4,10 @@ import { makeE2eConfig } from '@automattic/_jetpack-e2e-commons/eslint.config.mj
 export default [
 	...makeE2eConfig( import.meta.url ),
 	{
-		files: [ 'lib/fixtures/history-tooltip*', 'lib/fixtures/settings-tooltip*' ],
+		files: [
+			'lib/fixtures/history-tooltip*.{js,jsx,cjs}',
+			'lib/fixtures/settings-tooltip*.{js,jsx,cjs}',
+		],
 		rules: {
 			// The browser fixtures bundle the plugin using its declared build dependencies.
 			'import/no-extraneous-dependencies': [
@@ -14,7 +17,7 @@ export default [
 		},
 	},
 	{
-		files: [ 'lib/fixtures/settings-tooltip*' ],
+		files: [ 'lib/fixtures/settings-tooltip*.{js,jsx,cjs}' ],
 		rules: {
 			// This fixture reaches plugin sources through the `$…` aliases its webpack config
 			// resolves, and loads its globals and stylesheets in a deliberate order.

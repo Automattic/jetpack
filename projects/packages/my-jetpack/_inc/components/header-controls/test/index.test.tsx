@@ -153,39 +153,62 @@ describe( 'HeaderControls', () => {
 		expect( dialog ).toContainElement( screen.getByRole( role, { name } ) );
 	} );
 
-	it( 'names an error without repeating "Jetpack Connection"', () => {
-		const label = 'Jetpack Connection error: Your account (connection owner)';
-		mockUseConnectionState.mockReturnValue(
-			stateWith( { id: 'error', label, action: 'REPAIR', status: 'error', isDiagnosis: true } )
-		);
+	it.each( [
+		[ 'connected', 'Site and account connected', 'Connected', 'Jetpack Connection: Connected' ],
+		[ 'site-connected', 'Site connected', 'Connected', 'Jetpack Connection: Connected' ],
+		[
+			'user-not-connected',
+			'Site connected',
+			'Not connected',
+			'Jetpack Connection: Not connected',
+		],
+		[ 'owner-missing', 'Site connected', 'Not connected', 'Jetpack Connection: Not connected' ],
+		[
+			'site-not-connected',
+			'Site not connected',
+			'Site not connected',
+			'Jetpack Connection: Site not connected',
+		],
+		[
+			'error',
+			'Jetpack Connection error: Your account (connection owner)',
+			'Jetpack Connection error: Your account (connection owner)',
+			'Jetpack Connection error: Your account (connection owner)',
+		],
+	] as const )( 'names its button after the badge when %s', async ( id, label, badge, name ) => {
+		mockUseConnectionState.mockReturnValue( stateWith( { id, label } ) );
 		render( <HeaderControls trackingContext="my-jetpack" /> );
 
-		expect( screen.getByRole( 'button', { name: label } ) ).toBeInTheDocument();
+		await userEvent.click( screen.getByRole( 'button', { name } ) );
+		const dialog = await screen.findByRole( 'dialog' );
+
+		expect( dialog ).toHaveAccessibleDescription( badge );
 	} );
 
-	it( 'focuses the panel, not its first link, when it opens with a click', async () => {
+	it.each( [
+		[
+			'a click',
+			() => userEvent.click( screen.getByRole( 'button', { name: /^Jetpack Connection:/ } ) ),
+		],
+		[
+			'the keyboard',
+			() => {
+				screen.getByRole( 'button', { name: /^Jetpack Connection:/ } ).focus();
+				return userEvent.keyboard( '{Enter}' );
+			},
+		],
+	] )( 'focuses the panel, by its title, when it opens with %s', async ( _, open ) => {
 		mockUseConnectionState.mockReturnValue(
-			stateWith( { action: 'CONNECT_USER', status: 'warning' } )
+			stateWith( { id: 'user-not-connected', action: 'CONNECT_USER', status: 'warning' } )
 		);
 		render( <HeaderControls trackingContext="my-jetpack" /> );
 
-		const dialog = await openControl();
+		await open();
+		const dialog = await screen.findByRole( 'dialog', { name: 'Jetpack Connection' } );
 
 		await waitFor( () => expect( dialog ).toHaveFocus() );
-	} );
-
-	it( 'focuses its first link when it opens from the keyboard', async () => {
-		mockUseConnectionState.mockReturnValue(
-			stateWith( { action: 'CONNECT_USER', status: 'warning' } )
-		);
-		render( <HeaderControls trackingContext="my-jetpack" /> );
-
-		screen.getByRole( 'button', { name: /^Jetpack Connection:/ } ).focus();
-		await userEvent.keyboard( '{Enter}' );
-
-		await waitFor( () =>
-			expect( screen.getByRole( 'link', { name: 'Connect my account' } ) ).toHaveFocus()
-		);
+		await userEvent.tab();
+		expect( screen.getByRole( 'link', { name: 'Connect my account' } ) ).toHaveFocus();
 	} );
 
 	it( 'offers no action in Safe Mode', async () => {

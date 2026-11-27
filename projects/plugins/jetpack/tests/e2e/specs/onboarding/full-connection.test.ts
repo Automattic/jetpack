@@ -63,10 +63,7 @@ test( 'Full connection - Site and User', async ( { page, requestUtils, admin } )
 
 	await test.step( 'Verify site and user connection', async () => {
 		await page
-			.getByRole( 'button', {
-				name: 'Jetpack Connection: Site and account connected',
-				exact: true,
-			} )
+			.getByRole( 'button', { name: 'Jetpack Connection: Connected', exact: true } )
 			.click();
 		const connectionPopover = page.getByRole( 'dialog', {
 			name: 'Jetpack Connection',

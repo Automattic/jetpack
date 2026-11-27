@@ -1,4 +1,3 @@
-import { useModuleSurface } from '$features/module/surface';
 import { isCriticalCssEnabled } from '$features/critical-css/lib/is-critical-css-enabled';
 import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
 import { useRegenerationReason } from '$features/critical-css/lib/stores/suggest-regenerate';
@@ -60,8 +59,6 @@ const CornerstonePagesContent = () => {
 	const [ { refetch: refetchRegenerationReason } ] = useRegenerationReason();
 	const [ lcpState ] = useLcpState( { enabled: false } );
 	const { setNotice } = useNotices();
-	const isModern = useModuleSurface() === 'row';
-	const listInputRows = isPremium && ! isModern ? 10 : 5;
 	const [ { data: modulesState } ] = useModulesState();
 
 	const updateCornerstonePages = ( newValue: string ) => {
@@ -106,7 +103,7 @@ const CornerstonePagesContent = () => {
 				setItems={ updateCornerstonePages }
 				maxItems={ cornerstonePagesProperties.max_pages }
 				defaultValue={ cornerstonePagesProperties.default_pages.join( '\n' ) }
-				inputRows={ listInputRows }
+				inputRows={ 5 }
 				description={
 					<>
 						{ createInterpolateElement(
@@ -130,18 +127,13 @@ const CornerstonePagesContent = () => {
 };
 
 export const CornerstonePagesDescription = () => {
-	const legacyDescription = __(
-		'List the most important pages of your site. These pages will receive specially tailored optimizations, including targeted critical CSS. The Page Speed scores are based on your homepage, which is automatically included. <b><link>Learn More</link></b>',
-		'jetpack-boost'
-	);
-	const modernDescription = __(
+	const description = __(
 		'Add your most important pages for targeted optimizations, including Critical CSS. Your homepage is included automatically for PageSpeed scoring. <link>Learn more</link>',
 		'jetpack-boost'
 	);
-	const isModern = useModuleSurface() === 'row';
 	const cornerstonePagesSupportLink = getRedirectUrl( 'jetpack-boost-cornerstone-pages' );
 
-	return createInterpolateElement( isModern ? modernDescription : legacyDescription, {
+	return createInterpolateElement( description, {
 		link: (
 			<Link
 				openInNewTab
@@ -151,29 +143,18 @@ export const CornerstonePagesDescription = () => {
 				} }
 			/>
 		),
-		b: <b />,
 	} );
 };
 
 export const CornerstonePagesEditor = () => {
 	const cornerstonePagesProperties = useCornerstonePagesProperties();
-	const isModern = useModuleSurface() === 'row';
 
 	return (
-		<div className={ clsx( styles.body, isModern && styles[ 'is-modern' ] ) }>
+		<div className={ styles.body }>
 			{ cornerstonePagesProperties ? <CornerstonePagesContent /> : <MetaError /> }
 		</div>
 	);
 };
-
-const Meta = () => (
-	<div className={ styles.wrapper } data-testid="cornerstone-pages-meta">
-		<p>
-			<CornerstonePagesDescription />
-		</p>
-		<CornerstonePagesEditor />
-	</div>
-);
 
 type ListProps = {
 	items: string;
@@ -185,7 +166,6 @@ type ListProps = {
 };
 
 export const CornerstonePagesUpgradeCTA = () => {
-	const isModern = useModuleSurface() === 'row';
 	const cornerstonePagesProperties = useCornerstonePagesProperties();
 	const premiumFeatures = usePremiumFeatures();
 	const isPremium = premiumFeatures.includes( 'cornerstone-10-pages' );
@@ -198,19 +178,11 @@ export const CornerstonePagesUpgradeCTA = () => {
 		<div className={ styles.wrapper }>
 			<UpgradeNotice
 				identifier="cornerstone-10-pages"
-				description={
-					isModern
-						? sprintf(
-								/* translators: %d is the number of cornerstone pages. */
-								__( 'Add up to %d Cornerstone Pages.', 'jetpack-boost' ),
-								cornerstonePagesProperties.max_pages_premium
-							)
-						: sprintf(
-								/* translators: %d is the number of cornerstone pages. */
-								__( 'Premium users can add up to %d Cornerstone Pages.', 'jetpack-boost' ),
-								cornerstonePagesProperties.max_pages_premium
-							)
-				}
+				description={ sprintf(
+					/* translators: %d is the number of cornerstone pages. */
+					__( 'Add up to %d Cornerstone Pages.', 'jetpack-boost' ),
+					cornerstonePagesProperties.max_pages_premium
+				) }
 			/>
 		</div>
 	);
@@ -530,5 +502,3 @@ const List: FC< ListProps > = ( {
 		</div>
 	);
 };
-
-export default Meta;

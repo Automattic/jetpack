@@ -1,6 +1,7 @@
 import { JetpackLogo } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
+import clsx from 'clsx';
 import { useId } from 'react';
 import styles from './styles.module.scss';
 import type { IdentityCrisisLayoutProps } from './types';
@@ -18,6 +19,7 @@ export default function IdentityCrisisLayout( {
 	heading,
 	children,
 	hostActions,
+	isBusy = false,
 }: IdentityCrisisLayoutProps ): ReactNode {
 	const headingId = useId();
 	// Decorative: the heading next to it names the screen.
@@ -46,7 +48,14 @@ export default function IdentityCrisisLayout( {
 				) }
 				{ children }
 				{ hostActions && (
-					<Stack direction="row" gap="sm" wrap="wrap" className={ styles[ 'host-actions' ] }>
+					<Stack
+						direction="row"
+						gap="sm"
+						wrap="wrap"
+						className={ clsx( styles.fieldset, styles.divider ) }
+						// Disables any host's buttons without the host having to; not a group to announce.
+						render={ <fieldset role="presentation" disabled={ isBusy } /> }
+					>
 						{ hostActions }
 					</Stack>
 				) }

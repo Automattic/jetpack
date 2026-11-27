@@ -1,12 +1,10 @@
 import CollapsibleMeta from '$features/ui/collapsible-meta/collapsible-meta';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import styles from './quality-settings.module.scss';
 import { IconTooltip } from '@automattic/jetpack-components';
 import QualityControl from '../quality-control/quality-control';
-import { imageCdnSettingsSchema, useImageCdnQuality } from '../lib/stores';
-import { z } from 'zod';
-import { useModuleSurface, useTooltipLayer } from '$features/module/surface';
-import ModuleSubsection from '$features/ui/module-subsection/module-subsection';
+import { useImageCdnQuality } from '../lib/stores';
+import { tooltipLayer } from '$features/module/tooltip-layer';
 import { useMutationNotice } from '$features/ui/mutation-notice/mutation-notice';
 
 type QualitySettingsProps = {
@@ -14,7 +12,6 @@ type QualitySettingsProps = {
 };
 
 const QualitySettings = ( { isPremium }: QualitySettingsProps ) => {
-	const surface = useModuleSurface();
 	if ( ! isPremium ) {
 		return;
 	}
@@ -55,12 +52,10 @@ const QualitySettings = ( { isPremium }: QualitySettingsProps ) => {
 		<CollapsibleMeta
 			toggleText={ __( 'Adjust Quality', 'jetpack-boost' ) }
 			header={ <Header /> }
-			compactHeader={ surface === 'row' }
-			summary={ surface === 'row' ? undefined : <Summary imageCdnQuality={ imageCdnQuality } /> }
+			compactHeader
 			tracksEvent="image_cdn_panel_toggle"
 		>
-			<div className={ surface === 'row' ? styles[ 'well-body' ] : styles.body }>
-				{ surface !== 'row' && <h5>Adjust image quality per format</h5> }
+			<div className={ styles[ 'well-body' ] }>
 				<div className={ styles[ 'quality-controls' ] }>
 					<QualityControl
 						label={ __( 'JPEG', 'jetpack-boost' ) }
@@ -95,42 +90,12 @@ const QualitySettings = ( { isPremium }: QualitySettingsProps ) => {
 		return null;
 	}
 
-	return surface === 'row' ? (
-		<div className={ styles.well }>{ content }</div>
-	) : (
-		<ModuleSubsection>{ content }</ModuleSubsection>
-	);
+	return <div className={ styles.well }>{ content }</div>;
 };
-
-const Summary = ( {
-	imageCdnQuality,
-}: {
-	imageCdnQuality: z.infer< typeof imageCdnSettingsSchema >;
-} ) => (
-	<div>
-		{ sprintf(
-			/* translators: %1$s is the JPEG quality value, %2$s is PNG quality value, and %3$s is WEBP quality value. Each value may also say 'lossless' */
-			__( 'JPEG Quality: %1$s, PNG Quality: %2$s, WEBP Quality: %3$s', 'jetpack-boost' ),
-			imageCdnQuality.jpg.lossless
-				? __( 'lossless', 'jetpack-boost' )
-				: imageCdnQuality.jpg.quality.toString(),
-			imageCdnQuality.png.lossless
-				? __( 'lossless', 'jetpack-boost' )
-				: imageCdnQuality.png.quality.toString(),
-			imageCdnQuality.webp.lossless
-				? __( 'lossless', 'jetpack-boost' )
-				: imageCdnQuality.webp.quality.toString()
-		) }
-	</div>
-);
 
 const Header = () => (
 	<div className={ styles[ 'section-title' ] }>
-		<h4>
-			{ useModuleSurface() === 'row'
-				? __( 'Adjust image quality per format', 'jetpack-boost' )
-				: __( 'Image Quality', 'jetpack-boost' ) }
-		</h4>
+		<h4>{ __( 'Adjust image quality per format', 'jetpack-boost' ) }</h4>
 		<IconTooltip
 			offset={ 12 }
 			placement={ 'bottom' }
@@ -139,7 +104,7 @@ const Header = () => (
 			title={ __( 'Image Quality', 'jetpack-boost' ) }
 			label={ __( 'How image quality works', 'jetpack-boost' ) }
 			iconSize={ 22 }
-			{ ...useTooltipLayer() }
+			{ ...tooltipLayer }
 		>
 			{ __(
 				'Select the quality for images served by the CDN. Choosing a lower quality will compress your images and load them faster. If you choose lossless, we will not compress your images.',

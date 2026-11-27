@@ -1,12 +1,12 @@
 /* eslint-disable jest-dom/prefer-in-document -- This Jest project does not load jest-dom. */
 import { render, screen } from '@testing-library/react';
 import CloudCssModule from '$features/critical-css/cloud-css-module/cloud-css-module';
+import DeferFonts from '$features/defer-fonts/defer-fonts';
 import ImageCdn from '$features/image-cdn/image-cdn';
 import ImageGuide from '$features/image-guide/image-guide';
 import Lcp from '$features/lcp/lcp';
 import MinifyCss from '$features/minify-css/minify-css';
 import MinifyJs from '$features/minify-js/minify-js';
-import { ModuleSurfaceProvider } from '$features/module/surface';
 import PageCache from '$features/page-cache/page-cache';
 import RenderBlockingJs from '$features/render-blocking-js/render-blocking-js';
 import type { ReactNode } from 'react';
@@ -48,7 +48,6 @@ jest.mock( '$features/page-cache/meta/meta', () => () => null );
 jest.mock( '$features/page-cache/health/health', () => () => null );
 jest.mock( '$features/image-cdn/image-cdn-liar/image-cdn-liar', () => () => null );
 jest.mock( '$features/image-cdn/quality-settings/quality-settings', () => () => null );
-jest.mock( '$features/upgrade-cta/interstitial-modal-cta', () => () => null );
 
 beforeEach( () => {
 	Object.assign( globalThis, {
@@ -59,119 +58,58 @@ beforeEach( () => {
 test.each( [
 	{
 		component: CloudCssModule,
-		modernTitle: 'Optimize Critical CSS Loading (Automatic)',
-		legacyTitle: 'Automatically Optimize CSS Loading',
-		modern:
+		title: 'Optimize Critical CSS Loading (Automatic)',
+		description:
 			/Prioritizes the styles needed to display the visible part of your page first\. Also known as/,
-		legacy:
-			'Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as Critical CSS.',
-		extraLegacy: [
-			'Boost will automatically generate your Critical CSS whenever you make changes to the HTML or CSS structure of your site.',
-		],
 	},
 	{
 		component: PageCache,
-		modernTitle: 'Cache Site Pages',
-		legacyTitle: 'Cache Site Pages',
-		modern: 'Stores prepared versions of your pages so they can be served more efficiently.',
-		legacy:
-			'Store and serve preloaded content to reduce load times and enhance your site performance and user experience.',
+		title: 'Cache Site Pages',
+		description: 'Stores prepared versions of your pages so they can be served more efficiently.',
 	},
 	{
 		component: RenderBlockingJs,
-		modernTitle: 'Defer Non-Essential JavaScript',
-		legacyTitle: 'Defer Non-Essential JavaScript',
-		modern: /Delays non-essential JavaScript until the main page content has loaded/,
-		legacy:
-			'Run non-essential JavaScript after the page has loaded so that styles and images can load more quickly. Read more on web.dev.',
+		title: 'Defer Non-Essential JavaScript',
+		description: /Delays non-essential JavaScript until the main page content has loaded/,
+	},
+	{
+		component: DeferFonts,
+		title: 'Defer Web Fonts',
+		description:
+			'Loads web fonts after the main page content, showing a system font until they are ready.',
 	},
 	{
 		component: MinifyJs,
-		modernTitle: 'Concatenate JavaScript',
-		legacyTitle: 'Concatenate JS',
-		modern:
+		title: 'Concatenate JavaScript',
+		description:
 			'Combines and minifies JavaScript files to reduce the number of scripts your site needs to load.',
-		legacy:
-			'Scripts are grouped by their original placement, concatenated and minified to reduce site loading time and reduce the number of requests.',
 	},
 	{
 		component: MinifyCss,
-		modernTitle: 'Concatenate CSS',
-		legacyTitle: 'Concatenate CSS',
-		modern:
+		title: 'Concatenate CSS',
+		description:
 			'Combines and minifies stylesheet files to reduce the number of styles your site needs to load.',
-		legacy:
-			'Styles are grouped by their original placement, concatenated and minified to reduce site loading time and reduce the number of requests.',
 	},
 	{
 		component: Lcp,
-		modernTitle: 'Optimize LCP Images',
-		legacyTitle: 'Optimize LCP Images',
-		modern:
+		title: 'Optimize LCP Images',
+		description:
 			'Optimizes the main visible image used to calculate your Cornerstone Pages’ LCP scores.',
-		legacy:
-			'Improve the Largest Contentful Paint (LCP) of your Cornerstone Pages, optimizing their key image, so users can enjoy a smoother experience.',
 	},
 	{
 		component: ImageCdn,
-		modernTitle: 'Image CDN',
-		legacyTitle: 'Image CDN',
-		modern:
+		title: 'Image CDN',
+		description:
 			"Optimizes and delivers images through Jetpack's global network, with control over image quality.",
-		legacy:
-			"Deliver images from Jetpack's Content Delivery Network. Automatically resizes your images to an appropriate size, converts them to modern efficient formats like WebP, and serves them from a worldwide network of servers.",
 	},
 	{
 		component: ImageGuide,
-		modernTitle: 'Enable image guide',
-		legacyTitle: 'Image Guide',
-		modern:
+		title: 'Enable image guide',
+		description:
 			'Shows image size information as you browse, helping you spot images that may be too large.',
-		legacy:
-			"This feature helps you discover images that are too large. When you browse your site, the image guide will show you an overlay with information about each image's size.",
 	},
-] )(
-	'$modernTitle uses modern copy while preserving legacy copy',
-	( {
-		component: Component,
-		modernTitle,
-		legacyTitle,
-		modern,
-		legacy,
-		extraModern = [],
-		extraLegacy = [],
-	} ) => {
-		const view = render(
-			<ModuleSurfaceProvider value="row">
-				<Component />
-			</ModuleSurfaceProvider>
-		);
-		expect( screen.getByRole( 'heading', { name: modernTitle } ) ).toBeTruthy();
-		expect( screen.getByText( modern ) ).toBeTruthy();
-		expect(
-			screen.queryByText(
-				( _, element ) => element?.tagName === 'P' && element.textContent === legacy
-			)
-		).toBeNull();
-		extraModern.forEach( text => expect( screen.getByText( text ) ).toBeTruthy() );
-		view.rerender(
-			<ModuleSurfaceProvider value="block">
-				<Component />
-			</ModuleSurfaceProvider>
-		);
-		expect( screen.getByRole( 'heading', { name: legacyTitle } ) ).toBeTruthy();
-		expect(
-			screen.getByText(
-				( _, element ) => element?.tagName === 'P' && element.textContent === legacy
-			)
-		).toBeTruthy();
-		expect( screen.queryByText( modern ) ).toBeNull();
-		extraLegacy.forEach( text =>
-			expect(
-				screen.getByText(
-					( _, element ) => element?.tagName === 'P' && element.textContent === text
-				)
-			).toBeTruthy()
-		);
-	}
-);
+] )( '$title shows its title and description', ( { component: Component, title, description } ) => {
+	render( <Component /> );
+	expect( screen.getByRole( 'heading', { name: title } ) ).toBeTruthy();
+	expect( screen.getByText( description ) ).toBeTruthy();
+} );

@@ -57,6 +57,16 @@ class Main_Features {
 	const MINIMUM_OFFLINE_FEATURES_VERSION = '6.15.0';
 
 	/**
+	 * The Jetpack module behind the SEO card. Must match `Initializer::DASHBOARD_MODULE` in the SEO package.
+	 */
+	const SEO_MODULE = 'seo-dashboard';
+
+	/**
+	 * The modules the SEO card switches together. Must match `Initializer::SEO_MODULES` in the SEO package.
+	 */
+	const SEO_CARD_MODULES = array( 'seo-tools', 'sitemaps', 'canonical-urls', 'verification-tools' );
+
+	/**
 	 * The bundles the Features tab offers as filter pills. Must match `GROUPS` in use-feature-filter.ts.
 	 */
 	private const FILTER_GROUPS = array( 'security', 'growth' );
@@ -95,6 +105,8 @@ class Main_Features {
 		if ( isset( $definitions[ $locale ] ) ) {
 			return $definitions[ $locale ];
 		}
+
+		$is_wpcom_platform = ( new Host() )->is_wpcom_platform();
 
 		$definitions[ $locale ] = array(
 			'activity-log'      => array(
@@ -364,18 +376,25 @@ class Main_Features {
 				'module'           => 'subscriptions',
 				'off_pages'        => array( 'jetpack-newsletter' ),
 				'needs_account'    => true,
-				'free_highlights'  => array(
-					__( 'No limit on subscribers or email sends', 'jetpack-my-jetpack' ),
-					__( 'Import up to 100 subscribers', 'jetpack-my-jetpack' ),
-					__( 'Subscribe forms and pop-ups to collect subscribers on your site', 'jetpack-my-jetpack' ),
-					__( 'New subscribers from the WordPress.com Reader', 'jetpack-my-jetpack' ),
-					/* translators: %d is the percentage fee, such as 10. */
-					sprintf( __( 'Paid newsletter with a %d%% fee on subscriptions', 'jetpack-my-jetpack' ), 10 ),
+				// No fee lines on WordPress.com, where the plan sets the fee (as in Monetize).
+				'free_highlights'  => array_merge(
+					array(
+						__( 'No limit on subscribers or email sends', 'jetpack-my-jetpack' ),
+						__( 'Import up to 100 subscribers', 'jetpack-my-jetpack' ),
+						__( 'Subscribe forms and pop-ups to collect subscribers on your site', 'jetpack-my-jetpack' ),
+						__( 'New subscribers from the WordPress.com Reader', 'jetpack-my-jetpack' ),
+					),
+					$is_wpcom_platform ? array() : array(
+						/* translators: %d is the percentage fee, such as 10. */
+						sprintf( __( 'Paid newsletter with a %d%% fee on subscriptions', 'jetpack-my-jetpack' ), 10 ),
+					)
 				),
-				'paid_highlights'  => array(
-					__( 'Import as many subscribers as you like', 'jetpack-my-jetpack' ),
-					/* translators: %d is the percentage fee, such as 10. */
-					sprintf( __( 'Paid newsletter with a %d%% fee on subscriptions', 'jetpack-my-jetpack' ), 2 ),
+				'paid_highlights'  => array_merge(
+					array( __( 'Import as many subscribers as you like', 'jetpack-my-jetpack' ) ),
+					$is_wpcom_platform ? array() : array(
+						/* translators: %d is the percentage fee, such as 10. */
+						sprintf( __( 'Paid newsletter with a %d%% fee on subscriptions', 'jetpack-my-jetpack' ), 2 ),
+					)
 				),
 				'delivery'         => array(
 					'jetpack' => true,
@@ -383,6 +402,8 @@ class Main_Features {
 					'free'    => true,
 				),
 				'plans'            => array( 'growth', 'pro', 'complete' ),
+				// Every WordPress.com plan can run a paid newsletter; the plan sets the fee.
+				'paid_feature'     => $is_wpcom_platform ? 'recurring-payments' : '',
 			),
 			'podcast'           => array(
 				'info_url'         => 'https://jetpack.com/podcast/',
@@ -478,6 +499,30 @@ class Main_Features {
 				),
 				'plans'            => array( 'pro', 'complete' ),
 				'paid_product'     => __( 'Jetpack Search', 'jetpack-my-jetpack' ),
+			),
+			'seo'               => array(
+				'info_url'         => 'https://jetpack.com/support/seo-tools/',
+				'docs_url'         => 'https://jetpack.com/support/seo-tools/',
+				'name'             => __( 'SEO', 'jetpack-my-jetpack' ),
+				'description'      => __( 'Control how your site appears in search results, social shares, and AI tools.', 'jetpack-my-jetpack' ),
+				'long_description' => __( 'Manage your sitemap, search engine verification, titles and descriptions, social previews, structured data, and AI crawler access from one page.', 'jetpack-my-jetpack' ),
+				// What the Search engines rows this card replaces were found by.
+				'search_terms'     => _x( 'Sitemaps, SEO Tools, Site Verification, Canonical URLs, search engine optimization, meta description, title tag, open graph, social preview, webmaster, Google, Bing, Pinterest, search console, duplicate content', 'Comma-separated search keywords for the SEO feature', 'jetpack-my-jetpack' ),
+				'icon'             => 'seo',
+				'admin_page'       => 'jetpack-seo',
+				// Switches the SEO page and the Search engines modules together; each module keeps its own state.
+				'module'           => self::SEO_MODULE,
+				'free_highlights'  => array(
+					__( 'Sitemap, site verification, and canonical URLs', 'jetpack-my-jetpack' ),
+					__( 'Custom titles, meta descriptions, and social previews', 'jetpack-my-jetpack' ),
+					__( 'Structured data, llms.txt, and AI crawler controls', 'jetpack-my-jetpack' ),
+				),
+				'delivery'         => array(
+					'jetpack' => true,
+					'plugin'  => '',
+					'free'    => true,
+				),
+				'plans'            => array(),
 			),
 			'social'            => array(
 				'info_url'         => 'https://jetpack.com/social/',
@@ -619,11 +664,13 @@ class Main_Features {
 		 * Filters where a feature's upgrade link goes, so a host can send it to its own plans.
 		 *
 		 * Set `url` to an absolute address to replace the My Jetpack route, which also drops the
-		 * Jetpack plans the feature's details would otherwise link to; it is ignored when `$site_has_feature`.
+		 * Jetpack plans the feature's details would otherwise link to, or to '' when the host sells
+		 * nothing here: no upgrade and no Jetpack plans. Both are ignored when `$site_has_feature`.
 		 *
 		 * @since 6.14.0
 		 * @since 6.16.0 No longer reads `manage_url`; a feature's manage link is always My Jetpack's own.
 		 * @since 6.19.0 Also asked for the purchase links of the feature's product, with the Overview as `back_url`.
+		 * @since $$next-version$$ An empty `url` offers nothing to buy.
 		 *
 		 * @param array  $upgrade          `path` (a My Jetpack route) and `name` (the product sold), both empty when nothing is,
 		 *                                 and `back_url`, the admin page the link is on, for a host flow to return to.
@@ -642,8 +689,22 @@ class Main_Features {
 		);
 
 		// A site that already pays has nothing to buy, wherever a host would send it.
-		if ( ! $site_has_feature && ! empty( $filtered['url'] ) ) {
-			$result['url'] = esc_url_raw( (string) $filtered['url'] );
+		if ( $site_has_feature || ! isset( $filtered['url'] ) ) {
+			return $result;
+		}
+
+		if ( '' === $filtered['url'] ) {
+			return array(
+				'path' => '',
+				'name' => '',
+				'url'  => '',
+			);
+		}
+
+		// An address that doesn't survive sanitizing keeps Jetpack's route rather than selling nothing.
+		$url = esc_url_raw( (string) $filtered['url'] );
+		if ( '' !== $url ) {
+			$result['url'] = $url;
 		}
 
 		return $result;
@@ -653,9 +714,11 @@ class Main_Features {
 	 * Where a host sells the feature a product delivers, for the purchase links outside the Features tab.
 	 *
 	 * @since 6.19.0
+	 * @since $$next-version$$ Returns '' when the host sells nothing here.
 	 *
 	 * @param string $product_slug A My Jetpack product slug, matched to the catalog's `product` key.
-	 * @return ?string Null when the host names no address, the site has the feature, or no feature is the product's.
+	 * @return ?string Null when the host names no address, the site has the feature, or no feature is the product's;
+	 *                 '' when the host sells nothing here.
 	 */
 	public static function get_host_purchase_url( $product_slug ) {
 		// No host listening settles the answer, and spares the ownership lookups below.
@@ -673,7 +736,7 @@ class Main_Features {
 		$included      = self::is_included_in_plan( $definition, $product_class );
 		$upgrade       = self::filter_upgrade( self::get_upgrade( $definition, $product_class, $included ), $slug, $included, '' );
 
-		return empty( $upgrade['url'] ) ? null : $upgrade['url'];
+		return $upgrade['url'] ?? null;
 	}
 
 	/**
@@ -1046,7 +1109,7 @@ class Main_Features {
 			),
 			array(
 				'label'   => __( 'Search engines', 'jetpack-my-jetpack' ),
-				'modules' => array( 'sitemaps', 'seo-tools', 'canonical-urls', 'verification-tools' ),
+				'modules' => self::SEO_CARD_MODULES,
 			),
 			array(
 				'label'   => __( 'Engagement', 'jetpack-my-jetpack' ),
@@ -1093,7 +1156,8 @@ class Main_Features {
 	}
 
 	/**
-	 * Slugs the host has hidden, plus the module behind each hidden feature or product.
+	 * Slugs the host has hidden, plus the module behind each hidden feature or product, and the
+	 * SEO card's modules wherever that card shows.
 	 *
 	 * @since 6.11.0
 	 * @return string[] Hidden module and feature slugs.
@@ -1106,6 +1170,10 @@ class Main_Features {
 				$product_class = isset( $definition['product'] ) ? Products::get_product_class( $definition['product'] ) : null;
 				$hidden[]      = $definition['module'] ?? ( $product_class ? $product_class::get_module_name() : '' );
 			}
+		}
+		// Where the SEO card shows it is their switch, and each keeps its own in SEO › Settings.
+		if ( self::is_seo_offered() && ! in_array( self::SEO_MODULE, $hidden, true ) ) {
+			$hidden = array_merge( $hidden, self::SEO_CARD_MODULES );
 		}
 		return array_values( array_unique( array_filter( $hidden ) ) );
 	}
@@ -1179,6 +1247,11 @@ class Main_Features {
 				continue;
 			}
 
+			// Drop the SEO card where SEO isn't offered (no seo-dashboard module, or VIP); every other card carries on.
+			if ( 'seo' === $slug && ! self::is_seo_offered() ) {
+				continue;
+			}
+
 			$delivery = $definition['delivery'] ?? array();
 			$plugin   = $delivery['plugin'] ?? '';
 			// Any feature neither Jetpack nor a plugin delivers on this site has no card, such as one whose module is behind a flag.
@@ -1195,6 +1268,7 @@ class Main_Features {
 				'name'             => $definition['name'],
 				'description'      => $definition['description'],
 				'long_description' => $local && isset( $definition['offline_long_description'] ) ? $definition['offline_long_description'] : ( $definition['long_description'] ?? '' ),
+				'search_terms'     => $definition['search_terms'] ?? '',
 				'icon'             => $definition['icon'],
 				'manage_url'       => self::get_feature_manage_url( $definition, $product_class, $local ),
 				'essential'        => ! empty( $definition['essential'] ),
@@ -1245,6 +1319,21 @@ class Main_Features {
 		);
 
 		return $features;
+	}
+
+	/**
+	 * Whether the Jetpack plugin offers the SEO card's module, and this host the SEO page it switches.
+	 *
+	 * @return bool
+	 */
+	private static function is_seo_offered() {
+		if ( ! in_array( self::SEO_MODULE, (array) ( new \Automattic\Jetpack\Modules() )->get_available(), true ) ) {
+			return false;
+		}
+
+		$seo_initializer = 'Automattic\Jetpack\SEO\Initializer';
+		// @phan-suppress-next-line PhanUndeclaredClassReference -- optional SEO package, guarded by method_exists.
+		return ! method_exists( $seo_initializer, 'is_available' ) || $seo_initializer::is_available();
 	}
 
 	/**

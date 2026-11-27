@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Stop passing a CSV download status field the dashboard no longer reads.
+
+

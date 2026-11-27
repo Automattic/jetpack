@@ -346,7 +346,7 @@ class Stats extends Hybrid_Product {
 	 */
 	public static function get_purchase_url() {
 		$host_url = static::get_host_purchase_url();
-		if ( $host_url ) {
+		if ( null !== $host_url ) {
 			return $host_url;
 		}
 

@@ -51,7 +51,6 @@ function SharesInner() {
 			hasDateRange: false,
 			status: {
 				isLoading,
-				isFetching,
 				isError: csvIsError,
 				isPlaceholderData: csvIsPlaceholderData,
 			},

@@ -102,6 +102,7 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 		if (
 			( new Host() )->is_wpcom_simple()
 			|| ! file_exists( JETPACK__PLUGIN_DIR . 'build/build.php' )
+			|| ! $this->should_add_page()
 			|| ! $this->can_access_settings()
 			|| $this->block_page_rendering_for_idc()
 		) {

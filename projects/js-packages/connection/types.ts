@@ -74,6 +74,9 @@ interface IdentityCrisisBase {
 	isResolved?: boolean;
 }
 
+/** Logo URL by connected plugin slug, for plugins that have one. */
+export type PluginLogos = Partial< Record< string, string > >;
+
 /** Safe Mode state for the shared Safe Mode screen. Only a viewer who can resolve Safe Mode gets its details. */
 export type IdentityCrisisState =
 	| ( IdentityCrisisBase & { canResolve: false } )
@@ -87,6 +90,8 @@ export type IdentityCrisisState =
 			possibleDynamicSiteUrlDetected: boolean;
 			/** Jetpack mark, combined with the marks of the other plugin families that use the connection. */
 			logoUrl: string;
+			/** Absent from a server that predates it. */
+			pluginLogos?: PluginLogos;
 	  } );
 
 export type ConnectionScriptData = {

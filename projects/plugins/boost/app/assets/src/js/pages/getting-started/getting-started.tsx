@@ -4,6 +4,7 @@ import { getUpgradeURL, useConnection } from '$lib/stores/connection';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { BoostPricingTable } from '$features/boost-pricing-table/boost-pricing-table';
 import BoostAdminPage from '$layout/boost-admin-page/boost-admin-page';
+import PageFrame from '$layout/page-frame/page-frame';
 import styles from './getting-started.module.scss';
 import { useGettingStarted } from '$lib/stores/getting-started';
 import { useBoostNavigation } from '$lib/navigation/navigation-context';
@@ -81,7 +82,7 @@ const GettingStarted: FC = () => {
 
 	return (
 		<BoostAdminPage>
-			<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
+			<PageFrame className={ styles.page } white>
 				<div className="jb-section jb-section--alt">
 					<div className="jb-container">
 						<div className={ styles[ 'pricing-table' ] }>
@@ -100,7 +101,7 @@ const GettingStarted: FC = () => {
 						</div>
 					</div>
 				</div>
-			</div>
+			</PageFrame>
 		</BoostAdminPage>
 	);
 };
