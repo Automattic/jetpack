@@ -153,7 +153,11 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			'invalidates' => array( 'stats/referrers' ),
 		),
 		'wordads'                       => array( 'capability' => 'activate_wordads' ),
-		'subscribers'                   => array( 'capability' => 'view_stats' ),
+		'subscribers'                   => array(
+			'capability' => 'view_stats',
+			// Counts only: the subscriber list carries every subscriber's email address.
+			'pattern'    => 'counts',
+		),
 		'site-has-never-published-post' => array( 'capability' => 'view_stats' ),
 		'jetpack-stats'                 => array(
 			'capability'        => 'view_stats',

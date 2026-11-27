@@ -149,7 +149,8 @@ under `wpcom/v2` (see "Choosing a REST namespace" below).
 | `analytics` (Woo store reports)                          | `view_woocommerce_reports`                  | —                               |
 | `stats`                                                  | `view_stats`                                | `stats/referrers/spam/`         |
 | `wordads`                                                | `activate_wordads` (no role has it: admins) | —                               |
-| `subscribers` / `site-has-never-published-post`          | `view_stats`                                | —                               |
+| `subscribers` (only `counts`)                            | `view_stats`                                | —                               |
+| `site-has-never-published-post`                          | `view_stats`                                | —                               |
 | `jetpack-stats`                                          | `view_stats`                                | `jetpack-stats/user-feedback`   |
 | `jetpack-stats-dashboard`                                | `view_stats`                                | whole prefix (busts read cache) |
 | `commercial-classification`                              | `view_stats`                                | exact path                      |
