@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+WooCommerce Analytics: Build the synced order stats row with WooCommerce's own calculation when it is available.
