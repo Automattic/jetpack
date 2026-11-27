@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Jetpack menu: Hide the Scan entry wherever Protect is in the menu, since Scan now only points to Protect.

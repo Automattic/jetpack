@@ -387,6 +387,28 @@ function wpcom_jetpack_menu_has_my_jetpack() {
 }
 
 /**
+ * Whether the Jetpack menu shows a Protect entry: the Protect dashboard, the standalone plugin's
+ * page, or the upgrade prompt. The entry WPCOM_Scan marks `hide-if-js` while the dashboard is
+ * switched off doesn't count. One admin-ui hides by policy still does, since it only leaves on
+ * admin_head, as wpcom_sort_jetpack_submenu() notes.
+ *
+ * Only meaningful once whatever serves the page has registered it, as with Backup below.
+ *
+ * @return bool
+ */
+function wpcom_jetpack_menu_shows_protect() {
+	global $submenu;
+
+	foreach ( $submenu['jetpack'] ?? array() as $item ) {
+		if ( 'jetpack-protect' === ( $item[2] ?? null ) && ! str_contains( $item[4] ?? '', 'hide-if-js' ) ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
  * Whether Jetpack > Backup opens the wp-admin Backup page rather than Calypso.
  *
  * Only meaningful once whatever serves the page has registered it; see WPCOM_WP_Build_Page::REGISTER_PRIORITY.
@@ -446,18 +468,21 @@ function wpcom_add_jetpack_submenu() {
 	}
 	// @codeCoverageIgnoreEnd
 
-	// Jetpack > Scan, beside Protect until Protect replaces it.
+	// Jetpack > Scan, only where nothing in the menu serves Protect. Calypso's Scan page now just
+	// says "Scan has moved" and points at Protect, so beside a Protect entry it's a dead end.
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ) );
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
-	add_submenu_page(
-		'jetpack',
-		/** "Scan" is a product name, do not translate. */
-		'Scan',
-		'Scan',
-		'manage_options',
-		'https://wordpress.com/scan/' . $domain,
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-	);
+	if ( ! wpcom_jetpack_menu_shows_protect() ) {
+		add_submenu_page(
+			'jetpack',
+			/** "Scan" is a product name, do not translate. */
+			'Scan',
+			'Scan',
+			'manage_options',
+			'https://wordpress.com/scan/' . $domain,
+			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+		);
+	}
 
 	// Jetpack > Backup. Until the wp-admin page takes over, Calypso owns the nav and `jetpack-backup`
 	// is hidden rather than removed, so links into it keep working.
