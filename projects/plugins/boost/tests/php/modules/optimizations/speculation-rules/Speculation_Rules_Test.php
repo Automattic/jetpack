@@ -147,16 +147,18 @@ class Speculation_Rules_Test extends MockeryTestCase {
 		$subdir      = $custom_port . '/blog';
 		$patterns    = array( '/', '/about/', '/contact/' );
 
-		$other_origins = array(
+		$other_origins   = array(
 			'http://localhost:9090/about/',
 			'https://localhost:8081/about/',
 			'http://localhost/about/',
 		);
+		$similar_origins = array( 'https://example.com:8443/about/', 'https://example.com.au/' );
 
 		return array(
 			'plain host'               => array( $plain_host, array( $plain_host, $plain_host . '/about', $plain_host . '/contact/' ), $patterns ),
 			'custom port'              => array( $custom_port, array( $custom_port, $custom_port . '/about', $custom_port . '/contact/' ), $patterns ),
 			'URLs on other origins'    => array( $custom_port, $other_origins, $other_origins ),
+			'origins with same prefix' => array( $plain_host, $similar_origins, $similar_origins ),
 			'custom-port subdirectory' => array(
 				$subdir,
 				array( $subdir, $subdir . '/about' ),

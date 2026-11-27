@@ -67,7 +67,10 @@ class Speculation_Rules implements Feature, Changes_Output_On_Activation, Optimi
 
 		$cornerstone_urls = array_map(
 			function ( $url ) use ( $origin ) {
-				return trailingslashit( str_replace( $origin, '', $url ) );
+				if ( $url === $origin || 0 === strpos( $url, $origin . '/' ) ) {
+					$url = substr( $url, strlen( $origin ) );
+				}
+				return trailingslashit( $url );
 			},
 			$cornerstone_urls
 		);
