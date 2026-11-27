@@ -43,6 +43,10 @@ class Dashboard_Threats_Test extends BaseTestCase {
 	 */
 	public static function provider_format() {
 		$fixable = (object) array( 'fixer' => 'update' );
+		$update  = (object) array(
+			'fixer'  => 'update',
+			'target' => '2.3.0',
+		);
 
 		return array(
 			'plugin type is pluralized'      => array(
@@ -101,6 +105,35 @@ class Dashboard_Threats_Test extends BaseTestCase {
 				array( 'fixable' => $fixable ),
 				array( 'fixable' ),
 				$fixable,
+			),
+			'fixed version takes precedence' => array(
+				array(
+					'fixed_in' => '2.1.0',
+					'fixer'    => $update,
+				),
+				array( 'fixedIn' ),
+				'2.1.0',
+			),
+			'archived update target'         => array(
+				array(
+					'status'  => 'fixed',
+					'fixable' => false,
+					'fixer'   => $update,
+				),
+				array( 'fixedIn' ),
+				'2.3.0',
+			),
+			'archived zero update target'    => array(
+				array(
+					'status'  => 'fixed',
+					'fixable' => false,
+					'fixer'   => (object) array(
+						'fixer'  => 'update',
+						'target' => '0',
+					),
+				),
+				array( 'fixedIn' ),
+				null,
 			),
 			'context drops the marks'        => array(
 				array(

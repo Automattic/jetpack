@@ -76,6 +76,80 @@ describe( 'ThreatDetails', () => {
 
 	it.each( [
 		[
+			'an off-directory plugin without a fixed version',
+			'plugins',
+			false,
+			null,
+			'Jetpack can fix this threat for you: Delete the plugin directory to fix the threat.',
+		],
+		[
+			'an off-directory plugin with a fixed version',
+			'plugins',
+			false,
+			'2.0.2',
+			'Update to version 2.0.2 or later, or let Jetpack delete the plugin.',
+		],
+		[
+			'an off-directory theme with a fixed version',
+			'themes',
+			false,
+			'2.0.2',
+			'Update to version 2.0.2 or later, or let Jetpack delete the theme.',
+		],
+		[
+			'a WordPress.org plugin with a fixed version',
+			'plugins',
+			true,
+			'2.0.2',
+			'Jetpack can fix this threat for you: Delete the plugin directory to fix the threat.',
+		],
+		[
+			'a plugin with a fixed version and no fixer extras',
+			'plugins',
+			undefined,
+			'2.0.2',
+			'Jetpack can fix this threat for you: Delete the plugin directory to fix the threat.',
+		],
+	] as const )( 'advises on a delete fix for %s', ( _name, type, isDotorg, fixedIn, advice ) => {
+		const fixer = {
+			fixer: 'delete',
+			file: ( type === 'themes' ? '{$THEMES}' : '{$PLUGINS}' ) + '/example-premium',
+			extensionStatus: 'active',
+			...( isDotorg !== undefined && { extras: { isDotorg, isBulkFixable: false } } ),
+		};
+		const threat: ScanThreat = {
+			...threatIn( 4, 'delete' ),
+			fixedIn,
+			fixable: fixer,
+			extension: {
+				type,
+				slug: 'example-premium',
+				name: 'Example Premium',
+				version: '2.0.1',
+				state: 'active',
+			},
+		};
+		render( <ThreatDetails threat={ threat } canAct /> );
+
+		expect( screen.getByText( advice ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Auto-fix it' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'names the automatic update target when it differs from the fixed version', () => {
+		const threat: ScanThreat = {
+			...threatIn( 4, 'update' ),
+			fixedIn: '2.0.2',
+			fixable: { fixer: 'update', target: '2.1.0' },
+		};
+		render( <ThreatDetails threat={ threat } canAct /> );
+
+		expect(
+			screen.getByText( 'Jetpack can fix this threat for you: Update Akismet to version 2.1.0.' )
+		).toBeInTheDocument();
+	} );
+
+	it.each( [
+		[
 			'an active plugin',
 			'plugins',
 			'Extension',

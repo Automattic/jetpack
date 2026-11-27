@@ -76,7 +76,6 @@ function getLocation( threat: ScanThreat ): string {
 
 /**
  * Whether a threat is an open plugin or theme vulnerability whose report names no fixed version.
- * Only the free check's `fixedIn` comes from the vulnerability data; Scan sets it from an update fixer.
  *
  * @param threat - The threat.
  * @return Whether it is.
@@ -140,22 +139,50 @@ function getNoFixAdvice( type: string | null, state?: string | null ): string | 
  * @return The advice.
  */
 function getResolution( threat: ScanThreat, canDelete: boolean ): string {
-	const fixer = threat.fixable && getFixerDescription( threat as Threat );
-	if ( fixer ) {
+	const { fixable, fixedIn } = threat;
+	const type = threat.extension?.type;
+	if (
+		fixedIn &&
+		fixable &&
+		isDeleteFix( threat ) &&
+		fixable.extras?.isDotorg === false &&
+		( type === 'plugins' || type === 'themes' )
+	) {
+		if ( type === 'themes' ) {
+			return sprintf(
+				/* translators: %s is the fixed version number. */
+				__(
+					'Update to version %s or later, or let Jetpack delete the theme.',
+					'jetpack-protect-pkg'
+				),
+				fixedIn
+			);
+		}
 		return sprintf(
-			/* translators: %s describes the fix, such as "Update Contact Form 7 to version 6.2.1". */
-			__( 'Jetpack can fix this threat for you: %s.', 'jetpack-protect-pkg' ),
-			fixer.replace( /\.$/, '' )
+			/* translators: %s is the fixed version number. */
+			__(
+				'Update to version %s or later, or let Jetpack delete the plugin.',
+				'jetpack-protect-pkg'
+			),
+			fixedIn
 		);
 	}
-	if ( threat.fixable ) {
+	if ( fixable ) {
+		const fixer = getFixerDescription( threat as Threat );
+		if ( fixer ) {
+			return sprintf(
+				/* translators: %s describes the fix, such as "Update Contact Form 7 to version 6.2.1". */
+				__( 'Jetpack can fix this threat for you: %s.', 'jetpack-protect-pkg' ),
+				fixer.replace( /\.$/, '' )
+			);
+		}
 		return __( 'Jetpack can fix this threat for you.', 'jetpack-protect-pkg' );
 	}
-	if ( threat.fixedIn ) {
+	if ( fixedIn ) {
 		return sprintf(
 			/* translators: %s is a version number, such as "5.3.2". */
 			__( 'Update to version %s or later.', 'jetpack-protect-pkg' ),
-			threat.fixedIn
+			fixedIn
 		);
 	}
 	if ( threat.database && canDelete ) {

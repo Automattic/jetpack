@@ -659,15 +659,18 @@ class Scan_Status_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A vulnerability is left out once its plugin or theme is updated to the fixed version, before Scan scans again.
+	 * Keep a flagged extension visible until it reaches the update fixer's target.
 	 *
-	 * @param string $plugin_version The installed WooCommerce version.
-	 * @param string $theme_version  The installed theme version.
-	 * @param array  $listed         The extension threats still listed.
+	 * @param string      $plugin_version    The installed WooCommerce version.
+	 * @param string      $theme_version     The installed theme version.
+	 * @param array       $listed            The extension threats still listed.
+	 * @param string|null $expected_fixed_in The fixed version expected in the threat list.
+	 * @param string|null $fixed_in          The fixed version reported by the Scan API.
+	 * @param string|null $update_target     The plugin's update target, or null for a delete fixer.
 	 * @dataProvider updated_extension_data
 	 */
 	#[DataProvider( 'updated_extension_data' )]
-	public function test_get_status_after_extension_update( $plugin_version, $theme_version, $listed ) {
+	public function test_get_status_after_extension_update( $plugin_version, $theme_version, $listed, $expected_fixed_in, $fixed_in = null, $update_target = '3.0.2' ) {
 		$this->mock_connection();
 		$update   = function ( $target ) {
 			return (object) array(
@@ -677,8 +680,11 @@ class Scan_Status_Test extends BaseTestCase {
 		};
 		$response = $this->get_sample_response();
 
-		$response->threats[1]->fixer = $update( '3.0.2' );
-		$response->threats[]         = (object) array(
+		$response->threats[1]->fixer = null === $update_target ? (object) array( 'fixer' => 'delete' ) : $update( $update_target );
+		if ( null !== $fixed_in ) {
+			$response->threats[1]->fixed_in = $fixed_in;
+		}
+		$response->threats[] = (object) array(
 			'id'        => 'malware',
 			'signature' => 'PHP.Generic.Malware',
 			'status'    => 'current',
@@ -689,7 +695,7 @@ class Scan_Status_Test extends BaseTestCase {
 				'version' => '3.0.0',
 			),
 		);
-		$response->threats[]         = (object) array(
+		$response->threats[] = (object) array(
 			'id'        => 'theme',
 			'signature' => 'Vulnerable.WP.Extension',
 			'status'    => 'current',
@@ -700,7 +706,7 @@ class Scan_Status_Test extends BaseTestCase {
 				'version' => '1.0.2',
 			),
 		);
-		$filters                     = array(
+		$filters             = array(
 			'pre_http_request'                 => function () use ( $response ) {
 				return array(
 					'body'     => wp_json_encode( $response, JSON_UNESCAPED_SLASHES ),
@@ -728,12 +734,13 @@ class Scan_Status_Test extends BaseTestCase {
 			add_filter( $hook, $filter, 11 );
 		}
 
-		$ids = array_column( Scan_Status::get_status()->threats, 'id' );
+		$threats = array_column( Scan_Status::get_status()->threats, null, 'id' );
 		foreach ( $filters as $hook => $filter ) {
 			remove_filter( $hook, $filter, 11 );
 		}
 
-		$this->assertEqualsCanonicalizing( $listed, array_values( array_intersect( $ids, array( '71625245', 'malware', 'theme' ) ) ) );
+		$this->assertEqualsCanonicalizing( $listed, array_values( array_intersect( array_map( 'strval', array_keys( $threats ) ), array( '71625245', 'malware', 'theme' ) ) ) );
+		$this->assertSame( $expected_fixed_in, $threats['71625245']->fixed_in ?? null );
 	}
 
 	/**
@@ -741,11 +748,14 @@ class Scan_Status_Test extends BaseTestCase {
 	 */
 	public static function updated_extension_data() {
 		return array(
-			'still below the fix' => array( '3.0.1', '1.0.2', array( '71625245', 'malware', 'theme' ) ),
-			'a rollback'          => array( '2.9', '1.0.2', array( '71625245', 'malware', 'theme' ) ),
-			'plugin at the fix'   => array( '3.0.2', '1.0.2', array( 'malware', 'theme' ) ),
-			'plugin past the fix' => array( '3.1', '1.0.2', array( 'malware', 'theme' ) ),
-			'theme at the fix'    => array( '3.0.0', '1.0.3', array( '71625245', 'malware' ) ),
+			'still below the fix'                   => array( '3.0.1', '1.0.2', array( '71625245', 'malware', 'theme' ), '3.0.2' ),
+			'a rollback'                            => array( '2.9', '1.0.2', array( '71625245', 'malware', 'theme' ), '3.0.2' ),
+			'plugin at the fix'                     => array( '3.0.2', '1.0.2', array( 'malware', 'theme' ), null ),
+			'plugin past the fix'                   => array( '3.1', '1.0.2', array( 'malware', 'theme' ), null ),
+			'theme at the fix'                      => array( '3.0.0', '1.0.3', array( '71625245', 'malware' ), '3.0.2' ),
+			'update target above the fixed version' => array( '3.0.1', '1.0.2', array( '71625245', 'malware', 'theme' ), '3.0.1', '3.0.1' ),
+			'delete fixer at the fixed version'     => array( '3.0.1', '1.0.2', array( '71625245', 'malware', 'theme' ), '3.0.1', '3.0.1', null ),
+			'zero update target'                    => array( '3.0.1', '1.0.2', array( '71625245', 'malware', 'theme' ), null, null, '0' ),
 		);
 	}
 
