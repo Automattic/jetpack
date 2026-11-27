@@ -436,6 +436,8 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 		// The automatic-generation option keeps its own surfaces; the settings
 		// page only carries the AI SEO row.
 		$this->assertArrayNotHasKey( 'seo_enhancer', $features );
+		// Video clip generation was removed.
+		$this->assertArrayNotHasKey( 'feature_clip', $features );
 		$this->assertFalse( $features['ai_search']['enabled'] );
 		// No paid Search product in the test environment.
 		$this->assertTrue( $features['ai_search']['requires_upgrade'] );

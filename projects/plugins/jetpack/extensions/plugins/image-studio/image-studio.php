@@ -371,6 +371,9 @@ function do_enqueue_assets() {
 		true
 	);
 
+	// Video clip generation was removed. Warn sites that still hook its filter.
+	apply_filters_deprecated( 'jetpack_image_studio_can_generate_video_clips', array( null ), 'jetpack-$$next-version$$', '', 'Video clip generation was removed from the image editor.' );
+
 	$image_studio_data = array(
 		'enabled'   => true,
 		'version'   => '1.0',
@@ -520,3 +523,49 @@ function disable_jetpack_ai_image_extensions() {
 }
 // Priority 99 ensures this runs after all AI extensions are registered at default priority.
 add_action( 'jetpack_register_gutenberg_extensions', __NAMESPACE__ . '\disable_jetpack_ai_image_extensions', 99 );
+
+/**
+ * Post meta key of the removed video clip feature.
+ *
+ * @deprecated $$next-version$$ Video clip generation was removed.
+ */
+const FEATURE_CLIP_META_KEY = '_jetpack_feature_clip_id';
+
+/**
+ * Check whether the video clip generation flow can run on the current site.
+ *
+ * @deprecated $$next-version$$ Video clip generation was removed.
+ *
+ * @return bool Always false.
+ */
+function image_studio_can_generate_video_clips() {
+	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+	return false;
+}
+
+/**
+ * Permission check for the removed feature clip post meta.
+ *
+ * @deprecated $$next-version$$ Video clip generation was removed.
+ *
+ * @param bool   $allowed   Whether the user is allowed (unused).
+ * @param string $meta_key  Meta key being checked (unused).
+ * @param int    $object_id Post ID.
+ * @return bool
+ */
+function feature_clip_meta_auth_callback( $allowed, $meta_key, $object_id ) {
+	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+	unset( $allowed, $meta_key );
+	return current_user_can( 'edit_post', (int) $object_id );
+}
+
+/**
+ * Formerly registered the feature clip post meta. Does nothing now.
+ *
+ * @deprecated $$next-version$$ Video clip generation was removed.
+ *
+ * @return void
+ */
+function register_feature_clip_post_meta() {
+	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+}

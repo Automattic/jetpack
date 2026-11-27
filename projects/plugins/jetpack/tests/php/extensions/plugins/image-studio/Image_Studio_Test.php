@@ -727,6 +727,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$this->assertSame( 'jetpack', $data['siteType'] );
 		$this->assertFalse( $data['isA11n'] );
 		$this->assertArrayHasKey( 'isDevMode', $data );
+		$this->assertArrayNotHasKey( 'canGenerateVideoClips', $data );
 	}
 
 	/**
@@ -967,6 +968,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 			if ( is_string( $line ) && strpos( $line, 'imageStudioData' ) !== false ) {
 				$found = true;
 				$this->assertStringContainsString( '"enabled":true', $line );
+				$this->assertStringNotContainsString( 'canGenerateVideoClips', $line );
 			}
 		}
 		$this->assertTrue( $found, 'Inline script with imageStudioData not found on Media Library.' );
@@ -1850,6 +1852,58 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	public function test_asset_transient_constant() {
 		$this->assertEquals( 'jetpack_image_studio_asset', ImageStudio\ASSET_TRANSIENT );
+	}
+
+	// -------------------------------------------------------------------------
+	// Deprecated video clip API
+	// -------------------------------------------------------------------------
+
+	/**
+	 * The video clip capability check is deprecated and always false.
+	 */
+	public function test_can_generate_video_clips_is_deprecated() {
+		$this->setExpectedDeprecated( 'Automattic\Jetpack\Extensions\ImageStudio\image_studio_can_generate_video_clips' );
+
+		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
+	}
+
+	/**
+	 * The deprecated filter warns when hooked and never reaches the page data.
+	 */
+	public function test_video_clips_filter_is_deprecated() {
+		$this->setExpectedDeprecated( 'jetpack_image_studio_can_generate_video_clips' );
+		add_filter( 'jetpack_image_studio_can_generate_video_clips', '__return_true' );
+
+		$this->enable_and_enqueue_block_editor();
+
+		$data = $this->get_image_studio_inline_data();
+		$this->assertIsArray( $data );
+		$this->assertArrayNotHasKey( 'canGenerateVideoClips', $data );
+	}
+
+	/**
+	 * The deprecated meta registration no longer registers the meta.
+	 */
+	public function test_register_feature_clip_post_meta_is_deprecated_no_op() {
+		$this->setExpectedDeprecated( 'Automattic\Jetpack\Extensions\ImageStudio\register_feature_clip_post_meta' );
+
+		ImageStudio\register_feature_clip_post_meta();
+
+		$this->assertFalse( registered_meta_key_exists( 'post', ImageStudio\FEATURE_CLIP_META_KEY ) );
+	}
+
+	/**
+	 * The deprecated meta permission check still requires edit_post.
+	 */
+	public function test_feature_clip_meta_auth_callback_is_deprecated() {
+		$this->setExpectedDeprecated( 'Automattic\Jetpack\Extensions\ImageStudio\feature_clip_meta_auth_callback' );
+		$post_id = self::factory()->post->create();
+
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'subscriber' ) ) );
+		$this->assertFalse( ImageStudio\feature_clip_meta_auth_callback( true, ImageStudio\FEATURE_CLIP_META_KEY, $post_id ) );
+
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		$this->assertTrue( ImageStudio\feature_clip_meta_auth_callback( false, ImageStudio\FEATURE_CLIP_META_KEY, $post_id ) );
 	}
 
 	// -------------------------------------------------------------------------
