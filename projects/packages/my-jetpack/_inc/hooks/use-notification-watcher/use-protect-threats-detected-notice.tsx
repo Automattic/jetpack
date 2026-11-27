@@ -1,12 +1,12 @@
-import { Col, getRedirectUrl, Text } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { __, sprintf } from '@wordpress/i18n';
+import { Stack, Text } from '@wordpress/ui';
 import { useContext, useEffect, useCallback } from 'react';
 import { NOTICE_PRIORITY_MEDIUM } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import useProduct from '../../data/products/use-product';
 import createCookie from '../../utils/create-cookie';
-import preventWidows from '../../utils/prevent-widows';
 import useAnalytics from '../use-analytics';
 import type { NoticeHookType } from './types';
 import type { NoticeOptions } from '../../context/notices/types';
@@ -57,13 +57,12 @@ const useProtectThreatsDetectedNotice: NoticeHookType = ( redBubbleAlerts, isLoa
 	}, [ criticalThreatCount, fixableThreatIds, protectDashboardUrl, recordEvent, threatCount ] );
 
 	const onSecondaryCtaClick = useCallback( () => {
-		window.open( fixThreatsLearnMoreUrl );
 		recordEvent( 'jetpack_my_jetpack_protect_threats_detected_notice_secondary_cta_click', {
 			threat_count: threatCount,
 			critical_threat_count: criticalThreatCount,
 			fixable_threat_ids: fixableThreatIds,
 		} );
-	}, [ criticalThreatCount, fixThreatsLearnMoreUrl, fixableThreatIds, recordEvent, threatCount ] );
+	}, [ criticalThreatCount, fixableThreatIds, recordEvent, threatCount ] );
 
 	useEffect( () => {
 		if ( ! redBubbleAlerts?.protect_has_threats || getScriptData().site.is_multisite ) {
@@ -71,28 +70,24 @@ const useProtectThreatsDetectedNotice: NoticeHookType = ( redBubbleAlerts, isLoa
 		}
 
 		const noticeMessage = (
-			<Col>
-				<Text mb={ 1 }>
-					{ preventWidows(
+			<Stack direction="column" gap="sm">
+				<Text render={ <p /> }>
+					{ __(
+						'We’ve detected some security threats that need your attention.',
+						'jetpack-my-jetpack'
+					) }
+				</Text>
+				<Text render={ <p /> }>
+					{ sprintf(
+						// translators: %s is the product name. Can be either "Scan" or "Protect".
 						__(
-							'We’ve detected some security threats that need your attention.',
+							'Visit the %s dashboard to view threat details, auto-fix threats, and keep your site safe.',
 							'jetpack-my-jetpack'
-						)
+						),
+						hasPaidPlanForProduct && isStandaloneActive ? 'Protect' : 'Scan'
 					) }
 				</Text>
-				<Text mb={ 1 }>
-					{ preventWidows(
-						sprintf(
-							// translators: %s is the product name. Can be either "Scan" or "Protect".
-							__(
-								'Visit the %s dashboard to view threat details, auto-fix threats, and keep your site safe.',
-								'jetpack-my-jetpack'
-							),
-							hasPaidPlanForProduct && isStandaloneActive ? 'Protect' : 'Scan'
-						)
-					) }
-				</Text>
-			</Col>
+			</Stack>
 		);
 
 		const noticeOptions: NoticeOptions = {
@@ -106,6 +101,7 @@ const useProtectThreatsDetectedNotice: NoticeHookType = ( redBubbleAlerts, isLoa
 				},
 				{
 					label: __( 'Learn more', 'jetpack-my-jetpack' ),
+					url: fixThreatsLearnMoreUrl,
 					onClick: onSecondaryCtaClick,
 					isExternalLink: true,
 				},
@@ -123,6 +119,7 @@ const useProtectThreatsDetectedNotice: NoticeHookType = ( redBubbleAlerts, isLoa
 			} );
 		}
 	}, [
+		fixThreatsLearnMoreUrl,
 		hasPaidPlanForProduct,
 		isStandaloneActive,
 		noticeTitle,

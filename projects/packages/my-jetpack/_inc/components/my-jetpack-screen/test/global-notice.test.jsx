@@ -47,4 +47,24 @@ describe( 'GlobalNotice', () => {
 		await userEvent.click( screen.getByRole( 'button' ) );
 		expect( onClose ).toHaveBeenCalledTimes( 1 );
 	} );
+
+	it( 'renders external actions as new-tab links and the rest as buttons', () => {
+		render(
+			<GlobalNotice
+				message="Body"
+				options={ {
+					id: 'backup-failure',
+					actions: [
+						{ label: 'Read guide', onClick: jest.fn() },
+						{ label: 'Contact support', url: 'https://example.com', isExternalLink: true },
+					],
+				} }
+			/>
+		);
+
+		expect( screen.getByRole( 'button', { name: 'Read guide' } ) ).toBeInTheDocument();
+		const link = screen.getByRole( 'link', { name: /Contact support/ } );
+		expect( link ).toHaveAttribute( 'href', 'https://example.com' );
+		expect( link ).toHaveAttribute( 'target', '_blank' );
+	} );
 } );

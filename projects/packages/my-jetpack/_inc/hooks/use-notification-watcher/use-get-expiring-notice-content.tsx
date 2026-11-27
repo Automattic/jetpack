@@ -1,6 +1,6 @@
-import { Col, Text } from '@automattic/jetpack-components';
 import { gmdateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
+import { Stack, Text } from '@wordpress/ui';
 import { ProductsList } from './products-list';
 
 interface Props {
@@ -48,32 +48,32 @@ export const useGetExpiringNoticeContent = ( {
 					expiredAlertType === 'expired' ? (
 						<>
 							{ /* EXPIRED */ }
-							<Col>
-								<Text mt={ 2 } mb={ 2 }>
+							<Stack direction="column" gap="sm">
+								<Text render={ <p /> }>
 									{ __(
 										'Your videos are no longer visible to your viewers, and you won’t be able to upload new content.',
 										'jetpack-my-jetpack'
 									) }
 								</Text>
-								<Text mb={ 2 }>
+								<Text render={ <p /> }>
 									{ __(
 										'Don’t worry—you can resume your plan anytime to restore your video library and continue uploading.',
 										'jetpack-my-jetpack'
 									) }
 								</Text>
-							</Col>
+							</Stack>
 						</>
 					) : (
 						<>
 							{ /* EXPIRING-SOON */ }
-							<Col>
-								<Text mt={ 2 } mb={ 2 }>
+							<Stack direction="column" gap="sm">
+								<Text render={ <p /> }>
 									{ __(
 										'Your videos will soon stop showing for your viewers, and you won’t be able to upload new content.',
 										'jetpack-my-jetpack'
 									) }
 								</Text>
-								<Text mb={ 2 }>
+								<Text render={ <p /> }>
 									{ sprintf(
 										// translators: %1$s is the product's expiration date, i.e.- "Nov 11, 2024"
 										__(
@@ -83,7 +83,7 @@ export const useGetExpiringNoticeContent = ( {
 										expiryDateFormatted
 									) }
 								</Text>
-							</Col>
+							</Stack>
 						</>
 					),
 				learnMoreUrl:
@@ -99,8 +99,8 @@ export const useGetExpiringNoticeContent = ( {
 					expiredAlertType === 'expired' ? (
 						<>
 							{ /* EXPIRED */ }
-							<Col>
-								<Text mt={ 2 }>
+							<Stack direction="column" gap="sm">
+								<Text render={ <p /> }>
 									{ sprintf(
 										// translators: %1$s is the Jetpack product name, i.e.- Jetpack Backup, Jetpack Security, etc..
 										__(
@@ -113,7 +113,7 @@ export const useGetExpiringNoticeContent = ( {
 
 								<ProductsList products={ productsEffected } />
 
-								<Text mb={ 2 }>
+								<Text render={ <p /> }>
 									{ sprintf(
 										// translators: %1$s is the Jetpack product name, i.e.- Jetpack Backup, Jetpack Security, etc..
 										__(
@@ -123,19 +123,19 @@ export const useGetExpiringNoticeContent = ( {
 										productName
 									) }
 								</Text>
-								<Text mb={ 2 }>
+								<Text render={ <p /> }>
 									{ __(
 										'But don’t worry—you can resume your plan to restore your access to your plan’s paid features.',
 										'jetpack-my-jetpack'
 									) }
 								</Text>
-							</Col>
+							</Stack>
 						</>
 					) : (
 						<>
 							{ /* EXPIRING-SOON */ }
-							<Col>
-								<Text mt={ 2 }>
+							<Stack direction="column" gap="sm">
+								<Text render={ <p /> }>
 									{ sprintf(
 										// translators: %1$s is the Jetpack product name, i.e.- Jetpack Backup, Jetpack Security, etc..
 										__(
@@ -148,7 +148,7 @@ export const useGetExpiringNoticeContent = ( {
 
 								<ProductsList products={ productsEffected } />
 
-								<Text mb={ 2 }>
+								<Text render={ <p /> }>
 									{ sprintf(
 										// translators: %1$s is the product's expiration date, i.e.- "Nov 11, 2024"
 										__(
@@ -158,7 +158,7 @@ export const useGetExpiringNoticeContent = ( {
 										expiryDateFormatted
 									) }
 								</Text>
-							</Col>
+							</Stack>
 						</>
 					),
 				learnMoreUrl: 'https://jetpack.com/support/jetpack-billing-payments/',
@@ -170,8 +170,8 @@ export const useGetExpiringNoticeContent = ( {
 					expiredAlertType === 'expired' ? (
 						<>
 							{ /* EXPIRED */ }
-							<Col>
-								<Text mt={ 2 } mb={ 2 }>
+							<Stack direction="column" gap="sm">
+								<Text render={ <p /> }>
 									{ sprintf(
 										// translators: %1$s is the Jetpack product name, i.e.- Jetpack Backup, Jetpack Security, etc..
 										__(
@@ -181,19 +181,19 @@ export const useGetExpiringNoticeContent = ( {
 										productName
 									) }
 								</Text>
-								<Text mb={ 2 }>
+								<Text render={ <p /> }>
 									{ __(
 										'Don’t worry—you can resume your plan anytime to restore your access to the upgraded features.',
 										'jetpack-my-jetpack'
 									) }
 								</Text>
-							</Col>
+							</Stack>
 						</>
 					) : (
 						<>
 							{ /* EXPIRING-SOON */ }
-							<Col>
-								<Text mt={ 2 } mb={ 2 }>
+							<Stack direction="column" gap="sm">
+								<Text render={ <p /> }>
 									{ sprintf(
 										// translators: %1$s is the Jetpack product name, i.e.- Jetpack Backup, Jetpack Security, etc.., %2$s is the product's expiration date, i.e.- "Nov 11, 2024".
 										__(
@@ -204,13 +204,13 @@ export const useGetExpiringNoticeContent = ( {
 										expiryDateFormatted
 									) }
 								</Text>
-								<Text mb={ 2 }>
+								<Text render={ <p /> }>
 									{ __(
 										'To keep everything running smoothly, renew your plan today!',
 										'jetpack-my-jetpack'
 									) }
 								</Text>
-							</Col>
+							</Stack>
 						</>
 					),
 				learnMoreUrl: 'https://jetpack.com/support/jetpack-billing-payments/',

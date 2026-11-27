@@ -1,6 +1,6 @@
-import { Col, Text } from '@automattic/jetpack-components';
+import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { Link } from '@wordpress/ui';
+import { Link, Stack, Text } from '@wordpress/ui';
 import { useContext, useEffect, useMemo, useCallback } from 'react';
 import { NOTICE_PRIORITY_MEDIUM } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
@@ -260,30 +260,26 @@ const usePaidPlanNeedsPluginInstallActivationNotice: NoticeHookType = (
 		};
 
 		const noticeContent = (
-			<>
-				<Col>
-					<Text mt={ 2 } mb={ 2 }>
-						{ noticeMessage }
-					</Text>
-					<ul className="plugins-list">
-						{ pluginsList?.length > 0 &&
-							pluginsList.map( ( pluginInfo, index ) => {
-								return (
-									<li key={ index } className="plugin-item">
-										{ pluginInfo.action === 'activate' ? (
-											<a href="/wp-admin/plugins.php">{ pluginInfo.pluginName }</a>
-										) : (
-											<Link openInNewTab href={ pluginInfo.pluginUri }>
-												{ pluginInfo.pluginName }
-											</Link>
-										) }
-										<span>({ actionNounMap[ pluginInfo.action ] })</span>
-									</li>
-								);
-							} ) }
-					</ul>
-				</Col>
-			</>
+			<Stack direction="column" gap="sm">
+				<Text render={ <p /> }>{ noticeMessage }</Text>
+				<Stack render={ <ul /> } direction="column" gap="xs">
+					{ pluginsList?.length > 0 &&
+						pluginsList.map( ( pluginInfo, index ) => {
+							return (
+								<li key={ index }>
+									{ pluginInfo.action === 'activate' ? (
+										<Link href={ getAdminUrl( 'plugins.php' ) }>{ pluginInfo.pluginName }</Link>
+									) : (
+										<Link openInNewTab href={ pluginInfo.pluginUri }>
+											{ pluginInfo.pluginName }
+										</Link>
+									) }{ ' ' }
+									<Text variant="body-sm">({ actionNounMap[ pluginInfo.action ] })</Text>
+								</li>
+							);
+						} ) }
+				</Stack>
+			</Stack>
 		);
 
 		const isInstallingOrActivating = isActivating || isInstalling;

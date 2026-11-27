@@ -1,4 +1,3 @@
-import { Col, Text } from '@automattic/jetpack-components';
 import {
 	CONNECTION_FROM,
 	ConnectionErrorSupportLink,
@@ -9,7 +8,7 @@ import {
 	type ConnectionErrorObject,
 } from '@automattic/jetpack-connection';
 import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
-import { Link } from '@wordpress/ui';
+import { Link, Stack, Text } from '@wordpress/ui';
 import { useContext, useEffect, useCallback, useMemo } from 'react';
 import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
@@ -48,7 +47,7 @@ const NoticeLink = ( {
 	const handleClick = useCallback( () => onClick?.( link ), [ link, onClick ] );
 
 	return (
-		<Text mt={ 1 }>
+		<Text>
 			<Link href={ link.url } onClick={ handleClick } children={ link.label } />
 		</Text>
 	);
@@ -129,42 +128,40 @@ const useConnectionErrorsNotice = (
 		// A hand-built copy of the package's `ConnectionErrorDetails`, kept until My Jetpack
 		// renders the package's `<ConnectionError />` directly. Don't extend it.
 		const errorMessage = (
-			<Col>
+			<Stack direction="column" gap="md">
 				{ restoreConnectionError && (
-					<Text mb={ 2 }>{ getReconnectErrorMessage( restoreConnectionError ) }</Text>
+					<Text render={ <p /> }>{ getReconnectErrorMessage( restoreConnectionError ) }</Text>
 				) }
-				{ errorGroups.map( ( group, groupIndex ) => (
-					<div key={ group.message }>
-						<Text mt={ groupIndex > 0 ? 2 : 0 } mb={ group.detailLines.length ? 1 : 0 }>
-							{ group.message }
-						</Text>
+				{ errorGroups.map( group => (
+					<Stack key={ group.message } direction="column" gap="xs">
+						<Text render={ <p /> }>{ group.message }</Text>
 						{ group.detailLines.length > 0 && (
-							<Text component="ul" style={ { listStyle: 'none' } }>
-								{ group.detailLines.map( ( line, index ) => (
-									<Text
-										component="li"
-										key={ line.key }
-										variant="body-small"
-										mb={ index === group.detailLines.length - 1 ? 0 : 1 }
-									>
+							<Stack
+								render={ <ul /> }
+								direction="column"
+								gap="xs"
+								style={ { paddingInlineStart: 0 } }
+							>
+								{ group.detailLines.map( line => (
+									<Text render={ <li /> } key={ line.key } variant="body-sm">
 										{ formatConnectionErrorDetailLine( line ) }
 									</Text>
 								) ) }
-							</Text>
+							</Stack>
 						) }
 						{ group.noticeLinks.map( link => (
 							<NoticeLink key={ link.url } link={ link } onClick={ trackNoticeLinkClick } />
 						) ) }
-					</div>
+					</Stack>
 				) ) }
 				{ showSupportLink && (
 					// The copy and the destination are the connection package's, shared with
 					// its own notice so a translator sees one string and the two cannot drift.
-					<Text mt={ 1 }>
+					<Text>
 						<ConnectionErrorSupportLink onClick={ trackSupportLinkClick } />
 					</Text>
 				) }
-			</Col>
+			</Stack>
 		);
 
 		// `actions` is mapped over below, so a malformed value would throw inside the
