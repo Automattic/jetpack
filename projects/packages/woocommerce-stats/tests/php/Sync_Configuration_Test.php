@@ -97,6 +97,39 @@ class Sync_Configuration_Test extends TestCase {
 	}
 
 	/**
+	 * An older Sync package without the module's check still keeps stores below 7.5 out.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 * @dataProvider provide_fallback_versions
+	 *
+	 * @param string $version  WC_VERSION of the active WooCommerce.
+	 * @param bool   $expected Whether that version is supported.
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	#[DataProvider( 'provide_fallback_versions' )]
+	public function test_is_woocommerce_supported_without_the_sync_module_check( $version, $expected ) {
+		require_once __DIR__ . '/mocks/sync-module-without-support-check.php';
+		define( 'WC_VERSION', $version );
+
+		$this->assertFalse( method_exists( WooCommerce_Analytics::class, 'is_woocommerce_supported' ) );
+		$this->assertSame( $expected, Sync_Configuration::is_woocommerce_supported() );
+	}
+
+	/**
+	 * Data provider for test_is_woocommerce_supported_without_the_sync_module_check.
+	 *
+	 * @return array
+	 */
+	public static function provide_fallback_versions() {
+		return array(
+			'7.4.1' => array( '7.4.1', false ),
+			'7.5.0' => array( '7.5.0', true ),
+		);
+	}
+
+	/**
 	 * With WooCommerce active, the Sync hooks and data settings register, and the module
 	 * filter runs last so another plugin's Analytics module is already in the list.
 	 *

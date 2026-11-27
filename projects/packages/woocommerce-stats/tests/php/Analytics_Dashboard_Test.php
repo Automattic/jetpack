@@ -402,69 +402,50 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The section is available only on a WooCommerce the sync supports.
+	 * The section stays registered, and is available only with a supported WooCommerce and the
+	 * store-reports capability.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
-	 * @dataProvider provide_woocommerce_versions
+	 * @dataProvider provide_section_availability
 	 *
-	 * @param string $version   WC_VERSION of the active WooCommerce.
-	 * @param bool   $available Whether the section is available.
+	 * @param string $version     WC_VERSION of the active WooCommerce.
+	 * @param bool   $woocommerce Whether WooCommerce is detected.
+	 * @param string $role        Role of the reader.
+	 * @param bool   $available   Whether the section is available.
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	#[DataProvider( 'provide_woocommerce_versions' )]
-	public function test_section_is_available_only_on_a_supported_woocommerce( $version, $available ) {
+	#[DataProvider( 'provide_section_availability' )]
+	public function test_section_availability( $version, $woocommerce, $role, $available ) {
 		define( 'WC_VERSION', $version );
-		$this->enable_store();
+		add_filter( Analytics_Dashboard::WOOCOMMERCE_AVAILABLE_FILTER, $woocommerce ? '__return_true' : '__return_false' );
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'store_reader',
+					'user_pass'  => 'password',
+					'role'       => $role,
+				)
+			)
+		);
 		Analytics_Dashboard::init();
 
 		$this->assertSame( $available, get_registered_dashboard_section( DASHBOARD_NAME, Analytics_Dashboard::SECTION_ID )->is_available() );
 	}
 
 	/**
-	 * Data provider for test_section_is_available_only_on_a_supported_woocommerce.
+	 * Data provider for test_section_availability.
 	 *
 	 * @return array
 	 */
-	public static function provide_woocommerce_versions() {
+	public static function provide_section_availability() {
 		return array(
-			'WooCommerce 7.4.1' => array( '7.4.1', false ),
-			'WooCommerce 7.5.0' => array( '7.5.0', true ),
+			'WooCommerce 7.5.0'           => array( '7.5.0', true, 'administrator', true ),
+			'WooCommerce 7.4.1'           => array( '7.4.1', true, 'administrator', false ),
+			'no WooCommerce'              => array( '7.5.0', false, 'administrator', false ),
+			'no store reports capability' => array( '7.5.0', true, 'editor', false ),
 		);
-	}
-
-	/**
-	 * Without WooCommerce the section stays registered and unavailable.
-	 */
-	public function test_section_stays_unavailable_without_woocommerce() {
-		wp_set_current_user( $this->create_admin() );
-		add_filter( Analytics_Dashboard::WOOCOMMERCE_AVAILABLE_FILTER, '__return_false' );
-		Analytics_Dashboard::init();
-
-		$section = get_registered_dashboard_section( DASHBOARD_NAME, Analytics_Dashboard::SECTION_ID );
-
-		$this->assertNotNull( $section );
-		$this->assertFalse( $section->is_available() );
-	}
-
-	/**
-	 * A reader who can open the dashboard but not store reports does not get the section.
-	 */
-	public function test_section_stays_unavailable_without_the_store_reports_capability() {
-		$this->enable_store();
-		wp_set_current_user(
-			wp_insert_user(
-				array(
-					'user_login' => 'store_editor',
-					'user_pass'  => 'password',
-					'role'       => 'editor',
-				)
-			)
-		);
-		Analytics_Dashboard::init();
-
-		$this->assertFalse( get_registered_dashboard_section( DASHBOARD_NAME, Analytics_Dashboard::SECTION_ID )->is_available() );
 	}
 
 	/**
