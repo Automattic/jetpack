@@ -432,6 +432,13 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_mcp_connections' ),
 					'permission_callback' => array( $this, 'can_read' ),
+					'args'                => array(
+						'other_connections' => array(
+							'description' => 'Also count the AI tools connected other than ChatGPT and Claude.',
+							'type'        => 'boolean',
+							'default'     => false,
+						),
+					),
 				),
 			)
 		);
@@ -1221,9 +1228,14 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 * `access_level` is the account-wide MCP access level shared by every tool (`full`, `read_only`, or null for a
 	 * fresh account or one tuned per tool), returned only once something is connected, since reading it is costly.
 	 *
-	 * @return array{connections: string[], access_level: string|null}|WP_Error
+	 * `other_connections` counts the connected MCP clients other than ChatGPT and Claude, only when the request asks;
+	 * otherwise, or where WordPress.com doesn't report it, null.
+	 *
+	 * @param WP_REST_Request|null $request The request.
+	 * @return array{connections: string[], access_level: string|null, other_connections: int|null}|WP_Error
 	 */
-	public function get_mcp_connections() {
+	public function get_mcp_connections( $request = null ) {
+		$counts_others = $request instanceof WP_REST_Request && true === $request->get_param( 'other_connections' );
 		if ( ! function_exists( 'wpcom_mcp_get_user_connections' ) ) {
 			$remote = $this->fetch_remote_mcp_connections();
 			if ( null === $remote && Constants::is_true( 'IS_ATOMIC' ) ) {
@@ -1234,15 +1246,30 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 					array( 'status' => 503 )
 				);
 			}
-			return $remote ?? array(
-				'connections'  => array(),
-				'access_level' => null,
-			);
+			if ( null === $remote ) {
+				return array(
+					'connections'       => array(),
+					'access_level'      => null,
+					'other_connections' => null,
+				);
+			}
+			if ( ! $counts_others ) {
+				$remote['other_connections'] = null;
+			}
+			return $remote;
+		}
+
+		$user_id = get_current_user_id();
+		// Read once when counting too, so the list and the count share it; wpcom reads it itself when given null.
+		$clients = null;
+		if ( $counts_others && function_exists( 'wpcom_mcp_get_user_connected_clients' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, not yet in the wpcom stubs.
+			$clients = (array) wpcom_mcp_get_user_connected_clients( $user_id );
 		}
 
 		$connections = array();
 		// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, not yet in the wpcom stubs.
-		foreach ( (array) wpcom_mcp_get_user_connections( get_current_user_id() ) as $connection ) {
+		foreach ( (array) wpcom_mcp_get_user_connections( $user_id, $clients ) as $connection ) {
 			if ( ! is_array( $connection ) || ! in_array( $connection['integration'] ?? null, self::MCP_INTEGRATIONS, true ) ) {
 				continue;
 			}
@@ -1252,22 +1279,39 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		$access_level = null;
 		if ( $connections && function_exists( 'wpcom_mcp_get_user_access_level' ) ) {
 			// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, not yet in the wpcom stubs.
-			$level        = wpcom_mcp_get_user_access_level( get_current_user_id() );
+			$level        = wpcom_mcp_get_user_access_level( $user_id );
 			$access_level = is_string( $level ) ? $level : null;
 		}
 
+		$other_connections = null;
+		if ( $counts_others && function_exists( 'wpcom_mcp_count_user_connections_excluding' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, not yet in the wpcom stubs.
+			$other_connections = self::connection_count( wpcom_mcp_count_user_connections_excluding( $user_id, self::MCP_INTEGRATIONS, $clients ) );
+		}
+
 		return array(
-			'connections'  => $connections,
-			'access_level' => $access_level,
+			'connections'       => $connections,
+			'access_level'      => $access_level,
+			'other_connections' => $other_connections,
 		);
 	}
 
 	/**
-	 * The current user's ChatGPT and Claude connections from WordPress.com's `/me/mcp-connections`, asked as that user
-	 * from an Atomic site.
+	 * The reported count when it is a whole number of zero or more, else null.
 	 *
-	 * @return array{connections: string[], access_level: string|null}|null Null off Atomic, without a connected user, or for a
-	 *                                                                      minute after WordPress.com failed to answer.
+	 * @param mixed $count The reported count.
+	 * @return int|null
+	 */
+	private static function connection_count( $count ) {
+		return is_int( $count ) && $count >= 0 ? $count : null;
+	}
+
+	/**
+	 * The current user's ChatGPT and Claude connections and count of other AI tools, from WordPress.com's
+	 * `/me/mcp-connections`, asked as that user from an Atomic site. Null off Atomic, without a connected user, or for
+	 * a minute after WordPress.com failed to answer.
+	 *
+	 * @return array{connections: string[], access_level: string|null, other_connections: int|null}|null
 	 */
 	private function fetch_remote_mcp_connections() {
 		$user_id = get_current_user_id();
@@ -1308,8 +1352,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		);
 		$level       = $data['access_level'] ?? null;
 		$result      = array(
-			'connections'  => $connections,
-			'access_level' => $connections && is_string( $level ) ? $level : null,
+			'connections'       => $connections,
+			'access_level'      => $connections && is_string( $level ) ? $level : null,
+			'other_connections' => self::connection_count( $data['other_connections'] ?? null ),
 		);
 		set_transient( $cache_key, $result, self::MCP_CACHE_TTL );
 

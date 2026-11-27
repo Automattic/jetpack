@@ -10,7 +10,7 @@ import { file as categoryGlyph, tag } from '@wordpress/icons';
  */
 import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
 import { captureCsvDownloads } from '../../test-utils';
-import TagsWidget from '../render';
+import TagsWidget, { type TagsAttributes } from '../render';
 import type { ReactElement } from 'react';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
@@ -41,6 +41,41 @@ const TAGS_RESPONSE = {
 				{ type: 'tag', name: 'chocolate', link: 'https://example.com/tag/chocolate/' },
 			],
 			views: 760,
+		},
+	],
+};
+
+// The report's 1,000-row request; a 10-row request gets only `TAGS_RESPONSE`.
+const FULL_REPORT = {
+	...TAGS_RESPONSE,
+	tags: [
+		...TAGS_RESPONSE.tags,
+		...Array.from( { length: 9 }, ( _, index ) => ( {
+			tags: [
+				{ type: 'tag', name: `tag-${ index }`, link: `https://example.com/tag/${ index }/` },
+			],
+			views: 100 - index,
+		} ) ),
+	],
+};
+
+// Each row stays a group in the view of its own type, under the same label as in All.
+const GROUPED_RESPONSE = {
+	...TAGS_RESPONSE,
+	tags: [
+		{
+			tags: [
+				{ type: 'tag', name: 'vegan', link: 'https://example.com/tag/vegan/' },
+				{ type: 'tag', name: 'quick', link: 'https://example.com/tag/quick/' },
+			],
+			views: 500,
+		},
+		{
+			tags: [
+				{ type: 'category', name: 'Recipes', link: 'https://example.com/category/recipes/' },
+				{ type: 'category', name: 'Dinner', link: 'https://example.com/category/dinner/' },
+			],
+			views: 400,
 		},
 	],
 };
@@ -136,19 +171,103 @@ describe( 'TagsWidget', () => {
 	} );
 
 	// Calypso sends no query, so Jetpack Stats gets the endpoint's default of 10.
-	it( 'asks for the row count Jetpack Stats gets by default, over the dashboard window', async () => {
-		render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } /> );
+	// `tags` stands in for a saved view the toggle does not offer.
+	it.each( [ undefined, 'all', 'tags' ] )(
+		'asks for the row count Jetpack Stats gets by default, over the dashboard window (view: %s)',
+		async termType => {
+			render(
+				<TagsWidget
+					attributes={ {
+						reportParams: getDefaultQueryParams(),
+						termType: termType as TagsAttributes[ 'termType' ],
+					} }
+				/>
+			);
 
-		await expect( screen.findByText( 'Recipes' ) ).resolves.toBeInTheDocument();
+			await expect( screen.findByText( 'Recipes' ) ).resolves.toBeInTheDocument();
 
-		const requested = tagsRequests();
-		expect( requested ).not.toHaveLength( 0 );
-		requested.forEach( params => {
-			expect( params.get( 'max' ) ).toBe( '10' );
-			expect( params.get( 'date' ) ).toBe( getDefaultQueryParams().to );
-			expect( params.get( 'start_date' ) ).toBe( getDefaultQueryParams().from );
-			expect( params.get( 'summarize' ) ).toBe( '1' );
-		} );
+			const requested = tagsRequests();
+			expect( requested ).not.toHaveLength( 0 );
+			requested.forEach( params => {
+				expect( params.get( 'max' ) ).toBe( '10' );
+				expect( params.get( 'date' ) ).toBe( getDefaultQueryParams().to );
+				expect( params.get( 'start_date' ) ).toBe( getDefaultQueryParams().from );
+				expect( params.get( 'summarize' ) ).toBe( '1' );
+			} );
+		}
+	);
+
+	// `tag-7` ranks 11th overall, so it shows only if the view narrows the full report
+	// before trimming to 10; `tag-8` would be the 11th tag.
+	it.each( [
+		[ 'tag', [ 'vegan', 'chocolate', 'tag-7' ], [ 'Recipes', 'Desserts', 'tag-8' ] ],
+		[ 'category', [ 'Recipes', 'Desserts' ], [ 'vegan', 'chocolate' ] ],
+	] as const )(
+		'narrows the list to %s rows from the full report',
+		async ( termType, shown, hidden ) => {
+			mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+				Promise.resolve( path.includes( 'max=1000' ) ? FULL_REPORT : TAGS_RESPONSE )
+			);
+			render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams(), termType } } /> );
+
+			await expect( screen.findByText( shown[ 0 ] ) ).resolves.toBeInTheDocument();
+
+			// The member split out of the mixed group links to its own archive.
+			expect( rowLink( shown[ 1 ] ) ).toHaveAttribute(
+				'href',
+				`https://example.com/${ termType }/${ shown[ 1 ].toLowerCase() }/`
+			);
+			shown.forEach( label => expect( screen.getByText( label ) ).toBeInTheDocument() );
+			hidden.forEach( label => expect( screen.queryByText( label ) ).not.toBeInTheDocument() );
+		}
+	);
+
+	it.each( [
+		[ 'tag', 'Tags', 'vegan, quick', 'All tags' ],
+		[ 'category', 'Categories', 'Recipes, Dinner', 'All categories' ],
+	] as const )(
+		'names the %s view in its column, drill-down and back link',
+		async ( termType, column, group, backLink ) => {
+			mockApiFetch.mockResolvedValue( GROUPED_RESPONSE );
+			render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams(), termType } } /> );
+
+			const groupButton = await screen.findByRole( 'button', {
+				name: `View the ${ column.toLowerCase() } in ${ group }`,
+			} );
+			expect( screen.getByText( column ) ).toBeInTheDocument();
+
+			fireEvent.click( groupButton ); // eslint-disable-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+
+			await expect(
+				screen.findByRole( 'button', { name: backLink } )
+			).resolves.toBeInTheDocument();
+		}
+	);
+
+	it( 'leaves a drilled-in group when the view changes', async () => {
+		mockApiFetch.mockResolvedValue( GROUPED_RESPONSE );
+		const { rerender } = render(
+			<TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } />
+		);
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+		fireEvent.click(
+			await screen.findByRole( 'button', {
+				name: 'View the tags and categories in vegan, quick',
+			} )
+		);
+		await expect(
+			screen.findByRole( 'button', { name: 'All tags & categories' } )
+		).resolves.toBeInTheDocument();
+
+		rerender(
+			<TagsWidget attributes={ { reportParams: getDefaultQueryParams(), termType: 'tag' } } />
+		);
+
+		await expect(
+			screen.findByRole( 'button', { name: 'View the tags in vegan, quick' } )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'All tags' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'refetches with the new window when the dashboard period changes', async () => {
@@ -181,19 +300,6 @@ describe( 'TagsWidget', () => {
 
 describe( 'TagsWidget CSV export', () => {
 	let downloads: ReturnType< typeof captureCsvDownloads >;
-
-	const FULL_REPORT = {
-		...TAGS_RESPONSE,
-		tags: [
-			...TAGS_RESPONSE.tags,
-			...Array.from( { length: 9 }, ( _, index ) => ( {
-				tags: [
-					{ type: 'tag', name: `tag-${ index }`, link: `https://example.com/tag/${ index }/` },
-				],
-				views: 100 - index,
-			} ) ),
-		],
-	};
 
 	beforeEach( () => {
 		jest.useFakeTimers();
@@ -231,6 +337,41 @@ describe( 'TagsWidget CSV export', () => {
 		expect( lines ).toContain( '"Desserts, chocolate","760",""' );
 		expect( lines ).toHaveLength( 13 );
 	} );
+
+	it.each( [
+		[
+			'tag',
+			/^tags-.+\.csv$/,
+			'"Tag","Views","URL"',
+			'"chocolate","760","https://example.com/tag/chocolate/"',
+			/Recipes|Desserts/,
+			12,
+		],
+		[
+			'category',
+			/^categories-.+\.csv$/,
+			'"Category","Views","URL"',
+			'"Desserts","760","https://example.com/category/desserts/"',
+			/vegan|chocolate|tag-/,
+			3,
+		],
+	] as const )(
+		'downloads only the rows of the %s view',
+		async ( termType, filename, header, line, others, lineCount ) => {
+			const { findDeclaredAction } = renderWithActionsHost(
+				<TagsWidget attributes={ { reportParams: getDefaultQueryParams(), termType } } />
+			);
+
+			await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
+
+			const lines = await downloads.lines();
+			expect( downloads.files[ 0 ].filename ).toMatch( filename );
+			expect( lines[ 0 ] ).toBe( header );
+			expect( lines ).toContain( line );
+			expect( lines.join( '\n' ) ).not.toMatch( others );
+			expect( lines ).toHaveLength( lineCount );
+		}
+	);
 } );
 
 describe( 'TagsWidget empty state', () => {

@@ -63,7 +63,7 @@ export type ReportActionsOptions = {
 		// The report's exporter, or the id of a report the dashboard exports.
 		exporter?: any;
 		report?: string;
-		status: { isLoading: boolean; isFetching: boolean; isError: boolean };
+		status: { isLoading: boolean; isError: boolean };
 		rowCount: number;
 	};
 };

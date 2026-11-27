@@ -71,6 +71,14 @@ final class Promo {
 	public $cta_url = '';
 
 	/**
+	 * Call-to-action style: `primary` is filled, `secondary` is outlined.
+	 *
+	 * @since $$next-version$$
+	 * @var string
+	 */
+	public $cta_variant = 'primary';
+
+	/**
 	 * Whether the user may dismiss the promo.
 	 *
 	 * @since $$next-version$$
@@ -153,6 +161,7 @@ final class Promo {
 			'description' => $this->description,
 			'cta_label'   => $this->cta_label,
 			'cta_url'     => $this->cta_url,
+			'cta_variant' => $this->cta_variant,
 			'dismissible' => $this->dismissible,
 			'snooze_days' => $this->snooze_days,
 		);
@@ -192,6 +201,10 @@ final class Promo {
 
 		if ( isset( $args['cta_url'] ) ) {
 			$this->cta_url = trim( (string) $args['cta_url'] );
+		}
+
+		if ( isset( $args['cta_variant'] ) ) {
+			$this->cta_variant = trim( (string) $args['cta_variant'] );
 		}
 
 		if ( isset( $args['dismissible'] ) ) {

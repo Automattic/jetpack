@@ -28,6 +28,20 @@ class Backup extends Hybrid_Product {
 	public const PLAN_REFRESH_MISS_TRANSIENT_KEY = 'my-jetpack-backup-plan-refresh-miss';
 
 	/**
+	 * Prefix of the per-site, per-user transient that keeps the undo event, since WPCOM answers as that user
+	 *
+	 * @var string
+	 */
+	public const UNDO_EVENT_TRANSIENT_PREFIX = 'my-jetpack-backup-undo-event-';
+
+	/**
+	 * How long, in seconds, the undo event is reused
+	 *
+	 * @var int
+	 */
+	public const UNDO_EVENT_CACHE_DURATION = 5 * MINUTE_IN_SECONDS;
+
+	/**
 	 * The product slug
 	 *
 	 * @var string
@@ -223,7 +237,13 @@ class Backup extends Hybrid_Product {
 	 * @return array|WP_Error|null
 	 */
 	public static function get_site_backup_undo_event() {
-		$blog_id = \Jetpack_Options::get_option( 'id' );
+		$blog_id       = \Jetpack_Options::get_option( 'id' );
+		$transient_key = self::UNDO_EVENT_TRANSIENT_PREFIX . (int) $blog_id . '-' . get_current_user_id();
+
+		$cached = get_transient( $transient_key );
+		if ( is_array( $cached ) ) {
+			return rest_ensure_response( $cached );
+		}
 
 		$response = Client::wpcom_json_api_request_as_user(
 			'/sites/' . $blog_id . '/activity/rewindable?force=wpcom',
@@ -275,6 +295,8 @@ class Backup extends Hybrid_Product {
 				}
 			}
 		}
+
+		set_transient( $transient_key, $undo_event, self::UNDO_EVENT_CACHE_DURATION );
 
 		return rest_ensure_response( $undo_event );
 	}

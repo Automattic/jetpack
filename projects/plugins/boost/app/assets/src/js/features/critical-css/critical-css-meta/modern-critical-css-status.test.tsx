@@ -1,6 +1,5 @@
 /* eslint-disable jest-dom/prefer-in-document, jest-dom/prefer-to-have-attribute -- This Jest project does not load jest-dom. */
 import { fireEvent, render, screen, within } from '@testing-library/react';
-import { ModuleSurfaceProvider } from '$features/module/surface';
 import CriticalCssMeta from './critical-css-meta';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import ModernCriticalCssStatus from './modern-critical-css-status';
@@ -75,11 +74,7 @@ test( 'shows partial failures with a warning and the existing recommendations de
 
 test( 'shows an idle regeneration suggestion only when an invalidation reason exists', () => {
 	mockRegenerationReason = 'switched_theme';
-	const meta = (
-		<ModuleSurfaceProvider value="row">
-			<CriticalCssMeta />
-		</ModuleSurfaceProvider>
-	);
+	const meta = <CriticalCssMeta />;
 	const { rerender } = render( meta );
 	expect(
 		screen.getByText(
@@ -88,11 +83,7 @@ test( 'shows an idle regeneration suggestion only when an invalidation reason ex
 	).toBeTruthy();
 	expect( screen.getByRole( 'button', { name: 'Generate', exact: true } ) ).toBeTruthy();
 	mockRegenerationReason = null;
-	rerender(
-		<ModuleSurfaceProvider value="row">
-			<CriticalCssMeta />
-		</ModuleSurfaceProvider>
-	);
+	rerender( <CriticalCssMeta /> );
 	expect( screen.queryByText( 'Regenerate Critical CSS' ) ).toBeNull();
 } );
 

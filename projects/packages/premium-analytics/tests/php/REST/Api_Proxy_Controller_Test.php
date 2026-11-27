@@ -773,6 +773,8 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 			'prefix extension'      => array( 'statsfoo' ),
 			'analytics extension'   => array( 'analyticsx' ),
 			'deep unsupported path' => array( 'posts/123/revisions/456' ),
+			'subscriber list'       => array( 'subscribers' ),
+			'single subscriber'     => array( 'subscribers/individual' ),
 		);
 	}
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Tracks: Clear the saved WordPress.com ID when a user reconnects, so events follow the newly linked account.

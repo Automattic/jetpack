@@ -282,7 +282,7 @@ function ReferrersInner() {
 	useReportActions( {
 		csv: {
 			exporter: referrersCsvExporter,
-			status: { isLoading, isFetching, isError: primary.isError },
+			status: { isLoading, isError: primary.isError },
 			rowCount: rows.length,
 		},
 	} );

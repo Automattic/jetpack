@@ -24,7 +24,7 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 type Item = { name: string; count: number };
 
 const REPORT_PARAMS = { from: '2026-03-01', to: '2026-03-10', interval: 'day' } as ReportParams;
-const SETTLED = { isLoading: false, isFetching: false, isError: false };
+const SETTLED = { isLoading: false, isError: false };
 const ITEMS: Item[] = [
 	{ name: 'b', count: 1 },
 	{ name: 'a', count: 2 },
@@ -69,6 +69,21 @@ describe( 'ExporterCsvAction', () => {
 		expect( columns.map( column => column.label ) ).toEqual( [ 'Name' ] );
 		expect( rows ).toEqual( [ ITEMS[ 1 ], ITEMS[ 0 ] ] );
 		expect( filename ).toBe( 'things-2026-03-01_2026-03-10' );
+	} );
+
+	it( 'keeps the download while the same period refreshes', () => {
+		const refreshing = { ...SETTLED, isFetching: true };
+
+		render(
+			<ExporterCsvAction
+				exporter={ buildExporter() }
+				items={ ITEMS }
+				status={ refreshing }
+				reportParams={ REPORT_PARAMS }
+			/>
+		);
+
+		expect( reportCsvActionMock ).toHaveBeenCalled();
 	} );
 
 	it.each( [

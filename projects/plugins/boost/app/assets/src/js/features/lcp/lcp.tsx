@@ -1,5 +1,4 @@
 import Module from '$features/module/module';
-import { useModuleSurface } from '$features/module/surface';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import RefreshIcon from '$svg/refresh';
 import { Button } from '@automattic/jetpack-components';
@@ -12,15 +11,6 @@ import Status from './status/status';
 import styles from './status/status.module.scss';
 
 const Lcp = () => {
-	const legacyDescription = __(
-		'Improve the Largest Contentful Paint (LCP) of your Cornerstone Pages, optimizing their key image, so users can enjoy a smoother experience.',
-		'jetpack-boost'
-	);
-	const modernDescription = __(
-		'Optimizes the main visible image used to calculate your Cornerstone Pages’ LCP scores.',
-		'jetpack-boost'
-	);
-	const surface = useModuleSurface();
 	const [ query ] = useLcpState();
 	const lcpState = query?.data;
 
@@ -51,14 +41,18 @@ const Lcp = () => {
 			slug="lcp"
 			title={ __( 'Optimize LCP Images', 'jetpack-boost' ) }
 			worksOffline={ false }
-			description={ <p>{ surface === 'row' ? modernDescription : legacyDescription }</p> }
+			description={
+				<p>
+					{ __(
+						'Optimizes the main visible image used to calculate your Cornerstone Pages’ LCP scores.',
+						'jetpack-boost'
+					) }
+				</p>
+			}
 			onEnable={ handleEnable }
 			onBeforeToggle={ handleBeforeToggle }
 		>
-			<div
-				className={ surface === 'row' ? styles.well : styles.status }
-				data-testid={ surface === 'row' ? 'lcp-status-well' : undefined }
-			>
+			<div className={ styles.well } data-testid="lcp-status-well">
 				<div className={ styles.summary }>
 					<Status />
 				</div>

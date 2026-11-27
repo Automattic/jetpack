@@ -27,11 +27,6 @@ class Social_Admin_Page {
 	public const REFRESH_PLAN_NONCE_ACTION = 'jetpack_social_refresh_plan_data';
 
 	/**
-	 * Script that carries the connection state when the admin shell shows the dashboard on another page.
-	 */
-	public const GUEST_DATA_HANDLE = 'jetpack-social-dashboard-data';
-
-	/**
 	 * The instance of the class.
 	 *
 	 * @var Social_Admin_Page
@@ -124,20 +119,7 @@ class Social_Admin_Page {
 		// Remove the old Social menu item, if it exists.
 		Admin_Menu::remove_menu( 'jetpack-social' );
 
-		// If this isn't an admin (or someone with the capability to change the module status )
-		// and Publicize is inactive, then don't render the admin page.
-		if ( ! Utils::can_open_social_dashboard() ) {
-			return;
-		}
-
-		// We don't need Jetpack connection on WP.com.
-		$needs_site_connection = ! ( new Host() )->is_wpcom_platform() && ! ( new Connection_Manager() )->is_connected();
-
-		/**
-		 * If the Jetpack Social plugin is not active,
-		 * we want to hide the menu if the site is not connected.
-		 */
-		if ( ! defined( 'JETPACK_SOCIAL_PLUGIN_DIR' ) && $needs_site_connection ) {
+		if ( ! $this->should_add_menu() ) {
 			return;
 		}
 
@@ -159,6 +141,25 @@ class Social_Admin_Page {
 	}
 
 	/**
+	 * Whether add_menu() registers the page, and so whether the admin shell may serve it.
+	 *
+	 * @return bool
+	 */
+	private function should_add_menu() {
+		// If this isn't an admin (or someone with the capability to change the module status)
+		// and Publicize is inactive, then don't render the admin page.
+		if ( ! Utils::can_open_social_dashboard() ) {
+			return false;
+		}
+
+		// We don't need Jetpack connection on WP.com.
+		$needs_site_connection = ! ( new Host() )->is_wpcom_platform() && ! ( new Connection_Manager() )->is_connected();
+
+		// Without the Jetpack Social plugin, the page needs a connected site.
+		return defined( 'JETPACK_SOCIAL_PLUGIN_DIR' ) || ! $needs_site_connection;
+	}
+
+	/**
 	 * Register Jetpack Social with the admin shell, which switches between Jetpack dashboards without a page load.
 	 *
 	 * @since 0.89.0
@@ -167,13 +168,7 @@ class Social_Admin_Page {
 	 * @return array
 	 */
 	public function add_admin_shell_member( $members ) {
-		$host = new Host();
-		// The same gates add_menu() applies, since admin-ajax never builds the menu.
-		if (
-			! Utils::can_open_social_dashboard()
-			|| ( ! defined( 'JETPACK_SOCIAL_PLUGIN_DIR' ) && ! $host->is_wpcom_platform() && ! ( new Connection_Manager() )->is_connected() )
-			|| ! file_exists( self::wp_build_index_path() )
-		) {
+		if ( ! $this->should_add_menu() || ! file_exists( self::wp_build_index_path() ) ) {
 			return $members;
 		}
 
@@ -188,7 +183,8 @@ class Social_Admin_Page {
 				'subtitle' => self::landing_subtitle(),
 			),
 			'capability'   => 'publish_posts',
-			'handles'      => array( self::GUEST_DATA_HANDLE, 'jetpack-script-data', 'wp-jp-i18n-loader' ),
+			'handles'      => array( 'jetpack-script-data', 'wp-jp-i18n-loader' ),
+			'data'         => array( Connection_Initial_State::class, 'render' ),
 			'load'         => array( $this, 'load_as_admin_shell_guest' ),
 		);
 		return $members;
@@ -219,21 +215,7 @@ class Social_Admin_Page {
 		if ( function_exists( 'jetpack_social_register_script_modules' ) ) {
 			jetpack_social_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
 		}
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_guest_scripts' ) );
-	}
-
-	/**
-	 * Hydrate the connection store on a script of its own: the prerequisites script only exists on the Social page.
-	 *
-	 * @since 0.89.0
-	 *
-	 * @return void
-	 */
-	public function enqueue_guest_scripts() {
-		wp_register_script( self::GUEST_DATA_HANDLE, false, array(), false, true ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NoExplicitVersion -- No source, so nothing to cache.
-		wp_enqueue_script( self::GUEST_DATA_HANDLE );
-		Connection_Initial_State::render_script( self::GUEST_DATA_HANDLE );
-		$this->enqueue_admin_scripts();
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 	}
 
 	/**

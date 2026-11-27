@@ -38,7 +38,12 @@ const report: StatsNormalizedReport< StatsTagsItem > = {
 			items: [
 				{
 					label: [
-						{ label: 'Recipes', labelIcon: 'folder', link: 'https://example.com/recipes/' },
+						{
+							label: 'Recipes',
+							type: 'category',
+							labelIcon: 'folder',
+							link: 'https://example.com/recipes/',
+						},
 					],
 					labelText: 'Recipes',
 					value: 1240,

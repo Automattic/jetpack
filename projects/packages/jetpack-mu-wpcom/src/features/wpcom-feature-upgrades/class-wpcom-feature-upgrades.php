@@ -30,10 +30,11 @@ class WPCOM_Feature_Upgrades {
 	 * @var array<string, string>
 	 */
 	const PLAN_FEATURES = array(
-		'monetize' => self::MONETIZE_PLAN_FEATURE,
+		'google-analytics' => 'google-analytics',
+		'monetize'         => self::MONETIZE_PLAN_FEATURE,
 		// Calypso lists no podcasting feature, and every plan above Personal grants it, so the flow offers them all.
-		'podcast'  => '',
-		'social'   => 'republicize',
+		'podcast'          => '',
+		'social'           => 'republicize',
 	);
 
 	/**

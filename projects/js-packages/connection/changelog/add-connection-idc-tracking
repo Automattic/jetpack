@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Safe Mode: Record Tracks events when the new Safe Mode screen is seen, when its questions and step-by-step guide are used, and when its actions start, succeed, or fail.

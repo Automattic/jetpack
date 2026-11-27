@@ -22,7 +22,7 @@ const mockGetScriptData = jest.mocked( getScriptData );
 const DISABLED_SCRIPT_DATA = {
 	premium_analytics: { csv_exports_enabled: false },
 } as ReturnType< typeof getScriptData >;
-const readyStatus = { isLoading: false, isFetching: false, isError: false };
+const readyStatus = { isLoading: false, isError: false };
 
 describe( 'useReportCsvExport', () => {
 	beforeEach( () => {
@@ -74,12 +74,6 @@ describe( 'useReportCsvExport', () => {
 			'the report is loading',
 			true,
 			{ ...readyStatus, isLoading: true },
-			[ { title: 'Post', views: 1 } ],
-		],
-		[
-			'the report is fetching',
-			true,
-			{ ...readyStatus, isFetching: true },
 			[ { title: 'Post', views: 1 } ],
 		],
 		[

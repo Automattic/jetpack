@@ -82,7 +82,7 @@ function AnnualHighlightsReport( { year }: { year?: YearPresetId } ) {
 		csv: {
 			exporter: annualInsightsCsvExporter,
 			// Same gate as the error state: a failed refetch keeps the cached years.
-			status: { isLoading, isFetching, isError: ! data && isError },
+			status: { isLoading, isError: ! data && isError },
 			rowCount: data?.years?.length ?? 0,
 		},
 	} );

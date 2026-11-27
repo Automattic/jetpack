@@ -16,6 +16,7 @@ import {
 	useWidgetDrillDown,
 	useWidgetRootContext,
 	tagsCsvExporter,
+	tagsCsvExportersByType,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 	useReportActions,
@@ -29,10 +30,16 @@ import { Stack } from '@jetpack-premium-analytics/externals';
 import { useNoPublishedPosts } from '../use-no-published-posts';
 import styles from './style.module.css';
 import useTagViews, { type TagChildView } from './use-tag-views';
+import type { StatsTagsTermType } from '@jetpack-premium-analytics/data';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
-/** No configurable attributes; the empty record allows host-provided fields. */
-export type TagsAttributes = Record< never, never >;
+/** Mirrors the `attributes` in `widget.json`. */
+export type TagsAttributes = {
+	/**
+	 * Show tags, categories, or both (`all`, the default).
+	 */
+	termType?: 'all' | StatsTagsTermType;
+};
 
 type TagsRenderAttributes = Partial< ReportParamsFieldAttributes > & TagsAttributes;
 type TagsWidgetProps = WidgetRenderProps< TagsRenderAttributes >;
@@ -67,12 +74,66 @@ function TagGroupMembers( { members }: TagGroupMembersProps ) {
 	);
 }
 
-function TagsInner() {
+/**
+ * The strings that name the rows, for the view on show.
+ *
+ * @param termType - The taxonomy the rows are narrowed to, if any.
+ * @return Column, back link, and drill-down button labels.
+ */
+function getViewLabels( termType?: StatsTagsTermType ) {
+	if ( termType === 'tag' ) {
+		return {
+			column: __( 'Tags', 'jetpack-premium-analytics-pkg' ),
+			backLink: __( 'All tags', 'jetpack-premium-analytics-pkg' ),
+			drillDown: ( group: string ) =>
+				sprintf(
+					/* translators: %s is the grouped tags label */
+					__( 'View the tags in %s', 'jetpack-premium-analytics-pkg' ),
+					group
+				),
+		};
+	}
+
+	if ( termType === 'category' ) {
+		return {
+			column: __( 'Categories', 'jetpack-premium-analytics-pkg' ),
+			backLink: __( 'All categories', 'jetpack-premium-analytics-pkg' ),
+			drillDown: ( group: string ) =>
+				sprintf(
+					/* translators: %s is the grouped categories label */
+					__( 'View the categories in %s', 'jetpack-premium-analytics-pkg' ),
+					group
+				),
+		};
+	}
+
+	return {
+		column: __( 'Tags & categories', 'jetpack-premium-analytics-pkg' ),
+		backLink: __( 'All tags & categories', 'jetpack-premium-analytics-pkg' ),
+		drillDown: ( group: string ) =>
+			sprintf(
+				/* translators: %s is the grouped tags and categories label */
+				__( 'View the tags and categories in %s', 'jetpack-premium-analytics-pkg' ),
+				group
+			),
+	};
+}
+
+interface TagsInnerProps {
+	/**
+	 * The taxonomy to narrow the rows to; omit for both.
+	 */
+	termType?: StatsTagsTermType;
+}
+
+function TagsInner( { termType }: TagsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const { data, isLoading, isFetching, isError, refetch } = useTagViews( {
 		reportParams,
 		max: WIDGET_ROW_LIMIT,
+		termType,
 	} );
+	const labels = useMemo( () => getViewLabels( termType ), [ termType ] );
 
 	// Key the selection on the group's stable label and resolve it fresh from the
 	// data, so a reorder keeps the drilled-in view and a dropped group falls back to top.
@@ -113,22 +174,18 @@ function TagsInner() {
 						hasChildren: isGroup,
 						drillDown: {
 							onClick: () => selectGroup( row.label ),
-							ariaLabel: sprintf(
-								/* translators: %s is the grouped tags and categories label */
-								__( 'View the tags and categories in %s', 'jetpack-premium-analytics-pkg' ),
-								row.label
-							),
+							ariaLabel: labels.drillDown( row.label ),
 						},
 					} ),
 				} ),
 			};
 		} );
-	}, [ data, selectGroup ] );
+	}, [ data, selectGroup, labels ] );
 
 	useReportActions( {
 		csv: {
-			exporter: tagsCsvExporter,
-			status: { isLoading, isFetching, isError },
+			exporter: termType ? tagsCsvExportersByType[ termType ] : tagsCsvExporter,
+			status: { isLoading, isError },
 			rowCount: data.length,
 		},
 	} );
@@ -136,12 +193,7 @@ function TagsInner() {
 	return (
 		<Stack className={ styles.root }>
 			<div className={ styles.content }>
-				{ selectedGroup && (
-					<WidgetBackLink
-						label={ __( 'All tags & categories', 'jetpack-premium-analytics-pkg' ) }
-						onClick={ clearSelection }
-					/>
-				) }
+				{ selectedGroup && <WidgetBackLink label={ labels.backLink } onClick={ clearSelection } /> }
 				<WidgetState
 					isLoading={ isLoading || isChecking }
 					isFetching={ isFetching }
@@ -188,7 +240,7 @@ function TagsInner() {
 								options: { useMultipliers: false, decimals: 0 },
 							} }
 							columns={ {
-								label: __( 'Tags & categories', 'jetpack-premium-analytics-pkg' ),
+								label: labels.column,
 								metric: 'views',
 							} }
 						/>
@@ -204,9 +256,16 @@ function TagsInner() {
  * (several tags/categories sharing a post) drill down to their individual members.
  */
 export default function Tags( { attributes = {} }: TagsWidgetProps ) {
+	// Any other saved value falls back to both, as the toggle shows it.
+	const termType =
+		attributes.termType === 'tag' || attributes.termType === 'category'
+			? attributes.termType
+			: undefined;
+
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<TagsInner />
+			{ /* Keyed so switching views leaves any drilled-in group. */ }
+			<TagsInner key={ termType ?? 'all' } termType={ termType } />
 		</WidgetRoot>
 	);
 }

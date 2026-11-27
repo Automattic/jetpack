@@ -366,6 +366,17 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A guest whose page can't boot gets no data, so its state isn't built for nothing.
+	 */
+	public function test_guest_data_is_empty_when_the_build_is_missing() {
+		if ( function_exists( Dashboard::RENDER_FUNCTION ) ) {
+			$this->markTestSkipped( 'Needs the wp-build output not to be loaded.' );
+		}
+
+		$this->assertSame( '', Dashboard::get_guest_data_script() );
+	}
+
+	/**
 	 * Build indexes that can't render the page.
 	 *
 	 * @return array[]

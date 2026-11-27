@@ -554,7 +554,7 @@ type MainFeature = {
 	paid_highlights: string[];
 	pricing_notes?: string[];
 	// The My Jetpack route that sells the feature, such as `/add-akismet`, and the product it sells.
-	// A host may send it elsewhere instead, with an absolute `url`.
+	// A host may send it elsewhere instead, with an absolute `url`, or sell nothing, with an empty one.
 	upgrade: { path: string; name: string; url?: string };
 	// Whether the site already pays for the feature, directly or through a bundle.
 	included?: boolean;

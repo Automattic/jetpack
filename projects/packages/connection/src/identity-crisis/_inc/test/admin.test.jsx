@@ -2,19 +2,26 @@ import { createRoot } from '@wordpress/element';
 import { act } from 'react';
 
 let mockIdentityCrisis = null;
+let mockSelectors = null;
 let mockScreenProps = null;
 const mockNewScreen = props => {
 	mockScreenProps = props;
 	return 'New Safe Mode screen';
 };
+const mockCurrentUser = { isConnected: true, wpcomUser: { ID: 42, login: 'admin' } };
 const sharedScript = {
 	CONNECTION_FROM: { connectionSafeModeNotice: 'connection_safe_mode_notice' },
 	CONNECTION_STORE_ID: 'jetpack-connection',
 	IdentityCrisis: mockNewScreen,
+	initializeTracksIdentity: jest.fn(),
 };
 
 jest.mock( '@wordpress/data', () => ( {
-	select: () => ( { getIdentityCrisis: () => mockIdentityCrisis } ),
+	select: () =>
+		mockSelectors ?? {
+			getIdentityCrisis: () => mockIdentityCrisis,
+			getUserConnectionData: () => ( { currentUser: mockCurrentUser } ),
+		},
 } ) );
 jest.mock( '@automattic/jetpack-idc', () => ( { IDCScreen: () => 'Safe Mode choices' } ) );
 jest.mock( '@wordpress/element', () => {
@@ -63,6 +70,7 @@ describe( 'Safe Mode screen', () => {
 		delete window.JP_IDENTITY_CRISIS__INITIAL_STATE;
 		delete window.JetpackConnection;
 		mockIdentityCrisis = null;
+		mockSelectors = null;
 		mockScreenProps = null;
 		jest.clearAllMocks();
 	} );
@@ -163,6 +171,15 @@ describe( 'Safe Mode screen', () => {
 		expect( container ).toHaveTextContent( expected );
 	} );
 
+	it( 'shows the old screen when an older store, without the selector, is registered', () => {
+		mockSelectors = {};
+		const container = addElement( 'jp-identity-crisis-container' );
+
+		act( () => onLoad() );
+
+		expect( container ).toHaveTextContent( 'Safe Mode choices' );
+	} );
+
 	describe( 'with the new screen', () => {
 		beforeEach( () => {
 			mockIdentityCrisis = { useNewScreen: true };
@@ -180,6 +197,10 @@ describe( 'Safe Mode screen', () => {
 			// The screen's own handlers navigate.
 			expect( mockScreenProps ).not.toHaveProperty( 'onActionSuccess' );
 			expect( mockScreenProps ).not.toHaveProperty( 'onMigratedDone' );
+		} );
+
+		it( 'identifies the viewer to Tracks', () => {
+			expect( sharedScript.initializeTracksIdentity ).toHaveBeenCalledWith( mockCurrentUser );
 		} );
 	} );
 } );

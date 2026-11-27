@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Premium Analytics: Wrap long titles in the report tables so the other columns stay in view on narrow screens.

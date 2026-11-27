@@ -1,6 +1,5 @@
 import { __ } from '@wordpress/i18n';
 import { Button, Stack } from '@wordpress/ui';
-import styles from '../styles.module.scss';
 import SupportLink from '../support-link';
 import { getBackText } from './copy';
 import type { ActionCopy } from './copy';
@@ -44,7 +43,7 @@ export default function StepActions( {
 
 	return (
 		<Stack direction="column" gap="md">
-			<div className={ styles.actions }>
+			<Stack direction="row" gap="md" align="center" wrap="wrap">
 				<Button
 					variant="solid"
 					onClick={ onContinue }
@@ -61,7 +60,7 @@ export default function StepActions( {
 				{ action?.link && (
 					<SupportLink topic={ action.link.topic }>{ action.link.text }</SupportLink>
 				) }
-			</div>
+			</Stack>
 			{ ! action?.link && footer }
 		</Stack>
 	);

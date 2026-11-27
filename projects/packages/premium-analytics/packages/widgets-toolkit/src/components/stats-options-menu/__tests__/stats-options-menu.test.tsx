@@ -49,6 +49,7 @@ const PROMO: Promo = {
 	description: 'Reach more readers.',
 	cta_label: 'Try Acme',
 	cta_url: 'https://example.com/acme',
+	cta_variant: 'primary',
 	dismissible: false,
 	snooze_days: 0,
 };

@@ -105,6 +105,62 @@ export function findNewConnections(
 }
 
 /**
+ * The count of other AI tools connected, from the endpoint's `other_connections`.
+ *
+ * @param value - The field as the endpoint returned it.
+ * @return The count, or null when the endpoint can't tell.
+ */
+export function otherConnectionCount( value: unknown ): number | null {
+	return Number.isInteger( value ) && ( value as number ) >= 0 ? ( value as number ) : null;
+}
+
+/**
+ * Whether another AI tool connected since Copy prompt. Only a rise counts, so a tool connected earlier doesn't.
+ *
+ * @param baseline - The count to beat, or null while no count has been read.
+ * @param count    - The latest count, or null when unknown.
+ * @return True once the count is above the baseline.
+ */
+export function otherToolConnected( baseline: number | null, count: number | null ): boolean {
+	return baseline !== null && count !== null && count > baseline;
+}
+
+/**
+ * The count to wait from: the first known count, lowered when the count drops so a reconnect still counts as a rise.
+ *
+ * @param baseline - The count the wait started from, or null while no count has been read.
+ * @param count    - The latest count, or null when unknown.
+ * @return The count to wait from, or null when still unknown.
+ */
+export function otherWaitBaseline( baseline: number | null, count: number | null ): number | null {
+	if ( baseline === null || count === null ) {
+		return baseline ?? count;
+	}
+	return Math.min( baseline, count );
+}
+
+/**
+ * The count to wait from again on return to the tab, after waiting for another AI tool timed out on remote checks.
+ *
+ * @param state                - The view's state.
+ * @param state.timedOut       - The count the timed-out wait started from, if any.
+ * @param state.otherConnected - Whether another AI tool shows as connected.
+ * @param state.pollsRemotely  - Whether each check asks WordPress.com over the network.
+ * @return The count to wait from, or null to stay as is.
+ */
+export function rewaitOtherOnReturn( {
+	timedOut,
+	otherConnected,
+	pollsRemotely,
+}: {
+	timedOut: number | null;
+	otherConnected: boolean;
+	pollsRemotely: boolean;
+} ): number | null {
+	return pollsRemotely && ! otherConnected ? timedOut : null;
+}
+
+/**
  * Whether the account is gated as read only; only a clean Read only account is. Null means a fresh account or
  * one tuned per tool, and we don't override per-tool settings.
  *
@@ -207,7 +263,41 @@ export const AI_TOOL_CHAT_URLS: Record< AiTool, string > = {
 	claude: 'https://claude.ai/new',
 };
 
+/**
+ * The tool the AI tool view's footer opens once something connects, or the dashboard when there's no single tool to
+ * open; read-only access overrides it.
+ *
+ * @param connected      - The AI tools shown as connected.
+ * @param otherConnected - Whether another AI tool shows as connected.
+ * @return The tool to open, `dashboard`, or null while nothing is connected.
+ */
+export function connectedFooterLead(
+	connected: AiTool[],
+	otherConnected: boolean
+): AiTool | 'dashboard' | null {
+	if ( connected.length === 1 ) {
+		return connected[ 0 ];
+	}
+	return connected.length || otherConnected ? 'dashboard' : null;
+}
+
 export const TOTAL_STEPS = 2;
+
+/**
+ * How full the progress bar is. The AI tool view fills it only once a tool connects.
+ *
+ * @param step         - The current step index.
+ * @param showAiTool   - Whether the AI tool view is shown.
+ * @param anyConnected - Whether any AI tool shows as connected.
+ * @return A fraction from 0 to 1.
+ */
+export function progressFraction(
+	step: WizardStep,
+	showAiTool: boolean,
+	anyConnected: boolean
+): number {
+	return showAiTool && anyConnected ? 1 : ( step + 1 ) / TOTAL_STEPS;
+}
 
 export type WizardStep = 0 | 1;
 

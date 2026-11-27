@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Data proxy: Limit subscriber data to subscriber counts, so users who can view Stats cannot read the subscriber list.

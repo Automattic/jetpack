@@ -73,7 +73,7 @@ function AuthorTopPostsInner() {
 	useReportActions( {
 		csv: {
 			exporter: csvExporter,
-			status: { isLoading, isFetching, isError: ! hasData && isError },
+			status: { isLoading, isError: ! hasData && isError },
 			rowCount: rows.length,
 		},
 	} );

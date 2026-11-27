@@ -1,4 +1,4 @@
-import { getPluginDeactivationData, isAiEnabled } from '../reducer';
+import { getFeatureUpgradeUrl, getPluginDeactivationData, isAiEnabled } from '../reducer';
 
 describe( 'isAiEnabled', () => {
 	const stateWith = initialState => ( { jetpack: { initialState } } );
@@ -27,5 +27,33 @@ describe( 'getPluginDeactivationData', () => {
 
 	it( 'is undefined outside the plugins page', () => {
 		expect( getPluginDeactivationData( { jetpack: { initialState: {} } } ) ).toBeUndefined();
+	} );
+} );
+
+describe( 'getFeatureUpgradeUrl', () => {
+	const HOST_URL = 'https://wordpress.com/setup/plan-upgrade?feature=wordads-instant';
+	const stateWith = hostUpgradeUrls => ( {
+		jetpack: {
+			initialState: {
+				siteData: { blog_id: 1234, hostUpgradeUrls },
+				userData: { currentUser: { id: 1 } },
+			},
+			connection: { user: { currentUser: { isConnected: true } } },
+		},
+	} );
+
+	it.each( [
+		[ 'the host plans the host names', HOST_URL, HOST_URL ],
+		[ 'nowhere when the host sells nothing', '', '' ],
+	] )( 'goes to %s', ( _name, hostUrl, expected ) => {
+		expect(
+			getFeatureUpgradeUrl( stateWith( { ads: hostUrl } ), 'ads', 'jetpack-creator-cta' )
+		).toBe( expected );
+	} );
+
+	it( 'goes to Jetpack checkout when the host does not answer', () => {
+		expect(
+			getFeatureUpgradeUrl( stateWith( { ads: null } ), 'ads', 'jetpack-creator-cta' )
+		).toContain( 'source=jetpack-creator-cta' );
 	} );
 } );

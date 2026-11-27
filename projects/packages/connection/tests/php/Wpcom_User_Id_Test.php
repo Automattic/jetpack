@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Tracking;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -371,6 +373,44 @@ class Wpcom_User_Id_Test extends TestCase {
 		);
 
 		$this->assertSame( 0, Utils::get_wpcom_user_id( $this->user_id ) );
+	}
+
+	/**
+	 * Relinking to another account must not re-resolve the previous identity from cached user data.
+	 */
+	public function test_a_replaced_token_resolves_the_new_account() {
+		$manager  = new Manager();
+		$tracking = new Tracking( 'jetpack', $manager );
+		$callback = array( $manager, 'unbind_wpcom_user_ids_for_new_tokens' );
+		$response = static function () {
+			return array(
+				'response' => array( 'code' => 200 ),
+				'body'     => wp_json_encode( array( 'ID' => 5353 ), JSON_UNESCAPED_SLASHES ),
+			);
+		};
+
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		Jetpack_Options::update_option( 'id', 1234 );
+		add_action( 'pre_update_jetpack_option_user_tokens', $callback, 10, 2 );
+		add_filter( 'pre_http_request', $response );
+
+		( new Tokens() )->update_user_token( $this->user_id, 'old.secret.' . $this->user_id, false );
+		set_transient( "jetpack_connected_user_data_{$this->user_id}", array( 'ID' => 4242 ), DAY_IN_SECONDS );
+		$before          = $tracking->tracks_get_identity( $this->user_id );
+		$resolved_before = $manager->resolve_wpcom_user_id( $this->user_id );
+
+		( new Tokens() )->update_user_token( $this->user_id, 'new.secret.' . $this->user_id, false );
+		$after          = $tracking->tracks_get_identity( $this->user_id );
+		$resolved_after = $manager->resolve_wpcom_user_id( $this->user_id );
+
+		remove_filter( 'pre_http_request', $response );
+		Constants::clear_single_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
+		remove_action( 'pre_update_jetpack_option_user_tokens', $callback, 10 );
+
+		$this->assertSame( '4242', $before['_ui'] );
+		$this->assertSame( 4242, $resolved_before );
+		$this->assertSame( '5353', $after['_ui'] );
+		$this->assertSame( 5353, $resolved_after );
 	}
 
 	/**

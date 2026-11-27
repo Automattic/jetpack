@@ -1,7 +1,8 @@
 import { isRTL } from '@wordpress/i18n';
 import { chevronLeft, chevronRight } from '@wordpress/icons';
-import { Button, ButtonLink, Icon, Stack, Text } from '@wordpress/ui';
+import { Button, Icon, Stack, Text } from '@wordpress/ui';
 import { useCallback, useId } from 'react';
+import ExternalLink from '../external-link';
 import styles from '../styles.module.scss';
 import {
 	getBackText,
@@ -61,7 +62,7 @@ interface GuideStepProps {
 	copy: CopyContext;
 	/** "What we already know", shown on the first question only. */
 	facts: FactLine[];
-	/** Where "Open {Z}" goes; no button without it. */
+	/** Where "Open {Z}" goes; no link without it. */
 	openUrl: string | null;
 	/** The answers so far, shown below Back. */
 	trail: ReactNode;
@@ -112,7 +113,7 @@ export default function GuideStep( {
 				</>
 			) }
 			<Text
-				variant="heading-md"
+				variant="heading-lg"
 				render={ <h3 ref={ headingRef } tabIndex={ -1 } /> }
 				className={ styles.question }
 			>
@@ -125,9 +126,7 @@ export default function GuideStep( {
 			) }
 			{ isFirst && openUrl && (
 				<div>
-					<ButtonLink variant="outline" href={ openUrl } openInNewTab rel="noopener noreferrer">
-						{ text.openAddress }
-					</ButtonLink>
+					<ExternalLink href={ openUrl }>{ text.openAddress }</ExternalLink>
 				</div>
 			) }
 			<Stack render={ <ul /> } direction="column" gap="sm" className={ styles[ 'plain-list' ] }>

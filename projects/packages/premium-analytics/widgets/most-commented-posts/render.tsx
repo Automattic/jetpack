@@ -61,7 +61,7 @@ function MostCommentedPostsInner() {
 	useReportActions( {
 		csv: {
 			exporter: commentsPostsCsvExporter,
-			status: { isLoading, isFetching, isError },
+			status: { isLoading, isError },
 			rowCount: rows.length,
 		},
 	} );

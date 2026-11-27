@@ -55,7 +55,7 @@ function MostCommentedAuthorsInner() {
 	useReportActions( {
 		csv: {
 			exporter: commentsAuthorsCsvExporter,
-			status: { isLoading, isFetching, isError },
+			status: { isLoading, isError },
 			rowCount: rows.length,
 		},
 	} );

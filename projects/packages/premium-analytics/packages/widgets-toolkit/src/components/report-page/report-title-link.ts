@@ -7,7 +7,7 @@ import type { VideoTitleLinkProps } from '../video-title-link/video-title-link';
 
 /**
  * Class names for a title link in a records table's `titleField`, so a long title
- * ellipsizes while keeping its outbound marker.
+ * wraps while keeping its outbound marker.
  */
 export const REPORT_TITLE_LINK_CLASS_NAMES = {
 	internal: styles.link,
