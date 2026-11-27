@@ -93,6 +93,7 @@
 			background: colors.$white;
 			border: 1px solid colors.$dark-gray-placeholder;
 			border-radius: variables.$radius-block-ui;
+			pointer-events: auto;
 			transition: box-shadow 0.2s ease-out;
 
 			@include mixins.reduce-motion("transition");
@@ -161,6 +162,7 @@
 	.tiled-gallery__item__inline-menu {
 		margin: variables.$grid-unit-10;
 		display: inline-flex;
+		pointer-events: none;
 		z-index: 20;
 
 		.components-button {

@@ -195,7 +195,7 @@ class GalleryImageEdit extends Component {
 				onKeyDown={ this.onImageKeyDown }
 				aria-label={ ariaLabel }
 			>
-				{ showMovers && (
+				{ isSelected && showMovers && (
 					<div className="tiled-gallery__item__move-menu">
 						<Button
 							icon={ columns === 1 ? upChevron : leftChevron }
@@ -203,7 +203,6 @@ class GalleryImageEdit extends Component {
 							className="tiled-gallery__item__move-backward"
 							label={ __( 'Move image backward', 'jetpack' ) }
 							aria-disabled={ isFirstItem }
-							disabled={ ! isSelected }
 						/>
 						<Button
 							icon={ columns === 1 ? downChevron : rightChevron }
@@ -211,19 +210,19 @@ class GalleryImageEdit extends Component {
 							className="tiled-gallery__item__move-forward"
 							label={ __( 'Move image forward', 'jetpack' ) }
 							aria-disabled={ isLastItem }
-							disabled={ ! isSelected }
 						/>
 					</div>
 				) }
-				<div className="tiled-gallery__item__inline-menu">
-					<Button
-						icon={ close }
-						onClick={ onRemove }
-						className="tiled-gallery__item__remove"
-						label={ __( 'Remove image', 'jetpack' ) }
-						disabled={ ! isSelected }
-					/>
-				</div>
+				{ isSelected && (
+					<div className="tiled-gallery__item__inline-menu">
+						<Button
+							icon={ close }
+							onClick={ onRemove }
+							className="tiled-gallery__item__remove"
+							label={ __( 'Remove image', 'jetpack' ) }
+						/>
+					</div>
+				) }
 				{ /* Keep the <a> HTML structure, but ensure there is no navigation from edit */ }
 				{ href ? <a aria-hidden="true">{ img }</a> : img }
 			</div>
