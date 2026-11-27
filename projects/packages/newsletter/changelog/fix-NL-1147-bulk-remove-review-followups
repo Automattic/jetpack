@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Subscribers: Show "Remove subscribers" on the bulk removal button until the count loads, say why a click before then does nothing, and stop retrying a removal status check that cannot succeed.

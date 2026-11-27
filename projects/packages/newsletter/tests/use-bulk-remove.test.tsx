@@ -47,9 +47,9 @@ const buildJob = ( overrides: Partial< BulkRemoveJob > = {} ): BulkRemoveJob =>
 		...overrides,
 	} ) as BulkRemoveJob;
 
-const setup = () => {
+const setup = ( queries: Record< string, unknown > = {} ) => {
 	const queryClient = new QueryClient( {
-		defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+		defaultOptions: { queries: { retry: false, ...queries }, mutations: { retry: false } },
 	} );
 	const wrapper = ( { children }: { children: React.ReactNode } ) => (
 		<QueryClientProvider client={ queryClient }>{ children }</QueryClientProvider>
@@ -125,27 +125,7 @@ describe( 'useStartBulkRemoveMutation', () => {
 		} );
 	} );
 
-	it( 'shows the removal that is already running when the start is refused', async () => {
-		const running = buildJob( { id: 9 } );
-		mockStartBulkRemove.mockRejectedValue( {
-			code: 'bulk_remove_in_progress',
-			data: { status: 409, job: running },
-		} );
-		const { queryClient, wrapper } = setup();
-		const { result } = renderHook( () => useStartBulkRemoveMutation(), { wrapper } );
-
-		await act( async () => {
-			await result.current
-				.mutateAsync( { scope: 'all', filters: [], search: '', expectedCount: 1 } )
-				.catch( () => undefined );
-		} );
-
-		expect( queryClient.getQueryData( BULK_REMOVE_QUERY_KEY ) ).toMatchObject( {
-			job: { id: 9 },
-		} );
-	} );
-
-	it( 'keeps removal turned on when the refusal shows the running job', async () => {
+	it( 'shows the running removal and keeps removal on when the start is refused', async () => {
 		mockStartBulkRemove.mockRejectedValue( {
 			code: 'bulk_remove_in_progress',
 			data: { status: 409, job: buildJob( { id: 9 } ) },
@@ -228,35 +208,23 @@ describe( 'useBulkRemoveStatus', () => {
 		expect( mockRecordTracksEvent ).not.toHaveBeenCalled();
 	} );
 
-	it( 'reports removal as on only when WP.com says enabled is true', async () => {
-		mockFetchBulkRemoveStatus.mockResolvedValue( { job: null, enabled: true } );
+	it.each( [
+		[ 'on only when WP.com says enabled is true', { job: null, enabled: true }, true ],
+		[
+			'off when enabled is false, and still shows the job',
+			{ job: 'done', enabled: false },
+			false,
+		],
+		[ 'off when WP.com does not send enabled', { job: null }, false ],
+	] )( 'reports removal as %s', async ( _label, response, expected ) => {
+		const job = response.job === 'done' ? buildJob( { status: 'done' } ) : null;
+		mockFetchBulkRemoveStatus.mockResolvedValue( { ...response, job } );
 		const { wrapper } = setup();
 		const { result } = renderHook( () => useBulkRemoveStatus( true ), { wrapper } );
 
-		await waitFor( () => expect( result.current.isEnabled ).toBe( true ) );
-		expect( result.current.job ).toBeNull();
-	} );
-
-	it( 'reports removal as off when enabled is false, and still shows the job', async () => {
-		mockFetchBulkRemoveStatus.mockResolvedValue( {
-			job: buildJob( { status: 'done' } ),
-			enabled: false,
-		} );
-		const { wrapper } = setup();
-		const { result } = renderHook( () => useBulkRemoveStatus( true ), { wrapper } );
-
-		await waitFor( () => expect( result.current.job?.status ).toBe( 'done' ) );
-		expect( result.current.isEnabled ).toBe( false );
-	} );
-
-	it( 'reports removal as off when WP.com does not send enabled', async () => {
-		mockFetchBulkRemoveStatus.mockResolvedValue( { job: null } );
-		const { wrapper } = setup();
-		const { result } = renderHook( () => useBulkRemoveStatus( true ), { wrapper } );
-
-		await waitFor( () => expect( mockFetchBulkRemoveStatus ).toHaveBeenCalled() );
 		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
-		expect( result.current.isEnabled ).toBe( false );
+		expect( result.current.job?.status ).toBe( job?.status );
+		expect( result.current.isEnabled ).toBe( expected );
 	} );
 
 	it( 'reports removal as off before the status loads', () => {
@@ -267,27 +235,112 @@ describe( 'useBulkRemoveStatus', () => {
 		expect( result.current.isEnabled ).toBe( false );
 	} );
 
-	it( 'picks up a removal started in another tab when the tab regains focus', async () => {
-		mockFetchBulkRemoveStatus.mockResolvedValue( { job: null, enabled: true } );
-		// Mirror the shared client, which turns focus refetches off and keeps data fresh for 30s.
-		const queryClient = new QueryClient( {
-			defaultOptions: { queries: { retry: false, refetchOnWindowFocus: false, staleTime: 30000 } },
-		} );
-		const wrapper = ( { children }: { children: React.ReactNode } ) => (
-			<QueryClientProvider client={ queryClient }>{ children }</QueryClientProvider>
-		);
+	it.each( [
+		[ 'a missing route', { code: 'rest_no_route' } ],
+		[ 'a not found error', { code: 'not_found', data: { status: 404 } } ],
+		[ 'a permission error', { code: 'rest_forbidden', data: { status: 403 } } ],
+	] )( 'does not retry %s', async ( _label, error ) => {
+		mockFetchBulkRemoveStatus.mockRejectedValue( error );
+		// The library default, so this fails if the hook stops setting its own retry rule.
+		const { wrapper } = setup( { retry: 3, retryDelay: 0 } );
 		const { result } = renderHook( () => useBulkRemoveStatus( true ), { wrapper } );
-		await waitFor( () => expect( result.current.isEnabled ).toBe( true ) );
-		expect( result.current.isActive ).toBe( false );
 
-		mockFetchBulkRemoveStatus.mockResolvedValue( { job: buildJob(), enabled: true } );
-		act( () => {
-			focusManager.setFocused( false );
-			focusManager.setFocused( true );
+		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+		expect( mockFetchBulkRemoveStatus ).toHaveBeenCalledTimes( 1 );
+		expect( result.current.isEnabled ).toBe( false );
+	} );
+
+	it.each( [
+		[ 'a server error', { code: 'internal_server_error', data: { status: 500 } } ],
+		[ 'a network failure', { code: 'fetch_error' } ],
+		[ 'a timeout', { code: 'http_request_failed', data: { status: 408 } } ],
+		[ 'a rate limit', { code: 'too_many_requests', data: { status: 429 } } ],
+	] )( 'retries %s and then shows removal', async ( _label, error ) => {
+		mockFetchBulkRemoveStatus
+			.mockRejectedValueOnce( error )
+			.mockResolvedValueOnce( { job: null, enabled: true } );
+		const { wrapper } = setup( { retryDelay: 0 } );
+		const { result } = renderHook( () => useBulkRemoveStatus( true ), { wrapper } );
+
+		await waitFor( () => expect( result.current.isEnabled ).toBe( true ) );
+		expect( mockFetchBulkRemoveStatus ).toHaveBeenCalledTimes( 2 );
+	} );
+
+	it( 'gives up after three retries', async () => {
+		mockFetchBulkRemoveStatus.mockRejectedValue( { code: 'fetch_error' } );
+		const { wrapper } = setup( { retryDelay: 0 } );
+		const { result } = renderHook( () => useBulkRemoveStatus( true ), { wrapper } );
+
+		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+		expect( mockFetchBulkRemoveStatus ).toHaveBeenCalledTimes( 4 );
+		expect( result.current.isEnabled ).toBe( false );
+	} );
+
+	describe( 'on window focus', () => {
+		// Mirror the shared client, which turns focus refetches off and keeps data fresh for 30s.
+		const setupFocus = () =>
+			setup( { refetchOnWindowFocus: false, staleTime: 30000, retryDelay: 0 } );
+
+		const refocus = async () => {
+			act( () => {
+				focusManager.setFocused( false );
+				focusManager.setFocused( true );
+			} );
+			await act( async () => {
+				await new Promise( resolve => setTimeout( resolve, 50 ) );
+			} );
+		};
+
+		afterEach( () => {
+			focusManager.setFocused( undefined );
 		} );
 
-		await waitFor( () => expect( result.current.isActive ).toBe( true ) );
-		focusManager.setFocused( undefined );
+		it.each( [
+			[ 'refetches when removal is on', { job: null, enabled: true }, 2 ],
+			[ 'does not refetch when removal is off', { job: null, enabled: false }, 1 ],
+			[
+				'refetches while a job runs, even with removal off',
+				{ job: 'running', enabled: false },
+				2,
+			],
+		] )( '%s', async ( _label, response, calls ) => {
+			const job = response.job === 'running' ? buildJob() : null;
+			mockFetchBulkRemoveStatus.mockResolvedValue( { ...response, job } );
+			const { wrapper } = setupFocus();
+			const { result } = renderHook( () => useBulkRemoveStatus( true ), { wrapper } );
+			await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+
+			await refocus();
+
+			expect( mockFetchBulkRemoveStatus ).toHaveBeenCalledTimes( calls );
+		} );
+
+		it( 'does not refetch after a missing route', async () => {
+			mockFetchBulkRemoveStatus.mockRejectedValue( {
+				code: 'rest_no_route',
+				data: { status: 404 },
+			} );
+			const { wrapper } = setupFocus();
+			const { result } = renderHook( () => useBulkRemoveStatus( true ), { wrapper } );
+			await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+
+			await refocus();
+
+			expect( mockFetchBulkRemoveStatus ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		it( 'tries again after retries ran out on an error that may pass', async () => {
+			mockFetchBulkRemoveStatus.mockRejectedValue( { code: 'fetch_error' } );
+			const { wrapper } = setupFocus();
+			const { result } = renderHook( () => useBulkRemoveStatus( true ), { wrapper } );
+			await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+			expect( mockFetchBulkRemoveStatus ).toHaveBeenCalledTimes( 4 );
+
+			mockFetchBulkRemoveStatus.mockResolvedValue( { job: null, enabled: true } );
+			await refocus();
+
+			await waitFor( () => expect( result.current.isEnabled ).toBe( true ) );
+		} );
 	} );
 
 	it( 'fetches nothing when disabled', () => {

@@ -1,4 +1,5 @@
 import { formatNumber } from '@automattic/number-formatters';
+import { speak } from '@wordpress/a11y';
 import {
 	createInterpolateElement,
 	useCallback,
@@ -66,6 +67,8 @@ export default function BulkRemoveModal( {
 	} );
 	const counts = isAll ? everyone : matching;
 	const countsReady = counts.isSuccess && counts.fetchStatus === 'idle';
+	// A failed count that is retrying counts as still counting; one that is paused offline has failed.
+	const countFailed = counts.isError && ! counts.isFetching;
 	const matchingReady = matching.isSuccess && matching.fetchStatus === 'idle';
 	const listReady = everyone.isSuccess && everyone.fetchStatus === 'idle';
 	const total = counts.data?.total ?? 0;
@@ -75,11 +78,14 @@ export default function BulkRemoveModal( {
 
 	const [ typed, setTyped ] = useState( '' );
 	const [ csvDownloaded, setCsvDownloaded ] = useState( false );
+	// Set when confirm is clicked before the count arrives, cleared once it does.
+	const [ clickedWhileCounting, setClickedWhileCounting ] = useState( false );
 	const start = useStartBulkRemoveMutation();
 
 	useEffect( () => {
 		setTyped( '' );
 		setCsvDownloaded( false );
+		setClickedWhileCounting( false );
 		if ( isOpen ) {
 			recordTracksEvent( 'jetpack_subscribers_bulk_remove_modal_showed', {
 				scope: isAll ? 'all' : 'matching',
@@ -119,6 +125,11 @@ export default function BulkRemoveModal( {
 			inputRef.current?.focus();
 		}
 	}, [ isAll, countsReady ] );
+	useEffect( () => {
+		if ( countsReady ) {
+			setClickedWhileCounting( false );
+		}
+	}, [ countsReady ] );
 
 	const handleOpenChange = useCallback(
 		( nextOpen: boolean ) => {
@@ -132,8 +143,27 @@ export default function BulkRemoveModal( {
 		[ isAll, onClose ]
 	);
 
+	const countFailedMessage = __(
+		'Could not count your subscribers. Close this and try again.',
+		'jetpack-newsletter'
+	);
+	const stillCountingMessage = __(
+		'Still counting your subscribers. Try again in a moment.',
+		'jetpack-newsletter'
+	);
+
 	const handleConfirm = useCallback( async () => {
+		// AlertDialog cannot disable its confirm button, so say why nothing happened. These two
+		// messages go in the dialog body, not the footer error, which stays up until the next
+		// click and would go stale once the count arrives.
+		if ( countFailed ) {
+			// The body already shows this failure, so only announce it.
+			speak( countFailedMessage, 'assertive' );
+			return { close: false };
+		}
 		if ( ! counts.data || ! countsReady ) {
+			setClickedWhileCounting( true );
+			speak( stillCountingMessage, 'assertive' );
 			return { close: false };
 		}
 		if ( total < 1 ) {
@@ -197,7 +227,21 @@ export default function BulkRemoveModal( {
 					error?.message || __( 'Could not start removing subscribers.', 'jetpack-newsletter' ),
 			};
 		}
-	}, [ counts, countsReady, total, paid, typed, isAll, csvDownloaded, start, query, onClose ] );
+	}, [
+		counts,
+		countsReady,
+		countFailed,
+		countFailedMessage,
+		stillCountingMessage,
+		total,
+		paid,
+		typed,
+		isAll,
+		csvDownloaded,
+		start,
+		query,
+		onClose,
+	] );
 
 	if ( ! isOpen ) {
 		return null;
@@ -268,48 +312,39 @@ export default function BulkRemoveModal( {
 		);
 	}
 
+	const confirmButtonText = countsReady
+		? sprintf(
+				// translators: %s: number of subscribers.
+				_n( 'Remove %s subscriber', 'Remove %s subscribers', total, 'jetpack-newsletter' ),
+				formatNumber( total )
+			)
+		: __( 'Remove subscribers', 'jetpack-newsletter' );
+
 	return (
 		<AlertDialog.Root open onOpenChange={ handleOpenChange } onConfirm={ handleConfirm }>
 			<AlertDialog.Popup
 				intent="irreversible"
 				title={ countsReady ? title : __( 'Remove subscribers?', 'jetpack-newsletter' ) }
-				confirmButtonText={ sprintf(
-					// translators: %s: number of subscribers.
-					_n( 'Remove %s subscriber', 'Remove %s subscribers', total, 'jetpack-newsletter' ),
-					formatNumber( total )
-				) }
+				confirmButtonText={ confirmButtonText }
 				cancelButtonText={ __( 'Cancel', 'jetpack-newsletter' ) }
 			>
-				{ counts.isLoading || counts.isFetching || counts.isPaused ? (
+				{ ! countFailed && ( counts.isLoading || counts.isFetching || counts.isPaused ) ? (
 					<Text variant="body-md">
-						{ __( 'Counting your subscribers…', 'jetpack-newsletter' ) }
+						{ clickedWhileCounting
+							? stillCountingMessage
+							: __( 'Counting your subscribers…', 'jetpack-newsletter' ) }
 					</Text>
 				) : null }
-				{ counts.isError ? (
+				{ countFailed ? (
 					<Notice.Root intent="error">
-						<Notice.Description>
-							{ __(
-								'Could not count your subscribers. Close this and try again.',
-								'jetpack-newsletter'
-							) }
-						</Notice.Description>
+						<Notice.Description>{ countFailedMessage }</Notice.Description>
 					</Notice.Root>
 				) : null }
 				{ isAll && narrowed ? (
 					<Notice.Root intent="warning">
 						<Notice.Description>
 							{ matchingReady
-								? sprintf(
-										// translators: %1$s: number of matching subscribers. %2$s: "search", "filter" or "search and filter".
-										_n(
-											'This removes everyone on your list, not only the %1$s that matches your %2$s.',
-											'This removes everyone on your list, not only the %1$s that match your %2$s.',
-											matchingTotal,
-											'jetpack-newsletter'
-										),
-										formatNumber( matchingTotal ),
-										describeNarrowing( query.filters, query.search )
-									)
+								? describeNarrowing( query.filters, query.search, matchingTotal )
 								: __(
 										'This removes everyone on your list, regardless of your current search or filters.',
 										'jetpack-newsletter'
