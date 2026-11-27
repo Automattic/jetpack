@@ -8,7 +8,7 @@ import {
 	UpgradeScreen,
 } from './screens.tsx';
 import { getInitialState } from './state.ts';
-import type { FeatureConfig } from './types.ts';
+import type { FeatureConfig, InitialState } from './types.ts';
 import './style.scss';
 
 /**
@@ -17,12 +17,19 @@ import './style.scss';
  * Shown while the feature is out of reach: a Simple site has to move to our
  * hosting platform to run it, and a WoA site may not have bought it yet.
  *
- * @param props        - Component props.
- * @param props.config - The feature's copy, imagery and Tracks IDs.
+ * @param props              - Component props.
+ * @param props.config       - The feature's copy, imagery and Tracks IDs.
+ * @param props.initialState - The state the feature's PHP printed, if any.
  * @return The rendered page.
  */
-export function HostingFeaturePage( { config }: { config: FeatureConfig } ) {
-	const initialState = getInitialState( config.stateVar );
+export function HostingFeaturePage( {
+	config,
+	initialState: printedState,
+}: {
+	config: FeatureConfig;
+	initialState: InitialState | undefined;
+} ) {
+	const initialState = getInitialState( printedState );
 
 	return (
 		<FeatureContext.Provider value={ config }>

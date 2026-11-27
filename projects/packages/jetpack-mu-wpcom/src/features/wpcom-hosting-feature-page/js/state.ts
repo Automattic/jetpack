@@ -1,4 +1,4 @@
-import type { InitialState, InitialStateVar } from './types.ts';
+import type { InitialState } from './types.ts';
 
 /**
  * Fallback when the localized state is missing.
@@ -21,11 +21,11 @@ const FALLBACK: InitialState = {
 };
 
 /**
- * Read the state PHP localized onto the page.
+ * The state PHP printed for the page.
  *
- * @param stateVar - The global the page's state was printed to.
+ * @param state - The page's global, as its app read it.
  * @return The initial state, or a safe fallback if the global is absent.
  */
-export function getInitialState( stateVar: InitialStateVar ): InitialState {
-	return window[ stateVar ] ?? FALLBACK;
+export function getInitialState( state: InitialState | undefined ): InitialState {
+	return state ?? FALLBACK;
 }
