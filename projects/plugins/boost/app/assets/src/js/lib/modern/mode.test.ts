@@ -1,5 +1,5 @@
 import { SETTINGS_SLOT_ID, SUBPAGE_SLOT_ID } from '../../../../../../_inc/runtime-contract';
-import { detectMode, MODERN_ROOT_ID, waitForSlots } from './mode';
+import { waitForSlots } from './mode';
 
 const addRoot = ( id: string ) => {
 	const root = document.createElement( 'div' );
@@ -8,22 +8,6 @@ const addRoot = ( id: string ) => {
 
 	return root;
 };
-
-describe( 'detectMode', () => {
-	afterEach( () => {
-		document.body.innerHTML = '';
-	} );
-
-	it( 'reads modern from the chassis root', () => {
-		addRoot( MODERN_ROOT_ID );
-
-		expect( detectMode() ).toBe( 'modern' );
-	} );
-
-	it( 'returns null without the chassis root', () => {
-		expect( detectMode() ).toBeNull();
-	} );
-} );
 
 describe( 'waitForSlots', () => {
 	afterEach( () => {

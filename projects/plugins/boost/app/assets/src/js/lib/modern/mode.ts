@@ -6,22 +6,10 @@ import { SETTINGS_SLOT_ID, SUBPAGE_SLOT_ID } from '../../../../../../_inc/runtim
 
 export const MODERN_ROOT_ID = 'jetpack-boost-dashboard-wp-admin-app';
 
-export type DashboardMode = 'modern';
-
 export type ModernSlots = {
 	settings: HTMLElement;
 	subpage: HTMLElement;
 };
-
-/**
- * Detect whether PHP rendered the dashboard chassis on this page.
- *
- * @param doc - Document to inspect. Defaults to the live document.
- * @return The mode, or null when the chassis root is absent.
- */
-export function detectMode( doc: Document = document ): DashboardMode | null {
-	return doc.getElementById( MODERN_ROOT_ID ) ? 'modern' : null;
-}
 
 /**
  * Find both chassis slots, if they are already rendered.

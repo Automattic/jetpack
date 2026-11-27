@@ -1,5 +1,5 @@
 import analytics from '@automattic/jetpack-analytics';
-import { detectMode } from '$lib/modern/mode';
+import { MODERN_ROOT_ID } from '$lib/modern/mode';
 
 export type TracksEventProperties = { [ key: string ]: string | number };
 
@@ -123,11 +123,14 @@ function addBoostProps( eventName: string, props: TracksEventProperties ): Track
 		defaultProps.boost_version = Jetpack_Boost.version;
 	}
 
-	const mode = detectMode();
+	const hasDashboard = document.getElementById( MODERN_ROOT_ID ) !== null;
 	const context: TracksEventProperties = {};
 	// Tag every dashboard page view, including onboarding and purchase routes.
-	if ( mode && ( settingsActions.has( eventName ) || eventName.startsWith( 'page_view_' ) ) ) {
-		context.dashboard_variant = mode;
+	if (
+		hasDashboard &&
+		( settingsActions.has( eventName ) || eventName.startsWith( 'page_view_' ) )
+	) {
+		context.dashboard_variant = 'modern';
 	}
 
 	return { ...defaultProps, ...context, ...props };
