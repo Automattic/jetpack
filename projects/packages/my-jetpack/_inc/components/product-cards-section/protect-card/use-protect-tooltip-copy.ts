@@ -33,7 +33,7 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 	const { recordEvent } = useAnalytics();
 	const { plugins, themes } = getMyJetpackWindowInitialState();
 	const { plugins: fromScanPlugins, themes: fromScanThemes, threats = [] } = data?.scanData || {};
-	const numThreats = threats.length;
+	const numThreats = data?.threatCount ?? threats.length;
 	const {
 		jetpack_waf_automatic_rules: hasAutomaticRules,
 		blocked_logins: blockedLoginsCount,
@@ -44,10 +44,13 @@ export const useProtectTooltipCopy = ( data: ProtectData ): TooltipContent => {
 	const themesCount = fromScanThemes?.length || Object.keys( themes ).length;
 
 	const criticalThreatCount: number = useMemo( () => {
+		if ( typeof data?.criticalThreatCount === 'number' ) {
+			return data.criticalThreatCount;
+		}
 		return threats.length
 			? threats.reduce( ( accum, threat ) => ( threat.severity >= 5 ? accum + 1 : accum ), 0 )
 			: 0;
-	}, [ threats ] );
+	}, [ data?.criticalThreatCount, threats ] );
 
 	const settingsLink = useMemo( () => {
 		if ( isStandaloneActive ) {

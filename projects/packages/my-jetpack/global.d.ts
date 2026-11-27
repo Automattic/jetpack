@@ -432,6 +432,10 @@ type ProtectData = {
 		themes: ScanItem[];
 		threats?: ThreatItem[];
 	};
+	// Protect's badge count, without threats fixed since the last scan; null when unknown.
+	threatCount: number | null;
+	// How many of those are critical; null when threatCount is.
+	criticalThreatCount: number | null;
 	// Fields marked optional are only sent to users with `manage_options`.
 	wafConfig: {
 		automatic_rules_available?: boolean;
@@ -532,6 +536,8 @@ type MainFeature = {
 	name: string;
 	description: string;
 	long_description: string;
+	// Comma-separated keywords the Features search also matches.
+	search_terms?: string;
 	icon: string;
 	manage_url: string;
 	essential: boolean;
@@ -548,7 +554,7 @@ type MainFeature = {
 	paid_highlights: string[];
 	pricing_notes?: string[];
 	// The My Jetpack route that sells the feature, such as `/add-akismet`, and the product it sells.
-	// A host may send it elsewhere instead, with an absolute `url`.
+	// A host may send it elsewhere instead, with an absolute `url`, or sell nothing, with an empty one.
 	upgrade: { path: string; name: string; url?: string };
 	// Whether the site already pays for the feature, directly or through a bundle.
 	included?: boolean;
@@ -803,10 +809,6 @@ interface Window {
 		userIsAdmin: string;
 		userFirstName: string;
 		isWelcomeTourActive: boolean;
-		seoOptIn: {
-			showCard: boolean;
-			redirect: string;
-		};
 		// Security modules whose settings live on the Protect page, keyed by module slug; empty without that page.
 		protectPageModuleUrls?: Record< string, string >;
 		// Null while the notices Jetpack › Settings shows stay there.

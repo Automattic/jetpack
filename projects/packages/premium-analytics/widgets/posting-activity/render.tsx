@@ -97,7 +97,7 @@ function PostingActivityInner() {
 			columns: CSV_COLUMNS,
 			filenamePrefix: 'posting-activity',
 			range: { from: range.start, to: range.end },
-			status: { isLoading, isFetching, isError, isPlaceholderData },
+			status: { isLoading, isError, isPlaceholderData },
 		},
 	} );
 

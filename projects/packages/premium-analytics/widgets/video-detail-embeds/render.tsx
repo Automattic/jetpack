@@ -104,7 +104,7 @@ function VideoDetailEmbedsReport() {
 			columns: CSV_COLUMNS,
 			filenamePrefix: `video-${ videoId }-embeds`,
 			hasDateRange: false,
-			status: { isLoading, isFetching, isError, isPlaceholderData },
+			status: { isLoading, isError, isPlaceholderData },
 		},
 	} );
 

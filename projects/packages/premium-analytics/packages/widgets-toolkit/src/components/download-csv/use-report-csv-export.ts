@@ -10,19 +10,15 @@ import { isStatsCsvExportEnabled } from './is-csv-export-enabled';
 
 export type ReportCsvExportStatus = {
 	isLoading: boolean;
-	isFetching: boolean;
 	isError: boolean;
 };
 
-/** Whether exports are enabled and the rows belong to a settled, successful request. */
+/**
+ * Whether exports are enabled and the request has rows, revalidating or not: a download that
+ * unmounts during a refresh drops focus, and a widget footer left empty resizes its chart.
+ */
 export function isReportCsvReady( status: ReportCsvExportStatus, rowCount: number ): boolean {
-	return (
-		isStatsCsvExportEnabled() &&
-		rowCount > 0 &&
-		! status.isLoading &&
-		! status.isFetching &&
-		! status.isError
-	);
+	return isStatsCsvExportEnabled() && rowCount > 0 && ! status.isLoading && ! status.isError;
 }
 
 export type UseReportCsvExportOptions< Row > = {

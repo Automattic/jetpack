@@ -9,12 +9,13 @@ import {
 	type SupportedLayouts,
 	type View,
 } from '@jetpack-premium-analytics/externals';
+import { useRowBatches } from '@jetpack-premium-analytics/ui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
 import { ReportTableEmptyState } from './report-empty-state';
-import { ReportPageSection } from './report-page-layout';
+import { ReportPageSection, useReportPeriodKey } from './report-page-layout';
 import styles from './report-records-table.module.scss';
 import './report-records-table.scss';
 import { useTableRevalidating } from './use-table-revalidating';
@@ -75,7 +76,7 @@ export interface ReportRecordsTableProps< Item > {
 	 * request stays scoped by a filter the table no longer shows.
 	 */
 	onChangeView?: ( view: View ) => void;
-	/** Called with the rows the table shows after client-side view processing. */
+	/** Called with the rows the table has mounted, in display order. */
 	onChangePageItems?: ( items: Item[] ) => void;
 	/** Whether a record's primary field should render as an interactive link. */
 	isItemClickable?: ( item: Item ) => boolean;
@@ -89,10 +90,10 @@ export interface ReportRecordsTableProps< Item > {
 
 /**
  * The report page's records table: a Core DataViews table (search, sortable +
- * configurable columns) listing every one of the module's normalized report rows,
- * as Calypso's "View all" pages do. Filtering and sorting run client-side via
- * `filterSortAndPaginate` — report modules return the full summarized list for
- * the selected range, so no server round-trip is needed.
+ * configurable columns) over every one of the module's normalized report rows,
+ * as Calypso's "View all" pages do, mounted in batches as it scrolls. Filtering
+ * and sorting run client-side via `filterSortAndPaginate` — report modules return
+ * the full summarized list for the selected range, so no server round-trip is needed.
  *
  * The module page supplies the data and field config; this owns the view
  * state, so every report table behaves the same. With no rows it renders the
@@ -148,16 +149,28 @@ export function ReportRecordsTable< Item >( {
 		[ onChangeView ]
 	);
 
-	const { data: pageItems, paginationInfo } = useMemo(
-		() => filterSortAndPaginate( data, view, fields ),
+	const { data: orderedItems, paginationInfo } = useMemo(
+		() => filterSortAndPaginate( data, { ...view, page: undefined, perPage: undefined }, fields ),
 		[ data, view, fields ]
 	);
 
-	useEffect( () => {
-		onChangePageItems?.( pageItems );
-	}, [ onChangePageItems, pageItems ] );
-
+	// A background refetch keeps the rows mounted so far; a new order, match set or period starts over.
+	const periodKey = useReportPeriodKey();
+	const rowBatchesResetKey = `${ JSON.stringify( [ view.sort, view.search, view.filters ] ) }:${ periodKey }`;
 	const isRevalidating = useTableRevalidating( isFetching );
+	const { rowLimit, ref: rowBatchesRef } = useRowBatches(
+		orderedItems.length,
+		rowBatchesResetKey,
+		isLoading || isRevalidating
+	);
+	const mountedItems = useMemo(
+		() => orderedItems.slice( 0, rowLimit ),
+		[ orderedItems, rowLimit ]
+	);
+
+	useEffect( () => {
+		onChangePageItems?.( mountedItems );
+	}, [ onChangePageItems, mountedItems ] );
 
 	// A filter the API applies server-side can scope the rows to none, and the table carries the control that clears it.
 	if ( data.length === 0 && ! view.filters?.length ) {
@@ -166,21 +179,23 @@ export function ReportRecordsTable< Item >( {
 
 	return (
 		<ReportPageSection className={ styles.root }>
-			<GenericDataViews< Item >
-				view={ view }
-				onChangeView={ handleChangeView }
-				fields={ fields }
-				data={ pageItems }
-				getItemId={ getItemId }
-				isLoading={ isLoading || isRevalidating }
-				paginationInfo={ paginationInfo }
-				defaultLayouts={ { table: {} } }
-				actions={ actions }
-				searchLabel={ searchLabel }
-				config={ { perPageSizes: NO_PER_PAGE_SIZES } }
-				isItemClickable={ isItemClickable }
-				renderItemLink={ renderItemLink }
-			/>
+			<div ref={ rowBatchesRef }>
+				<GenericDataViews< Item >
+					view={ view }
+					onChangeView={ handleChangeView }
+					fields={ fields }
+					data={ mountedItems }
+					getItemId={ getItemId }
+					isLoading={ isLoading || isRevalidating }
+					paginationInfo={ paginationInfo }
+					defaultLayouts={ { table: {} } }
+					actions={ actions }
+					searchLabel={ searchLabel }
+					config={ { perPageSizes: NO_PER_PAGE_SIZES } }
+					isItemClickable={ isItemClickable }
+					renderItemLink={ renderItemLink }
+				/>
+			</div>
 		</ReportPageSection>
 	);
 }

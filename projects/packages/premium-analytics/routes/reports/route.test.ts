@@ -79,6 +79,12 @@ describe( 'report route.beforeLoad', () => {
 		await expect( beforeLoad( { report: 'unknown' } ) ).rejects.toMatchObject( { to: '/' } );
 	} );
 
+	it( 'starts loading the site settings on a URL that already carries its dates', async () => {
+		await beforeLoad( { report: 'posts' }, { from: '2026-06-01', to: '2026-06-16' } );
+
+		expect( ensureCoreSettingsReady ).toHaveBeenCalledTimes( 1 );
+	} );
+
 	it( 'passes through a settled URL without redirecting', async () => {
 		await expect(
 			beforeLoad( { report: 'authors' }, { from: '2026-06-01', to: '2026-06-16' } )

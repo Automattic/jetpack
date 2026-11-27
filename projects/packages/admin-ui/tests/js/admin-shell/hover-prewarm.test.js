@@ -16,6 +16,7 @@ const config = {
 	members: { 'my-jetpack': member( 'my-jetpack' ), [ FORMS ]: member( FORMS ) },
 	guestAssetsUrl: '/wp-admin/admin-ajax.php?action=jetpack_admin_shell_guest',
 	headerStorageKey: 'jetpack-admin-shell-header:1:1:test:',
+	printed: { scriptData: { site: '0123456789ab' }, inline: [] },
 };
 
 const guestRequests = () =>
@@ -55,5 +56,7 @@ describe( 'admin shell client', () => {
 		await hover( document.querySelector( `a[href$="${ FORMS }"] span` ) );
 		await hover( document.querySelector( `a[href$="${ FORMS }"] span` ) );
 		expect( guestRequests().map( url => url.searchParams.get( 'member' ) ) ).toEqual( [ FORMS ] );
+		const [ , options ] = global.fetch.mock.lastCall;
+		expect( JSON.parse( options.body.get( 'printed' ) ) ).toEqual( config.printed );
 	} );
 } );

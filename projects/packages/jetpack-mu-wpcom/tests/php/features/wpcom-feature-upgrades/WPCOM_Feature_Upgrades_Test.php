@@ -116,9 +116,10 @@ class WPCOM_Feature_Upgrades_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function provide_plan_feature_upgrades() {
 		return array(
-			'Social'   => array( 'social', 'republicize' ),
-			'Podcast'  => array( 'podcast', '' ),
-			'Monetize' => array( 'monetize', 'wordads-instant' ),
+			'Social'           => array( 'social', 'republicize' ),
+			'Podcast'          => array( 'podcast', '' ),
+			'Monetize'         => array( 'monetize', 'wordads-instant' ),
+			'Google Analytics' => array( 'google-analytics', 'google-analytics' ),
 		);
 	}
 

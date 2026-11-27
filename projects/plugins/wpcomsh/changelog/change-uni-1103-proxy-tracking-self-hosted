@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Stats: Keep proxy tracking on for WooCommerce store events while Stats v2 runs.

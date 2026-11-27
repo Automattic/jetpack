@@ -108,7 +108,7 @@ function ViewsOverYearsInner( { metric, authorScoped }: ViewsOverYearsInnerProps
 			...csv,
 			filenamePrefix: authorId ? `author-${ authorId }-${ metricPrefix }` : metricPrefix,
 			hasDateRange: false,
-			status: { isLoading, isFetching, isError: csvIsError, isPlaceholderData },
+			status: { isLoading, isError: csvIsError, isPlaceholderData },
 		},
 	} );
 

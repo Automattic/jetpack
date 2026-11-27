@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { COMPARISON_TOTAL_KEY } from '..';
 import { GlobalChartsProvider } from '../../../providers';
 import { selectedBarRingBounds as selectedRing } from '../../../test-utils/selected-bar-ring';
 import { BarChartUnresponsive } from '../bar-chart';
@@ -294,25 +295,282 @@ describe( 'BarChart stacked layout', () => {
 		} );
 	} );
 
-	it( 'leaves comparison series out of the bars, colors and legend, and says so', () => {
-		const warn = jest.spyOn( console, 'warn' ).mockImplementation( () => {} );
+	// Each series' previous period, paired by group; Mon sums to 500 against a 180 stack.
+	const WITH_PREVIOUS: SeriesData[] = [
+		...DATA.map( series => ( { ...series, group: series.label } ) ),
+		...[
+			[ 'Desktop', 300, 40 ],
+			[ 'Mobile', 150, 20 ],
+			[ 'Tablet', 50, null ],
+		].map( ( [ label, mon, tue ] ) => ( {
+			label: `${ label } (prev)`,
+			group: label as string,
+			options: { type: 'comparison' as const },
+			data: [ day( 'Mon', mon as number ), day( 'Tue', tue as number | null ) ],
+		} ) ),
+	];
+	// The five primary bars come first, then the comparison total at Mon and Tue.
+	const previousBar = ( category = 0, primaryBars = 5 ) =>
+		geometry( barRects()[ primaryBars + category ] );
+
+	it( 'sums the comparisons into one bar beside each stack, in one color, scaled with the stack', () => {
 		const fills = () => barRects().map( bar => bar.getAttribute( 'fill' ) );
-		const { unmount } = renderStacked( { showLegend: true } );
+		const { unmount } = renderStacked();
 		const plainFills = fills();
 		unmount();
 
+		renderStacked( { data: WITH_PREVIOUS } );
+
+		expect( barRects() ).toHaveLength( 7 );
+		const desktop = barIn( WITH_PREVIOUS, 'Desktop' );
+		expect( previousBar().x ).toBeGreaterThanOrEqual( desktop.x + desktop.width );
+		expect( previousBar().height / desktop.height ).toBeCloseTo( 500 / 100 );
+		expect( fills().slice( 0, 5 ) ).toEqual( plainFills );
+		expect( new Set( fills().slice( 5 ) ).size ).toBe( 1 );
+		expect( plainFills ).not.toContain( fills()[ 5 ] );
+	} );
+
+	it( "keeps a comparison point's own color off the total", () => {
+		const data = WITH_PREVIOUS.map( ( series, index ) =>
+			index === 3
+				? { ...series, data: [ { ...series.data[ 0 ], color: '#ff0000' }, series.data[ 1 ] ] }
+				: series
+		);
+		renderStacked( { data } );
+
+		const [ mon, tue ] = barRects()
+			.slice( 5 )
+			.map( bar => bar.getAttribute( 'fill' ) );
+		expect( mon ).toBe( tue );
+	} );
+
+	it( 'lists the comparison total after the stack total, named by the legend comparison item', async () => {
 		renderStacked( {
+			data: WITH_PREVIOUS,
 			showLegend: true,
-			data: [
-				...DATA,
-				{ label: 'Previous', options: { type: 'comparison' }, data: [ day( 'Mon', 500 ) ] },
-			],
+			legend: { comparisonItem: 'Prev. 7 days' },
 		} );
 
-		expect( fills() ).toEqual( plainFills );
-		expect( screen.queryByText( 'Previous' ) ).not.toBeInTheDocument();
-		expect( warn ).toHaveBeenCalledWith( expect.stringContaining( 'comparison series' ) );
+		pointer( 'pointermove', center( previousBar() ) );
+		const tooltip = await screen.findByRole( 'tooltip' );
+		expect( tooltip ).toHaveTextContent(
+			/Mon.*Tablet: 20.*Mobile: 60.*Desktop: 100.*Total: 180.*Prev\. 7 days: 500/
+		);
+		expect( screen.getByText( 'Prev. 7 days' ) ).toBeInTheDocument();
+	} );
+
+	it( 'stops on the comparison total after its stack, rings it, and activates it by its fixed key', async () => {
+		const user = userEvent.setup();
+		const onDatumActivate = jest.fn();
+		renderStacked( {
+			data: WITH_PREVIOUS,
+			legend: { comparisonItem: 'Prev. 7 days' },
+			onDatumActivate,
+		} );
+
+		await user.tab();
+		await user.keyboard( '{ArrowRight}{ArrowRight}{Enter}' );
+		expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveTextContent(
+			/Mon.*Total: 180.*Prev\. 7 days: 500/
+		);
+		expect( rounded( selectedRing() ) ).toEqual( rounded( previousBar() ) );
+		expect( onDatumActivate ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				key: COMPARISON_TOTAL_KEY,
+				datum: expect.objectContaining( { value: 500 } ),
+			} )
+		);
+	} );
+
+	it.each( [ undefined, 'Prev' ] )(
+		'keeps a primary named like the comparison item in its stack, with comparisonItem %p',
+		comparisonItem => {
+			const label = comparisonItem ?? 'Comparison period';
+			const data: SeriesData[] = [
+				{ label: 'Desktop', group: 'd', data: [ day( 'Mon', 100 ) ] },
+				{ label, group: 'm', data: [ day( 'Mon', 60 ) ] },
+				{
+					label: 'Desktop (prev)',
+					group: 'd',
+					options: { type: 'comparison' },
+					data: [ day( 'Mon', 300 ) ],
+				},
+			];
+			renderStacked( { data, showLegend: true, legend: { comparisonItem, interactive: true } } );
+
+			const desktop = barIn( data, 'Desktop' );
+			const named = barIn( data, label );
+			expect( named.x ).toBeCloseTo( desktop.x );
+			expect( named.height / desktop.height ).toBeCloseTo( 60 / 100 );
+			expect(
+				screen.getByRole( 'button', { name: new RegExp( `^${ label }:` ) } )
+			).toBeInTheDocument();
+		}
+	);
+
+	it.each( [
+		[ 'vertical', [ 300, 150, 50 ], 'top' ],
+		[ 'horizontal', [ 300, 150, 50 ], 'right' ],
+		[ 'vertical', [ -30, -20, 0 ], 'bottom' ],
+		[ 'vertical', [ 30, -20, 0 ], 'both' ],
+	] as const )(
+		'rounds the outer end of a %s comparison total of %p as %s',
+		( orientation, monday, end ) => {
+			const data = WITH_PREVIOUS.map( series =>
+				series.options?.type === 'comparison'
+					? {
+							...series,
+							data: [
+								day(
+									'Mon',
+									monday[ [ 'Desktop', 'Mobile', 'Tablet' ].indexOf( series.group as string ) ]
+								),
+							],
+						}
+					: series
+			);
+			renderStacked( { data, orientation } );
+
+			expect( barRects()[ 5 ] ).toHaveAttribute( 'data-stack-end', end );
+		}
+	);
+
+	const UNPAIRED: SeriesData = {
+		label: 'All (prev)',
+		options: { type: 'comparison' },
+		data: [ day( 'Mon', 300 ) ],
+	};
+
+	it.each( [
+		[ 'paired comparisons', WITH_PREVIOUS ],
+		[ 'a comparison no primary shares a group with', [ ...WITH_PREVIOUS.slice( 0, 3 ), UNPAIRED ] ],
+	] )( 'shows the empty state once every primary is hidden, with %s', ( _case, data ) => {
+		renderStacked( {
+			data,
+			showLegend: true,
+			legend: { interactive: true },
+			defaultHiddenSeries: DATA.map( series => series.label ),
+		} );
+
+		expect( screen.queryAllByTestId( 'bar-chart-stacked-bar' ) ).toHaveLength( 0 );
+		expect( screen.getByText( /All series are hidden/ ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps a comparison no primary shares a group with in the total', () => {
+		const data = [ ...WITH_PREVIOUS.slice( 0, 3 ), UNPAIRED ];
+		renderStacked( { data } );
+
+		expect( previousBar( 0 ).height / barIn( data, 'Desktop' ).height ).toBeCloseTo( 300 / 100 );
+	} );
+
+	it.each( [
+		[ 'one comparison', WITH_PREVIOUS.slice( 3, 4 ) ],
+		[ 'every comparison', WITH_PREVIOUS.slice( 3 ) ],
+	] )(
+		'keeps %s hidden on its own in the total, which a stack offers no control to show again',
+		( _case, hidden ) => {
+			renderStacked( {
+				data: WITH_PREVIOUS,
+				showLegend: true,
+				legend: { comparisonItem: 'Prev. 7 days' },
+				defaultHiddenSeries: hidden.map( series => series.label ),
+			} );
+
+			expect( previousBar().height / barIn( WITH_PREVIOUS, 'Desktop' ).height ).toBeCloseTo(
+				500 / 100
+			);
+			expect( screen.getByText( 'Prev. 7 days' ) ).toBeInTheDocument();
+		}
+	);
+
+	it.each( [
+		[ 'every primary', WITH_PREVIOUS, DATA, false ],
+		[
+			'the primary of the only comparison',
+			[ ...WITH_PREVIOUS.slice( 0, 2 ), WITH_PREVIOUS[ 3 ] ],
+			DATA.slice( 0, 1 ),
+			false,
+		],
+	] )(
+		'lists the comparison item only while the total is drawn, hiding %s',
+		( _case, data, hidden, listed ) => {
+			renderStacked( {
+				data,
+				showLegend: true,
+				legend: { comparisonItem: 'Prev. 7 days' },
+				defaultHiddenSeries: hidden.map( series => series.label ),
+			} );
+
+			expect( screen.queryByText( 'Prev. 7 days' ) !== null ).toBe( listed );
+		}
+	);
+
+	it( 'patterns each stacked series by its place among the primaries, as it colors them', () => {
+		const desktop: SeriesData = { label: 'Desktop', data: [ day( 'Mon', 100 ) ] };
+		const mobile: SeriesData = { label: 'Mobile', data: [ day( 'Mon', 60 ) ] };
+		const previous = ( series: SeriesData ): SeriesData => ( {
+			...series,
+			label: `${ series.label } (prev)`,
+			options: { type: 'comparison' },
+		} );
+		const mobilePattern = ( data: SeriesData[] ) => {
+			const { unmount } = renderStacked( { data, withPatterns: true } );
+			const id =
+				barRects()[ 1 ]
+					.getAttribute( 'fill' )
+					?.match( /url\(#(.+)\)/ )?.[ 1 ] ?? '';
+			// eslint-disable-next-line testing-library/no-node-access -- visx patterns carry no test id.
+			const markup = document.getElementById( id )?.innerHTML;
+			unmount();
+			return markup;
+		};
+
+		expect( mobilePattern( [ desktop, previous( desktop ), mobile, previous( mobile ) ] ) ).toBe(
+			mobilePattern( [ desktop, mobile, previous( desktop ), previous( mobile ) ] )
+		);
+	} );
+
+	it( 'ignores legend.comparisonSeriesItems, and says so', () => {
+		const warn = jest.spyOn( console, 'warn' ).mockImplementation( () => {} );
+		renderStacked( {
+			data: WITH_PREVIOUS,
+			showLegend: true,
+			legend: { comparisonSeriesItems: label => `${ label } before` },
+		} );
+
+		expect( screen.queryByText( /before/ ) ).not.toBeInTheDocument();
+		expect( warn ).toHaveBeenCalledWith( expect.stringContaining( 'comparisonSeriesItems' ) );
 		warn.mockRestore();
+	} );
+
+	it( 'keeps a comparison in the total while a primary of its group is shown', async () => {
+		const user = userEvent.setup();
+		const data: SeriesData[] = [
+			{ label: 'Posts', group: 'web', data: [ day( 'Mon', 100 ) ] },
+			{ label: 'Pages', group: 'web', data: [ day( 'Mon', 50 ) ] },
+			{
+				label: 'Web (prev)',
+				group: 'web',
+				options: { type: 'comparison' },
+				data: [ day( 'Mon', 300 ) ],
+			},
+		];
+		renderStacked( { data, showLegend: true, legend: { interactive: true } } );
+
+		await user.click( screen.getByRole( 'button', { name: /Pages/ } ) );
+		expect( previousBar( 0, 1 ).height / barIn( data, 'Posts' ).height ).toBeCloseTo( 300 / 100 );
+	} );
+
+	it( "drops a hidden series' comparison from the total", async () => {
+		const user = userEvent.setup();
+		renderStacked( { data: WITH_PREVIOUS, showLegend: true, legend: { interactive: true } } );
+
+		await user.click( screen.getByRole( 'button', { name: /Mobile/ } ) );
+		const desktop = barIn(
+			WITH_PREVIOUS.filter( series => series.label !== 'Mobile' ),
+			'Desktop'
+		);
+		expect( previousBar( 0, 4 ).height / desktop.height ).toBeCloseTo( 350 / 100 );
 	} );
 
 	it( 'ignores showZeroValues, so a zero adds nothing to the stack, and says so', () => {

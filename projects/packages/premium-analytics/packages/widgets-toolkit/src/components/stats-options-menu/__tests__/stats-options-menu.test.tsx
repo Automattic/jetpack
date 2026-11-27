@@ -11,12 +11,14 @@ import { store as preferencesStore } from '@wordpress/preferences';
 /**
  * Internal dependencies
  */
+import { resetPromoDismissalForTesting } from '../../../hooks';
 import { resetTracksIdentityForTesting } from '../../../hooks/use-track-event';
 import { readinessSummary } from '../feedback-fields';
 import { FeedbackModal } from '../feedback-modal';
 import * as classicStats from '../return-to-classic-stats';
 import { StatsOptionsMenu } from '../stats-options-menu';
 import { SwitchOffDialog } from '../switch-off-dialog';
+import type { Promo } from '@jetpack-premium-analytics/data';
 
 jest.mock(
 	'@automattic/jetpack-analytics',
@@ -38,6 +40,19 @@ const FEEDBACK_PATH = '/jetpack-premium-analytics/v1/proxy/v2/jetpack-stats/user
 const READY = "Yes, I'd be happy to switch now";
 const ALMOST = 'Almost — there are a few things missing';
 const THANKS = 'Thanks, your feedback has gone to the team.';
+
+const PROMO: Promo = {
+	slug: 'acme/offer',
+	placement: 'options-menu',
+	order: 10,
+	title: 'Grow with Acme',
+	description: 'Reach more readers.',
+	cta_label: 'Try Acme',
+	cta_url: 'https://example.com/acme',
+	cta_variant: 'primary',
+	dismissible: false,
+	snooze_days: 0,
+};
 
 // What the settings route echoes once the opt-in is off.
 const SETTINGS_OFF = { jetpack_premium_analytics_enabled: false };
@@ -76,6 +91,7 @@ describe( 'stats-options-menu', () => {
 		jest.useFakeTimers();
 		jest.clearAllMocks();
 		resetTracksIdentityForTesting();
+		resetPromoDismissalForTesting();
 		dispatch( preferencesStore ).set( DASHBOARD_SCOPE, DASHBOARD_LAYOUTS_KEY, {} );
 		jest.mocked( getScriptData ).mockReturnValue( {} as ReturnType< typeof getScriptData > );
 		jest.mocked( isSimpleSite ).mockReturnValue( false );
@@ -196,6 +212,159 @@ describe( 'stats-options-menu', () => {
 			).resolves.toBeInTheDocument();
 			expect( screen.queryByRole( 'menuitem', { name: 'Customize' } ) ).not.toBeInTheDocument();
 			expect( screen.queryByRole( 'separator' ) ).not.toBeInTheDocument();
+		} );
+
+		describe( 'promo', () => {
+			const showPromos = ( premiumAnalytics: Record< string, unknown > = {} ) =>
+				jest.mocked( getScriptData ).mockReturnValue( {
+					premium_analytics: { promos: [ PROMO ], ...premiumAnalytics },
+				} as ReturnType< typeof getScriptData > );
+
+			const openMenu = async ( props: Parameters< typeof StatsOptionsMenu >[ 0 ] = {} ) => {
+				const user = setupUser();
+				render( <StatsOptionsMenu { ...props } /> );
+				await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
+				return user;
+			};
+
+			it( 'renders the promo as an external link between the layout and exit groups', async () => {
+				showPromos();
+				await openMenu( { onCustomize: jest.fn() } );
+
+				const items = await screen.findAllByRole( 'menuitem' );
+
+				expect( items.map( item => item.textContent ) ).toEqual( [
+					'Customize',
+					'Try Acme',
+					'Any feedback?',
+					'Switch off the preview',
+				] );
+				expect( items[ 1 ] ).toHaveAttribute( 'href', 'https://example.com/acme' );
+				expect( screen.getAllByRole( 'separator' ) ).toHaveLength( 2 );
+			} );
+
+			it( 'marks the promo as opening in a new tab with one arrow only', async () => {
+				showPromos();
+				await openMenu();
+
+				const row = await screen.findByRole( 'menuitem', { name: /^Try Acme/ } );
+
+				expect( row ).toHaveAttribute( 'target', '_blank' );
+				expect( within( row ).getAllByRole( 'img', { hidden: true } ) ).toHaveLength( 1 );
+				expect( within( row ).getByRole( 'img', { name: '(opens in a new tab)' } ) ).toBeVisible();
+				// A prefix icon renders as a decorative svg, which has no role to query.
+				// eslint-disable-next-line testing-library/no-node-access
+				expect( row.querySelectorAll( 'svg' ) ).toHaveLength( 0 );
+			} );
+
+			it( 'renders no promo item when withPromo is false', async () => {
+				showPromos();
+				await openMenu( { withPromo: false } );
+
+				await expect(
+					screen.findByRole( 'menuitem', { name: 'Any feedback?' } )
+				).resolves.toBeInTheDocument();
+				expect( screen.queryByRole( 'menuitem', { name: /Try Acme/ } ) ).not.toBeInTheDocument();
+			} );
+
+			it( 'renders the menu when the promo is its only item', async () => {
+				showPromos( { can_view_stats: false } );
+				jest.mocked( currentUserCan ).mockReturnValue( false );
+				await openMenu();
+
+				const items = await screen.findAllByRole( 'menuitem' );
+
+				expect( items.map( item => item.textContent ) ).toEqual( [ 'Try Acme' ] );
+				expect( screen.queryByRole( 'separator' ) ).not.toBeInTheDocument();
+			} );
+
+			it( 'renders no promo item when the promo URL is not http', async () => {
+				showPromos( { promos: [ { ...PROMO, cta_url: 'javascript:alert(1)' } ] } );
+				await openMenu();
+
+				await expect(
+					screen.findByRole( 'menuitem', { name: 'Any feedback?' } )
+				).resolves.toBeInTheDocument();
+				expect( screen.queryByRole( 'menuitem', { name: /Try Acme/ } ) ).not.toBeInTheDocument();
+			} );
+
+			it( 'renders no promo item when the promo has no label to show', async () => {
+				showPromos( { promos: [ { ...PROMO, cta_label: '' } ] } );
+				await openMenu();
+
+				const items = await screen.findAllByRole( 'menuitem' );
+
+				expect( items.map( item => item.textContent ) ).not.toContain( '' );
+				expect( screen.queryByRole( 'menuitem', { name: '' } ) ).not.toBeInTheDocument();
+			} );
+
+			it( 'renders no trigger when the only promo has an unsafe URL', () => {
+				showPromos( {
+					can_view_stats: false,
+					promos: [ { ...PROMO, cta_url: 'javascript:alert(1)' } ],
+				} );
+				jest.mocked( currentUserCan ).mockReturnValue( false );
+				render( <StatsOptionsMenu /> );
+
+				expect( screen.queryByRole( 'button', { name: 'Stats options' } ) ).not.toBeInTheDocument();
+			} );
+
+			it( 'fires the view event once per menu open, not on render', async () => {
+				showPromos();
+				const user = await openMenu();
+
+				await expect(
+					screen.findByRole( 'menuitem', { name: /^Try Acme/ } )
+				).resolves.toBeInTheDocument();
+				await user.keyboard( '{Escape}' );
+				await waitFor( () =>
+					expect( screen.queryByRole( 'menuitem', { name: /^Try Acme/ } ) ).not.toBeInTheDocument()
+				);
+				await user.click( screen.getByRole( 'button', { name: 'Stats options' } ) );
+				await expect(
+					screen.findByRole( 'menuitem', { name: /^Try Acme/ } )
+				).resolves.toBeInTheDocument();
+
+				const views = recordEvent.mock.calls.filter(
+					( [ name ] ) => name === 'jetpack_premium_analytics_promo_view'
+				);
+				expect( views ).toEqual( [
+					[
+						'jetpack_premium_analytics_promo_view',
+						{ slug: 'acme/offer', placement: 'options-menu' },
+					],
+					[
+						'jetpack_premium_analytics_promo_view',
+						{ slug: 'acme/offer', placement: 'options-menu' },
+					],
+				] );
+			} );
+
+			it( 'fires no view event when the menu opens without a promo', async () => {
+				await openMenu();
+
+				await expect(
+					screen.findByRole( 'menuitem', { name: 'Any feedback?' } )
+				).resolves.toBeInTheDocument();
+				expect( recordEvent ).not.toHaveBeenCalledWith(
+					'jetpack_premium_analytics_promo_view',
+					expect.anything()
+				);
+			} );
+
+			it( 'fires the click event with the promo slug and placement', async () => {
+				showPromos();
+				const user = await openMenu();
+
+				await user.click( await screen.findByRole( 'menuitem', { name: /^Try Acme/ } ) );
+
+				expect( recordEvent ).toHaveBeenCalledWith( 'jetpack_premium_analytics_promo_click', {
+					slug: 'acme/offer',
+					placement: 'options-menu',
+					// Not the item's text: a translated value would group by site language.
+					label: 'cta',
+				} );
+			} );
 		} );
 
 		it( 'opens the feedback modal, reporting the opening and the answer as from the menu', async () => {

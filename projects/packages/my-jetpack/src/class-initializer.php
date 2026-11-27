@@ -1104,7 +1104,6 @@ class Initializer {
 				'isAtomic'               => ( new Status_Host() )->is_woa_site(),
 				'isJetpackPluginActive'  => class_exists( 'Jetpack' ),
 				'latestBoostSpeedScores' => $latest_score,
-				'seoOptIn'               => self::get_seo_opt_in_state(),
 				'protectPageModuleUrls'  => (object) Products\Protect::get_protect_page_module_urls(),
 				'partnerCoupon'          => self::get_partner_coupon_screen(),
 				'settingsNotices'        => self::get_settings_notices_state(),
@@ -1834,24 +1833,6 @@ class Initializer {
 	 */
 	private static function is_modules_to_features_enabled() {
 		return Feature_Flags::is_enabled( self::MODULES_TO_FEATURES_FLAG );
-	}
-
-	/**
-	 * Build the legacy SEO opt-in card state through the package availability API.
-	 *
-	 * @return array{showCard: bool, redirect: string}
-	 */
-	public static function get_seo_opt_in_state() {
-		// Guard with method_exists rather than class_exists: an older bundled SEO package can ship
-		// the Initializer class without this method, and class_exists alone would still fatal.
-		$seo_initializer = 'Automattic\Jetpack\SEO\Initializer';
-		// @phan-suppress-next-line PhanUndeclaredClassReference -- optional SEO package, guarded by method_exists.
-		$show_card = method_exists( $seo_initializer, 'is_optin_available' ) && $seo_initializer::is_optin_available();
-
-		return array(
-			'showCard' => $show_card,
-			'redirect' => admin_url( 'admin.php?page=jetpack-seo' ),
-		);
 	}
 
 	/**

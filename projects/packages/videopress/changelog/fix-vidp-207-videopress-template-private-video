@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Play private videos in block templates on views without a post, such as a 404 page.

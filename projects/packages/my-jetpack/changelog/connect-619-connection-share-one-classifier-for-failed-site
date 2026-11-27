@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Onboarding: Tell an administrator whose session expired to reload, instead of saying only administrators can connect.

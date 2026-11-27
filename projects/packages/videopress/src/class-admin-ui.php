@@ -68,11 +68,6 @@ class Admin_UI {
 	const CHAPTERS_EDITOR_ROUTE_PATHS = array( '/video/$id/editor' );
 
 	/**
-	 * Carries the initial state when the dashboard loads as an admin shell guest.
-	 */
-	const GUEST_DATA_HANDLE = 'jetpack-videopress-dashboard-data';
-
-	/**
 	 * The screen ID alias_screen_id_for_wp_build() replaced, until it is restored.
 	 *
 	 * @var string|null
@@ -231,8 +226,7 @@ class Admin_UI {
 	 * @return void
 	 */
 	private static function enable_dashboard_menu() {
-		$callback = self::get_dashboard_render_callback();
-		if ( null === $callback ) {
+		if ( ! self::should_add_dashboard_menu() ) {
 			return;
 		}
 
@@ -242,7 +236,7 @@ class Admin_UI {
 			'VideoPress',
 			'manage_options',
 			self::ADMIN_PAGE_SLUG,
-			$callback,
+			self::get_dashboard_render_callback(),
 			null,
 			array(
 				'product' => 'videopress',
@@ -250,6 +244,15 @@ class Admin_UI {
 			)
 		);
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
+	}
+
+	/**
+	 * Whether enable_dashboard_menu() registers the dashboard page, and so whether the admin shell may serve it.
+	 *
+	 * @return bool
+	 */
+	private static function should_add_dashboard_menu() {
+		return VideoPress_Status::is_active() && null !== self::get_dashboard_render_callback();
 	}
 
 	/**
@@ -394,11 +397,9 @@ class Admin_UI {
 	 * @return array
 	 */
 	public static function add_admin_shell_member( $members ) {
-		// The same gates enable_dashboard_menu() applies, since admin-ajax never builds the menu.
 		if (
 			( new Host() )->is_wpcom_simple()
-			|| ! self::is_modernized()
-			|| ! VideoPress_Status::is_active()
+			|| ! self::should_add_dashboard_menu()
 			|| ! file_exists( dirname( __DIR__ ) . '/build/build.php' )
 		) {
 			return $members;
@@ -415,7 +416,8 @@ class Admin_UI {
 				'subtitle' => self::shell_header_subtitle(),
 			),
 			'capability'   => 'manage_options',
-			'handles'      => array( self::GUEST_DATA_HANDLE, 'jetpack-videopress-dashboard-shell', Admin_Menu::DESIGN_TOKENS_HANDLE, 'jetpack-script-data', 'wp-jp-i18n-loader' ),
+			'handles'      => array( 'jetpack-videopress-dashboard-shell', Admin_Menu::DESIGN_TOKENS_HANDLE, 'jetpack-script-data', 'wp-jp-i18n-loader' ),
+			'data'         => array( Initial_State::class, 'get_script' ),
 			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
 		);
 		return $members;
@@ -441,20 +443,6 @@ class Admin_UI {
 	public static function load_as_admin_shell_guest() {
 		self::load_wp_build();
 		self::admin_init();
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_guest_initial_state' ) );
-	}
-
-	/**
-	 * Attach the initial state to a script of its own: the prerequisites script only exists on the VideoPress page.
-	 *
-	 * @since 0.63.0
-	 *
-	 * @return void
-	 */
-	public static function enqueue_guest_initial_state() {
-		wp_register_script( self::GUEST_DATA_HANDLE, false, array(), false, true ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NoExplicitVersion -- No source, so nothing to cache.
-		wp_enqueue_script( self::GUEST_DATA_HANDLE );
-		Initial_State::attach_to( self::GUEST_DATA_HANDLE );
 	}
 
 	/**

@@ -54,6 +54,7 @@ function IDCModal() {
 
 		return (
 			<Modal
+				size="large"
 				onRequestClose={ closeModal }
 				overlayClassName={ styles.modal }
 				contentLabel={ __( 'Safe Mode', 'jetpack-my-jetpack' ) }

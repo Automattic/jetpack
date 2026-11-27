@@ -1,13 +1,11 @@
 .avatar {
 	inline-size: var(--wpds-dimension-size-sm);
 	block-size: var(--wpds-dimension-size-sm);
+
+	/* Takes one line of room, so it centers on the first line of a name that
+	 * wraps. */
+	margin-block: calc((1lh - var(--wpds-dimension-size-sm)) / 2);
 	flex-shrink: 0;
 	border-radius: 50%;
 	object-fit: cover;
-}
-
-.name {
-	overflow: hidden;
-	white-space: nowrap;
-	text-overflow: ellipsis;
 }

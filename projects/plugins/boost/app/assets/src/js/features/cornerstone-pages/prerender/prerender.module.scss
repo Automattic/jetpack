@@ -1,26 +1,3 @@
-.wrapper {
-	width: 100%;
-	margin-top: 10px;
-	border-top: 1px solid var(--gray-10);
-	padding-top: 20px;
-}
-
-.title {
-	display: flex;
-}
-
-.toggle-control {
-	margin-left: auto;
-	margin-bottom: 0 !important;
-}
-
-.description {
-	color: var(--gray-50);
-	font-size: 14px;
-	line-height: 1.6;
-	margin-top: 10px;
-}
-
 .warning-tooltip:global(.icon-tooltip-container) :global(.components-popover__content) {
 	width: 400px;
 	color: var(--jp-black);

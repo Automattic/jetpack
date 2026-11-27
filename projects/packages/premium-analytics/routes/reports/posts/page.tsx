@@ -8,7 +8,7 @@ import {
 import { Icon } from '@jetpack-premium-analytics/externals';
 import { jetpack } from '@jetpack-premium-analytics/icons';
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
-import { StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
+import { ROW_BATCH_SIZE, StatsBreadcrumbs } from '@jetpack-premium-analytics/ui';
 import {
 	ReportPageLayout,
 	ReportErrorState,
@@ -38,16 +38,43 @@ import {
 	getPostsFields,
 	getReportPostsTabs,
 	getTabLabel,
+	PostThumbnailUrlsContext,
 	resolveTabId,
 	usePostsReportRecords,
+	usePostTitleLinks,
 } from './config';
-import type { JSX } from 'react';
+import type { JSX, ReactNode } from 'react';
 
 // Every report shares the single dynamic route, so route-level hooks and
 // navigations target this path with the `posts` param.
 const ROUTE_FROM = route.path;
 
-const EMPTY_POST_ROWS: StatsTopPostsComparisonItem[] = [];
+/**
+ * Resolve the mounted rows' thumbnails and hand them to the table's thumbnail cells.
+ *
+ * Its own component so a thumbnail arriving re-renders only the cells that read it: the table,
+ * passed in as `children`, is not re-rendered with it.
+ *
+ * @param {object}                        props          - Component props.
+ * @param {StatsTopPostsComparisonItem[]} props.rows     - The rows the table has mounted.
+ * @param {ReactNode}                     props.children - The records table.
+ * @return {JSX.Element} The provider.
+ */
+function PostThumbnailsProvider( {
+	rows,
+	children,
+}: {
+	rows: StatsTopPostsComparisonItem[];
+	children: ReactNode;
+} ): JSX.Element {
+	const thumbnailUrls = usePostThumbnails( rows, ROW_BATCH_SIZE );
+
+	return (
+		<PostThumbnailUrlsContext.Provider value={ thumbnailUrls }>
+			{ children }
+		</PostThumbnailUrlsContext.Provider>
+	);
+}
 
 /**
  * Stable row id for the records table — the post ID, or the label for rows
@@ -112,20 +139,17 @@ function PostsReport(): JSX.Element {
 	const records = usePostsReportRecords( activeTab, reportParams );
 	const [ visiblePostRows, setVisiblePostRows ] = useState< StatsTopPostsComparisonItem[] >( [] );
 	const handleVisiblePostRowsChange = useCallback( ( rows: StatsTopPostsComparisonItem[] ) => {
-		// Preserve the array when only thumbnail-backed fields changed, or this callback loops.
+		// Keep the array while the mounted rows are the same ones, so the thumbnail queries stay put.
 		setVisiblePostRows( previous =>
 			previous.length === rows.length && previous.every( ( row, index ) => row === rows[ index ] )
 				? previous
 				: rows
 		);
 	}, [] );
-	const thumbnailUrls = usePostThumbnails(
-		activeTab === 'posts-pages' ? visiblePostRows : EMPTY_POST_ROWS
-	);
-
+	const titleLinks = usePostTitleLinks( activeTab );
 	const postsFields = useMemo(
-		() => getPostsFields( records.posts.hasComparison, activeTab, thumbnailUrls ),
-		[ activeTab, records.posts.hasComparison, thumbnailUrls ]
+		() => getPostsFields( records.posts.hasComparison, titleLinks ),
+		[ titleLinks, records.posts.hasComparison ]
 	);
 	const archivesFields = useMemo(
 		() => getArchivesFields( records.archives.hasComparison ),
@@ -162,12 +186,9 @@ function PostsReport(): JSX.Element {
 	// the shared date-filter controller — same model as the dashboard.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 
-	/*
-	 * Keyed by tab so the table's internal view state (sort, search, page)
-	 * resets when the records set changes.
-	 */
-	const recordsTable =
-		activeTab === 'posts-pages' ? (
+	// Kept across the re-render each mounted batch causes here, which would otherwise draw every row again.
+	const postsTable = useMemo(
+		() => (
 			<ReportRecordsTable< StatsTopPostsComparisonItem >
 				key="posts-pages"
 				data={ records.posts.rows }
@@ -180,6 +201,24 @@ function PostsReport(): JSX.Element {
 				actions={ postActions }
 				onChangePageItems={ handleVisiblePostRowsChange }
 			/>
+		),
+		[
+			records.posts.rows,
+			records.posts.isLoading,
+			records.posts.isFetching,
+			postsFields,
+			postActions,
+			handleVisiblePostRowsChange,
+		]
+	);
+
+	/*
+	 * Keyed by tab so the table's internal view state (sort, search, page)
+	 * resets when the records set changes.
+	 */
+	const recordsTable =
+		activeTab === 'posts-pages' ? (
+			<PostThumbnailsProvider rows={ visiblePostRows }>{ postsTable }</PostThumbnailsProvider>
 		) : (
 			<ReportDrilldownTable< ArchiveRow >
 				key="archives"

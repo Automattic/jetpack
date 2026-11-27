@@ -944,7 +944,7 @@ class Jetpack_Connector_Test extends TestCase {
 		$this->assertTrue( $families['has_a4a'] );
 	}
 
-	/* ── get_plugin_logos() ─────────────────────────────────────── */
+	/* ── get_connected_plugin_logos() ───────────────────────────── */
 
 	/**
 	 * Connected plugins get their logo by slug, and plugins without one are left out.
@@ -960,6 +960,33 @@ class Jetpack_Connector_Test extends TestCase {
 		$this->assertSame( array( 'jetpack', 'woocommerce' ), array_keys( $logos ) );
 		$this->assertStringContainsString( 'jetpack-icon.svg', $logos['jetpack'] );
 		$this->assertStringContainsString( 'woo-icon.svg', $logos['woocommerce'] );
+	}
+
+	/**
+	 * In Safe Mode the screen reads the logos from the shared state, so the card gets no copy.
+	 */
+	public function test_get_connector_data_leaves_out_plugin_logos_in_safe_mode() {
+		StatusCache::clear();
+		add_filter( 'jetpack_is_in_safe_mode', '__return_true' );
+
+		$this->assertArrayNotHasKey( 'pluginLogos', Jetpack_Connector::get_connector_data( array() ) );
+	}
+
+	/**
+	 * The Safe Mode screen gets the same logos as the card, including filtered ones.
+	 */
+	public function test_get_connected_plugin_logos_matches_the_card() {
+		Plugin_Storage::configure();
+		Plugin_Storage::upsert( 'automattic-for-agencies-client', array( 'name' => 'Automattic for Agencies' ) );
+		Plugin_Storage::upsert( 'custom-plugin', array( 'name' => 'Custom Plugin' ) );
+		add_filter( 'jetpack_connection_plugin_logos', fn () => array( 'custom-plugin' => 'https://example.com/logo.svg' ) );
+
+		$logos = Jetpack_Connector::get_connected_plugin_logos();
+
+		remove_all_filters( 'jetpack_connection_plugin_logos' );
+		$this->assertSame( array( 'automattic-for-agencies-client', 'custom-plugin' ), array_keys( $logos ) );
+		$this->assertStringContainsString( 'automattic-icon.svg', $logos['automattic-for-agencies-client'] );
+		$this->assertSame( 'https://example.com/logo.svg', $logos['custom-plugin'] );
 	}
 
 	/* ── get_connectors_page_path() ────────────────────────────── */

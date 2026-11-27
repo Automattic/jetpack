@@ -7,16 +7,51 @@
 	max-inline-size: 70ch;
 }
 
-.host-actions {
+.hint {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+// wp-admin sets `strong` to 600, the heading's own weight.
+.question strong {
+	font-weight: 700;
+}
+
+.fieldset {
+	min-inline-size: 0;
+	margin: 0;
+	padding: 0;
+	border: 0;
+
+	> legend {
+		margin-block-end: var(--wpds-dimension-gap-sm);
+		padding: 0;
+	}
+}
+
+.divider {
 	padding-block-start: var(--wpds-dimension-padding-md);
 	border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
 }
 
 .addresses {
-	padding: var(--wpds-dimension-padding-md);
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+	gap: var(--wpds-border-width-xs);
+	margin: 0;
 	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
-	border-radius: var(--wpds-border-radius-lg);
+	border-radius: var(--wpds-border-radius-md);
+	background: var(--wpds-color-stroke-surface-neutral); // Shows through the gap as a divider.
+	overflow: hidden;
 	overflow-wrap: anywhere;
+
+	> div {
+		padding: var(--wpds-dimension-padding-sm) var(--wpds-dimension-padding-md);
+		background: var(--wpds-color-background-surface-neutral-weak);
+	}
+
+	dd {
+		margin: 0;
+	}
 }
 
 .note {
@@ -25,51 +60,83 @@
 	background: var(--wpds-color-background-surface-neutral-weak);
 }
 
-.choice {
+.choice,
+.answer {
 	display: flex;
 	gap: var(--wpds-dimension-gap-sm);
-	align-items: flex-start;
 	padding: var(--wpds-dimension-padding-md);
 	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
 	border-radius: var(--wpds-border-radius-md);
+	cursor: pointer;
+}
+
+.answer:hover,
+.fieldset:enabled .choice:hover {
+	border-color: var(--wpds-color-stroke-interactive-brand);
+}
+
+.choice {
+	align-items: flex-start;
+
+	// wp-admin's `[type="radio"]` margin pulls the radio up.
+	input[type="radio"] {
+		flex-shrink: 0;
+		margin: 2px 0 0;
+	}
 }
 
 .choice--selected {
 	border-color: var(--wpds-color-stroke-interactive-brand);
-	background: var(--wpds-color-background-surface-neutral-weak);
+	background: var(--wpds-color-background-surface-brand);
 }
 
-.list {
+.fieldset:disabled .choice {
+	cursor: default;
+}
+
+.answer {
+	justify-content: space-between;
+	align-items: center;
+	inline-size: 100%;
+	text-align: start;
+
+	&:hover {
+		background: var(--wpds-color-background-surface-brand);
+	}
+}
+
+.list,
+.facts {
 	margin: 0;
-	padding-inline-start: var(--wpds-dimension-padding-lg);
+	padding-inline-start: var(--wpds-dimension-padding-xl);
 }
 
 .facts {
-	max-inline-size: 62ch;
-	margin: 0;
+	max-inline-size: 70ch;
 	padding-block: var(--wpds-dimension-padding-sm);
-	padding-inline:
-		calc(var(--wpds-dimension-padding-xl) + var(--wpds-dimension-padding-sm))
-		var(--wpds-dimension-padding-md);
-	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	padding-inline-end: var(--wpds-dimension-padding-md);
 	border-radius: var(--wpds-border-radius-md);
 	background: var(--wpds-color-background-surface-neutral-weak);
 	list-style: disc; // wp-admin resets `ul` to none.
 }
 
-.actions {
-	display: flex;
-	flex-wrap: wrap;
-	gap: var(--wpds-dimension-gap-sm) var(--wpds-dimension-gap-md);
+.plain-list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+
+	> li {
+		margin: 0;
+	}
+}
+
+.chip {
+	display: inline-flex;
+	gap: var(--wpds-dimension-gap-xs);
 	align-items: center;
-}
-
-.hint {
-	color: var(--wpds-color-foreground-content-neutral-weak);
-}
-
-.footer {
-	padding-block-start: var(--wpds-dimension-padding-sm);
+	padding: var(--wpds-dimension-padding-xs) var(--wpds-dimension-padding-sm);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	border-radius: var(--wpds-border-radius-lg);
 }
 
 // `Link` styles the text; drop the button's own box.
@@ -82,50 +149,8 @@
 	cursor: pointer;
 }
 
-// wp-admin sets `strong` to 600, the heading's own weight.
-.question strong {
-	font-weight: 700;
-}
-
-.plain-list {
-	margin: 0;
-	padding: 0;
-	list-style: none;
-}
-
-.answer {
-	display: flex;
-	gap: var(--wpds-dimension-gap-sm);
-	justify-content: space-between;
-	align-items: center;
-	inline-size: 100%;
-	padding: var(--wpds-dimension-padding-md);
-	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
-	border-radius: var(--wpds-border-radius-md);
-	text-align: start;
-	cursor: pointer;
-
-	&:hover {
-		border-color: var(--wpds-color-stroke-interactive-brand);
-		background: var(--wpds-color-background-surface-neutral-weak);
-	}
-}
-
-.chips {
-	display: flex;
-	flex-wrap: wrap;
-	gap: var(--wpds-dimension-gap-xs);
-	margin: 0;
-	padding: 0;
-	list-style: none;
-}
-
-.chip {
-	display: inline-flex;
-	gap: var(--wpds-dimension-gap-xs);
-	align-items: center;
-	margin: 0;
-	padding: var(--wpds-dimension-padding-xs) var(--wpds-dimension-padding-sm);
-	border-radius: var(--wpds-border-radius-lg);
-	background: var(--wpds-color-background-surface-neutral-weak);
+// Doubled to outrank the page's own link rules, which beat `Link`'s layer
+// and underline its icon.
+.external-link.external-link {
+	text-decoration-line: none;
 }

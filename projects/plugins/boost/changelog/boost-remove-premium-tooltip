@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Remove upgrade tooltip components nothing renders since the legacy dashboard went.
+
+

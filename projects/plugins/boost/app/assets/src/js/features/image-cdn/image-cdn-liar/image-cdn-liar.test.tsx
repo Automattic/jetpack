@@ -1,6 +1,5 @@
 /* eslint-disable jest-dom/prefer-in-document -- This Jest project does not load jest-dom. */
 import { fireEvent, render, screen } from '@testing-library/react';
-import { ModuleSurfaceProvider } from '$features/module/surface';
 import { useModulesState } from '$features/module/lib/stores';
 import ImageCdnLiar from './image-cdn-liar';
 
@@ -10,7 +9,7 @@ jest.mock( '$features/ui/mutation-notice/mutation-notice', () => ( {
 } ) );
 jest.mock( '$lib/utils/analytics', () => ( { recordBoostEvent: jest.fn() } ) );
 
-test( 'names the modern auto-resize toggle and saves its value', () => {
+test( 'names the auto-resize toggle and saves its value', () => {
 	const mutate = jest.fn();
 	jest
 		.mocked( useModulesState )
@@ -18,11 +17,7 @@ test( 'names the modern auto-resize toggle and saves its value', () => {
 			{ data: { image_cdn_liar: { active: false, available: true } } },
 			{ mutate },
 		] as unknown as ReturnType< typeof useModulesState > );
-	render(
-		<ModuleSurfaceProvider value="row">
-			<ImageCdnLiar isPremium />
-		</ModuleSurfaceProvider>
-	);
+	render( <ImageCdnLiar isPremium /> );
 
 	expect(
 		screen.getByText( 'Resize lazy-loaded images to match their displayed dimensions.' )
@@ -33,24 +28,4 @@ test( 'names the modern auto-resize toggle and saves its value', () => {
 	expect( mutate ).toHaveBeenCalledWith( {
 		image_cdn_liar: { active: true, available: true },
 	} );
-} );
-
-test( 'keeps the unlabelled toggle and h4 heading on the default legacy surface', () => {
-	jest
-		.mocked( useModulesState )
-		.mockReturnValue( [
-			{ data: { image_cdn_liar: { active: false, available: true } } },
-			{ mutate: jest.fn() },
-		] as unknown as ReturnType< typeof useModulesState > );
-	render( <ImageCdnLiar isPremium /> );
-
-	expect(
-		screen.getByText(
-			'Automatically resize images that are lazily loaded to fit the exact dimensions they occupy on the page.'
-		)
-	).toBeTruthy();
-	expect( screen.getByRole( 'checkbox', { name: '' } ) ).toBeTruthy();
-	expect(
-		screen.getByRole( 'heading', { name: 'Auto-Resize Lazy Images', level: 4 } )
-	).toBeTruthy();
 } );

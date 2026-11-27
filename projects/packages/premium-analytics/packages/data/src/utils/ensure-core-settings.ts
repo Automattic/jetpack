@@ -3,15 +3,14 @@
  */
 import { currentUserCan } from '@automattic/jetpack-script-data';
 import { store as coreStore } from '@wordpress/core-data';
-import { resolveSelect } from '@wordpress/data';
+import { dispatch, resolveSelect, select } from '@wordpress/data';
 
 let readyPromise: Promise< void > | null = null;
 
 /**
  * Starts loading the core 'site' record, memoized to avoid races and duplicate requests.
  *
- * The memo is cleared on failure, but core-data keeps the failed resolution, so a later call
- * rejects again without a new request.
+ * After a failed load, the next call sends a new request; nothing retries in between.
  *
  * Resolves at once for a reader without `manage_options`: the settings route would only 403.
  */
@@ -21,6 +20,10 @@ export function ensureCoreSettingsReady(): Promise< void > {
 	}
 
 	if ( ! readyPromise ) {
+		// core-data replays a failed resolution's error without refetching until it is invalidated.
+		if ( select( coreStore ).hasResolutionFailed( 'getEntityRecord', [ 'root', 'site' ] ) ) {
+			dispatch( coreStore ).invalidateResolution( 'getEntityRecord', [ 'root', 'site' ] );
+		}
 		readyPromise = resolveSelect( coreStore )
 			.getEntityRecord( 'root', 'site' )
 			.then( () => void 0 )

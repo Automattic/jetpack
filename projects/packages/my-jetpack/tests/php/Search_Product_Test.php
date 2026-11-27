@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\My_Jetpack\Products\Search;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -66,6 +67,8 @@ class Search_Product_Test extends TestCase {
 	 */
 	public function tearDown(): void {
 		parent::tearDown();
+		$this->start_new_request();
+		Constants::clear_constants();
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 	}
@@ -274,16 +277,7 @@ class Search_Product_Test extends TestCase {
 	 * Boost) the success-path comparison in is_new_pricing_202208() fatals with "Class not found".
 	 * The existing tests only cover the WP_Error branch, so the comparison line was never exercised.
 	 * This locks in the success path against the self-owned SEARCH_NEW_PRICING_VERSION constant.
-	 *
-	 * Runs in a separate process so the function-static $pricings cache in get_pricing_from_wpcom()
-	 * starts empty; otherwise a WP_Error cached by an earlier failure-path test (same record-count
-	 * key) would be returned and the success comparison would never run.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_is_new_pricing_202208_true_on_successful_fetch() {
 		unset( $_GET['new_pricing_202208'] );
 		add_filter( 'pre_http_request', array( $this, 'force_pricing_success' ) );
@@ -297,6 +291,107 @@ class Search_Product_Test extends TestCase {
 		$this->assertTrue( $is_new_pricing );
 		// estimated_record_count is only set on the success branch, proving we did not fall back.
 		$this->assertArrayHasKey( 'estimated_record_count', $pricing );
+		$this->assertSame( '202208', $pricing['pricing_version'] );
+	}
+
+	/**
+	 * Outbound HTTP attempts answered by count_pricing_success().
+	 *
+	 * @var int
+	 */
+	private $pricing_success_calls = 0;
+
+	/**
+	 * Answers outbound HTTP requests with a successful pricing response and tallies them.
+	 *
+	 * @return array
+	 */
+	public function count_pricing_success() {
+		++$this->pricing_success_calls;
+		return $this->force_pricing_success();
+	}
+
+	/**
+	 * Forgets the pricing memoized in this process, as a new page load would.
+	 */
+	private function start_new_request() {
+		$pricings = new \ReflectionProperty( Search::class, 'pricings' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$pricings->setAccessible( true );
+		}
+		$pricings->setValue( null, array() );
+	}
+
+	/**
+	 * A successful pricing fetch is reused on later page loads instead of asking WPCOM again.
+	 */
+	public function test_pricing_is_reused_on_a_later_request() {
+		$this->start_new_request();
+		add_filter( 'pre_http_request', array( $this, 'count_pricing_success' ) );
+
+		$first = Search::get_pricing_from_wpcom( 120 );
+		$this->start_new_request();
+		$second = Search::get_pricing_from_wpcom( 120 );
+
+		remove_filter( 'pre_http_request', array( $this, 'count_pricing_success' ) );
+
+		$this->assertSame( 1, $this->pricing_success_calls );
+		$this->assertSame( $first, $second );
+	}
+
+	/**
+	 * Pricing stored for one record count is not served for another, which may be a different tier.
+	 */
+	public function test_pricing_for_another_record_count_is_fetched() {
+		$this->start_new_request();
+		add_filter( 'pre_http_request', array( $this, 'count_pricing_success' ) );
+
+		Search::get_pricing_from_wpcom( 120 );
+		$this->start_new_request();
+		Search::get_pricing_from_wpcom( 250000 );
+
+		remove_filter( 'pre_http_request', array( $this, 'count_pricing_success' ) );
+
+		$this->assertSame( 2, $this->pricing_success_calls );
+	}
+
+	/**
+	 * On a connected site, pricing stored for one locale is not served to a user in another.
+	 */
+	public function test_connected_pricing_is_not_shared_across_locales() {
+		( new Tokens() )->update_blog_token( 'blogtoken.secret' );
+		Jetpack_Options::update_option( 'id', 123 );
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		Constants::set_constant( 'JETPACK__API_VERSION', 1 );
+		$this->start_new_request();
+		add_filter( 'pre_http_request', array( $this, 'count_pricing_success' ) );
+
+		Search::get_pricing_from_wpcom( 120 );
+		$this->start_new_request();
+		update_user_meta( self::$user_id, 'locale', 'fr_FR' );
+		Search::get_pricing_from_wpcom( 120 );
+
+		remove_filter( 'pre_http_request', array( $this, 'count_pricing_success' ) );
+
+		$this->assertSame( 2, $this->pricing_success_calls );
+	}
+
+	/**
+	 * A failed fetch is not stored, so the next page load asks WPCOM again rather than waiting a day.
+	 */
+	public function test_failed_pricing_fetch_is_retried_on_a_later_request() {
+		$this->start_new_request();
+		add_filter( 'pre_http_request', array( $this, 'force_http_error' ) );
+		Search::get_pricing_from_wpcom( 120 );
+		remove_filter( 'pre_http_request', array( $this, 'force_http_error' ) );
+
+		$this->start_new_request();
+		add_filter( 'pre_http_request', array( $this, 'count_pricing_success' ) );
+		$pricing = Search::get_pricing_from_wpcom( 120 );
+		remove_filter( 'pre_http_request', array( $this, 'count_pricing_success' ) );
+
+		$this->assertSame( 1, $this->pricing_success_calls );
 		$this->assertSame( '202208', $pricing['pricing_version'] );
 	}
 
@@ -353,9 +448,8 @@ class Search_Product_Test extends TestCase {
 	 * constant. A tripwire autoloader throws if Search\Plan is loaded, so any reintroduced runtime reference
 	 * fails here instead of in production -- unlike the constant-drift guard, which runs with Search present.
 	 *
-	 * Runs in a separate process for two reasons: (1) the drift-guard test loads Search\Plan into the
-	 * shared process, and an already-loaded class never triggers the autoloader, defeating the tripwire;
-	 * (2) the function-static $pricings cache in get_pricing_from_wpcom() must start empty. The opening
+	 * Runs in a separate process because the drift-guard test loads Search\Plan into the shared process,
+	 * and an already-loaded class never triggers the autoloader, defeating the tripwire. The opening
 	 * assertion confirms Search\Plan is not already loaded, proving the isolated process is clean.
 	 *
 	 * @runInSeparateProcess
@@ -399,8 +493,7 @@ class Search_Product_Test extends TestCase {
 	 * loaded, so a reintroduced runtime reference fails here instead of in production.
 	 *
 	 * Runs in a separate process so Search\Plan is not already loaded (the drift-guard test loads it in
-	 * the shared process) and so the function-static $pricings cache starts empty. The opening assertion
-	 * confirms the isolated process is clean.
+	 * the shared process). The opening assertion confirms the isolated process is clean.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled

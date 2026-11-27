@@ -70,7 +70,7 @@ export default function ResultStep( { result, copy, headingRef }: ResultStepProp
 				</Text>
 			) }
 			<Text
-				variant="heading-md"
+				variant="heading-lg"
 				render={ <h3 ref={ headingRef } tabIndex={ -1 } /> }
 				className={ styles.question }
 			>

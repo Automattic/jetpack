@@ -1,0 +1,75 @@
+<svg viewBox="0 0 880 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="An announcement moves through five stages. In PHP, once per request, a registrant passes an array to register_announcement and the registry sanitizes it or refuses it. Over REST, the record is served to a user who may read it, without its capability. In the browser, the surface reads the records through a core-data entity, keeps the ones of the host's channels, and teases the newest one the user has not seen. Opening or dismissing the teaser marks it as seen in the user's WordPress preferences, which every host on the site reads.">
+  <defs>
+    <marker id="arrow-flow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect x="6" y="6" width="868" height="388" rx="12" fill="#ffffff"/>
+
+  <text x="440" y="36" text-anchor="middle" font-family="-apple-system, system-ui, sans-serif" font-size="13" font-weight="700" fill="#334155">One record, from a PHP array to a card on the page.</text>
+
+  <!-- Zones -->
+  <text x="186" y="62" text-anchor="middle" font-family="-apple-system, system-ui, sans-serif" font-size="10" font-weight="700" fill="#64748b">PHP · once per request</text>
+  <text x="444" y="62" text-anchor="middle" font-family="-apple-system, system-ui, sans-serif" font-size="10" font-weight="700" fill="#64748b">REST</text>
+  <text x="698" y="62" text-anchor="middle" font-family="-apple-system, system-ui, sans-serif" font-size="10" font-weight="700" fill="#64748b">browser</text>
+
+  <!-- Registrant -->
+  <rect x="24" y="74" width="152" height="112" rx="9" fill="#fff3d0" stroke="#b07020" stroke-width="1.5"/>
+  <text x="36" y="98" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700" fill="#855317">registrant</text>
+  <text x="36" y="120" font-family="ui-monospace, SFMono-Regular, monospace" font-size="9" fill="#855317">register_announcement()</text>
+  <text x="36" y="140" font-family="-apple-system, system-ui, sans-serif" font-size="9" font-style="italic" fill="#855317">an array of plain fields,</text>
+  <text x="36" y="154" font-family="-apple-system, system-ui, sans-serif" font-size="9" font-style="italic" fill="#855317">in its own text domain</text>
+
+  <line x1="178" y1="130" x2="192" y2="130" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow-flow)"/>
+
+  <!-- Registry -->
+  <rect x="196" y="74" width="152" height="112" rx="9" fill="#dff3ec" stroke="#1d6b5a" stroke-width="1.4"/>
+  <text x="208" y="98" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700" fill="#1d6b5a">registry</text>
+  <text x="208" y="120" font-family="-apple-system, system-ui, sans-serif" font-size="9.5" fill="#334155">sanitizes every field</text>
+  <text x="208" y="136" font-family="-apple-system, system-ui, sans-serif" font-size="9.5" fill="#334155">refuses a malformed one</text>
+  <text x="208" y="156" font-family="-apple-system, system-ui, sans-serif" font-size="9" font-style="italic" fill="#64748b">the same for every user</text>
+
+  <line x1="350" y1="130" x2="364" y2="130" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow-flow)"/>
+
+  <!-- REST record -->
+  <rect x="368" y="74" width="152" height="112" rx="9" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.4"/>
+  <text x="380" y="98" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700" fill="#1d6b5a">record</text>
+  <text x="380" y="120" font-family="-apple-system, system-ui, sans-serif" font-size="9.5" fill="#334155">served to who may read it</text>
+  <text x="380" y="136" font-family="-apple-system, system-ui, sans-serif" font-size="9.5" fill="#334155">without its capability</text>
+  <text x="380" y="156" font-family="-apple-system, system-ui, sans-serif" font-size="9" font-style="italic" fill="#64748b">read only</text>
+
+  <line x1="522" y1="130" x2="536" y2="130" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow-flow)"/>
+
+  <!-- Entity -->
+  <rect x="540" y="74" width="152" height="112" rx="9" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.4"/>
+  <text x="552" y="98" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700" fill="#1d6b5a">entity</text>
+  <text x="552" y="120" font-family="ui-monospace, SFMono-Regular, monospace" font-size="9" fill="#475569">jetpack / announcement</text>
+  <text x="552" y="138" font-family="-apple-system, system-ui, sans-serif" font-size="9.5" fill="#334155">read through core-data</text>
+  <text x="552" y="156" font-family="-apple-system, system-ui, sans-serif" font-size="9" font-style="italic" fill="#64748b">one request for all hosts</text>
+
+  <line x1="694" y1="130" x2="708" y2="130" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrow-flow)"/>
+
+  <!-- Surface -->
+  <rect x="712" y="74" width="144" height="112" rx="9" fill="#ffffff" stroke="#1d6b5a" stroke-width="1.4"/>
+  <text x="724" y="98" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700" fill="#1d6b5a">surface</text>
+  <text x="724" y="120" font-family="-apple-system, system-ui, sans-serif" font-size="9.5" fill="#334155">the host's channels only</text>
+  <text x="724" y="136" font-family="-apple-system, system-ui, sans-serif" font-size="9.5" fill="#334155">teaser, then reader</text>
+  <text x="724" y="156" font-family="-apple-system, system-ui, sans-serif" font-size="9" font-style="italic" fill="#64748b">teases the newest unseen</text>
+
+  <!-- Seen, in the user's preferences -->
+  <line x1="784" y1="192" x2="784" y2="220" stroke="#94a3b8" stroke-width="1.5" marker-start="url(#arrow-flow)" marker-end="url(#arrow-flow)"/>
+  <text x="770" y="204" text-anchor="end" font-family="ui-monospace, SFMono-Regular, monospace" font-size="9" fill="#475569">@wordpress/preferences</text>
+  <text x="770" y="218" text-anchor="end" font-family="-apple-system, system-ui, sans-serif" font-size="9" font-style="italic" fill="#94a3b8">written when the teaser is opened or dismissed</text>
+
+  <rect x="712" y="224" width="144" height="60" rx="9" fill="#ffffff" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <text x="724" y="246" font-family="ui-monospace, SFMono-Regular, monospace" font-size="11" font-weight="700" fill="#334155">user preferences</text>
+  <text x="724" y="264" font-family="ui-monospace, SFMono-Regular, monospace" font-size="9" fill="#475569">seen: id and date</text>
+
+  <text x="700" y="250" text-anchor="end" font-family="-apple-system, system-ui, sans-serif" font-size="9" font-style="italic" fill="#94a3b8">kept by WordPress, not by the package</text>
+  <text x="700" y="264" text-anchor="end" font-family="-apple-system, system-ui, sans-serif" font-size="9" font-style="italic" fill="#94a3b8">one key for every host on the site</text>
+
+  <text x="440" y="322" text-anchor="middle" font-family="-apple-system, system-ui, sans-serif" font-size="9.5" font-style="italic" fill="#94a3b8">the package holds content only · what a user has seen lives in their WordPress preferences</text>
+
+  <text x="440" y="358" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" font-weight="700" fill="#855317">registered once · sanitized at the door · served on request · seen once</text>
+</svg>

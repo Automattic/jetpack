@@ -103,6 +103,8 @@ declare module '@automattic/jetpack-script-data' {
 				// The paid plan offer the banner shows, or null when the site does not qualify (see docs/dashboard-widgets.md). The URL is empty when there is nowhere to buy it, and `has_stats_product` says whether the site has the free Jetpack Stats product.
 				free_site_upgrade?: { upgrade_url: string; has_stats_product: boolean } | null;
 			};
+			// Whether this site and user qualify for the Upgrade to Parse.ly prompts. Dashboard only.
+			offers_parsely_prompts?: boolean;
 			// URL of the dashboard's copied `build/images/` directory, with a trailing slash. Dashboard only.
 			assets_url?: string;
 			// Whether the dashboard reports its errors, the package version sent with them, and the URL prefixes that mark a stack frame as dashboard code. Dashboard only.
@@ -111,6 +113,19 @@ declare module '@automattic/jetpack-script-data' {
 			purchase_success?: { type: 'paid' | 'free' };
 			// Whether the dashboard mounts the What's new surface; a feature flag decides it for now.
 			whats_new_enabled?: boolean;
+			// The promos this user is offered, in display order.
+			promos?: Array< {
+				slug: string;
+				placement: 'options-menu' | 'settings';
+				order: number;
+				title: string;
+				description: string;
+				cta_label: string;
+				cta_url: string;
+				cta_variant: 'primary' | 'secondary';
+				dismissible: boolean;
+				snooze_days: number;
+			} >;
 		};
 		newsletter?: {
 			// The Newsletter page's Subscribers tab; null when this user cannot open it.

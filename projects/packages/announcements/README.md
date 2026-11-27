@@ -1,12 +1,34 @@
 # Jetpack Announcements
 
-A product-agnostic channel to tell Jetpack users what is new.
+A channel to tell Jetpack users what is new. A product publishes announcements from PHP, and a page of wp-admin shows them in "What's new": a teaser of the newest one, and a dialog to read it.
 
-A product is a registrant, which publishes announcements, a host, which shows them, or both. The package knows neither.
+## How it works
 
-## Registering an announcement
+A **registrant** publishes announcements. It owns the content: what is announced, where, and to whom.
 
-Hook the registration action and call the helper there. The action fires once, the first time the announcements are read after `init`.
+A **host** is a page that shows them. It owns the page: which announcements it shows, and when.
+
+The **package** carries an announcement from one to the other. It sanitizes the records, serves them over REST, renders the surface, and remembers what each user has seen.
+
+Registrants and hosts meet through **channels**. An announcement is published to channels, and a host shows the announcements of the channels it subscribes to.
+
+A product can be a registrant, a host, or both. The package knows none of them.
+
+![Three roles and two interfaces. The registrant owns the content: it decides what is news, where it is published, who may read it, and whether to register it at all, and it registers on the jetpack_register_announcements action. The host owns the page: it decides which channels it shows, when the surface mounts, when it leaves the page, and what the page provides, and it mounts the surface through the @automattic/jetpack-announcements module. The package sits between them and decides nothing about relevance: it sanitizes and stores the records, serves them over REST, and renders the teaser and the reader, which keep what a user has seen in that user's WordPress preferences, the same for every consumer.](docs/diagrams/roles.svg)
+
+## Adding What's new to a product
+
+### 1. Require the package
+
+In the `composer.json` of the product.
+
+```json
+"automattic/jetpack-announcements": "@dev"
+```
+
+### 2. Publish an announcement
+
+Hook the registration action as the plugin loads, on every request, and register there.
 
 ```php
 add_action(
@@ -30,21 +52,17 @@ add_action(
 );
 ```
 
-`date`, `title` and `channels` are required. `excerpt`, `content`, `media`, `link` and `capability` are optional.
+`date`, `title` and `channels` are required. [Publishing announcements](docs/registrants.md) has every field and what the registry does with it.
 
-A channel is a label. An announcement is published to channels, and a host shows the announcements of the channels it subscribes to.
+### 3. Show the surface
 
-The registrant translates its own strings. Every value is sanitized at registration, and a duplicate id is refused.
+Depend on the contract package in the `package.json` of the page, and keep it external in the build.
 
-The body keeps the HTML WordPress allows in a post, and loses styles, classes and ids. A URL is kept when it is http or https.
+```json
+"@automattic/jetpack-announcements": "workspace:*"
+```
 
-Do no I/O in the action: the read that fires it may be a REST request.
-
-## Showing the surface
-
-The surface is "What's new": a teaser of the newest announcement the user has not seen, and a dialog that shows it in full. It ships as one script module, `packages/whats-new`, registered as `@automattic/jetpack-announcements`.
-
-A host mounts it from its own JavaScript, with the channels it subscribes to. The [`@automattic/jetpack-announcements` js-package](../../js-packages/announcements/README.md) holds the contract and explains the build setup.
+Then mount the surface from the JavaScript of the page, with the channels it subscribes to.
 
 ```ts
 const { mountWhatsNew } = await import( '@automattic/jetpack-announcements' );
@@ -52,13 +70,51 @@ const { mountWhatsNew } = await import( '@automattic/jetpack-announcements' );
 mountWhatsNew( { channels: [ 'my-plugin' ] } );
 ```
 
-The call returns the function that takes the surface off the page. A page has one surface: a later mount takes it over.
+The teaser of the newest announcement of those channels shows until the user opens or dismisses it. [Hosting What's new](docs/hosts.md) has the build setup and what the page provides.
 
-The module reads WordPress scripts from their globals, core-data among them, and does not enqueue them. A wp-build page provides them all.
+### 4. Offer the switch
 
-The teaser shows one announcement at a time, and never an older one once the newest is seen. Opening or dismissing it marks it as seen.
+Optional. A user can turn the teaser off, and a host offers that switch in its own settings with `useTeaserSwitch()`.
 
-What a user has seen is kept in their WordPress preferences, so every host on the site shares it.
+```tsx
+import { useTeaserSwitch } from '@automattic/jetpack-announcements';
+import { ToggleControl } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
+
+function TeaserSetting() {
+	const { isOn, setIsOn } = useTeaserSwitch();
+
+	return (
+		<ToggleControl
+			label={ __( 'Show a teaser when there is something new', 'my-plugin' ) }
+			checked={ isOn }
+			onChange={ setIsOn }
+		/>
+	);
+}
+```
+
+### 5. Record what users do
+
+Optional. The surface records nothing by itself, and a host asks for its events in Tracks with `trackWhatsNew()`, once, before it mounts.
+
+```ts
+const { mountWhatsNew, trackWhatsNew } = await import( '@automattic/jetpack-announcements' );
+
+trackWhatsNew();
+mountWhatsNew( { channels: [ 'my-plugin' ] } );
+```
+
+[Hosting What's new](docs/hosts.md) has the events and what recording needs from the page.
+
+## Documentation
+
+| Page                                                    | What it covers                                                       |
+| ------------------------------------------------------- | -------------------------------------------------------------------- |
+| [How Jetpack Announcements works](docs/architecture.md) | The roles, the life of an announcement, and the public API           |
+| [Publishing announcements](docs/registrants.md)         | The registrant's side: the record, the action, its rules             |
+| [Hosting What's new](docs/hosts.md)                     | The host's side: the page, mounting, leaving, the switch, the events |
+| [Channels](docs/channels.md)                            | Publishing to channels, subscribing to them, channels by page        |
 
 ## REST routes
 

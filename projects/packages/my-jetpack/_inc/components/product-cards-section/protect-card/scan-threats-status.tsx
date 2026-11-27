@@ -30,9 +30,12 @@ export const ScanAndThreatStatus: FC< ScanAndThreatStatusProps > = ( { data } ) 
 		last_checked: lastChecked = null,
 		status: scanStatus,
 	} = data?.scanData || {};
-	const numThreats = threats.length;
+	const numThreats = data?.threatCount ?? threats.length;
 
 	const criticalScanThreatCount = useMemo( () => {
+		if ( typeof data?.criticalThreatCount === 'number' ) {
+			return data.criticalThreatCount;
+		}
 		const { core, database, files, num_plugins_threats, num_themes_threats } = data?.scanData || {};
 		const pluginsThreats = num_plugins_threats
 			? plugins.reduce( ( accum, plugin ) => accum.concat( plugin.threats ), [] )
@@ -51,7 +54,7 @@ export const ScanAndThreatStatus: FC< ScanAndThreatStatusProps > = ( { data } ) 
 			( accum, threat ) => ( threat.severity >= 5 ? accum + 1 : accum ),
 			0
 		);
-	}, [ plugins, themes, data?.scanData ] );
+	}, [ plugins, themes, data?.scanData, data?.criticalThreatCount ] );
 
 	if ( isPluginActive && isSiteConnected ) {
 		if ( hasProtectPaidPlan ) {

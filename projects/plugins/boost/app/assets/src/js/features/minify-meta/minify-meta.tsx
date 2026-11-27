@@ -1,7 +1,6 @@
-import { useModuleSurface } from '$features/module/surface';
 import { useState } from 'react';
 import { Button } from '@automattic/jetpack-components';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { type Props, useMetaQuery } from '$lib/stores/minify';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import styles from './minify-meta.module.scss';
@@ -10,17 +9,15 @@ import SaveButton from '$features/ui/save-button/save-button';
 import { useNotices } from '$features/notice/context';
 import { useMinifyDefaults } from './lib/stores';
 
-const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
-	const legacyScriptHelp = __( 'Use a comma (,) to separate the handles.', 'jetpack-boost' );
-	const modernScriptHelp = __(
+const MetaComponent = ( { placeholder, datasyncKey }: Props ) => {
+	const scriptHelp = __(
 		'Scripts listed here will be excluded from concatenation and minification. They continue loading separately.',
 		'jetpack-boost'
 	);
-	const modernStyleHelp = __(
+	const styleHelp = __(
 		'Styles listed here will be excluded from concatenation and minification. They continue loading separately.',
 		'jetpack-boost'
 	);
-	const isRow = useModuleSurface() === 'row';
 	const noticeId = `minify-meta-${ datasyncKey }`;
 
 	const [ values, updateValues ] = useMetaQuery( datasyncKey, newState => {
@@ -69,26 +66,6 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 
 	const htmlId = `jb-minify-meta-${ datasyncKey }`;
 
-	// Be explicit about this because the optimizer breaks the linter otherwise.
-	let summary;
-	if ( values.length > 0 ) {
-		/* Translators: %s refers to the list of excluded items. */
-		summary = sprintf( __( 'Except: %s', 'jetpack-boost' ), values.join( ', ' ) );
-	}
-
-	if ( values.length === 0 ) {
-		summary = __( 'No exceptions.', 'jetpack-boost' );
-	}
-
-	let subHeaderText = '';
-	if ( datasyncKey === 'minify_js_excludes' ) {
-		subHeaderText = __( 'Exclude JS handles:', 'jetpack-boost' );
-	}
-
-	if ( datasyncKey === 'minify_css_excludes' ) {
-		subHeaderText = __( 'Exclude CSS handles:', 'jetpack-boost' );
-	}
-
 	function loadDefaultValue() {
 		setInputValue( defaultValue );
 		/*
@@ -101,11 +78,10 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 
 	const content = (
 		<div className={ styles.body }>
-			<div className={ styles.section } data-except-content={ isRow || undefined }>
-				{ ! isRow && <div className={ styles.title }>{ __( 'Exceptions', 'jetpack-boost' ) }</div> }
+			<div className={ styles.section } data-except-content>
 				<div className={ styles[ 'manage-excludes' ] }>
 					<label className={ styles[ 'sub-header' ] } htmlFor={ htmlId }>
-						{ isRow ? __( 'Add handles separated with a comma:', 'jetpack-boost' ) : subHeaderText }
+						{ __( 'Add handles separated with a comma:', 'jetpack-boost' ) }
 					</label>
 					<input
 						type="text"
@@ -120,11 +96,7 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 						} }
 					/>
 					<div className={ styles.description }>
-						{ isRow && datasyncKey === 'minify_js_excludes'
-							? modernScriptHelp
-							: isRow
-								? modernStyleHelp
-								: legacyScriptHelp }
+						{ datasyncKey === 'minify_js_excludes' ? scriptHelp : styleHelp }
 					</div>
 					<SaveButton
 						disabled={ values.join( ', ' ) === inputValue }
@@ -147,9 +119,7 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 	return (
 		<div className={ styles.wrapper } data-testid={ `meta-${ datasyncKey }` }>
 			<CollapsibleMeta
-				exceptions={ isRow ? values : undefined }
-				headerText={ summary }
-				toggleText={ buttonText }
+				exceptions={ values }
 				tracksEvent={ togglePanelTracksEvent }
 				onToggleHandler={ onToggleHandler }
 			>

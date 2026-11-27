@@ -1,11 +1,11 @@
-import { Field, Fieldset, Radio, RadioGroup, Stack, Text } from '@wordpress/ui';
+import { Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useId } from 'react';
 import styles from '../styles.module.scss';
 import { getOptionCopy, getStepTitle } from './copy';
 import type { CopyContext } from './copy';
 import type { ChoiceStepId, Option, OptionId } from './steps';
-import type { ReactNode, Ref } from 'react';
+import type { ChangeEvent, ReactNode, Ref } from 'react';
 
 interface ChoiceStepProps {
 	step: ChoiceStepId;
@@ -15,7 +15,7 @@ interface ChoiceStepProps {
 	disabled: boolean;
 	onPick: ( option: OptionId ) => void;
 	/** Receives the question, which takes focus when the step changes. */
-	legendRef: Ref< HTMLDivElement >;
+	legendRef: Ref< HTMLLegendElement >;
 }
 
 /**
@@ -36,8 +36,8 @@ export default function ChoiceStep( {
 	const id = useId();
 
 	const handleChange = useCallback(
-		( value: unknown ) => {
-			const option = options.find( candidate => candidate.id === value );
+		( event: ChangeEvent< HTMLInputElement > ) => {
+			const option = options.find( candidate => candidate.id === event.target.value );
 			if ( option ) {
 				onPick( option.id );
 			}
@@ -46,46 +46,51 @@ export default function ChoiceStep( {
 	);
 
 	return (
-		<Field.Root name={ `${ id }-pick` }>
-			<Fieldset.Root
-				render={
-					<RadioGroup value={ pick } onValueChange={ handleChange } disabled={ disabled } />
-				}
+		<fieldset className={ styles.fieldset } disabled={ disabled }>
+			<Text
+				variant="heading-lg"
+				render={ <legend ref={ legendRef } tabIndex={ -1 } /> }
+				className={ styles.question }
 			>
-				<Stack direction="column" gap="sm">
-					<Fieldset.Legend
-						ref={ legendRef }
-						tabIndex={ -1 }
-						render={ <Text variant="heading-md" /> }
-					>
-						{ getStepTitle( step, copy ) }
-					</Fieldset.Legend>
-					{ options.map( option => {
-						const text = getOptionCopy( option.id, copy );
-						const isSelected = option.id === pick;
-						const hintId = `${ id }-${ option.id }`;
-						return (
-							<Field.Item
-								key={ option.id }
-								render={
-									<div
-										className={ clsx( styles.choice, isSelected && styles[ 'choice--selected' ] ) }
-									/>
-								}
-							>
-								<Radio value={ option.id } aria-describedby={ hintId } />
-								<Stack direction="column" gap="xs">
-									<Field.Label variant="plain">{ text.label }</Field.Label>
-									<Text variant="body-sm" id={ hintId } className={ styles.hint }>
-										{ text.hint }
-									</Text>
-									{ isSelected && text.more && <Text variant="body-sm">{ text.more }</Text> }
-								</Stack>
-							</Field.Item>
-						);
-					} ) }
-				</Stack>
-			</Fieldset.Root>
-		</Field.Root>
+				{ getStepTitle( step, copy ) }
+			</Text>
+			<Stack direction="column" gap="sm">
+				{ options.map( option => {
+					const text = getOptionCopy( option.id, copy );
+					const isSelected = option.id === pick;
+					const inputId = `${ id }-${ option.id }`;
+					const labelId = `${ inputId }-label`;
+					const hintId = `${ inputId }-hint`;
+					return (
+						<label
+							key={ option.id }
+							htmlFor={ inputId }
+							className={ clsx( styles.choice, isSelected && styles[ 'choice--selected' ] ) }
+						>
+							{ /* Native: the `@wordpress/ui` radio adds far more to a bundle every connection page loads. */ }
+							<input
+								id={ inputId }
+								type="radio"
+								name={ `${ id }-pick` }
+								value={ option.id }
+								checked={ isSelected }
+								onChange={ handleChange }
+								aria-labelledby={ labelId }
+								aria-describedby={ hintId }
+							/>
+							<Stack direction="column" gap="xs" render={ <span /> }>
+								<Text variant="heading-md" id={ labelId }>
+									{ text.label }
+								</Text>
+								<Text variant="body-sm" id={ hintId } className={ styles.hint }>
+									{ text.hint }
+								</Text>
+								{ isSelected && text.more && <Text variant="body-sm">{ text.more }</Text> }
+							</Stack>
+						</label>
+					);
+				} ) }
+			</Stack>
+		</fieldset>
 	);
 }

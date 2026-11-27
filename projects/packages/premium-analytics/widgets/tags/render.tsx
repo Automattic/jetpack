@@ -128,7 +128,7 @@ function TagsInner() {
 	useReportActions( {
 		csv: {
 			exporter: tagsCsvExporter,
-			status: { isLoading, isFetching, isError },
+			status: { isLoading, isError },
 			rowCount: data.length,
 		},
 	} );

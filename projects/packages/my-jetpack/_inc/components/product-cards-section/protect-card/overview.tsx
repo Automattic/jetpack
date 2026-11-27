@@ -11,6 +11,7 @@ import useProduct from '../../../data/products/use-product';
 import useSimpleQuery from '../../../data/use-simple-query';
 import useAnalytics from '../../../hooks/use-analytics';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
+import { hostSellsNothing } from '../../../utils/host-sells-nothing';
 import { isJetpackPluginActive } from '../../../utils/is-jetpack-plugin-active';
 import OverviewItem, { isHealthyStatus } from '../overview-item';
 import useOverviewLoadEvent from '../overview-item/use-overview-load-event';
@@ -51,7 +52,9 @@ const ProtectOverviewItem: ProductCardComponent = ( { admin } ) => {
 	if ( hasPaidPlanForProduct ) {
 		label = __( 'Threats found', 'jetpack-my-jetpack' );
 		count =
-			isPluginActive && isSiteConnected ? ( data?.scanData?.threats?.length ?? 0 ) : undefined;
+			isPluginActive && isSiteConnected
+				? ( data?.threatCount ?? data?.scanData?.threats?.length ?? 0 )
+				: undefined;
 		if ( manageUrl ) {
 			action = {
 				label: count
@@ -72,14 +75,16 @@ const ProtectOverviewItem: ProductCardComponent = ( { admin } ) => {
 			isSiteConnected &&
 			data?.wafConfig?.brute_force_protection;
 		count = canBlockLogins ? ( data?.wafConfig?.blocked_logins ?? 0 ) : undefined;
-		upgrade = {
-			label: __( 'Add malware scanning', 'jetpack-my-jetpack' ),
-			href: detail?.hostPurchaseUrl || `#${ generatePath( MyJetpackRoutes.AddProtect ) }`,
-			onClick: () =>
-				recordEvent( 'jetpack_myjetpack_product_card_add_click', {
-					product: PRODUCT_SLUGS.PROTECT,
-				} ),
-		};
+		upgrade = hostSellsNothing( detail?.hostPurchaseUrl )
+			? undefined
+			: {
+					label: __( 'Add malware scanning', 'jetpack-my-jetpack' ),
+					href: detail?.hostPurchaseUrl || `#${ generatePath( MyJetpackRoutes.AddProtect ) }`,
+					onClick: () =>
+						recordEvent( 'jetpack_myjetpack_product_card_add_click', {
+							product: PRODUCT_SLUGS.PROTECT,
+						} ),
+				};
 		failureReason = __( 'Failed to load blocked logins', 'jetpack-my-jetpack' );
 	}
 

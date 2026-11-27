@@ -2175,7 +2175,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/woocommerce-stats",
-                "reference": "3606513ca7f762bfae9c01df20bddc20baa6b939"
+                "reference": "7af560d81276f7b4532b369024d4db66e4a872e1"
             },
             "require": {
                 "automattic/jetpack-config": "@dev",
@@ -2183,7 +2183,7 @@
                 "automattic/jetpack-feature-flags": "@dev",
                 "automattic/jetpack-premium-analytics": "@dev",
                 "automattic/jetpack-sync": "@dev",
-                "automattic/woocommerce-analytics": "^0.18",
+                "automattic/woocommerce-analytics": "^0.19",
                 "php": ">=7.4"
             },
             "require-dev": {
@@ -2417,16 +2417,16 @@
         },
         {
             "name": "automattic/woocommerce-analytics",
-            "version": "0.18.1",
+            "version": "0.19.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/woocommerce-analytics.git",
-                "reference": "a44c05a613964d8a43190147be94a11938815e6e"
+                "reference": "1f2528d4c0b8648c409f65a3fcba82d2c8bd5257"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/woocommerce-analytics/zipball/a44c05a613964d8a43190147be94a11938815e6e",
-                "reference": "a44c05a613964d8a43190147be94a11938815e6e",
+                "url": "https://api.github.com/repos/Automattic/woocommerce-analytics/zipball/1f2528d4c0b8648c409f65a3fcba82d2c8bd5257",
+                "reference": "1f2528d4c0b8648c409f65a3fcba82d2c8bd5257",
                 "shasum": ""
             },
             "require": {
@@ -2464,9 +2464,10 @@
             ],
             "description": "Enhanced analytics for WooCommerce users.",
             "support": {
-                "source": "https://github.com/Automattic/woocommerce-analytics/tree/v0.18.1"
+                "source": "https://github.com/Automattic/woocommerce-analytics/tree/v0.19.0"
             },
-            "time": "2026-10-21T06:12:56+00:00"
+            "time": "2026-11-27T02:56:19+00:00",
+            "published-time": "2026-11-27T02:56:34+00:00"
         }
     ],
     "packages-dev": [
@@ -4360,7 +4361,8 @@
                 "security": "https://github.com/Yoast/PHPUnit-Polyfills/security/policy",
                 "source": "https://github.com/Yoast/PHPUnit-Polyfills"
             },
-            "time": "2025-02-09T18:58:54+00:00"
+            "time": "2025-02-09T18:58:54+00:00",
+            "published-time": "2025-02-09T19:10:16+00:00"
         }
     ],
     "aliases": [],

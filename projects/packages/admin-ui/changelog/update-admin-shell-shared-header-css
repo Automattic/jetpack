@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Admin shell: Save the CSS and theme styles that dashboard headers share once, and keep saved headers only for the browser tab that saved them.

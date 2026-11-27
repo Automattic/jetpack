@@ -3,7 +3,6 @@ import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 
 const useEnsureTabData = jest.fn< () => { status: string; retry: () => void } >();
-const isSeoToolsActive = jest.fn< () => boolean >();
 
 jest.unstable_mockModule( '../../../_inc/components/dashboard-load-error', () => ( {
 	default: () => 'load-error',
@@ -11,17 +10,11 @@ jest.unstable_mockModule( '../../../_inc/components/dashboard-load-error', () =>
 jest.unstable_mockModule( '../../../_inc/components/dashboard-skeleton', () => ( {
 	default: () => 'skeleton',
 } ) );
-jest.unstable_mockModule( '../../../_inc/components/seo-disabled-stage', () => ( {
-	default: ( { active }: { active: string } ) => `seo-disabled:${ active }`,
-} ) );
 jest.unstable_mockModule( '../../../_inc/dashboard/dashboard-page', () => ( {
 	default: ( { children }: { children: React.ReactNode } ) => children,
 } ) );
 jest.unstable_mockModule( '../../../_inc/data/get-preloaded', () => ( {
 	OVERVIEW_PATH: '/jetpack/v4/seo/overview',
-} ) );
-jest.unstable_mockModule( '../../../_inc/data/is-seo-tools-active', () => ( {
-	default: isSeoToolsActive,
 } ) );
 jest.unstable_mockModule( '../../../_inc/data/use-ensure-tab-data', () => ( {
 	default: useEnsureTabData,
@@ -36,32 +29,16 @@ describe( 'Overview route stage', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		useEnsureTabData.mockReturnValue( { status: 'ready', retry: jest.fn() } );
-		isSeoToolsActive.mockReturnValue( true );
 	} );
 
-	it( 'renders the Overview when SEO tools are on', () => {
+	it( 'renders the Overview once its data is ready', () => {
 		render( <Stage /> );
 
 		expect( screen.getByText( 'overview-screen' ) ).toBeInTheDocument();
 	} );
 
-	/**
-	 * With the module off, the Overview shows the same tab-less enable prompt as the
-	 * other tabs rather than its cards.
-	 */
-	it( 'shows the module-off stage when SEO tools are off', () => {
-		isSeoToolsActive.mockReturnValue( false );
-
-		render( <Stage /> );
-
-		expect( screen.getByText( 'seo-disabled:overview' ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'overview-screen' ) ).not.toBeInTheDocument();
-	} );
-
-	// The module state lives in the Overview slice, so it isn't known until it loads.
-	it( 'shows the skeleton, not the module-off stage, while loading', () => {
+	it( 'shows the skeleton while loading', () => {
 		useEnsureTabData.mockReturnValue( { status: 'loading', retry: jest.fn() } );
-		isSeoToolsActive.mockReturnValue( false );
 
 		render( <Stage /> );
 

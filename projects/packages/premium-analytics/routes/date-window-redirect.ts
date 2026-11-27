@@ -34,13 +34,13 @@ export function dateWindowRedirect(
 		requested,
 	}: { seed: ( search: Search ) => Search; needsSeed?: boolean; requested?: Search }
 ): { search: Search; state: Search | undefined } | undefined {
+	// Warms the core `site` record for `useSiteHomeUrl()` on every navigation, so a failed load retries
+	// on the next one. Not awaited: that would hold every Stats request behind a settings round trip.
+	ensureCoreSettingsReady().catch( () => {} );
+
 	let next: Search | undefined;
 	// The seed check must read the same locks as the limit, or each undoes the other's interval.
 	if ( needsSeed || needsReportDateParamsSeed( search, policy.lockedIntervals ) ) {
-		// Warms the core `site` record for `useSiteHomeUrl()`. Not awaited: the seed doesn't read it,
-		// and awaiting would hold every Stats request behind a settings round trip.
-		ensureCoreSettingsReady().catch( () => {} );
-
 		const seeded = seed( search );
 		next = limitStatsDateSearch( seeded, policy, { requested } ) ?? seeded;
 	} else {
