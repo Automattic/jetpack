@@ -155,9 +155,7 @@ class Response_Export_Link {
 	 * @return never
 	 */
 	public static function redirect_to_login() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only passed back to the same link after login.
-		$token = isset( $_GET['token'] ) ? sanitize_text_field( wp_unslash( $_GET['token'] ) ) : '';
-		wp_safe_redirect( wp_login_url( self::get_url( $token ) ) );
+		auth_redirect();
 		exit( 0 );
 	}
 

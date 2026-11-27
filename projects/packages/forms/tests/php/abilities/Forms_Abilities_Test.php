@@ -661,17 +661,18 @@ class Forms_Abilities_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Answers the export's response query with the given IDs, since the test
-	 * database cannot run post queries, and records the query it was asked.
+	 * Answers the export's response queries for the given IDs, since the test
+	 * database cannot run post queries, and records each query it was asked.
 	 *
-	 * @param int[] $ids Response IDs the query returns.
+	 * @param int[] $ids Response IDs that match the export.
 	 * @return \ArrayObject Receives the query vars of each export query.
 	 */
 	private function answer_export_query( array $ids ): \ArrayObject {
 		$queries = new \ArrayObject();
+		$forms   = array_values( array_unique( array_filter( array_map( 'wp_get_post_parent_id', $ids ) ) ) );
 		add_filter(
 			'posts_pre_query',
-			static function ( $posts, $query ) use ( $ids, $queries ) {
+			static function ( $posts, $query ) use ( $ids, $forms, $queries ) {
 				if ( 'feedback' !== $query->get( 'post_type' ) ) {
 					return $posts;
 				}
@@ -680,14 +681,25 @@ class Forms_Abilities_Test extends BaseTestCase {
 					return $ids;
 				}
 				return array_map(
-					static function ( $id ) {
+					static function ( $form ) {
 						return (object) array(
-							'ID'          => $id,
-							'post_parent' => wp_get_post_parent_id( $id ),
+							'ID'          => $form,
+							'post_parent' => $form,
 						);
 					},
-					$ids
+					array_slice( $forms, 0, $query->get( 'posts_per_page' ) )
 				);
+			},
+			10,
+			2
+		);
+		add_filter(
+			'found_posts',
+			static function ( $found, $query ) use ( $ids, $forms ) {
+				if ( 'feedback' !== $query->get( 'post_type' ) ) {
+					return $found;
+				}
+				return 'id=>parent' === $query->get( 'fields' ) ? count( $forms ) : count( $ids );
 			},
 			10,
 			2
@@ -770,13 +782,14 @@ class Forms_Abilities_Test extends BaseTestCase {
 		for ( $i = 0; $i <= Forms_Abilities::EXPORT_MAX_FORMS; $i++ ) {
 			$responses[] = self::make_response( (int) wp_insert_post( array( 'post_title' => "Form $i" ) ) );
 		}
-		$this->answer_export_query( $responses );
+		$queries = $this->answer_export_query( $responses );
 
 		$result = Forms_Abilities::export_responses( array() );
 
 		$this->assertSame( Forms_Abilities::EXPORT_MAX_FORMS + 2, $result['count'] );
 		$this->assertCount( Forms_Abilities::EXPORT_MAX_FORMS, $result['forms'] );
 		$this->assertSame( Forms_Abilities::EXPORT_MAX_FORMS + 1, $result['forms_total'], 'A response with no form must not count as a form.' );
+		$this->assertNotContains( -1, array_column( $queries->getArrayCopy(), 'posts_per_page' ), 'The summary must not load every response.' );
 	}
 
 	public function test_export_responses_link_repeats_the_requested_filters() {
@@ -831,6 +844,82 @@ class Forms_Abilities_Test extends BaseTestCase {
 				'before' => '2026-11-01 00:00:00',
 			),
 			$queries[0]['date_query']
+		);
+	}
+
+	public function test_export_responses_reads_dates_with_a_timezone_in_site_time() {
+		wp_set_current_user( self::$user_id );
+		update_option( 'timezone_string', 'Asia/Tokyo' );
+		$queries = $this->answer_export_query( array() );
+
+		Forms_Abilities::export_responses(
+			array(
+				'after'  => '2026-10-01T00:00:00Z',
+				'before' => '2026-11-01T09:00:00+09:00',
+			)
+		);
+
+		$this->assertSame(
+			array(
+				'after'  => '2026-10-01 09:00:00',
+				'before' => '2026-11-01 09:00:00',
+			),
+			$queries[0]['date_query']
+		);
+	}
+
+	public function test_export_responses_accepts_a_range_that_is_in_order_in_site_time() {
+		wp_set_current_user( self::$user_id );
+		update_option( 'timezone_string', 'Asia/Tokyo' );
+		$this->answer_export_query( array() );
+
+		$result = Forms_Abilities::export_responses(
+			array(
+				'after'  => '2026-10-01T05:00:00',
+				'before' => '2026-10-01T00:00:00Z',
+			)
+		);
+
+		$this->assertIsArray( $result );
+	}
+
+	public function test_export_with_a_search_term_stays_oldest_first() {
+		$queries = $this->answer_export_query( array() );
+
+		Contact_Form_Plugin::init()->get_export_feedback_ids( array( 'search' => 'invoice' ) );
+
+		$this->assertSame( 'date', $queries[0]['orderby'], 'WP_Query sorts a search by relevance unless told otherwise.' );
+		$this->assertSame( 'ASC', $queries[0]['order'] );
+	}
+
+	/**
+	 * @dataProvider provide_test_response_inputs
+	 *
+	 * @param array $input    Ability input.
+	 * @param bool  $excluded Whether the count and the file leave test responses out.
+	 */
+	#[DataProvider( 'provide_test_response_inputs' )]
+	public function test_export_responses_counts_test_responses_only_when_the_file_has_them( $input, $excluded ) {
+		wp_set_current_user( self::$user_id );
+		$queries = $this->answer_export_query( array( self::make_response( 0 ) ) );
+
+		$result = Forms_Abilities::export_responses( $input );
+
+		$query = array();
+		wp_parse_str( (string) wp_parse_url( $result['download_url'], PHP_URL_QUERY ), $query );
+		$link = Response_Export_Link::resolve( $query['token'], self::$user_id );
+		$this->assertSame( $excluded, ! empty( $queries[0]['meta_query'] ) );
+		$this->assertSame( $excluded, ! empty( $link['filters']['exclude_test_responses'] ) );
+	}
+
+	/**
+	 * Inputs and whether each leaves out form preview test responses.
+	 */
+	public static function provide_test_response_inputs() {
+		return array(
+			'default'  => array( array(), true ),
+			'excluded' => array( array( 'include_test_responses' => false ), true ),
+			'included' => array( array( 'include_test_responses' => true ), false ),
 		);
 	}
 

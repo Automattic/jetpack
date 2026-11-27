@@ -3374,31 +3374,37 @@ class Contact_Form_Plugin {
 	 *     @type string $before   Only responses before this date; any format strtotime() accepts.
 	 *     @type int[]  $selected Only these response IDs.
 	 *     @type int    $source   Only responses from this source post ID.
+	 *     @type bool   $exclude_test_responses Leave out responses flagged as form preview tests.
 	 * }
 	 *
 	 * @return int[]
 	 */
 	public function get_export_feedback_ids( $filters = array() ) {
-		return array_map( 'intval', $this->query_export_feedback( $filters, 'ids' ) );
+		return array_map( 'intval', $this->query_export_feedback( $filters )['posts'] );
 	}
 
 	/**
 	 * Runs the export's response query.
 	 *
-	 * @param array  $filters See get_export_feedback_ids().
-	 * @param string $fields  WP_Query fields: 'ids' or 'id=>parent'.
+	 * @param array $filters   See get_export_feedback_ids().
+	 * @param array $overrides WP_Query arguments that replace the export's own.
 	 *
-	 * @return array Response IDs, or parent post IDs keyed by response for 'id=>parent'.
+	 * @return array{posts: array, found: int} The query's result, and how many rows match when the query counts them.
 	 */
-	private function query_export_feedback( $filters, $fields ) {
+	private function query_export_feedback( $filters, $overrides = array() ) {
 		$args = array(
-			'posts_per_page'   => -1,
-			'post_type'        => Feedback::POST_TYPE,
-			'post_status'      => array( 'publish', 'draft' ),
-			'order'            => 'ASC',
-			'fields'           => $fields,
-			'suppress_filters' => false,
-			'date_query'       => array(),
+			'posts_per_page'      => -1,
+			'post_type'           => Feedback::POST_TYPE,
+			'post_status'         => array( 'publish', 'draft' ),
+			'orderby'             => 'date',
+			'order'               => 'ASC',
+			'fields'              => 'ids',
+			'suppress_filters'    => false,
+			'ignore_sticky_posts' => true,
+			'no_found_rows'       => true,
+			// An export's ID list can be too large for one object cache entry.
+			'cache_results'       => false,
+			'date_query'          => array(),
 		);
 
 		if ( ! empty( $filters['form'] ) ) {
@@ -3413,17 +3419,29 @@ class Contact_Form_Plugin {
 			$args['s'] = $filters['search'];
 		}
 
-		// date_query expects date strings/arrays, not timestamps.
+		// date_query compares with post_date, which is in site time; a date with no timezone already is.
 		foreach ( array( 'after', 'before' ) as $bound ) {
-			$time = ! empty( $filters[ $bound ] ) ? strtotime( $filters[ $bound ] ) : false;
-			if ( $time ) {
-				$args['date_query'][ $bound ] = gmdate( 'Y-m-d H:i:s', $time );
+			$date = ! empty( $filters[ $bound ] ) ? date_create( $filters[ $bound ], wp_timezone() ) : false;
+			if ( $date ) {
+				$args['date_query'][ $bound ] = $date->setTimezone( wp_timezone() )->format( 'Y-m-d H:i:s' );
 			}
 		}
 
-		if ( ! empty( $filters['selected'] ) ) {
-			$args['include'] = array_filter( array_map( 'intval', (array) $filters['selected'] ) );
+		$selected = ! empty( $filters['selected'] ) ? array_filter( array_map( 'intval', (array) $filters['selected'] ) ) : array();
+		if ( $selected ) {
+			$args['post__in'] = $selected;
 		}
+
+		if ( ! empty( $filters['exclude_test_responses'] ) ) {
+			$args['meta_query'] = array(
+				array(
+					'key'     => Feedback::IS_TEST_META_KEY,
+					'compare' => 'NOT EXISTS',
+				),
+			);
+		}
+
+		$args = array_merge( $args, $overrides );
 
 		$source_id = ! empty( $filters['source'] ) ? absint( $filters['source'] ) : 0;
 		$join_cb   = null;
@@ -3450,8 +3468,9 @@ class Contact_Form_Plugin {
 			add_filter( 'posts_where', $where_cb, 10, 2 );
 		}
 
+		$query = new \WP_Query();
 		try {
-			$feedbacks = get_posts( $args );
+			$feedbacks = $query->query( $args );
 		} finally {
 			if ( is_callable( $join_cb ) ) {
 				remove_filter( 'posts_join', $join_cb, 10 );
@@ -3461,7 +3480,10 @@ class Contact_Form_Plugin {
 			}
 		}
 
-		return $feedbacks;
+		return array(
+			'posts' => $feedbacks,
+			'found' => (int) $query->found_posts,
+		);
 	}
 
 	/**
@@ -3524,25 +3546,65 @@ class Contact_Form_Plugin {
 	}
 
 	/**
-	 * Counts the responses an export covers and lists the forms they came from, with one query.
-	 *
-	 * The count includes test responses from form preview, since telling them apart means
-	 * loading every response; the export leaves them out unless asked.
+	 * Counts the responses an export covers and lists the forms they came from.
 	 *
 	 * Does no permission checks; callers must.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array $filters See get_export_feedback_ids().
+	 * @param array $filters   See get_export_feedback_ids().
+	 * @param int   $max_forms Most form IDs to return.
 	 *
-	 * @return array{count: int, form_ids: int[]} Form IDs are the posts the forms live on, in order of first response.
+	 * @return array{count: int, form_ids: int[], forms_total: int} Form IDs are the posts the forms live on.
 	 */
-	public function get_export_summary( $filters = array() ) {
-		$parents = array_map( 'intval', $this->query_export_feedback( $filters, 'id=>parent' ) );
+	public function get_export_summary( $filters = array(), $max_forms = 50 ) {
+		$count = $this->query_export_feedback(
+			$filters,
+			array(
+				'posts_per_page' => 1,
+				'no_found_rows'  => false,
+				'orderby'        => 'none',
+			)
+		)['found'];
+		if ( 0 === $count ) {
+			return array(
+				'count'       => 0,
+				'form_ids'    => array(),
+				'forms_total' => 0,
+			);
+		}
+
+		$group_by_form = static function ( $groupby, $query ) {
+			global $wpdb;
+			return Feedback::POST_TYPE === $query->get( 'post_type' ) ? "{$wpdb->posts}.post_parent" : $groupby;
+		};
+		// Strict SQL modes refuse a selected column that is neither grouped nor aggregated.
+		$one_row_per_form = static function ( $fields, $query ) {
+			global $wpdb;
+			return Feedback::POST_TYPE === $query->get( 'post_type' ) ? "MIN({$wpdb->posts}.ID) AS ID, {$wpdb->posts}.post_parent" : $fields;
+		};
+		add_filter( 'posts_groupby', $group_by_form, 10, 2 );
+		add_filter( 'posts_fields', $one_row_per_form, 10, 2 );
+		try {
+			$forms = $this->query_export_feedback(
+				$filters,
+				array(
+					'fields'              => 'id=>parent',
+					'posts_per_page'      => (int) $max_forms,
+					'no_found_rows'       => false,
+					'post_parent__not_in' => array( 0 ),
+					'orderby'             => 'parent',
+				)
+			);
+		} finally {
+			remove_filter( 'posts_groupby', $group_by_form, 10 );
+			remove_filter( 'posts_fields', $one_row_per_form, 10 );
+		}
 
 		return array(
-			'count'    => count( $parents ),
-			'form_ids' => array_values( array_unique( array_filter( $parents ) ) ),
+			'count'       => $count,
+			'form_ids'    => array_values( array_unique( array_map( 'intval', $forms['posts'] ) ) ),
+			'forms_total' => $forms['found'],
 		);
 	}
 

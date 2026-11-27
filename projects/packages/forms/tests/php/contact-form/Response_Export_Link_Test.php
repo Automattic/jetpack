@@ -209,6 +209,38 @@ class Response_Export_Link_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Runs isolated because it sends headers.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_redirect_to_login_returns_to_the_link_even_when_login_is_on_another_host() {
+		$link                   = Response_Export_Link::create( array(), false, $this->admin_id );
+		$_SERVER['HTTP_HOST']   = (string) wp_parse_url( $link['url'], PHP_URL_HOST );
+		$_SERVER['REQUEST_URI'] = (string) wp_parse_url( $link['url'], PHP_URL_PATH ) . '?' . wp_parse_url( $link['url'], PHP_URL_QUERY );
+		add_filter(
+			'login_url',
+			static function ( $login_url, $redirect ) {
+				return add_query_arg( 'redirect_to', rawurlencode( $redirect ), 'https://sso.example.org/login' );
+			},
+			10,
+			2
+		);
+		add_filter(
+			'wp_redirect',
+			static function ( $location ) {
+				throw new \RuntimeException( $location );
+			}
+		);
+
+		$this->expectException( \RuntimeException::class );
+		$this->expectExceptionMessage( 'https://sso.example.org/login?redirect_to=' . rawurlencode( set_url_scheme( $link['url'] ) ) );
+		Response_Export_Link::redirect_to_login();
+	}
+
+	/**
 	 * Requests the download handler must refuse, with the status it sends.
 	 */
 	public static function provide_refused_downloads() {

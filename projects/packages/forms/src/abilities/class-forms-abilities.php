@@ -574,7 +574,7 @@ class Forms_Abilities extends Registrar {
 				'properties' => array(
 					'count'        => array(
 						'type'        => 'integer',
-						'description' => __( 'Number of matching responses. Can include a few form preview test responses that the file leaves out.', 'jetpack-forms' ),
+						'description' => __( 'Number of matching responses.', 'jetpack-forms' ),
 					),
 					'forms'        => array(
 						'type'        => 'array',
@@ -944,11 +944,14 @@ class Forms_Abilities extends Registrar {
 			$filters['form'] = (int) $args['form_id'];
 		}
 
+		// Read dates as the export query does: in site time unless they name a timezone.
+		$times = array();
 		foreach ( array( 'after', 'before' ) as $bound ) {
 			if ( ! isset( $args[ $bound ] ) || '' === $args[ $bound ] ) {
 				continue;
 			}
-			if ( false === strtotime( (string) $args[ $bound ] ) ) {
+			$date = date_create( (string) $args[ $bound ], wp_timezone() );
+			if ( false === $date ) {
 				return new \WP_Error(
 					'jetpack_forms_invalid_date',
 					/* translators: %s: name of the date input, "after" or "before". */
@@ -957,9 +960,10 @@ class Forms_Abilities extends Registrar {
 				);
 			}
 			$filters[ $bound ] = (string) $args[ $bound ];
+			$times[ $bound ]   = $date->getTimestamp();
 		}
 
-		if ( isset( $filters['after'] ) && isset( $filters['before'] ) && strtotime( $filters['after'] ) >= strtotime( $filters['before'] ) ) {
+		if ( isset( $times['after'] ) && isset( $times['before'] ) && $times['after'] >= $times['before'] ) {
 			return new \WP_Error(
 				'jetpack_forms_invalid_date_range',
 				__( 'The "after" date must come before the "before" date.', 'jetpack-forms' ),
@@ -968,10 +972,13 @@ class Forms_Abilities extends Registrar {
 		}
 
 		$include_test_responses = ! empty( $args['include_test_responses'] );
-		$summary                = Contact_Form_Plugin::init()->get_export_summary( $filters );
+		if ( ! $include_test_responses ) {
+			$filters['exclude_test_responses'] = true;
+		}
+		$summary = Contact_Form_Plugin::init()->get_export_summary( $filters, self::EXPORT_MAX_FORMS );
 
 		$forms = array();
-		foreach ( array_slice( $summary['form_ids'], 0, self::EXPORT_MAX_FORMS ) as $form_id ) {
+		foreach ( $summary['form_ids'] as $form_id ) {
 			$forms[] = array(
 				'id'    => $form_id,
 				'title' => (string) get_post_field( 'post_title', $form_id, 'raw' ),
@@ -983,7 +990,7 @@ class Forms_Abilities extends Registrar {
 		return array(
 			'count'        => $summary['count'],
 			'forms'        => $forms,
-			'forms_total'  => count( $summary['form_ids'] ),
+			'forms_total'  => $summary['forms_total'],
 			'download_url' => $link ? $link['url'] : null,
 			'expires_at'   => $link ? gmdate( 'Y-m-d\\TH:i:s\\Z', $link['expires_at'] ) : null,
 		);
