@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: Fix invalid ARIA and a fixed heading level in the contact form success message.

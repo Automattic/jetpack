@@ -1358,6 +1358,17 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The success wrapper needs a role for aria-labelledby to be valid, and no fixed heading level (#54086).
+	 */
+	public function test_success_wrapper_has_a_role_and_no_fixed_heading_level() {
+		$html = apply_shortcodes( "[contact-form][contact-field label='Name' type='name'/][/contact-form]" );
+
+		$this->assertMatchesRegularExpression( '/<div class="contact-form-submission[^>]*role="region"[^>]*aria-labelledby=/', $html );
+		$this->assertMatchesRegularExpression( '/<div class="contact-form-submission__heading"[^>]*id="contact-form-success-header-/', $html );
+		$this->assertStringNotContainsString( '<h4', $html );
+	}
+
+	/**
 	 * Tests that the field attributes remain the same when no escaping is necessary.
 	 *
 	 * @author tonykova
