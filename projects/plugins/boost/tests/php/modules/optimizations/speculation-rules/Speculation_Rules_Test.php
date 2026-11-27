@@ -11,6 +11,7 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Speculation_Rules\Speculation
 use Brain\Monkey;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Class Test_Speculation_Rules
@@ -96,44 +97,28 @@ class Speculation_Rules_Test extends MockeryTestCase {
 	}
 
 	/**
-	 * Test add_cornerstone_rules() with valid URLs
+	 * Test prerender patterns for Cornerstone Pages.
+	 *
+	 * @param string   $home_url The site home URL.
+	 * @param string[] $test_urls The Cornerstone Page URLs.
+	 * @param string[] $patterns The expected prerender patterns.
+	 * @dataProvider provide_cornerstone_prerender_patterns
 	 */
-	public function test_add_cornerstone_rules_with_valid_urls() {
-		$test_urls = array( 'https://example.com/page1', 'https://example.com/page2' );
-
+	#[DataProvider( 'provide_cornerstone_prerender_patterns' )]
+	public function test_cornerstone_prerender_patterns( $home_url, $test_urls, $patterns ) {
 		// Set up Cornerstone_Utils mock for this test
 		$cornerstone_utils_mock = Mockery::mock( 'alias:Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils' );
 		$cornerstone_utils_mock->shouldReceive( 'get_list' )
 			->once()
 			->andReturn( $test_urls );
 
-		// Rest of the test remains the same...
-		Monkey\Functions\stubs(
-			array(
-				'wp_parse_url' => array(
-					'host'   => 'example.com',
-					'scheme' => 'https',
-				),
-			)
-		);
-
-		Monkey\Functions\stubs(
-			array(
-				'home_url' => 'https://example.com/',
-			)
-		);
+		Monkey\Functions\when( 'home_url' )->justReturn( $home_url );
+		Monkey\Functions\when( 'wp_parse_url' )->alias( 'parse_url' );
 
 		$speculation_rules    = new Speculation_Rules();
 		$wp_speculation_rules = new \WP_Speculation_Rules();
 		$speculation_rules->add_cornerstone_rules( $wp_speculation_rules );
 
-		$output_test_urls = array_map(
-			function ( $url ) {
-				return trailingslashit( str_replace( 'https://example.com', '', $url ) );
-			},
-			$test_urls
-		);
-		// Assert that the rule was added correctly
 		// @phan-suppress-next-line PhanUndeclaredMethod -- In our polyfill, which this tests, just not core's version.
 		$rules = $wp_speculation_rules->get_rules();
 		$this->assertCount( 1, $rules );
@@ -143,11 +128,42 @@ class Speculation_Rules_Test extends MockeryTestCase {
 			array(
 				'source'    => 'document',
 				'where'     => array(
-					'href_matches' => $output_test_urls,
+					'href_matches' => $patterns,
 				),
 				'eagerness' => 'moderate',
 			),
 			$rules[0]['args']
+		);
+	}
+
+	/**
+	 * Provide home URLs, Cornerstone Pages, and their patterns.
+	 *
+	 * @return array<string, array{string, string[], string[]}>
+	 */
+	public static function provide_cornerstone_prerender_patterns() {
+		$plain_host  = 'https://example.com';
+		$custom_port = 'http://localhost:8081';
+		$subdir      = $custom_port . '/blog';
+		$patterns    = array( '/', '/about/', '/contact/' );
+
+		$other_origins   = array(
+			'http://localhost:9090/about/',
+			'https://localhost:8081/about/',
+			'http://localhost/about/',
+		);
+		$similar_origins = array( 'https://example.com:8443/about/', 'https://example.com.au/' );
+
+		return array(
+			'plain host'               => array( $plain_host, array( $plain_host, $plain_host . '/about', $plain_host . '/contact/' ), $patterns ),
+			'custom port'              => array( $custom_port, array( $custom_port, $custom_port . '/about', $custom_port . '/contact/' ), $patterns ),
+			'URLs on other origins'    => array( $custom_port, $other_origins, $other_origins ),
+			'origins with same prefix' => array( $plain_host, $similar_origins, $similar_origins ),
+			'custom-port subdirectory' => array(
+				$subdir,
+				array( $subdir, $subdir . '/about' ),
+				array( '/blog/', '/blog/about/' ),
+			),
 		);
 	}
 }

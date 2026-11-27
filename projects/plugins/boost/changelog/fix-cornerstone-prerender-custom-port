@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Cornerstone Pages: Fix prerendering on sites that use a custom port.
