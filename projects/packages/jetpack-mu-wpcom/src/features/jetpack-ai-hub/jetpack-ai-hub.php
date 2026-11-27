@@ -63,6 +63,13 @@ function register() {
 	$page = new \Jetpack_AI_Page();
 	// @phan-suppress-next-line PhanUndeclaredClassInCallable -- loaded from the sibling Jetpack plugin above and guarded at runtime.
 	add_action( 'admin_menu', array( $page, 'add_actions' ), 998 );
+
+	// Jetpack deploys separately, and a version predating Simple support skips the shell here on its own.
+	// @phan-suppress-next-line PhanUndeclaredClassReference -- loaded from the sibling Jetpack plugin above and guarded at runtime.
+	if ( method_exists( '\Jetpack_AI_Page', 'add_admin_shell_member' ) ) {
+		// @phan-suppress-next-line PhanUndeclaredClassInCallable -- loaded from the sibling Jetpack plugin above and guarded at runtime.
+		add_filter( 'jetpack_admin_shell_members', array( $page, 'add_admin_shell_member' ) );
+	}
 }
 
 register();

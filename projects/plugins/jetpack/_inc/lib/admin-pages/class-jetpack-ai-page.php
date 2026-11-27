@@ -102,12 +102,8 @@ class Jetpack_AI_Page {
 	 * @return array
 	 */
 	public function add_admin_shell_member( $members ) {
-		// Simple registers the page through mu-wpcom.
-		if (
-			( new Host() )->is_wpcom_simple()
-			|| ! file_exists( JETPACK__PLUGIN_DIR . 'build/build.php' )
-			|| ! $this->should_add_menu()
-		) {
+		// On Simple, mu-wpcom registers the page and hooks this, as Jetpack_Admin never runs there.
+		if ( ! file_exists( JETPACK__PLUGIN_DIR . 'build/build.php' ) || ! $this->should_add_menu() ) {
 			return $members;
 		}
 

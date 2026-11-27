@@ -159,5 +159,18 @@ class Jetpack_AI_Hub_Test extends BaseTestCase {
 		}
 
 		$this->assertTrue( $registered );
+
+		// Jetpack_Admin, which adds it elsewhere, never runs on Simple.
+		$joins_shell = false;
+		foreach ( $GLOBALS['wp_filter']['jetpack_admin_shell_members']->callbacks[10] ?? array() as $callback ) {
+			$function = $callback['function'] ?? null;
+			// @phan-suppress-next-line PhanUndeclaredClassInstanceof -- Existence checked above.
+			if ( is_array( $function ) && $function[0] instanceof \Jetpack_AI_Page && 'add_admin_shell_member' === $function[1] ) {
+				$joins_shell = true;
+				break;
+			}
+		}
+
+		$this->assertTrue( $joins_shell );
 	}
 }
