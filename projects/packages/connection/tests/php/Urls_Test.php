@@ -52,17 +52,14 @@ class Urls_Test extends BaseTestCase {
 	 *
 	 * @dataProvider no_web_request_provider
 	 *
-	 * @param bool     $is_wp_cli Whether WP-CLI is running, with a host set as by its `--url` argument.
-	 * @param string   $stored    Scheme of the stored URL.
-	 * @param string[] $history   Existing scheme history.
-	 * @param string   $expected  Expected scheme of the returned URL.
+	 * @param string   $constant Constant set by the command-line context, `DOING_CRON` or `WP_CLI`.
+	 * @param string   $stored   Scheme of the stored URL.
+	 * @param string[] $history  Existing scheme history.
+	 * @param string   $expected Expected scheme of the returned URL.
 	 */
 	#[DataProvider( 'no_web_request_provider' )]
-	public function test_scheme_without_a_web_request( $is_wp_cli, $stored, $history, $expected ) {
-		if ( $is_wp_cli ) {
-			Constants::set_constant( 'WP_CLI', true );
-			$_SERVER['HTTP_HOST'] = 'example.com';
-		}
+	public function test_scheme_without_a_web_request( $constant, $stored, $history, $expected ) {
+		Constants::set_constant( $constant, true );
 		Constants::set_constant( 'WP_HOME', $stored . '://example.com' );
 		update_option( Urls::HTTPS_CHECK_OPTION_PREFIX . 'home_url', $history );
 
@@ -77,9 +74,20 @@ class Urls_Test extends BaseTestCase {
 	 */
 	public static function no_web_request_provider() {
 		return array(
-			'no host, stored http, https in history' => array( false, 'http', array( 'https', 'http' ), 'https' ),
-			'no host, stored http, http history'     => array( false, 'http', array( 'http' ), 'http' ),
-			'WP-CLI, stored https, http history'     => array( true, 'https', array( 'http' ), 'https' ),
+			'CLI cron, stored http, https in history' => array( 'DOING_CRON', 'http', array( 'https', 'http' ), 'https' ),
+			'CLI cron, stored http, http history'     => array( 'DOING_CRON', 'http', array( 'http' ), 'http' ),
+			'WP-CLI, stored https, http history'      => array( 'WP_CLI', 'https', array( 'http' ), 'https' ),
 		);
+	}
+
+	/**
+	 * A web request without a Host header still records its scheme, so a client can't opt out of the history.
+	 */
+	public function test_web_request_without_host_header_records_scheme() {
+		Constants::set_constant( 'WP_HOME', 'https://example.com' );
+		update_option( Urls::HTTPS_CHECK_OPTION_PREFIX . 'home_url', array( 'http' ) );
+
+		$this->assertSame( 'http://example.com', Urls::home_url() );
+		$this->assertSame( array( 'http', 'http' ), get_option( Urls::HTTPS_CHECK_OPTION_PREFIX . 'home_url' ) );
 	}
 }

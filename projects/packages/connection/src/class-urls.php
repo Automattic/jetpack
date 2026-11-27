@@ -82,6 +82,8 @@ class Urls {
 	/**
 	 * Return URL with a normalized protocol.
 	 *
+	 * Records the scheme in the history, except on command-line runs, which only read it.
+	 *
 	 * @param string $callable Function name that was used to retrieve URL option.
 	 * @param string $new_value URL Protocol to set URLs to.
 	 * @return string Normalized URL.
@@ -125,12 +127,15 @@ class Urls {
 	}
 
 	/**
-	 * Whether there is no web request to tell us if the site uses https, as during command-line cron.
+	 * Whether there is no web request to tell us if the site uses https, as during command-line cron or WP-CLI.
+	 *
+	 * Don't test request headers here: a web client can omit them to reach this branch.
 	 *
 	 * @return bool
 	 */
 	private static function is_request_scheme_unknown() {
-		return ! is_ssl() && ( Constants::is_true( 'WP_CLI' ) || empty( $_SERVER['HTTP_HOST'] ) );
+		return ! is_ssl()
+			&& ( Constants::is_true( 'WP_CLI' ) || ( 'cli' === PHP_SAPI && Constants::is_true( 'DOING_CRON' ) ) );
 	}
 
 	/**
