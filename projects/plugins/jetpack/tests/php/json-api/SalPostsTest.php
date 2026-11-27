@@ -1,5 +1,8 @@
 <?php
 
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
+
 require_once JETPACK__PLUGIN_DIR . 'sal/class.json-api-platform.php';
 
 class SalPostsTest extends WP_UnitTestCase {
@@ -75,5 +78,34 @@ class SalPostsTest extends WP_UnitTestCase {
 		$wrapped_post = self::$site->wrap_post( $post, 'display' );
 
 		$this->assertFalse( $wrapped_post->get_has_password() );
+	}
+
+	/**
+	 * Separate process: IS_WPCOM cannot be undefined once set.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_get_author_uses_active_blog_from_filter_on_wpcom() {
+		$author_id = self::factory()->user->create();
+		$post      = get_post( self::factory()->post->create( array( 'post_author' => $author_id ) ) );
+
+		add_filter(
+			'wpcom_api_pre_get_active_blog_author',
+			static function ( $active_blog, $user_id ) use ( $author_id ) {
+				if ( $user_id === $author_id ) {
+					return (object) array( 'blog_id' => 12345 );
+				}
+				return $active_blog;
+			},
+			10,
+			2
+		);
+
+		define( 'IS_WPCOM', true );
+
+		$this->assertSame( 12345, self::$site->wrap_post( $post, 'display' )->get_author()->site_ID );
 	}
 }

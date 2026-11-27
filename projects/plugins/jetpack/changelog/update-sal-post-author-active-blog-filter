@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+REST API: Speed up building post authors on WordPress.com by applying the existing wpcom_api_pre_get_active_blog_author filter.
