@@ -1,7 +1,6 @@
 // Anchors the in-tree tooltip on the SVG's origin. The z-index keeps the
 // tooltip and zoom button inside the plot and paints it over the legend, whose
-// dimmed items are stacking contexts. ChartLayout isolates the chart, so page
-// chrome still paints over it.
+// dimmed items are stacking contexts.
 .xy-plot {
 	position: relative;
 	z-index: 1;

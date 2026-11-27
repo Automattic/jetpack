@@ -302,12 +302,12 @@ const XyChartTooltipContent = < Datum extends object >( {
  *
  * Render it as a child of `XYChart`. The element wrapping that `XYChart` must
  * be `position: relative` with the SVG at its origin, and a stacking context:
- * the box is placed with the SVG-local coordinates visx reports, and the
- * stacking context keeps the box's `zIndex` from competing with page chrome. The box
- * flips and clamps to stay inside the nearest ancestor that clips its overflow
- * (or the viewport), so it may extend past the chart wrapper but is never cut
- * off unless that ancestor is smaller than the box itself. Below-axis placement
- * pins it beneath the x-axis and applies horizontal bounds only.
+ * the box is placed with the SVG-local coordinates visx reports, and its
+ * `zIndex` only orders it within that wrapper. The box flips and clamps to
+ * stay inside the nearest ancestor that clips its overflow (or the viewport),
+ * so it may extend past the chart wrapper but is never cut off unless that
+ * ancestor is smaller than the box itself. Below-axis placement pins it
+ * beneath the x-axis and applies horizontal bounds only.
  *
  * @param props - visx's `Tooltip` options. `scroll`, `debounce` and `resizeObserverPolyfill` are accepted and ignored.
  * @return An anchor in the SVG, plus the overlay and the tooltip box while the tooltip is open.
