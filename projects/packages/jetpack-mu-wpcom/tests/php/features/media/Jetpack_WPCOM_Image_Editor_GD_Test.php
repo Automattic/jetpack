@@ -17,7 +17,6 @@ use WP_Image_Editor;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/media/ai-marker-image-editor.php';
 require_once __DIR__ . '/trait-fake-ai-marker-tools.php';
-require_once __DIR__ . '/fixtures/log-upload.php';
 
 /**
  * Uses fake exiftool and c2patool scripts, so the tests need neither tool.
@@ -70,11 +69,17 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 	private $requested_url;
 
 	/**
+	 * Media requests a test dispatched, which tear_down() finishes.
+	 *
+	 * @var \WP_REST_Request[]
+	 */
+	private $dispatched = array();
+
+	/**
 	 * Keeps real tools and Imagick out of the tests.
 	 */
 	public function set_up() {
 		parent::set_up();
-		$GLOBALS['jetpack_wpcom_ai_marker_log_uploads'] = array();
 
 		add_filter( 'jetpack_wpcom_ai_marker_tool_path', '__return_empty_string' );
 		add_filter( 'wp_client_side_media_processing_enabled', '__return_true' );
@@ -117,9 +122,15 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 
 		// Other suites call Feature_Flags::reset(), which drops the flag this file registered on load.
 		jetpack_wpcom_ai_marker_register_flag();
+
+		wp_set_current_user( $this->user( 'editor' ) );
 	}
 
 	public function tear_down() {
+		foreach ( $this->dispatched as $request ) {
+			apply_filters( 'rest_request_after_callbacks', null, array(), $request );
+		}
+		wp_set_current_user( 0 );
 		$this->remove_temp_dir();
 		parent::tear_down();
 	}
@@ -691,36 +702,22 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 		$this->fake_exiftool_with_c2pa_except( $edited );
 		$this->fake_c2patool( array( 'manifests' => array( 'a' => self::manifest( self::AI_MARKER ) ) ) );
 
-		$metadata = $this->filter_edited_image_metadata( $source, $edited );
+		$upload = $this->upload_browser_edit( $source, $edited );
 
 		$this->assertSame( array( $edited, $source ), $this->read_paths() );
 		$this->assertSame( array( '-config', '', '-m', '-q', '-overwrite_original', '-XMP-x:XMPToolkit=', self::$write_arg . self::AI_MARKER, $edited ), $this->calls( 'exiftool' )[2] );
-		$this->assertSame( wp_filesize( $edited ), $metadata['filesize'] );
 		$this->assertSame( array( 'from-c2pa', 'written' ), $this->stats );
-		$this->assertSame(
-			array(
-				array(
-					array(
-						'file' => $edited,
-						'type' => 'image/jpeg',
-					),
-					false,
-				),
-			),
-			$GLOBALS['jetpack_wpcom_ai_marker_log_uploads']
-		);
+		$this->assertSame( $edited, $upload['file'] );
 	}
 
 	public function test_an_edited_image_that_has_an_ai_type_is_left_alone() {
 		$this->fake_exiftool( self::AI_MARKER );
 		$edited = $this->jpeg();
 
-		$metadata = $this->filter_edited_image_metadata( $this->jpeg(), $edited );
+		$this->upload_browser_edit( $this->jpeg(), $edited );
 
 		$this->assertSame( array( $edited ), $this->read_paths() );
 		$this->assertSame( array(), $this->written_types() );
-		$this->assertSame( 1, $metadata['filesize'] );
-		$this->assertSame( array(), $GLOBALS['jetpack_wpcom_ai_marker_log_uploads'] );
 	}
 
 	/**
@@ -731,7 +728,7 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 		$this->fake_exiftool_with_c2pa_except( $edited, self::CAMERA );
 		$this->fake_c2patool( array( 'manifests' => array( 'a' => self::manifest( self::AI_MARKER ) ) ) );
 
-		$this->filter_edited_image_metadata( $this->jpeg(), $edited );
+		$this->upload_browser_edit( $this->jpeg(), $edited );
 
 		$this->assertSame( array( self::AI_MARKER ), $this->written_types() );
 	}
@@ -739,22 +736,66 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 	public function test_an_edited_image_whose_source_has_no_type_is_left_alone() {
 		$this->fake_exiftool( '' );
 
-		$metadata = $this->filter_edited_image_metadata( $this->jpeg(), $this->jpeg() );
+		$this->upload_browser_edit( $this->jpeg(), $this->jpeg() );
 
 		$this->assertSame( array(), $this->written_types() );
-		$this->assertSame( 1, $metadata['filesize'] );
 	}
 
-	public function test_an_edited_image_keeps_its_filesize_when_exiftool_cannot_write() {
+	/**
+	 * The media endpoint may not check parent_image, so a user could name an image they can't edit.
+	 */
+	public function test_skips_a_source_the_user_cannot_edit() {
+		$this->fake_exiftool( self::AI_MARKER );
+		$source = $this->attachment( $this->jpeg() );
+		wp_set_current_user( $this->user( 'subscriber' ) );
+
+		jetpack_wpcom_ai_marker_mark_upload( $this->upload( $this->jpeg() ), $source );
+
+		$this->assertSame( array(), $this->calls( 'exiftool' ) );
+	}
+
+	/**
+	 * Hooks the marker runs, such as load_image_to_edit_attachmenturl, mustn't stop the upload.
+	 */
+	public function test_keeps_the_upload_when_a_hook_throws() {
+		$this->fake_exiftool( '' );
 		$edited = $this->jpeg();
-		$this->fake_exiftool_with_c2pa_except( $edited, '', 1 );
-		$this->fake_c2patool( array( 'manifests' => array( 'a' => self::manifest( self::AI_MARKER ) ) ) );
+		add_filter(
+			'load_image_to_edit_attachmenturl',
+			/** @return never */ function () {
+				throw new \RuntimeException( 'A hook failed.' );
+			}
+		);
 
-		$metadata = $this->filter_edited_image_metadata( $this->jpeg(), $edited );
+		$upload = $this->upload_browser_edit( $this->temp_path( 'jpeg' ), $edited );
 
-		$this->assertSame( 1, $metadata['filesize'] );
-		$this->assertSame( array( 'from-c2pa', 'tool-failed' ), $this->stats );
-		$this->assertSame( array(), $GLOBALS['jetpack_wpcom_ai_marker_log_uploads'] );
+		$this->assertSame( $edited, $upload['file'] );
+	}
+
+	/**
+	 * Uploads that failed, or that aren't images, have nothing to mark.
+	 *
+	 * @return array
+	 */
+	public static function data_unmarkable_uploads() {
+		return array(
+			'failed upload' => array( array( 'error' => 'Upload failed.' ) ),
+			'not an image'  => array( array( 'type' => 'application/pdf' ) ),
+		);
+	}
+
+	/**
+	 * @dataProvider data_unmarkable_uploads
+	 *
+	 * @param array $upload Fields that replace the upload's defaults.
+	 */
+	#[DataProvider( 'data_unmarkable_uploads' )]
+	public function test_skips_uploads_it_cannot_mark( $upload ) {
+		$this->fake_exiftool( self::AI_MARKER );
+
+		$this->upload_browser_edit( $this->jpeg(), $this->jpeg(), $upload );
+
+		$this->assertSame( array(), $this->calls( 'exiftool' ) );
 	}
 
 	/**
@@ -772,7 +813,7 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 			}
 		);
 
-		$this->filter_edited_image_metadata( $this->temp_path( 'jpeg' ), $edited );
+		$this->upload_browser_edit( $this->temp_path( 'jpeg' ), $edited );
 
 		$this->assertStringEndsWith( '?key=private', $this->requested_url );
 		$this->assertSame( array( 'remote-source', 'from-c2pa', 'written' ), $this->stats );
@@ -780,16 +821,70 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * A batch runs its requests in one process, so a server edit after a browser edit mustn't run the hook.
+	 * WordPress.com copies the upload to file storage on wp_handle_upload, so a later write would reach visitors late.
 	 */
-	public function test_watches_a_browser_edit_until_its_request_is_done() {
+	public function test_marks_a_browser_edit_before_other_wp_handle_upload_filters_run() {
 		$this->require_client_side_processing();
-		$this->dispatch_media_request( 'create_item', array( 'parent_image' => 1 ) );
-		$this->assertSame( 10, has_filter( 'wp_edited_image_metadata', 'jetpack_wpcom_ai_marker_edited_image_metadata' ) );
+		$edited = $this->jpeg();
+		$this->fake_exiftool_with_c2pa_except( $edited );
+		$this->fake_c2patool( array( 'manifests' => array( 'a' => self::manifest( self::AI_MARKER ) ) ) );
+		$written_when_filtered = null;
+		$record                = function ( $upload ) use ( &$written_when_filtered ) {
+			$written_when_filtered = $this->written_types();
+			return $upload;
+		};
+		add_filter( 'wp_handle_upload', $record );
 
-		apply_filters( 'rest_request_after_callbacks', null, array(), new \WP_REST_Request() );
+		$this->dispatch_media_request( 'create_item', array( 'parent_image' => $this->attachment( $this->jpeg() ) ) );
+		apply_filters( 'wp_handle_upload', $this->upload( $edited ), 'upload' );
+		remove_filter( 'wp_handle_upload', $record );
 
-		$this->assertFalse( has_filter( 'wp_edited_image_metadata', 'jetpack_wpcom_ai_marker_edited_image_metadata' ) );
+		$this->assertSame( array( self::AI_MARKER ), $written_when_filtered );
+	}
+
+	/**
+	 * Media routes can't be batched, but one process can still serve more than one request.
+	 */
+	public function test_stops_watching_once_the_browser_edit_request_is_done() {
+		$this->require_client_side_processing();
+		$this->fake_exiftool( '' );
+		$request = $this->dispatch_media_request( 'create_item', array( 'parent_image' => $this->attachment( $this->jpeg() ) ) );
+
+		apply_filters( 'rest_request_after_callbacks', null, array(), $request );
+		apply_filters( 'wp_handle_upload', $this->upload( $this->jpeg() ), 'upload' );
+
+		$this->assertSame( array(), $this->calls( 'exiftool' ) );
+	}
+
+	/**
+	 * The callback may throw, which skips rest_request_after_callbacks, so a later upload in the process mustn't be marked.
+	 */
+	public function test_marks_only_the_first_upload_of_a_browser_edit() {
+		$this->require_client_side_processing();
+		$this->fake_exiftool( self::AI_MARKER );
+		$this->dispatch_media_request( 'create_item', array( 'parent_image' => $this->attachment( $this->jpeg() ) ) );
+		apply_filters( 'wp_handle_upload', $this->upload( $this->jpeg() ), 'upload' );
+		$calls = count( $this->calls( 'exiftool' ) );
+
+		apply_filters( 'wp_handle_upload', $this->upload( $this->jpeg() ), 'upload' );
+
+		$this->assertCount( $calls, $this->calls( 'exiftool' ) );
+	}
+
+	/**
+	 * Another plugin may run a REST request of its own while the upload is handled.
+	 */
+	public function test_marks_a_browser_edit_after_a_nested_request_finishes() {
+		$this->require_client_side_processing();
+		$edited = $this->jpeg();
+		$this->fake_exiftool_with_c2pa_except( $edited );
+		$this->fake_c2patool( array( 'manifests' => array( 'a' => self::manifest( self::AI_MARKER ) ) ) );
+		$this->dispatch_media_request( 'create_item', array( 'parent_image' => $this->attachment( $this->jpeg() ) ) );
+
+		rest_do_request( new \WP_REST_Request( 'GET', '/wp/v2/types' ) );
+		apply_filters( 'wp_handle_upload', $this->upload( $edited ), 'upload' );
+
+		$this->assertSame( array( self::AI_MARKER ), $this->written_types() );
 	}
 
 	/**
@@ -819,18 +914,15 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 		$this->require_client_side_processing();
 		add_filter( 'wp_client_side_media_processing_enabled', $client_side ? '__return_true' : '__return_false', 11 );
 
+		$this->fake_exiftool( '' );
+		if ( isset( $params['parent_image'] ) ) {
+			$params['parent_image'] = $this->attachment( $this->jpeg() );
+		}
+
 		$this->dispatch_media_request( $method, $params );
-
-		$this->assertFalse( has_filter( 'wp_edited_image_metadata', 'jetpack_wpcom_ai_marker_edited_image_metadata' ) );
-	}
-
-	public function test_skips_an_edited_image_that_is_not_on_this_host() {
-		$this->fake_exiftool( self::AI_MARKER );
-
-		$metadata = $this->filter_edited_image_metadata( $this->jpeg(), $this->temp_path( 'jpeg' ) );
+		apply_filters( 'wp_handle_upload', $this->upload( $this->jpeg() ), 'upload' );
 
 		$this->assertSame( array(), $this->calls( 'exiftool' ) );
-		$this->assertSame( array( 'filesize' => 1 ), $metadata );
 	}
 
 	/**
@@ -838,25 +930,55 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 	 *
 	 * @param string $edited       Path of the edited image.
 	 * @param string $type         The XMP type a read reports, or '' for none.
-	 * @param int    $write_status Exit status of a write.
 	 */
-	private function fake_exiftool_with_c2pa_except( $edited, $type = '', $write_status = 0 ) {
+	private function fake_exiftool_with_c2pa_except( $edited, $type = '' ) {
 		$read = '' === $type ? '' : "printf 'DigitalSourceType: %s\\n' " . escapeshellarg( $type ) . '; ';
-		$this->fake_tool( 'exiftool', 'case " $* " in *" -S "*) ' . $read . 'case "$*" in *' . escapeshellarg( $edited ) . ") ;; *) echo 'JUMDLabel: c2pa';; esac; exit 0;; esac\nexit $write_status\n" );
+		$this->fake_tool( 'exiftool', 'case " $* " in *" -S "*) ' . $read . 'case "$*" in *' . escapeshellarg( $edited ) . ") ;; *) echo 'JUMDLabel: c2pa';; esac; exit 0;; esac\nexit 0\n" );
 	}
 
 	/**
-	 * Runs the edited-image hook on a new attachment at $edited made from one at $source.
+	 * Marks an upload at $edited that was edited from a new attachment at $source.
 	 *
 	 * @param string $source Path of the source image.
 	 * @param string $edited Path of the edited image.
-	 * @return array The filtered metadata.
+	 * @param array  $fields Fields that replace the upload's defaults.
+	 * @return array The filtered upload.
 	 */
-	private function filter_edited_image_metadata( $source, $edited ) {
-		return jetpack_wpcom_ai_marker_edited_image_metadata(
-			array( 'filesize' => 1 ),
-			$this->attachment( $edited ),
-			$this->attachment( $source )
+	private function upload_browser_edit( $source, $edited, array $fields = array() ) {
+		return jetpack_wpcom_ai_marker_mark_upload( array_merge( $this->upload( $edited ), $fields ), $this->attachment( $source ) );
+	}
+
+	/**
+	 * Creates a user with $role.
+	 *
+	 * @param string $role The user's role.
+	 * @return int The user's ID.
+	 */
+	private function user( $role ) {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => "ai_marker_$role",
+				'user_pass'  => wp_generate_password(),
+				'user_email' => "ai_marker_$role@example.com",
+				'role'       => $role,
+			)
+		);
+		$this->assertIsInt( $user_id );
+
+		return $user_id;
+	}
+
+	/**
+	 * What wp_handle_upload passes its filters for a JPEG at $path.
+	 *
+	 * @param string $path Path of the uploaded image.
+	 * @return array
+	 */
+	private function upload( $path ) {
+		return array(
+			'file' => $path,
+			'url'  => 'https://example.com/' . wp_basename( $path ),
+			'type' => 'image/jpeg',
 		);
 	}
 
@@ -874,6 +996,7 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 	 *
 	 * @param string $method The attachments controller method that handles the request.
 	 * @param array  $params The request's parameters.
+	 * @return \WP_REST_Request The request.
 	 */
 	private function dispatch_media_request( $method, array $params ) {
 		$request = new \WP_REST_Request( 'POST', '/wp/v2/media' );
@@ -881,6 +1004,9 @@ class Jetpack_WPCOM_Image_Editor_GD_Test extends \WorDBless\BaseTestCase {
 		$handler = array( 'callback' => array( new \WP_REST_Attachments_Controller( 'attachment' ), $method ) );
 
 		apply_filters( 'rest_request_before_callbacks', null, $handler, $request );
+		$this->dispatched[] = $request;
+
+		return $request;
 	}
 
 	/**
