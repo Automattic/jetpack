@@ -2,17 +2,14 @@ import { __ } from '@wordpress/i18n';
 import type { ElementType, ReactNode } from 'react';
 
 type Props = {
-	description?: ReactNode;
-	descriptionComponent?: ElementType;
-	tableClassName?: string;
+	description: ReactNode;
+	descriptionComponent: ElementType;
+	tableClassName: string;
 };
 
 export default function GradeExplanation( {
-	description = __(
-		"Your overall score is a summary of your first Cornerstone Page across both mobile and desktop devices. It gives a general idea of your site's overall performance.",
-		'jetpack-boost'
-	),
-	descriptionComponent: Description = 'p',
+	description,
+	descriptionComponent: Description,
 	tableClassName,
 }: Props ) {
 	return (
