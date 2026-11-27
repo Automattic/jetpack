@@ -4,6 +4,7 @@ import { act } from 'react';
 let mockIdentityCrisis = null;
 let mockSelectors = null;
 let mockScreenProps = null;
+let mockLegacyScreenProps = null;
 const mockNewScreen = props => {
 	mockScreenProps = props;
 	return 'New Safe Mode screen';
@@ -23,7 +24,12 @@ jest.mock( '@wordpress/data', () => ( {
 			getUserConnectionData: () => ( { currentUser: mockCurrentUser } ),
 		},
 } ) );
-jest.mock( '@automattic/jetpack-idc', () => ( { IDCScreen: () => 'Safe Mode choices' } ) );
+jest.mock( '@automattic/jetpack-idc', () => ( {
+	IDCScreen: props => {
+		mockLegacyScreenProps = props;
+		return 'Safe Mode choices';
+	},
+} ) );
 jest.mock( '@wordpress/element', () => {
 	const element = jest.requireActual( '@wordpress/element' );
 	return { ...element, createRoot: jest.fn( element.createRoot ) };
@@ -72,6 +78,7 @@ describe( 'Safe Mode screen', () => {
 		mockIdentityCrisis = null;
 		mockSelectors = null;
 		mockScreenProps = null;
+		mockLegacyScreenProps = null;
 		jest.clearAllMocks();
 	} );
 
@@ -82,6 +89,29 @@ describe( 'Safe Mode screen', () => {
 
 		expect( container ).toHaveTextContent( 'Safe Mode choices' );
 		expect( createRoot ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it.each(
+		[
+			[ 'matched consumer page', 'my_plugin_safe_mode' ],
+			[ 'sole consumer on a shared page', undefined ],
+			[ 'ambiguous shared page', undefined ],
+			[ 'consumer without a source', '' ],
+		].flatMap( ( [ context, from ] ) =>
+			[ false, true ].map( useNewScreen => [
+				`${ context } (${ useNewScreen ? 'new' : 'legacy' } screen)`,
+				from,
+				useNewScreen,
+			] )
+		)
+	)( 'uses the server-selected source for %s', ( context, from, useNewScreen ) => {
+		mockIdentityCrisis = { useNewScreen };
+		window.JP_IDENTITY_CRISIS__INITIAL_STATE.consumerData = { from };
+		addElement( 'jp-identity-crisis-container' );
+		act( () => onLoad() );
+		const props = useNewScreen ? mockScreenProps : mockLegacyScreenProps;
+		const expected = useNewScreen ? from || 'connection_safe_mode_notice' : from;
+		expect( props.from ).toBe( expected );
 	} );
 
 	it( 'renders once into a container added after the page loads', async () => {

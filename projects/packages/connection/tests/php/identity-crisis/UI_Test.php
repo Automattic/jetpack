@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\IdentityCrisis;
 
+use Automattic\Jetpack\Connection\Plugin_Storage;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -237,6 +239,109 @@ class UI_Test extends TestCase {
 			$expected,
 			$result,
 			'Should return the consumer with customContent unchanged when it is not callable'
+		);
+	}
+
+	/**
+	 * Priority-only selection must not attribute shared-page recovery to another plugin.
+	 *
+	 * @dataProvider consumer_source_provider
+	 * @param array       $consumers Registered consumers.
+	 * @param string      $uri Current admin request.
+	 * @param string      $expected_slug Selected notice consumer.
+	 * @param string|null $expected_from Eligible authorization source.
+	 */
+	#[DataProvider( 'consumer_source_provider' )]
+	public function test_consumer_authorization_source( $consumers, $uri, $expected_slug, $expected_from ) {
+		$filter = static function () use ( $consumers ) {
+			return $consumers;
+		};
+		add_filter( 'jetpack_idc_consumers', $filter, 20 );
+		$_SERVER['REQUEST_URI'] = $uri;
+		try {
+			$result = UI::get_consumer_data();
+			$this->assertSame( $expected_slug, $result['slug'] );
+			$this->assertSame( $expected_from, $result['from'] ?? null );
+			$this->assertSame( $expected_slug, $result['logo'] );
+			$this->assertSame( array( 'headerText' => $expected_slug ), $result['customContent'] );
+			$this->assertSame( $result, UI::get_consumer_data(), 'The cached selection keeps the same source policy.' );
+		} finally {
+			remove_filter( 'jetpack_idc_consumers', $filter, 20 );
+		}
+	}
+
+	/** A standalone plugin cannot claim a connection initiated on Plugins. */
+	public function test_single_connected_consumer_keeps_default_on_shared_page() {
+		$storage = new ReflectionClass( Plugin_Storage::class );
+		$saved   = array();
+		foreach ( array(
+			'configured'      => true,
+			'plugins'         => array( 'standalone' => array() ),
+			'current_blog_id' => get_current_blog_id(),
+		) as $name => $value ) {
+			$property = $storage->getProperty( $name );
+			if ( PHP_VERSION_ID < 80100 ) {
+				$property->setAccessible( true );
+			}
+			$saved[] = array( $property, $property->getValue() );
+			$property->setValue( null, $value );
+		}
+		$filter = static function () {
+			return array(
+				array(
+					'slug'       => 'standalone',
+					'admin_page' => '/wp-admin/admin.php?page=standalone',
+					'from'       => 'standalone_safe_mode',
+				),
+			);
+		};
+		add_filter( 'jetpack_idc_consumers', $filter, 20 );
+		$_SERVER['REQUEST_URI'] = '/wp-admin/plugins.php';
+		try {
+			$this->assertArrayNotHasKey( 'from', UI::get_consumer_data() );
+		} finally {
+			remove_filter( 'jetpack_idc_consumers', $filter, 20 );
+			foreach ( $saved as list( $property, $value ) ) {
+				$property->setValue( null, $value );
+			}
+		}
+	}
+
+	/**
+	 * Only a matching consumer page identifies the owner of a recovery connection.
+	 *
+	 * @return array
+	 */
+	public static function consumer_source_provider() {
+		$first          = array(
+			'slug'          => 'first',
+			'admin_page'    => '/wp-admin/admin.php?page=first',
+			'priority'      => 1,
+			'from'          => 'first_safe_mode',
+			'logo'          => 'first',
+			'customContent' => array( 'headerText' => 'first' ),
+		);
+		$second         = array(
+			'slug'          => 'second',
+			'admin_page'    => '/wp-admin/admin.php?page=second',
+			'priority'      => 20,
+			'from'          => 'second_safe_mode',
+			'logo'          => 'second',
+			'customContent' => array( 'headerText' => 'second' ),
+		);
+		$without_source = $second;
+		unset( $without_source['from'] );
+
+		return array(
+			'matched page beats priority'                 => array( array( $first, $second ), '/wp-admin/admin.php?page=second', 'second', 'second_safe_mode' ),
+			'single consumer on its own page'             => array( array( $second ), '/wp-admin/admin.php?page=second', 'second', 'second_safe_mode' ),
+			'single consumer on Marketing'                => array( array( $second ), '/wp-admin/admin.php?page=wc-admin&path=/marketing', 'second', null ),
+			'single consumer on Plugins'                  => array( array( $second ), '/wp-admin/plugins.php', 'second', null ),
+			'single consumer on another plugin dashboard' => array( array( $second ), '/wp-admin/admin.php?page=jetpack-backup', 'second', null ),
+			'multiple consumers on Plugins'               => array( array( $first, $second ), '/wp-admin/plugins.php', 'first', null ),
+			'multiple consumers on Marketing'             => array( array( $first, $second ), '/wp-admin/admin.php?page=wc-admin&path=/marketing', 'first', null ),
+			'consumer without source still counts'        => array( array( $first, $without_source ), '/wp-admin/index.php', 'first', null ),
+			'matched consumer without source keeps default' => array( array( $first, $without_source ), '/wp-admin/admin.php?page=second', 'second', null ),
 		);
 	}
 }

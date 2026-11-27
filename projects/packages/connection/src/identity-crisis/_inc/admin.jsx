@@ -96,6 +96,7 @@ function renderInto( container, isNotice ) {
 
 	const root = WPElement.createRoot( container );
 	const newScreenScript = isNotice ? getNewScreenScript() : null;
+	const from = typeof consumerData.from === 'string' ? consumerData.from : undefined;
 
 	if ( newScreenScript ) {
 		const { IdentityCrisis, CONNECTION_FROM, CONNECTION_STORE_ID, initializeTracksIdentity } =
@@ -107,7 +108,7 @@ function renderInto( container, isNotice ) {
 				<IdentityCrisis
 					context="notice"
 					redirectUri={ redirectUri }
-					from={ CONNECTION_FROM.connectionSafeModeNotice }
+					from={ from || CONNECTION_FROM.connectionSafeModeNotice }
 				/>
 			</div>
 		);
@@ -121,6 +122,7 @@ function renderInto( container, isNotice ) {
 			apiRoot={ WP_API_root }
 			apiNonce={ WP_API_nonce }
 			redirectUri={ redirectUri }
+			from={ from }
 			tracksUserData={ tracksUserData || {} }
 			tracksEventData={ tracksEventData }
 			customContent={

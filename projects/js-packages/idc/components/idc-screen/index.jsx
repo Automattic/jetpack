@@ -25,6 +25,7 @@ const IDCScreen = props => {
 		apiNonce,
 		apiRoot,
 		redirectUri,
+		from,
 		tracksUserData,
 		tracksEventData,
 		isAdmin,
@@ -42,7 +43,7 @@ const IDCScreen = props => {
 		}, [ setIsMigrated ] )
 	);
 
-	const { isStartingFresh, startFreshCallback } = useStartFresh( redirectUri );
+	const { isStartingFresh, startFreshCallback } = useStartFresh( redirectUri, from );
 	const { isFinishingMigration, finishMigrationCallback } = useMigrationFinished();
 
 	/**
@@ -102,6 +103,8 @@ IDCScreen.propTypes = {
 	currentUrl: PropTypes.string.isRequired,
 	/** The redirect URI to redirect users back to after connecting. */
 	redirectUri: PropTypes.string.isRequired,
+	/** Optional consumer source for registration and authorization. */
+	from: PropTypes.string,
 	/** API root URL. */
 	apiRoot: PropTypes.string.isRequired,
 	/** API Nonce. */

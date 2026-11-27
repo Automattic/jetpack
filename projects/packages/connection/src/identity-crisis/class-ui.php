@@ -229,7 +229,12 @@ class UI {
 		}
 		unset( $consumer );
 
-		static::$consumers = $consumer_chosen ? $consumer_chosen : array_shift( $consumers );
+		static::$consumers = $consumer_chosen ? $consumer_chosen : $consumers[0];
+
+		// A priority fallback selects notice branding, not the owner of a shared-page connection.
+		if ( ! $consumer_chosen ) {
+			unset( static::$consumers['from'] );
+		}
 
 		return static::$consumers;
 	}
