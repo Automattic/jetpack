@@ -132,24 +132,60 @@ export async function rsyncInit( argv ) {
 		finalDest = path.join( argv.dest, '/' );
 	}
 
-	const untrackedFiles = await getUntrackedFiles( sourcePluginPath );
-	if ( untrackedFiles ) {
+	const linkedPaths = await getLinkedProjectPaths( sourcePluginPath );
+
+	const untrackedFiles = await getUntrackedFiles( linkedPaths );
+	if ( untrackedFiles && ! argv.ignoreUntracked ) {
 		console.log( 'The below untracked files were detected in your plugin path:\n' );
 		console.log( untrackedFiles.replace( /^/gm, '  ' ) + '\n' );
-		if ( ! argv.nonInteractive ) {
-			await enquirer
-				.prompt( {
-					type: 'confirm',
-					name: 'ignoreUntracked',
-					message: 'Untracked files will not be synced. Proceed?',
-					initial: false,
-				} )
-				.then( answer => {
-					if ( ! answer.ignoreUntracked ) {
-						process.exit( 0 );
-					}
-				} );
+		console.log(
+			'They will not be synced. To sync them, stage them first (`git add -N <file>`).\n'
+		);
+		if ( argv.nonInteractive ) {
+			console.error(
+				chalk.red( 'Stage the untracked files, or pass --ignore-untracked to sync without them.' )
+			);
+			process.exit( 1 );
 		}
+		await enquirer
+			.prompt( {
+				type: 'confirm',
+				name: 'ignoreUntracked',
+				message: 'Untracked files will not be synced. Proceed?',
+				initial: false,
+			} )
+			.then( answer => {
+				if ( ! answer.ignoreUntracked ) {
+					process.exit( 0 );
+				}
+			} );
+	}
+
+	const unbuiltProjects = await getUnbuiltProjects( linkedPaths );
+	if ( unbuiltProjects.length && ! argv.allowUnbuilt ) {
+		console.log( 'These projects have a build step but no build output:\n' );
+		console.log(
+			unbuiltProjects.map( p => `  ${ path.relative( process.cwd(), p ) }` ).join( '\n' ) + '\n'
+		);
+		console.log(
+			'Syncing deletes their build output at the destination. Build them first (`jetpack build <project>`).\n'
+		);
+		if ( argv.nonInteractive ) {
+			console.error( chalk.red( 'Build those projects, or pass --allow-unbuilt to sync anyway.' ) );
+			process.exit( 1 );
+		}
+		await enquirer
+			.prompt( {
+				type: 'confirm',
+				name: 'allowUnbuilt',
+				message: 'Their build output will be deleted at the destination. Proceed?',
+				initial: false,
+			} )
+			.then( answer => {
+				if ( ! answer.allowUnbuilt ) {
+					process.exit( 0 );
+				}
+			} );
 	}
 
 	const password = argv.password || null;
@@ -541,12 +577,12 @@ async function isFileExcluded( filePath ) {
 }
 
 /**
- * Get all untracked files in the plugin directory.
+ * Get the plugin path plus every monorepo project it links in through Composer symlinks.
  *
  * @param {string} pluginPath - Path to plugin.
- * @return {string} Files that aren't tracked.
+ * @return {Promise<string[]>} Paths, the plugin first.
  */
-async function getUntrackedFiles( pluginPath ) {
+async function getLinkedProjectPaths( pluginPath ) {
 	const paths = [ pluginPath ];
 
 	// Add any Composer-symlinked vendor packages. Assumes the usual directory structure.
@@ -577,6 +613,16 @@ async function getUntrackedFiles( pluginPath ) {
 		}
 	}
 
+	return paths;
+}
+
+/**
+ * Get all untracked files in the plugin and its linked projects.
+ *
+ * @param {string[]} paths - Paths from getLinkedProjectPaths().
+ * @return {Promise<string|undefined>} Files that aren't tracked.
+ */
+async function getUntrackedFiles( paths ) {
 	try {
 		const { stdout } = await execa( 'git', [
 			'ls-files',
@@ -589,6 +635,60 @@ async function getUntrackedFiles( pluginPath ) {
 		console.log( e );
 		console.error( chalk.red( 'Uh oh! ' + e.message ) );
 	}
+}
+
+/**
+ * Find projects that have a build step and ship build output, but have none built.
+ *
+ * Their output is git-ignored and only synced when present, so rsync's `--delete` removes it at the destination.
+ *
+ * @param {string[]} paths - Project paths, e.g. from getLinkedProjectPaths().
+ * @return {Promise<string[]>} Paths of unbuilt projects.
+ */
+export async function getUnbuiltProjects( paths ) {
+	const unbuilt = [];
+	for ( const projectPath of paths ) {
+		const composerJson = await fs
+			.readFile( path.join( projectPath, 'composer.json' ), 'utf8' )
+			.then( JSON.parse, () => null );
+		const scripts = composerJson?.scripts ?? {};
+		if ( ! scripts[ 'build-production' ] && ! scripts[ 'build-development' ] ) {
+			continue;
+		}
+
+		const gitattributes = await fs
+			.readFile( path.join( projectPath, '.gitattributes' ), 'utf8' )
+			.catch( () => '' );
+		if ( ! /^[^#\n]*\sproduction-include\b/m.test( gitattributes ) ) {
+			continue;
+		}
+
+		try {
+			const { stdout: ignored } = await execa(
+				'git',
+				[ '-c', 'core.quotepath=off', 'ls-files', '--others', '--ignored', '--exclude-standard' ],
+				{ cwd: projectPath }
+			);
+			// Composer output is production-included too, but it isn't build output.
+			const candidates = ignored
+				.split( '\n' )
+				.filter( f => f && ! /^(?:jetpack_)?vendor\//.test( f ) )
+				.join( '\n' );
+			const { stdout: attrs } = await execa(
+				'git',
+				[ '-c', 'core.quotepath=off', 'check-attr', '--stdin', 'production-include' ],
+				{ cwd: projectPath, input: candidates }
+			);
+			if ( ! /: production-include: (?!unspecified$|unset$)/m.test( attrs ) ) {
+				unbuilt.push( projectPath );
+			}
+		} catch ( e ) {
+			console.warn(
+				chalk.yellow( `Could not check the build output of ${ projectPath }: ${ e.message }` )
+			);
+		}
+	}
+	return unbuilt;
 }
 
 /**
@@ -889,6 +989,15 @@ export function rsyncDefine( yargs ) {
 				} )
 				.option( 'non-interactive', {
 					describe: 'Do not use interactive prompts. Ideal for CI runs.',
+					type: 'boolean',
+				} )
+				.option( 'ignore-untracked', {
+					describe: 'Sync even when untracked files are present, without them.',
+					type: 'boolean',
+				} )
+				.option( 'allow-unbuilt', {
+					describe:
+						'Sync even when a linked project has no build output, deleting that output at the destination.',
 					type: 'boolean',
 				} )
 				.option( 'password', {
