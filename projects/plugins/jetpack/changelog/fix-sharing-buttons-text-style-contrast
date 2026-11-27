@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Sharing Buttons block: Keep button labels readable on dark backgrounds.
