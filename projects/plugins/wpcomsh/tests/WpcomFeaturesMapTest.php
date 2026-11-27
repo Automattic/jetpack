@@ -248,6 +248,37 @@ class WpcomFeaturesMapTest extends WP_UnitTestCase {
 		);
 	}
 
+	/**
+	 * Catches a map entry widened to WPCOM_BUSINESS_PLANS, which would also grant the trials and Student.
+	 *
+	 * @dataProvider edge_rules_plan_provider
+	 * @param string $slug     Product slug.
+	 * @param bool   $expected Whether the plan grants Edge Rules.
+	 */
+	#[DataProvider( 'edge_rules_plan_provider' )]
+	public function test_edge_rules_needs_a_paid_business_or_commerce_plan( $slug, $expected ) {
+		$purchases = array( $this->purchase( $slug ) );
+
+		$this->assertSame( $expected, WPCOM_Features::has_feature( WPCOM_Features::EDGE_RULES, $purchases, 'wpcom' ) );
+	}
+
+	/**
+	 * Plans checked for Edge Rules.
+	 *
+	 * @return array
+	 */
+	public static function edge_rules_plan_provider() {
+		return array(
+			'business'       => array( 'business-bundle', true ),
+			'commerce'       => array( 'ecommerce-bundle', true ),
+			'premium'        => array( 'value_bundle', false ),
+			'pro'            => array( 'pro-plan', false ),
+			'hosting trial'  => array( 'wp_bundle_hosting_trial_monthly', false ),
+			'commerce trial' => array( 'ecommerce-trial-bundle-monthly', false ),
+			'student'        => array( 'wp_bundle_student_yearly', false ),
+		);
+	}
+
 	public function test_sticker_not_present_withdraws_the_definition_once_the_sticker_lands() {
 		$map = array(
 			array(

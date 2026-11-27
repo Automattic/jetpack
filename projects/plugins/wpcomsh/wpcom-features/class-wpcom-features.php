@@ -463,6 +463,7 @@ class WPCOM_Features {
 	public const ECOMMERCE_MANAGED_PLUGINS_SMALL   = 'ecommerce-managed-plugins-small';
 	public const ECOMMERCE_MANAGED_PLUGINS_MEDIUM  = 'ecommerce-managed-plugins-medium';
 	public const ECOMMERCE_MANAGED_PLUGINS_TRIAL   = 'ecommerce-managed-plugins-trial';
+	public const EDGE_RULES                        = 'edge-rules';
 	public const EDIT_PLUGINS                      = 'edit-plugins';
 	public const EDIT_THEMES                       = 'edit-themes';
 	public const EMAIL_PROFESSIONAL                = 'email-professional';
@@ -871,6 +872,9 @@ class WPCOM_Features {
 		// ECOMMERCE_MANAGED_PLUGINS_TRIAL - Can install the plugin bundle that comes with eCommerce Trial plans.
 		self::ECOMMERCE_MANAGED_PLUGINS_TRIAL   => array(
 			self::WPCOM_ECOMMERCE_TRIAL_PLANS,
+		),
+		self::EDGE_RULES                        => array(
+			self::WPCOM_PAID_BUSINESS_AND_COMMERCE_PLANS,
 		),
 		// EDIT_PLUGINS - Provides the edit_plugins capability on atomic sites, does nothing on simple sites.
 		self::EDIT_PLUGINS                      => array(
