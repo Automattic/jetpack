@@ -71,6 +71,21 @@ describe( 'ExporterCsvAction', () => {
 		expect( filename ).toBe( 'things-2026-03-01_2026-03-10' );
 	} );
 
+	it( 'keeps the download while the same period refreshes', () => {
+		const refreshing = { ...SETTLED, isFetching: true };
+
+		render(
+			<ExporterCsvAction
+				exporter={ buildExporter() }
+				items={ ITEMS }
+				status={ refreshing }
+				reportParams={ REPORT_PARAMS }
+			/>
+		);
+
+		expect( reportCsvActionMock ).toHaveBeenCalled();
+	} );
+
 	it.each( [
 		[ 'no rows', SETTLED, [] ],
 		[ 'failed', { ...SETTLED, isError: true }, ITEMS ],
