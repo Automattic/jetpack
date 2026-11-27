@@ -45,11 +45,6 @@ abstract class WPCOM_Hosting_Feature_Page extends WPCOM_WP_Build_Page {
 	const TRANSFER_CONTEXT = 'jetpack_product_activation';
 
 	/**
-	 * Shared by every hosting feature page, whose boot code is shared too.
-	 */
-	const INITIAL_STATE_VAR = 'wpcomHostingFeatureInitialState';
-
-	/**
 	 * The pages record their prompts in Tracks.
 	 */
 	const ENQUEUE_TRACKS = true;
@@ -144,26 +139,6 @@ abstract class WPCOM_Hosting_Feature_Page extends WPCOM_WP_Build_Page {
 		}
 
 		parent::init();
-	}
-
-	/**
-	 * Also file the state under the page's name: Backup and Scan share INITIAL_STATE_VAR, and the
-	 * admin shell can hold both in one document.
-	 *
-	 * @return string
-	 */
-	public static function get_initial_state_script() {
-		$state = wp_json_encode( static::get_initial_state(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_SLASHES );
-		if ( false === $state ) {
-			return '';
-		}
-
-		return sprintf(
-			'window.%1$s = %2$s;' . "\n" . 'window.%1$ss = Object.assign( window.%1$ss || {}, { [ %3$s ]: window.%1$s } );',
-			static::INITIAL_STATE_VAR,
-			$state,
-			wp_json_encode( static::WP_BUILD_PAGE, JSON_HEX_TAG | JSON_HEX_AMP )
-		);
 	}
 
 	/**

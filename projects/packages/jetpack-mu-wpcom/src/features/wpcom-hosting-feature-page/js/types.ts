@@ -78,8 +78,8 @@ export type InitialState = {
 export type FeatureConfig = {
 	/** Product name for the page heading. Not translated. */
 	productName: string;
-	/** The wp-build page, as in routes/<route>/package.json. */
-	page: string;
+	/** The global the page's PHP prints its state to, its INITIAL_STATE_VAR. */
+	stateVar: InitialStateVar;
 	subTitle: string;
 	icon: ComponentProps< typeof Icon >[ 'icon' ];
 	/** Callout illustration URL. */
@@ -136,9 +136,11 @@ export type FeatureConfig = {
 	};
 };
 
+export type InitialStateVar = 'wpcomBackupInitialState' | 'wpcomScanInitialState';
+
 declare global {
 	interface Window {
-		wpcomHostingFeatureInitialState?: InitialState;
-		wpcomHostingFeatureInitialStates?: Record< string, InitialState >;
+		wpcomBackupInitialState?: InitialState;
+		wpcomScanInitialState?: InitialState;
 	}
 }

@@ -70,11 +70,6 @@ abstract class WPCOM_WP_Build_Page {
 	const ADMIN_SHELL_NEEDS_MENU = false;
 
 	/**
-	 * Admin_Shell, from admin-ui, which ships with Jetpack rather than as a dependency of this package.
-	 */
-	const ADMIN_SHELL_CLASS = 'Automattic\\Jetpack\\Admin_UI\\Admin_Shell';
-
-	/**
 	 * Whether each page registered its slug on this request, keyed by class.
 	 *
 	 * @var bool[]
@@ -138,10 +133,8 @@ abstract class WPCOM_WP_Build_Page {
 
 		add_action( 'admin_menu', array( static::class, 'register_page' ), static::REGISTER_PRIORITY );
 
-		if ( class_exists( self::ADMIN_SHELL_CLASS ) ) {
-			// After the Jetpack packages at 10, so a package that serves the same slug keeps it.
-			add_filter( 'jetpack_admin_shell_members', array( static::class, 'add_admin_shell_member' ), 20 );
-		}
+		// After the Jetpack packages at 10, so a package that serves the same slug keeps it.
+		add_filter( 'jetpack_admin_shell_members', array( static::class, 'add_admin_shell_member' ), 20 );
 
 		if ( ! static::is_page_request() ) {
 			return;
@@ -435,25 +428,16 @@ abstract class WPCOM_WP_Build_Page {
 	}
 
 	/**
-	 * Whether the page joins the Jetpack admin shell, so the Jetpack menu opens it without a page load.
+	 * Add the page to the dashboards that share the Jetpack admin shell, on Simple only.
 	 *
-	 * Simple only: elsewhere the Jetpack plugin can claim the slug, which admin-ajax, where the shell
-	 * loads guests, can't tell, as it never builds the menu.
-	 *
-	 * @return bool
-	 */
-	public static function joins_admin_shell() {
-		return ( new Host() )->is_wpcom_simple();
-	}
-
-	/**
-	 * Add the page to the dashboards that share the Jetpack admin shell.
+	 * Elsewhere the Jetpack plugin can claim the slug, which admin-ajax, where the shell loads guests,
+	 * can't tell, as it never builds the menu.
 	 *
 	 * @param array $members Member definitions keyed by admin page slug.
 	 * @return array
 	 */
 	public static function add_admin_shell_member( $members ) {
-		if ( ! is_array( $members ) || isset( $members[ static::MENU_SLUG ] ) || ! static::joins_admin_shell() ) {
+		if ( ! is_array( $members ) || isset( $members[ static::MENU_SLUG ] ) || ! ( new Host() )->is_wpcom_simple() ) {
 			return $members;
 		}
 
@@ -504,10 +488,6 @@ abstract class WPCOM_WP_Build_Page {
 	 * @return string
 	 */
 	public static function get_admin_shell_guest_data() {
-		if ( ! current_user_can( static::CAPABILITY ) ) {
-			return '';
-		}
-
 		$scripts = array( static::get_initial_state_script(), static::get_translations_script() );
 		if ( static::ENQUEUE_TRACKS && class_exists( Connection_Initial_State::class ) ) {
 			$scripts[] = Connection_Initial_State::render();

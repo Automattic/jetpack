@@ -68,20 +68,4 @@ class Test_WP_Build_Page extends WPCOM_WP_Build_Page {
 	public static function get_initial_state() {
 		return self::$initial_state;
 	}
-
-	/**
-	 * What joins_admin_shell() returns, standing in for the Simple check.
-	 *
-	 * @var bool
-	 */
-	public static $joins_admin_shell = true;
-
-	/**
-	 * Whether the page joins the admin shell.
-	 *
-	 * @return bool
-	 */
-	public static function joins_admin_shell() {
-		return self::$joins_admin_shell;
-	}
 }
