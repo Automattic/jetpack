@@ -205,7 +205,6 @@ function DevicesBarChart( { interval }: { interval?: DevicesChartGranularity } )
 			hasDateRange: true,
 			status: {
 				isLoading,
-				isFetching,
 				isError: csvIsError,
 				isPlaceholderData: csvIsPlaceholderData,
 			},
