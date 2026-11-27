@@ -65,9 +65,13 @@ export { sanitizeStatsTagsResponse } from './tags';
 export { mergeStatsDevicesComparisonRows, sanitizeStatsDevicesResponse } from './devices';
 export { AI_PROVIDER_UNKNOWN, sanitizeStatsAiProvidersResponse } from './ai-providers';
 export type { StatsAiProvider, StatsAiProviderBot, StatsAiProvidersReport } from './ai-providers';
-export { sanitizeStatsBotActivityResponse } from './bot-activity';
+export {
+	mergeStatsBotActivityComparisonRows,
+	sanitizeStatsBotActivityResponse,
+} from './bot-activity';
 export type {
 	StatsBotActivityBot,
+	StatsBotActivityComparisonGroup,
 	StatsBotActivityGroup,
 	StatsBotActivityReport,
 } from './bot-activity';

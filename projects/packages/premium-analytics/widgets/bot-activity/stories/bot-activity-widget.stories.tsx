@@ -25,9 +25,11 @@ const ENDPOINT = 'stats/ua-queries';
 const storyWidgetType = createStoryWidgetType( widgetManifest );
 
 // Distinct preset → own query-cache entry; see forceStatsMockState.
-function renderOnPreset( preset: PresetType ) {
+function renderOnPreset( preset: PresetType, withComparison = false ) {
 	return (
-		<BotActivityRender attributes={ { reportParams: getDefaultQueryParams( false, preset ) } } />
+		<BotActivityRender
+			attributes={ { reportParams: getDefaultQueryParams( withComparison, preset ) } }
+		/>
 	);
 }
 
@@ -55,6 +57,12 @@ type Story = StoryObj< ComponentProps< typeof BotActivityRender > >;
 
 export const Default: Story = {
 	render: () => renderOnPreset( 'last-30-days' ),
+	decorators: [ withWidgetCanvas ],
+};
+
+/** Each group and bot with its change from the previous period. */
+export const WithComparison: Story = {
+	render: () => renderOnPreset( 'last-7-days', true ),
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -107,7 +115,7 @@ export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetContr
 			widgetType={ storyWidgetType }
 			renderModule={ RENDER_MODULE }
 			renderComponent={ DashboardRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { reportParams: getDefaultQueryParams( false ) } }
+			attributes={ { reportParams: getDefaultQueryParams( true ) } }
 		/>
 	),
 	args: DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,

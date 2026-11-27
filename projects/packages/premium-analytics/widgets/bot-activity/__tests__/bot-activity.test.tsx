@@ -131,13 +131,19 @@ describe( 'BotActivity', () => {
 		expect( groupRows() ).toHaveLength( 3 );
 	} );
 
-	it( 'sends one request when the host passes comparison dates', async () => {
-		renderWidget( { ...getDefaultQueryParams( true, 'last-7-days' ) } );
+	it( 'requests the comparison period when the host passes comparison dates', async () => {
+		const reportParams = getDefaultQueryParams( true, 'last-7-days' );
+
+		renderWidget( reportParams );
 
 		await expect(
 			screen.findByRole( 'button', { name: 'View the bots in AI training' } )
 		).resolves.toBeInTheDocument();
-		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
+		expect( mockApiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				path: expect.stringContaining( `start=${ reportParams.compare_from?.slice( 0, 10 ) }` ),
+			} )
+		);
 	} );
 
 	it( 'asks for a shorter period, not the previous rows, when the range grows past a year', async () => {

@@ -186,7 +186,7 @@ export type {
 	StatsDevicesItem,
 	EdgeRequestSource,
 	StatsAiProvider,
-	StatsBotActivityGroup,
+	StatsBotActivityComparisonGroup,
 	StatsFileDownloadsComparisonItem,
 	StatsFileDownloadsItem,
 	StatsFollowersItem,

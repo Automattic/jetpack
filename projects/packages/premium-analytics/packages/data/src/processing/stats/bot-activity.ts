@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import { safeParseFloat } from '../../utils/parsing';
-import { coerceStatsArray, coerceStatsRecord } from './utils';
+import { coerceStatsArray, coerceStatsRecord, mergeStatsComparisonRows } from './utils';
 
 export type StatsBotActivityBot = {
 	/** The bot, or `AI_PROVIDER_UNKNOWN` when the edge could not name it. */
@@ -17,6 +17,19 @@ export type StatsBotActivityGroup = {
 	requests: number;
 	/** Its top bots, most requests first. */
 	bots: StatsBotActivityBot[];
+};
+
+export type StatsBotActivityComparisonBot = StatsBotActivityBot & {
+	/** Requests in the comparison period; `undefined` when the bot is not in that period's top bots. */
+	previousValue?: number;
+};
+
+export type StatsBotActivityComparisonGroup = Omit< StatsBotActivityGroup, 'bots' > & {
+	/** Requests in the comparison period; `undefined` when the group had none. */
+	previousValue?: number;
+	bots: StatsBotActivityComparisonBot[];
+	/** Whether any of its bots has a comparison value. */
+	botsHaveComparison: boolean;
 };
 
 export type StatsBotActivityReport = {
@@ -53,4 +66,52 @@ export function sanitizeStatsBotActivityResponse( response: unknown ): StatsBotA
 	}
 
 	return { data: [ ...groups.values() ] };
+}
+
+/**
+ * Pair each group, and each of its bots, with the comparison period's figure.
+ *
+ * Groups match on their key and bots on their name, within their group. A bot the comparison
+ * period did not return among its top bots has no previous value, even if it had requests.
+ *
+ * @param primaryReport    - The selected period.
+ * @param comparisonReport - The comparison period, if one was fetched.
+ * @return The groups in the selected period's order, and whether any has a previous value.
+ */
+export function mergeStatsBotActivityComparisonRows(
+	primaryReport: StatsBotActivityReport | undefined,
+	comparisonReport: StatsBotActivityReport | undefined
+): { rows: StatsBotActivityComparisonGroup[]; hasComparison: boolean } {
+	return mergeStatsComparisonRows<
+		StatsBotActivityGroup,
+		StatsBotActivityGroup,
+		StatsBotActivityComparisonGroup
+	>( {
+		primaryRows: primaryReport?.data ?? [],
+		comparisonRows: comparisonReport?.data ?? [],
+		getPrimaryKey: group => group.key,
+		getComparisonKey: group => group.key,
+		getComparisonValue: group => group.requests,
+		mapRow: ( group, { previousValue, comparisonItem } ) => {
+			const bots = mergeStatsComparisonRows<
+				StatsBotActivityBot,
+				StatsBotActivityBot,
+				StatsBotActivityComparisonBot
+			>( {
+				primaryRows: group.bots,
+				comparisonRows: comparisonItem?.bots ?? [],
+				getPrimaryKey: bot => bot.name,
+				getComparisonKey: bot => bot.name,
+				getComparisonValue: bot => bot.requests,
+				mapRow: ( bot, context ) => ( { ...bot, previousValue: context.previousValue } ),
+			} );
+
+			return {
+				...group,
+				previousValue,
+				bots: bots.rows,
+				botsHaveComparison: bots.hasComparison,
+			};
+		},
+	} );
 }

@@ -1365,9 +1365,12 @@ export function getStatsMock( path: string ): unknown | null {
 		const days =
 			( Date.parse( query.get( 'end' ) ?? '' ) - Date.parse( query.get( 'start' ) ?? '' ) ) /
 			( 24 * 60 * 60 * 1000 );
-		const scale = ( requests: number ) => Math.round( ( requests * days ) / 30 );
+		// A different start gives different figures, so a comparison period never mirrors the current one.
+		const startDay = Date.parse( query.get( 'start' ) ?? '' ) / ( 24 * 60 * 60 * 1000 );
 
 		return MOCK_BOT_ACTIVITY.flatMap( ( [ bot_group, bots ], index ) => {
+			const drift = 1 + 0.25 * Math.sin( startDay / 5 + index );
+			const scale = ( requests: number ) => Math.round( ( requests * days * drift ) / 30 );
 			const group_total = bots.reduce( ( sum, [ , requests ] ) => sum + scale( requests ), 0 );
 
 			return bots.map( ( [ bot_name, requests ] ) => ( {

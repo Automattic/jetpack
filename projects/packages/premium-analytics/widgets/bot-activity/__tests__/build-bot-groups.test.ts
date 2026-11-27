@@ -15,7 +15,9 @@ describe( 'buildBotGroupRows', () => {
 			'ad_crawlers',
 		];
 
-		const rows = buildBotGroupRows( keys.map( key => ( { key, requests: 1, bots: [] } ) ) );
+		const rows = buildBotGroupRows(
+			keys.map( key => ( { key, requests: 1, bots: [], botsHaveComparison: false } ) )
+		);
 
 		expect( rows.map( row => row.label ) ).toEqual( [
 			'AI training',

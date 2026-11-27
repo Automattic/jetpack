@@ -1,7 +1,10 @@
 /**
  * External dependencies
  */
-import { AI_PROVIDER_UNKNOWN, type StatsBotActivityGroup } from '@jetpack-premium-analytics/data';
+import {
+	AI_PROVIDER_UNKNOWN,
+	type StatsBotActivityComparisonGroup,
+} from '@jetpack-premium-analytics/data';
 import { __ } from '@wordpress/i18n';
 import type { LeaderboardRowInput } from '@jetpack-premium-analytics/widgets-toolkit';
 
@@ -27,18 +30,20 @@ function groupLabel( key: string ): string {
 
 /**
  * The rows of the Bot activity list: one per group, in the template's order, each
- * opening onto its top bots.
+ * opening onto its top bots, with the comparison period's figures when there are any.
  *
  * @param groups - The groups of the `bot-activity` template.
  * @return The rows.
  */
 export function buildBotGroupRows(
-	groups: readonly StatsBotActivityGroup[]
+	groups: readonly StatsBotActivityComparisonGroup[]
 ): LeaderboardRowInput[] {
 	return groups.map( group => ( {
 		id: group.key,
 		label: groupLabel( group.key ),
 		value: group.requests,
+		previousValue: group.previousValue,
+		childrenHaveComparison: group.botsHaveComparison,
 		children: group.bots.map( bot => ( {
 			id: `${ group.key }/${ bot.name }`,
 			label:
@@ -46,6 +51,7 @@ export function buildBotGroupRows(
 					? __( 'Unnamed bots', 'jetpack-premium-analytics-pkg' )
 					: bot.name,
 			value: bot.requests,
+			previousValue: bot.previousValue,
 		} ) ),
 	} ) );
 }

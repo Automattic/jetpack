@@ -40,11 +40,11 @@ function rowAriaLabel( row: LeaderboardRowInput ) {
 
 function BotActivityInner() {
 	const { reportParams } = useWidgetRootContext();
-	const { primary, isLoading, isFetching, isError, error, refetch } =
+	const { comparisonRows, hasComparison, isLoading, isFetching, isError, error, refetch } =
 		useStatsBotActivity( reportParams );
 	const isRangeTooLong = isEdgeWindowTooLong( reportParams );
 	// No request is sent for a range that long, so the data on hand is the previous range's placeholder.
-	const groups = isRangeTooLong ? undefined : primary.data?.data;
+	const groups = isRangeTooLong ? undefined : comparisonRows?.rows;
 	const rows = useMemo( () => buildBotGroupRows( groups ?? [] ), [ groups ] );
 	// Rows from a successful load stay on screen when a refresh fails.
 	const showError = isError && ! rows.length;
@@ -71,6 +71,7 @@ function BotActivityInner() {
 					isLoading,
 					isFetching,
 					isError: showError,
+					hasComparison,
 					refetch,
 				} }
 				error={
