@@ -1348,6 +1348,16 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The submit wrapper holds the error `<div>`, so it must not be a `<p>` (W3C validation, #54086).
+	 */
+	public function test_submit_wrapper_is_not_a_paragraph() {
+		$html = apply_shortcodes( "[contact-form][contact-field label='Name' type='name'/][/contact-form]" );
+
+		$this->assertStringContainsString( "<div class='contact-submit'>", $html );
+		$this->assertStringNotContainsString( "<p class='contact-submit'>", $html );
+	}
+
+	/**
 	 * Tests that the field attributes remain the same when no escaping is necessary.
 	 *
 	 * @author tonykova
