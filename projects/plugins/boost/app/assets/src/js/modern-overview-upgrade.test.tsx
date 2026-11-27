@@ -1,5 +1,5 @@
 /* eslint-disable testing-library/prefer-user-event */
-/* eslint-disable jest-dom/prefer-in-document -- The legacy Boost Jest project does not load jest-dom. */
+/* eslint-disable jest-dom/prefer-in-document -- The main Boost Jest project does not load jest-dom. */
 import { queryClient } from '@automattic/jetpack-react-data-sync-client';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { createRoot } from '@wordpress/element';

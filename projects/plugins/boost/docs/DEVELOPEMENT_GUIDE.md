@@ -88,8 +88,9 @@ To check for PHP code compatibility run:
 ## Typechecking the modern dashboard
 
 From `projects/plugins/boost`, run `pnpm typecheck` to check the modern dashboard TypeScript using
-[`tsconfig.dashboard.json`](../tsconfig.dashboard.json). It checks `_inc/`, `routes/` and
-`packages/init/`; code under `app/assets/src/js/` is checked only where the dashboard imports it.
+[`tsconfig.dashboard.json`](../tsconfig.dashboard.json). It checks `_inc/`, `routes/`,
+`packages/init/` and `app/assets/src/js/lib/modern/`; the rest of `app/assets/src/js/` is checked
+only where the dashboard imports it.
 
 ## Linting Jetpack Boost JavaScript code
 
