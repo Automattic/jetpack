@@ -422,38 +422,37 @@ class Protect extends Hybrid_Product {
 	 * Determines whether the module/plugin/product needs the users attention.
 	 * Typically due to some sort of error where user troubleshooting is needed.
 	 *
+	 * Only open threats count: not those the site fixed since Scan last scanned.
+	 *
 	 * @return boolean|array
 	 */
 	public static function does_module_need_attention() {
-		$protect_threat_status = false;
-		$scan_data             = Protect_Status::get_status();
-
-		// Check if there are scan threats.
-		$protect_data = $scan_data;
+		$protect_data = Protect_Status::get_status();
 		if ( is_wp_error( $protect_data ) ) {
-			return $protect_threat_status; // false
-		}
-		$critical_threat_count = false;
-		if ( ! empty( $protect_data->threats ) ) {
-			$critical_threat_count = array_reduce(
-				$protect_data->threats,
-				function ( $accum, $threat ) {
-					return $threat->severity >= 5 ? ++$accum : $accum;
-				},
-				0
-			);
-
-			$protect_threat_status = array(
-				'type' => $critical_threat_count ? 'error' : 'warning',
-				'data' => array(
-					'threat_count'          => count( $protect_data->threats ),
-					'critical_threat_count' => $critical_threat_count,
-					'fixable_threat_ids'    => $protect_data->fixable_threat_ids,
-				),
-			);
+			return false;
 		}
 
-		return $protect_threat_status;
+		$threats = self::get_open_threats( $protect_data ) ?? $protect_data->threats;
+		if ( empty( $threats ) ) {
+			return false;
+		}
+
+		$critical_threat_count = self::count_critical( $threats );
+		$open_ids              = array_map(
+			function ( $threat ) {
+				return $threat->id ?? null;
+			},
+			$threats
+		);
+
+		return array(
+			'type' => $critical_threat_count ? 'error' : 'warning',
+			'data' => array(
+				'threat_count'          => count( $threats ),
+				'critical_threat_count' => $critical_threat_count,
+				'fixable_threat_ids'    => array_values( array_intersect( (array) $protect_data->fixable_threat_ids, $open_ids ) ),
+			),
+		);
 	}
 
 	/**
@@ -685,21 +684,38 @@ class Protect extends Hybrid_Product {
 	 * @return int|null Null when Protect is too old to tell, or has no stored status yet.
 	 */
 	private static function get_critical_threat_count() {
-		if ( ! method_exists( Dashboard_Threats::class, 'without_resolved' ) ) {
-			return null;
-		}
 		$status = Protect_Status::get_cached_status();
-		if ( null === $status ) {
+		$open   = null === $status ? null : self::get_open_threats( $status );
+		return null === $open ? null : self::count_critical( $open );
+	}
+
+	/**
+	 * Scan's threats without the ones the site fixed since Scan last scanned, as Protect counts them.
+	 *
+	 * @param object $status A Protect status.
+	 * @return array|null Null when Protect is too old to tell.
+	 */
+	private static function get_open_threats( $status ) {
+		if ( ! method_exists( Dashboard_Threats::class, 'without_resolved' ) ) {
 			return null;
 		}
 		// Protect 0.5 has no get_scanned_at(), and its get_cached() passes last_checked instead.
 		$scanned_at = method_exists( Dashboard_Threats::class, 'get_scanned_at' )
 			? Dashboard_Threats::get_scanned_at( $status )
 			: ( $status->last_checked ?? null );
-		$open       = Dashboard_Threats::without_resolved( $status->threats, $scanned_at );
+		return Dashboard_Threats::without_resolved( $status->threats, $scanned_at );
+	}
+
+	/**
+	 * How many of the threats are critical.
+	 *
+	 * @param array $threats Threats.
+	 * @return int
+	 */
+	private static function count_critical( $threats ) {
 		return count(
 			array_filter(
-				$open,
+				$threats,
 				function ( $threat ) {
 					return ( $threat->severity ?? 0 ) >= 5;
 				}

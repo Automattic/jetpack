@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Threats notice: Stop counting threats the site has fixed since the last scan, and hide the notice once none are left.
