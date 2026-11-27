@@ -194,15 +194,6 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$this->assertTrue( $flags[ PayPal_Payment_Buttons::SANDBOX_FLAG ] );
 	}
 
-	public function test_register_rest_routes_registers_nothing_while_the_flag_is_off() {
-		PayPal_Payment_Buttons::register_feature_flags();
-
-		$routes = $this->build_rest_routes();
-
-		$this->assertArrayNotHasKey( '/wpcom/v2/paypal/connection', $routes );
-		$this->assertArrayNotHasKey( '/wpcom/v2/paypal/buttons', $routes );
-	}
-
 	public function test_register_rest_routes_registers_the_routes_while_the_flag_is_on() {
 		PayPal_Payment_Buttons::register_feature_flags();
 		add_filter( self::FLAG_FILTER, '__return_true' );
@@ -211,6 +202,24 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 		$this->assertArrayHasKey( '/wpcom/v2/paypal/connection', $routes );
 		$this->assertArrayHasKey( '/wpcom/v2/paypal/buttons', $routes );
+	}
+
+	/**
+	 * On WordPress.com the flag can turn on after the routes are registered.
+	 */
+	public function test_a_flag_turned_on_after_the_routes_are_registered_opens_them() {
+		PayPal_Payment_Buttons::register_feature_flags();
+		add_filter( self::FLAG_FILTER, '__return_false' );
+		$this->build_rest_routes();
+
+		remove_filter( self::FLAG_FILTER, '__return_false' );
+		add_filter( self::FLAG_FILTER, '__return_true' );
+		$this->log_in( 'administrator' );
+		$response = rest_get_server()->dispatch( new \WP_REST_Request( 'GET', '/wpcom/v2/paypal/connection' ) );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( '/wpcom/v2/paypal/connection', $response->get_matched_route() );
+		$this->assertArrayHasKey( 'partner_attribution_id', $response->get_data() );
 	}
 
 	/**
@@ -3061,18 +3070,21 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	// --- Tracks events ---
 
 	/**
-	 * Log a viewer in.
+	 * Log a user in, a viewer by default.
 	 *
+	 * @param string $role The user's role.
 	 * @return int The user id.
 	 */
-	private function log_in() {
-		$user_id = username_exists( 'testviewer_payment_buttons' );
+	private function log_in( $role = 'subscriber' ) {
+		$user_login = "test{$role}_payment_buttons";
+
+		$user_id = username_exists( $user_login );
 		if ( ! $user_id ) {
 			$user_id = wp_insert_user(
 				array(
-					'user_login' => 'testviewer_payment_buttons',
+					'user_login' => $user_login,
 					'user_pass'  => wp_generate_password(),
-					'role'       => 'subscriber',
+					'role'       => $role,
 				)
 			);
 		}

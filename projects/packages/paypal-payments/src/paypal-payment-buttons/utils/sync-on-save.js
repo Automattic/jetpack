@@ -397,18 +397,26 @@ async function syncBlock(
 			reportError( { clientId, attributes }, STACKED_UNCONFIRMED );
 		}
 	} catch ( err ) {
-		reportError(
-			{ clientId, attributes },
-			sprintf(
-				/* translators: 1: product name, 2: error message */
-				__( 'PayPal did not save "%1$s": %2$s', 'jetpack-paypal-payments' ),
-				attributes.productName,
-				getUserFriendlyError( err )
-			)
-		);
+		reportError( { clientId, attributes }, notSavedMessage( attributes, err ) );
 	}
 
 	return changed;
+}
+
+/**
+ * The error message for a block whose payment save failed.
+ *
+ * @param {object} attributes - Block attributes.
+ * @param {object} err        - The apiFetch error.
+ * @return {string} The message.
+ */
+export function notSavedMessage( attributes, err ) {
+	return sprintf(
+		/* translators: 1: product name, 2: error message */
+		__( 'PayPal did not save "%1$s": %2$s', 'jetpack-paypal-payments' ),
+		attributes.productName,
+		getUserFriendlyError( err )
+	);
 }
 
 /**

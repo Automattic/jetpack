@@ -150,8 +150,7 @@ beforeEach( () => {
 	// An unchanged block is not re-sent, and that memo outlives a test.
 	forgetSyncedRequests();
 	forgetPostSaves();
-	// isConnected() runs before the sync, so the connection has to answer yes for a
-	// test to reach what it measures.
+	// The connection check runs first. Answer connected so each test reaches the sync.
 	apiFetch.mockImplementation( ( { path } ) =>
 		Promise.resolve( path === `${ API_BASE }/connection` ? { connected: true } : {} )
 	);
@@ -220,6 +219,17 @@ describe( 'registerSaveSync', () => {
 		await runSaveFilter( { content: blockComment( 'PLB-A1' ) }, { isAutosave: true } );
 
 		expect( apiFetch ).not.toHaveBeenCalled();
+	} );
+
+	it( 'shows the save error when the connection check fails', async () => {
+		blocks.set( 'a', payPalBlock( 'a', 'PLB-A1' ) );
+		apiFetch.mockRejectedValue( { code: 'paypal_error', message: 'Nope.' } );
+
+		await runSaveFilter( { content: blockComment( 'PLB-A1' ) } );
+
+		expect( mockToast.mock.calls ).toEqual( [
+			[ 'error', 'PayPal did not save "Widget": Nope.', 'jetpack-paypal-sync-a' ],
+		] );
 	} );
 
 	// The only path that rewrites what the editor is about to save, so a filter that

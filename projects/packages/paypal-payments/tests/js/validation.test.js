@@ -26,6 +26,7 @@ import {
 	sanitizePayPalUrl,
 	getUserFriendlyError,
 	getValidationErrors,
+	isNotFound,
 	ADDRESS_REQUIRED_ERROR,
 	MAX_NAME_LENGTH,
 	MAX_DESCRIPTION_LENGTH,
@@ -468,5 +469,18 @@ describe( 'getUserFriendlyError', () => {
 	it( 'returns a generic fallback for unknown errors', () => {
 		const err = {};
 		expect( getUserFriendlyError( err ) ).toBe( 'An unexpected error occurred. Please try again.' );
+	} );
+} );
+
+describe( 'isNotFound', () => {
+	it.each( [
+		[ "PayPal's resource not found", { code: 'paypal_api_resource_not_found' } ],
+		[ 'any other 404', { code: 'paypal_api_invalid_resource_id', data: { status: 404 } } ],
+	] )( 'returns true for %s', ( _label, err ) => {
+		expect( isNotFound( err ) ).toBe( true );
+	} );
+
+	it( 'returns false for a 404 rest_no_route', () => {
+		expect( isNotFound( { code: 'rest_no_route', data: { status: 404 } } ) ).toBe( false );
 	} );
 } );

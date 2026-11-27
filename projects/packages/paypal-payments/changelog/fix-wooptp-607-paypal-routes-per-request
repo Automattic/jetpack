@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Payment Buttons: Fix the editor showing PayPal as disconnected on WordPress.com Simple sites. An editor left open after the buttons are turned off now shows an error.
