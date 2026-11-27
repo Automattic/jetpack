@@ -10,6 +10,8 @@
 
 namespace Automattic\Jetpack\Forms\Abilities;
 
+use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
+use Automattic\Jetpack\Forms\ContactForm\Response_Export_Link;
 use Automattic\Jetpack\WP_Abilities\Registrar;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -46,6 +48,16 @@ class Forms_Abilities extends Registrar {
 	 * Bulk actions accepted by bulk-update-responses.
 	 */
 	const BULK_ACTIONS = array( 'mark_as_spam', 'mark_as_not_spam' );
+
+	/**
+	 * Folders accepted by export-responses.
+	 */
+	const EXPORT_STATUSES = array( 'inbox', 'spam', 'trash' );
+
+	/**
+	 * Most forms export-responses lists by name.
+	 */
+	const EXPORT_MAX_FORMS = 50;
 
 	/**
 	 * Default block content used when create-form is called without `content`.
@@ -111,6 +123,7 @@ class Forms_Abilities extends Registrar {
 			'jetpack-forms/update-response'       => self::spec_update_response(),
 			'jetpack-forms/bulk-update-responses' => self::spec_bulk_update_responses(),
 			'jetpack-forms/get-status-counts'     => self::spec_get_status_counts(),
+			'jetpack-forms/export-responses'      => self::spec_export_responses(),
 		);
 	}
 
@@ -512,6 +525,100 @@ class Forms_Abilities extends Registrar {
 		);
 	}
 
+	/**
+	 * Spec: jetpack-forms/export-responses.
+	 */
+	private static function spec_export_responses(): array {
+		return array(
+			'label'               => __( 'Export form responses', 'jetpack-forms' ),
+			'description'         => __( 'Export form responses as a CSV file, with the same columns as the Export button in Jetpack Forms. Returns how many responses match, the forms they came from, and a download link for the user to open. The link works for 15 minutes and only in the signed-in browser of the user who asked, so it is useless to anyone else. Leaves out spam, trash and form preview test responses unless asked. Returns count 0 and no link when nothing matches.', 'jetpack-forms' ),
+			'input_schema'        => array(
+				'type'                 => 'object',
+				'default'              => array(),
+				'properties'           => array(
+					'form_id'                => array(
+						'type'        => 'integer',
+						'description' => __( 'Only export responses to this form, by its ID. For older forms saved inside a post or page, use that post or page ID. Leave out to export every form.', 'jetpack-forms' ),
+						'minimum'     => 1,
+					),
+					'status'                 => array(
+						'type'        => 'string',
+						'description' => __( 'Which folder to export: inbox (the default), spam or trash.', 'jetpack-forms' ),
+						'enum'        => self::EXPORT_STATUSES,
+						'default'     => 'inbox',
+					),
+					'search'                 => array(
+						'type'        => 'string',
+						'description' => __( 'Only export responses matching this search term.', 'jetpack-forms' ),
+					),
+					'after'                  => array(
+						'type'        => 'string',
+						'description' => __( 'Only export responses received after this date (ISO8601 format).', 'jetpack-forms' ),
+						'format'      => 'date-time',
+					),
+					'before'                 => array(
+						'type'        => 'string',
+						'description' => __( 'Only export responses received before this date (ISO8601 format).', 'jetpack-forms' ),
+						'format'      => 'date-time',
+					),
+					'include_test_responses' => array(
+						'type'        => 'boolean',
+						'description' => __( 'Set true to include test responses sent from the form preview.', 'jetpack-forms' ),
+						'default'     => false,
+					),
+				),
+				'additionalProperties' => false,
+			),
+			'output_schema'       => array(
+				'type'       => 'object',
+				'properties' => array(
+					'count'        => array(
+						'type'        => 'integer',
+						'description' => __( 'Number of matching responses.', 'jetpack-forms' ),
+					),
+					'forms'        => array(
+						'type'        => 'array',
+						'description' => __( 'Forms the responses came from, up to 50.', 'jetpack-forms' ),
+						'items'       => array(
+							'type'       => 'object',
+							'properties' => array(
+								'id'    => array( 'type' => 'integer' ),
+								'title' => array( 'type' => 'string' ),
+							),
+						),
+					),
+					'forms_total'  => array(
+						'type'        => 'integer',
+						'description' => __( 'Number of forms the responses came from, including any left out of forms.', 'jetpack-forms' ),
+					),
+					'download_url' => array(
+						'type'        => array( 'string', 'null' ),
+						'description' => __( 'Link that downloads the CSV file. Null when no response matches.', 'jetpack-forms' ),
+					),
+					'expires_at'   => array(
+						'type'        => array( 'string', 'null' ),
+						'description' => __( 'When the link stops working, in UTC (ISO8601 format).', 'jetpack-forms' ),
+					),
+				),
+			),
+			'execute_callback'    => array( __CLASS__, 'export_responses' ),
+			'permission_callback' => array( __CLASS__, 'can_export' ),
+			'meta'                => array(
+				'annotations'  => array(
+					'readonly'    => true,
+					'destructive' => false,
+					'idempotent'  => true,
+				),
+				'public'       => true,
+				'show_in_rest' => true,
+				'mcp'          => array(
+					'public' => true,
+					'type'   => 'tool',
+				),
+			),
+		);
+	}
+
 	/*
 	---------------------------------------------------------------------
 	 * Permission callbacks
@@ -527,6 +634,16 @@ class Forms_Abilities extends Registrar {
 	 */
 	public static function can_edit_pages() {
 		return current_user_can( 'edit_pages' );
+	}
+
+	/**
+	 * Permission callback for export-responses. Matches the Export button in
+	 * Jetpack Forms, since an export holds the personal data in every response.
+	 *
+	 * @return bool
+	 */
+	public static function can_export() {
+		return current_user_can( 'export' );
 	}
 
 	/*
@@ -809,6 +926,74 @@ class Forms_Abilities extends Registrar {
 		self::set_params_from_args( $request, $args, array( 'search', 'parent', 'before', 'after', 'is_unread' ) );
 
 		return self::dispatch( $request );
+	}
+
+	/**
+	 * Execute: export-responses.
+	 *
+	 * @param array $args Arguments from the ability input.
+	 * @return array|\WP_Error
+	 */
+	public static function export_responses( $args = array() ) {
+		$args    = is_array( $args ) ? $args : array();
+		$filters = array(
+			'status' => isset( $args['status'] ) && 'inbox' !== $args['status'] ? (string) $args['status'] : '',
+			'search' => isset( $args['search'] ) ? (string) $args['search'] : '',
+		);
+		if ( ! empty( $args['form_id'] ) ) {
+			$filters['form'] = (int) $args['form_id'];
+		}
+
+		// Read dates as the export query does: in site time unless they name a timezone.
+		$times = array();
+		foreach ( array( 'after', 'before' ) as $bound ) {
+			if ( ! isset( $args[ $bound ] ) || '' === $args[ $bound ] ) {
+				continue;
+			}
+			$date = date_create( (string) $args[ $bound ], wp_timezone() );
+			if ( false === $date ) {
+				return new \WP_Error(
+					'jetpack_forms_invalid_date',
+					/* translators: %s: name of the date input, "after" or "before". */
+					sprintf( __( 'Could not read the "%s" date. Use ISO8601 format, for example 2026-10-01T00:00:00Z.', 'jetpack-forms' ), $bound ),
+					array( 'status' => 400 )
+				);
+			}
+			$filters[ $bound ] = (string) $args[ $bound ];
+			$times[ $bound ]   = $date->getTimestamp();
+		}
+
+		if ( isset( $times['after'] ) && isset( $times['before'] ) && $times['after'] >= $times['before'] ) {
+			return new \WP_Error(
+				'jetpack_forms_invalid_date_range',
+				__( 'The "after" date must come before the "before" date.', 'jetpack-forms' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$include_test_responses = ! empty( $args['include_test_responses'] );
+		if ( ! $include_test_responses ) {
+			$filters['exclude_test_responses'] = true;
+		}
+		$summary = Contact_Form_Plugin::init()->get_export_summary( $filters, self::EXPORT_MAX_FORMS );
+
+		$forms = array();
+		foreach ( $summary['form_ids'] as $form_id ) {
+			$forms[] = array(
+				'id'    => $form_id,
+				'title' => (string) get_post_field( 'post_title', $form_id, 'raw' ),
+			);
+		}
+
+		$link = $summary['count'] > 0 ? Response_Export_Link::create( $filters, $include_test_responses, get_current_user_id() ) : null;
+
+		return array(
+			'count'        => $summary['count'],
+			'forms'        => $forms,
+			'forms_total'  => $summary['forms_total'],
+			'download_url' => $link ? $link['url'] : null,
+			'expires_at'   => $link ? gmdate( 'Y-m-d\\TH:i:s\\Z', $link['expires_at'] ) : null,
+		);
 	}
 
 	/*

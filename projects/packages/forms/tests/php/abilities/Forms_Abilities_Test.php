@@ -11,7 +11,12 @@ namespace Automattic\Jetpack\Forms\Abilities;
 
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
+use Automattic\Jetpack\Forms\ContactForm\Response_Export_Link;
+use Automattic\Jetpack\Forms\ContactForm\Utility;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
+
+require_once __DIR__ . '/../contact-form/class-utility.php';
 
 /**
  * Unit tests for Forms Abilities registration and execution.
@@ -200,6 +205,7 @@ class Forms_Abilities_Test extends BaseTestCase {
 			'jetpack-forms/update-response',
 			'jetpack-forms/bulk-update-responses',
 			'jetpack-forms/get-status-counts',
+			'jetpack-forms/export-responses',
 		);
 
 		foreach ( $expected_abilities as $ability_name ) {
@@ -637,6 +643,364 @@ class Forms_Abilities_Test extends BaseTestCase {
 		);
 
 		$this->assertSame( array( $id ), $result['succeeded'], 'Duplicate IDs in input should collapse to one succeeded entry.' );
+	}
+
+	/**
+	 * Creates a legacy response to the form on the given post.
+	 *
+	 * @param int    $form_id Post the form lives on.
+	 * @param string $status  Response status.
+	 * @return int Response ID.
+	 */
+	private static function make_response( int $form_id, string $status = 'publish' ): int {
+		global $post;
+		$post = get_post( $form_id );
+		$id   = (int) Utility::create_legacy_feedback( array(), 'Comment', 'Author', 'author@example.com', 'http://example.com', '127.0.0.1', 'Subject', $status );
+		$post = null;
+		return $id;
+	}
+
+	/**
+	 * Answers the export's response queries for the given IDs, since the test
+	 * database cannot run post queries, and records each query it was asked.
+	 *
+	 * @param int[] $ids Response IDs that match the export.
+	 * @return \ArrayObject Receives the query vars of each export query.
+	 */
+	private function answer_export_query( array $ids ): \ArrayObject {
+		$queries = new \ArrayObject();
+		$forms   = array_values( array_unique( array_filter( array_map( 'wp_get_post_parent_id', $ids ) ) ) );
+		add_filter(
+			'posts_pre_query',
+			static function ( $posts, $query ) use ( $ids, $forms, $queries ) {
+				if ( 'feedback' !== $query->get( 'post_type' ) ) {
+					return $posts;
+				}
+				$queries->append( $query->query_vars );
+				if ( 'id=>parent' !== $query->get( 'fields' ) ) {
+					return $ids;
+				}
+				return array_map(
+					static function ( $form ) {
+						return (object) array(
+							'ID'          => $form,
+							'post_parent' => $form,
+						);
+					},
+					array_slice( $forms, 0, $query->get( 'posts_per_page' ) )
+				);
+			},
+			10,
+			2
+		);
+		add_filter(
+			'found_posts',
+			static function ( $found, $query ) use ( $ids, $forms ) {
+				if ( 'feedback' !== $query->get( 'post_type' ) ) {
+					return $found;
+				}
+				return 'id=>parent' === $query->get( 'fields' ) ? count( $forms ) : count( $ids );
+			},
+			10,
+			2
+		);
+		return $queries;
+	}
+
+	/**
+	 * @dataProvider provide_export_roles
+	 *
+	 * @param string $role    Role of the user asking.
+	 * @param bool   $allowed Whether the export may run.
+	 */
+	#[DataProvider( 'provide_export_roles' )]
+	public function test_export_responses_runs_only_for_users_who_can_export( $role, $allowed ) {
+		if ( ! function_exists( 'wp_get_ability' ) ) {
+			$this->markTestSkipped( 'Abilities API functions not available' );
+		}
+		$this->simulate_doing_wp_abilities_categories_init_action();
+		Forms_Abilities::register_category();
+		$this->simulate_doing_wp_abilities_init_action();
+		Forms_Abilities::register_abilities();
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => "export_$role",
+					'user_pass'  => '123',
+					'role'       => $role,
+				)
+			)
+		);
+
+		$this->assertSame( $allowed, true === wp_get_ability( 'jetpack-forms/export-responses' )->check_permissions() );
+	}
+
+	/**
+	 * Roles and whether each may export, since an export holds every response's personal data.
+	 */
+	public static function provide_export_roles() {
+		return array(
+			'administrator' => array( 'administrator', true ),
+			'editor'        => array( 'editor', false ),
+			'subscriber'    => array( 'subscriber', false ),
+		);
+	}
+
+	public function test_export_responses_returns_count_forms_and_a_link_for_the_current_user() {
+		wp_set_current_user( self::$user_id );
+		$contact = (int) wp_insert_post( array( 'post_title' => 'Contact' ) );
+		$survey  = (int) wp_insert_post( array( 'post_title' => 'Survey' ) );
+		$this->answer_export_query( array( self::make_response( $contact ), self::make_response( $contact ), self::make_response( $survey ) ) );
+
+		$result = Forms_Abilities::export_responses( array() );
+
+		$this->assertSame( 3, $result['count'] );
+		$this->assertSame(
+			array(
+				array(
+					'id'    => $contact,
+					'title' => 'Contact',
+				),
+				array(
+					'id'    => $survey,
+					'title' => 'Survey',
+				),
+			),
+			$result['forms']
+		);
+		$this->assertSame( 2, $result['forms_total'] );
+		$this->assertEqualsWithDelta( time() + Response_Export_Link::LIFETIME, strtotime( $result['expires_at'] ), 5 );
+
+		$query = array();
+		wp_parse_str( (string) wp_parse_url( $result['download_url'], PHP_URL_QUERY ), $query );
+		$this->assertIsArray( Response_Export_Link::resolve( $query['token'], self::$user_id ) );
+	}
+
+	public function test_export_responses_lists_at_most_fifty_forms_but_counts_them_all() {
+		wp_set_current_user( self::$user_id );
+		$responses = array( self::make_response( 0 ) );
+		for ( $i = 0; $i <= Forms_Abilities::EXPORT_MAX_FORMS; $i++ ) {
+			$responses[] = self::make_response( (int) wp_insert_post( array( 'post_title' => "Form $i" ) ) );
+		}
+		$queries = $this->answer_export_query( $responses );
+
+		$result = Forms_Abilities::export_responses( array() );
+
+		$this->assertSame( Forms_Abilities::EXPORT_MAX_FORMS + 2, $result['count'] );
+		$this->assertCount( Forms_Abilities::EXPORT_MAX_FORMS, $result['forms'] );
+		$this->assertSame( Forms_Abilities::EXPORT_MAX_FORMS + 1, $result['forms_total'], 'A response with no form must not count as a form.' );
+		$this->assertNotContains( -1, array_column( $queries->getArrayCopy(), 'posts_per_page' ), 'The summary must not load every response.' );
+	}
+
+	public function test_export_responses_link_repeats_the_requested_filters() {
+		wp_set_current_user( self::$user_id );
+		$contact = (int) wp_insert_post( array( 'post_title' => 'Contact' ) );
+		$this->answer_export_query( array( self::make_response( $contact ) ) );
+
+		$result = Forms_Abilities::export_responses(
+			array(
+				'form_id'                => $contact,
+				'status'                 => 'spam',
+				'search'                 => 'invoice',
+				'after'                  => '2026-10-01T00:00:00Z',
+				'before'                 => '2026-11-01T00:00:00Z',
+				'include_test_responses' => true,
+			)
+		);
+
+		$query = array();
+		wp_parse_str( (string) wp_parse_url( $result['download_url'], PHP_URL_QUERY ), $query );
+		$this->assertSame(
+			array(
+				'filters'                => array(
+					'status' => 'spam',
+					'search' => 'invoice',
+					'form'   => $contact,
+					'after'  => '2026-10-01T00:00:00Z',
+					'before' => '2026-11-01T00:00:00Z',
+				),
+				'include_test_responses' => true,
+			),
+			Response_Export_Link::resolve( $query['token'], self::$user_id )
+		);
+	}
+
+	public function test_export_responses_queries_one_form_and_date_range() {
+		wp_set_current_user( self::$user_id );
+		$queries = $this->answer_export_query( array() );
+
+		Forms_Abilities::export_responses(
+			array(
+				'form_id' => 12,
+				'after'   => '2026-10-01T00:00:00Z',
+				'before'  => '2026-11-01T00:00:00Z',
+			)
+		);
+
+		$this->assertSame( 12, $queries[0]['post_parent'] );
+		$this->assertSame(
+			array(
+				'after'  => '2026-10-01 00:00:00',
+				'before' => '2026-11-01 00:00:00',
+			),
+			$queries[0]['date_query']
+		);
+	}
+
+	public function test_export_responses_reads_dates_with_a_timezone_in_site_time() {
+		wp_set_current_user( self::$user_id );
+		update_option( 'timezone_string', 'Asia/Tokyo' );
+		$queries = $this->answer_export_query( array() );
+
+		Forms_Abilities::export_responses(
+			array(
+				'after'  => '2026-10-01T00:00:00Z',
+				'before' => '2026-11-01T09:00:00+09:00',
+			)
+		);
+
+		$this->assertSame(
+			array(
+				'after'  => '2026-10-01 09:00:00',
+				'before' => '2026-11-01 09:00:00',
+			),
+			$queries[0]['date_query']
+		);
+	}
+
+	public function test_export_responses_accepts_a_range_that_is_in_order_in_site_time() {
+		wp_set_current_user( self::$user_id );
+		update_option( 'timezone_string', 'Asia/Tokyo' );
+		$this->answer_export_query( array() );
+
+		$result = Forms_Abilities::export_responses(
+			array(
+				'after'  => '2026-10-01T05:00:00',
+				'before' => '2026-10-01T00:00:00Z',
+			)
+		);
+
+		$this->assertIsArray( $result );
+	}
+
+	public function test_export_with_a_search_term_stays_oldest_first() {
+		$queries = $this->answer_export_query( array() );
+
+		Contact_Form_Plugin::init()->get_export_feedback_ids( array( 'search' => 'invoice' ) );
+
+		$this->assertSame( 'date', $queries[0]['orderby'], 'WP_Query sorts a search by relevance unless told otherwise.' );
+		$this->assertSame( 'ASC', $queries[0]['order'] );
+	}
+
+	/**
+	 * @dataProvider provide_test_response_inputs
+	 *
+	 * @param array $input    Ability input.
+	 * @param bool  $excluded Whether the count and the file leave test responses out.
+	 */
+	#[DataProvider( 'provide_test_response_inputs' )]
+	public function test_export_responses_counts_test_responses_only_when_the_file_has_them( $input, $excluded ) {
+		wp_set_current_user( self::$user_id );
+		$queries = $this->answer_export_query( array( self::make_response( 0 ) ) );
+
+		$result = Forms_Abilities::export_responses( $input );
+
+		$query = array();
+		wp_parse_str( (string) wp_parse_url( $result['download_url'], PHP_URL_QUERY ), $query );
+		$link = Response_Export_Link::resolve( $query['token'], self::$user_id );
+		$this->assertSame( $excluded, ! empty( $queries[0]['meta_query'] ) );
+		$this->assertSame( $excluded, ! empty( $link['filters']['exclude_test_responses'] ) );
+	}
+
+	/**
+	 * Inputs and whether each leaves out form preview test responses.
+	 */
+	public static function provide_test_response_inputs() {
+		return array(
+			'default'  => array( array(), true ),
+			'excluded' => array( array( 'include_test_responses' => false ), true ),
+			'included' => array( array( 'include_test_responses' => true ), false ),
+		);
+	}
+
+	/**
+	 * @dataProvider provide_export_statuses
+	 *
+	 * @param array        $input       Ability input.
+	 * @param string|array $post_status Expected query post status.
+	 */
+	#[DataProvider( 'provide_export_statuses' )]
+	public function test_export_responses_queries_the_requested_folder( $input, $post_status ) {
+		wp_set_current_user( self::$user_id );
+		$queries = $this->answer_export_query( array() );
+
+		Forms_Abilities::export_responses( $input );
+
+		$this->assertEqualsCanonicalizing( $post_status, $queries[0]['post_status'] );
+	}
+
+	/**
+	 * Folders and the post status each one queries.
+	 */
+	public static function provide_export_statuses() {
+		return array(
+			'no status' => array( array(), array( 'publish', 'draft' ) ),
+			'inbox'     => array( array( 'status' => 'inbox' ), array( 'publish', 'draft' ) ),
+			'spam'      => array( array( 'status' => 'spam' ), 'spam' ),
+			'trash'     => array( array( 'status' => 'trash' ), 'trash' ),
+		);
+	}
+
+	public function test_export_responses_with_no_matches_returns_no_link() {
+		wp_set_current_user( self::$user_id );
+		$this->answer_export_query( array() );
+
+		$result = Forms_Abilities::export_responses( array() );
+
+		$this->assertSame( 0, $result['count'] );
+		$this->assertSame( array(), $result['forms'] );
+		$this->assertNull( $result['download_url'] );
+		$this->assertNull( $result['expires_at'] );
+	}
+
+	/**
+	 * @dataProvider provide_bad_dates
+	 *
+	 * @param array  $input Ability input.
+	 * @param string $code  Expected error code.
+	 */
+	#[DataProvider( 'provide_bad_dates' )]
+	public function test_export_responses_rejects_bad_dates( $input, $code ) {
+		wp_set_current_user( self::$user_id );
+
+		$result = Forms_Abilities::export_responses( $input );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( $code, $result->get_error_code() );
+	}
+
+	/**
+	 * Date inputs the ability must refuse.
+	 */
+	public static function provide_bad_dates() {
+		return array(
+			'unreadable after'   => array( array( 'after' => 'last month-ish' ), 'jetpack_forms_invalid_date' ),
+			'unreadable before'  => array( array( 'before' => 'soonish' ), 'jetpack_forms_invalid_date' ),
+			'range ends earlier' => array(
+				array(
+					'after'  => '2026-11-01T00:00:00Z',
+					'before' => '2026-10-01T00:00:00Z',
+				),
+				'jetpack_forms_invalid_date_range',
+			),
+			'empty range'        => array(
+				array(
+					'after'  => '2026-11-01T00:00:00Z',
+					'before' => '2026-11-01T00:00:00Z',
+				),
+				'jetpack_forms_invalid_date_range',
+			),
+		);
 	}
 
 	public function test_every_ability_opts_into_mcp_as_public_tool(): void {

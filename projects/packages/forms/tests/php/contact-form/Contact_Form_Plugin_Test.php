@@ -15,6 +15,8 @@ use Automattic\Jetpack\Menu_Badges\Notification_Counts;
 use Closure;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 use WP_Block;
 use WP_Block_Type_Registry;
@@ -1041,6 +1043,49 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->assertSame( '\'=HYPERLINK("http://example.com")', $row[ array_search( 'Name', $header, true ) ] );
 
 		Utility::destroy_post_context( $current_post );
+	}
+
+	/**
+	 * Runs isolated because it sends headers, which older PHPUnit refuses after printing output.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_stream_export_csv_writes_every_response_and_returns_the_count() {
+		$current_post = Utility::create_post_context();
+		$post_ids     = array(
+			Utility::create_legacy_feedback( array( '1_Name' => 'First' ) ),
+			Utility::create_legacy_feedback( array( '1_Name' => 'Second' ) ),
+		);
+
+		ob_start();
+		$count = Contact_Form_Plugin::init()->stream_export_csv( $post_ids, false );
+		$csv   = ob_get_clean();
+
+		$lines  = array_map(
+			static function ( $line ) {
+				return str_getcsv( $line, ',', '"', '' );
+			},
+			array_filter( explode( "\n", $csv ) )
+		);
+		$header = array_shift( $lines );
+		$column = array_search( 'Name', $header, true );
+
+		$this->assertSame( 2, $count );
+		$this->assertSame( array( 'First', 'Second' ), array_column( $lines, $column ) );
+
+		Utility::destroy_post_context( $current_post );
+	}
+
+	public function test_stream_export_csv_sends_nothing_when_no_response_qualifies() {
+		ob_start();
+		$count = Contact_Form_Plugin::init()->stream_export_csv( array(), false );
+		$csv   = ob_get_clean();
+
+		$this->assertSame( 0, $count );
+		$this->assertSame( '', $csv );
 	}
 
 	public function test_get_export_feedback_data_includes_fields_first_seen_in_a_later_batch() {
