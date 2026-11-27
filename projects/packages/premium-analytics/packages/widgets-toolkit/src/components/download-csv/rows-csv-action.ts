@@ -28,7 +28,7 @@ export type RowsCsvActionOptions< TRow > = {
 	 */
 	status: ReportCsvExportStatus & {
 		/**
-		 * Whether the rows are a previous range's, which a request paused offline keeps without fetching.
+		 * Whether the rows are a previous range's, which a query with no fetch coming keeps while not loading.
 		 */
 		isPlaceholderData: boolean;
 	};

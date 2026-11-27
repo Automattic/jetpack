@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Premium Analytics: Show the loading state, not the previous period's data or CSV download, when the date range changes while offline.
