@@ -1061,26 +1061,14 @@ class Main_Features_Test extends TestCase {
 	 */
 	#[DataProvider( 'provide_wpcom_site_features' )]
 	public function test_included_follows_the_site_features_of_a_wpcom_plan( $is_atomic, $site_feature, $slug, $expected ) {
-		if ( $is_atomic ) {
-			Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
-			Constants::set_constant( 'ATOMIC_CLIENT_ID', 123 );
-			Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/tmp/wpcomsh/wpcomsh.php' );
-		}
-		StatusCache::clear();
-		// Definitions are memoized per locale, so a locale nothing else uses gets a fresh build.
-		$locale = static function () use ( $is_atomic ) {
-			return 'wpcom_site_features_' . ( $is_atomic ? 'atomic' : 'self_hosted' );
-		};
-		add_filter( 'locale', $locale );
 		set_transient( Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY, array( 'active' => array( $site_feature ) ), HOUR_IN_SECONDS );
 
-		$included = array_column( Main_Features::get_features(), 'included', 'slug' );
+		$included = $this->on_host(
+			$is_atomic,
+			'wpcom_site_features_' . ( $is_atomic ? 'atomic' : 'self_hosted' ),
+			fn() => array_column( Main_Features::get_features(), 'included', 'slug' )
+		);
 
-		remove_filter( 'locale', $locale );
-		Constants::clear_single_constant( 'ATOMIC_SITE_ID' );
-		Constants::clear_single_constant( 'ATOMIC_CLIENT_ID' );
-		Constants::clear_single_constant( 'WPCOMSH__PLUGIN_FILE' );
-		StatusCache::clear();
 		$this->assertSame( $expected, $included[ $slug ] );
 	}
 
@@ -1096,24 +1084,12 @@ class Main_Features_Test extends TestCase {
 	#[TestWith( array( true, false ) )]
 	#[TestWith( array( false, true ) )]
 	public function test_newsletter_fee_lines_only_off_wpcom( $is_atomic, $has_fees ) {
-		if ( $is_atomic ) {
-			Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
-			Constants::set_constant( 'ATOMIC_CLIENT_ID', 123 );
-			Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/tmp/wpcomsh/wpcomsh.php' );
-		}
-		StatusCache::clear();
-		$locale = static function () use ( $is_atomic ) {
-			return 'newsletter_fees_' . ( $is_atomic ? 'atomic' : 'self_hosted' );
-		};
-		add_filter( 'locale', $locale );
+		$newsletter = $this->on_host(
+			$is_atomic,
+			'newsletter_fees_' . ( $is_atomic ? 'atomic' : 'self_hosted' ),
+			fn() => Main_Features::get_feature_definitions()['newsletter']
+		);
 
-		$newsletter = Main_Features::get_feature_definitions()['newsletter'];
-
-		remove_filter( 'locale', $locale );
-		Constants::clear_single_constant( 'ATOMIC_SITE_ID' );
-		Constants::clear_single_constant( 'ATOMIC_CLIENT_ID' );
-		Constants::clear_single_constant( 'WPCOMSH__PLUGIN_FILE' );
-		StatusCache::clear();
 		$fee_lines = preg_grep( '/fee/', array_merge( $newsletter['free_highlights'], $newsletter['paid_highlights'] ) );
 		$this->assertCount( $has_fees ? 2 : 0, $fee_lines );
 	}
