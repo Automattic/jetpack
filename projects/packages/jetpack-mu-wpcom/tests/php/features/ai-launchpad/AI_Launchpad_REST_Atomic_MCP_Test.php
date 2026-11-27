@@ -192,10 +192,11 @@ class AI_Launchpad_REST_Atomic_MCP_Test extends \WorDBless\BaseTestCase {
 		$this->assertFalse( $data['mcp_remote'] );
 		$this->assertSame(
 			array(
-				'connections'  => array( 'claude' ),
-				'access_level' => 'full',
+				'connections'       => array( 'claude' ),
+				'access_level'      => 'full',
+				'other_connections' => null,
 			),
-			$this->get( '/mcp-connections' )
+			$this->get( '/mcp-connections', array( 'other_connections' => true ) )
 		);
 		$this->assertSame( array(), $this->requests );
 	}
@@ -266,7 +267,8 @@ class AI_Launchpad_REST_Atomic_MCP_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Only ChatGPT and Claude come through, with the access level only for a string and a known tool.
+	 * Only ChatGPT and Claude come through, with the access level only for a string and a known tool, and the count of
+	 * other tools only as a whole number.
 	 *
 	 * @param array $answer   WordPress.com's body.
 	 * @param array $expected The route's data.
@@ -276,7 +278,22 @@ class AI_Launchpad_REST_Atomic_MCP_Test extends \WorDBless\BaseTestCase {
 	public function test_unknown_tools_are_filtered_out( $answer, $expected ) {
 		$this->wpcom_answers( $answer );
 
-		$this->assertSame( $expected, $this->get( '/mcp-connections' ) );
+		$this->assertSame( $expected, $this->get( '/mcp-connections', array( 'other_connections' => true ) ) );
+	}
+
+	/**
+	 * The count of other AI tools is left out unless asked, even when WordPress.com sends it.
+	 */
+	public function test_other_tools_count_only_when_asked() {
+		$this->wpcom_answers(
+			array(
+				'connections'       => array( 'claude' ),
+				'access_level'      => 'full',
+				'other_connections' => 2,
+			)
+		);
+
+		$this->assertNull( $this->get( '/mcp-connections' )['other_connections'] );
 	}
 
 	/**
@@ -292,8 +309,9 @@ class AI_Launchpad_REST_Atomic_MCP_Test extends \WorDBless\BaseTestCase {
 					'access_level' => 'full',
 				),
 				array(
-					'connections'  => array(),
-					'access_level' => null,
+					'connections'       => array(),
+					'access_level'      => null,
+					'other_connections' => null,
 				),
 			),
 			'known tools among others' => array(
@@ -302,8 +320,9 @@ class AI_Launchpad_REST_Atomic_MCP_Test extends \WorDBless\BaseTestCase {
 					'access_level' => 'read_only',
 				),
 				array(
-					'connections'  => array( 'claude', 'chatgpt' ),
-					'access_level' => 'read_only',
+					'connections'       => array( 'claude', 'chatgpt' ),
+					'access_level'      => 'read_only',
+					'other_connections' => null,
 				),
 			),
 			'non-string access level'  => array(
@@ -312,8 +331,33 @@ class AI_Launchpad_REST_Atomic_MCP_Test extends \WorDBless\BaseTestCase {
 					'access_level' => 42,
 				),
 				array(
-					'connections'  => array( 'claude' ),
-					'access_level' => null,
+					'connections'       => array( 'claude' ),
+					'access_level'      => null,
+					'other_connections' => null,
+				),
+			),
+			'other tools counted'      => array(
+				array(
+					'connections'       => array(),
+					'access_level'      => null,
+					'other_connections' => 2,
+				),
+				array(
+					'connections'       => array(),
+					'access_level'      => null,
+					'other_connections' => 2,
+				),
+			),
+			'non-integer count'        => array(
+				array(
+					'connections'       => array( 'claude' ),
+					'access_level'      => 'full',
+					'other_connections' => '2',
+				),
+				array(
+					'connections'       => array( 'claude' ),
+					'access_level'      => 'full',
+					'other_connections' => null,
 				),
 			),
 		);

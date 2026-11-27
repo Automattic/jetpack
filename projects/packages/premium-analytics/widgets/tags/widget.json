@@ -14,6 +14,28 @@
 	},
 	"category": "stats",
 	"presentation": "framed",
+	"attributes": [
+		{
+			"id": "termType",
+			"type": "jpa/toggle-group",
+			"label": "View",
+			"relevance": "high",
+			"elements": [
+				{
+					"value": "all",
+					"label": "All"
+				},
+				{
+					"value": "tag",
+					"label": "Tags"
+				},
+				{
+					"value": "category",
+					"label": "Categories"
+				}
+			]
+		}
+	],
 	"actions": [
 		{
 			"id": "view-all",

@@ -5,11 +5,13 @@ import { useMemo } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { useStatsTags } from '@jetpack-premium-analytics/data';
+import { selectStatsTagsItemsByType, useStatsTags } from '@jetpack-premium-analytics/data';
+import { TAGS_REPORT_ROW_LIMIT } from '@jetpack-premium-analytics/widgets-toolkit';
 import type {
 	ReportParams,
 	StatsNormalizedReport,
 	StatsTagsItem,
+	StatsTagsTermType,
 } from '@jetpack-premium-analytics/data';
 
 /**
@@ -75,9 +77,13 @@ interface UseTagViewsArgs {
 	 */
 	reportParams: ReportParams;
 	/**
-	 * Rows to request and display.
+	 * Rows to display.
 	 */
 	max: number;
+	/**
+	 * Narrow the rows to tags or to categories; omit for both.
+	 */
+	termType?: StatsTagsTermType;
 }
 
 interface TagViewsState {
@@ -92,13 +98,19 @@ interface TagViewsState {
  * Fetch the most visited tags and categories for the Tags & categories widget
  * via the shared Stats data layer.
  *
- * Delegates to `useStatsTags`, then maps the normalized rows onto the leaderboard
- * shape and trims to `max`. Single period: `stats/tags` reports no comparison.
+ * Delegates to `useStatsTags`, narrows the rows to `termType` when set, then maps them onto
+ * the leaderboard shape and trims to `max`. Single period: `stats/tags` has no comparison.
  */
-export default function useTagViews( { reportParams, max }: UseTagViewsArgs ): TagViewsState {
+export default function useTagViews( {
+	reportParams,
+	max,
+	termType,
+}: UseTagViewsArgs ): TagViewsState {
+	// Narrowing drops rows after the endpoint ranks them, so fetch the report's full list to
+	// still fill `max`.
 	const { data, isLoading, isFetching, isError, refetch } = useStatsTags( {
 		...reportParams,
-		max,
+		max: termType ? TAGS_REPORT_ROW_LIMIT : max,
 	} );
 
 	// Memoize on the query's stable `data` reference so the row array keeps a
@@ -107,8 +119,9 @@ export default function useTagViews( { reportParams, max }: UseTagViewsArgs ): T
 	// effect.
 	const items = useMemo< TagView[] >( () => {
 		const report = data as StatsNormalizedReport< StatsTagsItem > | undefined;
+		const rows = report?.data?.[ 0 ]?.items ?? [];
 
-		return ( report?.data?.[ 0 ]?.items ?? [] )
+		return ( termType ? selectStatsTagsItemsByType( rows, termType ) : rows )
 			.slice( 0, max > 0 ? max : undefined )
 			.map( ( item ): TagView => {
 				// Key on the row's own identity, not its position, so keys stay stable
@@ -132,7 +145,7 @@ export default function useTagViews( { reportParams, max }: UseTagViewsArgs ): T
 					children,
 				};
 			} );
-	}, [ data, max ] );
+	}, [ data, max, termType ] );
 
 	return {
 		data: items,

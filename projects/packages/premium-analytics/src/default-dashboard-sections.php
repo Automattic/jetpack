@@ -22,8 +22,8 @@ const SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER = 'jetpack_premium_analytic
 /**
  * Whether the Subscribers dashboard section should be exposed.
  *
- * Sites without Jetpack have no module state to check, so the section remains
- * available. Modules::is_active() also returns true on WPCOM Simple.
+ * Only the Jetpack plugin ships Newsletter, so a site without it does not get the section.
+ * Modules::is_active() also returns true on WPCOM Simple.
  *
  * @since 0.3.0
  *
@@ -35,14 +35,14 @@ function is_subscribers_dashboard_section_available() {
 		return false;
 	}
 
-	$is_available = ! class_exists( 'Jetpack' ) || ( new Modules() )->is_active( 'subscriptions' );
+	$is_available = class_exists( 'Jetpack' ) && ( new Modules() )->is_active( 'subscriptions' );
 
 	/**
 	 * Filters whether the Subscribers dashboard section is available.
 	 *
 	 * @since 0.3.0
 	 *
-	 * @param bool $is_available Whether the subscriptions module was detected in the current request.
+	 * @param bool $is_available Whether the Jetpack plugin's subscriptions module is active in the current request.
 	 */
 	return (bool) apply_filters( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER, $is_available );
 }

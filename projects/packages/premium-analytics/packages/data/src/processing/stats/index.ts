@@ -61,7 +61,7 @@ export {
 	sanitizeStatsSubscribersCountsResponse,
 } from './subscribers';
 export { sanitizeStatsStreakResponse } from './streak';
-export { sanitizeStatsTagsResponse } from './tags';
+export { sanitizeStatsTagsResponse, selectStatsTagsItemsByType } from './tags';
 export {
 	mergeStatsDevicesComparisonRows,
 	sanitizeStatsDevicesPeriodsResponse,
@@ -173,6 +173,7 @@ export type {
 	StatsTagsRawItem,
 	StatsTagsRawResponse,
 	StatsTagsRawTag,
+	StatsTagsTermType,
 } from './tags';
 export type {
 	StatsWordAdsEarnings,

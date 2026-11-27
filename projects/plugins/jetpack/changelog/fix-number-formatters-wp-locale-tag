@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Stats, My Jetpack: Format numbers in the site's full locale, so Traditional Chinese sites read 萬 instead of 万.

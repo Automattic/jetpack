@@ -167,6 +167,54 @@ export interface NumberFormatters {
 	getCurrencyObject: GetCurrencyObject;
 }
 
+// Every number formats through this, so a name resolves once.
+const supportedLocales = new Map< string, string >();
+
+/**
+ * The nearest locale `Intl.NumberFormat` supports for a WordPress or browser locale name.
+ *
+ * WordPress names locales with underscores and its own variants (`zh_TW`, `pt_PT_ao90`). Dropping
+ * everything after the language would lose the script: `zh_TW` would format as `zh`, Simplified.
+ * So subtags are dropped from the right instead, until the rest is a supported tag.
+ *
+ * @param locale - The locale name.
+ * @return The supported tag, or undefined when no part of the name is supported.
+ */
+function toSupportedLocale( locale: string ): string | undefined {
+	const known = supportedLocales.get( locale );
+
+	if ( known ) {
+		return known;
+	}
+
+	const parts = locale.replace( /_/g, '-' ).split( '-' );
+	let tag: string | undefined;
+
+	while ( parts.length && tag === undefined ) {
+		const candidate = parts.join( '-' );
+
+		try {
+			// The tag itself, not Intl's canonical form: canonicalizing turns `en-US-posix` into
+			// `en-US-u-va-posix`, which the `-u-nu-latn` suffix for `forceLatin` cannot follow.
+			if ( Intl.NumberFormat.supportedLocalesOf( candidate ).length ) {
+				tag = candidate;
+			}
+		} catch {
+			// Not a well-formed tag yet; keep dropping subtags.
+		}
+
+		parts.pop();
+	}
+
+	// Only a hit is kept: a miss is cheap to repeat, and a lookup that failed because Intl
+	// was unavailable for a moment must not stick.
+	if ( tag ) {
+		supportedLocales.set( locale, tag );
+	}
+
+	return tag;
+}
+
 /**
  * Creates a NumberFormatters instance that provides number and currency formatting functionality with locale awareness
  * @return {NumberFormatters} A NumberFormatters instance
@@ -177,11 +225,6 @@ function createNumberFormatters(): NumberFormatters {
 	let currencyOverridesState: Record< string, CurrencyOverride > | undefined;
 
 	const setLocale = ( locale: string ): void => {
-		/**
-		 * The `Intl.NumberFormat` constructor fails only when there is a variant, divided by `_`.
-		 * These suffixes should be removed. Values like `de-at` or `es-mx`
-		 * should all be valid inputs for the constructor.
-		 */
 		localeState = locale;
 	};
 
@@ -210,11 +253,15 @@ function createNumberFormatters(): NumberFormatters {
 		const localeFromNavigator =
 			typeof window !== 'undefined' ? window?.navigator?.language : undefined;
 
-		return (
-			localeState ??
-			( localeFromUserSettings || localeFromNavigator ) ??
-			FALLBACK_LOCALE
-		).split( '_' )[ 0 ];
+		for ( const candidate of [ localeState, localeFromUserSettings, localeFromNavigator ] ) {
+			const locale = candidate && toSupportedLocale( candidate );
+
+			if ( locale ) {
+				return locale;
+			}
+		}
+
+		return FALLBACK_LOCALE;
 	};
 
 	const setGeoLocation = ( geoLocation: string ): void => {

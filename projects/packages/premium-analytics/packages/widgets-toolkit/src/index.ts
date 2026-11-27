@@ -242,6 +242,7 @@ export {
 	supportsLocationsCountryFilter,
 	TAGS_REPORT_ROW_LIMIT,
 	tagsCsvExporter,
+	tagsCsvExportersByType,
 	toCommentRows,
 	utmCsvExporters,
 	videosCsvExporter,
