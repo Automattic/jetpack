@@ -10,6 +10,8 @@
 @phan-type Task = array{id:string, title?:string, get_title?:callable, id_map?:string, add_listener_callback?:callable, badge_text_callback?:callable, extra_data_callback?:callable, get_calypso_path?:callable, is_complete_callback?:callable, is_disabled_callback?:callable, isLaunchTask?:bool, is_visible_callback?:callable, target_repetitions?:int, repetition_count_callback?:callable, subtitle?:callable, completed?:bool}
 PHAN;
 
+require_once __DIR__ . '/../../common/site-launch-publish-copy.php';
+
 /**
  * Returns whether the task link should point to wp-admin page
  * instead of Calypso page.
@@ -161,7 +163,9 @@ function wpcom_launchpad_get_task_definitions() {
 		),
 		'site_launched'                   => array(
 			'get_title'             => function () {
-				return __( 'Launch your site', 'jetpack-mu-wpcom' );
+				return wpcom_site_launch_peek_publish_copy()
+					? __( 'Publish your site', 'jetpack-mu-wpcom' )
+					: __( 'Launch your site', 'jetpack-mu-wpcom' );
 			},
 			'isLaunchTask'          => true,
 			'is_complete_callback'  => 'wpcom_launchpad_is_site_launched',
@@ -270,7 +274,9 @@ function wpcom_launchpad_get_task_definitions() {
 		// Link in bio tasks.
 		'link_in_bio_launched'            => array(
 			'get_title'             => function () {
-				return __( 'Launch your site', 'jetpack-mu-wpcom' );
+				return wpcom_site_launch_peek_publish_copy()
+					? __( 'Publish your site', 'jetpack-mu-wpcom' )
+					: __( 'Launch your site', 'jetpack-mu-wpcom' );
 			},
 			'id_map'                => 'site_launched',
 			'is_disabled_callback'  => 'wpcom_launchpad_is_link_in_bio_launch_disabled',
@@ -293,7 +299,9 @@ function wpcom_launchpad_get_task_definitions() {
 		'videopress_launched'             => array(
 			'id_map'                => 'site_launched',
 			'get_title'             => function () {
-				return __( 'Launch site', 'jetpack-mu-wpcom' );
+				return wpcom_site_launch_peek_publish_copy()
+					? __( 'Publish site', 'jetpack-mu-wpcom' )
+					: __( 'Launch site', 'jetpack-mu-wpcom' );
 			},
 			'is_disabled_callback'  => 'wpcom_launchpad_is_videopress_launch_disabled',
 			'add_listener_callback' => 'wpcom_launchpad_add_site_launch_listener',
@@ -325,7 +333,9 @@ function wpcom_launchpad_get_task_definitions() {
 		// Blog tasks.
 		'blog_launched'                   => array(
 			'get_title'             => function () {
-				return __( 'Launch your blog', 'jetpack-mu-wpcom' );
+				return wpcom_site_launch_peek_publish_copy()
+					? __( 'Publish your blog', 'jetpack-mu-wpcom' )
+					: __( 'Launch your blog', 'jetpack-mu-wpcom' );
 			},
 			'isLaunchTask'          => true,
 			'is_disabled_callback'  => 'wpcom_launchpad_is_blog_launched_task_disabled',

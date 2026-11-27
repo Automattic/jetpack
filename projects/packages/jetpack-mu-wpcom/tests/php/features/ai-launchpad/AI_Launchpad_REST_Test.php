@@ -336,6 +336,8 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		// Not a Simple site, so no DIFM offer. AI_Launchpad_Difm_Offer_Test covers the rules.
 		$this->assertArrayHasKey( 'difm_offer', $data );
 		$this->assertNull( $data['difm_offer'] );
+		// ExPlat can't answer in tests, so the launch CTA keeps "Launch".
+		$this->assertFalse( $data['use_publish_copy'] );
 		// wpcom's connections helper isn't loaded here, so the page can't detect a new AI connection.
 		$this->assertFalse( $data['mcp_detection'] );
 		// Nor is its access-level setter, so the page can't allow full access in place.

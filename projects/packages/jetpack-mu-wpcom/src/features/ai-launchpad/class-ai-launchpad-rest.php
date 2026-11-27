@@ -659,6 +659,17 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 
 		// Testing aid: ?all_tasks=1 renders the whole catalog, independent of the persisted tailored output.
 		$all_tasks = $request instanceof WP_REST_Request && $request->get_param( 'all_tasks' );
+
+		// The client shows the wizard when there is no AI output and ?all_tasks=1 is off (decideInitialView()
+		// in js/lib/orchestration.ts). The banner never renders there, so skip the offer and its ExPlat
+		// assignment: a user who sees only the wizard must not count as exposed. The list reads this endpoint
+		// again once the wizard finishes, and that read carries the offer.
+		$shows_wizard      = ! is_array( $ai_output ) && ! $all_tasks;
+		$starts_on_ai_tool = $request instanceof WP_REST_Request && 'ai-tool' === $request->get_param( 'start' );
+
+		// Assigned before the tasks are built, so the launch task's title (which only peeks) matches its CTA.
+		$use_publish_copy = ! $shows_wizard && wpcom_site_launch_uses_publish_copy();
+
 		if ( $all_tasks ) {
 			$tasks = $this->apply_skipped_tasks( $this->build_all_catalog_tasks() );
 		} else {
@@ -675,13 +686,6 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 		}
 
 		$this->maybe_mark_completed();
-
-		// The client shows the wizard when there is no AI output and ?all_tasks=1 is off (decideInitialView()
-		// in js/lib/orchestration.ts). The banner never renders there, so skip the offer and its ExPlat
-		// assignment: a user who sees only the wizard must not count as exposed. The list reads this endpoint
-		// again once the wizard finishes, and that read carries the offer.
-		$shows_wizard      = ! is_array( $ai_output ) && ! $all_tasks;
-		$starts_on_ai_tool = $request instanceof WP_REST_Request && 'ai-tool' === $request->get_param( 'start' );
 
 		$inferred_input = null;
 		if ( $shows_wizard && current_user_can( 'manage_options' ) ) {
@@ -732,6 +736,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			),
 			// The free DIFM offer banner under the task list, or null when it must not show.
 			'difm_offer'         => $shows_wizard ? null : AI_Launchpad_Difm_Offer::get_offer(),
+			// Whether the launch task's CTA says "Publish" instead of "Launch".
+			'use_publish_copy'   => $use_publish_copy,
 			// The goals step's experiment variation, assigned only when the wizard opens on its own first step.
 			'goals_variation'    => $assigns_goals_variation ? AI_Launchpad_Bring_Your_AI_Tool::get_variation() : null,
 			// Where Back leads from a `start=ai-tool` Site Setup; built here from an allowlisted origin.
