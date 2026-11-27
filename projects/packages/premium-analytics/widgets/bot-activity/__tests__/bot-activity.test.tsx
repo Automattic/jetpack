@@ -43,10 +43,14 @@ const RESPONSE = [
 
 const ACCESS_DENIED = { code: 'rest_forbidden', status: 403 };
 
-function renderWidget( preset: PresetType = 'last-7-days' ) {
-	return render(
-		<BotActivity attributes={ { reportParams: getDefaultQueryParams( false, preset ) } } />
-	);
+type ReportParams = ReturnType< typeof getDefaultQueryParams >;
+
+function paramsFor( preset: PresetType, overrides: Partial< ReportParams > = {} ): ReportParams {
+	return { ...getDefaultQueryParams( false, preset ), ...overrides };
+}
+
+function renderWidget( reportParams: ReportParams = paramsFor( 'last-7-days' ) ) {
+	return render( <BotActivity attributes={ { reportParams } } /> );
 }
 
 function groupRows() {
@@ -81,12 +85,17 @@ describe( 'BotActivity', () => {
 		] );
 	} );
 
+	// The clock is 26 Nov: the rollup has no rows for 25 and 26 Nov yet.
 	it.each( [
-		[ 'last-7-days', 'raw' ],
-		[ 'last-month', 'rollup' ],
-		[ 'last-90-days', 'rollup' ],
-	] as const )( 'reads %s from the %s table', async ( preset, table ) => {
-		renderWidget( preset );
+		[ 'a week ending today', 'raw', paramsFor( 'last-7-days' ) ],
+		[
+			'ten days ending three days ago',
+			'rollup',
+			paramsFor( 'last-7-days', { preset: undefined, from: '2026-11-14', to: '2026-11-23' } ),
+		],
+		[ '90 days ending today', 'rollup', paramsFor( 'last-90-days' ) ],
+	] )( 'reads %s from the %s table', async ( _label, table, reportParams ) => {
+		renderWidget( reportParams );
 
 		await expect(
 			screen.findByRole( 'button', { name: 'View the bots in AI training' } )
@@ -122,14 +131,29 @@ describe( 'BotActivity', () => {
 		expect( groupRows() ).toHaveLength( 3 );
 	} );
 
-	it( 'asks for a shorter period instead of requesting more than a year', async () => {
-		renderWidget( 'last-3-years' );
+	it( 'sends one request when the host passes comparison dates', async () => {
+		renderWidget( { ...getDefaultQueryParams( true, 'last-7-days' ) } );
+
+		await expect(
+			screen.findByRole( 'button', { name: 'View the bots in AI training' } )
+		).resolves.toBeInTheDocument();
+		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'asks for a shorter period, not the previous rows, when the range grows past a year', async () => {
+		const { rerender } = renderWidget();
+		await expect(
+			screen.findByRole( 'button', { name: 'View the bots in AI training' } )
+		).resolves.toBeInTheDocument();
+
+		rerender( <BotActivity attributes={ { reportParams: paramsFor( 'last-3-years' ) } } /> );
 
 		await expect(
 			screen.findByText(
 				'Bot activity is available for up to a year at a time. Choose a shorter period.'
 			)
 		).resolves.toBeInTheDocument();
-		expect( mockApiFetch ).not.toHaveBeenCalled();
+		expect( groupRows() ).toEqual( [] );
+		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
 	} );
 } );

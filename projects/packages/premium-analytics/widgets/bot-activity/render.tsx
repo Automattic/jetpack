@@ -42,11 +42,12 @@ function BotActivityInner() {
 	const { reportParams } = useWidgetRootContext();
 	const { primary, isLoading, isFetching, isError, error, refetch } =
 		useStatsBotActivity( reportParams );
-	const groups = primary.data?.data;
+	const isRangeTooLong = isEdgeWindowTooLong( reportParams );
+	// No request is sent for a range that long, so the data on hand is the previous range's placeholder.
+	const groups = isRangeTooLong ? undefined : primary.data?.data;
 	const rows = useMemo( () => buildBotGroupRows( groups ?? [] ), [ groups ] );
 	// Rows from a successful load stay on screen when a refresh fails.
 	const showError = isError && ! rows.length;
-	const isRangeTooLong = isEdgeWindowTooLong( reportParams );
 	const columns = useMemo(
 		() => ( {
 			label: __( 'Bots', 'jetpack-premium-analytics-pkg' ),

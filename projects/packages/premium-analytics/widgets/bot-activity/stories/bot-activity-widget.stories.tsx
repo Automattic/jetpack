@@ -43,7 +43,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Bot activity" widget of the AI tab. Ranks the bots that requested the site in six groups, from AI training to unidentified bots, over the dashboard date range; a group opens onto its bots. It reads AI bots and the other bots in two requests and ranks them together.',
+					'The "Bot activity" widget of the AI tab. Ranks the bots that requested the site in six groups, from AI training to unidentified bots, over the dashboard date range; a group opens onto its bots. The groups and their order come from the bot-activity template; the widget only labels them.',
 			},
 		},
 	},
