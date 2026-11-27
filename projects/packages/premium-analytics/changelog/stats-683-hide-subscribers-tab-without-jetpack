@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: Hide the Subscribers tab on sites without the Jetpack plugin, which is the only plugin that ships Newsletter.

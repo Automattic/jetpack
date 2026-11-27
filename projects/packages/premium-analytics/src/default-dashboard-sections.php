@@ -42,7 +42,7 @@ function is_subscribers_dashboard_section_available() {
 	 *
 	 * @since 0.3.0
 	 *
-	 * @param bool $is_available Whether the subscriptions module was detected in the current request.
+	 * @param bool $is_available Whether the Jetpack plugin's subscriptions module is active in the current request.
 	 */
 	return (bool) apply_filters( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER, $is_available );
 }

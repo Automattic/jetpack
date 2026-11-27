@@ -1235,6 +1235,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 */
 	public function test_omits_subscribers_dashboard_section_without_jetpack() {
 		$this->set_admin_user();
+		$this->activate_module( 'subscriptions' );
 		register_default_dashboard_sections();
 
 		$subscribers = get_registered_dashboard_section( DASHBOARD_NAME, 'analytics/subscribers' );
