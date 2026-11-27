@@ -21,6 +21,7 @@ function wpcomsh_activate_reader_module() {
 	// After activating, for the reason given in wpcomsh_force_activate_blaze_module().
 	if ( Jetpack::is_module_active( 'wpcom-reader' ) ) {
 		add_filter( 'jetpack_active_modules', 'wpcomsh_report_forced_reader_module' );
+		add_filter( 'jetpack_my_jetpack_feature_visibility', 'wpcomsh_hide_reader_feature' );
 	}
 }
 add_action( 'init', 'wpcomsh_activate_reader_module', 0, 0 );
@@ -33,6 +34,18 @@ add_action( 'init', 'wpcomsh_activate_reader_module', 0, 0 );
  */
 function wpcomsh_report_forced_reader_module( $modules ) {
 	return array_merge( (array) $modules, array( 'wpcom-reader' ) );
+}
+
+/**
+ * Keep Reader off the My Jetpack Features page, where its locked switch has nothing to offer.
+ *
+ * @param array $states Map of product or module slug to visibility state.
+ * @return array
+ */
+function wpcomsh_hide_reader_feature( $states ) {
+	$states                 = (array) $states;
+	$states['wpcom-reader'] = 'hidden';
+	return $states;
 }
 
 /**
