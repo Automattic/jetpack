@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+REST API: Look up a post author's site the same fast way as other authors on WordPress.com, so posts by people in thousands of sites load again.
