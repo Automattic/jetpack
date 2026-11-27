@@ -13,6 +13,12 @@ namespace Automattic\Jetpack\Help_Center;
 class WP_REST_Help_Center_Persisted_Open_State extends WP_REST_Help_Center_Controller {
 
 	/**
+	 * Matches the preferences the Help Center persists. Apps other than WordPress.com keep their
+	 * own copy of each one under an app suffix, e.g. `help_center_open_woo`.
+	 */
+	private const PREFERENCE_KEY_PATTERN = '/^help_center_(open|minimized|router_history)(_[a-z0-9_-]+)?$/';
+
+	/**
 	 * WP_REST_Help_Center_Persisted_Open_State constructor.
 	 *
 	 * @param Wpcom_Request_Client|null $wpcom_request_client WP.com request client.
@@ -64,17 +70,7 @@ class WP_REST_Help_Center_Persisted_Open_State extends WP_REST_Help_Center_Contr
 
 		$response = json_decode( wp_remote_retrieve_body( $body ) );
 
-		$is_open        = $response->calypso_preferences->help_center_open ?? false;
-		$is_minimized   = $response->calypso_preferences->help_center_minimized ?? false;
-		$router_history = $response->calypso_preferences->help_center_router_history ?? null;
-
-		$projected_response = array(
-			'help_center_open'           => (bool) $is_open,
-			'help_center_minimized'      => (bool) $is_minimized,
-			'help_center_router_history' => $router_history,
-		);
-
-		return rest_ensure_response( $projected_response );
+		return rest_ensure_response( $this->project_preferences( $response->calypso_preferences ?? null ) );
 	}
 
 	/**
@@ -83,24 +79,14 @@ class WP_REST_Help_Center_Persisted_Open_State extends WP_REST_Help_Center_Contr
 	 * @param \WP_REST_Request $request The request sent to the API.
 	 */
 	public function set_state( \WP_REST_Request $request ) {
-		$state          = $request['help_center_open'];
-		$router_history = $request['help_center_router_history'];
-		$minimized      = $request['help_center_minimized'];
-
 		$data = array(
 			'calypso_preferences' => array(),
 		);
 
-		if ( $request->has_param( 'help_center_open' ) ) {
-			$data['calypso_preferences']['help_center_open'] = $state;
-		}
-
-		if ( $request->has_param( 'help_center_router_history' ) ) {
-			$data['calypso_preferences']['help_center_router_history'] = $router_history;
-		}
-
-		if ( $request->has_param( 'help_center_minimized' ) ) {
-			$data['calypso_preferences']['help_center_minimized'] = $minimized;
+		foreach ( $request->get_params() as $key => $value ) {
+			if ( is_string( $key ) && preg_match( self::PREFERENCE_KEY_PATTERN, $key ) ) {
+				$data['calypso_preferences'][ $key ] = $value;
+			}
 		}
 
 		$body = $this->wpcom_request_client->request(
@@ -116,18 +102,39 @@ class WP_REST_Help_Center_Persisted_Open_State extends WP_REST_Help_Center_Contr
 
 		$response = json_decode( wp_remote_retrieve_body( $body ) );
 
-		$is_open        = $response->calypso_preferences->help_center_open ?? false;
-		$router_history = $response->calypso_preferences->help_center_router_history ?? null;
-		$is_minimized   = $response->calypso_preferences->help_center_minimized ?? false;
+		return rest_ensure_response(
+			array(
+				'calypso_preferences' => $this->project_preferences( $response->calypso_preferences ?? null ),
+			)
+		);
+	}
 
-		$projected_response = array(
-			'calypso_preferences' => array(
-				'help_center_open'           => (bool) $is_open,
-				'help_center_router_history' => $router_history,
-				'help_center_minimized'      => (bool) $is_minimized,
-			),
+	/**
+	 * Keep only the Help Center preferences from the user's Calypso preferences.
+	 *
+	 * The shared preferences are always returned. An app's own copy is returned only when it is
+	 * saved, so the client can fall back to the shared value.
+	 *
+	 * @param mixed $preferences The decoded `calypso_preferences` from WP.com.
+	 * @return array
+	 */
+	private function project_preferences( $preferences ) {
+		$preferences = is_object( $preferences ) ? get_object_vars( $preferences ) : array();
+
+		$projected = array(
+			'help_center_open'           => (bool) ( $preferences['help_center_open'] ?? false ),
+			'help_center_minimized'      => (bool) ( $preferences['help_center_minimized'] ?? false ),
+			'help_center_router_history' => $preferences['help_center_router_history'] ?? null,
 		);
 
-		return rest_ensure_response( $projected_response );
+		foreach ( $preferences as $key => $value ) {
+			if ( array_key_exists( $key, $projected ) || ! preg_match( self::PREFERENCE_KEY_PATTERN, (string) $key, $matches ) ) {
+				continue;
+			}
+
+			$projected[ $key ] = 'router_history' === $matches[1] ? $value : (bool) $value;
+		}
+
+		return $projected;
 	}
 }
