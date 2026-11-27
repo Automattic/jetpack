@@ -1186,6 +1186,27 @@ class Main_Features_Test extends TestCase {
 		$this->assertSame( ! $available, false !== strpos( $copy, 'Jetpack Security' ) );
 	}
 
+	public function test_activity_log_names_no_bundle_on_wpcom() {
+		Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', 123 );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/tmp/wpcomsh/wpcomsh.php' );
+		StatusCache::clear();
+		$locale = static function () {
+			return 'activity_log_atomic';
+		};
+		add_filter( 'locale', $locale );
+		$this->set_pro_available( true );
+
+		$features = array_column( Main_Features::get_features(), null, 'slug' );
+
+		remove_filter( 'locale', $locale );
+		Constants::clear_single_constant( 'ATOMIC_SITE_ID' );
+		Constants::clear_single_constant( 'ATOMIC_CLIENT_ID' );
+		Constants::clear_single_constant( 'WPCOMSH__PLUGIN_FILE' );
+		StatusCache::clear();
+		$this->assertSame( array( 'Filter events by activity type and date range' ), $features['activity-log']['paid_highlights'] );
+	}
+
 	/**
 	 * @return array Prelaunch and launched catalog states.
 	 */

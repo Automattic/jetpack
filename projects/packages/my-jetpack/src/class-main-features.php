@@ -124,9 +124,10 @@ class Main_Features {
 					__( 'Your 20 most recent events', 'jetpack-my-jetpack' ),
 					__( 'Who changed what, from posts to plugin updates and logins', 'jetpack-my-jetpack' ),
 				),
-				'paid_highlights'  => array(
-					__( '30 days of history with VaultPress Backup or Jetpack Security, a full year with Jetpack Complete', 'jetpack-my-jetpack' ),
-					__( 'Filter events by activity type and date range', 'jetpack-my-jetpack' ),
+				// WordPress.com does not sell the bundles that the history line names.
+				'paid_highlights'  => array_merge(
+					$is_wpcom_platform ? array() : array( __( '30 days of history with VaultPress Backup or Jetpack Security, a full year with Jetpack Complete', 'jetpack-my-jetpack' ) ),
+					array( __( 'Filter events by activity type and date range', 'jetpack-my-jetpack' ) )
 				),
 				'delivery'         => array(
 					'jetpack' => true,
@@ -1300,10 +1301,12 @@ class Main_Features {
 				// Read even without Jetpack, whose module list would otherwise say so.
 				'needs_account'    => ! empty( $definition['needs_account'] ),
 			);
-			if ( 'activity-log' === $slug && ! $local && true === ( Products\Pro::get_pricing_for_ui()['catalog_available'] ?? false ) ) {
-				$feature['paid_highlights'][0] = __( '30 days of history with VaultPress Backup or Jetpack Pro, a full year with Jetpack Complete', 'jetpack-my-jetpack' );
-			} elseif ( 'activity-log' === $slug && ! $local && false === ( Products\Security::get_pricing_for_ui()['available'] ?? null ) ) {
-				$feature['paid_highlights'][0] = __( '30 days of history with VaultPress Backup, a full year with Jetpack Complete', 'jetpack-my-jetpack' );
+			if ( 'activity-log' === $slug && ! $local && ! ( new Host() )->is_wpcom_platform() ) {
+				if ( true === ( Products\Pro::get_pricing_for_ui()['catalog_available'] ?? false ) ) {
+					$feature['paid_highlights'][0] = __( '30 days of history with VaultPress Backup or Jetpack Pro, a full year with Jetpack Complete', 'jetpack-my-jetpack' );
+				} elseif ( false === ( Products\Security::get_pricing_for_ui()['available'] ?? null ) ) {
+					$feature['paid_highlights'][0] = __( '30 days of history with VaultPress Backup, a full year with Jetpack Complete', 'jetpack-my-jetpack' );
+				}
 			}
 			if ( $local ) {
 				unset( $feature['included'], $feature['setup_note'] );
