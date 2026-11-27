@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Stop WooCommerce store tracking on self-hosted stores while the WooCommerce tab is unavailable.

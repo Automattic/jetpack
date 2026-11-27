@@ -10,9 +10,9 @@ namespace Automattic\Jetpack\WooCommerceStats;
 use Automattic\Woocommerce_Analytics;
 
 /**
- * Turns on ClickHouse and triggers the vendored WooCommerce Analytics tracker,
- * unless the host turns store tracking off. Proxy tracking is the host's to turn on.
- * The tracker self-gates on WooCommerce + connection and is idempotent.
+ * Turns on ClickHouse and triggers the vendored WooCommerce Analytics tracker where the
+ * WooCommerce tab is enabled, unless the host turns store tracking off. Proxy tracking is
+ * the host's to turn on. The tracker self-gates on WooCommerce + connection and is idempotent.
  */
 class WooCommerce_Analytics_Tracker {
 
@@ -37,6 +37,11 @@ class WooCommerce_Analytics_Tracker {
 	 * it while localizing `window.wcAnalytics` at `wp_footer`.
 	 */
 	public static function bootstrap() {
+		// Kept out of the filter below, so no host can track shoppers on a store whose owner cannot see the data.
+		if ( ! Analytics_Dashboard::is_enabled() ) {
+			return;
+		}
+
 		/**
 		 * Filters whether WooCommerce Stats starts WooCommerce Analytics store tracking.
 		 *

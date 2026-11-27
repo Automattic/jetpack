@@ -9,7 +9,9 @@ namespace Automattic\Jetpack\WooCommerceStats;
 
 use Automattic\Woocommerce_Analytics;
 use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -17,6 +19,16 @@ use PHPUnit\Framework\TestCase;
  */
 #[CoversClass( WooCommerce_Analytics_Tracker::class )]
 class WooCommerce_Analytics_Tracker_Test extends TestCase {
+
+	const FLAG_FILTER = 'jetpack_feature_flag_enabled_' . Analytics_Dashboard::FLAG;
+
+	/**
+	 * @before
+	 */
+	#[Before]
+	public function set_up() {
+		add_filter( self::FLAG_FILTER, '__return_true' );
+	}
 
 	/**
 	 * @after
@@ -27,6 +39,7 @@ class WooCommerce_Analytics_Tracker_Test extends TestCase {
 		remove_all_filters( 'woocommerce_analytics_clickhouse_enabled' );
 		remove_all_filters( 'woocommerce_analytics_experimental_proxy_tracking_enabled' );
 		remove_all_filters( WooCommerce_Analytics_Tracker::ENABLED_FILTER );
+		remove_all_filters( self::FLAG_FILTER );
 	}
 
 	public function test_configure_registers_bootstrap_on_after_setup_theme() {
@@ -45,15 +58,26 @@ class WooCommerce_Analytics_Tracker_Test extends TestCase {
 	}
 
 	/**
-	 * The host's answer also skips init(), not just the pipeline filters.
+	 * Tracking off also skips init(), not just the pipeline filters.
+	 *
+	 * @dataProvider data_tracking_off
+	 *
+	 * @param bool      $flag_off      Whether to leave the WooCommerce Stats flag at its default, off.
+	 * @param bool|null $host_tracking The host's answer to the store tracking filter, or null for none.
 	 */
-	public function test_bootstrap_does_nothing_when_the_host_turns_store_tracking_off() {
+	#[DataProvider( 'data_tracking_off' )]
+	public function test_bootstrap_does_nothing_when_tracking_is_off( $flag_off, $host_tracking ) {
 		$sync     = array( Woocommerce_Analytics::class, 'sync_proxy_tracking_state' );
 		$priority = has_action( 'init', $sync );
 		if ( false !== $priority ) {
 			remove_action( 'init', $sync, $priority );
 		}
-		add_filter( WooCommerce_Analytics_Tracker::ENABLED_FILTER, '__return_false' );
+		if ( $flag_off ) {
+			remove_all_filters( self::FLAG_FILTER );
+		}
+		if ( null !== $host_tracking ) {
+			add_filter( WooCommerce_Analytics_Tracker::ENABLED_FILTER, $host_tracking ? '__return_true' : '__return_false' );
+		}
 
 		WooCommerce_Analytics_Tracker::bootstrap();
 
@@ -61,6 +85,17 @@ class WooCommerce_Analytics_Tracker_Test extends TestCase {
 		$this->assertFalse( apply_filters( 'woocommerce_analytics_experimental_proxy_tracking_enabled', false ) );
 		// init() registers this before any of its own early returns, so it shows init() ran.
 		$this->assertFalse( has_action( 'init', $sync ) );
+	}
+
+	/**
+	 * @return array<string, array{0: bool, 1: bool|null}>
+	 */
+	public static function data_tracking_off() {
+		return array(
+			'host turns store tracking off' => array( false, false ),
+			'flag off'                      => array( true, null ),
+			'flag off, host forces it on'   => array( true, true ),
+		);
 	}
 
 	public function test_bootstrap_is_safe_to_run_twice() {
