@@ -66,9 +66,9 @@ function getErrorMessage( code: string ): ReactNode {
 				),
 				{
 					a: (
-						<a
+						<Link
 							href={ getRedirectUrl( 'jetpack-cancelled-connection' ) }
-							target="_blank"
+							openInNewTab
 							rel="noopener noreferrer"
 						/>
 					),
@@ -211,7 +211,7 @@ function getMessageNotice( code: string, options: Options ): JetpackStateNotice 
 						'jetpack-my-jetpack'
 					),
 					{
-						a: <a href={ getAdminUrl( 'site-health.php' ) } />,
+						a: <Link href={ getAdminUrl( 'site-health.php' ) } />,
 					}
 				),
 				level: 'success',

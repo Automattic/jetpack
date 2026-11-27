@@ -1,14 +1,16 @@
+import { Badge, Stack } from '@wordpress/ui';
+
 export const ProductsList = ( { products }: { products: string[] } ) => {
 	if ( ! products ) {
 		return null;
 	}
 	return (
-		<ul className="products-list">
+		<Stack render={ <ul /> } direction="row" gap="xs" wrap="wrap">
 			{ products.map( ( product, index ) => (
-				<li key={ index } className="product-badge">
+				<Badge key={ index } render={ <li /> }>
 					{ product }
-				</li>
+				</Badge>
 			) ) }
-		</ul>
+		</Stack>
 	);
 };

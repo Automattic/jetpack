@@ -1,3 +1,4 @@
+import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Link, Stack, Text } from '@wordpress/ui';
 import { useContext, useEffect, useMemo, useCallback } from 'react';
@@ -261,23 +262,23 @@ const usePaidPlanNeedsPluginInstallActivationNotice: NoticeHookType = (
 		const noticeContent = (
 			<Stack direction="column" gap="sm">
 				<Text render={ <p /> }>{ noticeMessage }</Text>
-				<ul className="plugins-list">
+				<Stack render={ <ul /> } direction="column" gap="xs">
 					{ pluginsList?.length > 0 &&
 						pluginsList.map( ( pluginInfo, index ) => {
 							return (
-								<li key={ index } className="plugin-item">
+								<li key={ index }>
 									{ pluginInfo.action === 'activate' ? (
-										<a href="/wp-admin/plugins.php">{ pluginInfo.pluginName }</a>
+										<Link href={ getAdminUrl( 'plugins.php' ) }>{ pluginInfo.pluginName }</Link>
 									) : (
 										<Link openInNewTab href={ pluginInfo.pluginUri }>
 											{ pluginInfo.pluginName }
 										</Link>
-									) }
-									<span>({ actionNounMap[ pluginInfo.action ] })</span>
+									) }{ ' ' }
+									<Text variant="body-sm">({ actionNounMap[ pluginInfo.action ] })</Text>
 								</li>
 							);
 						} ) }
-				</ul>
+				</Stack>
 			</Stack>
 		);
 

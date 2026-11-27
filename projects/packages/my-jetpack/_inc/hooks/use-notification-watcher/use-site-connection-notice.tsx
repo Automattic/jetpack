@@ -126,7 +126,7 @@ const useSiteConnectionNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) =
 		) : (
 			<Stack direction="column" gap="sm">
 				<Text render={ <p /> }>{ siteConnectionContent.message }</Text>
-				<TermsOfService agreeButtonLabel={ siteConnectionContent.buttonLabel } />
+				<TermsOfService agreeButtonLabel={ siteConnectionContent.buttonLabel } variant="body-sm" />
 			</Stack>
 		);
 
