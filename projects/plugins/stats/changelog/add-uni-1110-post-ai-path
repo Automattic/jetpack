@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Premium Analytics: Show the link to the live post for post types that are not in the REST API, also when the post page is opened directly.

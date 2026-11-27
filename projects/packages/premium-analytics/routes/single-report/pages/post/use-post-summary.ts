@@ -127,9 +127,9 @@ export function usePostSummary( id: string ): PostSummary {
 		publishedDate,
 		allTimeStart: publishedDate,
 		imageUrl,
-		// The entity permalink is authoritative; the carried URL only covers the
-		// post types core data cannot resolve.
-		url: url ?? carriedUrl,
+		// The entity permalink is authoritative; the carried URL and then the Stats
+		// permalink cover the post types core data cannot resolve.
+		url: url ?? carriedUrl ?? post?.permalink,
 		// React Query calls a first load paused offline or in a hidden tab not loading.
 		isLoading: isLoading || ( isPending && isPaused ),
 		isError: hasFailed,

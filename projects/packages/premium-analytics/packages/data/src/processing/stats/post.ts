@@ -65,6 +65,8 @@ export type StatsPostMeta = {
 	post_date_gmt?: string;
 	post_status?: string;
 	comment_count?: number;
+	/** The post's public URL; WPCOM adds it to the row for every post type. */
+	permalink?: string;
 };
 
 export type StatsPostRawResponse = {
@@ -166,10 +168,11 @@ function normalizeStatsPostWeek( value: unknown ): StatsPostWeek {
  * absent so consumers can tell unknown from a real zero.
  */
 function normalizeStatsPostMeta( value: unknown ): StatsPostMeta {
-	const meta = coerceStatsRecord( value );
+	const { permalink, ...meta } = coerceStatsRecord( value );
 
 	return {
 		...( meta as StatsPostMeta ),
+		...( typeof permalink === 'string' ? { permalink } : {} ),
 		...( typeof meta.post_title === 'string'
 			? { post_title: decodeHtmlText( meta.post_title ) }
 			: {} ),
