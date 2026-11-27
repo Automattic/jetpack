@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack\Protect_Models;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 /**
@@ -74,5 +75,35 @@ class Threat_Model_Test extends BaseTestCase {
 				$this->assertSame( $value, $threat->$key );
 			}
 		}
+	}
+
+	/**
+	 * @dataProvider provide_fixed_versions
+	 *
+	 * @param array<string|null> $fixed_versions Vulnerability fixed versions.
+	 * @param string|null        $expected       Expected threat fixed version.
+	 */
+	#[DataProvider( 'provide_fixed_versions' )]
+	public function test_generated_threat_fixed_version( array $fixed_versions, $expected ) {
+		$extension       = new Extension_Model( array( 'type' => 'plugins' ) );
+		$vulnerabilities = array_map(
+			static fn ( $fixed_in ) => new Vulnerability_Model( array( 'fixed_in' => $fixed_in ) ),
+			$fixed_versions
+		);
+
+		$threat = Threat_Model::generate_from_extension_vulnerabilities( $extension, $vulnerabilities );
+
+		$this->assertSame( $expected, $threat->fixed_in );
+	}
+
+	/**
+	 * @return array Fixed versions and their expected threat fixed version.
+	 */
+	public static function provide_fixed_versions() {
+		return array(
+			'fixed then unfixed' => array( array( '2.0', null ), null ),
+			'unfixed then fixed' => array( array( null, '2.0' ), null ),
+			'all fixed'          => array( array( '2.9', '2.10', '2.8' ), '2.10' ),
+		);
 	}
 }

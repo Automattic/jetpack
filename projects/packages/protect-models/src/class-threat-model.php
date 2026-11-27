@@ -228,15 +228,14 @@ class Threat_Model {
 	 *
 	 * @param array $vulnerabilities The vulnerabilities to get the fixed_in version from.
 	 *
-	 * @return string|bool|null The latest fixed_in version, or false if any of the vulnerabilities are not fixed.
+	 * @return string|null The latest fixed version, or null if any vulnerability has no fix or the list is empty.
 	 */
 	private static function get_fixed_in_from_vulnerabilities( array $vulnerabilities ) {
 		$fixed_in = null;
 
 		foreach ( $vulnerabilities as $vulnerability ) {
-			// If any of the vulnerabilities are not fixed, the threat is not fixed.
 			if ( ! $vulnerability->fixed_in ) {
-				break;
+				return null;
 			}
 
 			// Use the latest available fixed_in version.
