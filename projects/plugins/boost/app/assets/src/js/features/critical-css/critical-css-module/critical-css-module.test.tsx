@@ -1,4 +1,4 @@
-/* eslint-disable jest-dom/prefer-in-document, jest-dom/prefer-to-have-attribute -- The legacy Boost Jest project does not load jest-dom. */
+/* eslint-disable jest-dom/prefer-in-document, jest-dom/prefer-to-have-attribute -- The main Boost Jest project does not load jest-dom. */
 import { fireEvent, render, screen } from '@testing-library/react';
 import { MODERN_ROOT_ID } from '$lib/modern/mode';
 import { recordBoostEvent } from '$lib/utils/analytics';

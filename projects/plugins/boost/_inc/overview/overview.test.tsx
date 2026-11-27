@@ -19,7 +19,7 @@ import { useDismissibleAlertState as useLegacyAlertState } from '../../app/asset
 import PopOut from '../../app/assets/src/js/features/speed-score/pop-out/pop-out';
 import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
 import { SPEED_TEST_COMPLETE_EVENT } from '../runtime-contract';
-import { observeLegacyModulesState } from './lib/modules-state-bridge';
+import { observeAppModulesState } from './lib/modules-state-bridge';
 import { getHistoryWindow } from './lib/history-days';
 import * as speedScores from './lib/use-speed-scores';
 import Overview from './overview';
@@ -34,12 +34,12 @@ jest.mock( '@automattic/jetpack-boost-score-api', () => ( {
 	...jest.requireActual( '@automattic/jetpack-boost-score-api' ),
 	requestSpeedScores: jest.fn(),
 } ) );
-// The dashboard route and legacy Settings bundle have separate Data Sync singletons.
+// The dashboard route and the app bundle have separate Data Sync singletons.
 jest.mock( '@automattic/jetpack-react-data-sync-client', () => ( {
 	...jest.requireActual( '@automattic/jetpack-react-data-sync-client' ),
 	queryClient: new ( jest.requireActual( '@tanstack/react-query' ).QueryClient )(),
 } ) );
-const { queryClient: legacyQueryClient } = jest.requireActual(
+const { queryClient: appQueryClient } = jest.requireActual(
 	'@automattic/jetpack-react-data-sync-client'
 );
 jest.mock( '@wordpress/api-fetch' );
@@ -784,16 +784,16 @@ test.each( [ 'critical_css_state', 'lcp_state' ] as const )(
 					? Promise.resolve( { status: 'success', JSON: { status, updated: 1 } } )
 					: fetch( options )
 			);
-		legacyQueryClient.clear();
-		legacyQueryClient.setQueryData( [ key ], { status, updated: 1 } );
-		const stopObserving = observeLegacyModulesState( legacyQueryClient );
+		appQueryClient.clear();
+		appQueryClient.setQueryData( [ key ], { status, updated: 1 } );
+		const stopObserving = observeAppModulesState( appQueryClient );
 		const { client } = renderOverview();
 		try {
 			await waitFor( () => expect( client.getQueryState( [ key ] )?.dataUpdateCount ).toBe( 1 ) );
 			await waitFor( () => expect( client.isFetching() ).toBe( 0 ) );
 			jest.mocked( apiFetch ).mockClear();
 			await act( async () => {
-				await legacyQueryClient.fetchQuery( {
+				await appQueryClient.fetchQuery( {
 					queryKey: [ key ],
 					queryFn: async () => ( { status: 'pending', updated: 2 } ),
 				} );
@@ -802,7 +802,7 @@ test.each( [ 'critical_css_state', 'lcp_state' ] as const )(
 			expect( client.getQueryData( [ key ] ) ).toEqual( { status: 'pending', updated: 2 } );
 
 			act( () => {
-				legacyQueryClient.setQueryData( [ key ], {
+				appQueryClient.setQueryData( [ key ], {
 					status,
 					updated: 3,
 				} );
@@ -812,7 +812,7 @@ test.each( [ 'critical_css_state', 'lcp_state' ] as const )(
 			expect( client.getQueryData( [ key ] ) ).toEqual( { status, updated: 3 } );
 		} finally {
 			stopObserving();
-			legacyQueryClient.clear();
+			appQueryClient.clear();
 		}
 	}
 );
@@ -835,8 +835,8 @@ test.each( [ 'immediate save', 'stale GET', 'delayed save', 'normalized save', '
 		} );
 		let holdGet = false;
 		window.jetpack_boost_ds!.modules_state!.value = initialModules;
-		legacyQueryClient.clear();
-		const stopObserving = observeLegacyModulesState( legacyQueryClient );
+		appQueryClient.clear();
+		const stopObserving = observeAppModulesState( appQueryClient );
 		const hadFetch = Object.hasOwn( globalThis, 'fetch' );
 		if ( ! hadFetch ) {
 			Object.defineProperty( globalThis, 'fetch', {
@@ -889,7 +889,7 @@ test.each( [ 'immediate save', 'stale GET', 'delayed save', 'normalized save', '
 					</QueryClientProvider>
 				</div>
 				<div hidden={ isOverview }>
-					<QueryClientProvider client={ legacyQueryClient }>
+					<QueryClientProvider client={ appQueryClient }>
 						<SettingsToggle />
 					</QueryClientProvider>
 				</div>
@@ -922,7 +922,7 @@ test.each( [ 'immediate save', 'stale GET', 'delayed save', 'normalized save', '
 			await waitFor( () => expect( fetchSpy ).toHaveBeenCalledTimes( 1 ) );
 			if ( scenario === 'unrelated save' ) {
 				await act( async () => {
-					await new MutationObserver( legacyQueryClient, {
+					await new MutationObserver( appQueryClient, {
 						mutationFn: async () => undefined,
 					} ).mutate();
 				} );
@@ -974,7 +974,7 @@ test.each( [ 'immediate save', 'stale GET', 'delayed save', 'normalized save', '
 			stopObserving();
 			view.unmount();
 			client.clear();
-			legacyQueryClient.clear();
+			appQueryClient.clear();
 			fetchSpy.mockRestore();
 			if ( ! hadFetch ) {
 				Reflect.deleteProperty( globalThis, 'fetch' );

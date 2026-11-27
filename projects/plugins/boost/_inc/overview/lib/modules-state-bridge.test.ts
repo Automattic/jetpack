@@ -5,8 +5,8 @@ import { useGettingStarted } from '../../../app/assets/src/js/lib/stores/getting
 import { ONBOARDING_CHANGE_EVENT } from '../../runtime-contract';
 import {
 	MODULES_SAVE_META,
-	observeLegacyModulesState,
-	observeLegacyOnboarding,
+	observeAppModulesState,
+	observeAppOnboarding,
 	ONBOARDING_SAVE_META,
 	OVERVIEW_MODULES_CHANGE_EVENT,
 } from './modules-state-bridge';
@@ -25,8 +25,8 @@ beforeEach( () => {
 	onOnboardingChange.mockClear();
 	window.addEventListener( OVERVIEW_MODULES_CHANGE_EVENT, onChange );
 	window.addEventListener( ONBOARDING_CHANGE_EVENT, onOnboardingChange );
-	unsubscribeModules = observeLegacyModulesState( client );
-	unsubscribeOnboarding = observeLegacyOnboarding( client );
+	unsubscribeModules = observeAppModulesState( client );
+	unsubscribeOnboarding = observeAppOnboarding( client );
 } );
 
 afterEach( () => {
@@ -206,7 +206,7 @@ test.each( [ true, false ] )(
 			getting_started: { value: true, nonce: 'test' },
 		};
 		queryClient.clear();
-		const stop = observeLegacyOnboarding( queryClient );
+		const stop = observeAppOnboarding( queryClient );
 		let resolveSave: ( value: Response ) => void;
 		let rejectSave: ( error: Error ) => void;
 		const originalFetch = globalThis.fetch;
