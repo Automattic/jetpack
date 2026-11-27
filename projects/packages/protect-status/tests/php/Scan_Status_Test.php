@@ -661,15 +661,16 @@ class Scan_Status_Test extends BaseTestCase {
 	/**
 	 * Keep a flagged extension visible until it reaches the update fixer's target.
 	 *
-	 * @param string      $plugin_version The installed WooCommerce version.
-	 * @param string      $theme_version  The installed theme version.
-	 * @param array       $listed         The extension threats still listed.
-	 * @param string|null $fixed_in       The fixed version reported by the Scan API.
-	 * @param string|null $update_target  The plugin's update target, or null for a delete fixer.
+	 * @param string      $plugin_version    The installed WooCommerce version.
+	 * @param string      $theme_version     The installed theme version.
+	 * @param array       $listed            The extension threats still listed.
+	 * @param string|null $expected_fixed_in The fixed version expected in the threat list.
+	 * @param string|null $fixed_in          The fixed version reported by the Scan API.
+	 * @param string|null $update_target     The plugin's update target, or null for a delete fixer.
 	 * @dataProvider updated_extension_data
 	 */
 	#[DataProvider( 'updated_extension_data' )]
-	public function test_get_status_after_extension_update( $plugin_version, $theme_version, $listed, $fixed_in = null, $update_target = '3.0.2' ) {
+	public function test_get_status_after_extension_update( $plugin_version, $theme_version, $listed, $expected_fixed_in, $fixed_in = null, $update_target = '3.0.2' ) {
 		$this->mock_connection();
 		$update   = function ( $target ) {
 			return (object) array(
@@ -739,9 +740,7 @@ class Scan_Status_Test extends BaseTestCase {
 		}
 
 		$this->assertEqualsCanonicalizing( $listed, array_values( array_intersect( array_map( 'strval', array_keys( $threats ) ), array( '71625245', 'malware', 'theme' ) ) ) );
-		if ( isset( $threats['71625245'] ) ) {
-			$this->assertSame( $fixed_in ?? ( '0' !== $update_target ? $update_target : null ), $threats['71625245']->fixed_in );
-		}
+		$this->assertSame( $expected_fixed_in, $threats['71625245']->fixed_in ?? null );
 	}
 
 	/**
@@ -749,14 +748,14 @@ class Scan_Status_Test extends BaseTestCase {
 	 */
 	public static function updated_extension_data() {
 		return array(
-			'still below the fix'                   => array( '3.0.1', '1.0.2', array( '71625245', 'malware', 'theme' ) ),
-			'a rollback'                            => array( '2.9', '1.0.2', array( '71625245', 'malware', 'theme' ) ),
-			'plugin at the fix'                     => array( '3.0.2', '1.0.2', array( 'malware', 'theme' ) ),
-			'plugin past the fix'                   => array( '3.1', '1.0.2', array( 'malware', 'theme' ) ),
-			'theme at the fix'                      => array( '3.0.0', '1.0.3', array( '71625245', 'malware' ) ),
-			'update target above the fixed version' => array( '3.0.1', '1.0.2', array( '71625245', 'malware', 'theme' ), '3.0.1' ),
-			'delete fixer at the fixed version'     => array( '3.0.1', '1.0.2', array( '71625245', 'malware', 'theme' ), '3.0.1', null ),
-			'zero update target'                    => array( '3.0.1', '1.0.2', array( '71625245', 'malware', 'theme' ), null, '0' ),
+			'still below the fix'                   => array( '3.0.1', '1.0.2', array( '71625245', 'malware', 'theme' ), '3.0.2' ),
+			'a rollback'                            => array( '2.9', '1.0.2', array( '71625245', 'malware', 'theme' ), '3.0.2' ),
+			'plugin at the fix'                     => array( '3.0.2', '1.0.2', array( 'malware', 'theme' ), null ),
+			'plugin past the fix'                   => array( '3.1', '1.0.2', array( 'malware', 'theme' ), null ),
+			'theme at the fix'                      => array( '3.0.0', '1.0.3', array( '71625245', 'malware' ), '3.0.2' ),
+			'update target above the fixed version' => array( '3.0.1', '1.0.2', array( '71625245', 'malware', 'theme' ), '3.0.1', '3.0.1' ),
+			'delete fixer at the fixed version'     => array( '3.0.1', '1.0.2', array( '71625245', 'malware', 'theme' ), '3.0.1', '3.0.1', null ),
+			'zero update target'                    => array( '3.0.1', '1.0.2', array( '71625245', 'malware', 'theme' ), null, null, '0' ),
 		);
 	}
 
