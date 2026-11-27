@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Monetize;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Partner;
@@ -104,6 +105,13 @@ class Dashboard {
 	private static $sections = array();
 
 	/**
+	 * Path to the wp-build index, or null for the package build. Tests point it at a fixture.
+	 *
+	 * @var string|null
+	 */
+	private static $wp_build_index = null;
+
+	/**
 	 * Register the flag. Hosts call this before they decide whether to load the dashboard.
 	 *
 	 * @return void
@@ -144,6 +152,9 @@ class Dashboard {
 			// Before Admin_Menu registers its items at 1000.
 			add_action( 'admin_menu', array( __CLASS__, 'add_menu' ), 999 );
 			add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
+			if ( class_exists( Admin_Shell::class ) ) {
+				add_filter( 'jetpack_admin_shell_members', array( __CLASS__, 'add_admin_shell_member' ) );
+			}
 		}
 
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_script_data' ) );
@@ -224,7 +235,7 @@ class Dashboard {
 	 * @return array
 	 */
 	public static function add_script_data( $data ) {
-		if ( ! self::is_dashboard_request() ) {
+		if ( ! self::renders_dashboard() ) {
 			return $data;
 		}
 
@@ -323,8 +334,17 @@ class Dashboard {
 	 */
 	public static function maybe_load_wp_build() {
 		if ( self::is_dashboard_request() ) {
-			self::load_wp_build( dirname( __DIR__ ) . '/build/build.php' );
+			self::load_wp_build( self::build_index() );
 		}
+	}
+
+	/**
+	 * Path to the generated wp-build index.
+	 *
+	 * @return string
+	 */
+	private static function build_index() {
+		return self::$wp_build_index ?? dirname( __DIR__ ) . '/build/build.php';
 	}
 
 	/**
@@ -335,6 +355,22 @@ class Dashboard {
 	public static function is_dashboard_request() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading the page slug only.
 		return isset( $_GET['page'] ) && self::MENU_SLUG === sanitize_text_field( wp_unslash( $_GET['page'] ) );
+	}
+
+	/**
+	 * Whether the request prints the dashboard's page data: its own page, or the admin shell loading it into another dashboard's page.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function renders_dashboard() {
+		if ( self::is_dashboard_request() ) {
+			return true;
+		}
+		// An older admin-ui under the jetpack-autoloader may predate requested_guest().
+		return method_exists( Admin_Shell::class, 'requested_guest' )
+			&& self::MENU_SLUG === Admin_Shell::requested_guest();
 	}
 
 	/**
@@ -358,9 +394,10 @@ class Dashboard {
 	 * Load a wp-build index and, if it can render the page, its scripts and polyfills.
 	 *
 	 * @param string $build_index Path to the generated build.php.
+	 * @param bool   $alias       Whether to alias the screen ID, which only the dashboard's own page needs.
 	 * @return bool Whether the build can render the page.
 	 */
-	public static function load_wp_build( $build_index ) {
+	public static function load_wp_build( $build_index, $alias = true ) {
 		if ( ! file_exists( $build_index ) ) {
 			return false;
 		}
@@ -369,14 +406,16 @@ class Dashboard {
 			require_once $build_index;
 		};
 
-		// Fallback: an older wp-build-polyfills under the jetpack-autoloader may predate load_with_alias().
-		if ( method_exists( WP_Build_Screen_Id::class, 'load_with_alias' ) ) {
+		if ( ! $alias ) {
+			$load_wp_build();
+		} elseif ( method_exists( WP_Build_Screen_Id::class, 'load_with_alias' ) ) {
 			WP_Build_Screen_Id::load_with_alias(
 				array( __CLASS__, 'alias_screen_id' ),
 				array( __CLASS__, 'restore_screen_id' ),
 				$load_wp_build
 			);
 		} else {
+			// An older wp-build-polyfills under the jetpack-autoloader may predate load_with_alias().
 			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id' ) );
 			$load_wp_build();
 			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id' ) );
@@ -408,6 +447,48 @@ class Dashboard {
 		);
 
 		return true;
+	}
+
+	/**
+	 * Register Monetize with the admin shell, which switches between Jetpack dashboards without a page load.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public static function add_admin_shell_member( $members ) {
+		if ( ! file_exists( self::build_index() ) ) {
+			return $members;
+		}
+
+		$title                      = __( 'Monetize', 'jetpack-monetize' );
+		$members[ self::MENU_SLUG ] = array(
+			'build_prefix' => 'jetpack_monetize',
+			'build_page'   => self::WP_BUILD_PAGE_ID,
+			'init_modules' => array( '@jetpack-monetize/init' ),
+			'title'        => $title,
+			'header'       => array(
+				'title'    => $title,
+				'subtitle' => '',
+			),
+			'capability'   => 'manage_options',
+			// The connection initial state is an inline script on wp-api-fetch.
+			'handles'      => array( 'jetpack-script-data', 'wp-api-fetch', 'jp-tracks', 'wp-jp-i18n-loader' ),
+			'load'         => array( __CLASS__, 'load_as_admin_shell_guest' ),
+		);
+		return $members;
+	}
+
+	/**
+	 * Ready the Monetize routes and page data while another dashboard's page is open, without the screen ID alias.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function load_as_admin_shell_guest() {
+		self::load_wp_build( self::build_index(), false );
 	}
 
 	/**

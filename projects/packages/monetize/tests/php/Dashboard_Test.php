@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Monetize;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Admin_UI\Admin_Shell;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Cache;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
@@ -36,14 +37,18 @@ class Dashboard_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		Admin_Menu::reset();
-		unset( $_GET['page'] );
+		$_GET     = array();
+		$_REQUEST = array();
+		remove_filter( 'wp_doing_ajax', '__return_true' );
 		remove_all_actions( 'admin_menu' );
 		remove_all_actions( 'admin_enqueue_scripts' );
+		remove_all_filters( 'jetpack_admin_shell_members' );
 		unset( $GLOBALS['submenu']['jetpack'] );
 		wp_set_current_user( 0 );
 		Constants::clear_constants();
 		Cache::clear();
 		self::reset_sections();
+		self::set_build_index( null );
 		parent::tear_down();
 	}
 
@@ -85,7 +90,7 @@ class Dashboard_Test extends BaseTestCase {
 	 *
 	 * @param array $constants Host constants to set.
 	 * @param bool  $queued    Whether the sidebar item should be queued.
-	 * @param bool  $routes    Whether the REST routes should be registered.
+	 * @param bool  $routes    Whether the REST routes and the admin shell member should be registered.
 	 */
 	#[DataProvider( 'provide_hosts' )]
 	public function test_init_queues_the_item_and_routes_off_simple( $constants, $queued, $routes ) {
@@ -97,6 +102,7 @@ class Dashboard_Test extends BaseTestCase {
 		$priority = has_action( 'admin_menu', array( Dashboard::class, 'add_menu' ) );
 
 		$this->assertSame( $routes, false !== has_action( 'rest_api_init', array( Dashboard::class, 'register_rest_routes' ) ) );
+		$this->assertSame( $routes, false !== has_filter( 'jetpack_admin_shell_members', array( Dashboard::class, 'add_admin_shell_member' ) ), 'The admin shell runs only where the page is a Jetpack menu item.' );
 
 		if ( ! $queued ) {
 			$this->assertFalse( $priority );
@@ -209,6 +215,51 @@ class Dashboard_Test extends BaseTestCase {
 		$this->assertSame( 'jetpack_page_jetpack-monetize', get_current_screen()->id );
 	}
 
+	public function test_admin_shell_skips_monetize_without_a_build() {
+		self::set_build_index( __DIR__ . '/fixtures/missing-build.php' );
+
+		$this->assertSame( array(), Dashboard::add_admin_shell_member( array() ) );
+	}
+
+	/**
+	 * Runs alone because the fixture defines the render function for the rest of the process.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_shell_member_loads_the_build_on_another_dashboards_screen() {
+		require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'jetpack_page_my-jetpack' );
+		self::set_build_index( __DIR__ . '/fixtures/usable-build.php' );
+		add_filter( 'jetpack_admin_shell_members', array( Dashboard::class, 'add_admin_shell_member' ) );
+
+		$members = Admin_Shell::get_members();
+		$this->assertArrayHasKey( Dashboard::MENU_SLUG, $members );
+
+		$members[ Dashboard::MENU_SLUG ]['load']();
+		$this->assertContains( 'jetpack-monetize', array_merge( array(), ...array_values( WP_Build_Polyfills::get_consumers() ) ) );
+
+		do_action( 'admin_enqueue_scripts' );
+		$this->assertSame( 'jetpack_page_my-jetpack', $GLOBALS['jetpack_monetize_test_enqueue_screen_id'] );
+	}
+
+	/**
+	 * Point the dashboard at a build index, or back at the package build with null.
+	 *
+	 * @param string|null $path Build index path.
+	 */
+	private static function set_build_index( $path ) {
+		$property = new \ReflectionProperty( Dashboard::class, 'wp_build_index' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, $path );
+	}
+
 	/**
 	 * Requested `page` values and whether each is the dashboard's.
 	 *
@@ -296,26 +347,43 @@ class Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The `page` query arg, and the `monetize` script data keys each should end up with.
+	 * The request's query args, and the `monetize` script data keys each should end up with.
 	 *
 	 * @return array[]
 	 */
 	public static function provide_script_data_pages() {
+		$page_data = array( 'other', 'sections', 'upgradeUrl', 'tracks' );
 		return array(
-			'the Monetize page' => array( 'jetpack-monetize', array( 'other', 'sections', 'upgradeUrl', 'tracks' ) ),
-			'another page'      => array( 'jetpack', array( 'other' ) ),
+			'the Monetize page'                => array( array( 'page' => 'jetpack-monetize' ), $page_data ),
+			'another page'                     => array( array( 'page' => 'jetpack' ), array( 'other' ) ),
+			'the admin shell loading Monetize' => array(
+				array(
+					'action' => Admin_Shell::GUEST_ACTION,
+					'member' => 'jetpack-monetize',
+				),
+				$page_data,
+			),
+			'the admin shell loading another'  => array(
+				array(
+					'action' => Admin_Shell::GUEST_ACTION,
+					'member' => 'my-jetpack',
+				),
+				array( 'other' ),
+			),
 		);
 	}
 
 	/**
 	 * @dataProvider provide_script_data_pages
 	 *
-	 * @param string   $page     The `page` query arg.
+	 * @param array    $query    The request's query args.
 	 * @param string[] $expected The `monetize` script data keys.
 	 */
 	#[DataProvider( 'provide_script_data_pages' )]
-	public function test_add_script_data_adds_the_page_data_only_on_the_monetize_page( $page, $expected ) {
-		$_GET['page'] = $page;
+	public function test_add_script_data_adds_the_page_data_only_where_the_page_loads( $query, $expected ) {
+		$_GET     = $query;
+		$_REQUEST = $query;
+		add_filter( 'wp_doing_ajax', '__return_true' );
 		Dashboard::register_section( $this->section( 'example', array( 'title' => 'Ads' ) ) );
 		Dashboard::register_section( $this->section( 'empty', array() ) );
 
