@@ -4,13 +4,13 @@
 import { Icon } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { safeHttpUrl, tagRowGlyph } from '@jetpack-premium-analytics/ui';
-import { ExternalLink } from '@jetpack-premium-analytics/widgets-toolkit';
+import { ExternalLink, getTagColumnLabel } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import styles from './fields.module.css';
-import type { StatsTagsItem } from '@jetpack-premium-analytics/data';
+import type { StatsTagsItem, StatsTagsTermType } from '@jetpack-premium-analytics/data';
 import type { Field } from '@jetpack-premium-analytics/externals';
 
 /**
@@ -43,13 +43,14 @@ function TagLabel( { item }: { item: StatsTagsItem } ) {
 /**
  * DataViews field config for the Tags & categories records table.
  *
+ * @param termType - The taxonomy the rows are narrowed to, if any.
  * @return The field config.
  */
-export function getTagsFields(): Field< StatsTagsItem >[] {
+export function getTagsFields( termType?: StatsTagsTermType ): Field< StatsTagsItem >[] {
 	return [
 		{
 			id: 'label',
-			label: __( 'Tag or category', 'jetpack-premium-analytics-pkg' ),
+			label: getTagColumnLabel( termType ),
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => item.labelText,

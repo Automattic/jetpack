@@ -19,6 +19,44 @@ import type { ReportCsvExporter } from './types';
  */
 export const TAGS_REPORT_ROW_LIMIT = 1000;
 
+/** The Tags report's tabs, as `?section=` names them. */
+export type TagsReportSection = 'all' | 'tags' | 'categories';
+
+const SECTIONS_BY_TERM_TYPE: Record< StatsTagsTermType, TagsReportSection > = {
+	tag: 'tags',
+	category: 'categories',
+};
+
+/** The taxonomy each section narrows the rows to; `all` keeps both. */
+export const TAGS_TERM_TYPES: Record< TagsReportSection, StatsTagsTermType | undefined > = {
+	all: undefined,
+	tags: 'tag',
+	categories: 'category',
+};
+
+/** The Tags report tab that lists a widget's taxonomy, or `all` for both. */
+export function getTagsReportSection( termType?: StatsTagsTermType ): TagsReportSection {
+	return termType ? SECTIONS_BY_TERM_TYPE[ termType ] : 'all';
+}
+
+/**
+ * Name the label column after the rows' taxonomy, in the table and the CSV alike.
+ *
+ * @param termType - The taxonomy the rows are narrowed to, if any.
+ * @return The column label.
+ */
+export function getTagColumnLabel( termType?: StatsTagsTermType ): string {
+	if ( termType === 'tag' ) {
+		return __( 'Tag', 'jetpack-premium-analytics-pkg' );
+	}
+
+	if ( termType === 'category' ) {
+		return __( 'Category', 'jetpack-premium-analytics-pkg' );
+	}
+
+	return __( 'Tag or category', 'jetpack-premium-analytics-pkg' );
+}
+
 type TagsCsvExporter = ReportCsvExporter< StatsTagsItem, StatsTagsItem >;
 
 export const tagsCsvExporter: TagsCsvExporter = {
@@ -27,20 +65,13 @@ export const tagsCsvExporter: TagsCsvExporter = {
 	fetchItems: reportParams => fetchStatsTagsRows( { ...reportParams, max: TAGS_REPORT_ROW_LIMIT } ),
 	toCsvRows: items => [ ...items ].sort( ( a, b ) => b.value - a.value ),
 	getColumns: () => [
-		{
-			label: __( 'Tag or category', 'jetpack-premium-analytics-pkg' ),
-			getValue: row => row.labelText,
-		},
+		{ label: getTagColumnLabel(), getValue: row => row.labelText },
 		{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.value },
 		{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
 	],
 };
 
-const byType = (
-	type: StatsTagsTermType,
-	filenamePrefix: string,
-	getLabelHeader: () => string
-): TagsCsvExporter => ( {
+const byType = ( type: StatsTagsTermType, filenamePrefix: string ): TagsCsvExporter => ( {
 	...tagsCsvExporter,
 	filenamePrefix,
 	fetchItems: async reportParams =>
@@ -48,14 +79,12 @@ const byType = (
 	getColumns: () => {
 		const [ labelColumn, ...columns ] = tagsCsvExporter.getColumns();
 
-		return [ { ...labelColumn, label: getLabelHeader() }, ...columns ];
+		return [ { ...labelColumn, label: getTagColumnLabel( type ) }, ...columns ];
 	},
 } );
 
-/** The CSV for a widget narrowed to tags or to categories. */
+/** The CSV for a widget or report tab narrowed to tags or to categories. */
 export const tagsCsvExportersByType: Record< StatsTagsTermType, TagsCsvExporter > = {
-	tag: byType( 'tag', 'tags', () => __( 'Tag', 'jetpack-premium-analytics-pkg' ) ),
-	category: byType( 'category', 'categories', () =>
-		__( 'Category', 'jetpack-premium-analytics-pkg' )
-	),
+	tag: byType( 'tag', 'tags' ),
+	category: byType( 'category', 'categories' ),
 };

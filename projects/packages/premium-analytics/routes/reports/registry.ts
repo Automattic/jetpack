@@ -14,6 +14,7 @@ import { resolveTabId as resolveCommentsTabId } from './comments/config/tabs';
 import { resolveSection as resolveEarningsSection } from './earnings/config/tabs';
 import { resolveSection as resolveLocationsSection } from './locations/config/tabs';
 import { resolveTabId } from './posts/config/tabs';
+import { resolveSection as resolveTagsSection } from './tags/config/tabs';
 import { resolveSection as resolveUtmSection } from './utm/config/tabs';
 import type { DashboardSectionSlug, StatsFeatureKey } from '@jetpack-premium-analytics/data';
 
@@ -146,6 +147,7 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		feature: 'tags',
 		dashboardSection: 'traffic',
 		getLabel: () => __( 'Tags & categories', 'jetpack-premium-analytics-pkg' ),
+		resolveSection: resolveTagsSection,
 	},
 	videos: {
 		id: 'videos',

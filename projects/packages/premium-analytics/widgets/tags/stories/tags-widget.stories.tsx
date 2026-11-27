@@ -12,7 +12,7 @@ import {
 	registerReportMocks,
 	setReportMockState,
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
-import TagsRender from '../render';
+import TagsRender, { type TagsAttributes } from '../render';
 import widgetManifest from '../widget.json';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
@@ -26,8 +26,12 @@ const TAGS_RENDER_MODULE = 'storybook/tags';
 // comes from widget.json ( 'framed' ), so the host frames the widget.
 const storyWidgetType = createStoryWidgetType( widgetManifest );
 
-function renderTags() {
-	return <TagsRender attributes={ { reportParams: getDefaultQueryParams() } } />;
+interface TagsStoryControls {
+	termType?: TagsAttributes[ 'termType' ];
+}
+
+function renderTags( { termType }: TagsStoryControls = {} ) {
+	return <TagsRender attributes={ { termType, reportParams: getDefaultQueryParams() } } />;
 }
 
 function TagsDashboardRender( props: WidgetRenderProps< unknown > ) {
@@ -38,6 +42,14 @@ const meta = {
 	title: 'Packages/Premium Analytics/Widgets/Tags',
 	component: TagsRender,
 	tags: [ 'autodocs' ],
+	argTypes: {
+		termType: {
+			control: 'inline-radio',
+			options: [ 'all', 'tag', 'category' ],
+			description:
+				'Show tags, categories, or both. Rendered as an inline control in the widget frame header by the host.',
+		},
+	},
 	parameters: {
 		docs: {
 			description: {
@@ -46,14 +58,15 @@ const meta = {
 			},
 		},
 	},
-} satisfies Meta< typeof TagsRender >;
+} satisfies Meta< ComponentProps< typeof TagsRender > & TagsStoryControls >;
 
 export default meta;
 
-type Story = StoryObj< Partial< ComponentProps< typeof TagsRender > > >;
+type Story = StoryObj< TagsStoryControls >;
 
 export const Default: Story = {
 	render: renderTags,
+	args: { termType: 'all' },
 	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
@@ -100,23 +113,29 @@ export const Empty: Story = {
 	},
 };
 
-function TagsDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
+function TagsDashboardStory( {
+	termType,
+	...dashboardArgs
+}: WidgetDashboardWithWidgetControls & TagsStoryControls ) {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
 			widgetType={ storyWidgetType }
 			renderModule={ TAGS_RENDER_MODULE }
 			renderComponent={ TagsDashboardRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ { reportParams: getDefaultQueryParams( true ) } }
+			attributes={ { termType, reportParams: getDefaultQueryParams( true ) } }
 		/>
 	);
 }
 
-export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
+export const WidgetDashboardWithWidget: StoryObj<
+	WidgetDashboardWithWidgetControls & TagsStoryControls
+> = {
 	tags: [ 'widget-dashboard' ],
 	render: args => <TagsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
+		termType: 'all',
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,

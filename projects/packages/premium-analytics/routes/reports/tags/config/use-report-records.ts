@@ -2,9 +2,11 @@
  * External dependencies
  */
 import {
+	selectStatsTagsItemsByType,
 	useStatsTags,
 	type ReportParams,
 	type StatsTagsItem,
+	type StatsTagsTermType,
 } from '@jetpack-premium-analytics/data';
 import { TAGS_REPORT_ROW_LIMIT } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
@@ -23,14 +25,16 @@ export function getTagRowId( item: StatsTagsItem ): string {
  * Fetch the Tags & categories rows for the report window.
  *
  * @param reportParams - The report's date window.
+ * @param termType     - Narrow the rows to tags or to categories, as the widget does; omit for both.
  * @return Table rows and fetch state.
  */
-export function useTagsReportRecords( reportParams: ReportParams ) {
+export function useTagsReportRecords( reportParams: ReportParams, termType?: StatsTagsTermType ) {
 	const tags = useStatsTags( { ...reportParams, max: TAGS_REPORT_ROW_LIMIT } );
-	const rows = useMemo< StatsTagsItem[] >(
-		() => tags.data?.data?.[ 0 ]?.items ?? [],
-		[ tags.data ]
-	);
+	const rows = useMemo< StatsTagsItem[] >( () => {
+		const items = tags.data?.data?.[ 0 ]?.items ?? [];
+
+		return termType ? selectStatsTagsItemsByType( items, termType ) : items;
+	}, [ tags.data, termType ] );
 
 	return {
 		rows,
