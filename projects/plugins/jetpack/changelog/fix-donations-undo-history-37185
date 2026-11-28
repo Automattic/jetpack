@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Donations block: mark automatic attribute initialization and migration updates as non-persistent so Undo can remove the block.

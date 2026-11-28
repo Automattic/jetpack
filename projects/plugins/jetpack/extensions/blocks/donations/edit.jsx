@@ -36,6 +36,8 @@ const Edit = props => {
 		triggerSticky,
 	} = attributes;
 	const { tracks } = useAnalytics();
+	const { updateBlockAttributes, __unstableMarkNextChangeAsNotPersistent } =
+		useDispatch( blockEditorStore );
 
 	// Migrate legacy blocks that used the block-style variation
 	// (`is-style-buttons` saved into `className`) over to the new
@@ -48,12 +50,13 @@ const Edit = props => {
 				.filter( c => c !== 'is-style-buttons' )
 				.join( ' ' )
 				.trim();
+			__unstableMarkNextChangeAsNotPersistent?.();
 			setAttributes( {
 				tabsAppearance: 'buttons',
 				className: cleaned || undefined,
 			} );
 		}
-	}, [ className, setAttributes ] );
+	}, [ className, setAttributes, __unstableMarkNextChangeAsNotPersistent ] );
 
 	const instanceId = useInstanceId( Edit, 'jp-donations' );
 	const customStyles = buildCustomStyles( attributes, `.${ instanceId }` );
@@ -70,7 +73,6 @@ const Edit = props => {
 	const [ loadingError, setLoadingError ] = useState( '' );
 	const isUserConnected = useIsUserConnected();
 	const { getBlockAttributes } = useSelect( blockEditorStore );
-	const { updateBlockAttributes } = useDispatch( blockEditorStore );
 
 	// When the inserter renders this block as an example/preview (it declares
 	// `"example": {}` in block.json), Gutenberg mounts this Edit component inside
@@ -135,6 +137,7 @@ const Edit = props => {
 		if ( ! currency && stripeDefaultCurrency && ! isPostSavingLocked ) {
 			const uppercasedStripeCurrency = stripeDefaultCurrency.toUpperCase();
 			const isCurrencySupported = !! SUPPORTED_CURRENCIES[ uppercasedStripeCurrency ];
+			__unstableMarkNextChangeAsNotPersistent?.();
 			if ( isCurrencySupported ) {
 				// If no currency is available, default to the stripe one
 				setAttributes( { currency: uppercasedStripeCurrency } );
@@ -143,7 +146,13 @@ const Edit = props => {
 				setAttributes( { currency: 'USD' } );
 			}
 		}
-	}, [ currency, stripeDefaultCurrency, isPostSavingLocked, setAttributes ] );
+	}, [
+		currency,
+		stripeDefaultCurrency,
+		isPostSavingLocked,
+		setAttributes,
+		__unstableMarkNextChangeAsNotPersistent,
+	] );
 
 	const apiError = message => {
 		setLoadingError( message );
@@ -211,6 +220,7 @@ const Edit = props => {
 				}
 			}
 			if ( Object.keys( updates ).length ) {
+				__unstableMarkNextChangeAsNotPersistent?.();
 				updateBlockAttributes( clientId, updates );
 			}
 		};
@@ -273,6 +283,7 @@ const Edit = props => {
 		clientId,
 		getBlockAttributes,
 		updateBlockAttributes,
+		__unstableMarkNextChangeAsNotPersistent,
 	] );
 
 	// In preview/example mode the Stripe status fetch is skipped, so fall back to
