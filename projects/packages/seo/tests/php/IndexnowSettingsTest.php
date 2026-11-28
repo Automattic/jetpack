@@ -364,11 +364,21 @@ class IndexnowSettingsTest extends SeoTestCase {
 		$original                  = $GLOBALS['wp_rest_server'];
 		$GLOBALS['wp_rest_server'] = new \WP_REST_Server(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		\Automattic\Jetpack\Constants::set_constant( 'WPCOM_IS_VIP_ENV', $vip );
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'indexnow-admin-' . ( $vip ? 'vip' : 'other' ),
+					'role'       => 'administrator',
+					'user_pass'  => 'test-only-password',
+				)
+			)
+		);
 		try {
 			Indexnow::register_routes();
 			$data = Admin_Page::inject_script_data( array() );
 			$this->assertSame( ! $vip, $data[ Initializer::SCRIPT_DATA_KEY ]['indexnow_available'] );
 			$this->assertSame( ! $vip, isset( rest_get_server()->get_routes()['/jetpack/v4/seo/indexnow'] ) );
+			$this->assertSame( ! $vip, isset( $data[ Initializer::SCRIPT_DATA_KEY ]['preload']['/jetpack/v4/seo/indexnow']['body']['enabled'] ) );
 		} finally {
 			\Automattic\Jetpack\Constants::clear_single_constant( 'WPCOM_IS_VIP_ENV' );
 			$GLOBALS['wp_rest_server'] = $original; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited

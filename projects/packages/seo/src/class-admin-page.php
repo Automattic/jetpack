@@ -431,8 +431,14 @@ class Admin_Page {
 		// raw payloads, which the app read synchronously once and couldn't recover from
 		// when momentarily absent (the load-error dead-end). See Dashboard_Data::register_rest_reads()
 		// and the client readers `_inc/data/get-preloaded.ts` + `_inc/data/use-ensure-tab-data.ts`.
+		$indexnow_available = ! ( new Host() )->is_vip_site();
+		$preload_paths      = Dashboard_Data::rest_read_paths();
+		if ( $indexnow_available ) {
+			// Lets the notification toggle draw with the rest of the Settings form.
+			$preload_paths[] = '/jetpack/v4/seo/indexnow';
+		}
 		$data[ Initializer::SCRIPT_DATA_KEY ]['preload'] = array_reduce(
-			Dashboard_Data::rest_read_paths(),
+			$preload_paths,
 			'rest_preload_api_request',
 			array()
 		);
@@ -442,7 +448,7 @@ class Admin_Page {
 		$data[ Initializer::SCRIPT_DATA_KEY ]['google_verify']      = Dashboard_Data::get_google_verify_data();
 		$data[ Initializer::SCRIPT_DATA_KEY ]['site']               = Dashboard_Data::get_site_data();
 		$data[ Initializer::SCRIPT_DATA_KEY ]['output']             = Dashboard_Data::get_output_data();
-		$data[ Initializer::SCRIPT_DATA_KEY ]['indexnow_available'] = ! ( new Host() )->is_vip_site();
+		$data[ Initializer::SCRIPT_DATA_KEY ]['indexnow_available'] = $indexnow_available;
 
 		return $data;
 	}

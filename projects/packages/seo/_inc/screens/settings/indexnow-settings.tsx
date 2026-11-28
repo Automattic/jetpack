@@ -9,6 +9,10 @@ import {
 } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Link, Notice, Stack, SwitchControl, Text } from '@wordpress/ui';
+import { INDEXNOW_PATH, getPreloaded, writePreloaded } from '../../data/get-preloaded';
+
+// A save can outlive its mount when the user switches tabs, so the next mount reads after it.
+let pendingSave: Promise< unknown > | null = null;
 
 interface Status {
 	enabled: boolean;
@@ -131,11 +135,19 @@ interface Props {
  * @return The settings content.
  */
 export default function IndexnowSettings( { isSaving, onSavingChange }: Props ) {
-	const [ status, setStatus ] = useState< Status | null >( null );
+	// Starts from the last known status (the page preload, or the last read before a tab
+	// switch) so the toggle shows at once; the refresh below keeps it current.
+	const [ status, setStatus ] = useState< Status | null >(
+		() => getPreloaded< Status >( INDEXNOW_PATH ) ?? null
+	);
 	const [ error, setError ] = useState( '' );
 	const [ busy, setBusy ] = useState( false );
 	const saving = useRef( false );
 	const revision = useRef( 0 );
+	const adopt = useCallback( ( value: Status ) => {
+		writePreloaded( INDEXNOW_PATH, value );
+		setStatus( value );
+	}, [] );
 	useEffect( () => {
 		if ( isSaving ) {
 			++revision.current;
@@ -148,9 +160,12 @@ export default function IndexnowSettings( { isSaving, onSavingChange }: Props ) 
 			}
 			const version = ++revision.current;
 			try {
-				const value = await apiFetch< Status >( { path: '/jetpack/v4/seo/indexnow' } );
+				if ( pendingSave ) {
+					await pendingSave;
+				}
+				const value = await apiFetch< Status >( { path: INDEXNOW_PATH } );
 				if ( mounted && version === revision.current ) {
-					setStatus( value );
+					adopt( value );
 					setError( '' );
 				}
 			} catch {
@@ -171,7 +186,7 @@ export default function IndexnowSettings( { isSaving, onSavingChange }: Props ) 
 			mounted = false;
 			window.removeEventListener( 'focus', focus );
 		};
-	}, [ isSaving ] );
+	}, [ isSaving, adopt ] );
 	const change = useCallback(
 		async ( enabled: boolean ) => {
 			if ( isSaving || saving.current ) {
@@ -182,14 +197,15 @@ export default function IndexnowSettings( { isSaving, onSavingChange }: Props ) 
 			setBusy( true );
 			onSavingChange?.( true );
 			setError( '' );
+			const request = apiFetch< Status >( {
+				path: INDEXNOW_PATH,
+				method: 'POST',
+				data: { enabled },
+			} );
+			const settled = request.catch( () => null );
+			pendingSave = settled;
 			try {
-				setStatus(
-					await apiFetch< Status >( {
-						path: '/jetpack/v4/seo/indexnow',
-						method: 'POST',
-						data: { enabled },
-					} )
-				);
+				adopt( await request );
 			} catch {
 				setError(
 					__(
@@ -198,12 +214,15 @@ export default function IndexnowSettings( { isSaving, onSavingChange }: Props ) 
 					)
 				);
 			} finally {
+				if ( pendingSave === settled ) {
+					pendingSave = null;
+				}
 				saving.current = false;
 				setBusy( false );
 				onSavingChange?.( false );
 			}
 		},
-		[ isSaving, onSavingChange ]
+		[ isSaving, onSavingChange, adopt ]
 	);
 	const paused = status ? pauseMessage( status.pause_reason, status.enabled ) : '';
 	const warning = status?.enabled && ! paused ? deliveryWarning( status ) : '';
