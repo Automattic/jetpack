@@ -1,7 +1,23 @@
-// Content tab: full-width DataViews list (no max-width — it fills the available
-// width, matching the Forms dashboard), with an optional SEO inspector panel.
+// Give the table its own scroll area so pagination cannot cover a focused row.
 .root {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
 	inline-size: 100%;
+	min-block-size: 0;
+
+	> :global(.dataviews-wrapper) {
+		min-block-size: 0;
+	}
+
+	// Clear the sticky header and leave room for the outline.
+	:global(.dataviews-layout__container) {
+		$button: var(--wpds-dimension-size-md);
+		$padding: var(--wpds-dimension-padding-sm);
+		$gap: var(--wpds-dimension-gap-xs);
+
+		scroll-padding-block-start: calc($button + 2 * $padding + $gap);
+	}
 }
 
 // The per-post SEO editor in the route's inspector sidebar, which scrolls it.
@@ -36,4 +52,10 @@
 	color: var(--wpds-color-foreground-interactive-brand);
 	font-size: 18px;
 	line-height: 1.3;
+}
+
+// The inspector's native select needs a visible ring inside the sidebar.
+.inspectorBody select:focus-visible {
+	outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+	outline-offset: 2px;
 }

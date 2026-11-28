@@ -38,7 +38,9 @@ describe( 'ContentCoverageCard', () => {
 		);
 
 		// eslint-disable-next-line testing-library/prefer-user-event -- fireEvent keeps this off the @testing-library/user-event devDep (avoids lockfile churn) for a single click.
-		fireEvent.click( screen.getByRole( 'button', { name: /Set SEO titles/ } ) );
+		fireEvent.click(
+			screen.getByRole( 'button', { name: '40% 4 / 10 SEO title set Set SEO titles' } )
+		);
 
 		expect( onFilter ).toHaveBeenCalledWith( 'title' );
 	} );

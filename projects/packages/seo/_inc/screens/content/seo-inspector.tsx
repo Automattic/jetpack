@@ -6,7 +6,14 @@ import apiFetch from '@wordpress/api-fetch';
 import { SelectControl } from '@wordpress/components';
 import { store as coreStore, useEntityRecord } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
+import {
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
@@ -48,6 +55,7 @@ const LLMS_TXT_ALWAYS_INCLUDE_HELP = {
 };
 
 interface Props {
+	frame?: HTMLDivElement;
 	// The selected post id (from the Content route's `?postId`).
 	postId: number;
 	// The core endpoint to save through.
@@ -102,12 +110,43 @@ function toEditableMeta( meta: Partial< SeoPostMeta > | undefined ): EditableMet
  * reload. The SERP preview updates live as fields change.
  *
  * @param props          - Component props.
+ * @param props.frame    - The inspector container in the route.
  * @param props.postId   - The selected post id.
  * @param props.postType - The core endpoint to save through.
  * @param props.onClose  - Dismiss the inspector.
  * @return The SEO inspector editor.
  */
-const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
+const SeoInspector: FC< Props > = ( { frame, postId, postType, onClose } ) => {
+	const closeButtonRef = useRef< HTMLButtonElement >( null );
+
+	useLayoutEffect( () => {
+		const closeButton = closeButtonRef.current;
+		if ( ! frame || ! closeButton ) {
+			return;
+		}
+		const ownerDocument = frame.ownerDocument;
+		const editSelector = `[data-jetpack-seo-edit-post="${ postId }"]`;
+		const focused = ownerDocument.activeElement;
+		if ( focused === ownerDocument.body || focused?.matches( editSelector ) ) {
+			closeButton.focus();
+		}
+
+		return () => {
+			if ( ! frame.contains( ownerDocument.activeElement ) ) {
+				return;
+			}
+			// Wait for the sidebar to unmount and any replacement list to commit.
+			queueMicrotask( () => {
+				if ( ! closeButton.isConnected && ownerDocument.activeElement === ownerDocument.body ) {
+					const target =
+						ownerDocument.querySelector< HTMLElement >( editSelector ) ??
+						ownerDocument.getElementById( 'jetpack-seo-tab-content' );
+					target?.focus();
+				}
+			} );
+		};
+	}, [ frame, postId ] );
+
 	// The *edited* record, not the persisted one. Saving stages the new meta as a
 	// core-data edit rather than writing it back over the persisted record (see
 	// `onSave`), so `record` still holds the pre-save meta afterwards — seeding the
@@ -253,8 +292,9 @@ const SeoInspector: FC< Props > = ( { postId, postType, onClose } ) => {
 			title={ __( 'Edit SEO', 'jetpack-seo' ) }
 			actions={
 				<IconButton
+					ref={ closeButtonRef }
 					icon={ close }
-					label={ __( 'Close', 'jetpack-seo' ) }
+					label={ __( 'Close SEO editor', 'jetpack-seo' ) }
 					onClick={ onClose }
 					disabled={ isSaving }
 					variant="minimal"

@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 // `--experimental-vm-modules` (true ESM): mock with `jest.unstable_mockModule`
 // and import the component under test dynamically after the mocks are registered.
@@ -53,5 +53,73 @@ describe( 'DashboardNav', () => {
 			'GEO',
 			'Settings',
 		] );
+	} );
+
+	it.each( [ 'lost', 'inside', 'outside' ] )(
+		'preserves tab focus across route stages without stealing other focus (%s)',
+		async movedFocus => {
+			const Page = ( { active }: { active: 'overview' | 'geo' } ) => (
+				<>
+					<input aria-label="Editor" />
+					<DashboardNav key={ active } active={ active }>
+						{ active === 'geo' && movedFocus === 'inside' && (
+							// eslint-disable-next-line jsx-a11y/no-autofocus -- Reproduce DataViews focusing a control on mount.
+							<input aria-label="Filter" autoFocus />
+						) }
+					</DashboardNav>
+				</>
+			);
+			const { rerender } = render( <Page active="overview" /> );
+			const source = screen.getByRole( 'tab', { name: 'GEO' } );
+			const editor = screen.getByRole( 'textbox', { name: 'Editor' } );
+			act( () => source.focus() );
+			// eslint-disable-next-line testing-library/prefer-user-event -- Match the existing navigation test.
+			fireEvent.click( source );
+			if ( movedFocus === 'outside' ) {
+				act( () => editor.focus() );
+			}
+			rerender( <Page active="geo" /> );
+			const activeTab = screen.getByRole( 'tab', { name: 'GEO' } );
+			await waitFor( () => expect( movedFocus === 'outside' ? editor : activeTab ).toHaveFocus() );
+			expect( activeTab ).toHaveAttribute( 'tabindex', '0' );
+		}
+	);
+
+	it.each( [
+		[ 'nothing has focus', false ],
+		[ 'a panel control took focus while mounting', true ],
+	] )(
+		'focuses the new tab after a keyboard action inside another panel when %s',
+		async ( _, stolen ) => {
+			document.body.dataset.jetpackSeoTabFocus = 'overview';
+			render(
+				<DashboardNav active="content">
+					{ /* eslint-disable-next-line jsx-a11y/no-autofocus -- Reproduce DataViews focusing a control on mount. */ }
+					{ stolen && <input aria-label="Filter" autoFocus /> }
+				</DashboardNav>
+			);
+
+			await waitFor( () => expect( screen.getByRole( 'tab', { name: 'Content' } ) ).toHaveFocus() );
+			expect( document.body.dataset.jetpackSeoTabFocus ).toBeUndefined();
+		}
+	);
+
+	it( 'associates every tab with its labeled panel and mounts content only in the active one', () => {
+		render(
+			<DashboardNav active="settings">
+				<input aria-label="Setting" />
+			</DashboardNav>
+		);
+		for ( const tab of screen.getAllByRole( 'tab' ) ) {
+			// eslint-disable-next-line testing-library/no-node-access -- Check the actual ARIA relationship.
+			const panel = document.getElementById( tab.getAttribute( 'aria-controls' ) ?? '' );
+			expect( panel ).toHaveAttribute( 'role', 'tabpanel' );
+			expect( panel ).toHaveAttribute( 'aria-labelledby', tab.id );
+		}
+		expect( screen.getAllByRole( 'tabpanel' ) ).toHaveLength( 1 );
+		expect( screen.getByRole( 'tabpanel' ) ).toHaveAttribute( 'tabindex', '-1' );
+		expect( screen.getByRole( 'tabpanel', { name: 'Settings' } ) ).toContainElement(
+			screen.getByRole( 'textbox', { name: 'Setting' } )
+		);
 	} );
 } );
