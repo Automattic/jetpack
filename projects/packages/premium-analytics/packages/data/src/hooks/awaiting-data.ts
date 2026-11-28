@@ -2,6 +2,7 @@ type PlaceholderAwareQuery = {
 	isLoading: boolean;
 	isPlaceholderData: boolean;
 	isFetching: boolean;
+	isPaused: boolean;
 };
 
 /**
@@ -11,12 +12,12 @@ type PlaceholderAwareQuery = {
  * Neither React Query flag says this alone: `placeholderData` leaves
  * `isLoading` false across a range change, and `isFetching` is equally true
  * while revalidating unchanged params, whose numbers on screen are still right
- * (WOOA7S-1934). The conjunction also releases a query the widget switched off,
- * which holds placeholder data no fetch will replace and used to pin the
- * skeleton for good.
+ * (WOOA7S-1934). A fetch paused offline is still coming, so it counts; a query
+ * the widget switched off is idle instead, holding placeholder data no fetch
+ * will replace, and must not pin the skeleton.
  */
 export function isAwaitingData( query: PlaceholderAwareQuery ): boolean {
-	return query.isLoading || ( query.isPlaceholderData && query.isFetching );
+	return query.isLoading || ( query.isPlaceholderData && ( query.isFetching || query.isPaused ) );
 }
 
 /**

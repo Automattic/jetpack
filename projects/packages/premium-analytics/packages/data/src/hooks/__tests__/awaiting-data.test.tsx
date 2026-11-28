@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
+import { onlineManager, QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import { useState } from 'react';
 /**
@@ -171,6 +171,26 @@ describe( 'isAwaitingData', () => {
 
 		expect( renders.some( frame => frame.isPlaceholderData ) ).toBe( true );
 		expect( renders.filter( frame => frame.isPlaceholderData && ! frame.awaiting ) ).toEqual( [] );
+	} );
+
+	it( 'is true while a range change is paused offline (WOOA7S-2543)', async () => {
+		render( wrap( <Host /> ) );
+		await settleOn( 'january' );
+
+		try {
+			onlineManager.setOnline( false );
+			await act( async () => {
+				setRange( 'february' );
+			} );
+
+			expect( read( 'shown' ) ).toBe( 'january' );
+			expect( read( 'fetching' ) ).toBe( 'false' );
+			expect( read( 'awaiting' ) ).toBe( 'true' );
+		} finally {
+			onlineManager.setOnline( true );
+		}
+
+		await settleOn( 'february' );
 	} );
 
 	// The stuck-skeleton bug: switching a query off changes its params in the same

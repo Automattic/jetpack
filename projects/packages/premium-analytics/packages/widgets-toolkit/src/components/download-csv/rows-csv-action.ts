@@ -28,7 +28,7 @@ export type RowsCsvActionOptions< TRow > = {
 	 */
 	status: ReportCsvExportStatus & {
 		/**
-		 * Whether the rows are a previous range's, which a request paused offline keeps without fetching.
+		 * Whether the rows are a previous range's (React Query's `isPlaceholderData`), fetching or not.
 		 */
 		isPlaceholderData: boolean;
 	};
