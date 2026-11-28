@@ -85,8 +85,8 @@
 			}, 250 );
 
 			// Ensure that enough posts are loaded to fill the initial viewport, to compensate for short posts and large displays.
-			self.ensureFilledViewport();
 			this.body.addEventListener( 'is.post-load', self.checkViewportOnLoadBound );
+			self.ensureFilledViewport();
 		} else if ( type === 'click' ) {
 			if ( this.click_handle ) {
 				this.element.appendChild( this.handle );
@@ -742,13 +742,12 @@
 			windowHeight = self.window.innerHeight,
 			wrapperMeasurements = self.measure( self.element, [ self.wrapperClass ] );
 
-		// Only load more posts once. This prevents infinite loops when there are no more posts.
-		self.body.removeEventListener( 'is.post-load', self.checkViewportOnLoadBound );
-
 		// Load more posts if space permits, otherwise stop checking for a full viewport.
 		if ( wrapperMeasurements.bottom !== 0 && wrapperMeasurements.bottom < windowHeight ) {
 			self.ready = true;
 			self.refresh();
+		} else {
+			self.body.removeEventListener( 'is.post-load', self.checkViewportOnLoadBound );
 		}
 	};
 
@@ -756,8 +755,20 @@
 	 * Event handler for ensureFilledViewport(), tied to the post-load trigger.
 	 * Necessary to ensure that the variable `this` contains the scroller when used in ensureFilledViewport(). Since this function is tied to an event, `this` becomes the DOM element the event is tied to.
 	 */
-	Scroller.prototype.checkViewportOnLoad = function () {
-		this.ensureFilledViewport();
+	Scroller.prototype.checkViewportOnLoad = function ( e ) {
+		// `disabled` is only set after this event fires, so read the last batch from the response.
+		if ( e.detail && e.detail.lastbatch ) {
+			this.body.removeEventListener( 'is.post-load', this.checkViewportOnLoadBound );
+			return;
+		}
+
+		// Wait until render() finishes, so its `ready = true` can't unlock a second request while ours is in flight.
+		var self = this;
+		setTimeout( function () {
+			if ( self.ready ) {
+				self.ensureFilledViewport();
+			}
+		}, 0 );
 	};
 
 	function fullscreenState() {
