@@ -22,15 +22,13 @@ import { useMemo } from 'react';
  */
 import styles from './style.module.css';
 import useRequestsBySource from './use-requests-by-source';
+import type {
+	RequestsBySourceAttributes,
+	RequestsBySourceChartType,
+	RequestsBySourcePeriod,
+} from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
-
-export type RequestsBySourceChartType = 'area' | 'bar';
-
-export type RequestsBySourceAttributes = {
-	/** How the sources are drawn over time: stacked areas or stacked bars. */
-	chartType?: RequestsBySourceChartType;
-};
 
 type RequestsBySourceRenderAttributes = RequestsBySourceAttributes &
 	Partial< ReportParamsFieldAttributes >;
@@ -41,7 +39,12 @@ type RequestsBySourceProps = WidgetRenderProps< RequestsBySourceRenderAttributes
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
-function RequestsBySourceInner( { chartType }: { chartType: RequestsBySourceChartType } ) {
+type RequestsBySourceInnerProps = {
+	chartType: RequestsBySourceChartType;
+	interval?: RequestsBySourcePeriod;
+};
+
+function RequestsBySourceInner( { chartType, interval }: RequestsBySourceInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const {
 		sources,
@@ -53,7 +56,7 @@ function RequestsBySourceInner( { chartType }: { chartType: RequestsBySourceChar
 		isRangeTooLong,
 		error,
 		refetch,
-	} = useRequestsBySource( reportParams );
+	} = useRequestsBySource( reportParams, interval );
 	const series = useMemo( () => sources.map( source => source.series ), [ sources ] );
 	// The totals double as the chart's legend, so they take its colors.
 	const seriesStyles = useSeriesStyles( series );
@@ -144,7 +147,7 @@ export default function RequestsBySource( { attributes = {}, setError }: Request
 
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError }>
-			<RequestsBySourceInner chartType={ chartType } />
+			<RequestsBySourceInner chartType={ chartType } interval={ attributes.chartInterval } />
 		</WidgetRoot>
 	);
 }

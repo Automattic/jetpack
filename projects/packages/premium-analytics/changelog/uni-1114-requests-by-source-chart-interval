@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+AI tab: Let the Requests by source widget switch between hours, days, weeks and months, behind the AI tab feature flag.

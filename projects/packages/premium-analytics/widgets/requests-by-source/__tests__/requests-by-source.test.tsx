@@ -8,6 +8,7 @@ import { screen } from '@testing-library/react';
  */
 import { renderWithActionsHost } from '../../../tests/js/widget-host-test-utils';
 import RequestsBySource from '../render';
+import type { RequestsBySourcePeriod } from '../widget';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
 
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
@@ -37,9 +38,14 @@ function requestsResult( summary: Record< string, number > ) {
 	} as unknown as ReturnType< typeof useStatsEdgeBotRequests >;
 }
 
-function renderWidget( reportParams: Partial< ReportParams > ) {
+function renderWidget(
+	reportParams: Partial< ReportParams >,
+	chartInterval?: RequestsBySourcePeriod
+) {
 	return renderWithActionsHost(
-		<RequestsBySource attributes={ { reportParams: reportParams as ReportParams } } />
+		<RequestsBySource
+			attributes={ { reportParams: reportParams as ReportParams, chartInterval } }
+		/>
 	);
 }
 
@@ -64,17 +70,18 @@ describe( 'RequestsBySource', () => {
 		] );
 	} );
 
+	// The page interval is always `day`, so a widget reading it instead of its own would ask for days.
 	it.each( [
-		[ 'a single day', '2026-11-01', 'day', { period: 'hour' } ],
-		[ 'a week', '2026-11-07', 'day', { period: 'day' } ],
-		[ '90 days', '2027-01-29', 'week', { period: 'week' } ],
-		[ 'a year', '2027-10-31', 'month', { period: 'month' } ],
-	] as const )( 'asks for %s by the page interval', ( _, to, interval, params ) => {
+		[ 'a single day by the hour', '2026-11-01', undefined, { period: 'hour' } ],
+		[ 'a week by the day', '2026-11-07', undefined, { period: 'day' } ],
+		[ '30 days by the saved week', '2026-11-30', 'week', { period: 'week' } ],
+		[ 'a year by the saved month', '2027-10-31', 'month', { period: 'month' } ],
+	] as const )( 'asks for %s', ( _, to, chartInterval, params ) => {
 		mockUseStatsEdgeBotRequests.mockReturnValue(
 			requestsResult( { human: 1, ai: 0, other: 0, blocked: 0 } )
 		);
 
-		renderWidget( { from: '2026-11-01', to, interval } );
+		renderWidget( { from: '2026-11-01', to, interval: 'day' }, chartInterval );
 
 		const [ lastParams ] = mockUseStatsEdgeBotRequests.mock.lastCall ?? [];
 		expect( lastParams ).toMatchObject( params );
