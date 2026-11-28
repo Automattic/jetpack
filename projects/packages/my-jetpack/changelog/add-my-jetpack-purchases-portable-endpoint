@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+My Jetpack: add a cross-platform `wpcom/v2/my-jetpack/purchases` endpoint so the products page works on WordPress.com Simple sites. The existing `my-jetpack/v1/site/purchases` endpoint is retained and returns the same data.
