@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Protect: Offer the Protect page on sites that turned it off with the `jetpack-protect-dashboard` feature flag, which is now removed.

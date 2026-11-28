@@ -585,16 +585,16 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * With every flagged module on offer, a feature Jetpack does not switch must have a plugin to install instead.
+	 * With every gated module on offer, a feature Jetpack does not switch must have a plugin to install instead.
 	 */
 	public function test_every_feature_can_be_switched_somewhere() {
-		$flagged = array( 'monetize', 'protect-dashboard' );
-		$offer   = static function ( $modules ) use ( $flagged ) {
-			return array_merge( (array) $modules, $flagged );
+		$gated = array( 'monetize', 'protect-dashboard' );
+		$offer = static function ( $modules ) use ( $gated ) {
+			return array_merge( (array) $modules, $gated );
 		};
 		// Earlier tests may load the mock Jetpack plugin, which moves get_available() off the standalone filter.
-		$jetpack_offer = static function ( $modules ) use ( $flagged ) {
-			return array_merge( (array) $modules, array_fill_keys( $flagged, '1.0' ) );
+		$jetpack_offer = static function ( $modules ) use ( $gated ) {
+			return array_merge( (array) $modules, array_fill_keys( $gated, '1.0' ) );
 		};
 		// Definitions are memoized per locale, so a locale nothing else uses gets a fresh build.
 		$locale = static function () {
@@ -1214,7 +1214,7 @@ class Main_Features_Test extends TestCase {
 	 *
 	 * @return array[]
 	 */
-	public static function provide_flagged_module_offers() {
+	public static function provide_gated_module_offers() {
 		return array(
 			'Protect module on offer'                  => array( 'protect-dashboard', array( 'protect-dashboard' ), false, true ),
 			'Protect, nothing on offer'                => array( 'protect-dashboard', array(), false, false ),
@@ -1226,15 +1226,15 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * @dataProvider provide_flagged_module_offers
+	 * @dataProvider provide_gated_module_offers
 	 *
 	 * @param string   $slug      Feature slug.
 	 * @param string[] $modules   Modules on offer.
 	 * @param bool     $is_simple Whether the site is WordPress.com Simple.
 	 * @param bool     $expected  Whether the feature ships in Jetpack.
 	 */
-	#[DataProvider( 'provide_flagged_module_offers' )]
-	public function test_flagged_features_ship_in_jetpack_only_while_their_module_is_on_offer( $slug, $modules, $is_simple, $expected ) {
+	#[DataProvider( 'provide_gated_module_offers' )]
+	public function test_gated_features_ship_in_jetpack_only_while_their_module_is_on_offer( $slug, $modules, $is_simple, $expected ) {
 		if ( $is_simple ) {
 			Constants::set_constant( 'IS_WPCOM', true );
 		}

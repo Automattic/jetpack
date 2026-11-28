@@ -1,25 +1,22 @@
 <?php
 /**
- * Protect dashboard feature flags.
+ * Protect dashboard module availability.
  *
  * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
 /**
- * Registers the flag that gates the `protect-dashboard` module, and hides the module while the Jetpack Protect plugin is active.
+ * Hides the `protect-dashboard` module while the Jetpack Protect plugin is active.
  *
  * @since 16.4
  */
 class Jetpack_Protect_Dashboard_Feature_Flags {
-
-	const DASHBOARD = 'jetpack-protect-dashboard';
 
 	const MODULE = 'protect-dashboard';
 
@@ -31,20 +28,11 @@ class Jetpack_Protect_Dashboard_Feature_Flags {
 	private static $ignore_protect_plugin = false;
 
 	/**
-	 * Register the flag and the module filters.
+	 * Register the module filters.
 	 *
 	 * @return void
 	 */
 	public static function register() {
-		Feature_Flags::register(
-			self::DASHBOARD,
-			array(
-				'default'     => true,
-				'description' => 'Make the Protect dashboard module available, which replaces the Protect page, including the Jetpack Protect plugin\'s. Not for sites using that plugin until the new page matches it.',
-				'owner'       => 'jetpack',
-			)
-		);
-
 		add_filter( 'jetpack_get_available_modules', array( __CLASS__, 'filter_available_modules' ) );
 		add_filter( 'jetpack_get_default_modules', array( __CLASS__, 'filter_default_modules' ), 10, 5 );
 	}
@@ -59,18 +47,15 @@ class Jetpack_Protect_Dashboard_Feature_Flags {
 	}
 
 	/**
-	 * Drop the module from the available list while the flag is off, which also keeps it from loading.
+	 * Drop the module from the available list while the Jetpack Protect plugin is active, which also keeps it from loading.
 	 *
-	 * It stays off while the Jetpack Protect plugin is active, too. Jetpack keeps an unavailable module in its stored active list.
+	 * Jetpack keeps an unavailable module in its stored active list.
 	 *
 	 * @param array $modules Available modules, keyed by slug.
 	 * @return array
 	 */
 	public static function filter_available_modules( $modules ) {
-		if (
-			! Feature_Flags::is_enabled( self::DASHBOARD )
-			|| ( ! self::$ignore_protect_plugin && self::is_protect_plugin_active() )
-		) {
+		if ( ! self::$ignore_protect_plugin && self::is_protect_plugin_active() ) {
 			unset( $modules[ self::MODULE ] );
 		}
 		return $modules;

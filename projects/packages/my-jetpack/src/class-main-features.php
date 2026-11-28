@@ -459,7 +459,7 @@ class Main_Features {
 					__( 'Instant email alerts when a threat is found', 'jetpack-my-jetpack' ),
 				),
 				'delivery'         => array(
-					// Never on WordPress.com Simple, whose partial bootstrap skips the module's flag.
+					// Never on WordPress.com Simple: its partial bootstrap skips the filters that hide the module, so being available there doesn't mean the page can load.
 					'jetpack'     => ! ( new Host() )->is_wpcom_simple() && Products\Protect::is_dashboard_module_available(),
 					'plugin'      => 'jetpack-protect',
 					'plugin_name' => __( 'Jetpack Protect', 'jetpack-my-jetpack' ),

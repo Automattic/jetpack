@@ -152,7 +152,7 @@ class Protect extends Hybrid_Product {
 	}
 
 	/**
-	 * Whether the Jetpack plugin offers the module that loads the Protect page, which only happens while its flag is on.
+	 * Whether the Jetpack plugin offers the module that loads the Protect page, which it hides while the Jetpack Protect plugin is active.
 	 *
 	 * Not Modules::is_module(): it passes any slug.
 	 *
