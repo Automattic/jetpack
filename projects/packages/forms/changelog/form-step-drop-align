@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Multistep: drop the Step block's alignment control. A step always fills its container, so the control had nothing to change.

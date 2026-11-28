@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Forms: render a multistep form's step as a single element, matching the editor and the front end.
