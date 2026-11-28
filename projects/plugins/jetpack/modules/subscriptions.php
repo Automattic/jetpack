@@ -703,7 +703,10 @@ class Jetpack_Subscriptions {
 		$redirect = add_query_arg( 'subscribe', $result );
 
 		/**
-		 * Fires on each subscription form submission.
+		 * Fires when a visitor submits the Blog Subscriptions widget form.
+		 *
+		 * It does not fire for the Subscribe block, which sends signups to WordPress.com
+		 * instead of to the site.
 		 *
 		 * @module subscriptions
 		 *

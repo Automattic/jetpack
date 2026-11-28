@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+Comment: Clarify that the jetpack_subscriptions_form_submission hook does not fire for the Subscribe block.
+
