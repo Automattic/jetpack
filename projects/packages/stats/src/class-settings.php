@@ -91,7 +91,8 @@ class Settings {
 				continue;
 			}
 			if ( null === $known_roles ) {
-				$known_roles = array_keys( wp_roles()->roles );
+				$roles       = wp_roles()->roles;
+				$known_roles = is_array( $roles ) ? array_keys( $roles ) : array();
 			}
 			if ( ! is_array( $provided[ $role_field ] ) ) {
 				return new WP_Error(

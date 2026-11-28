@@ -190,7 +190,8 @@ final class Stats_Settings {
 	 */
 	private static function get_role_slugs() {
 		$stored = get_option( Stats_Options::OPTION_NAME, array() );
-		$slugs  = array_keys( wp_roles()->roles );
+		$roles  = wp_roles()->roles;
+		$slugs  = is_array( $roles ) ? array_keys( $roles ) : array();
 
 		foreach ( array( 'roles', 'count_roles' ) as $field ) {
 			if ( is_array( $stored ) && isset( $stored[ $field ] ) && is_array( $stored[ $field ] ) ) {
