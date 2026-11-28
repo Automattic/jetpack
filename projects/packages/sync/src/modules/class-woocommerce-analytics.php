@@ -700,7 +700,7 @@ class WooCommerce_Analytics extends Module {
 			'num_items_sold'     => self::get_num_items_sold( $order ),
 			'total_sales'        => $order->get_total(),
 			'tax_total'          => $order->get_total_tax(),
-			'total_fees'         => $order->get_total_fees(),
+			'total_fees'         => self::get_total_fees( $order ),
 			'total_fees_tax'     => self::get_total_fees_tax( $order ),
 			'shipping_total'     => $order->get_shipping_total(),
 			'shipping_tax'       => $order->get_shipping_tax(),
@@ -749,8 +749,8 @@ class WooCommerce_Analytics extends Module {
 			// Follow core's stored row when there is one: rows an older WooCommerce wrote keep their dates, and the checksum compares both.
 			$order_stats_item ??= $this->get_order_stats_item( $order->get_id() );
 			if ( $order_stats_item ) {
-				$has_date_completed = null !== $order_stats_item['date_completed'];
-				$has_date_paid      = null !== $order_stats_item['date_paid'];
+				$has_date_completed = isset( $order_stats_item['date_completed'] );
+				$has_date_paid      = isset( $order_stats_item['date_paid'] );
 			} else {
 				$dates_follow_parent = $parent_order instanceof WC_Order && self::refund_dates_follow_parent();
 				$has_date_completed  = ! $dates_follow_parent || $parent_order->get_date_completed();
@@ -847,9 +847,30 @@ class WooCommerce_Analytics extends Module {
 	}
 
 	/**
+	 * Get the total fees from an order.
+	 *
+	 * @param WC_Abstract_Order $order Order or refund.
+	 * @return float
+	 */
+	protected static function get_total_fees( $order ) {
+		// Added in WooCommerce 4.0; the fallback mirrors WC_Abstract_Order::get_total_fees().
+		if ( method_exists( $order, 'get_total_fees' ) ) {
+			return $order->get_total_fees();
+		}
+
+		return array_reduce(
+			$order->get_fees(),
+			function ( $carry, $item ) {
+				return $carry + (float) $item->get_total();
+			},
+			0.0
+		);
+	}
+
+	/**
 	 * Get the total fees tax from an order.
 	 *
-	 * @param WC_Order $order WC_Order object.
+	 * @param WC_Abstract_Order $order Order or refund.
 	 * @return float
 	 */
 	protected static function get_total_fees_tax( $order ) {
@@ -1328,8 +1349,8 @@ class WooCommerce_Analytics extends Module {
 
 		// Convert date strings to datetime objects.
 		$order_stats_data['date_created']   = self::datetime_to_object( $order_stats_data['date_created'] );
-		$order_stats_data['date_completed'] = self::datetime_to_object( $order_stats_data['date_completed'] );
-		$order_stats_data['date_paid']      = self::datetime_to_object( $order_stats_data['date_paid'] );
+		$order_stats_data['date_completed'] = self::datetime_to_object( $order_stats_data['date_completed'] ?? null );
+		$order_stats_data['date_paid']      = self::datetime_to_object( $order_stats_data['date_paid'] ?? null );
 
 		return $order_stats_data;
 	}

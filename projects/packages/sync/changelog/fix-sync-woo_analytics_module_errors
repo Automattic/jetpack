@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WooCommerce Analytics: Prevent PHP warnings when running against old versions of WooCommerce.
