@@ -6,21 +6,21 @@ import {
 	QUERY_GET_VIDEOPRESS_DATA_KEY,
 	REST_API_GET_VIDEOPRESS_DATA,
 } from '../../../data/constants';
-import useProduct from '../../../data/products/use-product';
 import useSimpleQuery from '../../../data/use-simple-query';
 import formatNumber from '../../../utils/format-number';
 import ProductOverviewItem from '../overview-item/product-item';
+import useOverviewStatus from '../overview-item/use-overview-status';
 import type { ProductCardComponent } from '../types';
 
 const VideoPressOverviewItem: ProductCardComponent = ( { admin } ) => {
-	const { detail } = useProduct( PRODUCT_SLUGS.VIDEOPRESS );
+	const status = useOverviewStatus( PRODUCT_SLUGS.VIDEOPRESS );
 	const { data, isLoading, isFetching, isError, refetch } = useSimpleQuery< VideopressData >( {
 		name: QUERY_GET_VIDEOPRESS_DATA_KEY,
 		query: { path: REST_API_GET_VIDEOPRESS_DATA },
 	} );
 	const { videoCount = 0, featuredStats } = data || {};
 	const isPluginActive =
-		detail?.status === PRODUCT_STATUSES.ACTIVE || detail?.status === PRODUCT_STATUSES.CAN_UPGRADE;
+		status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
 	const loadTracks = useMemo(
 		() => ( { stats_period: featuredStats?.period, video_count: videoCount } ),
 		[ featuredStats, videoCount ]

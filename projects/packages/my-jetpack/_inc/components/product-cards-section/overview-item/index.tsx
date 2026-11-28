@@ -4,10 +4,10 @@ import { Badge, Button, Icon, Link, Spinner, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { PRODUCT_STATUSES } from '../../../constants';
 import { PRODUCT_SLUGS } from '../../../data/constants';
-import useProduct from '../../../data/products/use-product';
 import useProductsByOwnership from '../../../data/products/use-products-by-ownership';
 import { getStatusLabel, getStatusTone } from '../../product-card/status';
 import styles from './style.module.scss';
+import useOverviewStatus from './use-overview-status';
 import type { StatusTone } from '../../product-card/status';
 import type { ComponentProps, FC, ReactNode } from 'react';
 
@@ -82,11 +82,10 @@ export const isHealthyStatus = ( slug: JetpackModuleWithCard, status?: string ):
  * @return {{badge: OverviewItemBadge, isHealthy: boolean}} The badge and whether the product is working.
  */
 const useStatusBadge = ( slug: JetpackModuleWithCard ) => {
-	const { detail } = useProduct( slug );
 	const {
 		data: { ownedProducts },
 	} = useProductsByOwnership();
-	const status = detail?.status;
+	const status = useOverviewStatus( slug );
 	const isOwned = !! ownedProducts?.includes( slug );
 
 	return {

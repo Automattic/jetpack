@@ -342,6 +342,7 @@ abstract class Product {
 
 		$product_data = array(
 			'status'                        => static::get_status(),
+			'is_activated'                  => static::is_activated(),
 			'pricing_for_ui'                => static::get_pricing_for_ui(),
 			'is_upgradable'                 => static::is_upgradable(),
 			'description'                   => static::get_description(),

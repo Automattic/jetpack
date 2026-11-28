@@ -11,6 +11,7 @@ import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { connectionScreenRoute, getConnectUrl, productsFrom } from '../../utils/connect-url';
 import { hostSellsNothing } from '../../utils/host-sells-nothing';
+import { getStatusWithoutAccount, isAccountOptional } from '../../utils/status-without-account';
 import type { SecondaryButtonProps } from './secondary-button';
 import type { AdditionalAction } from './types';
 import type { MouseEvent } from 'react';
@@ -20,13 +21,15 @@ export type ProductStatusActionOptions = {
 	fixSiteConnectionHandler?: ( e: MouseEvent< HTMLButtonElement > ) => void;
 	tracksIdentifier?: `${ string }_${ string }`;
 	from?: string;
+	// Read Search and VideoPress as on or off when only an account is missing.
+	showStateWithoutAccount?: boolean;
 };
 
 /**
  * The action a product's card offers for its status.
  *
  * @param {JetpackModule}              slug      - The product slug.
- * @param {ProductStatusActionOptions} [options] - Label overrides, the site connection handler, the Tracks prefix and the connect links' `from`, `productsFrom( slug )` by default.
+ * @param {ProductStatusActionOptions} [options] - Label overrides, the site connection handler, the Tracks prefix, the connect links' `from` (`productsFrom( slug )` by default), and whether to skip the account Search and VideoPress don't need.
  * @return {{action: Partial<SecondaryButtonProps>, isBusy: boolean, forcedOffReason: string | null}} The action, whether it is busy, and why the host keeps the product off.
  */
 const useProductStatusAction = (
@@ -36,6 +39,7 @@ const useProductStatusAction = (
 		fixSiteConnectionHandler,
 		tracksIdentifier,
 		from,
+		showStateWithoutAccount = false,
 	}: ProductStatusActionOptions = {}
 ) => {
 	const {
@@ -49,9 +53,10 @@ const useProductStatusAction = (
 		hostPurchaseUrl,
 		managePaidPlanPurchaseUrl,
 		renewPaidPlanPurchaseUrl,
-		status,
 		requiresUserConnection,
 	} = detail;
+	const skipsAccount = showStateWithoutAccount && isAccountOptional( slug );
+	const status = skipsAccount ? getStatusWithoutAccount( slug, detail ) : detail.status;
 	const { siteIsRegistering, isRegistered, isUserConnected } = useMyJetpackConnection();
 	const isManageDisabled = ! manageUrl;
 	const { recordEvent } = useAnalytics();
@@ -82,7 +87,7 @@ const useProductStatusAction = (
 	 * Redirect only if connected
 	 */
 	const handleActivate = useCallback( () => {
-		if ( ( ! isRegistered || ! isUserConnected ) && requiresUserConnection ) {
+		if ( ( ! isRegistered || ( ! isUserConnected && ! skipsAccount ) ) && requiresUserConnection ) {
 			navigateToConnectionPage();
 			return;
 		}
@@ -96,6 +101,7 @@ const useProductStatusAction = (
 		activate,
 		isRegistered,
 		isUserConnected,
+		skipsAccount,
 		requiresUserConnection,
 		navigateToConnectionPage,
 		recordEvent,

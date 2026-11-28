@@ -6,6 +6,7 @@ import useConnectSite from '../../../hooks/use-connect-site';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import { overviewFrom } from '../../../utils/connect-url';
 import useProductStatusAction from '../../action-button/use-product-status-action';
+import useOverviewStatus from './use-overview-status';
 import type { OverviewItemLink } from '.';
 
 /**
@@ -45,10 +46,11 @@ const useStatusAction = (
 		fixSiteConnectionHandler: connectSite,
 		tracksIdentifier: 'product_card',
 		from: connectFrom,
+		showStateWithoutAccount: true,
 	} );
 
 	// Matches the product card, which refetches its product once the site is registered.
-	const status = detail?.status;
+	const status = useOverviewStatus( slug );
 	useEffect( () => {
 		if ( isRegistered ) {
 			refetch();
