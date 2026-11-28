@@ -6,7 +6,7 @@ import {
 	useBlockProps,
 } from '@wordpress/block-editor';
 import { DropZone, FormFileUpload, withNotices } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { pick } from 'lodash';
@@ -53,6 +53,7 @@ const TiledGalleryEdit = ( {
 	const layoutStyle = getActiveStyleName( LAYOUT_STYLES, attributes.className );
 
 	const blockProps = useBlockProps();
+	const { __unstableMarkNextChangeAsNotPersistent } = useDispatch( blockEditorStore );
 	const { getBlockAttributes } = useSelect( blockEditorStore );
 	const mediaUpload = useSelect(
 		select => select( blockEditorStore ).getSettings().mediaUpload,
@@ -103,8 +104,10 @@ const TiledGalleryEdit = ( {
 		setSelectedImage( null );
 		setChanged( true );
 
-		setImages( filteredImages );
-		setAttributes( { columns: columns ? Math.min( filteredImages.length, columns ) : columns } );
+		setImages(
+			filteredImages,
+			columns ? { columns: Math.min( filteredImages.length, columns ) } : undefined
+		);
 	};
 
 	const onSelectImage = index => () => {
@@ -133,8 +136,7 @@ const TiledGalleryEdit = ( {
 			return pickRelevantMediaFiles( file );
 		} );
 
-		setImages( newImages );
-		setAttributes( { columns: columns ? Math.min( files.length, columns ) : columns } );
+		setImages( newImages, columns ? { columns: Math.min( files.length, columns ) } : undefined );
 
 		setChanged( true );
 	};
@@ -180,6 +182,8 @@ const TiledGalleryEdit = ( {
 		// which is what published galleries render as rows only 57% of the content
 		// width. See JETPACK-1990.
 		if ( changed || ! hasSameColumnShape( value, columnWidths ) ) {
+			// Derived layout cache updated asynchronously in rAF must not create a separate undo step.
+			__unstableMarkNextChangeAsNotPersistent?.();
 			setAttributes( { columnWidths: value } );
 		}
 	};

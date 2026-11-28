@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Tiled Gallery block: mark derived columnWidths layout updates as non-persistent and combine image/column attribute writes so Undo reverts an edit in one step.
