@@ -11,6 +11,15 @@
 		rx: var(--a8c-charts-border-radius-bar-chart);
 	}
 
+	// `emphasizedSeries` fades the other series in and out.
+	@media (prefers-reduced-motion: no-preference) {
+
+		:global(.visx-bar),
+		:global(.bar-chart__comparison-bar) {
+			transition: opacity var(--wpds-motion-duration-md) var(--wpds-motion-easing-subtle);
+		}
+	}
+
 	// Keep the collapsed state in `from` and never on the element: a dropped
 	// animation then fails visible. `both`, not `forwards`, for backwards fill.
 	&--animated rect {

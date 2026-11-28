@@ -273,6 +273,21 @@ export const RescaleYOnVisibilityChange: StoryObj< StoryArgs > = {
 	},
 };
 
+export const EmphasizedSeries: StoryObj< StoryArgs > = Template.bind( {} );
+EmphasizedSeries.args = {
+	...areaChartStoryArgs,
+	showLegend: true,
+	emphasizedSeries: 'New York',
+};
+EmphasizedSeries.parameters = {
+	docs: {
+		description: {
+			story:
+				'New York keeps its full color while the other series dim. Pass the label of the series the reader picked, and null to let it go.',
+		},
+	},
+};
+
 export const WithDefaultHiddenSeries: StoryObj< StoryArgs > = Template.bind( {} );
 WithDefaultHiddenSeries.args = {
 	...Default.args,

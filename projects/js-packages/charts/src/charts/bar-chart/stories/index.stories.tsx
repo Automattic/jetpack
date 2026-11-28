@@ -70,6 +70,11 @@ const meta: Meta< StoryArgs > = {
 			description: 'Use patterns for bars',
 			table: { category: 'Visual Style' },
 		},
+		emphasizedSeries: {
+			control: 'text',
+			description: 'Label of the primary series to bring out; the others dim',
+			table: { category: 'Visual Style' },
+		},
 	},
 	render: args => {
 		const { seriesCount, ...chartProps } = args;
@@ -571,6 +576,21 @@ export const WithDefaultHiddenSeries: Story = {
 			description: {
 				story:
 					'Great Britain is hidden from the initial render and marked inactive in the legend. Select its legend item to reveal it.',
+			},
+		},
+	},
+};
+
+export const EmphasizedSeries: Story = {
+	args: {
+		...Default.args,
+		emphasizedSeries: 'United States',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'United States keeps its full color while the other series dim. Pass the label of the series the reader picked, and null to let it go.',
 			},
 		},
 	},

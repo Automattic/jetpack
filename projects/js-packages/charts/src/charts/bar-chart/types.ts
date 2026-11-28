@@ -5,6 +5,7 @@ import type {
 	SeriesData,
 	SeriesChartLegendConfig,
 	SeriesVisibilityProps,
+	SeriesEmphasisProps,
 	CompactWhenShortProps,
 } from '../../types';
 import type { RenderTooltipParams } from '../../visx/types';
@@ -21,7 +22,11 @@ export type BandHighlightSelection = {
 };
 
 export interface BarChartProps
-	extends BaseChartProps< SeriesData[] >, SeriesVisibilityProps, CompactWhenShortProps {
+	extends
+		BaseChartProps< SeriesData[] >,
+		SeriesVisibilityProps,
+		SeriesEmphasisProps,
+		CompactWhenShortProps {
 	/**
 	 * Legend configuration. Supports `collapseGroups` on top of the shared options.
 	 */
@@ -44,5 +49,13 @@ export interface BarChartProps
 	withBandHighlight?: boolean;
 	/** Receive active band bounds in SVG coordinates, or null when dismissed. */
 	onBandHighlightChange?: ( selection: BandHighlightSelection | null ) => void;
+	/**
+	 * Label of the primary series to bring out. Every other series dims to
+	 * `DIMMED_SERIES_OPACITY`, a comparison series along with the primary it shadows; the
+	 * stacked layout's comparison total stays while the emphasized series has a comparison in
+	 * it. Null leaves every series at full strength, as does a label no primary carries, which
+	 * warns in development.
+	 */
+	emphasizedSeries?: string | null;
 	children?: ReactNode;
 }

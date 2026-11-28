@@ -27,12 +27,14 @@ import { useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
 import { formatReading, isInvalidReading } from '../private/readings';
+import { useSeriesEmphasis } from '../private/series-emphasis';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { getTickDecimals, hasOnlyWholeNumbers, TickDecimals } from '../private/tick-decimals';
 import { useCompactWhenShort } from '../private/use-compact-when-short';
 import { withResponsive } from '../private/with-responsive';
 import plotStyles from '../private/xy-plot/xy-plot.module.scss';
 import styles from './bar-chart.module.scss';
+import { COMPARISON_TOTAL_KEY } from './constants';
 import {
 	useBarChartOptions,
 	BandHighlight,
@@ -60,6 +62,7 @@ import type { ComparisonSeriesEntry, SelectedBar } from './private';
 import type { BarChartProps } from './types';
 import type { DataPointDate, SeriesData, Optional } from '../../types';
 import type { RenderTooltipParams } from '../../visx/types';
+import type { GetSeriesOpacity } from '../private/series-emphasis';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { FC, ComponentType } from 'react';
 
@@ -109,39 +112,44 @@ const renderTooltipRow = ( label: string | undefined, value: string ) => (
 	</div>
 );
 
-const BarChartInternal: FC< BarChartProps > = ( {
-	data,
-	ariaLabel,
-	chartId: providedChartId,
-	width,
-	height,
-	className,
-	margin,
-	withTooltips = false,
-	showLegend = false,
-	legend = {},
-	gridVisibility: gridVisibilityProp,
-	renderTooltip,
-	tooltipPlacement,
-	tooltipAnchorTop,
-	tooltipStyle,
-	barClassName,
-	options = {},
-	orientation = 'vertical',
-	layout = 'grouped',
-	withPatterns = false,
-	showZeroValues = false,
-	withBandHighlight = false,
-	onBandHighlightChange,
-	defaultHiddenSeries,
-	animation,
-	children,
-	gap = 'md',
-	compactWhenShort = false,
-	onPointerDown,
-	onPointerUp,
-	onDatumActivate,
-} ) => {
+const BarChartInternal: FC< BarChartProps > = props => {
+	const {
+		data,
+		ariaLabel,
+		chartId: providedChartId,
+		width,
+		height,
+		className,
+		margin,
+		withTooltips = false,
+		showLegend = false,
+		legend = {},
+		gridVisibility: gridVisibilityProp,
+		renderTooltip,
+		tooltipPlacement,
+		tooltipAnchorTop,
+		tooltipStyle,
+		barClassName,
+		options = {},
+		orientation = 'vertical',
+		layout = 'grouped',
+		withPatterns = false,
+		showZeroValues = false,
+		withBandHighlight = false,
+		onBandHighlightChange,
+		defaultHiddenSeries,
+		emphasizedSeries,
+		animation,
+		children,
+		gap = 'md',
+		compactWhenShort = false,
+		onPointerDown,
+		onPointerUp,
+		onDatumActivate,
+	} = props;
+	// visx's own grouped bars take no per-series opacity, so a host that passes `emphasizedSeries`
+	// at all, undefined included, gets them drawn here and keeps their identity as it changes.
+	const drawsEmphasis = 'emphasizedSeries' in props;
 	if ( layout === 'stacked' && showZeroValues ) {
 		warnOnce(
 			'bar-chart-stacked-zero-values',
@@ -443,6 +451,39 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			? { xScale: chartOptions.xScale, yScale: tighten( chartOptions.yScale ) }
 			: { xScale: tighten( chartOptions.xScale ), yScale: chartOptions.yScale };
 	}, [ comparisonEntries.length, chartOptions.xScale, chartOptions.yScale, horizontal ] );
+
+	const getSeriesOpacity = useSeriesEmphasis( data, emphasizedSeries );
+
+	// A comparison series shadows the primary in its group, or the only primary.
+	const comparisonPrimaryKey = useMemo( () => {
+		const primaryByGroup = new Map< string | undefined, string >(
+			primaryEntries.map( ( { series } ) => [ series.group, series.label ] )
+		);
+		const onlyPrimary = primaryEntries.length === 1 ? primaryEntries[ 0 ].series.label : undefined;
+		return new Map< string, string >(
+			seriesWithVisibility.flatMap( ( { series } ): [ string, string ][] => {
+				const primary = primaryByGroup.get( series.group ) ?? onlyPrimary;
+				return series.options?.type === 'comparison' && primary
+					? [ [ series.label, primary ] ]
+					: [];
+			} )
+		);
+	}, [ primaryEntries, seriesWithVisibility ] );
+
+	// A bar dims with the series it stands for; the stacked total sums every comparison, so it
+	// stays while any of them follows a series at full strength.
+	const getBarOpacity = useCallback< GetSeriesOpacity >(
+		label => {
+			if ( label === COMPARISON_TOTAL_KEY ) {
+				const followsFullSeries = [ ...comparisonPrimaryKey.values() ].some(
+					primary => getSeriesOpacity( primary ) === undefined
+				);
+				return followsFullSeries ? undefined : getSeriesOpacity( label );
+			}
+			return getSeriesOpacity( comparisonPrimaryKey.get( label ) ?? label );
+		},
+		[ getSeriesOpacity, comparisonPrimaryKey ]
+	);
 
 	const getBarBackground = useCallback(
 		( index: number ) => ( datum: DataPointDate ) =>
@@ -871,6 +912,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 											}
 											getElementStyles={ getElementStyles }
 											resolveFill={ resolveComparisonFill }
+											getSeriesOpacity={ getSeriesOpacity }
 										/>
 
 										<BarLayer
@@ -880,6 +922,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 											primaryEntries={ primaryEntries }
 											primaryKeys={ primaryKeys }
 											getBarBackground={ getBarBackground }
+											getSeriesOpacity={ getBarOpacity }
+											drawsEmphasis={ drawsEmphasis }
 											barClassName={ barClassName }
 											groupPadding={ groupPadding }
 											horizontal={ horizontal }
