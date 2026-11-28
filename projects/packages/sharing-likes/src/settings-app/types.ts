@@ -44,8 +44,6 @@ export interface PlacementChoice {
 }
 
 export interface SharingLikesScriptData {
-	status: Status;
-	settings: Settings;
 	placement_choices: PlacementChoice[];
 	multibyte_supported: boolean;
 	private_site: boolean;

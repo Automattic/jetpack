@@ -20,6 +20,7 @@ body.settings_page_sharing {
 // The content column other Jetpack settings pages use.
 .jetpack-sharing-likes {
 	box-sizing: border-box;
+	inline-size: 100%;
 	max-inline-size: 708px;
 	margin-inline: auto;
 	padding: var(--wpds-dimension-padding-2xl);

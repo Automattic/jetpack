@@ -9,14 +9,11 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Sharing_Likes\Settings_App;
 
-use Automattic\Jetpack\Sharing_Likes\REST\Settings_Controller;
-use Automattic\Jetpack\Sharing_Likes\REST\Status_Controller;
 use Automattic\Jetpack\Sharing_Likes\Settings\Placement_Section;
 use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
-use WP_REST_Request;
 
 /**
  * Swaps the PHP screen for the wp-build app, unless a site opts out.
@@ -34,6 +31,16 @@ final class Settings_App {
 	 * The wp-build page ID, which wp-build's generated enqueue check compares the screen ID against.
 	 */
 	public const WP_BUILD_PAGE = 'jetpack-sharing-settings';
+
+	/**
+	 * Preloaded status route. Must match the path `data/api.ts` requests, or the preload goes unused.
+	 */
+	public const STATUS_ROUTE = '/wpcom/v2/sharing-likes/status';
+
+	/**
+	 * Preloaded settings route. Must match the path `data/api.ts` requests, or the preload goes unused.
+	 */
+	public const SETTINGS_ROUTE = '/wpcom/v2/sharing-likes/settings';
 
 	private const RENDER_FUNCTION    = 'jetpack_sharing_likes_jetpack_sharing_settings_wp_admin_render_page';
 	private const MODULES_FUNCTION   = 'jetpack_sharing_likes_register_script_modules';
@@ -141,6 +148,7 @@ final class Settings_App {
 		);
 
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_i18n_loader' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'preload_routes' ) );
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_script_data' ) );
 
 		self::$loaded = true;
@@ -189,7 +197,35 @@ final class Settings_App {
 	}
 
 	/**
-	 * Hand the first render what the routes would answer, plus what only PHP knows.
+	 * Answer the screen's first route reads in the page, so it renders without waiting on a request.
+	 */
+	public static function preload_routes(): void {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		$preload = array_reduce(
+			array( self::STATUS_ROUTE, self::SETTINGS_ROUTE ),
+			'rest_preload_api_request',
+			array()
+		);
+
+		// Core casts each preloaded body to an array, which turns the route's empty `{}` back into `[]`.
+		if ( isset( $preload[ self::SETTINGS_ROUTE ] ) && array() === $preload[ self::SETTINGS_ROUTE ]['body'] ) {
+			$preload[ self::SETTINGS_ROUTE ]['body'] = new \stdClass();
+		}
+
+		wp_add_inline_script(
+			'wp-api-fetch',
+			sprintf(
+				'wp.apiFetch.use( wp.apiFetch.createPreloadingMiddleware( %s ) );',
+				wp_json_encode( $preload, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP )
+			)
+		);
+	}
+
+	/**
+	 * Hand the screen what only PHP knows; status and settings come preloaded from the routes.
 	 *
 	 * @param array $data Script data.
 	 * @return array
@@ -202,9 +238,6 @@ final class Settings_App {
 		}
 
 		$data['sharing_likes'] = array(
-			'status'                     => ( new Status_Controller() )->get_status()->get_data(),
-			// An empty list would encode as `[]`.
-			'settings'                   => (object) ( new Settings_Controller() )->get_item( new WP_REST_Request() )->get_data(),
 			'placement_choices'          => array_map(
 				static function ( string $choice ): array {
 					return array(

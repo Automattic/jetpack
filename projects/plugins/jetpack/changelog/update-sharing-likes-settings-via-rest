@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Sharing: Show a loading indicator while Settings › Sharing loads, and a notice to reload if its settings can't be loaded.
