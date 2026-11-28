@@ -28,12 +28,12 @@ patterns:
 - **Jetpack monorepo** — `jetpack docker up` or a package-local
   `composer install && composer test-php --setup-only`.
 - **wp-env plugin** — `npm run wp-env start` (runs `@wordpress/env` with
-  the plugin's `.wp-env.json`) or `npx wp-env start`.
+  the plugin's `.wp-env.json`) or `npx @wordpress/env start`.
 - **Dev Docker stack** — a plugin-specific `docker-compose up -d`.
 
 If `AGENTS.md` doesn't document it, ask the user rather than guessing.
 Record the env-up command + the corresponding wp-cli invocation (e.g.
-`npx wp-env run cli wp`, `jetpack docker cli wp`) and use them uniformly
+`npx @wordpress/env run cli wp`, `jetpack docker cli wp`) and use them uniformly
 for the rest of the harness.
 
 In this file, `<env-cli>` is shorthand for whatever wp-cli invocation the
