@@ -535,6 +535,8 @@ class Analytics {
 		if ( self::renders_dashboard() ) {
 			self::register_polyfills();
 
+			Boot_Preload::register();
+
 			add_action( 'admin_enqueue_scripts', array( static::class, 'enqueue_i18n_loader' ) );
 			add_action( 'admin_enqueue_scripts', array( static::class, 'enqueue_tracks_transport' ) );
 			add_filter( 'jetpack_admin_js_script_data', array( static::class, 'add_tracks_identity_script_data' ), 20 );
