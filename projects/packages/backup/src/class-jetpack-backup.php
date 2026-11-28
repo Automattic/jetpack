@@ -1276,6 +1276,31 @@ class Jetpack_Backup {
 	}
 
 	/**
+	 * Fetch the status of an on-demand backup request.
+	 *
+	 * @param string $request_id The identifier returned by enqueue_backup().
+	 * @return \WP_REST_Response|WP_Error The request status, or a WP_Error if WordPress.com could not be reached.
+	 */
+	public static function get_backup_request_status( string $request_id ) {
+		$blog_id  = Jetpack_Options::get_option( 'id' );
+		$endpoint = sprintf( '/sites/%d/rewind/backups/requests/%s', $blog_id, rawurlencode( $request_id ) );
+
+		$response      = Client::wpcom_json_api_request_as_blog( $endpoint, 'v2', array(), null, 'wpcom' );
+		$response_code = (int) wp_remote_retrieve_response_code( $response );
+		if ( 404 === $response_code ) {
+			$body = json_decode( $response['body'] ?? '', true );
+			if ( 'backup_request_not_found' === ( $body['code'] ?? $body['error'] ?? null ) ) {
+				return new WP_Error( 'jetpack_backup_request_not_found', __( 'Backup request not found.', 'jetpack-backup-pkg' ) );
+			}
+		}
+		if ( 200 !== $response_code ) {
+			return self::get_failed_fetch_error( $response );
+		}
+
+		return rest_ensure_response( json_decode( $response['body'], true ) );
+	}
+
+	/**
 	 * Get site backup schedule time
 	 *
 	 * @return \WP_REST_Response|WP_Error The backup schedule time, or a WP_Error if WordPress.com could not be reached.

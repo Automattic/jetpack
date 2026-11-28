@@ -30,11 +30,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  * - `jetpack-backup/list-backups` — recent backups with optional id/pagination filters.
  * - `jetpack-backup/list-restores` — recent restores with optional id/pagination filters.
  * - `jetpack-backup/request-backup` — enqueue an on-demand backup.
+ * - `jetpack-backup/get-backup-request-status` — track one requested backup.
  */
 class Backup_Abilities extends Registrar {
 
 	const PER_PAGE_DEFAULT = 20;
 	const PER_PAGE_MAX     = 100;
+
+	private const BACKUP_REQUEST_ID_PATTERN = '/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/D';
 
 	/**
 	 * {@inheritDoc}
@@ -171,7 +174,7 @@ class Backup_Abilities extends Registrar {
 		);
 
 		return array(
-			'jetpack-backup/get-backup-overview' => array(
+			'jetpack-backup/get-backup-overview'       => array(
 				'label'               => __( 'Get backup overview', 'jetpack-backup-pkg' ),
 				'description'         => __(
 					'Return a single-call snapshot of the site backup state: { last_backup, recent_backup_count, schedule, storage }. Use this to answer "is my site protected?" before deciding whether to call list-backups, list-restores, or request-backup. Read-only and idempotent. Fields whose backing service is unreachable come back as null rather than failing the call. Requires the manage_options capability.',
@@ -231,7 +234,7 @@ class Backup_Abilities extends Registrar {
 				),
 			),
 
-			'jetpack-backup/list-backups'        => array(
+			'jetpack-backup/list-backups'              => array(
 				'label'               => __( 'List backups', 'jetpack-backup-pkg' ),
 				'description'         => __(
 					'Return zero or more backups as an array. Each item summarises one backup: { id, rewind_id, started, last_updated, status, period, is_rewindable, has_warnings }. Combine filters to narrow the result without making multiple calls. `id` returns a 0- or 1-element array for a single rewind_id. `date_from` and `date_to` window the results (ISO 8601 datetimes; server-side filter). `date` + `match` ("on_or_before" default, "on_or_after", "closest") pick a single backup near a target datetime — useful for "find a restore point near this incident"; the response stays a 0- or 1-element array. `status` filters by mapped status (e.g. "finished", "error"). `page` + `per_page` paginate the result; iterate `page=1,2,...` until you get an empty array. A page may come back with fewer than `per_page` items even when more pages exist — `status` is applied client-side, and non-backup events are filtered out — so only an empty page reliably signals end of history. Read-only and idempotent. Backed by the wpcom activity-log feed.',
@@ -312,7 +315,7 @@ class Backup_Abilities extends Registrar {
 				),
 			),
 
-			'jetpack-backup/list-restores'       => array(
+			'jetpack-backup/list-restores'             => array(
 				'label'               => __( 'List restores', 'jetpack-backup-pkg' ),
 				'description'         => __(
 					'Return zero or more recent restore operations as an array. Each item: { id, rewind_id, started, last_updated, status, progress }. Pass id to fetch a single restore (returns 0- or 1-element array). Otherwise paginate with page and per_page (default 20, max 100). Read-only and idempotent.',
@@ -364,10 +367,10 @@ class Backup_Abilities extends Registrar {
 				),
 			),
 
-			'jetpack-backup/request-backup'      => array(
+			'jetpack-backup/request-backup'            => array(
 				'label'               => __( 'Request a backup', 'jetpack-backup-pkg' ),
 				'description'         => __(
-					'Enqueue an on-demand backup of this site. Returns { enqueued: bool, message: string }. Each successful call queues a new backup job; this is a state-changing write, not idempotent. Use get-backup-overview or list-backups afterwards to track progress. Requires the manage_options capability. Returns jetpack_backup_data_unavailable when the upstream service rejects the request.',
+					'Enqueue an on-demand backup of this site. Returns a request_id and queued status; pass request_id to get-backup-request-status until completed or failed. A queued response does not mean a restore point exists yet. This is a state-changing write, not idempotent. Requires the manage_options capability.',
 					'jetpack-backup-pkg'
 				),
 				'input_schema'        => array(
@@ -379,8 +382,14 @@ class Backup_Abilities extends Registrar {
 				'output_schema'       => array(
 					'type'       => 'object',
 					'properties' => array(
-						'enqueued' => array( 'type' => 'boolean' ),
-						'message'  => array( 'type' => 'string' ),
+						'enqueued'     => array( 'type' => 'boolean' ),
+						'message'      => array( 'type' => 'string' ),
+						'request_id'   => array( 'type' => 'string' ),
+						'status'       => array(
+							'type' => 'string',
+							'enum' => array( 'queued', 'running', 'completed', 'failed' ),
+						),
+						'requested_at' => array( 'type' => 'string' ),
 					),
 				),
 				'execute_callback'    => array( __CLASS__, 'execute_request_backup' ),
@@ -390,6 +399,53 @@ class Backup_Abilities extends Registrar {
 						'readonly'    => false,
 						'destructive' => false,
 						'idempotent'  => false,
+					),
+					'public'       => true,
+					'mcp'          => array(
+						'public' => true,
+						'type'   => 'tool',
+					),
+					'show_in_rest' => true,
+				),
+			),
+			'jetpack-backup/get-backup-request-status' => array(
+				'label'               => __( 'Get backup request status', 'jetpack-backup-pkg' ),
+				'description'         => __( 'Read the status of one on-demand backup request. queued and running are pending; completed includes the resulting backup identifier, while failed includes a failure reason. Requires the request_id returned by request-backup.', 'jetpack-backup-pkg' ),
+				'input_schema'        => array(
+					'type'                 => 'object',
+					'required'             => array( 'request_id' ),
+					'properties'           => array(
+						'request_id' => array(
+							'type'      => 'string',
+							'minLength' => 1,
+						),
+					),
+					'additionalProperties' => false,
+				),
+				'output_schema'       => array(
+					'type'       => 'object',
+					'properties' => array(
+						'request_id'     => array( 'type' => 'string' ),
+						'status'         => array(
+							'type' => 'string',
+							'enum' => array( 'queued', 'running', 'completed', 'failed' ),
+						),
+						'requested_at'   => array( 'type' => 'string' ),
+						'started_at'     => array( 'type' => array( 'string', 'null' ) ),
+						'completed_at'   => array( 'type' => array( 'string', 'null' ) ),
+						'updated_at'     => array( 'type' => 'string' ),
+						'backup_id'      => array( 'type' => array( 'integer', 'null' ) ),
+						'rewind_id'      => array( 'type' => array( 'string', 'null' ) ),
+						'failure_reason' => array( 'type' => array( 'string', 'null' ) ),
+					),
+				),
+				'execute_callback'    => array( __CLASS__, 'execute_get_backup_request_status' ),
+				'permission_callback' => array( __CLASS__, 'can_view_backups' ),
+				'meta'                => array(
+					'annotations'  => array(
+						'readonly'    => true,
+						'destructive' => false,
+						'idempotent'  => true,
 					),
 					'public'       => true,
 					'mcp'          => array(
@@ -743,8 +799,8 @@ class Backup_Abilities extends Registrar {
 	/**
 	 * Enqueue an on-demand backup. Registration is gated on a Backup product
 	 * being loaded so we assume one exists by the time this runs. Returns
-	 * WP_Error only when the upstream connection itself fails so agents can
-	 * retry strategically.
+	 * WP_Error when the upstream request fails or accepts a backup without a
+	 * tracking handle; the latter must not trigger an automatic retry.
 	 *
 	 * @param mixed $input Unused; see note on execute_get_backup_overview().
 	 * @return array|WP_Error
@@ -761,10 +817,61 @@ class Backup_Abilities extends Registrar {
 				__( 'The backup service did not accept the request. The connection to WordPress.com may be temporarily unavailable; retry shortly.', 'jetpack-backup-pkg' )
 			);
 		}
+		if ( ! is_string( $result['request_id'] ?? null )
+			|| ! preg_match( self::BACKUP_REQUEST_ID_PATTERN, $result['request_id'] )
+			|| ! in_array( $result['status'] ?? null, array( 'queued', 'running', 'completed', 'failed' ), true )
+			|| ! is_string( $result['requested_at'] ?? null ) ) {
+			return new WP_Error(
+				'jetpack_backup_tracking_unavailable',
+				__( 'The backup was accepted, but its status cannot be tracked. Do not request another backup automatically.', 'jetpack-backup-pkg' )
+			);
+		}
 
 		return array(
-			'enqueued' => true,
-			'message'  => __( 'Backup enqueued. Use jetpack-backup/list-backups to monitor progress.', 'jetpack-backup-pkg' ),
+			'enqueued'     => true,
+			'message'      => __( 'Backup enqueued. Poll jetpack-backup/get-backup-request-status using request_id.', 'jetpack-backup-pkg' ),
+			'request_id'   => $result['request_id'],
+			'status'       => $result['status'],
+			'requested_at' => $result['requested_at'],
+		);
+	}
+
+	/**
+	 * Get the status of a specific on-demand backup request.
+	 *
+	 * @param mixed $input Ability input containing request_id.
+	 * @return array|WP_Error
+	 */
+	public static function execute_get_backup_request_status( $input = null ) {
+		if ( ! is_array( $input )
+			|| ! is_string( $input['request_id'] ?? null )
+			|| ! preg_match( self::BACKUP_REQUEST_ID_PATTERN, $input['request_id'] ) ) {
+			return new WP_Error( 'jetpack_backup_invalid_request', __( 'A valid backup request ID is required.', 'jetpack-backup-pkg' ) );
+		}
+
+		$response = Jetpack_Backup::get_backup_request_status( $input['request_id'] );
+		if ( is_wp_error( $response ) && 'jetpack_backup_request_not_found' === $response->get_error_code() ) {
+			return $response;
+		}
+		$result = self::unwrap_response( $response );
+		if ( ! is_array( $result )
+			|| ( $result['request_id'] ?? null ) !== $input['request_id']
+			|| ! in_array( $result['status'] ?? null, array( 'queued', 'running', 'completed', 'failed' ), true )
+			|| ! is_string( $result['requested_at'] ?? null )
+			|| ! is_string( $result['updated_at'] ?? null ) ) {
+			return new WP_Error( 'jetpack_backup_data_unavailable', __( 'The backup request status is unavailable. Retry shortly.', 'jetpack-backup-pkg' ) );
+		}
+
+		return array(
+			'request_id'     => $result['request_id'],
+			'status'         => $result['status'],
+			'requested_at'   => $result['requested_at'],
+			'started_at'     => is_string( $result['started_at'] ?? null ) ? $result['started_at'] : null,
+			'completed_at'   => is_string( $result['completed_at'] ?? null ) ? $result['completed_at'] : null,
+			'updated_at'     => $result['updated_at'],
+			'backup_id'      => isset( $result['backup_id'] ) ? (int) $result['backup_id'] : null,
+			'rewind_id'      => isset( $result['rewind_id'] ) ? (string) $result['rewind_id'] : null,
+			'failure_reason' => is_string( $result['failure_reason'] ?? null ) ? $result['failure_reason'] : null,
 		);
 	}
 

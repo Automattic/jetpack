@@ -206,6 +206,7 @@ class Backup_Abilities_Test extends BaseTestCase {
 				'jetpack-backup/list-backups',
 				'jetpack-backup/list-restores',
 				'jetpack-backup/request-backup',
+				'jetpack-backup/get-backup-request-status',
 			) as $expected
 		) {
 			$this->assertContains( $expected, $slugs );
@@ -234,7 +235,7 @@ class Backup_Abilities_Test extends BaseTestCase {
 	public function test_annotations_match_read_vs_write(): void {
 		$abilities = Backup_Abilities::get_abilities();
 
-		foreach ( array( 'jetpack-backup/get-backup-overview', 'jetpack-backup/list-backups', 'jetpack-backup/list-restores' ) as $read_slug ) {
+		foreach ( array( 'jetpack-backup/get-backup-overview', 'jetpack-backup/list-backups', 'jetpack-backup/list-restores', 'jetpack-backup/get-backup-request-status' ) as $read_slug ) {
 			$annotations = $abilities[ $read_slug ]['meta']['annotations'];
 			$this->assertTrue( $annotations['readonly'], "{$read_slug} must be readonly." );
 			$this->assertFalse( $annotations['destructive'] );
@@ -293,8 +294,14 @@ class Backup_Abilities_Test extends BaseTestCase {
 			array(
 				'type'       => 'object',
 				'properties' => array(
-					'enqueued' => array( 'type' => 'boolean' ),
-					'message'  => array( 'type' => 'string' ),
+					'enqueued'     => array( 'type' => 'boolean' ),
+					'message'      => array( 'type' => 'string' ),
+					'request_id'   => array( 'type' => 'string' ),
+					'status'       => array(
+						'type' => 'string',
+						'enum' => array( 'queued', 'running', 'completed', 'failed' ),
+					),
+					'requested_at' => array( 'type' => 'string' ),
 				),
 			),
 			$spec['output_schema']
@@ -840,8 +847,7 @@ class Backup_Abilities_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Happy path: wpcom returns HTTP 200 with `{ success: true }`, the ability
-	 * should report the backup as enqueued.
+	 * A successful enqueue carries the handle needed to poll the request.
 	 */
 	public function test_request_backup_returns_enqueued_when_upstream_reports_success(): void {
 		wp_set_current_user( $this->admin_id );
@@ -849,7 +855,15 @@ class Backup_Abilities_Test extends BaseTestCase {
 		$mock = function () {
 			return array(
 				'response' => array( 'code' => 200 ),
-				'body'     => wp_json_encode( array( 'success' => true ), JSON_UNESCAPED_SLASHES ),
+				'body'     => wp_json_encode(
+					array(
+						'success'      => true,
+						'request_id'   => '550e8400-e29b-41d4-a716-446655440000',
+						'status'       => 'queued',
+						'requested_at' => '2026-11-26T12:00:00Z',
+					),
+					JSON_UNESCAPED_SLASHES
+				),
 			);
 		};
 		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_connection_options' ), 10, 2 );
@@ -863,6 +877,19 @@ class Backup_Abilities_Test extends BaseTestCase {
 		$this->assertIsArray( $result );
 		$this->assertTrue( $result['enqueued'] );
 		$this->assertNotEmpty( $result['message'] );
+		$this->assertSame( '550e8400-e29b-41d4-a716-446655440000', $result['request_id'] );
+		$this->assertSame( 'queued', $result['status'] );
+		$this->assertSame( '2026-11-26T12:00:00Z', $result['requested_at'] );
+	}
+
+	/**
+	 * A malformed handle cannot match the wpcom route and must not be retried.
+	 */
+	public function test_backup_request_status_rejects_malformed_handle(): void {
+		$result = Backup_Abilities::execute_get_backup_request_status( array( 'request_id' => 'request-1' ) );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'jetpack_backup_invalid_request', $result->get_error_code() );
 	}
 
 	/**
@@ -985,6 +1012,8 @@ class Backup_Abilities_Test extends BaseTestCase {
 		$request = Backup_Abilities::execute_request_backup( $input );
 		// Without a plan this returns WP_Error; the point is it doesn't fatal.
 		$this->assertInstanceOf( \WP_Error::class, $request );
+		$status = Backup_Abilities::execute_get_backup_request_status( $input );
+		$this->assertInstanceOf( \WP_Error::class, $status );
 	}
 
 	/**
