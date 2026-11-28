@@ -25,16 +25,18 @@ class WPCOM_Feature_Upgrades {
 	/**
 	 * The plan feature the upgrade flow filters on, for My Jetpack features without a hosting page.
 	 *
-	 * The flow reads Calypso's plan definitions, so a value must be a feature Calypso lists for exactly the plans that grant it.
+	 * The flow offers the plans the site's WordPress.com feature map lists for a value, and reads Calypso's plan definitions for a value that map doesn't define.
 	 *
 	 * @var array<string, string>
 	 */
 	const PLAN_FEATURES = array(
 		'google-analytics' => 'google-analytics',
+		'jetpack-forms'    => 'field-file',
 		'monetize'         => self::MONETIZE_PLAN_FEATURE,
 		// Calypso lists no podcasting feature, and every plan above Personal grants it, so the flow offers them all.
 		'podcast'          => '',
 		'social'           => 'republicize',
+		'videopress'       => 'videopress',
 	);
 
 	/**
@@ -87,7 +89,7 @@ class WPCOM_Feature_Upgrades {
 
 			return array(
 				'path' => '',
-				'name' => 'WordPress.com Business', // Product name, do not translate.
+				'name' => 'WordPress.com', // Product name, do not translate.
 				'url'  => $page::get_plan_upgrade_url( $back_url ),
 			);
 		}

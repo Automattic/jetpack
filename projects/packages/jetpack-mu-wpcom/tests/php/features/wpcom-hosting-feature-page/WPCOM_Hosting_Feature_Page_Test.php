@@ -722,6 +722,7 @@ class WPCOM_Hosting_Feature_Page_Test extends \WorDBless\BaseTestCase {
 		parse_str( (string) wp_parse_url( $upgrade['url'], PHP_URL_QUERY ), $query );
 
 		$this->assertStringStartsWith( 'https://wordpress.com/setup/plan-upgrade?', $upgrade['url'] );
+		$this->assertSame( 'WordPress.com', $upgrade['name'] );
 		$this->assertSame( $plan_feature, $query['feature'] );
 		$this->assertStringEndsWith( $live, $query['redirect_to'] );
 		// The flow only honors a Back link on the site's own host, which it reads from siteSlug.

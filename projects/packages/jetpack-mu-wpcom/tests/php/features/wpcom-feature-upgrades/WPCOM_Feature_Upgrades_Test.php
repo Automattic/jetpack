@@ -120,6 +120,8 @@ class WPCOM_Feature_Upgrades_Test extends \WorDBless\BaseTestCase {
 			'Podcast'          => array( 'podcast', '' ),
 			'Monetize'         => array( 'monetize', 'wordads-instant' ),
 			'Google Analytics' => array( 'google-analytics', 'google-analytics' ),
+			'Forms'            => array( 'jetpack-forms', 'field-file' ),
+			'VideoPress'       => array( 'videopress', 'videopress' ),
 		);
 	}
 
