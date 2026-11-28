@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Admin shell: Switch between Jetpack dashboards without a page load by default. Add `?jetpack_admin_shell=0` to a URL to turn it off for that page load.

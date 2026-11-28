@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Dashboard: Switch between Jetpack dashboards in wp-admin without a page load.

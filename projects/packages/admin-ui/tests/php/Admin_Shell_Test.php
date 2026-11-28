@@ -84,13 +84,13 @@ class Admin_Shell_Test extends TestCase {
 	}
 
 	/**
-	 * The shell must ship off.
+	 * The shell must ship on.
 	 *
 	 * @return void
 	 */
-	public function test_flag_is_registered_off_by_default() {
-		$this->assertFalse( Feature_Flags::get( Admin_Shell::FLAG )['default'] ?? null );
-		$this->assertFalse( Admin_Shell::is_enabled() );
+	public function test_flag_is_registered_on_by_default() {
+		$this->assertTrue( Feature_Flags::get( Admin_Shell::FLAG )['default'] ?? null );
+		$this->assertTrue( Admin_Shell::is_enabled() );
 	}
 
 	/**
