@@ -1209,7 +1209,7 @@
         },
         {
             "name": "php-stubs/wp-cli-stubs",
-            "version": "dev-master",
+            "version": "v2.12.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-stubs/wp-cli-stubs.git",
@@ -1232,7 +1232,6 @@
                 "symfony/polyfill-php73": "Symfony polyfill backporting some PHP 7.3+ features to lower PHP versions",
                 "szepeviktor/phpstan-wordpress": "WordPress extensions for PHPStan"
             },
-            "default-branch": true,
             "type": "library",
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -1248,10 +1247,10 @@
             ],
             "support": {
                 "issues": "https://github.com/php-stubs/wp-cli-stubs/issues",
-                "source": "https://github.com/php-stubs/wp-cli-stubs/tree/master"
+                "source": "https://github.com/php-stubs/wp-cli-stubs/tree/v2.12.0.1"
             },
             "time": "2026-05-26T12:27:53+00:00",
-            "published-time": "2026-05-26T12:27:58+00:00"
+            "published-time": "2026-11-25T06:52:50+00:00"
         },
         {
             "name": "phpcompatibility/php-compatibility",
