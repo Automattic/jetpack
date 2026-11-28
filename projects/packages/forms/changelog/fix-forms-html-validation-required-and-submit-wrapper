@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix invalid HTML in the contact form: use a boolean required attribute and stop placing the error message inside a paragraph.

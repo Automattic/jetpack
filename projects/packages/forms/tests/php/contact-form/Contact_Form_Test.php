@@ -1330,6 +1330,45 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Required fields must use the boolean `required` attribute, not `required="true"` (W3C validation, #54086).
+	 */
+	public function test_required_fields_use_boolean_required_attribute() {
+		foreach ( array( 'name', 'telephone' ) as $type ) {
+			$html = $this->render_field(
+				array(
+					'label'    => 'Field',
+					'type'     => $type,
+					'required' => '1',
+				)
+			);
+
+			$this->assertMatchesRegularExpression( '/\brequired\s+aria-required=/', $html, $type );
+			$this->assertDoesNotMatchRegularExpression( '/\srequired=[\'"]true/', $html, $type );
+		}
+	}
+
+	/**
+	 * The submit wrapper holds the error `<div>`, so it must not be a `<p>` (W3C validation, #54086).
+	 */
+	public function test_submit_wrapper_is_not_a_paragraph() {
+		$html = apply_shortcodes( "[contact-form][contact-field label='Name' type='name'/][/contact-form]" );
+
+		$this->assertStringContainsString( "<div class='contact-submit'>", $html );
+		$this->assertStringNotContainsString( "<p class='contact-submit'>", $html );
+	}
+
+	/**
+	 * The success wrapper needs a role for aria-labelledby to be valid, and no fixed heading level (#54086).
+	 */
+	public function test_success_wrapper_has_a_role_and_no_fixed_heading_level() {
+		$html = apply_shortcodes( "[contact-form][contact-field label='Name' type='name'/][/contact-form]" );
+
+		$this->assertMatchesRegularExpression( '/<div class="contact-form-submission[^>]*role="region"[^>]*aria-labelledby=/', $html );
+		$this->assertMatchesRegularExpression( '/<div class="contact-form-submission__heading"[^>]*id="contact-form-success-header-/', $html );
+		$this->assertStringNotContainsString( '<h4', $html );
+	}
+
+	/**
 	 * Tests that the field attributes remain the same when no escaping is necessary.
 	 *
 	 * @author tonykova
