@@ -26,10 +26,9 @@ class Jetpack_Sitemap_Buffer_Page_XMLWriter extends Jetpack_Sitemap_Buffer_XMLWr
 		$this->writer->writeComment( 'Jetpack_Sitemap_Buffer_Page_XMLWriter' );
 
 		// Add stylesheet
-		$this->writer->writePi(
-			'xml-stylesheet',
-			'type="text/xsl" href="' . $this->finder->construct_sitemap_url( 'sitemap.xsl' ) . '"'
-		);
+		foreach ( Jetpack_Sitemap_Stylist::sitemap_stylesheet_urls() as $url ) {
+			$this->writer->writePi( 'xml-stylesheet', 'type="text/css" href="' . esc_xml( $url ) . '"' );
+		}
 	}
 
 	/**

@@ -1,6 +1,7 @@
 <?php
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 
 require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-buffer-factory.php';
@@ -147,5 +148,34 @@ class Jetpack_Sitemap_Buffer_Factory_Test extends WP_UnitTestCase {
 		// Restore class_exists
 		runkit_function_remove( 'class_exists' );
 		runkit_function_rename( 'class_exists_backup', 'class_exists' );
+	}
+
+	/** @dataProvider styled_buffers */
+	#[DataProvider( 'styled_buffers' )]
+	public function test_every_buffer_references_css( $class ) {
+		$buffer = new $class( 10, 4096, '2026-11-20 12:00:00' );
+		$xml    = $buffer->contents();
+		$doc    = new DOMDocument();
+		$this->assertTrue( $doc->loadXML( $xml ) );
+		$instructions = ( new DOMXPath( $doc ) )->query( '/processing-instruction("xml-stylesheet")' );
+		$this->assertSame( 2, $instructions->length );
+		$static = preg_replace( '/^https?:/', '', add_query_arg( 'ver', md5_file( JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap.css' ), plugins_url( 'modules/sitemaps/sitemap.css', JETPACK__PLUGIN_DIR . 'jetpack.php' ) ) );
+		$labels = preg_replace( '/^https?:/', '', home_url( '/?jetpack-sitemap=sitemap-labels.css' ) );
+		$this->assertSame( 'type="text/css" href="' . esc_xml( $static ) . '"', $instructions->item( 0 )->nodeValue );
+		$this->assertSame( 'type="text/css" href="' . esc_xml( $labels ) . '"', $instructions->item( 1 )->nodeValue );
+		$this->assertStringNotContainsString( 'text/xsl', $xml );
+		$this->assertSame( 0, $doc->getElementsByTagNameNS( 'http://www.w3.org/1999/xhtml', 'title' )->length );
+		$this->assertStringNotContainsString( 'http://www.w3.org/1999/xhtml', $xml );
+	}
+
+	public static function styled_buffers() {
+		$cases = array();
+		foreach ( array( 'Page', 'Master', 'Image', 'Video', 'News' ) as $type ) {
+			foreach ( array( '', '_XMLWriter' ) as $suffix ) {
+				$class                    = 'Jetpack_Sitemap_Buffer_' . $type . $suffix;
+				$cases[ $type . $suffix ] = array( $class );
+			}
+		}
+		return $cases;
 	}
 }
