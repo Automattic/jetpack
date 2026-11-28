@@ -28,6 +28,68 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	private const FEEDBACK_USER_EMAIL = 'jpa_feedback@example.com';
 
 	/**
+	 * A `stats/followers` reply: an email-only subscriber, a WordPress.com one, and a named one with an address.
+	 */
+	private const FOLLOWERS_RESPONSE = array(
+		'page'        => 1,
+		'pages'       => 1,
+		'total'       => 3,
+		'subscribers' => array(
+			array(
+				'ID'              => 111,
+				'label'           => 'reader@example.com',
+				'email'           => 'reader@example.com',
+				'avatar'          => 'https://secure.gravatar.com/avatar/abc?s=96',
+				'url'             => null,
+				'date_subscribed' => '2026-06-16T18:53:05+00:00',
+			),
+			array(
+				'ID'              => 222,
+				'label'           => 'Jane Reader',
+				'avatar'          => 'https://secure.gravatar.com/avatar/def?s=96',
+				'url'             => 'https://example.com',
+				'date_subscribed' => '2026-06-15T10:30:00+00:00',
+			),
+			array(
+				'ID'              => 333,
+				'label'           => 'Sam',
+				'email'           => 'sam@example.com',
+				'avatar'          => 'https://secure.gravatar.com/avatar/ghi?s=96',
+				'url'             => null,
+				'date_subscribed' => '2026-06-14T09:00:00+00:00',
+			),
+		),
+	);
+
+	/**
+	 * A `stats/comments` reply: a guest commenter, linked by address, and a site user, linked by ID.
+	 */
+	private const COMMENTS_RESPONSE = array(
+		'authors' => array(
+			array(
+				'name'     => 'Reader',
+				'comments' => 3,
+				'link'     => '?s=reader@example.com',
+				'gravatar' => 'https://secure.gravatar.com/avatar/abc?s=48',
+			),
+			array(
+				'name'     => 'John',
+				'comments' => 12,
+				'link'     => '?user_id=7',
+				'gravatar' => 'https://secure.gravatar.com/avatar/jkl?s=48',
+			),
+		),
+		'posts'   => array(
+			array(
+				'id'       => 41,
+				'name'     => 'Hello world',
+				'comments' => 10,
+				'link'     => 'https://example.com/hello/',
+			),
+		),
+	);
+
+	/**
 	 * Controller under test.
 	 *
 	 * @var Api_Proxy_Controller
@@ -1247,6 +1309,143 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 
 		$this->assertNotFalse( get_transient( $other_path ), 'an unrelated path must not be busted' );
 		$this->assertNotFalse( get_transient( $other_version ), 'a different version of the same path must not be busted' );
+	}
+
+	/**
+	 * @dataProvider data_email_redactions
+	 *
+	 * @param string $endpoint The endpoint read.
+	 * @param string $role     Role of the reader, who also holds view_stats.
+	 * @param array  $expected The response data the reader gets.
+	 */
+	#[DataProvider( 'data_email_redactions' )]
+	public function test_email_addresses_reach_only_readers_with_the_endpoint_capability( string $endpoint, string $role, array $expected ) {
+		$this->sign_in_stats_reader( $role );
+
+		$data = null;
+		$this->with_connected_site(
+			function () use ( $endpoint, &$data ) {
+				$data = $this->read_stats( $endpoint );
+			}
+		);
+
+		$this->assertEquals( $expected, $data );
+	}
+
+	/**
+	 * @return array<string, array{0: string, 1: string, 2: array}>
+	 */
+	public static function data_email_redactions(): array {
+		$followers                               = self::FOLLOWERS_RESPONSE;
+		$redacted_followers                      = $followers;
+		$redacted_followers['subscribers'][0]    = array(
+			'ID'              => 111,
+			'label'           => 'Email subscriber',
+			'avatar'          => null,
+			'url'             => null,
+			'date_subscribed' => '2026-06-16T18:53:05+00:00',
+		);
+		$redacted_followers['subscribers'][2]    = array_diff_key( $followers['subscribers'][2], array( 'email' => true ) );
+		$comments                                = self::COMMENTS_RESPONSE;
+		$redacted_comments                       = $comments;
+		$redacted_comments['authors'][0]['link'] = null;
+
+		return array(
+			'followers, author'                => array( 'stats/followers', 'author', $redacted_followers ),
+			'followers, editor'                => array( 'stats/followers', 'editor', $redacted_followers ),
+			'followers, shadowed path variant' => array( 'Stats/Followers/', 'author', $redacted_followers ),
+			'comments, author'                 => array( 'stats/comments', 'author', $redacted_comments ),
+			'comments, editor'                 => array( 'stats/comments', 'editor', $comments ),
+		);
+	}
+
+	public function test_redaction_leaves_the_cached_response_whole() {
+		$calls = $this->with_connected_site(
+			function () {
+				$this->sign_in_stats_reader( 'author' );
+				$this->assertSame( 'Email subscriber', $this->read_stats( 'stats/followers' )['subscribers'][0]['label'], 'redacted on the fresh read' );
+
+				$this->sign_in_stats_reader( 'administrator' );
+				$this->assertSame( 'reader@example.com', $this->read_stats( 'stats/followers' )['subscribers'][0]['label'], 'whole for an admin from the cache' );
+
+				$this->sign_in_stats_reader( 'author' );
+				$this->assertSame( 'Email subscriber', $this->read_stats( 'stats/followers' )['subscribers'][0]['label'], 'redacted on the cached read' );
+			}
+		);
+
+		$this->assertSame( 1, $calls, 'the later reads are served from the cache' );
+	}
+
+	/**
+	 * Sign in a new user of a role, granted view_stats as a site's Stats settings would.
+	 *
+	 * @param string $role The user's role.
+	 */
+	private function sign_in_stats_reader( string $role ): void {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'jpa_' . $role . '_' . wp_rand(),
+				'user_pass'  => 'password',
+				'role'       => $role,
+			)
+		);
+		( new \WP_User( $user_id ) )->add_cap( 'view_stats' );
+		wp_set_current_user( $user_id );
+	}
+
+	/**
+	 * Run a callback against a connected site whose WPCOM answers with the fixture for the path read.
+	 *
+	 * @param callable $callback Reads to run.
+	 *
+	 * @return int Number of requests that reached WPCOM.
+	 */
+	private function with_connected_site( callable $callback ): int {
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		\Jetpack_Options::update_option( 'id', 4242 );
+		\Jetpack_Options::update_option( 'blog_token', 'blog_token.secret' );
+		( new Connection_Manager() )->reset_connection_status();
+
+		$calls = 0;
+		add_filter(
+			'pre_http_request',
+			function ( $pre, $args, $url ) use ( &$calls ) {
+				++$calls;
+
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => (string) wp_json_encode( false !== stripos( $url, 'followers' ) ? self::FOLLOWERS_RESPONSE : self::COMMENTS_RESPONSE, JSON_UNESCAPED_SLASHES ),
+					'headers'  => array(),
+				);
+			},
+			10,
+			3
+		);
+
+		try {
+			$callback();
+		} finally {
+			remove_all_filters( 'pre_http_request' );
+			\Jetpack_Options::delete_option( 'blog_token' );
+			\Jetpack_Options::delete_option( 'id' );
+			( new Connection_Manager() )->reset_connection_status();
+			Constants::clear_single_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
+		}
+
+		return $calls;
+	}
+
+	/**
+	 * Read a v1.1 Stats endpoint through the proxy as the current user.
+	 *
+	 * @param string $endpoint The endpoint.
+	 *
+	 * @return array The response data, decoded to arrays.
+	 */
+	private function read_stats( string $endpoint ): array {
+		$response = $this->controller->handle_data_request( $this->build_data_request( 'GET', $endpoint, array(), '1.1' ) );
+
+		return json_decode( (string) wp_json_encode( $response->get_data(), JSON_UNESCAPED_SLASHES ), true );
 	}
 
 	/**

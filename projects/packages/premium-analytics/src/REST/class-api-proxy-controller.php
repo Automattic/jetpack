@@ -127,6 +127,9 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 *                  stats-admin's Odyssey proxy does for post likes). For WPCOM endpoints
 	 *                  that reject blog-token auth but serve public data without credentials.
 	 *                  Reads only; the group's `capability` still gates the local request.
+	 *  - `redact`     (array, optional) Sub-path => `capability` and `redactor` method. A reader
+	 *                  without the capability gets the response with its email addresses removed by
+	 *                  the redactor; see `redact_emails()`.
 	 *
 	 * Maintaining endpoints (this table is the only edit needed for a pass-through endpoint):
 	 *  - ADD a group:   add a key with at least `capability`. Reads work immediately at
@@ -137,8 +140,8 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 *  - Cover it with a row in `data_endpoint_matrix()` (capability / writable / WPCOM path).
 	 *  - NOTE: this is for transparent WPCOM forwards only. Endpoints needing local processing
 	 *    (DB reads, the Notices class, …) are NOT proxied — they get their own routes outside
-	 *    `proxy/`; do not add them here. `inject_user_email` is the one exception, and stays one:
-	 *    a rewrite that cannot be expressed as a flag on this table belongs in its own route.
+	 *    `proxy/`; do not add them here. `inject_user_email` and `redact` are the exceptions, and
+	 *    stay the only ones: a rewrite that cannot be expressed on this table belongs in its own route.
 	 *
 	 * @var array<string, array<string, mixed>>
 	 */
@@ -151,6 +154,18 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			'writes'      => array( 'stats/referrers/spam/' ),
 			// Marking a referrer as spam removes it from every referrers read.
 			'invalidates' => array( 'stats/referrers' ),
+			'redact'      => array(
+				// Email-only subscribers are labelled by their address; the subscriber list is admin-only.
+				'stats/followers' => array(
+					'capability' => 'manage_options',
+					'redactor'   => 'redact_followers',
+				),
+				// Guest commenters are linked by address, which moderators already see in Comments.
+				'stats/comments'  => array(
+					'capability' => 'moderate_comments',
+					'redactor'   => 'redact_comment_authors',
+				),
+			),
 		),
 		'wordads'                       => array( 'capability' => 'activate_wordads' ),
 		'subscribers'                   => array(
@@ -404,7 +419,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 
 		$config = $this->config_for( $endpoint );
 
-		return $this->forward(
+		$response = $this->forward(
 			$request,
 			$this->build_data_path( $endpoint ),
 			array(
@@ -417,6 +432,100 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 				'inject_user_email' => ! empty( $config['inject_user_email'] ),
 			)
 		);
+
+		return $this->redact_emails( $endpoint, $response );
+	}
+
+	/**
+	 * Remove email addresses from a response the current user may not read them in, per the
+	 * group's `redact` entries. It runs on what `forward()` returns, so the per-site cache keeps
+	 * the whole response for admins and redaction applies to cached reads too.
+	 *
+	 * @param string                    $endpoint The validated sub-path.
+	 * @param WP_REST_Response|WP_Error $response The proxied response.
+	 *
+	 * @return WP_REST_Response|WP_Error
+	 */
+	private function redact_emails( string $endpoint, $response ) {
+		if ( ! $response instanceof WP_REST_Response ) {
+			return $response;
+		}
+
+		// A prefix match also catches variants WPCOM may still route, such as a trailing slash.
+		$normalized = strtolower( trim( (string) preg_replace( '#/+#', '/', $endpoint ), '/' ) );
+		$config     = $this->config_for( $endpoint );
+
+		foreach ( $config['redact'] ?? array() as $sub_path => $redaction ) {
+			// phpcs:ignore WordPress.WP.Capabilities.Unknown -- capability is from the PREFIX_CONFIG allowlist.
+			if ( ! str_starts_with( $normalized, $sub_path ) || current_user_can( $redaction['capability'] ) ) {
+				continue;
+			}
+
+			// Redact a deep copy: the cached payload shares these objects.
+			$data = json_decode( (string) wp_json_encode( $response->get_data(), JSON_UNESCAPED_SLASHES ) );
+			$response->set_data( $this->{ $redaction['redactor'] }( $data ) );
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Drop subscriber addresses from a `stats/followers` reply. An email-only subscriber, left
+	 * with no name, is labelled "Email subscriber" and loses its avatar, a hash of the address.
+	 *
+	 * @param mixed $data Decoded response data.
+	 *
+	 * @return mixed
+	 */
+	private function redact_followers( $data ) {
+		if ( ! is_object( $data ) || ! isset( $data->subscribers ) || ! is_array( $data->subscribers ) ) {
+			return $data;
+		}
+
+		foreach ( $data->subscribers as $subscriber ) {
+			if ( ! is_object( $subscriber ) ) {
+				continue;
+			}
+
+			$had_address = isset( $subscriber->email );
+			unset( $subscriber->email );
+
+			foreach ( array( 'label', 'display_name', 'name' ) as $field ) {
+				if ( isset( $subscriber->$field ) && is_string( $subscriber->$field ) && is_email( html_entity_decode( $subscriber->$field, ENT_QUOTES ) ) ) {
+					unset( $subscriber->$field );
+					$had_address = true;
+				}
+			}
+
+			if ( $had_address && ! isset( $subscriber->label ) && ! isset( $subscriber->display_name ) && ! isset( $subscriber->name ) ) {
+				$subscriber->label  = __( 'Email subscriber', 'jetpack-premium-analytics-pkg' );
+				$subscriber->avatar = null;
+			}
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Unlink `stats/comments` authors whose link is not a site user ID, as guest commenters are
+	 * linked by email address (`?s=<address>`). The dashboard shows an unlinked author as plain text.
+	 *
+	 * @param mixed $data Decoded response data.
+	 *
+	 * @return mixed
+	 */
+	private function redact_comment_authors( $data ) {
+		if ( ! is_object( $data ) || ! isset( $data->authors ) || ! is_array( $data->authors ) ) {
+			return $data;
+		}
+
+		foreach ( $data->authors as $author ) {
+			if ( is_object( $author ) && isset( $author->link ) && ! ( is_string( $author->link ) && preg_match( '/^\?user_id=[1-9]\d*$/', $author->link ) ) ) {
+				$author->link = null;
+			}
+		}
+
+		return $data;
 	}
 
 	/**
