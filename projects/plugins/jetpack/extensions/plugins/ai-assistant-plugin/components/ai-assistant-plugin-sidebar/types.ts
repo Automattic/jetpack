@@ -7,11 +7,18 @@ export type JetpackSettingsContentProps = {
 	upgradeType: string;
 	showUsagePanel: boolean;
 	showFairUsageNotice: boolean;
+	supportsTitle?: boolean;
+	supportsThumbnail?: boolean;
 };
 
 export type CoreSelect = {
 	getPostType: ( postTypeName: string ) => {
-		viewable: boolean;
+		viewable?: boolean;
+		supports?: {
+			title?: boolean;
+			thumbnail?: boolean;
+			[ key: string ]: boolean | undefined;
+		};
 	};
 };
 

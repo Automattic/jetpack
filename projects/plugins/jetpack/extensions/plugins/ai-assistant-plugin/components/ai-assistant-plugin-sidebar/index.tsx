@@ -80,6 +80,8 @@ const JetpackAndSettingsContent = ( {
 	upgradeType,
 	showUsagePanel,
 	showFairUsageNotice,
+	supportsTitle = true,
+	supportsThumbnail = true,
 }: JetpackSettingsContentProps ) => {
 	const { checkoutUrl } = useAICheckout();
 	const { productPageUrl } = useAiProductPage();
@@ -92,6 +94,7 @@ const JetpackAndSettingsContent = ( {
 		titleOptimizationKeywords: isAITitleOptimizationKeywordsFeatureAvailable,
 		feedback: isAIFeedbackAvailable,
 	} = getSectionAvailability();
+	const showTitleOptimization = isAITitleOptimizationAvailable && supportsTitle;
 	const isPostEmpty = useSelect( select => select( editorStore ).isEditedPostEmpty(), [] );
 	const { editPost } = useDispatch( editorStore );
 
@@ -135,6 +138,9 @@ const JetpackAndSettingsContent = ( {
 		return typeof result === 'function' ? ( result as () => void ) : null;
 	}, [ onImageSelect, placement, requireUpgrade ] );
 
+	const showFeaturedImage =
+		( !! imageGenerationHandler || isAIFeaturedImageAvailable ) && supportsThumbnail;
+
 	const currentTitleOptimizationSectionLabel = __( 'Optimize Publishing', 'jetpack' );
 	const SEOTitleOptimizationSectionLabel = __( 'Optimize Title', 'jetpack' );
 	const titleOptimizationSectionLabel = isAITitleOptimizationKeywordsFeatureAvailable
@@ -150,14 +156,13 @@ const JetpackAndSettingsContent = ( {
 					</BaseControl>
 				</PanelRow>
 			) }
-			{ isPostEmpty &&
-				( showWriteBrief || isAITitleOptimizationAvailable || isAIFeedbackAvailable ) && (
-					<PanelRow className="jetpack-ai-sidebar__warning-content">
-						<Notice isDismissible={ false } status="warning">
-							{ __( 'The following features require content to work.', 'jetpack' ) }
-						</Notice>
-					</PanelRow>
-				) }
+			{ isPostEmpty && ( showWriteBrief || showTitleOptimization || isAIFeedbackAvailable ) && (
+				<PanelRow className="jetpack-ai-sidebar__warning-content">
+					<Notice isDismissible={ false } status="warning">
+						{ __( 'The following features require content to work.', 'jetpack' ) }
+					</Notice>
+				</PanelRow>
+			) }
 			{ showWriteBrief && (
 				<PanelRow>
 					<BaseControl __nextHasNoMarginBottom={ true }>
@@ -168,7 +173,7 @@ const JetpackAndSettingsContent = ( {
 					</BaseControl>
 				</PanelRow>
 			) }
-			{ isAITitleOptimizationAvailable && (
+			{ showTitleOptimization && (
 				<PanelRow className="jetpack-ai-sidebar__feature-section">
 					<BaseControl __nextHasNoMarginBottom={ true }>
 						<BaseControl.VisualLabel>{ titleOptimizationSectionLabel }</BaseControl.VisualLabel>
@@ -176,7 +181,7 @@ const JetpackAndSettingsContent = ( {
 					</BaseControl>
 				</PanelRow>
 			) }
-			{ ( imageGenerationHandler || isAIFeaturedImageAvailable ) && (
+			{ showFeaturedImage && (
 				<PanelRow className="jetpack-ai-sidebar__feature-section">
 					<BaseControl __nextHasNoMarginBottom={ true }>
 						<BaseControl.VisualLabel>
@@ -247,14 +252,18 @@ export default function AiAssistantPluginSidebar() {
 	const { requireUpgrade, upgradeType, currentTier, isOverLimit } = useAiFeature();
 	const { tracks } = useAnalytics();
 
-	const isViewable = useSelect( select => {
+	const { isViewable, supportsTitle, supportsThumbnail } = useSelect( select => {
 		const postTypeName = select( editorStore ).getCurrentPostType();
 		// The coreStore select type lacks the getPostType method, so we need to cast it to the correct type
 		const postTypeObject = ( select( coreStore ) as unknown as CoreSelect ).getPostType(
 			postTypeName
 		);
 
-		return postTypeObject?.viewable;
+		return {
+			isViewable: postTypeObject?.viewable,
+			supportsTitle: postTypeObject?.supports ? !! postTypeObject.supports.title : true,
+			supportsThumbnail: postTypeObject?.supports ? !! postTypeObject.supports.thumbnail : true,
+		};
 	}, [] );
 
 	const planType = usePlanType( currentTier );
@@ -274,9 +283,9 @@ export default function AiAssistantPluginSidebar() {
 	const isBreveAvailable = getBreveAvailability();
 	const { titleOptimization: isAITitleOptimizationAvailable, feedback: isAIFeedbackAvailable } =
 		getSectionAvailability();
+	const showTitleOptimization = isAITitleOptimizationAvailable && supportsTitle;
 	// The pre-publish panel only holds writing sections, so it goes with them.
-	const showPrePublishPanel =
-		showAgentNotice || isAITitleOptimizationAvailable || isAIFeedbackAvailable;
+	const showPrePublishPanel = showAgentNotice || showTitleOptimization || isAIFeedbackAvailable;
 
 	// The panels close up rather than sit empty. Write Brief's highlights stay on,
 	// but its on/off control lived in the panel above and now has no home.
@@ -315,6 +324,8 @@ export default function AiAssistantPluginSidebar() {
 							upgradeType={ upgradeType }
 							showUsagePanel={ showUsagePanel }
 							showFairUsageNotice={ showFairUsageNotice }
+							supportsTitle={ supportsTitle }
+							supportsThumbnail={ supportsThumbnail }
 						/>
 					) }
 				</PanelBody>
@@ -334,6 +345,8 @@ export default function AiAssistantPluginSidebar() {
 						upgradeType={ upgradeType }
 						showUsagePanel={ showUsagePanel }
 						showFairUsageNotice={ showFairUsageNotice }
+						supportsTitle={ supportsTitle }
+						supportsThumbnail={ supportsThumbnail }
 					/>
 				) }
 			</DocumentPanel>
@@ -348,7 +361,7 @@ export default function AiAssistantPluginSidebar() {
 						<WordPressAgentNotice placement={ PLACEMENT_PRE_PUBLISH } />
 					) : (
 						<>
-							{ isAITitleOptimizationAvailable && (
+							{ showTitleOptimization && (
 								<TitleOptimization
 									placement={ PLACEMENT_PRE_PUBLISH }
 									busy={ false }

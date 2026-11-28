@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Jetpack AI Assistant: Hide title optimization and featured image options when the current post type does not support those features.

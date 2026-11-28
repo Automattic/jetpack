@@ -11,6 +11,7 @@ let mockIsAgentNoticeDismissed = false;
 let mockIsPostEmpty = false;
 let mockRequireUpgrade = false;
 let mockPlanType = 'free';
+let mockPostTypeSupports: Record< string, boolean > | undefined;
 
 jest.mock( '@wordpress/hooks', () => ( {
 	applyFilters: jest.fn(),
@@ -32,7 +33,7 @@ jest.mock( '@wordpress/data', () => ( {
 				isEditedPostEmpty: () => mockIsPostEmpty,
 			},
 			core: {
-				getPostType: () => ( { viewable: true } ),
+				getPostType: () => ( { viewable: true, supports: mockPostTypeSupports } ),
 			},
 			'core/preferences': {
 				get: () => mockIsAgentNoticeDismissed,
@@ -272,6 +273,7 @@ describe( 'AiAssistantPluginSidebar', () => {
 		mockIsPostEmpty = false;
 		mockRequireUpgrade = false;
 		mockPlanType = 'free';
+		mockPostTypeSupports = undefined;
 		// The notice reads this to decide whether to offer its action, so stand in
 		// for a loaded Agents Manager the way production has one.
 		( window as unknown as { __agentsManagerActions?: unknown } ).__agentsManagerActions = {
@@ -615,6 +617,46 @@ describe( 'AiAssistantPluginSidebar', () => {
 			} );
 
 			expect( mockEditPost ).toHaveBeenCalledWith( { featured_media: 123 } );
+		} );
+	} );
+
+	describe( 'post type supports', () => {
+		it( 'hides title optimization across panels when post type lacks title support', () => {
+			withFeatures( [ ...DEFAULT_FEATURES, 'ai-title-optimization' ] );
+			mockPostTypeSupports = { editor: true, thumbnail: true };
+
+			render( <AiAssistantPluginSidebar /> );
+
+			const documentPanel = screen.getByTestId( 'document-panel' );
+			expect(
+				within( documentPanel ).queryByText( 'Optimize Publishing' )
+			).not.toBeInTheDocument();
+			expect( within( documentPanel ).getByText( 'Get Featured Image' ) ).toBeInTheDocument();
+			expect( within( documentPanel ).getByText( 'Get Feedback' ) ).toBeInTheDocument();
+		} );
+
+		it( 'hides pre-publish panel when only title optimization is enabled and title is unsupported', () => {
+			withFeatures( [ 'ai-title-optimization' ] );
+			mockPostTypeSupports = { editor: true };
+
+			render( <AiAssistantPluginSidebar /> );
+
+			expect( screen.queryByTestId( 'pre-publish-panel' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'hides featured image section when post type lacks thumbnail support, even with custom handler', () => {
+			withFeatures( DEFAULT_FEATURES );
+			jest.mocked( applyFilters ).mockReturnValue( jest.fn() );
+			mockPostTypeSupports = { editor: true, title: true };
+
+			render( <AiAssistantPluginSidebar /> );
+
+			const documentPanel = screen.getByTestId( 'document-panel' );
+			expect( within( documentPanel ).queryByText( 'Get Featured Image' ) ).not.toBeInTheDocument();
+			expect(
+				within( documentPanel ).queryByRole( 'button', { name: 'Generate image' } )
+			).not.toBeInTheDocument();
+			expect( within( documentPanel ).getByText( 'Get Feedback' ) ).toBeInTheDocument();
 		} );
 	} );
 } );
