@@ -276,11 +276,16 @@ export const useKeyboardNavigation = ( {
 		[ preventTooltipScroll ]
 	);
 
-	// Focus the tooltip as soon as it is rendered
+	// A new tooltip is hidden, so unfocusable, until BoundedTooltip's layout effect places it.
+	// React commits that placement before the current commit returns, so a microtask sees the placed box.
 	const tooltipRef = useCallback(
 		( element: HTMLDivElement | null ) => {
 			if ( element && selectedIndex !== undefined ) {
-				focusWithoutScrollIfNeeded( element );
+				queueMicrotask( () => {
+					if ( element.isConnected ) {
+						focusWithoutScrollIfNeeded( element );
+					}
+				} );
 			}
 		},
 		[ focusWithoutScrollIfNeeded, selectedIndex ]

@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Premium Analytics: Add a bar chart of views by device over time to the Devices widget, with the previous period's total beside each bar. Stacked bar tooltips, such as Requests by source, now end with a Total row. Chart tooltips in narrow cards now shorten their dates and stay inside the card instead of adding a scrollbar.

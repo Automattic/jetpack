@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { GlobalChartsProvider, useGlobalChartsContext } from '@jetpack-premium-analytics/externals';
+import {
+	COMPARISON_TOTAL_KEY,
+	GlobalChartsProvider,
+	useGlobalChartsContext,
+} from '@jetpack-premium-analytics/externals';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 /**
@@ -122,10 +126,19 @@ describe( 'ComparativeBarChart previous-period toggle', () => {
 
 	const setupUser = () => userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 
-	it.each( [ false, true ] )(
-		'draws the previous period only when previousPeriodShown is true (%s)',
-		shown => {
-			renderChart( { previousPeriodShown: shown, onPreviousPeriodShownChange: jest.fn() } );
+	it.each( [
+		[ false, 'overlap' ],
+		[ true, 'overlap' ],
+		[ false, 'stacked' ],
+		[ true, 'stacked' ],
+	] as const )(
+		'draws the previous period only when previousPeriodShown is %s, in a %s layout',
+		( shown, layout ) => {
+			renderChart( {
+				layout,
+				previousPeriodShown: shown,
+				onPreviousPeriodShownChange: jest.fn(),
+			} );
 
 			expect( previousPeriodItem() ).toHaveAttribute( 'aria-pressed', String( shown ) );
 			expect( drawnLabels() ).toEqual(
@@ -230,6 +243,54 @@ describe( 'ComparativeBarChart previous-period toggle', () => {
 			[ 'Views', 100, 80 ],
 			[ 'Visitors', 40, 30 ],
 		] );
+	} );
+
+	it.each( [
+		[
+			'beside the previous period, without the chart’s own previous-total entry',
+			SERIES,
+			[ 'Views', 'Visitors', COMPARISON_TOTAL_KEY ],
+			[
+				[ 'Views', 100, 80 ],
+				[ 'Visitors', 40, 30 ],
+				[ 'Total', 140, 110 ],
+			],
+		],
+		[
+			'with no comparison',
+			CURRENT_SERIES,
+			[ 'Views', 'Visitors' ],
+			[
+				[ 'Views', 100, undefined ],
+				[ 'Visitors', 40, undefined ],
+				[ 'Total', 140, undefined ],
+			],
+		],
+		[ 'only for more than one reading', SERIES, [ 'Views' ], [ [ 'Views', 100, 80 ] ] ],
+	] )( "totals a stack's rows in its tooltip %s", ( _case, chartSeries, keys, rows ) => {
+		renderChart( { layout: 'stacked', series: chartSeries, previousPeriodShown: true } );
+
+		const values: Record< string, number > = {
+			Views: 100,
+			Visitors: 40,
+			[ COMPARISON_TOTAL_KEY ]: 110,
+		};
+		const datumByKey = Object.fromEntries(
+			keys.map( ( key, index ) => [
+				key,
+				{ datum: { date: JULY_1, value: values[ key ] }, key, index },
+			] )
+		);
+		/* eslint-disable testing-library/render-result-naming-convention --
+		   `renderTooltip` is the chart's prop, not testing-library's `render()`. */
+		const tooltip = lastBarChart().renderTooltip( {
+			tooltipData: { nearestDatum: datumByKey.Views, datumByKey },
+		} );
+		/* eslint-enable testing-library/render-result-naming-convention */
+
+		expect(
+			tooltip?.props.model.rows.map( row => [ row.name, row.value, row.previous?.value ] )
+		).toEqual( rows );
 	} );
 
 	it( 'keeps the current-period bar colors when the previous period is toggled', () => {

@@ -1,5 +1,7 @@
 import { render, screen } from '@testing-library/react';
+import { useLayoutEffect } from 'react';
 import { BoundedTooltip, getBoundedPosition } from '../private/bounded-tooltip';
+import type { BoundedTooltipProps } from '../private/bounded-tooltip';
 
 const BOX = { width: 208, height: 36 };
 const OFFSETS = { offsetLeft: 10, offsetTop: 10 };
@@ -61,6 +63,20 @@ describe( 'getBoundedPosition', () => {
 				bounds: { left: 0, top: 0, right: 346, bottom: 200 },
 			} )
 		).toEqual( { x: 138, y: 60 } );
+	} );
+
+	test( 'rounds a box pinned to a fractional edge inward, so it never pokes past it', () => {
+		// Rounded to the nearest pixel, 85.59 would end the box 0.41px past the edge and scroll the card.
+		expect(
+			getBoundedPosition( {
+				left: 100,
+				top: 50,
+				...OFFSETS,
+				box: { width: 302.59, height: 100 },
+				wrapper: { left: 0, top: 0, right: 388.18, bottom: 300 },
+				bounds: { left: 0, top: 0, right: 388.18, bottom: 300 },
+			} )
+		).toEqual( { x: 85, y: 60 } );
 	} );
 
 	test( 'may leave the wrapper as long as it stays inside the clipping ancestor', () => {
@@ -296,6 +312,53 @@ describe( 'BoundedTooltip', () => {
 				'aria-hidden',
 				'true'
 			);
+		}
+	);
+
+	// A box left where older inputs fit can overflow a scrolling card and flash a scrollbar under the chart.
+	test.each( [
+		[ 'content', { children: 'November 18' }, 'translate(110px, 60px)' ],
+		[ 'left', { left: 140 }, 'translate(150px, 60px)' ],
+		[ 'top', { top: 70 }, 'translate(110px, 80px)' ],
+		[ 'offsetLeft', { offsetLeft: 20 }, 'translate(120px, 60px)' ],
+		[ 'offsetTop', { offsetTop: 20 }, 'translate(110px, 70px)' ],
+		[ 'placement', { placement: 'beside' as const }, 'translate(110px, 50px)' ],
+	] )(
+		'keeps the box hidden at the wrapper origin until it is placed for its current %s',
+		( _input, change, placedAt ) => {
+			const seen: string[] = [];
+			// Lays out before the box is placed, as another part's layout effect can.
+			const Probe = () => {
+				useLayoutEffect( () => {
+					const box = screen.getByTestId( 'box' );
+					seen.push( `${ box.style.transform } ${ box.style.visibility }` );
+				} );
+				return null;
+			};
+			jest.spyOn( Element.prototype, 'getBoundingClientRect' ).mockImplementation( function (
+				this: Element
+			) {
+				return this.classList.contains( 'visx-tooltip' )
+					? rect( 0, 0, 208, 36 )
+					: rect( 0, 0, 400, 200 );
+			} );
+			const tooltip = ( props: BoundedTooltipProps ) => (
+				<div style={ { overflow: 'auto' } }>
+					<div style={ { position: 'relative' } }>
+						<BoundedTooltip left={ 100 } top={ 50 } data-testid="box" { ...props }>
+							{ props.children ?? 'November 10' }
+						</BoundedTooltip>
+						<Probe />
+					</div>
+				</div>
+			);
+
+			const { rerender } = render( tooltip( {} ) );
+			rerender( tooltip( change ) );
+
+			expect( seen ).toEqual( [ 'translate(0px) hidden', 'translate(0px) hidden' ] );
+			expect( screen.getByTestId( 'box' ) ).toHaveStyle( { transform: placedAt } );
+			expect( screen.getByTestId( 'box' ) ).not.toHaveStyle( { visibility: 'hidden' } );
 		}
 	);
 

@@ -3,6 +3,7 @@
  */
 import {
 	BarChart,
+	COMPARISON_TOTAL_KEY,
 	Stack,
 	getBucketInfo,
 	useBarColors,
@@ -14,6 +15,7 @@ import {
 	formatMetricValue,
 	type DateFormatName,
 } from '@jetpack-premium-analytics/formatters';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useId, useMemo } from 'react';
 /**
@@ -27,6 +29,7 @@ import {
 	formatBucketTooltipDate,
 	toTickResolution,
 	type BucketResolution,
+	type TooltipDateForm,
 } from '../../helpers';
 import { resolvePrimarySeriesByGroup } from '../../helpers/resolve-series-names';
 import { useChartName } from '../../hooks/use-chart-name';
@@ -37,7 +40,7 @@ import styles from './comparative-bar-chart.module.scss';
 import type { ComparativeBarChartSeries } from './types';
 import type { DataFormat } from '../../types';
 import type { ComparativeDatePointDate, TooltipExtraSeries } from '../chart-comparative-line/types';
-import type { TooltipStyle } from '../chart-tooltip';
+import type { DatedTooltipModel, TooltipStyle } from '../chart-tooltip';
 import type { ComponentProps } from 'react';
 
 type BarChartProps = ComponentProps< typeof BarChart >;
@@ -117,14 +120,14 @@ export type ComparativeBarChartProps = {
 	tooltipExtras?: TooltipExtraSeries[];
 
 	/**
-	 * The bar chart's layout. `overlap` draws each `group` inside the one before it, with the previous period in a slot beside the current one; the tooltip and legend swatches then take the chart's bar colors, and one legend item names the previous period.
+	 * The bar chart's layout. `overlap` draws each `group` inside the one before it, with the previous period in a slot beside the current one; `stacked` stacks the groups and draws the previous period's total beside them, and its tooltip adds a Total row. In both, the tooltip and legend swatches take the chart's bar colors, and one legend item names the previous period.
 	 */
 	layout?: BarChartLayout;
 
 	/** Label of the series the reader picked, when it is not the first one drawn. Its legend item comes first and stays locked. */
 	primarySeries?: string;
 
-	/** Overlap layout only. Whether the previous period is drawn; with `onPreviousPeriodShownChange`, its legend item becomes a toggle. See the README. */
+	/** Overlap and stacked layouts only. Whether the previous period is drawn; with `onPreviousPeriodShownChange`, its legend item becomes a toggle. See the README. */
 	previousPeriodShown?: boolean;
 
 	/** Called with the new value when the reader presses the previous-period legend item. */
@@ -139,6 +142,44 @@ export type ComparativeBarChartProps = {
 	/** Enter or Space on the keyboard-selected bar, carrying its datum. */
 	onDatumActivate?: BarChartProps[ 'onDatumActivate' ];
 };
+
+/**
+ * Appends a Total row to a stack's tooltip, summing its series rows and, beside them, their previous values.
+ *
+ * @param model      - The tooltip model.
+ * @param dataFormat - How the values are formatted.
+ * @return The model with a Total row when more than one series has a reading.
+ */
+function withStackTotal( model: DatedTooltipModel, dataFormat: DataFormat ): DatedTooltipModel {
+	const series = model.rows.filter( row => row.indicator.kind === 'series' );
+	if ( series.filter( row => row.value !== null ).length < 2 ) {
+		return model;
+	}
+
+	const sum = ( values: ( number | null | undefined )[] ) => {
+		const readings = values.filter( ( value ): value is number => typeof value === 'number' );
+		return readings.length ? readings.reduce( ( total, value ) => total + value, 0 ) : null;
+	};
+	const blank = { kind: 'blank' } as const;
+	const hasPrevious = series.some( row => row.previous );
+
+	return {
+		...model,
+		rows: [
+			...model.rows,
+			{
+				key: '__stack_total',
+				name: __( 'Total', 'jetpack-premium-analytics-pkg' ),
+				dataFormat,
+				indicator: blank,
+				value: sum( series.map( row => row.value ) ),
+				...( hasPrevious && {
+					previous: { value: sum( series.map( row => row.previous?.value ) ), indicator: blank },
+				} ),
+			},
+		],
+	};
+}
 
 /**
  * A date-keyed bar chart with previous-period comparison, built on
@@ -178,8 +219,8 @@ export function ComparativeBarChart( {
 	const chartId = providedChartId ?? fallbackChartId;
 	const { isSeriesVisible } = useGlobalChartsContext();
 	const getBarColors = useBarColors();
-	const overlapLayout = layout === 'overlap' ? layout : undefined;
-	const previousPeriodToggle = overlapLayout !== undefined && previousPeriodShown !== undefined;
+	const slotLayout = layout === 'overlap' || layout === 'stacked' ? layout : undefined;
+	const previousPeriodToggle = slotLayout !== undefined && previousPeriodShown !== undefined;
 	const interactiveLegend =
 		legendInteractive || ( previousPeriodToggle && onPreviousPeriodShownChange !== undefined );
 
@@ -268,9 +309,9 @@ export function ComparativeBarChart( {
 		return labels;
 	}, [ alignedSeries ] );
 
-	// Overlap paints the previous period as one slot, so one item names it, in the color of the picked metric's previous bar, or else of its widest shown bar.
+	// Overlap and stacked paint the previous period as one slot, so one item names it, in the color of the picked metric's previous bar, or else of its widest shown bar.
 	const legendItems = useMemo( () => {
-		if ( ! overlapLayout ) {
+		if ( ! slotLayout ) {
 			return comparativeLegendItems;
 		}
 
@@ -329,7 +370,7 @@ export function ComparativeBarChart( {
 			},
 		];
 	}, [
-		overlapLayout,
+		slotLayout,
 		comparativeLegendItems,
 		previousPeriodToggle,
 		pickedComparisonIndex,
@@ -345,8 +386,8 @@ export function ComparativeBarChart( {
 	] );
 
 	const formatTooltipBucket = useCallback(
-		( point: ComparativeDatePointDate ) =>
-			formatBucketTooltipDate( point, displayResolution, tickResolution ),
+		( point: ComparativeDatePointDate, form?: TooltipDateForm ) =>
+			formatBucketTooltipDate( point, displayResolution, tickResolution, form ),
 		[ displayResolution, tickResolution ]
 	);
 
@@ -369,6 +410,9 @@ export function ComparativeBarChart( {
 
 			const hoveredTime = hovered.date.getTime();
 			const augmented = { ...datumByKey };
+
+			// A stack's previous-period total is the chart's own bar, not a series; each group's previous value is read out instead.
+			delete augmented[ COMPARISON_TOTAL_KEY ];
 
 			for ( const [ index, seriesData ] of alignedSeries.entries() ) {
 				if ( seriesData.options?.type !== 'comparison' || augmented[ seriesData.label ] ) {
@@ -414,9 +458,17 @@ export function ComparativeBarChart( {
 				formatDate: formatTooltipBucket,
 			} );
 
-			return model && <DatedTooltip model={ model } indicatorType="rect" />;
+			return (
+				model && (
+					<DatedTooltip
+						model={ layout === 'stacked' ? withStackTotal( model, dataFormat ) : model }
+						indicatorType="rect"
+					/>
+				)
+			);
 		},
 		[
+			layout,
 			dataFormat,
 			seriesStyles,
 			alignedSeries,

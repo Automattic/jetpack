@@ -29,4 +29,13 @@ describe( 'useComparativeLegend', () => {
 			'line'
 		);
 	} );
+
+	// The charts warn when a stacked bar chart is handed per-metric comparison items it cannot draw.
+	it( 'names no per-metric comparison item for a stacked bar chart', () => {
+		const { result } = renderHook( () =>
+			useComparativeLegend( SERIES, true, undefined, undefined, 'stacked' )
+		);
+
+		expect( result.current.config ).not.toHaveProperty( 'comparisonSeriesItems' );
+	} );
 } );

@@ -1,7 +1,9 @@
 /**
  * Internal dependencies
  */
+import { StatsResponseShapeError } from '../../utils/api-error';
 import { safeParseFloat } from '../../utils/parsing';
+import { sanitizeStatsTimeSeriesResponse } from './time-series';
 import {
 	coerceStatsRecord,
 	createStatsListDataPoint,
@@ -97,4 +99,30 @@ export function mergeStatsDevicesComparisonRows(
 			} ),
 		}
 	);
+}
+
+/**
+ * Normalize a `stats/devices/{property}?unit=` response: views per device in each bucket.
+ *
+ * A response without `days` comes from an endpoint that ignored `unit`, so it is an error, not an empty range.
+ *
+ * @param response - The endpoint's response.
+ * @param query    - The request's query params.
+ * @return The time series, a field per device.
+ */
+export function sanitizeStatsDevicesPeriodsResponse( response: unknown, query?: StatsQueryParams ) {
+	const payload = coerceStatsRecord( response );
+	if ( ! ( 'days' in payload ) ) {
+		throw new StatsResponseShapeError( 'stats/devices returned no per-period views.' );
+	}
+
+	// Each bucket's `other_views` and `total_views` sit beside its devices, so only `views` becomes fields.
+	const days = Object.fromEntries(
+		Object.entries( coerceStatsRecord( payload.days ) ).map( ( [ period, bucket ] ) => [
+			period,
+			coerceStatsRecord( coerceStatsRecord( bucket ).views ),
+		] )
+	);
+
+	return sanitizeStatsTimeSeriesResponse( { ...payload, days }, query );
 }

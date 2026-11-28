@@ -5,6 +5,7 @@ import type { TooltipBoxProps } from '../tooltip-box';
 import type { ReactNode } from 'react';
 
 type Bounds = { left: number; top: number; right: number; bottom: number };
+type PlacementInputs = readonly [ number, number, number, number, ReactNode, TooltipPlacement ];
 type Size = { width: number; height: number };
 
 export type BoundedTooltipProps = Omit< TooltipBoxProps, 'children' > & {
@@ -23,8 +24,12 @@ export const DEFAULT_OFFSET = 10;
 export const TOOLTIP_Z_INDEX = 3;
 const POINTER_HEIGHT = 6;
 
+// Whole pixels, rounded inward: rounding out by a fraction is enough to scroll a card the box sits flush in.
 const clamp = ( position: number, min: number, max: number, size: number ) =>
-	Math.min( Math.max( position, min ), Math.max( min, max - size ) );
+	Math.min(
+		Math.max( Math.round( position ), Math.ceil( min ) ),
+		Math.max( Math.ceil( min ), Math.floor( max - size ) )
+	);
 
 const isClipping = ( element: Element ) => {
 	const { overflow, overflowX, overflowY } = getComputedStyle( element );
@@ -97,7 +102,7 @@ export const getBoundedPosition = ( {
 } ) => {
 	if ( placement === 'below-axis' ) {
 		return {
-			x: Math.round( clamp( left - box.width / 2, bounds.left, bounds.right, box.width ) ),
+			x: clamp( left - box.width / 2, bounds.left, bounds.right, box.width ),
 			y: top + POINTER_HEIGHT,
 		};
 	}
@@ -114,7 +119,7 @@ export const getBoundedPosition = ( {
 	const leftX = left - offsetLeft - box.width;
 	const rightOverflow = rightX + box.width - fit.right;
 	const leftOverflow = fit.left - leftX;
-	let x = rightOverflow > 0 && rightOverflow > leftOverflow ? leftX : rightX;
+	const x = rightOverflow > 0 && rightOverflow > leftOverflow ? leftX : rightX;
 
 	const downY = top + offsetTop;
 	const upY = top - offsetTop - box.height;
@@ -125,12 +130,9 @@ export const getBoundedPosition = ( {
 		y = downOverflow > 0 && downOverflow > upOverflow ? upY : downY;
 	}
 
-	x = clamp( x, bounds.left, bounds.right, box.width );
-	y = clamp( y, bounds.top, bounds.bottom, box.height );
-
 	return {
-		x: Math.round( x ),
-		y: Math.round( y ),
+		x: clamp( x, bounds.left, bounds.right, box.width ),
+		y: clamp( y, bounds.top, bounds.bottom, box.height ),
 	};
 };
 
@@ -170,7 +172,17 @@ export const BoundedTooltip = ( {
 }: BoundedTooltipProps ) => {
 	const nodeRef = useRef< HTMLDivElement >( null );
 	const clipRef = useRef< { wrapper: Element; clip: Element | null } | null >( null );
-	const [ position, setPosition ] = useState< { x: number; y: number } | null >( null );
+	const [ position, setPosition ] = useState< {
+		x: number;
+		y: number;
+		inputs: PlacementInputs;
+	} | null >( null );
+	const inputs: PlacementInputs = [ left, top, offsetLeft, offsetTop, children, placement ];
+	// A position fits only the content and anchor it was measured for; left in place, newer content can overflow a scrolling card.
+	const placed =
+		position && position.inputs.every( ( input, index ) => Object.is( input, inputs[ index ] ) )
+			? position
+			: null;
 
 	useLayoutEffect( () => {
 		const node = nodeRef.current;
@@ -204,14 +216,13 @@ export const BoundedTooltip = ( {
 				bottom: clipRect.bottom - wrapperRect.top,
 			},
 		} );
-		setPosition( current =>
-			current && current.x === next.x && current.y === next.y ? current : next
-		);
+		setPosition( { ...next, inputs: [ left, top, offsetLeft, offsetTop, children, placement ] } );
 		// `children` re-runs the measurement when the content, and so the box size, changes.
 	}, [ left, top, offsetLeft, offsetTop, children, placement ] );
 
-	const x = position?.x ?? left + offsetLeft;
-	const y = position?.y ?? top + ( placement === 'below-axis' ? POINTER_HEIGHT : offsetTop );
+	// Unplaced, the box waits hidden at the origin, which is also where the effect above measures it.
+	const x = placed?.x ?? 0;
+	const y = placed?.y ?? 0;
 
 	return (
 		<TooltipBox
@@ -225,6 +236,7 @@ export const BoundedTooltip = ( {
 				left: 0,
 				top: 0,
 				transform: `translate(${ x }px, ${ y }px)`,
+				...( ! placed && { visibility: 'hidden' } ),
 				...( ! unstyled && style ),
 			} }
 			{ ...rest }

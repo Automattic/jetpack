@@ -4,6 +4,7 @@
 import { resolvePrimarySeriesByGroup } from '../../helpers/resolve-series-names';
 import { isChartDatumEntry } from './utils';
 import type { TooltipStyle } from './chart-tooltip';
+import type { TooltipDateForm } from '../../helpers';
 import type { CountLabel, DataFormat } from '../../types';
 import type {
 	ComparativeDatePointDate,
@@ -42,6 +43,9 @@ export type DatedTooltipModel = {
 	 * sits on the hovered bucket, though a row may still carry an empty comparison.
 	 */
 	previousDate?: string;
+	/** `date` and `previousDate` with abbreviated months, set when that is shorter, for narrow cards. */
+	compactDate?: string;
+	compactPreviousDate?: string;
 	rows: DatedTooltipRow[];
 	/** Why the bucket has no reading, from the first hovered point that says so. */
 	note?: string;
@@ -60,10 +64,19 @@ export type DatedTooltipModelOptions = {
 	extras?: readonly TooltipExtraSeries[];
 	dataFormat: DataFormat;
 	/** Names a point's bucket: the hovered current point for the header, a comparison point for its column. */
-	formatDate: ( point: ComparativeDatePointDate ) => string;
+	formatDate: ( point: ComparativeDatePointDate, form?: TooltipDateForm ) => string;
 };
 
 type Point = Partial< ComparativeDatePointDate >;
+
+function formatBothForms(
+	formatDate: DatedTooltipModelOptions[ 'formatDate' ],
+	point: Point
+): [ string, string | undefined ] {
+	const full = formatDate( point as ComparativeDatePointDate );
+	const compact = formatDate( point as ComparativeDatePointDate, 'compact' );
+	return [ full, compact.length < full.length ? compact : undefined ];
+}
 
 function readingOf( point: Point | undefined ): number | null {
 	return point?.missing ? null : ( point?.value ?? null );
@@ -180,9 +193,16 @@ export function buildDatedTooltipModel(
 		previousPoint ??= previous;
 	} );
 
+	const [ date, compactDate ] = formatBothForms( formatDate, hoveredPoint );
+	const [ previousDate, compactPreviousDate ] = previousPoint
+		? formatBothForms( formatDate, previousPoint )
+		: [];
+
 	return {
-		date: formatDate( hoveredPoint as ComparativeDatePointDate ),
-		previousDate: previousPoint && formatDate( previousPoint as ComparativeDatePointDate ),
+		date,
+		previousDate,
+		...( compactDate !== undefined && { compactDate } ),
+		...( compactPreviousDate !== undefined && { compactPreviousDate } ),
 		rows: [ ...rows.values() ],
 		note,
 	};

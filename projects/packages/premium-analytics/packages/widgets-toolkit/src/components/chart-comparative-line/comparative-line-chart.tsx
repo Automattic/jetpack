@@ -36,7 +36,7 @@ import type {
 	TooltipExtraSeries,
 	ComparativeDatePointDate,
 } from './types';
-import type { BucketResolution, ChartBaseline } from '../../helpers';
+import type { BucketResolution, ChartBaseline, TooltipDateForm } from '../../helpers';
 import type { DataFormat } from '../../types';
 
 /** Series styles, with the explicit `styles` prop taking priority over `series[].options`. */
@@ -192,8 +192,8 @@ export function ComparativeLineChart( {
 	);
 
 	const formatTooltipBucket = useCallback(
-		( point: ComparativeDatePointDate ) =>
-			formatBucketTooltipDate( point, displayResolution, tickResolution ),
+		( point: ComparativeDatePointDate, form?: TooltipDateForm ) =>
+			formatBucketTooltipDate( point, displayResolution, tickResolution, form ),
 		[ displayResolution, tickResolution ]
 	);
 

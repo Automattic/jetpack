@@ -1,7 +1,12 @@
 /**
  * External dependencies
  */
-import { useStatsDevices, useStatsSite } from '@jetpack-premium-analytics/data';
+import {
+	useStatsDevices,
+	useStatsDevicesPeriods,
+	useStatsSite,
+} from '@jetpack-premium-analytics/data';
+import { screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
@@ -15,6 +20,7 @@ jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mo
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
 	useStatsDevices: jest.fn(),
+	useStatsDevicesPeriods: jest.fn(),
 	useStatsSite: jest.fn(),
 } ) );
 
@@ -48,8 +54,33 @@ function devicesResult( rows: unknown[], overrides: Record< string, unknown > = 
 	} as unknown as ReturnType< typeof useStatsDevices >;
 }
 
-function renderWidget() {
-	return renderWithActionsHost( <DevicesWidget attributes={ { reportParams: REPORT_PARAMS } } /> );
+function devicesPeriodsResult(
+	primary: Record< string, unknown >,
+	comparison = {},
+	overrides: Record< string, unknown > = {}
+) {
+	return {
+		primary: { data: primary, isError: false, isPlaceholderData: false },
+		comparison: { data: comparison },
+		hasComparison: true,
+		timezone: 'UTC',
+		periodStarts: undefined,
+		isLoading: false,
+		isFetching: false,
+		isError: false,
+		error: null,
+		refetch: jest.fn(),
+		...overrides,
+	} as unknown as ReturnType< typeof useStatsDevicesPeriods >;
+}
+
+const BUCKET = { date_start: '2026-07-01T00:00:00', date_end: '2026-07-01T23:59:59' };
+const RANGE = { date_start: '2026-07-01', date_end: '2026-07-31' };
+
+function renderWidget( attributes = {} ) {
+	return renderWithActionsHost(
+		<DevicesWidget attributes={ { ...attributes, reportParams: REPORT_PARAMS } } />
+	);
 }
 
 describe( 'DevicesWidget CSV download', () => {
@@ -110,5 +141,81 @@ describe( 'DevicesWidget CSV download', () => {
 		const { findDeclaredAction } = renderWidget();
 
 		await expect( findDeclaredAction( 'download-csv' ) ).resolves.toBeDefined();
+	} );
+} );
+
+describe( 'DevicesWidget bar chart', () => {
+	let downloads: ReturnType< typeof captureCsvDownloads > | undefined;
+
+	beforeEach( () => {
+		jest.useFakeTimers();
+		jest.mocked( useStatsDevicesPeriods ).mockReset();
+		jest.mocked( useStatsSite ).mockReturnValue( {
+			isLoading: false,
+			isError: false,
+			data: undefined,
+		} as unknown as ReturnType< typeof useStatsSite > );
+	} );
+
+	afterEach( () => {
+		downloads?.restore();
+		downloads = undefined;
+		jest.useRealTimers();
+	} );
+
+	it( 'saves each bucket with its views per screen size, without the previous period', async () => {
+		downloads = captureCsvDownloads();
+		jest.mocked( useStatsDevicesPeriods ).mockReturnValue(
+			devicesPeriodsResult(
+				{
+					summary: { desktop: 40, mobile: 20, ...RANGE },
+					data: [ { ...BUCKET, desktop: 40, mobile: 20 } ],
+				},
+				{ summary: { desktop: 30, ...RANGE }, data: [ { ...BUCKET, desktop: 30 } ] }
+			)
+		);
+
+		const { findDeclaredAction } = renderWidget( { chartType: 'bar' } );
+		await downloads.runAndSave( await findDeclaredAction( 'download-csv' ) );
+
+		expect( downloads.files[ 0 ].filename ).toBe( 'devices-over-time-2026-07-01_2026-07-31.csv' );
+		await expect( downloads.lines() ).resolves.toEqual( [
+			'"Date","Desktop","Mobile"',
+			'"2026-07-01","40","20"',
+		] );
+	} );
+
+	it( 'offers no download when only the previous period recorded views', () => {
+		jest
+			.mocked( useStatsDevicesPeriods )
+			.mockReturnValue(
+				devicesPeriodsResult(
+					{ summary: { ...RANGE }, data: [ { ...BUCKET } ] },
+					{ summary: { desktop: 30, ...RANGE }, data: [ { ...BUCKET, desktop: 30 } ] }
+				)
+			);
+
+		const { declaredAction } = renderWidget( { chartType: 'bar' } );
+
+		expect( declaredAction( 'download-csv' ) ).toBeUndefined();
+	} );
+
+	it.each( [
+		[
+			'offers no Retry for a permission-gated 403',
+			{ status: 403, code: 'rest_forbidden' },
+			false,
+		],
+		[ 'offers Retry for a failure that can heal', { status: 403, code: 'no_connection' }, true ],
+	] )( '%s', ( _case, error, retry ) => {
+		jest
+			.mocked( useStatsDevicesPeriods )
+			.mockReturnValue(
+				devicesPeriodsResult( { summary: { ...RANGE }, data: [] }, {}, { isError: true, error } )
+			);
+
+		renderWidget( { chartType: 'bar' } );
+
+		expect( Boolean( screen.queryByRole( 'button', { name: 'Retry' } ) ) ).toBe( retry );
 	} );
 } );

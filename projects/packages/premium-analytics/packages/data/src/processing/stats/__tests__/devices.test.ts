@@ -1,4 +1,9 @@
-import { mergeStatsDevicesComparisonRows, sanitizeStatsDevicesResponse } from '..';
+import {
+	mergeStatsDevicesComparisonRows,
+	sanitizeStatsDevicesPeriodsResponse,
+	sanitizeStatsDevicesResponse,
+} from '..';
+import { StatsResponseShapeError } from '../../../utils/api-error';
 import { devicesEmptyFixture, devicesFixture } from '../__fixtures__/devices';
 import type { StatsDevicesItem, StatsNormalizedReport } from '..';
 
@@ -73,5 +78,42 @@ describe( 'Stats devices normalizer', () => {
 				expect.objectContaining( { label: 'mobile', previousValue: 0 } ),
 			],
 		} );
+	} );
+} );
+
+describe( 'sanitizeStatsDevicesPeriodsResponse', () => {
+	// An endpoint that ignored `unit` must surface as an error, not as a range with no views.
+	it( 'rejects a response without per-period views', () => {
+		expect( () =>
+			sanitizeStatsDevicesPeriodsResponse( { top_values: { desktop: 62.3 } } )
+		).toThrow( StatsResponseShapeError );
+	} );
+
+	it( 'reads an empty days map as a range with no views', () => {
+		expect( sanitizeStatsDevicesPeriodsResponse( { unit: 'day', days: {} } ).data ).toEqual( [] );
+	} );
+
+	it( 'reads each bucket’s device counts from its views', () => {
+		const { summary, data } = sanitizeStatsDevicesPeriodsResponse( {
+			unit: 'year',
+			days: {
+				'2026-01-01': {
+					views: { desktop: 10, tablet: 5, mobile: 3, other: 2 },
+					other_views: 0,
+					total_views: 20,
+				},
+			},
+		} );
+
+		expect( summary ).toEqual( {
+			desktop: 10,
+			tablet: 5,
+			mobile: 3,
+			other: 2,
+			date_start: expect.any( String ),
+			date_end: expect.any( String ),
+		} );
+		expect( data ).toHaveLength( 1 );
+		expect( data[ 0 ] ).toMatchObject( { desktop: 10, tablet: 5, mobile: 3, other: 2 } );
 	} );
 } );

@@ -127,7 +127,7 @@ export { useStatsUtm, type StatsUtmParams, type StatsUtmResponse } from './use-s
 export { useStatsHighlights } from './use-stats-highlights';
 export type { StatsHighlightsParams, StatsHighlightsResponse } from './use-stats-highlights';
 export { useStatsTags, type StatsTagsParams, type StatsTagsResponse } from './use-stats-tags';
-export { useStatsDevices } from './use-stats-devices';
+export { useStatsDevices, useStatsDevicesPeriods } from './use-stats-devices';
 export {
 	isEdgeBotRequestsRangeTooLong,
 	useStatsEdgeBotRequests,

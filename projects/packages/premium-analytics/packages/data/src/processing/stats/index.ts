@@ -62,7 +62,11 @@ export {
 } from './subscribers';
 export { sanitizeStatsStreakResponse } from './streak';
 export { sanitizeStatsTagsResponse, selectStatsTagsItemsByType } from './tags';
-export { mergeStatsDevicesComparisonRows, sanitizeStatsDevicesResponse } from './devices';
+export {
+	mergeStatsDevicesComparisonRows,
+	sanitizeStatsDevicesPeriodsResponse,
+	sanitizeStatsDevicesResponse,
+} from './devices';
 export { EDGE_REQUEST_SOURCES, sanitizeStatsEdgeBotRequestsResponse } from './edge-bot-requests';
 export type {
 	EdgeRequestSource,

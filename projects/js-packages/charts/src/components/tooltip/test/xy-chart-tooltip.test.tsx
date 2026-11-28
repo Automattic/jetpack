@@ -135,6 +135,32 @@ describe( 'XYChartTooltip', () => {
 		}
 	} );
 
+	// A browser refuses focus to a hidden box, and focusing it unplaced would scroll to the wrong spot.
+	it.each( [ 'auto', 'below-axis' ] as const )(
+		'focuses a %s keyboard tooltip only once its box is placed',
+		async placement => {
+			const hiddenOnFocus: boolean[] = [];
+			const recordVisibility = ( event: FocusEvent ) => {
+				if ( ( event.target as HTMLElement ).getAttribute( 'role' ) === 'tooltip' ) {
+					hiddenOnFocus.push(
+						screen.getByTestId( 'bounded-tooltip' ).style.visibility === 'hidden'
+					);
+				}
+			};
+			document.addEventListener( 'focusin', recordVisibility );
+			try {
+				renderChart( undefined, placement );
+				await openTooltip();
+				await userEvent.setup().keyboard( '{ArrowRight}' );
+
+				expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveFocus();
+				expect( hiddenOnFocus ).toEqual( [ false, false ] );
+			} finally {
+				document.removeEventListener( 'focusin', recordVisibility );
+			}
+		}
+	);
+
 	it.each( [
 		[ 'Tab', '{Tab}' ],
 		[ 'Escape', '{Escape}' ],

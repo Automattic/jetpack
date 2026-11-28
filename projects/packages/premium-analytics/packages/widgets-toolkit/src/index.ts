@@ -292,6 +292,8 @@ export {
 	toDayRange,
 	defaultPeriodForInterval,
 	buildMetricTab,
+	formatComparisonSeriesLabel,
+	getComparisonPeriodLabel,
 	metricTabsToCsv,
 	pairComparisonBuckets,
 	type ComparisonPeriodStarts,
