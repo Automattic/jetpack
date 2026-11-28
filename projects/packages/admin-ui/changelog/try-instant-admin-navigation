@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add an opt-in, experimental mode that keeps visited Jetpack admin pages alive so the sidebar switches between them instantly.
