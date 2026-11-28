@@ -45,8 +45,6 @@ const debug = makeDebug( 'eslintrc/base' );
 const rootdir = fileURLToPath( new URL( '../../..', import.meta.url ) );
 
 const restrictedPaths = [
-	'lib/sites-list',
-	'lib/mixins/data-observe',
 	{
 		name: 'classnames',
 		message:
