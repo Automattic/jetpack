@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+WooCommerce Analytics: Sync refund statuses and order stats filter changes the way WooCommerce stores them, on WooCommerce versions that can build the row.

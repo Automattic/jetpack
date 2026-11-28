@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+Comment: Add WooCommerce Analytics sync tests for the order stats row WooCommerce builds; no production change.
+

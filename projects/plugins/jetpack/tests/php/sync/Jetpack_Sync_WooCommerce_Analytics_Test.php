@@ -221,6 +221,67 @@ class Jetpack_Sync_WooCommerce_Analytics_Test extends Jetpack_Sync_TestBase {
 	}
 
 	/**
+	 * With core's row builder, the synced row includes changes made through core's order stats filter.
+	 */
+	public function test_core_row_applies_order_stats_filter() {
+		$this->skip_without_core_row_builder();
+
+		$order = $this->create_refundable_order();
+		$order->update_status( 'processing' );
+
+		$filter = static function ( $data ) {
+			$data['num_items_sold'] = 99;
+			return $data;
+		};
+		add_filter( 'woocommerce_analytics_update_order_stats_data', $filter );
+		$synced = ( new WooCommerce_Analytics() )->get_object_by_id( 'order', $order->get_id() )['order_stats'];
+		remove_filter( 'woocommerce_analytics_update_order_stats_data', $filter );
+
+		$this->assertSame( 99, $synced['num_items_sold'] );
+	}
+
+	/**
+	 * With core's row builder, a refund's synced status is the one core stored for it.
+	 */
+	public function test_core_row_refund_status_matches_stored_row() {
+		global $wpdb;
+
+		$this->skip_without_core_row_builder();
+
+		$order = $this->create_refundable_order();
+		$order->update_status( 'processing' );
+		$refund = $this->refund( $order, 10 );
+		OrderStatsDataStore::sync_order( $refund->get_id() );
+
+		$stored = $wpdb->get_var( $wpdb->prepare( "SELECT status FROM {$wpdb->prefix}wc_order_stats WHERE order_id = %d", $refund->get_id() ) );
+		$synced = ( new WooCommerce_Analytics() )->get_object_by_id( 'order', $refund->get_id() )['order_stats'];
+
+		$this->assertSame( 'wc-processing', $stored );
+		$this->assertSame( $stored, $synced['status'] );
+	}
+
+	/**
+	 * With core's row builder, an order core no longer tracks still syncs the row core stored for it.
+	 */
+	public function test_core_row_falls_back_to_stored_row_when_core_skips_the_order() {
+		$this->skip_without_core_row_builder();
+
+		$order = $this->create_refundable_order();
+		$order->update_status( 'processing' );
+		OrderStatsDataStore::sync_order( $order->get_id() );
+
+		$order->update_meta_data( '_wcpay_mode', 'test' );
+		$order->save_meta_data();
+		$this->clear_order_cache( $order->get_id() );
+
+		// @phan-suppress-next-line PhanUndeclaredStaticMethod -- Added in WooCommerce 11.5, so absent from the WooCommerce stubs; the test skips without it.
+		$this->assertFalse( OrderStatsDataStore::get_order_stats_row_data( wc_get_order( $order->get_id() ) ) );
+		$synced = ( new WooCommerce_Analytics() )->get_object_by_id( 'order', $order->get_id() )['order_stats'];
+
+		$this->assertSame( $order->get_id(), (int) $synced['order_id'] );
+	}
+
+	/**
 	 * Incremental Analytics sync emits the expanded reports payload for a real order.
 	 */
 	public function test_incremental_sync_emits_real_order_payload() {
@@ -380,6 +441,15 @@ class Jetpack_Sync_WooCommerce_Analytics_Test extends Jetpack_Sync_TestBase {
 	private function skip_before_woocommerce( $version ) {
 		if ( version_compare( WC_VERSION, $version, '<' ) ) {
 			$this->markTestSkipped( "Requires WooCommerce $version or later." );
+		}
+	}
+
+	/**
+	 * Skip the test when WooCommerce cannot build the order stats row for the sync.
+	 */
+	private function skip_without_core_row_builder() {
+		if ( ! is_callable( array( OrderStatsDataStore::class, 'get_order_stats_row_data' ) ) ) {
+			$this->markTestSkipped( 'Requires OrderStatsDataStore::get_order_stats_row_data().' );
 		}
 	}
 

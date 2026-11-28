@@ -679,6 +679,16 @@ class WooCommerce_Analytics extends Module {
 			return $order_stats_data_from_db;
 		}
 
+		$core_row = self::get_core_order_stats_row( $order );
+		if ( $core_row ) {
+			return $this->build_order_stats_data_from_core_row( $order, $core_row );
+		}
+		if ( false === $core_row ) {
+			// Core skips the order now, but a row it stored earlier (a test order imported before
+			// core excluded them) is still in the local table the checksum compares against.
+			return $this->get_order_stats_data_from_db( $order->get_id() );
+		}
+
 		$order_stats_item         = null;
 		$order_fulfillment_status = null;
 		// @phan-suppress-next-line PhanUndeclaredStaticMethod -- Guarded by is_callable(); absent from the older WooCommerce stubs used by the "old Woo" Phan job.
@@ -761,6 +771,86 @@ class WooCommerce_Analytics extends Module {
 		}
 
 		return $order_stats_data;
+	}
+
+	/**
+	 * Get the wc_order_stats row WooCommerce would store for the order.
+	 *
+	 * @param WC_Abstract_Order $order Order or refund.
+	 * @return array|false|null The row, false when WooCommerce would not store one, or null when WooCommerce cannot build it.
+	 */
+	private static function get_core_order_stats_row( $order ) {
+		$callback = array( OrderStatsDataStore::class, 'get_order_stats_row_data' );
+		if ( ! is_callable( $callback ) ) {
+			return null;
+		}
+
+		// @phan-suppress-next-line PhanUndeclaredStaticMethodInCallable -- Guarded by is_callable(); added in WooCommerce 11.5, so absent from the WooCommerce stubs.
+		$row = call_user_func( $callback, $order );
+		return is_array( $row ) ? $row : false;
+	}
+
+	/**
+	 * Build the sync payload from core's row, adding the columns only the hosted table has.
+	 *
+	 * @param WC_Abstract_Order $order Order or refund.
+	 * @param array             $row   Row from get_order_stats_row_data().
+	 * @return array
+	 */
+	private function build_order_stats_data_from_core_row( $order, array $row ) {
+		$data = array_merge(
+			$row,
+			array(
+				'date_created'   => self::datetime_to_object( new WC_DateTime( $row['date_created_gmt'], new DateTimeZone( 'UTC' ) ) ),
+				'date_paid'      => self::row_date_to_object( $row['date_paid'], $order instanceof WC_Order ? $order->get_date_paid() : $order->get_date_created() ),
+				'date_completed' => self::row_date_to_object( $row['date_completed'], $order instanceof WC_Order ? $order->get_date_completed() : $order->get_date_created() ),
+				'total_fees'     => $order->get_total_fees(),
+				'total_fees_tax' => self::get_total_fees_tax( $order ),
+				'shipping_tax'   => $order->get_shipping_tax(),
+				'discount_total' => $order->get_discount_total(),
+				'discount_tax'   => $order->get_discount_tax(),
+			)
+		);
+
+		// Core leaves the column out when the fulfillments feature or column is missing.
+		if ( ! array_key_exists( 'fulfillment_status', $data ) ) {
+			$data['fulfillment_status'] = null;
+		}
+
+		// The WooCommerce Analytics plugin rewrites a stored refund's status after the write, and older
+		// WooCommerce versions set refund dates the parent lacks. Follow the stored row so the checksum matches.
+		if ( 'shop_order_refund' === $order->get_type() ) {
+			$stored = $this->get_order_stats_item( $order->get_id() );
+			if ( $stored ) {
+				$data['status']         = $stored['status'];
+				$data['date_paid']      = null !== $stored['date_paid'] ? $data['date_created'] : null;
+				$data['date_completed'] = null !== $stored['date_completed'] ? $data['date_created'] : null;
+			}
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Convert a site-local date from core's row to an object for encoding.
+	 *
+	 * Uses the order's own date when the row holds it unchanged, because a local time inside the hour a DST
+	 * change repeats does not say which instant it was. Otherwise parses it in the site's own timezone.
+	 *
+	 * @param string|null      $date       Date as 'Y-m-d H:i:s' in the site's timezone.
+	 * @param WC_DateTime|null $order_date The order's date the row was built from.
+	 * @return object|null
+	 */
+	private static function row_date_to_object( $date, $order_date ) {
+		if ( ! $date ) {
+			return null;
+		}
+
+		if ( $order_date instanceof WC_DateTime && $order_date->date( 'Y-m-d H:i:s' ) === $date ) {
+			return self::datetime_to_object( clone $order_date );
+		}
+
+		return self::datetime_to_object( new WC_DateTime( $date, wp_timezone() ) );
 	}
 
 	/**
@@ -849,7 +939,7 @@ class WooCommerce_Analytics extends Module {
 	/**
 	 * Get the total fees tax from an order.
 	 *
-	 * @param WC_Order $order WC_Order object.
+	 * @param WC_Abstract_Order $order Order or refund.
 	 * @return float
 	 */
 	protected static function get_total_fees_tax( $order ) {
