@@ -10,7 +10,7 @@
  * (Premium Analytics, the standalone WooCommerce Analytics plugin); treat them as a public contract.
  *
  * This module is NOT registered by default. Consumers own its registration,
- * WooCommerce runtime guard, full-sync policy, and any additional Sync data
+ * WooCommerce runtime guard ({@see self::is_woocommerce_supported()}), full-sync policy, and any additional Sync data
  * configuration. The module provides the minimum option and post meta requirements.
  *
  * WooCommerce is a runtime (not composer) dependency. The WC classes
@@ -44,6 +44,22 @@ if ( ! defined( 'ABSPATH' ) ) {
  * WooCommerce Analytics Module class.
  */
 class WooCommerce_Analytics extends Module {
+
+	/**
+	 * Oldest supported WooCommerce: older versions do not store paid and completed dates.
+	 *
+	 * @var string
+	 */
+	private const MIN_WOOCOMMERCE_VERSION = '7.5';
+
+	/**
+	 * Whether the active WooCommerce is one consumers may register this module on.
+	 *
+	 * @return bool
+	 */
+	public static function is_woocommerce_supported(): bool {
+		return defined( 'WC_VERSION' ) && version_compare( WC_VERSION, self::MIN_WOOCOMMERCE_VERSION, '>=' );
+	}
 
 	/**
 	 * Options required by WooCommerce Analytics Sync.

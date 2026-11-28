@@ -468,13 +468,13 @@ class Analytics_Dashboard {
 	}
 
 	/**
-	 * Whether the WooCommerce tab is available: WooCommerce is active and the reader may see store
-	 * reports.
+	 * Whether the WooCommerce tab is available: a WooCommerce the sync supports is active and the
+	 * reader may see store reports.
 	 *
 	 * @return bool
 	 */
 	public static function is_section_available() {
-		return self::is_woocommerce_available() && self::current_user_can_view_store_reports();
+		return self::is_woocommerce_available() && Sync_Configuration::is_woocommerce_supported() && self::current_user_can_view_store_reports();
 	}
 
 	/**

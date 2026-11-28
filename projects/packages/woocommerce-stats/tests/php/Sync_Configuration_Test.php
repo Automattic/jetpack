@@ -56,18 +56,77 @@ class Sync_Configuration_Test extends TestCase {
 	}
 
 	/**
-	 * WooCommerce-specific Sync hooks remain disabled without WooCommerce.
+	 * Without a supported WooCommerce no sync is set up, and on an old one the standalone plugin's
+	 * module is still dropped.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 * @dataProvider provide_unsupported_woocommerce
+	 *
+	 * @param string|null $version               WC_VERSION of an active WooCommerce, or null for none.
+	 * @param string[]    $expected_sync_modules The standalone plugin's module list after filtering.
 	 */
-	public function test_configure_sync_without_woocommerce_is_a_no_op() {
-		$this->assertFalse( class_exists( 'WooCommerce' ) );
-		$this->assertFalse( function_exists( 'WC' ) );
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	#[DataProvider( 'provide_unsupported_woocommerce' )]
+	public function test_configure_sync_without_supported_woocommerce_sets_up_no_sync( $version, $expected_sync_modules ) {
+		if ( null !== $version ) {
+			define( 'WC_VERSION', $version );
+			require_once __DIR__ . '/mocks/woocommerce-active-mock.php';
+		}
 
 		$configuration = new Sync_Configuration();
 		$configuration->configure_sync();
 
-		$this->assertFalse( has_filter( 'jetpack_sync_modules', array( $configuration, 'remove_duplicate_woocommerce_analytics_module' ) ) );
+		$this->assertSame( $expected_sync_modules, apply_filters( 'jetpack_sync_modules', array( Sync_Configuration::ANALYTICS_PLUGIN_MODULE_FQCN, Posts::class ) ) );
 		$this->assertFalse( has_filter( 'jetpack_full_sync_config', array( $configuration, 'expand_full_sync_config' ) ) );
 		$this->assertFalse( has_filter( 'jetpack_sync_post_meta_whitelist', array( $configuration, 'add_meta_to_sync_post_meta_whitelist' ) ) );
+		$this->assertFalse( has_action( Lookup_Data_Backfill::START_HOOK ) );
+	}
+
+	/**
+	 * Data provider for test_configure_sync_without_supported_woocommerce_sets_up_no_sync.
+	 *
+	 * @return array
+	 */
+	public static function provide_unsupported_woocommerce() {
+		return array(
+			'no WooCommerce'    => array( null, array( Sync_Configuration::ANALYTICS_PLUGIN_MODULE_FQCN, Posts::class ) ),
+			'WooCommerce 7.4.1' => array( '7.4.1', array( Posts::class ) ),
+		);
+	}
+
+	/**
+	 * An older Sync package without the module's check still keeps stores below 7.5 out.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 * @dataProvider provide_fallback_versions
+	 *
+	 * @param string $version  WC_VERSION of the active WooCommerce.
+	 * @param bool   $expected Whether that version is supported.
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	#[DataProvider( 'provide_fallback_versions' )]
+	public function test_is_woocommerce_supported_without_the_sync_module_check( $version, $expected ) {
+		require_once __DIR__ . '/mocks/sync-module-without-support-check.php';
+		define( 'WC_VERSION', $version );
+
+		$this->assertFalse( method_exists( WooCommerce_Analytics::class, 'is_woocommerce_supported' ) );
+		$this->assertSame( $expected, Sync_Configuration::is_woocommerce_supported() );
+	}
+
+	/**
+	 * Data provider for test_is_woocommerce_supported_without_the_sync_module_check.
+	 *
+	 * @return array
+	 */
+	public static function provide_fallback_versions() {
+		return array(
+			'7.4.1' => array( '7.4.1', false ),
+			'7.5.0' => array( '7.5.0', true ),
+		);
 	}
 
 	/**
@@ -80,6 +139,7 @@ class Sync_Configuration_Test extends TestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_configure_sync_with_woocommerce_registers_sync_hooks() {
+		define( 'WC_VERSION', '7.5.0' );
 		require_once __DIR__ . '/mocks/woocommerce-active-mock.php';
 		$this->assertTrue( class_exists( 'WooCommerce' ) );
 

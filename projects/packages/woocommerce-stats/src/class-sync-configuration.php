@@ -71,7 +71,7 @@ class Sync_Configuration {
 
 	/**
 	 * Entry point called from Analytics_Dashboard::init(), once per request however many plugins bundle the package. Schedules the Sync hookups on
-	 * plugins_loaded; the actual registration is a no-op unless WooCommerce is active
+	 * plugins_loaded; the actual registration needs a supported WooCommerce
 	 * (see {@see configure_sync()}).
 	 *
 	 * Call it before plugins_loaded completes: the Config built in configure_sync() wires
@@ -105,8 +105,22 @@ class Sync_Configuration {
 	}
 
 	/**
-	 * Register the Jetpack Sync filters and ensure the Sync feature when WooCommerce
-	 * is active.
+	 * Whether the active WooCommerce is one the shared WooCommerce Analytics module supports.
+	 *
+	 * @return bool
+	 */
+	public static function is_woocommerce_supported(): bool {
+		if ( method_exists( WooCommerce_Analytics_Module::class, 'is_woocommerce_supported' ) ) {
+			return WooCommerce_Analytics_Module::is_woocommerce_supported();
+		}
+
+		// An older Sync package without the check still must not sync stores below 7.5.
+		return defined( 'WC_VERSION' ) && version_compare( WC_VERSION, '7.5', '>=' );
+	}
+
+	/**
+	 * Register the Jetpack Sync filters and ensure the Sync feature when a supported
+	 * WooCommerce is active.
 	 *
 	 * @return void
 	 */
@@ -116,7 +130,13 @@ class Sync_Configuration {
 		}
 
 		// The shared module is registered through the Sync config below; this only drops a duplicate.
+		// Kept on an unsupported WooCommerce, where the duplicate's name alone would enable the checksum tables.
 		add_filter( 'jetpack_sync_modules', array( $this, 'remove_duplicate_woocommerce_analytics_module' ), PHP_INT_MAX );
+
+		if ( ! self::is_woocommerce_supported() ) {
+			return;
+		}
+
 		add_filter( 'jetpack_full_sync_config', array( $this, 'expand_full_sync_config' ) );
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_meta_to_sync_post_meta_whitelist' ) );
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_analytics_sync_reports_data', array( $this, 'skip_reports_data_before_analytics_full_sync' ) );

@@ -94,7 +94,8 @@ use Automattic\Jetpack\Sync\Modules\WooCommerce_Analytics;
 add_action(
 	'plugins_loaded',
 	static function () {
-		if ( ! class_exists( 'WooCommerce' ) && ! function_exists( 'WC' ) ) {
+		// Also false without WooCommerce, whose WC_VERSION it reads.
+		if ( ! WooCommerce_Analytics::is_woocommerce_supported() ) {
 			return;
 		}
 
@@ -116,7 +117,8 @@ add_action(
 ```
 
 The priority-1 `plugins_loaded` callback above guards the WooCommerce runtime
-dependency and gives `Config` time to initialize Sync at its priority-2 callback.
+dependency, including the module's minimum WooCommerce version, and gives `Config`
+time to initialize Sync at its priority-2 callback.
 Consumers must also register their `jetpack_full_sync_config` policy.
 
 Analytics checksum schemas are registered centrally by `Table_Checksum` and become
