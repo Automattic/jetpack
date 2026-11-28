@@ -1,0 +1,13 @@
+@import "../../mixins";
+
+.promote-post-ad-preview__loading {
+	border-radius: var(--wpds-border-radius-md);
+	display: inline-block;
+	block-size: 250px;
+	overflow: hidden;
+	position: relative;
+	min-block-size: 16px;
+	inline-size: 300px;
+
+	@include blazepress-animated-skeleton;
+}

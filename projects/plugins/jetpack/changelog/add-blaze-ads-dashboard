@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Blaze: Load the Blaze Ads dashboard from Jetpack itself instead of WordPress.com.

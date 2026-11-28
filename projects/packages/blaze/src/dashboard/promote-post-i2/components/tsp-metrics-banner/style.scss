@@ -1,0 +1,40 @@
+@import "@wordpress/base-styles/breakpoints";
+
+.tsp-metrics-info-banner__container {
+	background-color: var(--wpds-color-background-surface-neutral-weak);
+	margin: 16px;
+	display: flex;
+	flex-direction: column;
+	padding: 24px 24px 12px 24px;
+	grid-column: 1 / -1;
+	align-items: center;
+	gap: 16px;
+	position: relative;
+	border-radius: var(--wpds-border-radius-md);
+
+	@media (min-width: $break-large) {
+		flex-direction: row;
+		padding-block: 24px 12px;
+		padding-inline: 24px 45px;
+	}
+
+	.tsp-metrics-info-banner__title {
+		display: block;
+		font-size: var(--wpds-typography-font-size-md);
+		color: var(--wpds-color-foreground-content-neutral);
+		font-weight: var(--wpds-typography-font-weight-emphasis);
+		margin-block-end: 12px;
+	}
+
+	.tsp-metrics-info-banner__text {
+		display: block;
+		font-size: var(--wpds-typography-font-size-md);
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	.tsp-metrics-info-banner__close {
+		position: absolute;
+		inset-inline-end: 16px;
+		inset-block-start: 16px;
+	}
+}

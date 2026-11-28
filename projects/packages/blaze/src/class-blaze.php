@@ -83,6 +83,7 @@ class Blaze {
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
 		// Add a Blaze Menu.
 		add_action( 'admin_menu', array( __CLASS__, 'enable_blaze_menu' ), 999 );
+		add_filter( 'jetpack_admin_shell_members', array( __CLASS__, 'add_admin_shell_member' ) );
 		// Redirect legacy/duplicate advertising URLs (the old tools.php location, or the
 		// admin.php?page=advertising slug when the standalone Blaze Ads plugin owns the
 		// menu). Runs late (after WooCommerce and core register their menus, so
@@ -137,8 +138,58 @@ class Blaze {
 	 * @return void
 	 */
 	public static function enable_blaze_menu() {
-		if ( ! self::should_initialize()['can_init'] ) {
+		$menu = self::get_dashboard_menu();
+		if ( null === $menu ) {
 			return;
+		}
+
+		$menu_slug       = $menu['slug'];
+		$menu_label      = $menu['label'];
+		$parent_slug     = self::get_menu_parent();
+		$blaze_dashboard = new Blaze_Dashboard( 'admin.php', $menu_slug, $menu['css_prefix'] );
+
+		if ( 'jetpack' === $parent_slug ) {
+			// Register through Admin_Menu: on WordPress.com Simple sites the Jetpack
+			// parent menu does not exist yet at this priority, and registering the
+			// submenu before its parent produces a broken menu URL.
+			$page_suffix = Admin_Menu::add_menu(
+				esc_attr( $menu_label ),
+				$menu_label,
+				'manage_options',
+				$menu_slug,
+				array( $blaze_dashboard, 'render' ),
+				null,
+				// Not $menu_slug: that is filterable, and a host naming it would lose
+				// the item the moment anything changed it.
+				array( 'key' => 'jetpack-blaze' )
+			);
+		} else {
+			// Other parents already exist at this priority, so add_submenu_page is safe.
+			$page_suffix = add_submenu_page(
+				$parent_slug,
+				esc_attr( $menu_label ),
+				$menu_label,
+				'manage_options',
+				$menu_slug,
+				array( $blaze_dashboard, 'render' ),
+				1
+			);
+		}
+		add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );
+	}
+
+	/**
+	 * The dashboard's menu slug, label and CSS prefix, or null when this package should not register it.
+	 *
+	 * @return array{slug: string, label: string, css_prefix: string}|null
+	 */
+	private static function get_dashboard_menu() {
+		if ( ! self::should_initialize()['can_init'] ) {
+			return null;
+		}
+
+		if ( ! self::is_dashboard_enabled() && ! ( new Host() )->is_wpcom_platform() ) {
+			return null;
 		}
 
 		/**
@@ -159,7 +210,7 @@ class Blaze {
 		// 'wp-blaze'), we are the only registrant and must register normally -- the
 		// non-default slug is what tells the two cases apart.
 		if ( 'advertising' === $menu_slug && self::is_standalone_blaze_ads_active() ) {
-			return;
+			return null;
 		}
 
 		/**
@@ -180,39 +231,40 @@ class Blaze {
 		 */
 		$css_prefix = apply_filters( 'jetpack_blaze_dashboard_css_prefix', 'jp-blaze' );
 
-		$parent_slug     = self::get_menu_parent();
-		$blaze_dashboard = new Blaze_Dashboard( 'admin.php', $menu_slug, $css_prefix );
+		return array(
+			'slug'       => $menu_slug,
+			'label'      => $menu_label,
+			'css_prefix' => $css_prefix,
+		);
+	}
 
-		if ( self::is_dashboard_enabled() || ( new Host() )->is_wpcom_platform() ) {
-			if ( 'jetpack' === $parent_slug ) {
-				// Register through Admin_Menu: on WordPress.com Simple sites the Jetpack
-				// parent menu does not exist yet at this priority, and registering the
-				// submenu before its parent produces a broken menu URL.
-				$page_suffix = Admin_Menu::add_menu(
-					esc_attr( $menu_label ),
-					$menu_label,
-					'manage_options',
-					$menu_slug,
-					array( $blaze_dashboard, 'render' ),
-					null,
-					// Not $menu_slug: that is filterable, and a host naming it would lose
-					// the item the moment anything changed it.
-					array( 'key' => 'jetpack-blaze' )
-				);
-			} else {
-				// Other parents already exist at this priority, so add_submenu_page is safe.
-				$page_suffix = add_submenu_page(
-					$parent_slug,
-					esc_attr( $menu_label ),
-					$menu_label,
-					'manage_options',
-					$menu_slug,
-					array( $blaze_dashboard, 'render' ),
-					1
-				);
-			}
-			add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );
+	/**
+	 * Add the dashboard to the Jetpack admin shell, which switches between Jetpack dashboards without a page load.
+	 *
+	 * Hooked from init() rather than the menu, because the shell's guest endpoint is an admin-ajax request with no admin_menu.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $members Shell members keyed by admin page slug.
+	 * @return array
+	 */
+	public static function add_admin_shell_member( $members ) {
+		// Simple sites build their Jetpack menu in jetpack-mu-wpcom, outside the shell.
+		if ( ( new Host() )->is_wpcom_simple() || 'jetpack' !== self::get_menu_parent() ) {
+			return $members;
 		}
+
+		$menu = self::get_dashboard_menu();
+		if ( null === $menu ) {
+			return $members;
+		}
+
+		$member = ( new Blaze_Dashboard( 'admin.php', $menu['slug'], $menu['css_prefix'] ) )->get_admin_shell_member( $menu['label'] );
+		if ( $member ) {
+			$members[ $menu['slug'] ] = $member;
+		}
+
+		return $members;
 	}
 
 	/**

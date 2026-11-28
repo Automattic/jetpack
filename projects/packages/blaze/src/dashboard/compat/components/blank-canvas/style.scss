@@ -1,0 +1,94 @@
+@import "@wordpress/base-styles/breakpoints";
+@import "@wordpress/base-styles/mixins";
+
+.blank-canvas {
+	position: absolute;
+	inset-block-start: 0;
+	inset-inline-start: 0;
+	inline-size: 100%;
+	min-block-size: 100vh;
+	background: var(--wpds-color-background-surface-neutral-strong);
+	overflow: auto;
+	overscroll-behavior: contain;
+	z-index: 180;
+}
+
+.blank-canvas__header {
+	block-size: 4rem;
+	display: flex;
+	align-items: center;
+	padding: 0 1.5rem;
+	margin-block-end: 2.5rem;
+	border-block-end:
+		var(--wpds-border-width-xs) solid
+		var(--wpds-color-stroke-surface-neutral-weak);
+
+	@include break-small {
+		border-block-end: none;
+	}
+
+	.wordpress-logo {
+		inline-size: 1.5rem;
+		block-size: 1.5rem;
+		margin-inline: 0 1.5rem;
+		margin-block: 0;
+	}
+}
+
+.blank-canvas__content {
+	padding: 0 1.5rem 4rem;
+
+	@include break-small {
+		padding-block-end: 0;
+	}
+}
+
+.blank-canvas__footer {
+	position: fixed;
+	inset-block-end: 0;
+	border-block-start:
+		var(--wpds-border-width-xs) solid
+		var(--wpds-color-stroke-surface-neutral-weak);
+	padding: 0.75rem 1rem;
+	background: var(--wpds-color-background-surface-neutral-strong);
+	inline-size: 100%;
+	box-sizing: border-box;
+
+	@include break-small {
+		border-block-start: none;
+		position: relative;
+		inset-block-end: auto;
+	}
+}
+
+.blank-canvas__back {
+	color: var(--wpds-color-foreground-content-neutral);
+	font-size: 0;
+	padding: 0;
+
+	&.has-icon.has-text svg {
+		margin-inline-end: 0.25rem;
+	}
+
+	@include break-small {
+		font-size: inherit;
+	}
+}
+
+.blank-canvas__header-title {
+	position: absolute;
+	inset-inline-end: 1rem;
+	font-size: var(--wpds-typography-font-size-md);
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	z-index: -1;
+
+	@include break-small {
+		inset-inline: 0;
+		text-align: center;
+	}
+}
+
+.has-blank-canvas {
+	overscroll-behavior: none;
+	touch-action: none;
+}

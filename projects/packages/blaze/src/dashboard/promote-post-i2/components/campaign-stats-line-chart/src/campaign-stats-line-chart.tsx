@@ -1,0 +1,244 @@
+import { debounce } from '@wordpress/compose';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import uPlot from 'uplot';
+import UplotReact from 'uplot-react';
+import { useLocale, capitalize, hexToRgb } from '../../../../compat/utils';
+import {
+	CampaignChartSeriesData,
+	ChartResolution,
+} from '../../../../data/promote-post/use-campaign-chart-stats-query';
+import { formatCents } from '../../../utils';
+import { ChartSourceOptions } from '../../campaign-item-details';
+import 'uplot/dist/uPlot.min.css';
+import { tooltip } from './tooltip';
+
+const FALLBACK_CHART_COLOR = '#3858e9';
+const HEX_COLOR = /^#([a-f\d]{3,4}|[a-f\d]{6}|[a-f\d]{8})$/i;
+const RGB_COLOR = /^rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)/i;
+const PROBE_STYLE = {
+	display: 'none',
+	color: 'var(--wpds-color-background-interactive-brand-strong)',
+};
+
+type RGB = { r: number; g: number; b: number };
+
+/**
+ * Resolve the brand colour from a probe element, falling back on unparseable values.
+ *
+ * @param probe - Element whose `color` is the brand token.
+ * @return RGB channels.
+ */
+function getChartColor( probe: HTMLElement | null ): RGB {
+	const value = probe ? getComputedStyle( probe ).color.trim() : '';
+	const rgb = value.match( RGB_COLOR );
+	if ( rgb ) {
+		return { r: Number( rgb[ 1 ] ), g: Number( rgb[ 2 ] ), b: Number( rgb[ 3 ] ) };
+	}
+	return hexToRgb( HEX_COLOR.test( value ) ? value : FALLBACK_CHART_COLOR );
+}
+
+const DEFAULT_DIMENSIONS = {
+	height: 300,
+	width: 650,
+};
+
+type GraphProps = {
+	data: CampaignChartSeriesData[];
+	source: ChartSourceOptions;
+	resolution: ChartResolution;
+};
+
+const CampaignStatsLineChart = ( { data, source, resolution }: GraphProps ) => {
+	const [ width, setWidth ] = useState( DEFAULT_DIMENSIONS.width );
+	const tooltipRef = useRef< HTMLDivElement | null >( null );
+	const probeRef = useRef< HTMLSpanElement | null >( null );
+	const [ chartColor, setChartColor ] = useState< RGB >( () => hexToRgb( FALLBACK_CHART_COLOR ) );
+	const accentColor = `rgb(${ chartColor.r }, ${ chartColor.g }, ${ chartColor.b })`;
+
+	useLayoutEffect( () => {
+		setChartColor( getChartColor( probeRef.current ) );
+	}, [] );
+
+	const updateWidth = () => {
+		const wrapperElement = document.querySelector(
+			'.campaign-item-details__graph-stats-row'
+		) as HTMLElement;
+		if ( wrapperElement ) {
+			const newWidth = wrapperElement.offsetWidth - 32;
+			setWidth( newWidth );
+		}
+	};
+
+	const debouncedUpdateWidth = debounce( updateWidth, 200 );
+
+	useEffect( () => {
+		// Set initial width
+		updateWidth();
+		window.addEventListener( 'resize', debouncedUpdateWidth );
+
+		return () => {
+			// Remove on unmount
+			window.removeEventListener( 'resize', debouncedUpdateWidth );
+		};
+	}, [ debouncedUpdateWidth ] );
+
+	// Convert ISO date string to Unix timestamp
+	const labels = data.map( entry => new Date( entry.date_utc ).getTime() / 1000 );
+	const values = data.map( entry => entry.total );
+
+	// Convert to uPlot's AlignedData format
+	const uplotData: uPlot.AlignedData = [ new Float64Array( labels ), new Float64Array( values ) ];
+
+	const locale = useLocale();
+
+	const options = useMemo( () => {
+		const formatDate = ( date: Date, resolution: ChartResolution ) => {
+			let options: Intl.DateTimeFormatOptions;
+			switch ( resolution ) {
+				case ChartResolution.Month:
+					options = { year: 'numeric', month: 'short' };
+					break;
+				case ChartResolution.Week:
+				case ChartResolution.Day:
+					options = { month: 'short', day: 'numeric' };
+					break;
+				case ChartResolution.Hour:
+					options = { month: 'short', day: 'numeric', hour: 'numeric' };
+					break;
+			}
+
+			return new Intl.DateTimeFormat( locale, options ).format( date );
+		};
+
+		const tooltipPlugin = tooltip( tooltipRef, formatDate, resolution, formatValue );
+
+		/**
+		 *
+		 * @param rawValue
+		 */
+		function formatValue( rawValue: number ) {
+			if ( rawValue == null ) {
+				return '-';
+			}
+
+			if ( source === ChartSourceOptions.Spend ) {
+				return `$${ formatCents( rawValue, 2 ) }`;
+			}
+
+			return rawValue.toLocaleString();
+		}
+
+		return {
+			class: 'campaign-item-details__uplot-chart',
+			width: width,
+			height: DEFAULT_DIMENSIONS.height,
+			tzDate: ( ts: number ) => new Date( ts * 1000 ),
+			axes: [
+				{
+					// x-axis
+					grid: {
+						show: false,
+					},
+					ticks: {
+						show: false,
+					},
+					gap: 16,
+					values: ( u: uPlot, splits: number[] ) => {
+						// Filter the splits to show only non-overlapping labels
+						return splits.map( ( s, i ) =>
+							i % 4 === 0 ? formatDate( new Date( s * 1000 ), resolution ) : ''
+						);
+					},
+				},
+				{
+					// y-axis
+					grid: {
+						stroke: 'rgba(0, 0, 0, 0.05)',
+						width: 1,
+					},
+					ticks: {
+						show: false,
+					},
+					gap: 16,
+					size: 72,
+				},
+			],
+			cursor: {
+				x: false,
+				y: false,
+				points: {
+					size: 12,
+					width: 3,
+					fill: '#fff',
+				},
+			},
+			legend: {
+				show: false, // This will hide the legend
+			},
+			scales: {
+				y: {
+					range: ( self: uPlot, min: number, max: number ): [ number, number ] => {
+						if ( min === 0 && max === 0 ) {
+							// If all values are 0, set a default range
+							return [ 0, 1 ];
+						}
+						// Increase the scale by 40%, this allows extra space for the tooltip
+						const padding = ( max - min ) * 0.4;
+						return [ 0, max + padding ];
+					},
+				},
+			},
+			series: [
+				{
+					label: 'Date',
+					value: ( self: uPlot, rawValue: number ) => {
+						if ( rawValue == null ) {
+							return '-';
+						}
+						return formatDate( new Date( rawValue * 1000 ), resolution );
+					},
+				},
+				{
+					label: capitalize( source ),
+					stroke: accentColor,
+					width: 3,
+					fill: ( self: uPlot ) => {
+						const { r, g, b } = chartColor;
+
+						// Get the height so we can create a gradient
+						const height = self?.bbox?.height;
+						if ( ! height || ! isFinite( height ) ) {
+							return `rgba(${ r }, ${ g }, ${ b }, 0.1)`;
+						}
+
+						// Create a gradient based on the theme color and the height of the graph
+						const gradient = self.ctx.createLinearGradient( 0, height, 0, 0 );
+						gradient.addColorStop( 0, `rgba(${ r }, ${ g }, ${ b }, 0.02)` );
+						gradient.addColorStop( 1, `rgba(${ r }, ${ g }, ${ b }, 0.1)` );
+						return gradient;
+					},
+					paths: ( u: uPlot, seriesIdx: number, idx0: number, idx1: number ) => {
+						const { linear } = uPlot.paths;
+						return linear?.()( u, seriesIdx, idx0, idx1 ) || null;
+					},
+					points: {
+						show: true,
+					},
+					value: ( self: uPlot, rawValue: number ) => {
+						return formatValue( rawValue );
+					},
+				},
+			],
+			plugins: [ tooltipPlugin ],
+		};
+	}, [ resolution, width, source, accentColor, locale, chartColor ] );
+
+	return (
+		<div style={ { position: 'relative' } }>
+			<span ref={ probeRef } style={ PROBE_STYLE } aria-hidden="true" />
+			<UplotReact options={ options } data={ uplotData } />
+		</div>
+	);
+};
+
+export default CampaignStatsLineChart;

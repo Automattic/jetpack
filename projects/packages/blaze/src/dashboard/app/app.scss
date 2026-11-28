@@ -1,0 +1,26 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+@import "../styles/page";
+@import "../styles/widget";
+
+// The shared Jetpack admin page layout: pinned header and footer.
+#{$blaze-page} {
+
+	@include jetpack-admin-page-layout-wp-build;
+
+	// @wordpress/ui dialogs portal into <body>; lift them above the admin menu.
+	--wp-ui-dialog-z-index: 100000;
+}
+
+.jp-blaze-dashboard,
+.woo-blaze-dashboard {
+
+	table {
+		border-collapse: separate;
+		border-spacing: 0;
+	}
+
+	th {
+		font-weight: inherit;
+		text-align: start;
+	}
+}

@@ -10,10 +10,12 @@
 namespace Automattic\Jetpack\Blaze;
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
 
 /**
  * Responsible for adding a Blaze dashboard menu to wp-admin.
- * The screen content itself is rendered remotely.
+ * The screen is a wp-build page bundled with this package; the remote Calypso build is only a fallback for missing build output.
  */
 class Dashboard {
 	/**
@@ -59,6 +61,34 @@ class Dashboard {
 	const BLAZEDASH_CACHE_BUSTER_CACHE_KEY = 'jetpack_blaze_admin_asset_cache_buster';
 
 	/**
+	 * The wp-build page slug. The menu slug stays `advertising`, so the screen ID is aliased to this for wp-build's enqueue check.
+	 *
+	 * @var string
+	 */
+	const WP_BUILD_PAGE_SLUG = 'jetpack-blaze-dashboard';
+
+	/**
+	 * Prefix of the functions and globals wp-build generates for this package.
+	 *
+	 * @var string
+	 */
+	const WP_BUILD_PREFIX = 'jetpack_blaze';
+
+	/**
+	 * Empty classic handle that carries the dashboard config, since the dashboard itself is a script module.
+	 *
+	 * @var string
+	 */
+	const DATA_SCRIPT_HANDLE = 'jetpack-blaze-dashboard-data';
+
+	/**
+	 * The screen ID alias_screen_id_for_wp_build() replaced, until it is restored.
+	 *
+	 * @var string|null
+	 */
+	private static $wp_build_original_screen_id = null;
+
+	/**
 	 * Blaze dashboard admin page. Default is admin.php.
 	 *
 	 * @var string
@@ -98,6 +128,20 @@ class Dashboard {
 	 * @return void
 	 */
 	public function render() {
+		if ( function_exists( 'jetpack_blaze_jetpack_blaze_dashboard_wp_admin_render_page' ) ) {
+			jetpack_blaze_jetpack_blaze_dashboard_wp_admin_render_page(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/build.php, which Phan excludes.
+			return;
+		}
+
+		$this->render_remote_dashboard();
+	}
+
+	/**
+	 * Markup for the remote Calypso dashboard, used when the bundled build is missing.
+	 *
+	 * @return void
+	 */
+	private function render_remote_dashboard() {
 		?>
 		<div id="wpcom" class="<?php echo esc_attr( $this->css_prefix ); ?>-dashboard" style="min-height: calc(100vh - 100px);">
 		<div class="hide-if-js"><?php esc_html_e( 'Your Jetpack Blaze dashboard requires JavaScript to function properly.', 'jetpack-blaze' ); ?></div>
@@ -138,7 +182,189 @@ class Dashboard {
 	 * Initialize the admin resources.
 	 */
 	public function admin_init() {
+		if ( self::has_wp_build() ) {
+			self::load_wp_build_with_screen_alias();
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_dashboard_data' ) );
+			add_filter( 'admin_body_class', array( __CLASS__, 'add_body_class' ) );
+			return;
+		}
+
 		add_action( 'admin_enqueue_scripts', array( $this, 'load_admin_scripts' ) );
+	}
+
+	/**
+	 * Mark the page's body, so the dashboard's layout styles apply whatever menu the page sits under.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $classes Space-separated body classes.
+	 * @return string
+	 */
+	public static function add_body_class( $classes ) {
+		return $classes . ' jetpack-blaze-dashboard';
+	}
+
+	/**
+	 * Whether the bundled wp-build dashboard was built.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function has_wp_build() {
+		return file_exists( dirname( __DIR__ ) . '/build/build.php' );
+	}
+
+	/**
+	 * Require the generated wp-build entry, register its script modules, and the polyfills its boot bundle needs on older WordPress.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function load_wp_build() {
+		if ( ! self::has_wp_build() ) {
+			return;
+		}
+
+		require_once dirname( __DIR__ ) . '/build/build.php';
+
+		// Loaded after `wp_default_scripts` has fired, so the generated hook there would be too late.
+		if ( function_exists( 'jetpack_blaze_register_script_modules' ) ) {
+			jetpack_blaze_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
+		}
+
+		WP_Build_Polyfills::register(
+			'jetpack-blaze',
+			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS ),
+			null,
+			array(
+				array(
+					'prefix' => self::WP_BUILD_PREFIX,
+					'slug'   => self::WP_BUILD_PAGE_SLUG,
+				),
+			)
+		);
+	}
+
+	/**
+	 * Load wp-build with the screen ID aliased across its generated enqueue check.
+	 *
+	 * @see WP_Build_Screen_Id::load_with_alias()
+	 * @return void
+	 */
+	private static function load_wp_build_with_screen_alias() {
+		// An older wp-build-polyfills under the jetpack-autoloader may predate load_with_alias().
+		if ( method_exists( WP_Build_Screen_Id::class, 'load_with_alias' ) ) {
+			WP_Build_Screen_Id::load_with_alias(
+				array( __CLASS__, 'alias_screen_id_for_wp_build' ),
+				array( __CLASS__, 'restore_screen_id_after_wp_build' ),
+				array( __CLASS__, 'load_wp_build' )
+			);
+			return;
+		}
+
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
+		self::load_wp_build();
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id_after_wp_build' ) );
+	}
+
+	/**
+	 * Alias the current screen ID to the wp-build page slug, so wp-build's generated enqueue check matches.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function alias_screen_id_for_wp_build() {
+		$screen = get_current_screen();
+		if ( ! $screen ) {
+			return;
+		}
+
+		self::$wp_build_original_screen_id = $screen->id;
+		$screen->id                        = self::WP_BUILD_PAGE_SLUG;
+	}
+
+	/**
+	 * Undo alias_screen_id_for_wp_build().
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function restore_screen_id_after_wp_build() {
+		$screen = get_current_screen();
+		if ( ! $screen || null === self::$wp_build_original_screen_id ) {
+			return;
+		}
+
+		$screen->id                        = self::$wp_build_original_screen_id;
+		self::$wp_build_original_screen_id = null;
+	}
+
+	/**
+	 * Print the dashboard config and load the Tracks transport and Jetpack's i18n loader.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public function enqueue_dashboard_data() {
+		wp_register_script( self::DATA_SCRIPT_HANDLE, false, array(), self::PACKAGE_VERSION, true );
+		wp_enqueue_script( self::DATA_SCRIPT_HANDLE );
+
+		$dashboard_config = new Dashboard_Config_Data( $this->admin_page, $this->menu_slug );
+		$config_data      = $dashboard_config->get_data();
+		// The bundled app builds its own container, so it needs the class the remote markup used to carry.
+		$config_data['css_prefix'] = $this->css_prefix;
+		// Tells the app which `?page=` is its own while the admin shell shows other dashboards.
+		$config_data['menu_slug'] = $this->menu_slug;
+		wp_add_inline_script(
+			self::DATA_SCRIPT_HANDLE,
+			'window.jetpackBlazeDashboardConfig = ' . wp_json_encode( $config_data, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+			'before'
+		);
+
+		// The dashboard's analytics only queue into `window._tkq`; this flushes them.
+		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+
+		// Lets the `@jetpack-blaze/init` module install the JS translation catalog before the app renders.
+		if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
+			wp_enqueue_script( 'wp-jp-i18n-loader' );
+		}
+	}
+
+	/**
+	 * Admin shell member for this dashboard, so it can open without a page load from other Jetpack dashboards.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $title Menu title.
+	 * @return array|null Member, or null when the bundled build is missing.
+	 */
+	public function get_admin_shell_member( $title ) {
+		if ( ! self::has_wp_build() ) {
+			return null;
+		}
+
+		return array(
+			'build_prefix' => self::WP_BUILD_PREFIX,
+			'build_page'   => self::WP_BUILD_PAGE_SLUG,
+			'init_modules' => array( '@jetpack-blaze/init' ),
+			'title'        => $title,
+			// What the shell shows while the page boots; the rendered subtitle adds a link.
+			'header'       => array(
+				'title'    => $title,
+				'subtitle' => __( 'Promote your posts and pages across WordPress.com and Tumblr. Learn more.', 'jetpack-blaze' ),
+			),
+			'capability'   => 'manage_options',
+			'handles'      => array( self::DATA_SCRIPT_HANDLE, 'jp-tracks', 'wp-jp-i18n-loader' ),
+			'load'         => function () {
+				self::load_wp_build();
+				add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_dashboard_data' ) );
+			},
+		);
 	}
 
 	/**

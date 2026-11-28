@@ -1,0 +1,109 @@
+@import "@wordpress/base-styles/breakpoints";
+@import "../styles/page";
+
+// Breathing room between the last content block and the footer.
+.promote-post-i2__page-body {
+	padding-block-end: 32px;
+}
+
+// The page layout grows every scroll-column block; keep this one content-sized.
+html #{$blaze-page} .jp-admin-page .jp-admin-page__page
+.promote-post-i2.promote-post-i2__page-body {
+	flex: 0 0 auto;
+}
+
+// Wrappers that hold notices, which bring their own surface.
+$notice-wrappers:
+	".promote-post-notice",
+	".promote-post-i2__warnings-wrapper",
+	".promote-post-credits__notice-container";
+
+.promote-post-i2 {
+
+	// Every block below the tab strip shares one centred column.
+	.promote-post-i2__search-bar-wrapper,
+	.promote-post-i2__aux-wrapper,
+	.promote-post-i2__table,
+	.campaigns-total-stats__container,
+	.promote-post-i2__payment-blocked-notice,
+	.promoted-posts__payment-links-container {
+		box-sizing: border-box;
+		margin-block: 16px;
+		margin-inline: 50px;
+		width: auto;
+
+		@media (min-width: $break-huge) {
+			max-width: 1040px;
+			margin-inline: auto;
+		}
+
+		@media (max-width: $break-medium) {
+			margin-inline: 16px;
+		}
+	}
+
+	.promote-post-i2__table,
+	.campaigns-total-stats__container,
+	.promoted-posts__payment-links-container,
+	.promote-post-i2__aux-wrapper:not(#{$notice-wrappers}) {
+		padding: 16px;
+		background: var(--wpds-color-background-surface-neutral-strong);
+		border:
+			var(--wpds-border-width-xs) solid
+			var(--wpds-color-stroke-surface-neutral-weak);
+		border-radius: var(--wpds-border-radius-lg);
+		box-shadow: none;
+	}
+
+	// Its header and items carry their own padding.
+	.campaigns-total-stats__container {
+		padding: 0;
+	}
+
+	.promote-post-i2__table {
+		padding-block-end: 0;
+
+		table {
+			margin-block-end: 0;
+		}
+	}
+
+	.campaigns-list__table td > div {
+		cursor: pointer;
+	}
+
+	.promote-post-i2__warnings-wrapper {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+	}
+
+	// Short labels in narrow table cells and filter groups stay on one line.
+	.post-item__post-promote-button,
+	.campaign-item__post-details-button,
+	.promote-post-i2__search-bar-wrapper [role="radio"] {
+		white-space: nowrap;
+	}
+
+	// ToggleGroupControl sizes options equally; let long labels take the room.
+	.promote-post-i2__search-bar-wrapper .components-toggle-group-control > div {
+		flex: 0 0 auto;
+	}
+}
+
+// Its margins would leave a gap while there is no credits notice to show.
+.promote-post-credits__notice-container:empty {
+	display: none;
+}
+
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
+}

@@ -4,3 +4,5 @@ node_modules/
 dist/
 build/
 .cache/
+build-module/
+/routes/**/.content-entry.js

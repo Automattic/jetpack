@@ -1,0 +1,260 @@
+.payment-receipt {
+	background: var(--wpds-color-background-surface-neutral-strong);
+	color: var(--wpds-color-foreground-content-neutral);
+	padding: 48px;
+	border-radius: var(--wpds-border-radius-lg);
+	max-inline-size: 800px;
+	margin: auto;
+	border:
+		var(--wpds-border-width-xs) solid
+		var(--wpds-color-stroke-surface-neutral-weak);
+
+	@media (max-width: 600px) {
+		padding: 24px;
+	}
+
+	&--loading,
+	&--error {
+		min-block-size: 200px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	&__error-container {
+		text-align: center;
+
+		p {
+			color: var(--wpds-color-foreground-content-error);
+			margin: 0;
+		}
+	}
+
+	&__loading-container {
+		text-align: center;
+
+		.payment-receipt__spinner {
+			display: block;
+			margin-block: 0 12px;
+			margin-inline: auto;
+		}
+
+		p {
+			margin: 0;
+			color: var(--wpds-color-foreground-content-neutral-weak);
+		}
+	}
+
+	&__section {
+		margin-block-end: 24px;
+	}
+
+	&__section-title {
+		font-size: var(--wpds-typography-font-size-xl);
+		margin-block-end: 16px;
+		padding-block-end: 8px;
+		border-block-end:
+			2px solid
+			var(--wpds-color-stroke-surface-neutral-weak);
+	}
+
+	&__label {
+		font-weight: var(--wpds-typography-font-weight-emphasis);
+		margin-inline-end: 16px;
+	}
+
+	.wpcom-print-logo {
+		max-inline-size: 100%;
+		max-block-size: 100%;
+	}
+
+	&__value {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+		font-size: var(--wpds-typography-font-size-md);
+	}
+
+	&__value-bold {
+		font-weight: var(--wpds-typography-font-weight-emphasis);
+	}
+
+	&__row {
+		display: flex;
+		justify-content: space-between;
+		margin-block-end: 8px;
+	}
+
+	&__secondary-text {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+		font-size: var(--wpds-typography-font-size-md);
+	}
+
+	&__inline-loading {
+		display: flex;
+		align-items: center;
+		margin-block-end: 16px;
+
+		.payment-receipt__spinner {
+			margin-inline-end: 8px;
+		}
+	}
+
+	&__header {
+		display: flex;
+		justify-content: space-between;
+		margin-block-end: 48px;
+		align-items: flex-start;
+	}
+
+	&__organization-container {
+		display: flex;
+		align-items: flex-start;
+		flex-grow: 1;
+	}
+
+	&__organization-logo {
+		inline-size: 65px;
+		block-size: 65px;
+		flex-shrink: 0;
+
+		svg {
+			inline-size: 100%;
+			block-size: auto;
+		}
+	}
+
+	&__organization-details {
+		margin-inline-start: 16px;
+		flex-grow: 1;
+	}
+
+	&__organization-name {
+		font-weight: var(--wpds-typography-font-weight-emphasis);
+		font-size: var(--wpds-typography-font-size-lg);
+		margin-block-end: 4px;
+	}
+
+	&__date {
+		text-align: end;
+
+		@media (max-width: 900px) {
+			display: none;
+		}
+	}
+
+	// Stacked like the payment ID on mobile, beside the header on desktop.
+	&__date-mobile {
+		display: none;
+
+		@media (max-width: 900px) {
+			display: flex;
+		}
+	}
+
+	&__billing-details {
+		margin-block-start: 24px;
+	}
+
+	&__billing-instructions {
+		font-weight: var(--wpds-typography-font-weight-default);
+		margin-block: 4px;
+		font-size: var(--wpds-typography-font-size-sm);
+	}
+
+	&__billing-textarea {
+		inline-size: 100%;
+		block-size: 80px;
+		padding: 8px;
+		margin-block-start: 8px;
+		border:
+			var(--wpds-border-width-xs) solid
+			var(--wpds-color-stroke-surface-neutral);
+		border-radius: var(--wpds-border-radius-md);
+	}
+
+	&__billing-text {
+		line-height: 1.5;
+		white-space: pre-line;
+		margin-block-start: 8px;
+	}
+
+	&__payment-details {
+		margin-block-end: 16px;
+	}
+
+	&__payment-method {
+		padding-block-end: 16px;
+		border-block-end:
+			var(--wpds-border-width-xs) solid
+			var(--wpds-color-stroke-surface-neutral-weak);
+		margin-block-end: 16px;
+	}
+
+	&__payment-amounts {
+		margin-block-start: 16px;
+	}
+
+	.payment-receipt {
+
+		&__domain-group {
+			margin-block-end: 16px;
+
+			&:not(:first-child) {
+				margin-block-start: 16px;
+				padding-block-start: 8px;
+			}
+		}
+
+		&__domain-header {
+			margin-block-end: 16px;
+			padding-block-end: 4px;
+			border-block-end:
+				var(--wpds-border-width-xs) solid
+				var(--wpds-color-stroke-surface-neutral-weak);
+		}
+
+		&__domain-name {
+			font-size: var(--wpds-typography-font-size-lg);
+			font-weight: var(--wpds-typography-font-weight-emphasis);
+			color: var(--wpds-color-foreground-content-neutral);
+			margin: 0;
+		}
+
+		&__campaign-item {
+			margin-block-end: 8px;
+		}
+	}
+
+	&__list-item {
+		display: flex;
+		justify-content: space-between;
+		margin-block-end: 16px;
+		padding-block-end: 16px;
+		border-block-end:
+			var(--wpds-border-width-xs) solid
+			var(--wpds-color-stroke-surface-neutral-weak);
+
+		&:last-child {
+			border-block-end: none;
+		}
+	}
+
+	&__item-content {
+		flex-grow: 1;
+	}
+
+	&__print {
+		margin-block-start: 32px;
+		text-align: center;
+	}
+
+	&__print-button {
+		margin-block-end: 8px;
+	}
+
+	@media print {
+		border: none;
+		padding: 24px 0;
+		margin-block-start: 20px;
+	}
+}
+

@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Dashboard: Ship the Blaze Ads dashboard with the package as a wp-build page instead of loading it from WordPress.com.

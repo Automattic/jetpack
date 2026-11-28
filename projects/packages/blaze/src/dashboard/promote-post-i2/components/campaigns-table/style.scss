@@ -1,0 +1,205 @@
+@import "@wordpress/base-styles/breakpoints";
+@import "../../mixins";
+
+.promote-post-i2__table {
+	display: block;
+
+	@media (max-width: 1054px) {
+
+		&.campaigns-list__table {
+
+			tbody,
+			.post-item__row {
+				width: 100%;
+				display: block;
+			}
+		}
+	}
+
+	th {
+
+		@include promote-post-i2-font;
+		padding-block-end: 8px;
+	}
+
+	.campaign-item {
+
+		&__data,
+		&__user,
+		&__status,
+		&__ends,
+		&__budget,
+		&__impressions,
+		&__clicks,
+		&__conversion {
+			padding-inline-end: 16px;
+		}
+
+		&__data {
+			width: 28%;
+
+			.campaign-item__status-mobile {
+				display: none;
+			}
+		}
+
+		&__user,
+		&__ends {
+			width: 13%;
+		}
+
+		&__status,
+		&__conversion {
+			width: 12%;
+		}
+
+		&__budget,
+		&__spend {
+			width: 10%;
+		}
+
+		&__clicks {
+			width: 6%;
+		}
+
+		&__action {
+			width: 2%;
+		}
+
+		&__header-image-skeleton {
+			margin-inline-end: 16px;
+
+			@include blazepress-animated-skeleton;
+		}
+
+		font-style: normal;
+		font-weight: var(--wpds-typography-font-weight-default);
+		font-size: var(--wpds-typography-font-size-md);
+		line-height: 20px;
+		color: var(--wpds-color-foreground-content-neutral-weak);
+		padding-block-end: 8px;
+	}
+
+	td {
+		border-block-start:
+			var(--wpds-border-width-xs) solid
+			var(--wpds-color-stroke-surface-neutral-weak);
+		color: var(--wpds-color-foreground-content-neutral-weak);
+		font-size: var(--wpds-typography-font-size-md);
+		line-height: 1.43;
+		padding-block: 8px;
+		padding-inline-end: 16px;
+		vertical-align: middle;
+		text-align: start;
+	}
+
+	td:last-child {
+		padding-inline-end: 0;
+	}
+
+	.promote-post-i2__campaign-item-wrapper {
+		color: var(--wpds-color-foreground-content-neutral);
+		display: flex;
+		align-items: center;
+		font-weight: var(--wpds-typography-font-weight-emphasis);
+
+		.campaign-item__skeleton-text {
+			width: 142px;
+			height: 16px;
+			border-radius: var(--wpds-border-radius-md);
+			margin-block-start: 8px;
+
+			&.campaign-item__skeleton-text2 {
+				width: 97px;
+				margin-block-start: 12px;
+			}
+
+			@include blazepress-animated-skeleton;
+		}
+	}
+
+	.campaign-item__header-image {
+
+		&,
+		&-skeleton {
+			background-color: var(--wpds-color-background-surface-neutral-weak);
+			background-repeat: no-repeat;
+			background-position: 50% 50%;
+			background-size: cover;
+			border:
+				var(--wpds-border-width-xs) solid
+				var(--wpds-color-stroke-surface-neutral-weak);
+			border-radius: var(--wpds-border-radius-md);
+			display: block;
+			height: 60px;
+			margin-inline-end: 16px;
+			min-width: 80px;
+			width: 80px;
+		}
+
+		img {
+			height: 100%;
+			width: 100%;
+			object-fit: cover;
+			display: block;
+		}
+	}
+}
+
+@media (max-width: $break-medium) {
+
+	.promote-post-i2__table {
+
+		tr:not(:last-child) td {
+			border-block-end:
+				var(--wpds-border-width-xs) solid
+				var(--wpds-color-stroke-surface-neutral-weak);
+		}
+
+		td {
+			border-block-start: none;
+			padding-block-end: 14px;
+			padding-inline-end: 0;
+		}
+
+		.campaign-item {
+
+			&__user,
+			&__status,
+			&__ends,
+			&__budget,
+			&__spend,
+			&__clicks,
+			&__conversion,
+			&__action {
+				display: none;
+			}
+
+			&__status-mobile {
+				display: block;
+				margin-block-start: 8px;
+			}
+		}
+
+		th.campaign-item__data {
+			display: none;
+		}
+	}
+}
+
+// Fixed columns, so skeleton rows and loaded rows share one layout.
+@media (min-width: #{$break-medium + 1}) {
+
+	.campaigns-list__table table {
+		table-layout: fixed;
+		width: 100%;
+
+		th.campaign-item__data {
+			width: 36%;
+		}
+
+		th.campaign-item__action {
+			width: 120px;
+		}
+	}
+}
