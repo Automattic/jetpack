@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Notifications: Reuse each user's cached alerts when My Jetpack loads instead of recomputing them on every visit.

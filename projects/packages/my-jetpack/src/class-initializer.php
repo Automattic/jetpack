@@ -213,6 +213,8 @@ class Initializer {
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
 
+		Red_Bubble_Notifications::register_cache_invalidation();
+
 		if ( self::is_licensing_ui_enabled() ) {
 			Licensing::instance()->initialize();
 		}
@@ -2180,6 +2182,8 @@ class Initializer {
 			$red_bubble_alerts = $cached_alerts;
 		}
 
+		$red_bubble_alerts = Red_Bubble_Notifications::remove_dismissed_alerts( $red_bubble_alerts, $_COOKIE ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Only checked for emptiness.
+
 		// Filter out silent alerts.
 		$red_bubble_alerts = array_filter(
 			$red_bubble_alerts,
@@ -2194,7 +2198,7 @@ class Initializer {
 
 		// Connection errors are owned by the Error Handler (the single source of truth):
 		// surface any it reports for this viewer as their own attention entry. Read live
-		// rather than from the red-bubble transient, since that cache is not viewer-keyed.
+		// rather than from the red-bubble transient, which can be an hour old.
 		$has_connection_error = self::has_connection_error();
 		if ( $has_connection_error ) {
 			Notification_Counts::register(

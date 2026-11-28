@@ -559,7 +559,7 @@ add_action( 'init', 'wpcom_expiry_notices_maybe_load_surfaces' ); // @codeCovera
  * @return array
  */
 function wpcom_expiry_notices_my_jetpack_plan_alerts( $alerts ) {
-	// Non-admins never get these notices, and dropping their alert would also empty the admins' cached menu badge.
+	// Non-admins never get these notices, so their alert is left as My Jetpack computed it.
 	if ( ! is_array( $alerts ) || ! current_user_can( 'manage_options' ) || ! wpcom_expiry_notices_is_enabled_for_site() ) {
 		return $alerts;
 	}

@@ -7,8 +7,8 @@
  * Menu_Renderer emits a hidden `[data-jp-menu-badge="my-jetpack"]` element on
  * the current page.
  *
- * This request warms the red-bubble transient (the REST callback recomputes and
- * re-caches it, see `Red_Bubble_Notifications::get_red_bubble_alerts()`) and,
+ * This request warms the red-bubble transient (on a cache miss the REST callback
+ * computes and caches it, see `Red_Bubble_Notifications::get_red_bubble_alerts()`) and,
  * with the fresh alerts it gets back, lights up that placeholder via
  * `window.jetpackMenuBadges.setCount()` — so the badge appears on the current
  * page without waiting for a reload. The next page load takes the cached-alerts
