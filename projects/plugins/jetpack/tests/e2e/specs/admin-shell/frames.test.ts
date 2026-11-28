@@ -69,7 +69,12 @@ test.describe( 'Admin shell: frame by frame', () => {
 			} ) => {
 				await arrive( page, from, to, visit );
 				const frames = await recordSwitch( page, to );
-				expect( frames.length, 'frames were recorded' ).toBeGreaterThan( 10 );
+				// WebKit only runs animation frames while something paints, so count frames that show the switch.
+				expect(
+					frames.some( f => f.owner === to ),
+					`frames were recorded through the switch:
+${ summary( frames ) }`
+				).toBe( true );
 
 				const notFound = frames.filter( f => f.notFound );
 				expect.soft( notFound, `"not found" frames:\n${ summary( notFound ) }` ).toHaveLength( 0 );

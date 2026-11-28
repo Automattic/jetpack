@@ -21,7 +21,7 @@ test.describe( 'Admin shell off: smoke', () => {
 		await installShellProbe( page );
 	} );
 
-	test( 'every member loads and links to the next', async ( { page } ) => {
+	test( 'every member loads and links to the next', { tag: '@smoke' }, async ( { page } ) => {
 		const [ first, ...rest ] = MEMBERS;
 		await page.goto( `/wp-admin/admin.php?page=${ first.slug }` );
 		await waitForShown( page, first.slug );
