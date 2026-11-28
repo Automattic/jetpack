@@ -362,29 +362,32 @@ class Query_Parser extends Query_Builder {
 		$args     = wp_parse_args( $args, $defaults );
 
 		$phrases = array();
-		if ( preg_match_all( '/"([^"]+)"/', $this->current_query, $matches ) ) {
+		// Require a word boundary on both sides so a quote glued to a letter/digit — a
+		// contraction ("can't"), possessive ("site's"), or inch mark (6") — isn't mistaken
+		// for a phrase delimiter.
+		if ( preg_match_all( '/(?<![\p{L}\p{N}])"([^"]+)"(?![\p{L}\p{N}])/u', $this->current_query, $matches ) ) {
 			foreach ( $matches[1] as $match ) {
 				$phrases[] = $match;
 			}
-			$this->current_query = preg_replace( '/"([^"]+)"/', '', $this->current_query );
+			$this->current_query = preg_replace( '/(?<![\p{L}\p{N}])"([^"]+)"(?![\p{L}\p{N}])/u', '', $this->current_query );
 		}
 
-		if ( preg_match_all( "/'([^']+)'/", $this->current_query, $matches ) ) {
+		if ( preg_match_all( "/(?<![\\p{L}\\p{N}])'([^']+)'(?![\\p{L}\\p{N}])/u", $this->current_query, $matches ) ) {
 			foreach ( $matches[1] as $match ) {
 				$phrases[] = $match;
 			}
-			$this->current_query = preg_replace( "/'([^']+)'/", '', $this->current_query );
+			$this->current_query = preg_replace( "/(?<![\\p{L}\\p{N}])'([^']+)'(?![\\p{L}\\p{N}])/u", '', $this->current_query );
 		}
 
 		//look for a final, uncompleted phrase
 		$phrase_prefix = false;
-		if ( preg_match_all( '/"([^"]+)$/', $this->current_query, $matches ) ) {
+		if ( preg_match_all( '/(?<![\p{L}\p{N}])"([^"]+)$/u', $this->current_query, $matches ) ) {
 			$phrase_prefix       = $matches[1][0];
-			$this->current_query = preg_replace( '/"([^"]+)$/', '', $this->current_query );
+			$this->current_query = preg_replace( '/(?<![\p{L}\p{N}])"([^"]+)$/u', '', $this->current_query );
 		}
-		if ( preg_match_all( "/(?:'\B|\B')([^']+)$/", $this->current_query, $matches ) ) {
+		if ( preg_match_all( "/(?<![\\p{L}\\p{N}])'([^']+)$/u", $this->current_query, $matches ) ) {
 			$phrase_prefix       = $matches[1][0];
-			$this->current_query = preg_replace( "/(?:'\B|\B')([^']+)$/", '', $this->current_query );
+			$this->current_query = preg_replace( "/(?<![\\p{L}\\p{N}])'([^']+)$/u", '', $this->current_query );
 		}
 
 		if ( $phrase_prefix ) {
