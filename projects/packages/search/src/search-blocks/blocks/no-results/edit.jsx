@@ -10,7 +10,7 @@
  * content has to live in child blocks; the variants are that mechanism rather
  * than something an author is meant to think about. The inspector only offers
  * to re-add a condition whose variant was deleted, and the default appender is
- * suppressed — it would insert a second `Any empty search` variant, which the
+ * suppressed — it would insert a second `Any Empty Search` variant, which the
  * renderer would just stack on the first.
  */
 import {
