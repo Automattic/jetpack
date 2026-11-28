@@ -36,7 +36,6 @@ import {
 	useEffect,
 	useMemo,
 } from '@wordpress/element';
-import { escapeHTML } from '@wordpress/escape-html';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { Link } from '@wordpress/ui';
@@ -747,9 +746,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				return 'videoPressUploadPoster' in window;
 			};
 
-			const filename = escapeHTML(
-				fileForUpload ? removeFileNameExtension( fileForUpload.name ) : ''
-			);
+			const filename = fileForUpload ? removeFileNameExtension( fileForUpload.name ) : '';
 
 			const uploadFinished = ( { mediaId, guid: videoGuid, src: videoSrc } ) => {
 				this.setState( {

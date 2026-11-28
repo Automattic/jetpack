@@ -1,6 +1,8 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import { useSelect } from '@wordpress/data';
 import withVideoPressEdit, { VpBlock } from '../edit';
+import { removeFileNameExtension } from '../utils';
 
 const mockSandBoxProps = jest.fn();
 
@@ -67,7 +69,9 @@ jest.mock( '../loading', () => () => null );
 jest.mock( '../resumable-upload', () => () => null );
 jest.mock( '../seekbar-color-settings', () => () => null );
 jest.mock( '../tracks-editor', () => () => null );
-jest.mock( '../uploading-editor', () => ( { UploadingEditor: () => null } ) );
+jest.mock( '../uploading-editor', () => ( {
+	UploadingEditor: ( { title } ) => <input aria-label="Video title" value={ title } readOnly />,
+} ) );
 jest.mock( '../url', () => ( { getVideoPressUrl: jest.fn() } ) );
 jest.mock( '../utils', () => ( {
 	getClassNames: jest.fn(),
@@ -133,5 +137,26 @@ describe( 'VideoPressEdit setTracks', () => {
 		expect( setAttributes.mock.calls ).toEqual(
 			shouldWrite ? [ [ { videoPressTracks: storedTracks } ] ] : []
 		);
+	} );
+} );
+
+describe( 'VideoPressEdit upload filename title', () => {
+	const VideoPressEdit = withVideoPressEdit( () => null );
+
+	it( 'does not HTML-escape ampersands in uploaded video filenames', async () => {
+		useSelect.mockReturnValue( false );
+		removeFileNameExtension.mockReturnValue( 'Cats & Dogs' );
+
+		render(
+			<VideoPressEdit
+				attributes={ {} }
+				fileForImmediateUpload={ new File( [ '' ], 'Cats & Dogs.mp4', { type: 'video/mp4' } ) }
+				setAttributes={ jest.fn() }
+				resumableUploadEnabled
+			/>
+		);
+		await act( () => Promise.resolve() );
+
+		expect( screen.getByLabelText( 'Video title' ) ).toHaveValue( 'Cats & Dogs' );
 	} );
 } );
