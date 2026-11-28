@@ -24,27 +24,42 @@ domReady( function () {
 	function Graphic( properties, slider ) {
 		const self = this;
 		this.image = new Image();
+		this.width = properties.width || 0;
+		this.height = properties.height || 0;
 
 		this.loaded = false;
-		this.image.onload = function () {
+		const markLoaded = function () {
 			self.loaded = true;
 			slider._onLoaded();
 		};
+		this.image.onload = markLoaded;
+		this.image.onerror = markLoaded;
 
 		this.image.src = properties.src;
 		this.image.alt = properties.alt || '';
 		this.label = properties.label || false;
 	}
 
-	function getImageDimensions( img ) {
-		const dimensions = {
-			width: img.naturalWidth,
-			height: img.naturalHeight,
+	function getGraphicWidth( graphic ) {
+		return graphic?.image?.naturalWidth || graphic?.width || 0;
+	}
+
+	function getImageDimensions( imgBefore, imgAfter ) {
+		const candidates = [
+			{ width: imgBefore?.image?.naturalWidth, height: imgBefore?.image?.naturalHeight },
+			{ width: imgAfter?.image?.naturalWidth, height: imgAfter?.image?.naturalHeight },
+			{ width: imgBefore?.width, height: imgBefore?.height },
+			{ width: imgAfter?.width, height: imgAfter?.height },
+			{ width: 1, height: 1 },
+		];
+		const match = candidates.find( item => item.width > 0 && item.height > 0 );
+		return {
+			width: match.width,
+			height: match.height,
 			aspect: function () {
 				return this.width / this.height;
 			},
 		};
-		return dimensions;
 	}
 
 	function addClass( element, c ) {
@@ -240,7 +255,7 @@ domReady( function () {
 		},
 
 		calculateDims: function ( width, height ) {
-			const ratio = getImageDimensions( this.imgBefore.image ).aspect();
+			const ratio = getImageDimensions( this.imgBefore, this.imgAfter ).aspect();
 			if ( width ) {
 				height = width / ratio;
 			} else if ( height ) {
@@ -285,16 +300,18 @@ domReady( function () {
 
 		optimizeWrapper: function ( maxWidth ) {
 			let result = juxtapose.OPTIMIZATION_ACCEPTED;
+			const beforeWidth = getGraphicWidth( this.imgBefore );
+			const afterWidth = getGraphicWidth( this.imgAfter );
 			if (
-				this.imgBefore.image.naturalWidth >= maxWidth &&
-				this.imgAfter.image.naturalWidth >= maxWidth
+				( ! beforeWidth || beforeWidth >= maxWidth ) &&
+				( ! afterWidth || afterWidth >= maxWidth )
 			) {
 				this.wrapper.style.width = maxWidth + 'px';
 				result = juxtapose.OPTIMIZATION_WAS_CONSTRAINED;
-			} else if ( this.imgAfter.image.naturalWidth < maxWidth ) {
-				this.wrapper.style.width = this.imgAfter.image.naturalWidth + 'px';
+			} else if ( afterWidth && afterWidth < maxWidth ) {
+				this.wrapper.style.width = afterWidth + 'px';
 			} else {
-				this.wrapper.style.width = this.imgBefore.image.naturalWidth + 'px';
+				this.wrapper.style.width = beforeWidth + 'px';
 			}
 			this.setWrapperDimensions();
 			return result;
@@ -524,11 +541,15 @@ domReady( function () {
 					src: images[ 0 ].src,
 					label: images[ 0 ].getAttribute( 'data-label' ),
 					alt: images[ 0 ].alt,
+					width: parseInt( images[ 0 ].getAttribute( 'width' ), 10 ) || 0,
+					height: parseInt( images[ 0 ].getAttribute( 'height' ), 10 ) || 0,
 				},
 				{
 					src: images[ 1 ].src,
 					label: images[ 1 ].getAttribute( 'data-label' ),
 					alt: images[ 1 ].alt,
+					width: parseInt( images[ 1 ].getAttribute( 'width' ), 10 ) || 0,
+					height: parseInt( images[ 1 ].getAttribute( 'height' ), 10 ) || 0,
 				},
 			],
 			options
