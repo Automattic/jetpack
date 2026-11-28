@@ -7,6 +7,7 @@ import {
 	storyReportParams,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
 	widgetDashboardWithWidgetArgTypes,
+	withinWidgetCanvas,
 	withStoryRouter,
 	withWidgetCanvas,
 	type WidgetDashboardWithWidgetControls,
@@ -110,7 +111,7 @@ export const Default: Story = {
 	args: { withComparison: false },
 	decorators: [ withWidgetCanvas, withStoryRouter ],
 	play: async ( { canvasElement } ) => {
-		const canvas = within( canvasElement );
+		const canvas = withinWidgetCanvas( canvasElement );
 		await canvas.findAllByRole( 'listitem' );
 
 		await waitFor( () =>

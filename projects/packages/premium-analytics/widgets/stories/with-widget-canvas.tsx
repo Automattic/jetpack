@@ -1,7 +1,19 @@
 import { useElementSize } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useLayoutEffect, useRef } from 'react';
+import { within } from 'storybook/test';
 import type { Decorator, StoryContext } from '@storybook/react';
 import type { ReactNode } from 'react';
+
+// `@automattic/number-formatters` takes the WP user locale from `wp.date`, which Storybook does not
+// define, so without this each reader's own browser locale formats the numbers and the currency.
+if ( typeof window !== 'undefined' && ! window.wp?.date?.getSettings ) {
+	window.wp = {
+		...window.wp,
+		date: { ...window.wp?.date, getSettings: () => ( { l10n: { locale: 'en_US' } } ) },
+	};
+}
+
+const WIDGET_CANVAS_TEST_ID = 'widget-canvas';
 
 // The card's own inset in pixels: a widget gets the card minus this on each side.
 const CANVAS_PADDING = 16;
@@ -62,6 +74,7 @@ export function WidgetCanvas( {
 	return (
 		<div
 			ref={ hostRef }
+			data-testid={ WIDGET_CANVAS_TEST_ID }
 			style={ {
 				width,
 				height,
@@ -168,3 +181,21 @@ export const withWidgetCanvas: Decorator = ( Story, context ) => (
 		<Story />
 	</WidgetSizesCanvas>
 );
+
+// The scope a `play` assertion needs: the size matrix mounts the story in every box at once, so the
+// whole canvas matches once per box. Take the largest, since the shortest boxes drop content on
+// purpose, a leaderboard's rows included.
+export function withinWidgetCanvas( canvasElement: HTMLElement ) {
+	const canvas = within( canvasElement );
+	const cards = canvas.queryAllByTestId( WIDGET_CANVAS_TEST_ID );
+	const largest = cards.reduce< HTMLElement | undefined >(
+		( largestSoFar, card ) =>
+			! largestSoFar ||
+			card.clientWidth * card.clientHeight > largestSoFar.clientWidth * largestSoFar.clientHeight
+				? card
+				: largestSoFar,
+		undefined
+	);
+
+	return largest ? within( largest ) : canvas;
+}

@@ -1,4 +1,4 @@
-import { expect, within } from 'storybook/test';
+import { expect } from 'storybook/test';
 import {
 	createStoryWidgetType,
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
@@ -7,6 +7,7 @@ import {
 	storyReportParams,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
 	widgetDashboardWithWidgetArgTypes,
+	withinWidgetCanvas,
 	withWidgetCanvas,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/shared';
@@ -98,7 +99,7 @@ export const Default: Story = {
 	args: { withComparison: false },
 	decorators: [ withWidgetCanvas ],
 	play: async ( { canvasElement } ) => {
-		const canvas = within( canvasElement );
+		const canvas = withinWidgetCanvas( canvasElement );
 
 		await expect( await canvas.findByText( 'Mobile' ) ).toBeVisible();
 		await expect( await canvas.findByText( 'Unassigned' ) ).toBeVisible();
