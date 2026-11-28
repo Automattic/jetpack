@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard as Forms_Dashboard;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
+use Automattic\Jetpack\Forms\Service\Jetpack_CRM_Integration;
 use Automattic\Jetpack\JWT;
 use Automattic\Jetpack\Sync\Settings;
 use PHPMailer\PHPMailer\PHPMailer;
@@ -3334,6 +3335,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 			if ( false === $is_visible ) {
 				unset( $visible_fields[ $field_id ] );
 			}
+		}
+
+		if ( self::attribute_is_truthy( (array) $this->attributes, 'jetpackCRM', true ) ) {
+			Jetpack_CRM_Integration::register_for_submission();
 		}
 
 		/**

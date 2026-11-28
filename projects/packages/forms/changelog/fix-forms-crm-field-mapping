@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Jetpack CRM: Save last names and fields that match a CRM contact custom field, such as Organization or Occupation, to the contact.

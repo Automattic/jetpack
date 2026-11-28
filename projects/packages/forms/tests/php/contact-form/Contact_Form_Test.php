@@ -2531,6 +2531,47 @@ class Contact_Form_Test extends BaseTestCase {
 	public function track_feedback_inserted( $post_id ) {
 		$this->track_feedback_inserted[] = $post_id;
 	}
+
+	/**
+	 * Jetpack CRM gets mapped fields only from forms with its integration on.
+	 *
+	 * @dataProvider jetpack_crm_toggle_provider
+	 *
+	 * @param array $attributes Form attributes.
+	 * @param bool  $mapped     Whether Jetpack CRM's handler should receive the mapped last name.
+	 */
+	#[DataProvider( 'jetpack_crm_toggle_provider' )]
+	public function test_process_submission_maps_fields_for_jetpack_crm_only_when_enabled( $attributes, $mapped ) {
+		require_once __DIR__ . '/../fixtures/jetpack-crm-stub.php';
+		$GLOBALS['jetpack_crm_stub_calls'] = array();
+		add_action( 'grunion_after_feedback_post_inserted', 'zero_bs_crm_capture_jetpack_form', 10, 4 );
+
+		$_POST = array( 'last-name' => 'Lovelace' );
+		$form  = new Contact_Form( $attributes, "[contact-field label='Last name' type='name' id='last-name'/]" );
+		$form->process_submission();
+
+		remove_all_actions( 'grunion_after_feedback_post_inserted' );
+		$calls = $GLOBALS['jetpack_crm_stub_calls'];
+		unset( $GLOBALS['jetpack_crm_stub_calls'] );
+
+		$this->assertCount( 1, $calls );
+		$ids = array_values( array_map( fn( $field ) => $field->get_attribute( 'id' ), $calls[0] ) );
+		$this->assertSame( $mapped, in_array( 'jetpackcrm-lname', $ids, true ), 'Ids received: ' . implode( ', ', $ids ) );
+	}
+
+	/**
+	 * Form CRM toggles, and whether Jetpack CRM receives mapped fields.
+	 *
+	 * @return array
+	 */
+	public static function jetpack_crm_toggle_provider() {
+		return array(
+			'toggle not set' => array( array(), true ),
+			'toggle on'      => array( array( 'jetpackCRM' => true ), true ),
+			'toggle off'     => array( array( 'jetpackCRM' => false ), false ),
+		);
+	}
+
 	/**
 	 * Tests that multiple instances of the same form work correctly with unique IDs.
 	 */
