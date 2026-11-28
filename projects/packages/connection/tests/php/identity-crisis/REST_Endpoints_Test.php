@@ -159,6 +159,7 @@ class REST_Endpoints_Test extends TestCase {
 
 		Jetpack_Options::update_option( 'sync_error_idc', true );
 		Jetpack_Options::update_option( 'migrate_for_idc', false );
+		Jetpack_Options::update_option( 'safe_mode_confirmed', true );
 
 		$user = wp_get_current_user();
 		$user->add_cap( 'jetpack_disconnect' );
@@ -174,6 +175,7 @@ class REST_Endpoints_Test extends TestCase {
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertEquals( 'success', $data['code'] );
 		$this->assertFalse( Jetpack_Options::get_option( 'sync_error_idc' ) );
+		$this->assertFalse( Jetpack_Options::get_option( 'safe_mode_confirmed', false ) );
 		$this->assertTrue( Jetpack_Options::get_option( 'migrate_for_idc' ) );
 	}
 

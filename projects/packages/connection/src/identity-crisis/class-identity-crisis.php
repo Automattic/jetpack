@@ -189,8 +189,17 @@ class Identity_Crisis {
 			isset( $_GET['jetpack_idc_clear_confirmation'] ) && isset( $_GET['_wpnonce'] ) &&
 			wp_verify_nonce( $_GET['_wpnonce'], 'jetpack_idc_clear_confirmation' ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WordPress core doesn't unslash or verify nonces either.
 		) {
+			$was_confirmed = (bool) Jetpack_Options::get_option( 'safe_mode_confirmed' );
 			Jetpack_Options::delete_option( 'safe_mode_confirmed' );
 			self::$is_safe_mode_confirmed = false;
+
+			// Unconfirmed, the check is still on its schedule, and restarting it would call WordPress.com on every click.
+			if ( $was_confirmed ) {
+				self::restart_remote_validation();
+				if ( false === self::check_identity_crisis() ) {
+					return; // The check passed, so Safe Mode is over and there is nothing to show.
+				}
+			}
 		} else {
 			self::$is_safe_mode_confirmed = (bool) Jetpack_Options::get_option( 'safe_mode_confirmed' );
 		}
@@ -582,8 +591,8 @@ class Identity_Crisis {
 		$is_valid = (bool) apply_filters( 'jetpack_sync_error_idc_validation', $is_valid );
 
 		if ( ! $is_valid && $sync_error ) {
-			// Since the option exists, and did not validate, delete it.
-			Jetpack_Options::delete_option( 'sync_error_idc' );
+			// Since the option exists, and did not validate, delete it. A confirmation left behind would confirm the next crisis.
+			Jetpack_Options::delete_option( array( 'sync_error_idc', 'safe_mode_confirmed' ) );
 		}
 
 		return $is_valid;
@@ -668,7 +677,7 @@ class Identity_Crisis {
 			// Site not registered - IDC state is invalid without a connection to WordPress.com.
 			// Clear the IDC since there's nothing to validate against, and the site can't
 			// restore the blog_id while in IDC anyway (connection flow is blocked).
-			Jetpack_Options::delete_option( 'sync_error_idc' );
+			Jetpack_Options::delete_option( array( 'sync_error_idc', 'safe_mode_confirmed' ) );
 			return true; // Return true to indicate IDC was cleared.
 		}
 
@@ -741,7 +750,7 @@ class Identity_Crisis {
 
 		// Check for success: valid response with no idc_detected means IDC is resolved.
 		if ( is_array( $body ) && empty( $body['idc_detected'] ) ) {
-			Jetpack_Options::delete_option( 'sync_error_idc' );
+			Jetpack_Options::delete_option( array( 'sync_error_idc', 'safe_mode_confirmed' ) );
 			delete_transient( $lock_key );
 			$is_validating = false;
 			return true;
@@ -771,6 +780,24 @@ class Identity_Crisis {
 		delete_transient( $lock_key );
 		$is_validating = false;
 		return false;
+	}
+
+	/**
+	 * Makes the next remote validation run at once, with its backoff back at the initial delay.
+	 *
+	 * @return void
+	 */
+	private static function restart_remote_validation() {
+		$sync_error = Jetpack_Options::get_option( 'sync_error_idc' );
+		if ( ! is_array( $sync_error ) ) {
+			return;
+		}
+
+		$sync_error['last_checked'] = 0;
+		// Not 0: the backoff doubles the delay, so 0 would stay 0 and validate on every request.
+		$sync_error['next_check_delay'] = self::IDC_VALIDATION_INITIAL_DELAY;
+		Jetpack_Options::update_option( 'sync_error_idc', self::get_sync_error_for_storage( $sync_error ) );
+		self::invalidate_idc_option_cache();
 	}
 
 	/**
