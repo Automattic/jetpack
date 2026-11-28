@@ -2,6 +2,7 @@ import { renderHook, act } from '@testing-library/react';
 import {
 	clearRequestedSwitch,
 	moduleSwitchKey,
+	pluginSwitchKey,
 	setRequestedSwitch,
 } from '../../../../data/requested-switch-state';
 import { useFeatureStates } from '../feature-state';
@@ -112,9 +113,10 @@ describe( 'useFeatureStates', () => {
 	} );
 } );
 
-describe( 'useFeatureStates, while a module switch is answering a click', () => {
+describe( 'useFeatureStates, while a module or plugin switch is answering a click', () => {
 	const inJetpack = { ...social, plugin: '', plugin_status: 'not-installed' } as MainFeature;
 	let token = 0;
+	let pluginToken = 0;
 
 	beforeEach( () => {
 		mockModules.mockReturnValue( {
@@ -124,7 +126,12 @@ describe( 'useFeatureStates, while a module switch is answering a click', () => 
 	} );
 
 	// Cleared through act(): the store is shared, so mounted cards re-render on it.
-	afterEach( () => act( () => clearRequestedSwitch( moduleSwitchKey( 'publicize' ), token ) ) );
+	afterEach( () =>
+		act( () => {
+			clearRequestedSwitch( moduleSwitchKey( 'publicize' ), token );
+			clearRequestedSwitch( pluginSwitchKey( 'jetpack-social' ), pluginToken );
+		} )
+	);
 
 	it( 'reports the value the click asked for, so the badge can follow the switch', () => {
 		const { result } = renderHook( () =>
@@ -139,6 +146,7 @@ describe( 'useFeatureStates, while a module switch is answering a click', () => 
 
 		expect( result.current.states[ 0 ].status ).toBe( 'inactive' );
 		expect( result.current.states[ 0 ].pending ).toBeFalsy();
+		expect( result.current.states[ 0 ].isSwitching ).toBe( true );
 	} );
 
 	it( 'goes back to the store once nothing is in flight', () => {
@@ -152,6 +160,22 @@ describe( 'useFeatureStates, while a module switch is answering a click', () => 
 		act( () => clearRequestedSwitch( moduleSwitchKey( 'publicize' ), token ) );
 
 		expect( result.current.states[ 0 ].status ).toBe( 'active' );
+		expect( result.current.states[ 0 ].isSwitching ).toBeFalsy();
+	} );
+
+	it( 'marks a plugin feature as switching only while its request is out', () => {
+		const plugin = { ...social, plugin_status: 'active' } as MainFeature;
+		const { result } = renderHook( () =>
+			useFeatureStates( { jetpack: 'not-installed', features: [ plugin ] } as MainFeaturesState )
+		);
+
+		act( () => {
+			pluginToken = setRequestedSwitch( pluginSwitchKey( 'jetpack-social' ), false );
+		} );
+		expect( result.current.states[ 0 ].isSwitching ).toBe( true );
+
+		act( () => clearRequestedSwitch( pluginSwitchKey( 'jetpack-social' ), pluginToken ) );
+		expect( result.current.states[ 0 ].isSwitching ).toBeFalsy();
 	} );
 } );
 

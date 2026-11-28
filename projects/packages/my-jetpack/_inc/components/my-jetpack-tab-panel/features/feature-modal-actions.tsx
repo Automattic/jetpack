@@ -190,7 +190,13 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 			) : null }
 
 			{ connectFirst ? (
-				<ConnectButton state={ state } origin="modal" buttonRef={ connectRef } />
+				// Connect leaves the page, so it stays disabled while this feature's switch request runs.
+				<ConnectButton
+					state={ state }
+					origin="modal"
+					buttonRef={ connectRef }
+					disabled={ state.isSwitching }
+				/>
 			) : null }
 
 			{ control.kind === 'module' && showSwitch ? (

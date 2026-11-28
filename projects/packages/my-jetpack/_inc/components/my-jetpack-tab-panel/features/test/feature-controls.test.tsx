@@ -1091,6 +1091,28 @@ describe( 'features waiting for an account', () => {
 		).toHaveFocus();
 	} );
 
+	it( 'keeps Connect in the details focused but disabled until Deactivate finishes', async () => {
+		const on = accountModule( true );
+		mockAskedFor = false;
+		const { rerender } = render(
+			<FeatureModalActions state={ { ...on, status: 'inactive', isSwitching: true } } />
+		);
+		const connect = screen.getByRole( 'button', { name: 'Connect account for Activity Log' } );
+		connect.focus();
+		await userEvent.click( connect );
+		await userEvent.keyboard( '{Enter}' );
+
+		expect( connect ).toHaveFocus();
+		expect( connect ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( getUserConnectionUrl ).not.toHaveBeenCalled();
+		expect( leavePageFor ).not.toHaveBeenCalled();
+
+		mockAskedFor = null;
+		rerender( <FeatureModalActions state={ accountModule( false ) } /> );
+		await userEvent.keyboard( '{Enter}' );
+		expect( leavePageFor ).toHaveBeenCalledWith( connectionUrl );
+	} );
+
 	it( 'offers no Activate in the details while the account is missing', () => {
 		render( <FeatureModalActions state={ accountPlugin( 'inactive' ) } /> );
 		expect( screen.queryByRole( 'button', { name: /^Activate / } ) ).not.toBeInTheDocument();
