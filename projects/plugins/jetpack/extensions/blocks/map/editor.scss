@@ -45,6 +45,7 @@
 
 	.wp-block-jetpack-map__map_wrapper {
 		overflow: hidden;
+		height: 100%;
 		// Matches color that MapBox uses as placeholder before map tiles are loaded.
 		background-color: #e4e2de;
 	}

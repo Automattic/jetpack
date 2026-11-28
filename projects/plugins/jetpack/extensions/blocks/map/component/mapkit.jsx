@@ -117,7 +117,7 @@ const MapkitComponent = forwardRef(
 					<div
 						className="wp-block-jetpack-map__gm-container"
 						style={ {
-							height: `${ mapHeight }px`,
+							height: mapHeight ? `${ mapHeight }px` : '400px',
 							position: 'absolute',
 							pointerEvents: isSelected ? 'auto' : 'none',
 						} }
