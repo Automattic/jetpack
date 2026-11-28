@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+WooCommerce Analytics: Answer storefront tracking requests before plugins load, so each page view costs the site less.

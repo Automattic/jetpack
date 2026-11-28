@@ -60,3 +60,17 @@ function wpcomsh_enable_woocommerce_analytics_proxy_tracking( $enabled ) {
 	return $enabled || ( is_callable( array( $analytics, 'is_initialized' ) ) && $analytics::is_initialized() );
 }
 add_filter( 'woocommerce_analytics_experimental_proxy_tracking_enabled', 'wpcomsh_enable_woocommerce_analytics_proxy_tracking' );
+
+/**
+ * Lets the WooCommerce Analytics speed module answer `/track` requests before plugins load.
+ *
+ * Called at file scope so it can serve on `muplugins_loaded`. A Jetpack that bundles an older package lacks the class.
+ */
+function wpcomsh_enable_woocommerce_analytics_speed_module() {
+	$speed_module = 'Automattic\Woocommerce_Analytics\Proxy_Speed_Module';
+
+	if ( is_callable( array( $speed_module, 'enable' ) ) ) {
+		$speed_module::enable();
+	}
+}
+wpcomsh_enable_woocommerce_analytics_speed_module();
