@@ -33,8 +33,6 @@ return [
     // PhanTypeMismatchDefault : 1 occurrence
     // PhanTypeMismatchProperty : 1 occurrence
     // PhanTypeMismatchPropertyProbablyReal : 1 occurrence
-    // PhanUndeclaredClassMethod : 1 occurrence
-    // PhanUndeclaredClassReference : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
@@ -61,7 +59,7 @@ return [
         'src/modules/class-themes.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/modules/class-updates.php' => ['PhanImpossibleCondition', 'PhanParamSignatureMismatch', 'PhanTypeMismatchReturn'],
         'src/modules/class-users.php' => ['PhanTypeMismatchDefault', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/modules/class-woocommerce-analytics.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredMethod', 'UnusedPluginSuppression'],
+        'src/modules/class-woocommerce-analytics.php' => ['PhanUndeclaredMethod', 'UnusedPluginSuppression'],
         'src/modules/class-woocommerce-hpos-orders.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/replicastore/class-table-checksum.php' => ['PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchPropertyProbablyReal'],
         'tests/php/Actions_Test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
