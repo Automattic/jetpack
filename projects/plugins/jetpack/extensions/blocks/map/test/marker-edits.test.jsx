@@ -19,6 +19,10 @@ jest.mock( '@wordpress/components', () => ( {
 	Placeholder: ( { children } ) => children,
 	Spinner: () => null,
 } ) );
+jest.mock( '@wordpress/blocks', () => ( {
+	createBlock: jest.fn(),
+	getDefaultBlockName: jest.fn(),
+} ) );
 jest.mock( '@wordpress/data', () => ( {
 	useDispatch: () => ( { toggleSelection: () => {} } ),
 	useSelect: () => ( { isPreviewMode: false } ),
