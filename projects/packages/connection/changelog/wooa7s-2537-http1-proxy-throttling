@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Client: Add a method that sends several WordPress.com REST API reads as the site in parallel.

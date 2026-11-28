@@ -159,11 +159,22 @@ under `wpcom/v2` (see "Choosing a REST namespace" below).
 
 `manage_options` is always accepted too. `POST` is rejected (`405 rest_read_only`) outside the
 Writes column. Query params pass through except control params (`endpoint`, `version`,
-`force_refresh`) and `site`. Successful `GET`s are cached 5 min (key: path+version+params+generation);
+`force_refresh`), `_method` (WPCOM would honour it as the HTTP method) and `site`. Successful `GET`s are cached 5 min (key: path+version+params+generation);
 add `force_refresh` to bypass, e.g. when a screen looks stale. A dashboard load returning from a
 Stats checkout (`statsPurchaseSuccess`) also drops every cached read and the cached notices, at most
 once a minute. `x-wp-total` / `x-wp-totalpages` are forwarded back. Errors:
 `403 no_connection`, `500`/`502 api_error`, `405 rest_read_only`, `401`/`403` on a failed cap.
+
+`POST /jetpack-premium-analytics/v1/proxy/batch` takes `{ "requests": [ "/v1.1/stats/visits?…", … ] }`
+(up to 20 paths below `proxy`) and answers `[ { status, body, headers }, … ]` in the same order. Each
+item is a read checked exactly as the single route checks it (allowlist, version, capability,
+cache), and the cache misses go to WPCOM in parallel through
+`Client::wpcom_json_api_get_multiple_as_blog()`. The client batches its local GETs, whatever the
+protocol, in batches of `premium_analytics.proxy_batch_size`: 10 by default, 0 without cURL multi, and
+filterable through `jetpack_premium_analytics_proxy_batch_size` (0 turns batching off). HTTP/1.1, whose
+six connections per host would queue the dashboard's reads in waves, gains most. A batch that fails as
+a whole (no route, a 5xx, no reply) is replayed as single reads, and the page stops batching. See
+`packages/data/src/api/proxy-scheduler.ts`.
 
 The `jetpack-stats` write is the one body the proxy rewrites: it gains the submitting user's
 `user_email` (`inject_user_email`), because the blog token names no user and WPCOM would

@@ -43,7 +43,16 @@ export function statsAppProxyQuery< TData = unknown >( {
 			statsAppQueryKeyPart( body ),
 			global ?? false,
 		],
-		queryFn: () => fetchStatsProxy< TData >( { version, endpoint, params, method, body, global } ),
+		queryFn: context =>
+			fetchStatsProxy< TData >( {
+				version,
+				endpoint,
+				params,
+				method,
+				body,
+				global,
+				signal: context?.signal,
+			} ),
 		placeholderData: previousData => previousData,
 	};
 }

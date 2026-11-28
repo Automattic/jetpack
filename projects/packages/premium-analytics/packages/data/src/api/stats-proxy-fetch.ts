@@ -11,6 +11,7 @@ import { addQueryArgs } from '@wordpress/url';
 import { getApiErrorCode } from '../utils/api-error';
 import { statsProxyPath } from './constants';
 import { isResponse } from './is-response';
+import { scheduleProxyGet, shouldBatchProxyReads } from './proxy-scheduler';
 
 export type StatsProxyVersion = '1.1' | '1.2' | '2';
 
@@ -43,6 +44,9 @@ export type StatsProxyFetchParams< TBody = unknown > = {
 	 * otherwise silently miss the global-request handling.
 	 */
 	global?: boolean;
+	/** Batched reads sharing a group go out together, such as a widget's two periods. */
+	group?: string;
+	signal?: AbortSignal;
 };
 
 type ResolvedStatsProxyRequest = {
@@ -287,6 +291,8 @@ export async function fetchStatsProxy< TResponse = unknown, TBody = unknown >( {
 	method = 'GET',
 	body,
 	global,
+	group,
+	signal,
 }: StatsProxyFetchParams< TBody > ): Promise< TResponse > {
 	const { path, global: isGlobal } = resolveStatsProxyRequest( {
 		version,
@@ -295,10 +301,15 @@ export async function fetchStatsProxy< TResponse = unknown, TBody = unknown >( {
 		global,
 	} );
 
+	if ( method === 'GET' && ! isSimpleSite() && shouldBatchProxyReads() ) {
+		return scheduleProxyGet< TResponse >( path, group, signal );
+	}
+
 	return fetchPreservingStatus< TResponse >( {
 		path,
 		method,
 		...( method === 'POST' ? { data: body } : {} ),
 		...( isGlobal ? { global: true } : {} ),
+		...( signal ? { signal } : {} ),
 	} );
 }

@@ -45,8 +45,10 @@ function OrdersFulfillment() {
 	} );
 	const fulfilledSummary = fulfilled.primary.data?.summary;
 	const unfulfilledSummary = unfulfilled.primary.data?.summary;
-	const fulfilledPrevious = fulfilled.comparison.data?.summary;
-	const unfulfilledPrevious = unfulfilled.comparison.data?.summary;
+	// The comparisons land separately; the total's delta would read a missing one as zero orders.
+	const bothPrevious = fulfilled.comparison.data && unfulfilled.comparison.data;
+	const fulfilledPrevious = bothPrevious ? fulfilled.comparison.data?.summary : undefined;
+	const unfulfilledPrevious = bothPrevious ? unfulfilled.comparison.data?.summary : undefined;
 
 	const segments = useMemo< DonutSegmentInput[] >(
 		() => [

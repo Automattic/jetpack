@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useId, useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -69,29 +69,38 @@ export function useReport<
 	const comparisonQueryEnabled =
 		queryEnabled && comparisonEnabled && ( comparisonQueryOptions.enabled ?? true );
 
+	// Batches the two periods together; see `scheduleProxyGet()`.
+	const proxyGroup = useId();
+
 	const primary = useQuery( {
 		...primaryQueryOptions,
 		enabled: primaryEnabled,
-		meta: { ...primaryQueryOptions.meta, ...refreshNoticeMeta },
+		meta: { ...primaryQueryOptions.meta, ...refreshNoticeMeta, proxyGroup },
 	} );
 
 	const comparison = useQuery( {
 		...comparisonQueryOptions,
 		enabled: comparisonQueryEnabled,
-		meta: { ...comparisonQueryOptions.meta, ...refreshNoticeMeta },
+		meta: { ...comparisonQueryOptions.meta, ...refreshNoticeMeta, proxyGroup },
 	} );
 
-	// Widened past React Query's `isLoading` — see `isAwaitingData`. Its own
-	// flags stay reachable through `primary` and `comparison`.
-	const isLoading = isAwaitingData( primary ) || isAwaitingData( comparison );
+	// Widened past React Query's `isLoading` (see `isAwaitingData`), and on the primary period alone:
+	// deltas fill in when the comparison lands. Its placeholder data is the previous range's, fetching
+	// or paused offline, so it is withheld.
+	const isLoading = isAwaitingData( primary );
+	const comparisonResult =
+		comparisonQueryEnabled && comparison.isPlaceholderData
+			? // eslint-disable-next-line @tanstack/query/no-rest-destructuring -- only while withheld; the same trade as `withAwaitedDataLoading()`.
+				( { ...comparison, data: undefined } as unknown as typeof comparison )
+			: comparison;
 	const isFetching = primary.isFetching || comparison.isFetching;
 
 	// `as any` escapes `TData`, unconstrainable without breaking callers.
 	const hasData =
 		Boolean( ( primary.data as any )?.summary ) ||
 		Boolean( ( primary.data as any )?.data?.length ) ||
-		Boolean( ( comparison.data as any )?.summary ) ||
-		Boolean( ( comparison.data as any )?.data?.length );
+		Boolean( ( comparisonResult.data as any )?.summary ) ||
+		Boolean( ( comparisonResult.data as any )?.data?.length );
 
 	// React Query's `refetch()` deliberately ignores `enabled`, so the gate is
 	// re-applied here to leave a switched-off query alone.
@@ -106,7 +115,7 @@ export function useReport<
 
 	return {
 		primary,
-		comparison,
+		comparison: comparisonResult,
 		hasComparison: comparisonEnabled,
 		periodStarts,
 		// Store reports ignore `params.timezone`: Woo buckets server-side in the
@@ -115,8 +124,9 @@ export function useReport<
 		isLoading,
 		isFetching,
 		hasData,
-		isError: primary.isError || comparison.isError,
-		error: primary.error ?? comparison.error,
+		// A failed comparison costs the deltas, not the primary rows it would annotate.
+		isError: primary.isError,
+		error: primary.error,
 		refetch,
 	};
 }

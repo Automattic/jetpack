@@ -168,13 +168,15 @@ export function statsProxyQuery( config: StatsQueryConfig ): StatsReportQueryOpt
 			...( sanitizerParams ? [ sanitizerParams ] : [] ),
 			timezone,
 		],
-		queryFn: async () => {
+		queryFn: async context => {
 			const response = await fetchStatsProxy( {
 				version,
 				endpoint,
 				params: apiParams,
 				method,
 				body,
+				group: context?.meta?.proxyGroup as string | undefined,
+				signal: context?.signal,
 			} );
 			return statsSanitizers[ sanitizer ]( response, {
 				...apiParams,

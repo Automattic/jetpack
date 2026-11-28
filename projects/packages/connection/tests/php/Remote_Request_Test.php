@@ -455,6 +455,183 @@ class Remote_Request_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that every request is signed as a GET through the WordPress HTTP filters, and comes back under the caller's key.
+	 */
+	public function test_get_multiple_as_blog_sends_each_request_through_the_http_filters() {
+		$this->capture_sent_url();
+		add_filter(
+			'http_request_args',
+			static function ( $args ) {
+				$args['headers']['X-Test'] = 'filtered';
+				return $args;
+			}
+		);
+		$sent = array();
+		add_filter(
+			'pre_http_request',
+			static function ( $response, $args, $url ) use ( &$sent ) {
+				$sent[] = array( $url, $args['method'], $args['headers']['X-Test'] ?? null );
+				return array(
+					'headers'  => array(),
+					'body'     => (string) wp_json_encode( array( 'url' => $url ), JSON_UNESCAPED_SLASHES ),
+					'response' => array( 'code' => 200 ),
+				);
+			},
+			20,
+			3
+		);
+
+		$responses = Client::wpcom_json_api_get_multiple_as_blog(
+			array(
+				'visits' => array( 'path' => '/sites/12345/stats/visits?unit=day' ),
+				'posts'  => array(
+					'path'    => '/sites/12345/stats/top-posts',
+					'args'    => array( 'method' => 'POST' ),
+					'version' => '1.2',
+				),
+			)
+		);
+		remove_all_filters( 'http_request_args' );
+
+		$this->assertSame( array( 'visits', 'posts' ), array_keys( $responses ) );
+		$this->assertCount( 2, $sent );
+		foreach ( $sent as list( $url, $method, $header ) ) {
+			$this->assertStringStartsWith( 'https://public-api.wordpress.com/rest/v1.', $url );
+			$this->assertStringContainsString( 'signature=', $url );
+			$this->assertSame( 'GET', $method );
+			$this->assertSame( 'filtered', $header );
+		}
+		$this->assertStringStartsWith( 'https://public-api.wordpress.com/rest/v1.2/sites/12345/stats/top-posts', json_decode( $responses['posts']['body'] )->url );
+	}
+
+	/**
+	 * Test that a request that cannot be signed fails alone, while the others are still sent.
+	 */
+	public function test_get_multiple_as_blog_fails_an_unsignable_request_alone() {
+		$this->capture_sent_url();
+
+		$responses = Client::wpcom_json_api_get_multiple_as_blog(
+			array(
+				array( 'path' => '/sites/12345/../me' ),
+				array( 'path' => '/sites/12345/stats' ),
+			)
+		);
+
+		$this->assertSame( 'invalid_request_path', $responses[0]->get_error_code() );
+		$this->assertSame( 200, wp_remote_retrieve_response_code( $responses[1] ) );
+		$this->assertStringContainsString( '/sites/12345/stats', (string) $this->sent_url );
+	}
+
+	/**
+	 * Test that parallel requests reach the transport through the hooks a single request fires, such as Server_Sandbox's reroute.
+	 */
+	public function test_get_multiple_as_blog_sends_through_the_transport_with_the_request_hooks() {
+		if ( ! Client::supports_parallel_requests() ) {
+			$this->markTestSkipped( 'cURL multi is unavailable here.' );
+		}
+		Jetpack_Options::update_option( 'blog_token', 'asdasd.123' );
+		// The test environment blocks external hosts, but never the site's own.
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', home_url() );
+
+		$transport = get_class(
+			new class() implements \WpOrg\Requests\Transport {
+				/**
+				 * URLs the transport was asked for.
+				 *
+				 * @var string[]
+				 */
+				public static $urls = array();
+
+				/**
+				 * Not used: the client sends through `request_multiple()`.
+				 *
+				 * @param string       $url     URL.
+				 * @param array        $headers Headers.
+				 * @param string|array $data    Data.
+				 * @param array        $options Options.
+				 * @return string
+				 */
+				public function request( $url, $headers = array(), $data = array(), $options = array() ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+					return '';
+				}
+
+				/**
+				 * Answer each request with its key.
+				 *
+				 * @param array $requests Requests.
+				 * @param array $options  Options.
+				 * @return string[]
+				 */
+				public function request_multiple( $requests, $options ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+					$responses = array();
+					foreach ( $requests as $id => $request ) {
+						self::$urls[]     = $request['url'];
+						$responses[ $id ] = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n" . wp_json_encode( array( 'id' => $id ), JSON_UNESCAPED_SLASHES );
+					}
+					return $responses;
+				}
+
+				/**
+				 * Always available.
+				 *
+				 * @param array $capabilities Capabilities.
+				 * @return bool
+				 */
+				public static function test( $capabilities = array() ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+					return true;
+				}
+			}
+		);
+		$cache     = new \ReflectionProperty( \WpOrg\Requests\Requests::class, 'transport' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$cache->setAccessible( true );
+		}
+		$saved = $cache->getValue();
+		$cache->setValue( null, array( serialize( array() ) => $transport ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize -- Requests' own cache key.
+		add_action(
+			'requests-requests.before_request',
+			static function ( &$url ) {
+				$url = str_replace( home_url(), 'https://sandbox.example', $url );
+			}
+		);
+
+		$responses = array();
+		try {
+			$responses = Client::wpcom_json_api_get_multiple_as_blog(
+				array(
+					'stats'  => array( 'path' => '/sites/12345/stats' ),
+					'visits' => array( 'path' => '/sites/12345/stats/visits' ),
+				)
+			);
+		} finally {
+			$cache->setValue( null, $saved );
+			remove_all_actions( 'requests-requests.before_request' );
+		}
+
+		$this->assertSame( 'visits', json_decode( wp_remote_retrieve_body( $responses['visits'] ) )->id );
+		$this->assertCount( 2, $transport::$urls );
+		foreach ( $transport::$urls as $url ) {
+			$this->assertStringStartsWith( 'https://sandbox.example/rest/v1.1/sites/12345/stats', $url );
+		}
+	}
+
+	/**
+	 * Test that `WP_HTTP_BLOCK_EXTERNAL`, which the test environment sets, blocks parallel requests as it blocks single ones.
+	 */
+	public function test_get_multiple_as_blog_honours_blocked_external_requests() {
+		if ( ! Client::supports_parallel_requests() ) {
+			$this->markTestSkipped( 'cURL multi is unavailable here.' );
+		}
+		Jetpack_Options::update_option( 'blog_token', 'asdasd.123' );
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+
+		$responses = Client::wpcom_json_api_get_multiple_as_blog( array( array( 'path' => '/sites/12345/stats' ) ) );
+
+		$this->assertSame( 'http_request_not_executed', $responses[0]->get_error_code() );
+	}
+
+	/**
 	 * Connect the site and record the URL of the next outgoing request instead of sending it.
 	 */
 	private function capture_sent_url() {

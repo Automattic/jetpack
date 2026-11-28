@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Keeps the Orders fulfillment delta correct while Premium Analytics loads comparisons separately, a change in the same PR.
+
+

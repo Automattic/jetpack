@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a jetpack_premium_analytics_proxy_batch_size filter, so a host can shrink the dashboard's batched reads or turn batching off.
