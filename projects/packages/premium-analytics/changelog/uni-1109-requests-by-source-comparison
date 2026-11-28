@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+AI tab: Show the comparison period in Requests by source, behind the AI tab feature flag.

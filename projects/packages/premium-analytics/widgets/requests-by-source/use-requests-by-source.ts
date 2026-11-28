@@ -29,6 +29,8 @@ export type RequestSource = {
 	/** Its part of every request in the window, 0 to 1; null when there were none. */
 	share: number | null;
 	series: StackedAreaSeries;
+	/** Its total in the comparison period; null without one. */
+	previousTotal: number | null;
 };
 
 function sourceLabels(): Record< EdgeRequestSource, string > {
@@ -55,9 +57,10 @@ export default function useRequestsBySource( reportParams: ReportParams ) {
 			: defaultPeriodForInterval( reportParams.interval, STATS_CHART_BUCKET_PERIODS );
 	const params = useMemo( () => ( { ...reportParams, period } ), [ reportParams, period ] );
 	const isRangeTooLong = isEdgeBotRequestsRangeTooLong( params );
-	const { primary, timezone, isLoading, isFetching, isError, error, refetch } =
+	const { primary, comparison, timezone, isLoading, isFetching, isError, error, refetch } =
 		useStatsEdgeBotRequests( params );
 	const report = primary.data;
+	const previousReport = comparison.data;
 
 	const sources = useMemo< RequestSource[] >( () => {
 		const labels = sourceLabels();
@@ -86,11 +89,15 @@ export default function useRequestsBySource( reportParams: ReportParams ) {
 					// What was refused takes the charts' own negative color, so it follows the theme.
 					options: key === 'blocked' ? { stroke: BLOCKED_STROKE } : {},
 				},
+				previousTotal: previousReport ? ( previousReport.summary[ key ] ?? 0 ) : null,
 			};
 		} );
-	}, [ report, timezone ] );
+	}, [ report, previousReport, timezone ] );
 
-	const hasRequests = sources.some( source => source.total > 0 );
+	// A drop to nothing still has the comparison period to show.
+	const hasRequests = sources.some(
+		source => source.total > 0 || ( source.previousTotal ?? 0 ) > 0
+	);
 
 	return {
 		sources,
