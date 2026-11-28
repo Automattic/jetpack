@@ -1,15 +1,8 @@
-import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import JetpackField from '../shared/components/jetpack-field.jsx';
 import useFormWrapper from '../shared/hooks/use-form-wrapper.js';
+import useFieldVariantDefault from './hooks/use-field-variant-default.js';
 import useNameFieldTransforms from './hooks/use-name-field-transforms.js';
-import {
-	isFirstNameVariationId,
-	isLastNameVariationId,
-	FIRST_NAME_ID,
-	LAST_NAME_ID,
-	NAME_ID,
-} from './variations.js';
 
 export default function NameFieldEdit( props ) {
 	const { clientId, attributes, setAttributes } = props;
@@ -18,20 +11,7 @@ export default function NameFieldEdit( props ) {
 	useFormWrapper( props );
 
 	// Initialize fieldVariant for backward compatibility with existing Name field blocks.
-	useEffect( () => {
-		if ( fieldVariant ) {
-			return;
-		}
-
-		let variant = NAME_ID;
-		if ( isFirstNameVariationId( id ) ) {
-			variant = FIRST_NAME_ID;
-		} else if ( isLastNameVariationId( id ) ) {
-			variant = LAST_NAME_ID;
-		}
-
-		setAttributes( { fieldVariant: variant } );
-	}, [ fieldVariant, id, setAttributes ] );
+	useFieldVariantDefault( { id, fieldVariant, setAttributes } );
 
 	// Update HTML IDs and labels when transforming between variations.
 	useNameFieldTransforms( { clientId, fieldVariant } );
