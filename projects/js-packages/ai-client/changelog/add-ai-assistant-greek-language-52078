@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+AI Client: Add Greek (`el`) to `LANGUAGE_MAP`.

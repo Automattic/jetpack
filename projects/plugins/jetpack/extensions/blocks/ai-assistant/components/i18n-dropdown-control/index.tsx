@@ -31,6 +31,7 @@ const LANGUAGE_LIST = [
 	'ar',
 	'hi',
 	'ko',
+	'el',
 	// more languages here...
 ] as const;
 

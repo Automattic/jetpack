@@ -41,6 +41,9 @@ export const LANGUAGE_MAP = {
 	ko: {
 		label: __( 'Korean', 'jetpack-ai-client' ),
 	},
+	el: {
+		label: __( 'Greek', 'jetpack-ai-client' ),
+	},
 };
 export const PROMPT_TONES_MAP = {
 	formal: {
