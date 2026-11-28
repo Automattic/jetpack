@@ -20,7 +20,7 @@ interface Props {
  * @return The footer.
  */
 function BlazePluginFooter() {
-	return <JetpackFooter name="Blaze Ads" showLogo={ false } />;
+	return <JetpackFooter name="Blaze Ads" />;
 }
 
 /**

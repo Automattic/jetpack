@@ -7,10 +7,7 @@ export default defineConfig( makeBaseConfig( import.meta.url ), {
 		'src/dashboard/data/**',
 		'src/dashboard/lib/**',
 		'src/dashboard/components/**',
-		'src/dashboard/app/pages/**',
 		'src/dashboard/compat/components/**',
-		'src/dashboard/compat/automattic-components/**',
-		'src/dashboard/compat/search/**',
 	],
 	rules: {
 		'jsdoc/require-description': 'off',

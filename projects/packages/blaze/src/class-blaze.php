@@ -148,36 +148,34 @@ class Blaze {
 		$parent_slug     = self::get_menu_parent();
 		$blaze_dashboard = new Blaze_Dashboard( 'admin.php', $menu_slug, $menu['css_prefix'] );
 
-		if ( self::is_dashboard_enabled() || ( new Host() )->is_wpcom_platform() ) {
-			if ( 'jetpack' === $parent_slug ) {
-				// Register through Admin_Menu: on WordPress.com Simple sites the Jetpack
-				// parent menu does not exist yet at this priority, and registering the
-				// submenu before its parent produces a broken menu URL.
-				$page_suffix = Admin_Menu::add_menu(
-					esc_attr( $menu_label ),
-					$menu_label,
-					'manage_options',
-					$menu_slug,
-					array( $blaze_dashboard, 'render' ),
-					null,
-					// Not $menu_slug: that is filterable, and a host naming it would lose
-					// the item the moment anything changed it.
-					array( 'key' => 'jetpack-blaze' )
-				);
-			} else {
-				// Other parents already exist at this priority, so add_submenu_page is safe.
-				$page_suffix = add_submenu_page(
-					$parent_slug,
-					esc_attr( $menu_label ),
-					$menu_label,
-					'manage_options',
-					$menu_slug,
-					array( $blaze_dashboard, 'render' ),
-					1
-				);
-			}
-			add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );
+		if ( 'jetpack' === $parent_slug ) {
+			// Register through Admin_Menu: on WordPress.com Simple sites the Jetpack
+			// parent menu does not exist yet at this priority, and registering the
+			// submenu before its parent produces a broken menu URL.
+			$page_suffix = Admin_Menu::add_menu(
+				esc_attr( $menu_label ),
+				$menu_label,
+				'manage_options',
+				$menu_slug,
+				array( $blaze_dashboard, 'render' ),
+				null,
+				// Not $menu_slug: that is filterable, and a host naming it would lose
+				// the item the moment anything changed it.
+				array( 'key' => 'jetpack-blaze' )
+			);
+		} else {
+			// Other parents already exist at this priority, so add_submenu_page is safe.
+			$page_suffix = add_submenu_page(
+				$parent_slug,
+				esc_attr( $menu_label ),
+				$menu_label,
+				'manage_options',
+				$menu_slug,
+				array( $blaze_dashboard, 'render' ),
+				1
+			);
 		}
+		add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );
 	}
 
 	/**
@@ -187,6 +185,10 @@ class Blaze {
 	 */
 	private static function get_dashboard_menu() {
 		if ( ! self::should_initialize()['can_init'] ) {
+			return null;
+		}
+
+		if ( ! self::is_dashboard_enabled() && ! ( new Host() )->is_wpcom_platform() ) {
 			return null;
 		}
 
@@ -247,13 +249,8 @@ class Blaze {
 	 * @return array
 	 */
 	public static function add_admin_shell_member( $members ) {
-		$host = new Host();
 		// Simple sites build their Jetpack menu in jetpack-mu-wpcom, outside the shell.
-		if ( $host->is_wpcom_simple() || 'jetpack' !== self::get_menu_parent() ) {
-			return $members;
-		}
-
-		if ( ! self::is_dashboard_enabled() && ! $host->is_wpcom_platform() ) {
+		if ( ( new Host() )->is_wpcom_simple() || 'jetpack' !== self::get_menu_parent() ) {
 			return $members;
 		}
 

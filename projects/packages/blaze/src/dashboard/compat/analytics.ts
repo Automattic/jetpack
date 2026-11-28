@@ -1,11 +1,26 @@
 /**
  * Tracks helpers replacing Calypso's analytics actions and middleware; "actions" are thunks run by `useDispatch()`.
  */
-import jetpackAnalytics from '@automattic/jetpack-analytics';
 import config from './config';
 
 type Props = Record< string, unknown >;
 export type AnalyticsAction = () => void;
+
+declare global {
+	interface Window {
+		_tkq?: unknown[][];
+	}
+}
+
+/**
+ * Push a command to the Tracks queue from `jp-tracks`; `@automattic/jetpack-analytics` drops `calypso_*` events.
+ *
+ * @param command - Tracks command and arguments.
+ */
+function tkq( ...command: unknown[] ) {
+	window._tkq = window._tkq || [];
+	window._tkq.push( command );
+}
 
 let identified = false;
 
@@ -19,7 +34,7 @@ function identify() {
 	identified = true;
 	const user = config( 'initial_state' )?.currentUser?.user;
 	if ( user?.ID && user?.username && user.username !== 'no-user' ) {
-		jetpackAnalytics.initialize( user.ID, user.username, { blog_id: config( 'blog_id' ) } );
+		tkq( 'identifyUser', user.ID, user.username );
 	}
 }
 
@@ -31,7 +46,7 @@ function identify() {
  */
 export function recordTracksEventNow( name: string, props: Props = {} ) {
 	identify();
-	jetpackAnalytics.tracks.recordEvent( name, { blog_id: config( 'blog_id' ), ...props } );
+	tkq( 'recordEvent', name, { blog_id: config( 'blog_id' ), ...props } );
 }
 
 /**

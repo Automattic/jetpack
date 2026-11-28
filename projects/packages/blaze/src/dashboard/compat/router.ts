@@ -52,9 +52,17 @@ function read( previousPath: string | null ): RouteState {
 }
 
 /**
- * Re-read the hash and notify subscribers.
+ * Re-read the URL and hash and notify subscribers.
  */
 function sync() {
+	active = isOwnPage();
+	update();
+}
+
+/**
+ * Notify subscribers when the route or `active` changed.
+ */
+function update() {
 	let next: RouteState;
 	if ( ! active ) {
 		// Hidden by the admin shell: keep the last route so the app stays as it was.
@@ -73,24 +81,23 @@ function sync() {
 }
 
 /**
- * Follow the admin shell showing and hiding this dashboard.
+ * Hide on the shell's `page-hidden` for this page, which fires before the shell writes the next URL.
  *
  * @param event - Shell event.
  */
-function onShellPage( event: Event ) {
-	const { page: slug } = ( event as CustomEvent< { page?: string } > ).detail || {};
-	if ( slug !== config( 'menu_slug' ) ) {
-		return;
+function onShellPageHidden( event: Event ) {
+	if ( ( event as CustomEvent< { page?: string } > ).detail?.page === config( 'menu_slug' ) ) {
+		active = false;
+		update();
 	}
-	active = event.type === 'jetpack-admin-shell:page-shown';
-	sync();
 }
 
+// The shell's events aren't paired (a switch can skip `page-shown`), so every other event re-reads the URL.
 if ( typeof window !== 'undefined' ) {
 	window.addEventListener( 'hashchange', sync );
 	window.addEventListener( 'popstate', sync );
-	window.addEventListener( 'jetpack-admin-shell:page-shown', onShellPage );
-	window.addEventListener( 'jetpack-admin-shell:page-hidden', onShellPage );
+	window.addEventListener( 'jetpack-admin-shell:page-shown', sync );
+	window.addEventListener( 'jetpack-admin-shell:page-hidden', onShellPageHidden );
 }
 
 /**

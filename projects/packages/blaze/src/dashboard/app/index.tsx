@@ -4,45 +4,16 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useEffect, useMemo, type MouseEvent } from 'react';
 import config from '../compat/config';
-import page, { matchPath, useRoute } from '../compat/router';
+import page, { getRouteState, matchPath, useRoute } from '../compat/router';
 import { getAdvertisingDashboardPath } from '../promote-post-i2/utils';
-import { fixPath, getRoutes, getSetupRedirect, type RouteResult } from './routes';
+import { fixPath, getRoutes, type RouteResult } from './routes';
 import '../promote-post-i2/style.scss';
 import './app.scss';
 
-const queryClient = new QueryClient();
-
-const GRIDICONS_SPRITE =
-	'https://widgets.wp.com/blaze-dashboard/common/gridicons-506499ddac13811fee8e.svg';
-const SPRITE_ID = 'jetpack-blaze-gridicons-sprite';
-
-/**
- * Inject the gridicons sprite the remote DSP widget's icons point at, once.
- */
-function useGridiconsSprite() {
-	useEffect( () => {
-		if ( document.getElementById( SPRITE_ID ) ) {
-			return;
-		}
-		window
-			.fetch( GRIDICONS_SPRITE )
-			.then( response => ( response.ok ? response.text() : '' ) )
-			.then( svg => {
-				if ( ! svg || document.getElementById( SPRITE_ID ) ) {
-					return;
-				}
-				const doc = new window.DOMParser().parseFromString( svg, 'image/svg+xml' );
-				const sprite = doc.documentElement;
-				if ( sprite.nodeName.toLowerCase() !== 'svg' ) {
-					return;
-				}
-				sprite.setAttribute( 'id', SPRITE_ID );
-				sprite.style.display = 'none';
-				document.body.prepend( document.importNode( sprite, true ) );
-			} )
-			.catch( () => {} );
-	}, [] );
-}
+// The admin shell keeps the dashboard mounted while it shows another page; don't refetch for it then.
+const queryClient = new QueryClient( {
+	defaultOptions: { queries: { refetchOnWindowFocus: () => getRouteState().active } },
+} );
 
 /**
  * Resolve the current path to an element or a redirect.
@@ -59,10 +30,6 @@ function resolve( pathname: string, query: Record< string, string > ): RouteResu
 	const fixed = fixPath( pathname );
 	if ( fixed !== pathname ) {
 		return { redirect: fixed };
-	}
-	const setupRedirect = getSetupRedirect( pathname );
-	if ( setupRedirect ) {
-		return { redirect: setupRedirect };
 	}
 	for ( const route of getRoutes() ) {
 		const params = matchPath( route.pattern, pathname );
@@ -108,8 +75,6 @@ export default function BlazeDashboard() {
 	const { pathname, query, active } = useRoute();
 	const result = useMemo( () => resolve( pathname, query ), [ pathname, query ] );
 	const redirect = active && 'redirect' in result ? result.redirect : null;
-
-	useGridiconsSprite();
 
 	useEffect( () => {
 		if ( redirect ) {

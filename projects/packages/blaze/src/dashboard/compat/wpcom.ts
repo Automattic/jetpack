@@ -13,7 +13,7 @@ type Params = {
 
 type Query = Record< string, unknown > | undefined;
 
-export type WPError = Error & Record< string, unknown > & { statusCode?: number };
+type WPError = Error & Record< string, unknown > & { statusCode?: number };
 
 /**
  * Turn a failed response body into an Error carrying the body's fields, as `wp-error` did.

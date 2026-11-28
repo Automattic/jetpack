@@ -98,28 +98,6 @@ export function hexToRgb( hex: string ) {
 }
 
 /**
- * Split a URL into parts, as `@automattic/calypso-url`.
- *
- * @param url - URL.
- * @return URL parts.
- */
-export function getUrlParts( url: string ) {
-	const parsed = new URL( url, 'http://__domain__.invalid' );
-	const isRelative = parsed.hostname === '__domain__.invalid';
-	return {
-		protocol: isRelative ? '' : parsed.protocol,
-		host: isRelative ? '' : parsed.host,
-		hostname: isRelative ? '' : parsed.hostname,
-		port: isRelative ? '' : parsed.port,
-		origin: isRelative ? '' : parsed.origin,
-		pathname: parsed.pathname,
-		hash: parsed.hash,
-		search: parsed.search,
-		searchParams: parsed.searchParams,
-	};
-}
-
-/**
  * Pass an external image through Photon so it is served over HTTPS, as `@automattic/calypso-url`.
  *
  * @param url - Image URL.

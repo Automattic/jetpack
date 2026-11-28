@@ -4,9 +4,7 @@ import { getDSPOrigin, useDspOriginProps } from '../../../lib/promote-post';
 interface Props {
 	path: string;
 	title: string;
-	delay?: number;
 	properties?: Record< string, unknown >;
-	options?: Record< string, unknown >;
 }
 
 /**

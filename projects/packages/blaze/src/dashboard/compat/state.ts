@@ -1,9 +1,8 @@
 /**
  * Read-only stand-in for the Calypso Redux store: the dashboard only ever held the boot-time site and user.
  */
-import { useSyncExternalStore } from 'react';
 import config from './config';
-import { getRouteState, subscribe, type RouteState } from './router';
+import { useRoute, type RouteState } from './router';
 import { versionCompare } from './utils';
 import type { AnalyticsAction } from './analytics';
 
@@ -88,28 +87,9 @@ export const getSiteAdminUrl = ( _state?: unknown, _siteId?: unknown ) =>
 	getSiteOption( null, null, 'admin_url' );
 export const isAtomicSite = ( _state?: unknown, _siteId?: unknown ) =>
 	!! getSiteOption( null, null, 'is_wpcom_atomic' );
+export const isJetpackSite = ( _state?: unknown, _siteId?: unknown ) =>
+	!! getSelectedSite()?.jetpack;
 /* eslint-enable @typescript-eslint/no-unused-vars */
-
-/**
- * Whether the site is a Jetpack site.
- *
- * @param _state                           - Unused.
- * @param _siteId                          - Unused.
- * @param options                          - Options.
- * @param options.treatAtomicAsJetpackSite - Whether Atomic counts as Jetpack.
- * @return Whether it is.
- */
-export function isJetpackSite(
-	_state?: unknown,
-	_siteId?: unknown,
-	{ treatAtomicAsJetpackSite = true } = {}
-): boolean {
-	const selected = getSelectedSite();
-	if ( ! selected?.jetpack ) {
-		return false;
-	}
-	return treatAtomicAsJetpackSite || ! isAtomicSite();
-}
 
 export const isJetpackMinimumVersion = ( _state: unknown, _siteId: unknown, version: string ) => {
 	const current = getSiteOption( null, null, 'jetpack_version' );
@@ -122,11 +102,8 @@ export const isJetpackModuleActive = ( _state: unknown, _siteId: unknown, slug: 
 };
 
 export const getCurrentUser = () => config( 'initial_state' )?.currentUser?.user ?? null;
-export const getCurrentUserId = () => getCurrentUser()?.ID ?? null;
-export const getCurrentQueryArguments = ( state?: AppState ) =>
-	( state?.route ?? getRouteState() ).query;
-export const getPreviousRoute = ( state?: AppState ) =>
-	( state?.route ?? getRouteState() ).previousPath ?? '';
+export const getCurrentQueryArguments = ( state: AppState ) => state.route.query;
+export const getPreviousRoute = ( state: AppState ) => state.route.previousPath ?? '';
 
 /**
  * `useSelector` over the static site and user plus the live route.
@@ -135,8 +112,7 @@ export const getPreviousRoute = ( state?: AppState ) =>
  * @return Selected value.
  */
 export function useSelector< T >( selector: ( state: AppState ) => T ): T {
-	const route = useSyncExternalStore( subscribe, getRouteState, getRouteState );
-	return selector( { route } );
+	return selector( { route: useRoute() } );
 }
 
 /**

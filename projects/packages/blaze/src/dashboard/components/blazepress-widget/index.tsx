@@ -6,6 +6,7 @@ import { AlertDialog, Link, Spinner } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useEffect, useRef, useState } from 'react';
 import { BlankCanvas } from '../../compat/components/blank-canvas';
+import { useGridiconsSprite } from '../../compat/gridicons';
 import { useRouteModal } from '../../compat/route-modal';
 import page from '../../compat/router';
 import {
@@ -17,7 +18,7 @@ import {
 	getSelectedSiteSlug,
 } from '../../compat/state';
 import { useTranslate } from '../../compat/translate';
-import { getUrlParts, useLocale, useLocalizeUrl } from '../../compat/utils';
+import { useLocale, useLocalizeUrl } from '../../compat/utils';
 import {
 	showDSP,
 	usePromoteWidget,
@@ -41,7 +42,7 @@ export type BlazePressPromotionProps = {
  *
  */
 export function goToOriginalEndpoint() {
-	const { pathname } = getUrlParts( window.location.href );
+	const { pathname } = window.location;
 	const index = pathname.indexOf( '/promote/' );
 	page( index < 0 ? pathname : pathname.replace( /\/promote\/.*?\//, '/' ) );
 }
@@ -51,6 +52,7 @@ const BlazePressWidget = ( props: BlazePressPromotionProps ) => {
 	const [ isLoading, setIsLoading ] = useState( true );
 	const [ error, setError ] = useState( false );
 	const [ showCancelDialog, setShowCancelDialog ] = useState( false );
+	useGridiconsSprite();
 	const [ showCancelButton, setShowCancelButton ] = useState( true );
 	const [ hiddenHeader, setHiddenHeader ] = useState( true );
 	const widgetContainer = useRef< HTMLDivElement >( null );

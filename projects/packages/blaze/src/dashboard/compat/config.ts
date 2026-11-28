@@ -48,7 +48,6 @@ function getData(): ConfigData {
 			is_running_in_jetpack_site: raw.features?.is_running_in_jetpack_site ?? true,
 			is_running_in_blaze_plugin: isBlazePlugin,
 			is_running_in_woo_site: isWooStore,
-			blaze_setup_mode: !! raw.need_setup,
 		},
 	};
 

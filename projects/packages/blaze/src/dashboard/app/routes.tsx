@@ -8,7 +8,6 @@ import BlazePressWidget from '../components/blazepress-widget';
 import CampaignItemPage from '../promote-post-i2/components/campaign-item-page';
 import PromotedPosts, { TAB_OPTIONS, type TabType } from '../promote-post-i2/main';
 import { getAdvertisingDashboardPath, getWidgetParams } from '../promote-post-i2/utils';
-import BlazeSetup from './pages/setup/main';
 
 type Params = Record< string, string >;
 type Query = Record< string, string >;
@@ -20,7 +19,7 @@ type Route = {
 	render: ( params: Params, query: Query ) => RouteResult;
 };
 
-const P = ( path: string ) => getAdvertisingDashboardPath( path );
+const P = getAdvertisingDashboardPath;
 
 const promotedPosts = ( { tab, receiptId }: Params ): RouteResult => ( {
 	// Viewing a receipt forces the payments tab.
@@ -55,10 +54,6 @@ const promoteWidget = ( { item }: Params, query: Query ): RouteResult => {
  */
 export function getRoutes(): Route[] {
 	return [
-		{
-			pattern: P( '/setup/:site' ),
-			render: () => ( { element: <BlazeSetup setupInfo={ config( 'need_setup' ) } /> } ),
-		},
 		{ pattern: P( '/:site' ), render: promotedPosts },
 		{
 			pattern: P( '/:tab/:site' ),
@@ -89,25 +84,6 @@ export function getRoutes(): Route[] {
 			} ),
 		},
 	];
-}
-
-/**
- * Apply the setup-mode redirects from `routes.js`.
- *
- * @param pathname - Current path.
- * @return Redirect target, or null.
- */
-export function getSetupRedirect( pathname: string ): string | null {
-	const setupPath = P( '/setup/' );
-	const inSetup = pathname.includes( setupPath );
-	const setupMode = config.isEnabled( 'blaze_setup_mode' );
-	if ( inSetup && ! setupMode ) {
-		return P( `/${ config( 'hostname' ) }` );
-	}
-	if ( ! inSetup && setupMode ) {
-		return P( `/setup/${ config( 'hostname' ) }` );
-	}
-	return null;
 }
 
 /**
