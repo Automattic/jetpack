@@ -493,9 +493,7 @@ const { state, actions } = store( NAMESPACE, {
 
 		get getErrorList() {
 			const errors = [];
-			if ( state.isFormEmpty ) {
-				return errors;
-			}
+			// Also runs on a blank form: `showErrors` keeps the list empty until a submit attempt.
 			const context = getContext();
 			if ( context.showErrors ) {
 				Object.values( context.fields ).forEach( field => {
