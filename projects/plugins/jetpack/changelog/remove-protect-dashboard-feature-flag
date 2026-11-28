@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Protect: Remove the `jetpack-protect-dashboard` feature flag now that the Protect page is on by default.

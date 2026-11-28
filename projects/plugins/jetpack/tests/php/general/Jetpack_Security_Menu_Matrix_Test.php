@@ -40,9 +40,6 @@ class Jetpack_Security_Menu_Matrix_Test extends WP_UnitTestCase {
 		Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
 		Jetpack_Options::update_option( 'user_tokens', array( $user_id => "honey.badger.$user_id" ) );
 
-		// The Protect page is being built behind this flag, which is removed when it ships.
-		add_filter( 'jetpack_feature_flag_enabled_jetpack-protect-dashboard', '__return_true' );
-
 		// The wpcomsh run loads jetpack-mu-wpcom, which would drop the module, since the test site's plan has no Scan.
 		remove_filter( 'jetpack_get_available_modules', array( 'Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Scan', 'filter_available_modules' ) );
 	}

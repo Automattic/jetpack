@@ -1,6 +1,6 @@
 <?php
 /**
- * Protect dashboard feature flag tests.
+ * Protect dashboard module availability tests.
  *
  * @package automattic/jetpack
  */
@@ -29,40 +29,34 @@ class Jetpack_Protect_Dashboard_Feature_Flags_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Drop the flag filter and constants. The flag itself is registered by the plugin bootstrap, so no reset.
+	 * Drop the constants.
 	 */
 	public function tear_down() {
-		remove_all_filters( 'jetpack_feature_flag_enabled_' . Jetpack_Protect_Dashboard_Feature_Flags::DASHBOARD );
 		Constants::clear_constants();
 		Cache::clear();
 		parent::tear_down();
 	}
 
 	/**
-	 * The flag filter's value (null to leave the default), the constants to set, and whether the module should be available.
+	 * The constants to set, and whether the module should be available.
 	 *
 	 * @return array[]
 	 */
 	public static function provide_sites() {
 		return array(
-			'flag left at its default'        => array( null, array(), true ),
-			'flag turned off'                 => array( false, array(), false ),
-			'flag on, Jetpack Protect active' => array( null, array( 'JETPACK_PROTECT_VERSION' => '6.1.0' ), false ),
+			'without the Jetpack Protect plugin' => array( array(), true ),
+			'with the Jetpack Protect plugin'    => array( array( 'JETPACK_PROTECT_VERSION' => '6.1.0' ), false ),
 		);
 	}
 
 	/**
 	 * @dataProvider provide_sites
 	 *
-	 * @param bool|null $flag      The flag filter's value, or null to leave the default.
-	 * @param array     $constants Constants to set.
-	 * @param bool      $available Whether the module should be available.
+	 * @param array $constants Constants to set.
+	 * @param bool  $available Whether the module should be available.
 	 */
 	#[DataProvider( 'provide_sites' )]
-	public function test_module_is_available_only_where_the_page_can_load( $flag, $constants, $available ) {
-		if ( null !== $flag ) {
-			add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Protect_Dashboard_Feature_Flags::DASHBOARD, $flag ? '__return_true' : '__return_false' );
-		}
+	public function test_module_is_available_only_where_the_page_can_load( $constants, $available ) {
 		foreach ( $constants as $name => $value ) {
 			Constants::set_constant( $name, $value );
 		}
@@ -72,7 +66,7 @@ class Jetpack_Protect_Dashboard_Feature_Flags_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The version a site upgrades from (false for a new connection), the constants to set, whether the module turns on, and the flag filter's value.
+	 * The version a site upgrades from (false for a new connection), the constants to set, and whether the module turns on.
 	 *
 	 * @return array[]
 	 */
@@ -84,7 +78,6 @@ class Jetpack_Protect_Dashboard_Feature_Flags_Test extends WP_UnitTestCase {
 			'Jetpack Protect plugin active'    => array( false, array( 'JETPACK_PROTECT_VERSION' => '6.1.0' ), true ),
 			'upgrade with Jetpack Protect'     => array( '16.3.1', array( 'JETPACK_PROTECT_VERSION' => '6.1.0' ), true ),
 			'upgrade past it, Jetpack Protect' => array( '16.4-a.4', array( 'JETPACK_PROTECT_VERSION' => '6.1.0' ), false ),
-			'flag off, Jetpack Protect'        => array( false, array( 'JETPACK_PROTECT_VERSION' => '6.1.0' ), false, false ),
 		);
 	}
 
@@ -97,13 +90,9 @@ class Jetpack_Protect_Dashboard_Feature_Flags_Test extends WP_UnitTestCase {
 	 * @param string|false $from      The version upgraded from, or false for a new connection.
 	 * @param array        $constants Constants to set.
 	 * @param bool         $activates Whether the module should be a default.
-	 * @param bool|null    $flag      The flag filter's value, or null to leave the default.
 	 */
 	#[DataProvider( 'provide_activations' )]
-	public function test_module_turns_on_by_default( $from, $constants, $activates, $flag = null ) {
-		if ( null !== $flag ) {
-			add_filter( 'jetpack_feature_flag_enabled_' . Jetpack_Protect_Dashboard_Feature_Flags::DASHBOARD, $flag ? '__return_true' : '__return_false' );
-		}
+	public function test_module_turns_on_by_default( $from, $constants, $activates ) {
 		foreach ( $constants as $name => $value ) {
 			Constants::set_constant( $name, $value );
 		}
