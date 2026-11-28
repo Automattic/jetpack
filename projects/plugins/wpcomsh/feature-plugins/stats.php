@@ -47,6 +47,20 @@ function wpcomsh_retire_classic_stats( $enabled, $name ) {
 add_filter( 'jetpack_feature_flag_enabled', 'wpcomsh_retire_classic_stats', 5, 2 );
 
 /**
+ * Turns on WooCommerce Stats, which Jetpack ships off, so Atomic stores keep the WooCommerce tab in Stats.
+ *
+ * Priority 5 for the same reason as the classic Stats retirement above.
+ *
+ * @param bool   $enabled Whether the flag is enabled.
+ * @param string $name    Feature flag name.
+ * @return bool
+ */
+function wpcomsh_enable_woocommerce_stats( $enabled, $name ) {
+	return 'jetpack-woocommerce-stats' === $name ? true : $enabled;
+}
+add_filter( 'jetpack_feature_flag_enabled', 'wpcomsh_enable_woocommerce_stats', 5, 2 );
+
+/**
  * Turns on WooCommerce Analytics proxy tracking while Stats v2 runs.
  *
  * Asked when the filter is read rather than at file scope, because Jetpack loads after wpcomsh.
